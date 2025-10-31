@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>PCMA Mobile V3.1</title>
+<title>PCMA Mobile V3.2</title>
 
 <link rel="icon" type="image/png" sizes="32x32" href="https://i.ibb.co/RRJpHk2/PCMA-logo-1.png">
 <link rel="apple-touch-icon" sizes="180x180" href="https://i.ibb.co/RRJpHk2/PCMA-logo-1.png">
@@ -836,16 +836,21 @@ grid.addEventListener('click', (e)=>{
 
 /* ===== NEW: image helpers + FLOATING gallery ===== */
 function collectImageUrls(row){
-  const list=[];
-  for(let i=1;i<=10;i++){
-    const ci=headers.findIndex(h=>h.includes(`image ${i}`));
-    if(ci>=0 && row[ci]){
-      const url = String(row[ci]).trim();
-      if(url) list.push({label:`Image ${i}`, url});
+  const list = [];
+  for (let i = 1; i <= 60; i++){
+    const ci = headers.findIndex(h => {
+      const hh = String(h || '').toLowerCase();
+      // match "image 11" or "image11"
+      return hh.includes(`image ${i}`) || hh === `image${i}`;
+    });
+    if (ci >= 0) {
+      const url = String(row[ci] || '').trim();
+      if (url) list.push({ label: `Image ${i}`, url });
     }
   }
   return list;
 }
+
 
 function openFloatingGallery(row){
   const imgs = collectImageUrls(row);
