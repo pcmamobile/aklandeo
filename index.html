@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>PCMA Mobile V3.2</title>
+<title>PCMA Mobile V3.1</title>
 
 <link rel="icon" type="image/png" sizes="32x32" href="https://i.ibb.co/RRJpHk2/PCMA-logo-1.png">
 <link rel="apple-touch-icon" sizes="180x180" href="https://i.ibb.co/RRJpHk2/PCMA-logo-1.png">
@@ -11,10 +11,18 @@
 <meta name="theme-color" content="#2563eb" />
 
 <style>
-  body{font-family:"Segoe UI",Arial,sans-serif;margin:0;background:#f4f6f8;color:#111;}
+  :root{
+    --brand:#2563eb;
+    --brand-dark:#1e40af;
+    --bg:#f4f6f8;
+    --card:#ffffff;
+    --text:#0f172a;
+  }
+  body{font-family:"Segoe UI",Arial,sans-serif;margin:0;background:var(--bg);color:var(--text);}
 
+  /* ===== DESKTOP HEADER (HIDDEN ON MOBILE / APP) ===== */
   header{
-    background:linear-gradient(135deg,#2563eb,#1e40af);
+    background:linear-gradient(135deg,var(--brand),var(--brand-dark));
     color:white;padding:12px 16px;border-bottom:3px solid #1e3a8a;
     position:sticky;top:0;z-index:200;
   }
@@ -22,70 +30,72 @@
   .brand{display:flex;align-items:center;gap:12px;}
   .header-logo{height:70px;width:auto;border-radius:10px;box-shadow:0 3px 6px rgba(0,0,0,0.25);} 
   .header-title{margin:0;font-size:1.8rem;font-weight:700;letter-spacing:.5px;}
-  .filter-toggle-btn{
-    background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.6);color:#fff;
-    font-weight:800;padding:8px 12px;border-radius:10px;cursor:pointer;transition:background .15s ease,transform .05s ease;
-  }
-  .filter-toggle-btn:hover{background:rgba(255,255,255,.28);} 
-  .filter-toggle-btn:active{transform:scale(.98);} 
 
-  /* Filters (fade/collapse) */
+  /* ===== ALWAYS VISIBLE QUICK SEARCH ===== */
+  .search-top{
+    max-width:1100px;margin:10px auto 6px;
+    display:flex;gap:10px;align-items:center;
+    padding:0 6px;
+  }
+  .search-toggle{
+    background:var(--brand);border:none;color:#fff;font-weight:800;
+    padding:9px 16px;border-radius:10px;cursor:pointer;
+    white-space:nowrap;
+  }
+  .search-box-wrap{flex:1;position:relative;}
+  #quickSearch{
+    width:100%;padding:11px 12px;
+    border-radius:10px;border:2px solid #cbd5e1;background:#fff;
+    font-size:1rem;outline:none;
+  }
+  #quickSearch:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(37,99,235,.15);}
+  .search-hint{
+    font-size:.7rem;color:#64748b;margin-left:2px;
+  }
+
+  /* ===== ADVANCED FILTERS DROPDOWN ===== */
   #filters{
-    display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-    gap:12px;margin:12px auto;padding:14px;background:#fff;border-radius:12px;
-    box-shadow:0 2px 6px rgba(0,0,0,0.06);border:1px solid #e5e7eb;max-width:1100px;overflow:hidden;
-    transition:opacity .25s ease, max-height .25s ease, margin .25s ease, padding .25s ease, border-width .25s ease, transform .22s ease;
-    opacity:1;max-height:1000px;
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+    gap:12px;margin:0 auto 6px;padding:14px;background:#fff;border-radius:12px;
+    box-shadow:0 2px 6px rgba(0,0,0,0.06);border:1px solid #e5e7eb;max-width:1100px;
+    transition:opacity .25s ease, max-height .25s ease, margin .25s ease, padding .25s ease, border-width .25s ease;
+    opacity:1;max-height:600px;
   }
-  #filters.filters-hidden{opacity:0;max-height:0;margin:0 auto;padding:0 14px;border-width:0;pointer-events:none;}
-
-  /* Labels & fields */
+  #filters.filters-hidden{
+    opacity:0;max-height:0;margin:0 auto;padding:0 14px;border-width:0;pointer-events:none;
+  }
   #filters label{display:flex;flex-direction:column;gap:6px;font-size:.9rem;color:#0f172a;font-weight:700;}
-  #filters input,#filters select{
+  #filters select{
     font-size:1rem;padding:10px 12px;border-radius:10px;border:2px solid #cbd5e1;background:#f8fafc;
-    outline:none;transition:border-color .15s ease,box-shadow .15s ease; width:100%;
-    box-sizing:border-box;
+    outline:none;transition:border-color .15s ease,box-shadow .15s ease; width:100%; box-sizing:border-box;
   }
-  #filters input:focus,#filters select:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.15);} 
+  #filters select:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(37,99,235,.15);} 
   #applyFilter{
-    background:#2563eb;color:#fff;padding:14px 20px;font-size:1rem;border-radius:10px;width:100%;
-    align-self:end;border:none;cursor:pointer;font-weight:800;letter-spacing:.2px;
+    background:var(--brand);color:#fff;padding:14px 20px;font-size:1rem;border-radius:10px;width:100%;
+    align-self:end;border:none;cursor:pointer;font-weight:800;
   }
-  #applyFilter:hover{background:#1e40af;} 
-  #applyFilter.busy{opacity:.7;cursor:wait;}
+  #applyFilter:hover{background:var(--brand-dark);}
   #clearFilter{background:#e5e7eb;color:#111;padding:14px 20px;font-size:1rem;border:none;border-radius:10px;font-weight:800;}
   #clearFilter:hover{background:#d1d5db;}
-
-  /* Input with icon */
-  .input-icon-wrap{position:relative;display:block;}
-  .input-icon-wrap input{padding-left:12px;padding-right:42px;width:100%;}
-  .input-icon{position:absolute;right:12px;top:50%;transform:translateY(-50%);width:20px;height:20px;opacity:.75;pointer-events:none;}
-
-  /* Make filters mobile-friendly: ensure Search button is visible (inline mode) */
-  @media (max-width: 600px){
-    #filters{max-height:70vh;overflow:auto;padding-bottom:72px;}
-    #applyFilter{position:sticky;bottom:0;box-shadow:0 -2px 8px rgba(0,0,0,.08);} 
-  }
 
   main{max-width:1100px;margin:10px auto;padding:5px;}
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:10px;}
   #resultInfo{max-width:1100px;margin:4px auto 10px auto;padding:0 6px;color:#334155;font-weight:800;}
 
-  /* Cards */
+  /* ===== CARDS ===== */
   .card{background:#fff;border-radius:12px;box-shadow:0 3px 8px rgba(0,0,0,.1);cursor:pointer;transition:transform .15s,box-shadow .15s;overflow:hidden;display:flex;align-items:center;gap:12px;padding:10px;}
   .card:hover{transform:scale(1.01);box-shadow:0 6px 12px rgba(0,0,0,.15);} 
   .card-thumb{width:80px;height:80px;object-fit:cover;border-radius:10px;background:#eee;flex:0 0 auto;}
   .card-content{padding:4px 2px;flex:1;}
   .status{font-weight:700;margin-top:4px;padding:2px 10px;border-radius:999px;display:inline-block;color:#fff;}
   .contract-id{font-size:1.2rem;font-weight:900;color:#8b0000;letter-spacing:.2px;}
-  .engineer-name{color:#2563eb;font-weight:700;}
+  .engineer-name{color:var(--brand);font-weight:700;}
   mark{background:#fef08a;padding:0 .15em;border-radius:.2em;}
 
-  /* Modal */
+  /* ===== MODAL ===== */
   #modalBg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);justify-content:center;align-items:center;z-index:200;}
   #modalBg.show{display:flex;}
   #modalBox{background:#fff;border-radius:16px;padding:0;max-width:90%;max-height:90%;overflow-y:auto;display:flex;flex-direction:column;gap:0;}
-
   .modal-top{
     position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:8px;
     background:#f97316;color:#fff;padding:10px 14px;border-bottom:1px solid rgba(0,0,0,.08);box-shadow:0 2px 4px rgba(0,0,0,.08);
@@ -99,16 +109,32 @@
   #modalContent{display:flex;flex-direction:column;gap:6px;padding:14px;}
   #modalButtons{padding:0 14px 14px;}
   #modalImages{padding:0 14px 12px 14px;}
+
   .detail-row{display:flex;justify-content:space-between;flex-wrap:wrap;padding:6px 0;border-bottom:1px solid #eee;}
   .detail-label{font-size:.85rem;color:#475569;font-weight:700;}
   .detail-value{font-weight:800;color:#111;margin-left:8px;padding:2px 10px;border-radius:999px;background:#f3f4f6;}
-  .detail-value.status-badge{color:#fff;background:#2563eb;}
+  .detail-value.status-badge{color:#fff;background:var(--brand);}
+
+  .detail-row.compact{display:flex;flex-direction:row;align-items:center;gap:8px;padding:4px 6px;}
+  .detail-row.compact .detail-label{min-width:48px;text-align:center;background:#e2e8f0;border-radius:999px;padding:2px 8px;margin-right:0;font-weight:900;}
+  .detail-row.compact .detail-value{background:transparent;padding:0;margin-left:0;font-weight:800;line-height:1.2;}
+  .detail-row.emph-orange{background:#ffedd5;border-radius:10px;padding:8px;border-bottom:none;}
+  .detail-row.emph-orange .detail-label{color:#7c2d12;}
+  .detail-row.emph-orange .detail-value{background:transparent;}
 
   .detail-value.project-engineer{background:#bfdbfe;color:#1e3a8a;}
   .detail-value.project-inspector{background:#c7d2fe;color:#3730a3;}
   .detail-value.resident-engineer{background:#bbf7d0;color:#166534;}
   .detail-value.quantity-engineer{background:#fbcfe8;color:#831843;}
   .detail-value.materials-engineer{background:#fed7aa;color:#78350f;}
+
+  /* pair grid (contractor section) */
+  .pair-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;}
+  .pair-box{display:flex;flex-direction:column;justify-content:center;align-items:flex-start;background:#e0f2fe;border:1px solid #bfdbfe;border-radius:10px;padding:10px;min-height:40px;}
+  .pair-label{font-size:.75rem;color:#475569;font-weight:700;margin-bottom:4px;}
+  .pair-value{font-weight:900;color:#0f172a;}
+  .pair-value.neg{color:#dc2626;}
+  .pair-box.span-2{grid-column:1/-1;}
 
   .progress-wrap{margin-top:12px;}
   .progress-label{font-weight:800;color:#0f172a;margin-bottom:6px;font-size:1.05rem;text-align:center;}
@@ -132,107 +158,16 @@
   .center-box{position:relative;width:160px;height:160px;background:transparent;border-radius:16px;display:flex;align-items:center;justify-content:center;padding:18px;}
   .progress-svg{width:120px;height:120px;transform:rotate(-90deg);} 
   .progress-bg{stroke:#e5e7eb;stroke-width:10;fill:none;}
-  .progress-circle{stroke:#2563eb;stroke-width:10;fill:none;stroke-linecap:round;transition:stroke-dashoffset .06s linear;}
+  .progress-circle{stroke:var(--brand);stroke-width:10;fill:none;stroke-linecap:round;transition:stroke-dashoffset .06s linear;}
   .center-label{position:absolute;font-weight:900;color:#0f172a;font-size:1.2rem;}
-
-  .particle-star{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(0deg) scale(1);opacity:1;pointer-events:none;animation:star-pop 900ms ease-out forwards;filter: drop-shadow(0 0 6px var(--glow)) drop-shadow(0 0 14px var(--glow));}
-  @keyframes star-pop{to{transform:translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) rotate(var(--rot,720deg)) scale(.85);opacity:0;}}
 
   .hidden{display:none!important;}
 
-  @media(max-width:600px){.header-title{font-size:1.4rem}.header-logo{height:60px}}
-
-  #filters .input-icon-wrap input{padding-left:12px;padding-right:42px;}
-  #filters .input-icon{left:auto;right:12px;}
-  #filters .filter-combo{justify-self:start;}
-  #filters .filter-combo .input-icon-wrap{max-width:380px;width:100%;}
-
-  #modalBox{width:min(980px,96svw);max-height:calc(100svh - 24px);overflow:auto;}
-  #modalImages img.modal-img{width:100%;height:auto;max-height:70svh;object-fit:contain;}
-
-  @media (max-width: 480px){
-    .detail-row{flex-direction:column;align-items:flex-start;gap:4px;}
-  }
-  @media (max-width: 768px){
-    #modalBox{width:100svw;height:100svh;max-height:100svh;border-radius:0;}
-    #modalContent,#modalButtons,#modalImages{padding:12px;}
-    .modal-top{padding-top:calc(env(safe-area-inset-top,0) + 10px);} 
-    #modalImages img.modal-img{max-height:64svh;}
-  }
-
-  body.no-scroll{overflow:hidden;touch-action:none;}
-
-  #modalBox{width:min(980px,100vw);height:min(92svh,92vh);overflow:hidden;display:flex;flex-direction:column;}
-  #modalBody{flex:1 1 auto;overflow:auto;}
-  @media (max-width:768px){
-    #modalBox{width:100vw;height:100svh;border-radius:0;}
-  }
-  #modalBox{max-width:none !important;max-height:none !important;box-sizing:border-box;}
-  #modalImages img.modal-img{display:block;width:100%;max-width:100%;height:auto;}
-  @media (max-width:768px){
-    #modalBg{align-items:stretch;justify-content:stretch;}
-    #modalBox{width:100svw !important;height:100svh !important;max-width:100svh !important;max-height:100svh !important;border-radius:0;margin:0;}
-  }
-
-  .pair-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;}
-  .pair-box{display:flex;flex-direction:column;justify-content:center;align-items:flex-start;background:#e0f2fe;border:1px solid #bfdbfe;border-radius:10px;padding:10px;min-height:40px;}
-  .pair-label{display:block;font-size:.8rem;color:#475569;font-weight:700;margin-bottom:4px;}
-  .pair-value{display:block;font-weight:900;color:#0f172a;}
-  .pair-value.neg{color:#dc2626;}
-  .pair-box.span-2{grid-column:1/-1;}
-
-  .center-row{justify-content:center !important;flex-direction:column !important;align-items:center !important;text-align:center;}
-  .center-row .detail-label{width:100%;text-align:center;}
-  .center-row .detail-value{margin-left:0;}
-
-  .detail-row.compact{display:flex;flex-direction:row;align-items:center;justify-content:flex-start;gap:8px;padding:4px 6px;}
-  .detail-row.compact .detail-label{min-width:48px;text-align:center;background:#e2e8f0;border-radius:999px;padding:2px 8px;margin-right:8px;font-weight:900;}
-  .detail-row.compact .detail-value{background:transparent;padding:0;}
-  .detail-row.compact{display:flex;flex-direction:row;align-items:center;gap:8px;padding:4px 6px;}
-  .detail-row.compact .detail-label{min-width:36px;text-align:center;background:#e2e8f0;border-radius:999px;padding:2px 8px;margin-right:0;font-weight:900;line-height:1.1;}
-  .detail-row.compact .detail-value{background:transparent;padding:0;margin-left:0;font-weight:800;line-height:1.2;}
-
-  .detail-row.emph-orange{background:#ffedd5;border-radius:10px;padding:8px;border-bottom:none;}
-  .detail-row.emph-orange .detail-label{color:#7c2d12;}
-  .detail-row.emph-orange .detail-value{background:transparent;}
-
-  /* PC overlap fix for the combo filter */
-  #filters input,#filters select{box-sizing:border-box;}
-  @media (min-width:1024px){
-    #filters .input-icon-wrap input#filterCombo{padding-right:64px!important;}
-    #filters .input-icon{right:16px;}
-  }
-  @media (min-width:1280px){
-    #filters .filter-combo .input-icon-wrap{max-width:520px;}
-  }
-
-  /* Floating Search panel & backdrop (activated by body.filters-open) */
-  body.filters-open::before{
-    content:""; position:fixed; inset:0;
-    background:rgba(15,23,42,.35); backdrop-filter:blur(1.5px);
-    z-index:140;
-  }
-  body.filters-open #filters{
-    position:fixed; top:50%; left:50%; transform:translate(-50%, -50%);
-    width:min(92vw,860px); max-height:min(78vh,640px); overflow:auto;
-    z-index:150; box-shadow:0 16px 40px rgba(0,0,0,.25);
-    margin:0; border-width:1px; opacity:1; pointer-events:auto;
-  }
-  @media (max-width:768px){
-    body.filters-open #filters{
-      top:auto; left:0; right:0; bottom:0;
-      transform:none; width:100vw; max-width:100vw; max-height:80vh;
-      border-radius:12px 12px 0 0;
-    }
-  }
-
-  /* ========================= */
-  /* LIGHTBOX / FLOATING GALLERY*/
-  /* ========================= */
+  /* ===== GALLERY ===== */
   .gallery-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(2px);display:none;align-items:center;justify-content:center;z-index:300;}
   .gallery-overlay.show{display:flex;}
   .gallery-box{background:#0b1220;color:#e5e7eb;width:min(100svw,1100px);height:min(100svh,92svh);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 16px 48px rgba(0,0,0,.45);}
-  .gallery-top{display:flex;align-items:center;gap:10px;justify-content:space-between;padding:10px 14px;background:linear-gradient(135deg,#2563eb,#1e40af);border-bottom:3px solid #1e3a8a;}
+  .gallery-top{display:flex;align-items:center;gap:10px;justify-content:space-between;padding:10px 14px;background:linear-gradient(135deg,var(--brand),var(--brand-dark));border-bottom:3px solid #1e3a8a;}
   .gallery-title{font-weight:900;letter-spacing:.4px;}
   .gallery-actions{display:flex;align-items:center;gap:8px;}
   .gallery-btn{background:#fff;color:#1e40af;border:none;border-radius:8px;padding:6px 12px;font-weight:900;cursor:pointer;}
@@ -251,101 +186,47 @@
   .thumb{width:80px;height:60px;object-fit:cover;border-radius:8px;border:2px solid transparent;opacity:.8;cursor:pointer;background:#111827;}
   .thumb.active{border-color:#86efac;opacity:1;}
 
-  /* ===== Projector Mode styles ===== */
+  /* ===== PRESENTOR MODE (kept) ===== */
   .present-overlay{position:fixed;inset:0;background:#070b16;display:none;align-items:center;justify-content:center;z-index:5000;}
   .present-overlay.show{display:flex;}
   .present-box{width:min(100svw,1280px);height:min(100svh,96svh);background:linear-gradient(180deg,#0b1220 0%,#0b1220 55%,#0a0f1c 100%);border:1px solid #1f2a44;border-radius:18px;overflow:hidden;box-shadow:0 30px 100px rgba(0,0,0,.6);display:grid;grid-template-rows:auto 1fr auto;}
-  .present-top{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;background:linear-gradient(135deg,#2563eb,#1e40af);border-bottom:4px solid #1e3a8a;}
+  .present-top{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;background:linear-gradient(135deg,var(--brand),var(--brand-dark));border-bottom:4px solid #1e3a8a;}
   .present-cid{font-size:2rem;font-weight:900;color:#fff}
   .present-actions{display:flex;gap:10px}
   .present-btn{background:#fff;color:#1e40af;border:none;border-radius:10px;padding:10px 14px;font-weight:900;cursor:pointer}
   .present-content{display:grid;grid-template-columns:1.15fr .85fr;gap:16px;padding:16px;overflow:hidden}
   @media(max-width:980px){.present-content{grid-template-columns:1fr}}
-  .present-left{position:relative;background:#0f172a;border:1px solid #1f2a44;border-radius:12px;overflow:hidden}
-  .present-slide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .4s ease}
-  .present-slide.active{opacity:1}
-  .present-slide img{max-width:100%;max-height:100%;object-fit:contain}
-  .present-left .nav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.35);border:none;width:56px;height:56px;border-radius:999px;color:#fff;cursor:pointer;font-size:0;display:flex;align-items:center;justify-content:center}
-  .present-prev{left:10px}.present-next{right:10px}
-  .present-thumbs{position:absolute;left:0;right:0;bottom:0;background:rgba(7,11,22,.82);padding:8px;display:flex;gap:8px;overflow:auto;border-top:1px solid #1f2a44}
-  .present-thumb{width:100px;height:70px;object-fit:cover;border-radius:8px;border:2px solid transparent;opacity:.8;cursor:pointer;background:#111827;flex:0 0 auto}
-  .present-thumb.active{opacity:1;border-color:#86efac}
-  .present-right{display:flex;flex-direction:column;gap:12px}
-  .present-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  .present-cell{background:#0f172a;border:1px solid #1f2a44;border-radius:12px;padding:14px}
-  .present-cell.span-2{grid-column:1/-1}
-  .present-title{font-size:.8rem;color:#93c5fd;font-weight:800;margin-bottom:6px;letter-spacing:.08em;text-transform:uppercase}
-  .present-value{font-size:1.2rem;color:#e5e7eb;font-weight:800;line-height:1.35}
-  .present-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-  .present-cell-small{background:#0f172a;border:1px dashed #1f2a44;border-radius:12px;padding:12px}
-  .present-remarks{white-space:pre-wrap;line-height:1.45;color:#e9efff}
-  .status-chip{display:inline-block;padding:6px 12px;border-radius:999px;font-weight:900;color:#fff}
 
-  /* === MOBILE OVERRIDE: fit floating filter bottom-sheet, scroll internally === */
+  /* ===== MOBILE ===== */
   @media (max-width: 768px){
-    body.filters-open #filters{
-      position: fixed;
-      left: 0; right: 0; bottom: 0; top: auto;
-      transform: none;
-      width: 100vw; max-width: 100vw;
-      max-height: calc(100svh - 24px);
-      overflow: auto; -webkit-overflow-scrolling: touch;
-      padding: 14px 14px 88px;
-      border-radius: 12px 12px 0 0;
-      z-index: 150;
+    /* hide header on mobile */
+    header{display:none;}
+
+    .search-top{
+      flex-wrap:wrap;
+      padding:0 0;
+      max-width:100vw;
     }
-    /* keep Search button visible while scrolling */
-    #applyFilter{
-      position: sticky;
-      bottom: 0;
-      box-shadow: 0 -2px 8px rgba(0,0,0,.08);
-      margin-top: 8px;
+    .search-toggle{
+      width:100%;
+      margin:0 0 6px 0;
+    }
+    .search-box-wrap{
+      width:100%;
+    }
+    #quickSearch{
+      width:100%;
+      border-radius:12px;
+    }
+    #filters{
+      max-width:100vw;
     }
   }
-/* --- Fix overlay width on mobile (no overflow) --- */
-@media (max-width: 768px){
-  body.filters-open #filters{
-    position: fixed !important;
-    top: auto !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    transform: none !important;
 
-    /* fit width exactly to the visual viewport */
-    width: 100svw !important;         /* modern mobile units */
-    max-width: 100svw !important;
-    /* fallback for older iOS if needed */
-    width: -webkit-fill-available;
-
-    margin: 0 !important;
-    box-sizing: border-box !important;
-    border-radius: 12px 12px 0 0 !important;
-
-    /* internal scroll, no page scroll */
-    max-height: calc(100svh - 24px) !important;
-    overflow: auto !important;
-    -webkit-overflow-scrolling: touch;
-
-    /* safe-area aware padding */
-    padding-left: max(14px, env(safe-area-inset-left)) !important;
-    padding-right: max(14px, env(safe-area-inset-right)) !important;
-    padding-top: 14px !important;
-    padding-bottom: 88px !important; /* room for sticky Search */
-    z-index: 150 !important;
+  /* hide header when installed as PWA/app */
+  @media (display-mode: standalone){
+    header{display:none;}
   }
-
-  /* single column on small screens to avoid horizontal scroll */
-  #filters{ grid-template-columns: 1fr !important; }
-
-  /* keep Search button visible while scrolling the panel */
-  #applyFilter{
-    position: sticky !important;
-    bottom: 0 !important;
-    box-shadow: 0 -2px 8px rgba(0,0,0,.08);
-    margin-top: 8px;
-  }
-}
 
 </style>
 </head>
@@ -357,29 +238,27 @@
       <img src="https://drive.google.com/thumbnail?id=1VanVX82ANGfKA8jcGZL8cVDQh4EuN8-r&sz=s800" alt="PCMA Logo" class="header-logo" decoding="async"/>
       <h2 class="header-title">PCMA Mobile V3.1</h2>
     </div>
-    <button id="toggleFilters" class="filter-toggle-btn" title="Show/Hide Search">Hide Search</button>
   </div>
 </header>
 
+<!-- QUICK SEARCH -->
+<div class="search-top">
+  <button id="openFilters" class="search-toggle">Filters</button>
+  <div class="search-box-wrap">
+    <!-- EMPTY placeholder as you wanted -->
+    <input type="text" id="quickSearch" placeholder="" autocomplete="off" />
+    <div class="search-hint">Type to search CID / Project / Location / All engineers / Contractor / Status / Year</div>
+  </div>
+</div>
+
 <main>
-  <div id="filters">
-    <!-- Sequence per request -->
+  <!-- ADVANCED FILTERS -->
+  <div id="filters" class="filters-hidden">
     <label>YEAR <select id="filterYear"><option value="">All</option></select></label>
     <label>PROJECT ENGINEER <select id="filterEngineer"><option value="">All</option></select></label>
     <label>CONTRACTOR <select id="filterContractor"><option value="">All</option></select></label>
     <label>STATUS <select id="filterStatus"><option value="">All</option></select></label>
-
-    <!-- CID / PROJECT / LOCATION moved to the end -->
-    <label class="filter-combo">CID / PROJECT / LOCATION
-      <span class="input-icon-wrap">
-        <svg class="input-icon" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M21 21l-4.3-4.3M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15z" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <input type="text" id="filterCombo" />
-      </span>
-    </label>
-
-    <button id="applyFilter">Search</button>
+    <button id="applyFilter">Apply</button>
     <button id="clearFilter" type="button" title="Reset filters">Clear</button>
   </div>
 
@@ -388,7 +267,7 @@
   <div id="loader" class="hidden"></div>
 </main>
 
-<!-- Modal -->
+<!-- MODAL -->
 <div id="modalBg" role="dialog" aria-modal="true" aria-labelledby="modalCID">
   <div id="modalBox">
     <div class="modal-top">
@@ -422,9 +301,7 @@
   </div>
 </div>
 
-<!-- ========================= -->
-<!-- FLOATING GALLERY OVERLAY  -->
-<!-- ========================= -->
+<!-- GALLERY -->
 <div id="galleryOverlay" class="gallery-overlay" role="dialog" aria-modal="true" aria-labelledby="galleryCID">
   <div class="gallery-box" id="galleryBox">
     <div class="gallery-top">
@@ -461,18 +338,16 @@ const LOGO_FALLBACK="https://i.ibb.co/RRJpHk2/PCMA-logo-1.png";
 
 /* ===== ELEMENTS ===== */
 const grid=document.getElementById('grid');
-const loader=document.getElementById('loader');
 const resultInfo=document.getElementById('resultInfo');
 const filtersBox=document.getElementById('filters');
-const toggleFiltersBtn=document.getElementById('toggleFilters');
-
-const filterCombo=document.getElementById('filterCombo');
+const openFiltersBtn=document.getElementById('openFilters');
 const filterYear=document.getElementById('filterYear');
 const filterStatus=document.getElementById('filterStatus');
 const filterContractor=document.getElementById('filterContractor');
 const filterEngineer=document.getElementById('filterEngineer');
 const applyFilterBtn=document.getElementById('applyFilter');
 const clearFilterBtn=document.getElementById('clearFilter');
+const quickSearch=document.getElementById('quickSearch');
 
 const modalBg=document.getElementById('modalBg');
 const modalContent=document.getElementById('modalContent');
@@ -481,13 +356,6 @@ const modalImages=document.getElementById('modalImages');
 const closeModalTop=document.getElementById('closeModalTop');
 const modalCID=document.getElementById('modalCID');
 
-/* Center progress overlay elements */
-const centerOverlay=document.getElementById('centerOverlay');
-const centerBox=document.querySelector('.center-box');
-const progressCircle=document.getElementById('progressCircle');
-const centerLabel=document.getElementById('centerLabel');
-
-/* Gallery elements */
 const galleryOverlay = document.getElementById('galleryOverlay');
 const galleryCID = document.getElementById('galleryCID');
 const galleryImg = document.getElementById('galleryImg');
@@ -499,13 +367,22 @@ const galleryOpenLink = document.getElementById('galleryOpen');
 const galleryCloseBtn = document.getElementById('galleryClose');
 const galleryMain = document.getElementById('galleryMain');
 
-/* ===== STATE ===== */
-let headers=[],records=[]; let lastRenderedRows=[];
-let galleryItems=[]; let galleryIndex=0; let activeCID='—';
+let headers=[],records=[]; 
+let lastRenderedRows=[];
+let galleryItems=[]; 
+let galleryIndex=0; 
+let activeCID='—';
 
-/* ===== HELPERS ===== */
-function isValidUrl(u){ try{ const x=new URL(u); return x.protocol==='http:'||x.protocol==='https:'; }catch{return false;} }
-
+/* ===== helpers ===== */
+function esc(s){
+  return String(s).replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
+}
+function highlightText(text,query){
+  const t=String(text||''); if(!query) return esc(t);
+  const q=query.toLowerCase(); const i=t.toLowerCase().indexOf(q);
+  if(i===-1) return esc(t);
+  return esc(t.slice(0,i))+"<mark>"+esc(t.slice(i,i+q.length))+"</mark>"+esc(t.slice(i+q.length));
+}
 function toPct(val,fallback=0){
   if(val==null) return fallback;
   const m=String(val).replace(',', '.').match(/-?\d+(\.\d+)?/);
@@ -530,74 +407,13 @@ function colorForSlippage(num){
   if(num<=-10) return {bg:'#dc2626',text:'#fff',sad:true};
   return {bg:'#6b7280',text:'#fff',sad:false};
 }
-function esc(s){
-  return String(s).replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",
-">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
-}
-function highlight(text,query){
-  const t=String(text||''); if(!query) return esc(t);
-  const q=query.toLowerCase(); const i=t.toLowerCase().indexOf(q);
-  if(i===-1) return esc(t);
-  return esc(t.slice(0,i))+"<mark>"+esc(t.slice(i,i+q.length))+"</mark>"+esc(t.slice(i+q.length));
-}
 function parseMoney(v){ if(v==null) return null; const s=String(v).replace(/[^0-9.\-]/g,''); const n=parseFloat(s); return Number.isFinite(n)?n:null; }
 function fmtPHP(n){ try{ return '₱ ' + Number(n).toLocaleString('en-PH',{minimumFractionDigits:2, maximumFractionDigits:2}); }catch{ return '₱ ' + n; } }
 function findCol(){ const keys=[...arguments].map(k=>String(k).toLowerCase()); return headers.findIndex(h=> keys.some(k=> h.includes(k))); }
+function isValidUrl(u){ try{ const x=new URL(u); return x.protocol==='http:'||x.protocol==='https:'; }catch{return false;} }
+function nonEmptyRows(arr){ return (arr||[]).filter(r => Array.isArray(r) && r.join('').trim() !== ''); }
 
-/* Glowing star explosion */
-function explodeStars(n=28){
-  const colors=['#ffd700','#f97316','#60a5fa','#22c55e','#ef4444','#a855f7'];
-  for(let i=0;i<n;i++){
-    const star=document.createElement('div');
-    star.className='particle-star';
-    star.textContent='★';
-    const angle=(Math.PI*2)*(i/n)+(Math.random()*0.3-0.15);
-    const radius=90+Math.random()*40;
-    const dx=Math.cos(angle)*radius+'px';
-    const dy=Math.sin(angle)*radius+'px';
-    const rot=(360+Math.random()*540)+'deg';
-    const col=colors[i%colors.length];
-    star.style.setProperty('--dx',dx);star.style.setProperty('--dy',dy);star.style.setProperty('--rot',rot);star.style.setProperty('--glow',col);
-    star.style.fontSize=(14+Math.random()*16)+'px';
-    star.style.color=col;
-    centerBox.appendChild(star);
-    setTimeout(()=>star.remove(),950);
-  }
-}
-
-/* 1s center progress with star burst at the end */
-function startCenterProgress(duration=1000){
-  return new Promise((resolve)=>{
-    centerOverlay.classList.add('show');
-
-    const r = parseFloat(progressCircle.getAttribute('r')) || 54;
-    const C = 2 * Math.PI * r;
-    progressCircle.style.strokeDasharray = C;
-    progressCircle.style.strokeDashoffset = C;
-
-    const start = performance.now();
-    function tick(now){
-      const t = Math.min(1, (now - start) / duration);
-      const pct = Math.round(t * 100);
-      centerLabel.textContent = pct + '%';
-      progressCircle.style.strokeDashoffset = C * (1 - t);
-      if(t < 1){
-        requestAnimationFrame(tick);
-      }else{
-        explodeStars();
-        setTimeout(()=>{
-          centerOverlay.classList.remove('show');
-          progressCircle.style.strokeDashoffset = C;
-          centerLabel.textContent = '0%';
-          resolve();
-        }, 900);
-      }
-    }
-    requestAnimationFrame(tick);
-  });
-}
-
-/* ===== DATA (Auto-detect header row) ===== */
+/* ===== data load ===== */
 async function loadData(){
   const url=`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`;
   try{
@@ -617,17 +433,20 @@ async function loadData(){
     records = data.values.slice(headerRowIndex+1);
 
     populateFilterOptions();
-    restoreFilterState();
+
+    // show all right away
+    const clean = nonEmptyRows(records);
+    renderGrid(clean);
+    resultInfo.textContent = `${clean.length} projects`;
+    resultInfo.classList.remove('hidden');
   }catch(e){
     console.error(e);
     grid.classList.remove('hidden');
-    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:20px;color:#b91c1c;">
-      Failed to load data. Please check API key / Sheet ID / Range.
-    </div>`;
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:20px;color:#b91c1c;">Failed to load data.</div>`;
   }
 }
 
-/* ===== FILTERS ===== */
+/* ===== filters ===== */
 function populateFilterOptions(){
   const years=new Set(),contractors=new Set(),engineers=new Set(),statuses=new Set();
   const colYear=headers.findIndex(h=>h.includes('year'));
@@ -646,116 +465,75 @@ function populateFilterOptions(){
   filterStatus.innerHTML='<option value="">All</option>'+[...statuses].sort().map(s=>`<option value="${s}">${s}</option>`).join('');
 }
 
-/* Toggle Search panel (inline <-> floating) */
 function toggleFilters(force){
   const isHidden = filtersBox.classList.contains('filters-hidden');
   const shouldHide = (force === undefined) ? !isHidden : force;
-
   if(shouldHide){
     filtersBox.classList.add('filters-hidden');
-    document.body.classList.remove('filters-open', 'no-scroll');
-    toggleFiltersBtn.textContent='Show Search';
-    toggleFiltersBtn.title='Show Search';
   }else{
     filtersBox.classList.remove('filters-hidden');
-    document.body.classList.add('filters-open', 'no-scroll');
-    toggleFiltersBtn.textContent='Hide Search';
-    toggleFiltersBtn.title='Hide Search';
   }
 }
+openFiltersBtn.addEventListener('click',()=>toggleFilters());
 
-function saveFilterState(){
-  const state={
-    combo:filterCombo.value||'',
-    year:filterYear.value||'',
-    status:filterStatus.value||'',
-    contractor:filterContractor.value||'',
-    engineer:filterEngineer.value||''
-  };
-  localStorage.setItem('pcma_filters', JSON.stringify(state));
-}
-function restoreFilterState(){
-  try{
-    const raw=localStorage.getItem('pcma_filters'); if(!raw) return;
-    const s=JSON.parse(raw);
-    filterCombo.value=s.combo||''; filterYear.value=s.year||''; filterStatus.value=s.status||''; filterContractor.value=s.contractor||''; filterEngineer.value=s.engineer||'';
-  }catch{ /* ignore */ }
-}
-function clearFilters(){
-  filterCombo.value=''; filterYear.value=''; filterStatus.value=''; filterContractor.value=''; filterEngineer.value='';
-  localStorage.removeItem('pcma_filters');
-  resultInfo.classList.add('hidden');
-  grid.classList.add('hidden');
-}
-/* New: clear inputs only (do NOT hide results) */
-function clearFilterInputsOnly(){
-  filterCombo.value=''; filterYear.value=''; filterStatus.value=''; filterContractor.value=''; filterEngineer.value='';
-  localStorage.removeItem('pcma_filters');
-}
+/* ===== quick search ===== */
+function runQuickSearch(){
+  const q = (quickSearch.value||'').trim().toLowerCase();
+  const base = nonEmptyRows(records);
 
-async function applyFilters(){
-  // Hide popup after clicking Search
-  toggleFilters(true);
-  applyFilterBtn.disabled=true; applyFilterBtn.classList.add('busy');
-
-  // Read current filters
-  const combo=(filterCombo.value||'').toLowerCase().trim();
   const y=(filterYear.value||'').toLowerCase();
   const s=(filterStatus.value||'').toLowerCase();
   const c=(filterContractor.value||'').toLowerCase();
   const e=(filterEngineer.value||'').toLowerCase();
 
-  // Column indexes
-  const ccid = headers.findIndex(h=>h.includes('contract id'));
-  const cp   = headers.findIndex(h=>h.includes('project name'));
-  const cl   = headers.findIndex(h=>h.includes('location'));
-  const cy   = headers.findIndex(h=>h.includes('year'));
-  const cs   = headers.findIndex(h=>h.includes('status'));
-  const cc   = headers.findIndex(h=>h.includes('contractor'));
-  const ce   = headers.findIndex(h=>h.includes('project engineer'));
+  const colCID=headers.findIndex(h=>h.includes('contract id'));
+  const colPN=headers.findIndex(h=>h.includes('project name'));
+  const colLoc=headers.findIndex(h=>h.includes('location'));
+  const colPE=headers.findIndex(h=>h.includes('project engineer'));
+  const colPI=headers.findIndex(h=>h.includes('project inspector'));
+  const colRE=headers.findIndex(h=>h.includes('resident engineer'));
+  const colQE=headers.findIndex(h=>h.includes('quantity engineer'));
+  const colME=headers.findIndex(h=>h.includes('materials engineer'));
+  const colCont=headers.findIndex(h=>h.includes('contractor'));
+  const colStat=headers.findIndex(h=>h.includes('status'));
+  const colYear=headers.findIndex(h=>h.includes('year'));
 
-  const filtered=records.filter(r=>{
-    const matchCombo = !combo || (
-      (ccid>=0 && String(r[ccid]||'').toLowerCase().includes(combo)) ||
-      (cp  >=0 && String(r[cp]  ||'').toLowerCase().includes(combo)) ||
-      (cl  >=0 && String(r[cl]  ||'').toLowerCase().includes(combo))
-    );
-    const matchYear = (!y || (cy>=0 && String(r[cy]||'').toLowerCase()===y));
-    const matchStat = (!s || (cs>=0 && String(r[cs]||'').toLowerCase()===s));
-    const matchCont = (!c || (cc>=0 && String(r[cc]||'').toLowerCase()===c));
-    const matchEng  = (!e || (ce>=0 && String(r[ce]||'').toLowerCase()===e));
-    return matchCombo && matchYear && matchStat && matchCont && matchEng;
+  const filtered = base.filter(r=>{
+    const byYear = (!y || (colYear>-1 && String(r[colYear]||'').toLowerCase()===y));
+    const byStat = (!s || (colStat>-1 && String(r[colStat]||'').toLowerCase()===s));
+    const byCont = (!c || (colCont>-1 && String(r[colCont]||'').toLowerCase()===c));
+    const byEng  = (!e || (colPE>-1 && String(r[colPE]||'').toLowerCase()===e));
+    if(!(byYear && byStat && byCont && byEng)) return false;
+
+    if(!q) return true;
+    const fields = [
+      colCID>-1 ? r[colCID] : '',
+      colPN>-1 ? r[colPN] : '',
+      colLoc>-1 ? r[colLoc] : '',
+      colPE>-1 ? r[colPE] : '',
+      colPI>-1 ? r[colPI] : '',
+      colRE>-1 ? r[colRE] : '',
+      colQE>-1 ? r[colQE] : '',
+      colME>-1 ? r[colME] : '',
+      colCont>-1 ? r[colCont] : '',
+      colStat>-1 ? r[colStat] : '',
+      colYear>-1 ? r[colYear] : ''
+    ];
+    return fields.some(v => String(v||'').toLowerCase().includes(q));
   });
 
-  await startCenterProgress(1000);
-
-  grid.classList.remove('hidden');
-  renderGrid(filtered.length?filtered:[]);
-  resultInfo.textContent = `${filtered.length} result${filtered.length!==1?'s':''}`;
+  renderGrid(filtered);
+  resultInfo.textContent = `${filtered.length} project${filtered.length!==1?'s':''}`;
   resultInfo.classList.remove('hidden');
-
-  // Always clear the filters AFTER searching (but keep results visible)
-  clearFilterInputsOnly();
-
-  applyFilterBtn.disabled=false; applyFilterBtn.classList.remove('busy');
 }
-
-/* Enter to search via text input */
-filterCombo.addEventListener('keydown',e=>{ if(e.key==='Enter') applyFilters(); });
-[filterYear,filterStatus,filterContractor,filterEngineer].forEach(sel=>sel.addEventListener('change',()=>saveFilterState()));
-toggleFiltersBtn.addEventListener('click',()=>toggleFilters());
-applyFilterBtn.addEventListener('click',applyFilters);
-clearFilterBtn.addEventListener('click',clearFilters);
-
-/* Close floating Search when clicking outside or pressing ESC */
-document.addEventListener('click',(e)=>{
-  if(!document.body.classList.contains('filters-open')) return;
-  const insideFilters = e.target.closest('#filters');
-  const onToggleBtn   = e.target.closest('#toggleFilters');
-  if(!insideFilters && !onToggleBtn) toggleFilters(true);
-});
-document.addEventListener('keydown',(e)=>{
-  if(e.key==='Escape' && document.body.classList.contains('filters-open')) toggleFilters(true);
+quickSearch.addEventListener('input', runQuickSearch);
+applyFilterBtn.addEventListener('click', ()=>{ runQuickSearch(); toggleFilters(true); });
+clearFilterBtn.addEventListener('click', ()=>{
+  filterYear.value='';
+  filterStatus.value='';
+  filterContractor.value='';
+  filterEngineer.value='';
+  runQuickSearch();
 });
 
 /* ===== GRID ===== */
@@ -770,10 +548,12 @@ function renderGrid(rows){
   const colImage1=headers.findIndex(h=>h.includes('image 1'));
 
   if(rows.length===0){
+    grid.classList.remove('hidden');
     grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:20px;color:#777;">No data found.</div>`;
     return;
   }
 
+  grid.classList.remove('hidden');
   rows.forEach((r,idx)=>{
     if(!r || !r.join('').trim()) return;
 
@@ -791,22 +571,22 @@ function renderGrid(rows){
 
     const headerRow=document.createElement('div');
     headerRow.style.display='flex'; headerRow.style.justifyContent='space-between'; headerRow.style.alignItems='baseline';
-    const comboQ=(filterCombo.value||'').trim().toLowerCase();
-    const cidHtml = highlight((colContractID>=0 && r[colContractID])?r[colContractID]:'' , comboQ);
-    const engHtml = esc((colEngineer>=0 && r[colEngineer])?r[colEngineer]:'');
-    headerRow.innerHTML = `<span class="contract-id">${cidHtml}</span><span class="engineer-name">${engHtml}</span>`;
+    const q=(quickSearch.value||'').trim().toLowerCase();
+    const cidText=(colContractID>=0 && r[colContractID])?r[colContractID]:'';
+    const engText=(colEngineer>=0 && r[colEngineer])?r[colEngineer]:'';
+    headerRow.innerHTML = `<span class="contract-id">${highlightText(cidText,q)}</span><span class="engineer-name">${esc(engText)}</span>`;
     content.appendChild(headerRow);
 
     const nameDiv=document.createElement('div');
     nameDiv.style.marginTop='4px';
     const projText=(colProjectName>=0 && r[colProjectName])?r[colProjectName]:'';
-    nameDiv.innerHTML=`<b>Project:</b> ${highlight(projText, comboQ)}`;
+    nameDiv.innerHTML=`<b>Project:</b> ${highlightText(projText,q)}`;
     content.appendChild(nameDiv);
 
     if(colLocation>=0 && r[colLocation]){
       const locDiv=document.createElement('div');
       locDiv.style.marginTop='2px';
-      locDiv.innerHTML=`<b>Location:</b> ${highlight(r[colLocation], comboQ)}`;
+      locDiv.innerHTML=`<b>Location:</b> ${highlightText(r[colLocation],q)}`;
       content.appendChild(locDiv);
     }
 
@@ -826,21 +606,12 @@ function renderGrid(rows){
   });
 }
 
-/* Delegated click fallback */
-grid.addEventListener('click', (e)=>{
-  const card = e.target.closest('.card');
-  if(!card) return;
-  const idx = Number(card.dataset.rowIndex);
-  if(!Number.isNaN(idx) && lastRenderedRows[idx]) showDetail(lastRenderedRows[idx]);
-});
-
-/* ===== NEW: image helpers + FLOATING gallery ===== */
+/* ===== image helpers ===== */
 function collectImageUrls(row){
   const list = [];
   for (let i = 1; i <= 60; i++){
     const ci = headers.findIndex(h => {
       const hh = String(h || '').toLowerCase();
-      // match "image 11" or "image11"
       return hh.includes(`image ${i}`) || hh === `image${i}`;
     });
     if (ci >= 0) {
@@ -851,6 +622,25 @@ function collectImageUrls(row){
   return list;
 }
 
+function showGalleryIndex(idx){
+  if(!galleryItems.length) return;
+  galleryIndex = (idx+galleryItems.length)%galleryItems.length;
+  const item = galleryItems[galleryIndex];
+  galleryImg.style.opacity = '0';
+  const img = new Image();
+  img.onload = ()=>{
+    galleryImg.src = item.url;
+    galleryImg.alt = item.label + ' - ' + activeCID;
+    galleryImg.style.opacity = '1';
+  };
+  img.onerror = ()=>{ galleryImg.src = LOGO_FALLBACK; galleryImg.style.opacity = '1'; };
+  img.src = item.url;
+  galleryOpenLink.href = item.url;
+  galleryCounter.textContent = `${galleryIndex+1} / ${galleryItems.length}`;
+  [...galleryThumbs.children].forEach((el,i)=>el.classList.toggle('active', i===galleryIndex));
+  const activeThumb = galleryThumbs.children[galleryIndex];
+  if(activeThumb){ activeThumb.scrollIntoView({inline:'center',behavior:'smooth',block:'nearest'}); }
+}
 
 function openFloatingGallery(row){
   const imgs = collectImageUrls(row);
@@ -862,8 +652,6 @@ function openFloatingGallery(row){
   activeCID=(cidIdx>=0?row[cidIdx]:'')||'—';
   galleryItems = imgs;
   galleryIndex = 0;
-
-  // Build thumbs
   galleryThumbs.innerHTML = '';
   imgs.forEach((it, i)=>{
     const th = document.createElement('img');
@@ -871,63 +659,21 @@ function openFloatingGallery(row){
     th.addEventListener('click', (ev)=>{ ev.stopPropagation(); showGalleryIndex(i); });
     galleryThumbs.appendChild(th);
   });
-
   galleryCID.textContent = activeCID;
-  showGalleryIndex(0, false);
-
-  // Show overlay
+  showGalleryIndex(0);
   galleryOverlay.classList.add('show');
   document.body.classList.add('no-scroll');
-
-  // Focus for accessibility
-  galleryNext.focus({preventScroll:true});
 }
-
 function closeFloatingGallery(){
   galleryOverlay.classList.remove('show');
   document.body.classList.remove('no-scroll');
 }
-
-function showGalleryIndex(idx, animate=true){
-  if(!galleryItems.length) return;
-  galleryIndex = (idx+galleryItems.length)%galleryItems.length; // wrap
-  const item = galleryItems[galleryIndex];
-  galleryImg.style.opacity = '0';
-  // Preload then swap
-  const img = new Image();
-  img.onload = ()=>{
-    galleryImg.src = item.url;
-    galleryImg.alt = item.label + ' - ' + activeCID;
-    galleryImg.style.opacity = '1';
-  };
-  img.onerror = ()=>{ galleryImg.src = LOGO_FALLBACK; galleryImg.style.opacity = '1'; };
-  img.src = item.url;
-
-  galleryOpenLink.href = item.url;
-  galleryCounter.textContent = `${galleryIndex+1} / ${galleryItems.length}`;
-
-  // Highlight active thumb
-  [...galleryThumbs.children].forEach((el,i)=>{
-    el.classList.toggle('active', i===galleryIndex);
-  });
-
-  // Scroll active thumb into view
-  const activeThumb = galleryThumbs.children[galleryIndex];
-  if(activeThumb){ activeThumb.scrollIntoView({inline:'center',behavior:'smooth',block:'nearest'}); }
-}
-
-// Controls
 galleryPrev.addEventListener('click', (e)=>{ e.stopPropagation(); showGalleryIndex(galleryIndex-1); });
 galleryNext.addEventListener('click', (e)=>{ e.stopPropagation(); showGalleryIndex(galleryIndex+1); });
-
 galleryCloseBtn.addEventListener('click', (e)=>{ e.stopPropagation(); closeFloatingGallery(); });
-
-// Close when clicking outside the gallery box
 galleryOverlay.addEventListener('click', (e)=>{
   if(e.target === galleryOverlay) closeFloatingGallery();
 });
-
-// Keyboard navigation
 window.addEventListener('keydown', (e)=>{
   if(!galleryOverlay.classList.contains('show')) return;
   if(e.key==='Escape') closeFloatingGallery();
@@ -935,29 +681,12 @@ window.addEventListener('keydown', (e)=>{
   else if(e.key==='ArrowLeft') showGalleryIndex(galleryIndex-1);
 });
 
-// Touch swipe navigation
-(function(){
-  let startX=0,startY=0,active=false;
-  galleryMain.addEventListener('touchstart', (e)=>{
-    if(!e.touches.length) return; active=true; startX=e.touches[0].clientX; startY=e.touches[0].clientY;
-  }, {passive:true});
-  galleryMain.addEventListener('touchend', (e)=>{
-    if(!active) return; active=false;
-    const touch = e.changedTouches && e.changedTouches[0]; if(!touch) return;
-    const dx = touch.clientX - startX; const dy = touch.clientY - startY;
-    if(Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)){
-      if(dx < 0) showGalleryIndex(galleryIndex+1); else showGalleryIndex(galleryIndex-1);
-    }
-  });
-})();
-
 /* ===== MODAL ===== */
 function showDetail(row){
   document.body.classList.add('no-scroll');
   modalBg.classList.add('show');
   try{
     modalContent.innerHTML=''; modalButtons.innerHTML=''; modalImages.innerHTML='';
-
     const cidIdx=headers.findIndex(h=>h.includes('contract id'));
     modalCID.textContent=(cidIdx>=0?row[cidIdx]:'')||'—';
 
@@ -979,18 +708,21 @@ function showDetail(row){
     }
 
     headers.forEach((h,i)=>{
-      const raw=(h||'').trim(); const L=raw.replace(/[:]/g,'').toUpperCase(); const V=row[i]||''; if(!V) return;
+      const raw=(h||'').trim(); 
+      const L=raw.replace(/[:]/g,'').toUpperCase(); 
+      const V=row[i]||''; 
+      if(!V) return;
       if(L.startsWith('IMAGE')||L.includes('FOLDER')||L.includes('UPLOAD PICTURES')) return;
       const HIDE_KEYS=['SCHEDULE','ACTUAL','SLIPPAGE','DELAY','PROGRESS','YEAR','CONTRACT ID','ABC','CONTRACT AMOUNT','VARIANCE','CALENDAR DAYS','(CD)','CD','NOTICE TO PROCEED','NTP','EXPIRY DATE','ORIGINAL EXPIRY DATE','REVISED EXPIRY DATE','REV. EXPIRY DATE','REV EXPIRY DATE','DATE OF COMPLETION','COMPLETION DATE','CERTIFICATE OF COMPLETION','CERTIFICATE OF ACCEPTANCE','COC','COA'];
       if(HIDE_KEYS.some(k=>L.includes(k))) return;
 
       const d=document.createElement('div'); d.className='detail-row';
       const SHORT_MAP={'PROJECT ENGINEER':'PE','PROJECT INSPECTOR':'PI','RESIDENT ENGINEER':'RE','QUANTITY ENGINEER':'QE','MATERIALS ENGINEER':'ME'};
-      const ROLE_CLASS_MAP={'PROJECT ENGINEER':'role-pe','PROJECT INSPECTOR':'role-pi','RESIDENT ENGINEER':'role-re','QUANTITY ENGINEER':'role-qe','MATERIALS ENGINEER':'role-me'};
       let displayLabel=L;
-      if(SHORT_MAP[L]){ displayLabel=SHORT_MAP[L]; d.classList.add('compact'); d.classList.add(ROLE_CLASS_MAP[L]); }
+      if(SHORT_MAP[L]){ displayLabel=SHORT_MAP[L]; d.classList.add('compact'); }
       const CENTER_SET=new Set(['PROJECT NAME','LOCATION','CONTRACTOR','REMARKS','LAST BILLING']);
       if(CENTER_SET.has(L)) d.classList.add('center-row');
+
       let chipClass='';
       if(L.includes('PROJECT ENGINEER'))chipClass='project-engineer';
       else if(L.includes('PROJECT INSPECTOR'))chipClass='project-inspector';
@@ -1006,6 +738,7 @@ function showDetail(row){
       }
       modalContent.appendChild(d);
 
+      /* contractor block */
       if(L==='CONTRACTOR'){
         const abcIdx = findCol('abc','approved budget for the contract');
         const amtIdx = findCol('contract amount','amount');
@@ -1031,7 +764,6 @@ function showDetail(row){
         const cocV = cocIdx>-1?row[cocIdx]:'';
         const coaV = coaIdx>-1?row[coaIdx]:'';
 
-        const A = parseMoney(amtV), R = parseMoney(revAmtV), B = parseMoney(abcV);
         const abcText = (parseMoney(abcV)!=null)? fmtPHP(parseMoney(abcV)) : (abcV||'—');
         const amtText = (parseMoney(amtV)!=null)? fmtPHP(parseMoney(amtV)) : (amtV||'—');
         const revAmtText = (parseMoney(revAmtV)!=null)? fmtPHP(parseMoney(revAmtV)) : (revAmtV||'—');
@@ -1054,7 +786,7 @@ function showDetail(row){
         addBox('ABC', abcText);
         addBox('Contract Amount', amtText);
         addBox('Rev. Contract Amount', revAmtText);
-        { const __vIdx = findCol('variance'); const __vRaw = __vIdx>-1?row[__vIdx]:'—'; const __vNeg = (parseMoney(__vRaw)??0) < 0; addBox('Variance', __vRaw||'—', false, __vNeg); }
+        { const __vIdx = findCol('variance'); const __vRaw = __vIdx>-1?row[__vIdx]:'—'; const __vNum = parseMoney(__vRaw); addBox('Variance', __vRaw||'—', false, (__vNum??0) < 0); }
         addBox('CD', cdText);
         addBox('Rev. CD', revCdText);
         addBox('NTP', ntpText);
@@ -1121,39 +853,25 @@ function showDetail(row){
       }
     });
 
-    // Highlight big rows
-    (function(){
-      const orangeSet=new Set(['PROJECT NAME','LOCATION','CONTRACTOR','LAST BILLING','REMARKS']);
-      const rows=[...modalContent.querySelectorAll('.detail-row')];
-      rows.forEach(row=>{
-        const labelEl=row.querySelector('.detail-label');
-        if(!labelEl) return;
-        const raw=(labelEl.textContent||'').replace(':','').trim().toUpperCase();
-        if(orangeSet.has(raw)){
-          row.classList.add('emph-orange');
-          row.classList.add('center-row');
-        }
-      });
-    })();
+    // Upload button (use earlier colUpload!)
     if(colUpload>=0){
       const link = String(row[colUpload]||'').trim();
       if(link && isValidUrl(link)){
         const b=document.createElement('button');
         b.id='uploadBtn'; b.textContent='Upload Picture';
-        // open in new tab (popup removed)
         b.onclick=e=>{ e.stopPropagation(); window.open(link,'_blank','noopener'); };
         modalButtons.appendChild(b);
       }
     }
 
-    // NEW: View Picture button (opens FLOATING gallery)
+    // View picture (floating)
     const viewBtn=document.createElement('button');
     viewBtn.id='viewPictureBtn'; 
     viewBtn.textContent='View Picture';
     viewBtn.onclick=e=>{ e.stopPropagation(); openFloatingGallery(row); };
     modalButtons.appendChild(viewBtn);
 
-    // Projector Mode button (guaranteed)
+    // Projector Mode
     const presentBtn=document.createElement('button');
     presentBtn.id='presentBtn'; presentBtn.textContent='Present (Projector Mode)';
     presentBtn.style.background='#111827'; presentBtn.style.color='#fff';
@@ -1162,7 +880,7 @@ function showDetail(row){
     presentBtn.onclick=(e)=>{ e.stopPropagation(); openPresentation(row); };
     modalButtons.appendChild(presentBtn);
 
-    // If no images
+    // No images message
     const hasAny = collectImageUrls(row).length > 0;
     if(!hasAny){
       const box=document.createElement('div'); 
@@ -1180,32 +898,12 @@ function showDetail(row){
   }
 }
 
-/* ===== EVENTS ===== */
 function closeModal(){ modalBg.classList.remove('show'); document.body.classList.remove('no-scroll'); }
 closeModalTop.addEventListener('click',closeModal);
 modalBg.addEventListener('click',e=>{ if(e.target===modalBg) closeModal(); });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape' && modalBg.classList.contains('show')) closeModal(); });
 
-/* ===== DEV TESTS (non-invasive) ===== */
-(function devTests(){
-  try{
-    console.assert(toPct('45%')===45, 'toPct 45%');
-    console.assert(toPct('-10.5%')===-10.5, 'toPct -10.5%');
-    const _headers=['contract id','image 1','image 2'];
-    const _row=['CID-1','https://example.com/1.jpg',''];
-    const bak=headers.slice(); headers=_headers.slice();
-    const imgs=collectImageUrls(_row); console.assert(imgs.length===1, 'collectImageUrls length 1');
-    headers=bak;
-  }catch(e){ console.warn('Dev tests:', e); }
-})();
-
-/* INIT */
-loadData();
-if('serviceWorker' in navigator){ navigator.serviceWorker.register('service-worker.js').catch(console.error); }
-</script>
-<script>
-/* ===== PRESENTATION POPUP (Projector Mode) — arranged per your spec ===== */
-
+/* ===== PRESENTATION (same logic) ===== */
 (function(){
   if (document.getElementById('presentOverlay')) return;
   const wrap = document.createElement('div');
@@ -1234,16 +932,10 @@ if('serviceWorker' in navigator){ navigator.serviceWorker.register('service-work
         </div>
         <div class="present-right">
           <div class="present-grid">
-            <!-- One Column: Project Name -->
             <div class="present-cell span-2"><div class="present-title">Project Name</div><div id="presentProj" class="present-value">—</div></div>
-            <!-- One Column: Contractor -->
             <div class="present-cell span-2"><div class="present-title">Contractor</div><div id="presentContractor" class="present-value">—</div></div>
-
-            <!-- Two Column: Contract Amount / Rev. Contract Amount -->
             <div class="present-cell"><div class="present-title">Contract Amount</div><div id="presentAmt" class="present-value">—</div></div>
             <div class="present-cell"><div class="present-title">Rev. Contract Amount</div><div id="presentRevAmt" class="present-value">—</div></div>
-
-            <!-- Three Column: NTP / Expiry Date / Rev. Expiry Date -->
             <div class="present-cell span-2">
               <div class="present-grid-3">
                 <div class="present-cell-small"><div class="present-title">NTP</div><div id="presentNTP" class="present-value">—</div></div>
@@ -1251,8 +943,6 @@ if('serviceWorker' in navigator){ navigator.serviceWorker.register('service-work
                 <div class="present-cell-small"><div class="present-title">Rev. Expiry Date</div><div id="presentRevExpiry" class="present-value">—</div></div>
               </div>
             </div>
-
-            <!-- One Column: Schedule / Actual / Slippage -->
             <div class="present-cell span-2">
               <div class="present-title">Schedule / Actual / Slippage</div>
               <div class="mini-bars">
@@ -1261,11 +951,7 @@ if('serviceWorker' in navigator){ navigator.serviceWorker.register('service-work
                 <div class="mini-row"><div class="mini-label">SLIPPAGE</div><div class="mini-bar"><div id="pMiniSlip" class="mini-fill" style="width:0%"></div></div></div>
               </div>
             </div>
-
-            <!-- One Column: Remarks -->
             <div class="present-cell span-2"><div class="present-title">Remarks</div><div id="presentRemarks" class="present-remarks">—</div></div>
-
-            <!-- One Column: Status -->
             <div class="present-cell span-2"><div class="present-title">Status</div><div class="present-value"><span id="presentStatusChip" class="status-chip">—</span></div></div>
           </div>
         </div>
@@ -1278,7 +964,6 @@ if('serviceWorker' in navigator){ navigator.serviceWorker.register('service-work
   `;
   document.body.appendChild(wrap);
 
-  /* Projector script */
   const overlay=document.getElementById('presentOverlay');
   const slides=document.getElementById('presentSlides');
   const thumbs=document.getElementById('presentThumbs');
@@ -1379,28 +1064,15 @@ if('serviceWorker' in navigator){ navigator.serviceWorker.register('service-work
     else if(e.key===' '){ e.preventDefault(); document.getElementById('presentPlay').click(); }
   });
 })();
-</script>
-<script>
-/* ==== Modal Prev/Next — SIMPLE, RELIABLE CONTROLLER ==== */
+
+/* ==== Modal Prev/Next ==== */
 (function(){
-  // Global nav state
   let navList = [];
   let navIndex = 0;
-
-  // Elements
   const prevBtn = document.getElementById('modalPrev');
   const nextBtn = document.getElementById('modalNext');
   const posEl   = document.getElementById('modalNavPos');
 
-  // Utilities
-  function nonEmptyRows(arr){
-    return (arr||[]).filter(r => Array.isArray(r) && r.join('').trim() !== '');
-  }
-  function getCIDCol(){
-    return Array.isArray(window.headers)
-      ? window.headers.findIndex(h => String(h||'').toLowerCase().includes('contract id'))
-      : -1;
-  }
   function labelPosition(){
     if(!posEl || !navList.length) return;
     posEl.textContent = ` ${navIndex+1} / ${navList.length}`;
@@ -1414,9 +1086,8 @@ if('serviceWorker' in navigator){ navigator.serviceWorker.register('service-work
     if(!row || !navList.length) return 0;
     let i = navList.indexOf(row);
     if(i >= 0) return i;
-    // fallback: match by Contract ID
     try{
-      const cidCol = getCIDCol();
+      const cidCol = headers.findIndex(h => String(h||'').toLowerCase().includes('contract id'));
       if(cidCol > -1){
         const key = (row[cidCol]||'').toString().trim().toLowerCase();
         for(let k=0;k<navList.length;k++){
@@ -1428,42 +1099,35 @@ if('serviceWorker' in navigator){ navigator.serviceWorker.register('service-work
     return 0;
   }
 
-  // Core open by index
   window.openAtIndex = function(i){
     if(!navList.length) return;
     const N = navList.length;
     const nextI = Math.max(0, Math.min(i, N-1));
-    if(nextI === navIndex && modalBg.classList.contains('show')){ return; }
     navIndex = nextI;
     showDetail(navList[navIndex]);
     labelPosition();
     updateDisables();
   };
 
-  // Hook grid clicks to set nav list + index first
   const origRenderGrid = window.renderGrid;
-  if(typeof origRenderGrid === 'function'){
-    window.renderGrid = function(rows){
-      const ret = origRenderGrid.apply(this, arguments);
-      // Re-bind card clicks to use index-based navigation
-      try{
-        const cards = document.querySelectorAll('#grid .card');
-        const list = nonEmptyRows(window.lastRenderedRows && window.lastRenderedRows.length ? window.lastRenderedRows : rows);
-        cards.forEach((card)=>{
-          const idx = Number(card.dataset.rowIndex || '-1');
-          if(Number.isFinite(idx) && idx > -1){
-            card.onclick = ()=>{
-              navList = list.slice();
-              openAtIndex(idx);
-            };
-          }
-        });
-      }catch{}
-      return ret;
-    };
-  }
+  window.renderGrid = function(rows){
+    const ret = origRenderGrid.apply(this, arguments);
+    try{
+      const cards = document.querySelectorAll('#grid .card');
+      const list = nonEmptyRows(window.lastRenderedRows && window.lastRenderedRows.length ? window.lastRenderedRows : rows);
+      cards.forEach((card)=>{
+        const idx = Number(card.dataset.rowIndex || '-1');
+        if(Number.isFinite(idx) && idx > -1){
+          card.onclick = ()=>{
+            navList = list.slice();
+            openAtIndex(idx);
+          };
+        }
+      });
+    }catch{}
+    return ret;
+  };
 
-  // Also handle delegated clicks (fallback)
   document.getElementById('grid').addEventListener('click', (e)=>{
     const card = e.target.closest('.card');
     if(!card) return;
@@ -1475,34 +1139,26 @@ if('serviceWorker' in navigator){ navigator.serviceWorker.register('service-work
     }
   });
 
-  // Wire buttons
   if(prevBtn) prevBtn.addEventListener('click', (e)=>{ e.stopPropagation(); openAtIndex(navIndex-1); });
   if(nextBtn) nextBtn.addEventListener('click', (e)=>{ e.stopPropagation(); openAtIndex(navIndex+1); });
 
-  // Keyboard inside modal
-  window.addEventListener('keydown', (e)=>{
-    if(!modalBg.classList.contains('show')) return;
-    if(e.key==='ArrowRight'){ e.preventDefault(); openAtIndex(navIndex+1); }
-    else if(e.key==='ArrowLeft'){ e.preventDefault(); openAtIndex(navIndex-1); }
-  });
-
-  // When showDetail is called from somewhere else, try to sync position label
   const origShowDetail = window.showDetail;
-  if(typeof origShowDetail === 'function'){
-    window.showDetail = function(row){
-      const ret = origShowDetail.apply(this, arguments);
-      try{
-        if(navList && navList.length){
-          navIndex = indexOfRowInList(row);
-          labelPosition();
-          updateDisables();
-        }
-      }catch{}
-      return ret;
-    };
-  }
+  window.showDetail = function(row){
+    const ret = origShowDetail.apply(this, arguments);
+    try{
+      if(navList && navList.length){
+        navIndex = indexOfRowInList(row);
+        labelPosition();
+        updateDisables();
+      }
+    }catch{}
+    return ret;
+  };
 })();
-</script>
 
+/* init */
+loadData();
+if('serviceWorker' in navigator){ navigator.serviceWorker.register('service-worker.js').catch(console.error); }
+</script>
 </body>
 </html>
