@@ -107,12 +107,36 @@
   /* Cards */
   .card{background:#fff;border-radius:12px;box-shadow:0 3px 8px rgba(0,0,0,.1);cursor:pointer;transition:transform .15s,box-shadow .15s;overflow:hidden;display:flex;align-items:center;gap:12px;padding:10px;}
   .card:hover{transform:scale(1.01);box-shadow:0 6px 12px rgba(0,0,0,.15);} 
-  .card-thumb{width:80px;height:80px;object-fit:cover;border-radius:10px;background:#eee;flex:0 0 auto;}
+
+
+.card-thumb{
+  width:40px;
+  height:40px;
+  object-fit:cover;
+  border-radius:8px;
+  background:#eee;
+  flex:0 0 auto;
+}
+
+
+
+
+
   .card-content{padding:4px 2px;flex:1;}
   .contract-id{font-size:1.2rem;font-weight:900;color:#8b0000;letter-spacing:.2px;}
   .engineer-name{color:#2563eb;font-weight:700;}
   .status{font-weight:700;margin-top:4px;padding:2px 10px;border-radius:999px;display:inline-block;color:#fff;}
   mark{background:#fef08a;padding:0 .15em;border-radius:.2em;}
+
+
+
+.card-content{
+  font-size: 0.75rem;   /* 75% */
+  line-height: 1.05;
+}
+
+
+
 
   /* ===== Modal FULLSCREEN ===== */
   #modalBg{
@@ -708,6 +732,15 @@ toggleFiltersBtn.addEventListener('click', ()=>{
 });
 
 /* ===== GRID ===== */
+
+
+
+
+
+
+
+
+
 function renderGrid(rows){
   lastRenderedRows = rows.slice();
   grid.innerHTML="";
@@ -723,49 +756,79 @@ function renderGrid(rows){
     return;
   }
 
+  const q = (filterCombo.value||'').trim().toLowerCase();
+
   rows.forEach((r,idx)=>{
     if(!r || !r.join('').trim()) return;
+
     const card=document.createElement('div'); 
     card.className='card';
     card.dataset.rowIndex = String(idx);
 
+    // SMALLER IMAGE
     const img=document.createElement('img');
     const link=(colImage1>=0 && r[colImage1])?String(r[colImage1]).trim():'';
-    img.src=link||LOGO_FALLBACK; img.className='card-thumb'; img.loading='lazy'; img.decoding='async';
+    img.src=link||LOGO_FALLBACK;
+    img.className='card-thumb';
+    img.loading='lazy';
+    img.decoding='async';
     img.onerror=()=>{img.src=LOGO_FALLBACK;};
     card.appendChild(img);
 
-    const content=document.createElement('div'); content.className='card-content';
+    const content=document.createElement('div'); 
+    content.className='card-content';   // will be 75% via CSS
 
-    const headerRow=document.createElement('div');
-    headerRow.style.display='flex'; headerRow.style.justifyContent='space-between'; headerRow.style.alignItems='baseline';
-    const comboQ=(filterCombo.value||'').trim().toLowerCase();
-    const cidText=(colContractID>=0 && r[colContractID])?r[colContractID]:'';
-    const engText=(colEngineer>=0 && r[colEngineer])?r[colEngineer]:'';
-    headerRow.innerHTML = `<span class="contract-id">${comboQ?cidText.replace(new RegExp(comboQ,'i'),m=>`<mark>${m}</mark>`):cidText}</span><span class="engineer-name">${engText}</span>`;
-    content.appendChild(headerRow);
+    // top row: CID + Engineer
+    const top=document.createElement('div');
+    top.style.display='flex';
+    top.style.justifyContent='space-between';
+    top.style.alignItems='baseline';
 
-    const nameDiv=document.createElement('div');
-    nameDiv.style.marginTop='4px';
-    const projText=(colProjectName>=0 && r[colProjectName])?r[colProjectName]:'';
-    nameDiv.innerHTML=`<b>Project:</b> ${comboQ?projText.replace(new RegExp(comboQ,'i'),m=>`<mark>${m}</mark>`):projText}`;
-    content.appendChild(nameDiv);
+    const cidVal = (colContractID>=0 && r[colContractID]) ? String(r[colContractID]) : '';
+    const engVal = (colEngineer>=0 && r[colEngineer]) ? String(r[colEngineer]) : '';
 
+    // highlight CID
+    let cidHtml = cidVal;
+    if(q && cidVal.toLowerCase().includes(q)){
+      cidHtml = cidVal.replace(new RegExp(q,'ig'), m=>`<mark>${m}</mark>`);
+    }
+
+    top.innerHTML = `<span class="contract-id">${cidHtml}</span><span class="engineer-name">${engVal}</span>`;
+    content.appendChild(top);
+
+    // project name (NO "Project:")
+    const projVal = (colProjectName>=0 && r[colProjectName]) ? String(r[colProjectName]) : '';
+    let projHtml = projVal;
+    if(q && projVal.toLowerCase().includes(q)){
+      projHtml = projVal.replace(new RegExp(q,'ig'), m=>`<mark>${m}</mark>`);
+    }
+    const projDiv = document.createElement('div');
+    projDiv.innerHTML = projHtml;
+    projDiv.style.marginTop = '2px';
+    content.appendChild(projDiv);
+
+    // location (NO "Location:")
     if(colLocation>=0 && r[colLocation]){
+      const locVal = String(r[colLocation]);
+      let locHtml = locVal;
+      if(q && locVal.toLowerCase().includes(q)){
+        locHtml = locVal.replace(new RegExp(q,'ig'), m=>`<mark>${m}</mark>`);
+      }
       const locDiv=document.createElement('div');
-      locDiv.style.marginTop='2px';
-      const locText=r[colLocation];
-      locDiv.innerHTML=`<b>Location:</b> ${comboQ?locText.replace(new RegExp(comboQ,'i'),m=>`<mark>${m}</mark>`):locText}`;
+      locDiv.innerHTML = locHtml;
+      locDiv.style.opacity = .85;
       content.appendChild(locDiv);
     }
 
+    // status
     const statusDiv=document.createElement('div');
     const statusText=((colStatus>=0 && r[colStatus])?String(r[colStatus]):'').trim();
-    const t=statusText.toLowerCase(); let bg='#777';
-    if(t==='completed (pcma)'||t==='pcma') bg='#2563eb';
-    else if(t==='completed') bg='#16a34a';
-    else if(t==='on-going') bg='#f97316';
-    else if(t==='100%') bg='#14b8a6';
+    const tt=statusText.toLowerCase(); 
+    let bg='#777';
+    if(tt==='completed (pcma)'||tt==='pcma') bg='#2563eb';
+    else if(tt==='completed') bg='#16a34a';
+    else if(tt==='on-going') bg='#f97316';
+    else if(tt==='100%') bg='#14b8a6';
     statusDiv.innerHTML=`<span class="status" style="background:${bg}">${statusText}</span>`;
     content.appendChild(statusDiv);
 
@@ -774,6 +837,14 @@ function renderGrid(rows){
     grid.appendChild(card);
   });
 }
+
+
+
+
+
+
+
+
 
 /* ===== IMAGE HELPERS ===== */
 function collectImageUrls(row){
