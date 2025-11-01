@@ -10,8 +10,7 @@
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#2563eb" />
 
-  <!-- external CSS -->
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <header>
@@ -20,12 +19,11 @@
       <img src="https://drive.google.com/thumbnail?id=1VanVX82ANGfKA8jcGZL8cVDQh4EuN8-r&sz=s800" alt="PCMA Logo" class="header-logo" decoding="async"/>
       <h2 class="header-title">PCMA Mobile V3.1</h2>
     </div>
-    <button id="toggleFilters" class="filter-toggle-btn" title="Show/Hide Search">Hide Search</button>
+    <button id="toggleFilters" class="filter-toggle-btn">Hide Search</button>
   </div>
 </header>
 
 <main>
-  <!-- small sticky search -->
   <div id="filters">
     <div class="top-actions">
       <button id="toggleMoreFilters">Filter</button>
@@ -49,7 +47,7 @@
   <div id="grid" class="grid hidden"></div>
 </main>
 
-<!-- MODAL (full screen) -->
+<!-- MODAL -->
 <div id="modalBg" role="dialog" aria-modal="true" aria-labelledby="modalCID">
   <!-- floating arrows -->
   <button id="modalPrevFloat" class="modal-arrow" aria-label="Previous">
@@ -69,7 +67,7 @@
         <img class="modal-top-logo" src="https://i.ibb.co/RRJpHk2/PCMA-logo-1.png" alt="PCMA" />
         <div id="modalCID" class="modal-top-cid">—</div>
       </div>
-      <button id="closeModalTop" class="modal-close-btn" aria-label="Close modal">Close</button>
+      <button id="closeModalTop" class="modal-close-btn">Close</button>
     </div>
     <div id="modalBody">
       <div id="modalContent"></div>
@@ -95,9 +93,7 @@
       <button class="nav-btn nav-next" id="galleryNext" aria-label="Next image"><span>&gt;</span></button>
     </div>
     <div class="gallery-bottom">
-      <div class="bottom-row">
-        <div class="gallery-counter" id="galleryCounter">0 / 0</div>
-      </div>
+      <div class="gallery-counter" id="galleryCounter">0 / 0</div>
       <div class="thumb-strip" id="galleryThumbs"></div>
     </div>
   </div>
@@ -148,14 +144,13 @@
         </div>
       </div>
     </div>
-    <div class="present-footer" style="padding:10px 16px;color:#94a3b8;font-weight:800;display:flex;justify-content:space-between;">
+    <div class="present-footer" style="display:flex;justify-content:space-between;">
       <div id="presentCounter">0 / 0</div>
       <div>Press ← / → to navigate • Esc to close</div>
     </div>
   </div>
 </div>
 
-<!-- external JS -->
-<script src="app.js" defer></script>
+<script src="app.js"></script>
 </body>
 </html>
