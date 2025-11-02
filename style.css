@@ -103,28 +103,50 @@ mark{background:#fef08a;padding:0 .15em;border-radius:.2em;}
 }
 
 
-/* OLD
-.modal-top{
-  position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:8px;
-  background:#f97316;color:#fff;padding:10px 14px;border-bottom:1px solid rgba(0,0,0,.08);box-shadow:0 2px 4px rgba(0,0,0,.08);
-}
-*/
 
-/* NEW – 1.5x taller header */
+/* MODAL HEADER */
 .modal-top{
   position:sticky;
   top:0;
   z-index:5;
   display:flex;
-  align-items:center;
+  align-items:flex-end;         /* push content to the lower part */
   justify-content:space-between;
   gap:8px;
   background:#f97316;
   color:#fff;
-  padding:15px 14px;          /* was 10px 14px */
+  min-height:78px;              /* 1.2x taller than the last one */
+  padding:8px 14px 16px 14px;   /* more bottom padding */
   border-bottom:1px solid rgba(0,0,0,.08);
   box-shadow:0 2px 4px rgba(0,0,0,.08);
 }
+.modal-top-left{
+  display:flex;
+  align-items:flex-end;         /* logo + text also at the bottom */
+  gap:10px;
+}
+.modal-top-logo{
+  width:30px;
+  height:30px;
+  border-radius:6px;
+  object-fit:cover;
+}
+.modal-top-cid{
+  font-weight:900;
+  color:#fff;
+  line-height:1;                /* keep it tight at the bottom */
+}
+.modal-close-btn{
+  background:#fff;
+  border:none;
+  color:#f97316;
+  font-weight:900;
+  padding:6px 12px;
+  border-radius:8px;
+  cursor:pointer;
+  line-height:1;
+}
+
 
 
 
