@@ -101,10 +101,33 @@ mark{background:#fef08a;padding:0 .15em;border-radius:.2em;}
 @media(max-width:768px){
   #modalBox{margin-top:0;}
 }
+
+
+/* OLD
 .modal-top{
   position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:8px;
   background:#f97316;color:#fff;padding:10px 14px;border-bottom:1px solid rgba(0,0,0,.08);box-shadow:0 2px 4px rgba(0,0,0,.08);
 }
+*/
+
+/* NEW – 1.5x taller header */
+.modal-top{
+  position:sticky;
+  top:0;
+  z-index:5;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  background:#f97316;
+  color:#fff;
+  padding:15px 14px;          /* was 10px 14px */
+  border-bottom:1px solid rgba(0,0,0,.08);
+  box-shadow:0 2px 4px rgba(0,0,0,.08);
+}
+
+
+
 .modal-top-left{display:flex;align-items:center;gap:10px;}
 .modal-top-logo{width:28px;height:28px;border-radius:6px;object-fit:cover;}
 .modal-top-cid{font-weight:900;color:#fff;}

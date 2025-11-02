@@ -151,6 +151,17 @@
   </div>
 </div>
 
-<script src="app.js"></script>
+  ...
+  <!-- put these at the very end, before </body> -->
+  <script src="search.js"></script>
+  <script src="view-picture.js"></script>
+  <script src="modal.js"></script>
+  <script src="projector.js"></script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("service-worker.js").catch(console.error);
+    }
+  </script>
 </body>
 </html>
+
