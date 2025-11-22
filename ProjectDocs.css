@@ -338,6 +338,122 @@
     display: flex;
   }
 
+
+/* MOBILE VERSION: ProjectDocs – phone portrait */
+@media (max-width: 600px) {
+  /* Make the overlay window behave like a full-screen page on phone */
+  .pd-overlay {
+    align-items: flex-start;
+  }
+
+  .pd-box {
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+    margin: 0;
+  }
+
+  .pd-top {
+    padding: 8px 10px;
+  }
+
+  .pd-title {
+    font-size: 1rem;
+  }
+
+  .pd-body {
+    padding: 8px 10px;
+    font-size: 0.78rem;   /* smaller text so data fits */
+  }
+
+  .pd-row {
+    padding: 6px 8px;
+    margin-bottom: 6px;
+  }
+
+  .pd-row-title {
+    font-size: 0.85rem;
+    margin-bottom: 2px;
+  }
+
+  /* ---------- PCMA (Year | Month | % | Remarks) as stacked card ---------- */
+
+  /* Hide the big header row on mobile – we’ll show labels inside each card */
+  .pd-month-header {
+    display: none;
+  }
+
+  /* Each month row becomes a small stacked card:
+     line 1: YEAR (left) | PERCENTAGE (right)
+     line 2: MONTH
+     line 3: REMARKS
+  */
+  .pd-month-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "year value"
+      "month month"
+      "remarks remarks";
+    row-gap: 1px;
+    align-items: baseline;
+  }
+
+  .pd-month-year {
+    grid-area: year;
+    font-weight: 700;
+  }
+
+  .pd-month-value {
+    grid-area: value;
+    text-align: right;
+    font-weight: 700;
+  }
+
+  .pd-month-name {
+    grid-area: month;
+    opacity: 0.85;
+  }
+
+  .pd-month-remarks {
+    grid-area: remarks;
+    margin-top: 2px;
+  }
+
+  /* ---------- VO / WSO / CTE / BILLING tables ---------- */
+  /* Don’t squish them – allow horizontal scroll instead */
+  .pd-vo-list,
+  .pd-wso-list,
+  .pd-cte-list,
+  .pd-billing-list {
+    overflow-x: auto;
+  }
+
+  .pd-vo-row,
+  .pd-wso-row,
+  .pd-cte-row,
+  .pd-billing-row {
+    min-width: 420px;     /* table can scroll sideways instead of breaking */
+    font-size: 0.78rem;
+  }
+
+  /* ---------- S-Curve ---------- */
+
+  .pd-scurve-title {
+    font-size: 0.85rem;
+  }
+
+  .pd-scurve-svg {
+    width: 100%;
+    height: 180px;        /* smaller graph height for phones */
+  }
+}
+
+
+
+
   #projectDocsBody.pd-body-zoomable {
     transform: scale(var(--pd-zoom-scale, 1));
     transform-origin: top center;
