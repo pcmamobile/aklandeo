@@ -1,0 +1,304 @@
+/* ProjectDocs.css
+   Project Documentation window: white background, black text, responsive
+*/
+
+/* OVERLAY - sits on top of the PCMA modal */
+.pd-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9000; /* higher than the main PCMA modal */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.7); /* dark backdrop */
+}
+
+.pd-overlay[hidden] {
+  display: none !important;
+}
+
+/* WINDOW BOX */
+.pd-box {
+  background: #ffffff;
+  color: #000000; /* all text black */
+  border-radius: 18px;
+  width: 95%;
+  max-width: 900px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+}
+
+/* HEADER */
+.pd-top {
+  padding: 10px 16px;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pd-title {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+}
+
+.pd-close-btn {
+  margin-left: auto;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid #4b5563;
+  background: #f3f4f6;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.pd-close-btn:hover {
+  background: #e5e7eb;
+}
+
+/* BODY */
+.pd-body {
+  padding: 12px 16px;
+  overflow-y: auto;
+  font-size: 0.9rem;
+}
+
+/* LOADING / EMPTY */
+.pd-loading,
+.pd-empty {
+  padding: 8px;
+  font-style: italic;
+  color: #4b5563;
+}
+
+/* CONTRACT BLOCK */
+.pd-row {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+}
+
+.pd-row-title {
+  font-weight: 800;
+  margin-bottom: 6px;
+  font-size: 0.95rem;
+}
+
+/* MONTH TABLE: YEAR | MONTH | PERCENTAGE | REMARKS */
+.pd-month-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pd-month-row {
+  display: grid;
+  grid-template-columns: 70px 100px 120px 1fr; /* YEAR | MONTH | PERCENTAGE | REMARKS */
+  column-gap: 8px;
+  align-items: flex-start;  /* align remarks vertically */
+  padding: 4px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.pd-month-row:last-child {
+  border-bottom: none;
+}
+
+.pd-month-year,
+.pd-month-name,
+.pd-month-value {
+  font-weight: 700;
+}
+
+.pd-month-remarks {
+  font-weight: 400;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* HEADER ROW */
+.pd-month-header {
+  border-bottom: 2px solid #111827;
+  padding-bottom: 6px;
+  margin-bottom: 2px;
+}
+
+.pd-month-header .pd-month-year,
+.pd-month-header .pd-month-name,
+.pd-month-header .pd-month-value,
+.pd-month-header .pd-month-remarks {
+  font-weight: 900;
+}
+
+/* BLUE BUTTON (inside PCMA modal) */
+.pd-docs-btn {
+  background: #2563eb;   /* Color Fill = Blue */
+  color: #ffffff;
+  font-weight: 700;       /* Text = Bold */
+  border: none;
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.pd-docs-btn:hover {
+  background: #1d4ed8;
+}
+
+/* Row that holds the button below Container, full width */
+.pcma-docs-row {
+  padding: 4px 14px 8px;
+}
+
+.pcma-docs-row .pd-docs-btn {
+  width: 100%;
+}
+
+/* S-CURVE BLOCK */
+.pd-scurve-block {
+  margin-top: 10px;
+  padding-top: 6px;
+  border-top: 1px dashed #d1d5db;
+}
+
+.pd-scurve-title {
+  font-weight: 700;
+  font-size: 0.85rem;
+  margin-bottom: 4px;
+  color: #111827;
+}
+
+/* size of s-curve */
+.pd-scurve-svg {
+  width: 100%;
+  height: 240px;
+  display: block;
+}
+
+/* RESPONSIVE (Phone / Tablet / Desktop) */
+@media (min-width: 640px) {
+  .pd-box {
+    width: 90%;
+  }
+}
+
+@media (min-width: 768px) {
+  .pd-box {
+    width: 80%;
+  }
+}
+
+@media (min-width: 1024px) {
+  .pd-box {
+    width: 70%;
+  }
+}
+
+/* VO section (below PCMA) */
+
+.pd-row-vo {
+  margin-top: 6px;
+}
+
+.pd-vo-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pd-vo-row {
+  display: grid;
+  grid-template-columns: 50px 90px 90px 1fr; /* VO | Date | Add'l Days | Remarks */
+  column-gap: 8px;
+  padding: 3px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.pd-vo-row:last-child {
+  border-bottom: none;
+}
+
+.pd-vo-header span {
+  font-weight: 900;
+}
+
+/* WSO / WRO / CTE section (below VO) */
+
+.pd-row-wso {
+  margin-top: 6px;
+}
+
+.pd-wso-list,
+.pd-cte-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pd-wso-row {
+  display: grid;
+  grid-template-columns: 70px 110px 1fr; /* WSO | DATE | REASON */
+  column-gap: 8px;
+  padding: 3px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+
+.pd-wso-row:last-child {
+  border-bottom: none;
+}
+
+.pd-wso-header span {
+  font-weight: 900;
+}
+
+.pd-cte-row {
+  display: grid;
+  grid-template-columns: 55px 90px 1fr; /* CTE | Date | Remarks */
+  column-gap: 8px;
+  padding: 3px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.pd-cte-row:last-child {
+  border-bottom: none;
+}
+
+.pd-cte-header span {
+  font-weight: 900;
+}
+
+/* BILLING section (below WSO/CTE) */
+
+.pd-row-billing {
+  margin-top: 6px;
+}
+
+.pd-billing-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pd-billing-row {
+  display: grid;
+  grid-template-columns: 60px 110px 120px 1fr; /* YEAR | MONTH | BILLING | REMARKS */
+  column-gap: 8px;
+  padding: 3px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.pd-billing-row:last-child {
+  border-bottom: none;
+}
+
+.pd-billing-header span {
+  font-weight: 900;
+}

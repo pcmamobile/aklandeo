@@ -1,172 +1,942 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>PCMA Mobile V3.1</title>
+<link href="StatusPE.css" rel="stylesheet"/>
 
-  <link rel="icon" type="image/png" sizes="32x32" href="https://i.ibb.co/RRJpHk2/PCMA-logo-1.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="https://i.ibb.co/RRJpHk2/PCMA-logo-1.png">
-  <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#2563eb" />
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>PCMA Mobile V4.0</title>
+<link href="https://drive.google.com/thumbnail?id=1VanVX82ANGfKA8jcGZL8cVDQh4EuN8-r&amp;sz=s800" rel="icon" sizes="32x32" type="image/png"/>
+<link href="https://drive.google.com/thumbnail?id=1VanVX82ANGfKA8jcGZL8cVDQh4EuN8-r&amp;sz=s800" rel="apple-touch-icon" sizes="180x180"/>
+<link href="manifest.json" rel="manifest">
+<meta content="#2563eb" name="theme-color"/>
+<link href="main.css" rel="stylesheet"/>
+<link href="filter.css" rel="stylesheet"/>
+<link href="modal.css" rel="stylesheet"/>
+<link href="view-picture.css" rel="stylesheet"/>
+<link href="projector.css" rel="stylesheet"/>
+<link href="OverallStatus.css" rel="stylesheet" />
+<link href="ProjectDocs.css" rel="stylesheet" />
 
-  <link rel="stylesheet" href="main.css">
-  <link rel="stylesheet" href="filter.css">
-  <link rel="stylesheet" href="modal.css">
-  <link rel="stylesheet" href="view-picture.css">
-  <link rel="stylesheet" href="projector.css">
 
-</head>
+</link></head>
 <body>
 <header>
-  <div class="header-container">
-    <div class="brand">
-      <img src="https://drive.google.com/thumbnail?id=1VanVX82ANGfKA8jcGZL8cVDQh4EuN8-r&sz=s800" alt="PCMA Logo" class="header-logo" decoding="async"/>
-      <h2 class="header-title">PCMA Mobile V3.1</h2>
-    </div>
-    <button id="toggleFilters" class="filter-toggle-btn">Hide Search</button>
-  </div>
+<div class="header-container">
+<div class="brand">
+<img alt="PCMA Logo" class="header-logo" decoding="async" src="https://drive.google.com/thumbnail?id=1VanVX82ANGfKA8jcGZL8cVDQh4EuN8-r&amp;sz=s800"/>
+<h2 class="header-title">PCMA Mobile V4.0</h2>
+</div>
+<button class="filter-toggle-btn" id="toggleFilters">Hide Search</button>
+</div>
 </header>
-
 <main>
-  <div id="filters">
-    <div class="top-actions">
-      <button id="toggleMoreFilters">Filter</button>
-    </div>
-    <label class="filter-combo">
-      <span class="input-icon-wrap">
-        <input id="filterCombo" type="text" autocomplete="off" />
-      </span>
-    </label>
-    <div id="moreFilters" class="hidden">
-      <label>YEAR <select id="filterYear"><option value="">All</option></select></label>
-      <label>PROJECT ENGINEER <select id="filterEngineer"><option value="">All</option></select></label>
-      <label>CONTRACTOR <select id="filterContractor"><option value="">All</option></select></label>
-      <label>STATUS <select id="filterStatus"><option value="">All</option></select></label>
-      <button id="applyFilter">Apply</button>
-      <button id="clearFilter">Clear</button>
-    </div>
-  </div>
+<div id="filters">
+<div class="top-actions">
+<button id="toggleMoreFilters">Filter</button>
 
-  <div id="resultInfo" class="hidden"></div>
-  <div id="grid" class="grid hidden"></div>
+
+<!-- NEW: Projector Mode button (moved from Modal) -->
+<button id="presentGlobal" title="Open Projector Mode">Projector Mode</button>
+<button id="openPeStatus" title="Status per PE">Status per PE</button>
+</div>
+<label class="filter-combo">
+<span class="input-icon-wrap">
+<input autocomplete="off" id="filterCombo" type="text"/>
+
+</span>
+</label>
+<div class="hidden" id="moreFilters">
+<label>YEAR <select id="filterYear"><option value="">All</option></select></label>
+<label>PROJECT ENGINEER <select id="filterEngineer"><option value="">All</option></select></label>
+<label>CONTRACTOR <select id="filterContractor"><option value="">All</option></select></label>
+<label>STATUS <select id="filterStatus"><option value="">All</option></select></label>
+<button id="applyFilter">Apply</button>
+<button id="clearFilter">Clear</button>
+</div>
+</div>
+
+
+<!-- ========= FILTER PROJECTOR PANEL (inline) ========= -->
+<div class="filter-presenter" hidden="" id="filterPresenter">
+<!-- Header -->
+<div class="fp-top">
+<div class="fp-left">
+<div class="fp-cid" id="fpCID">—</div>
+<div class="fp-team" id="fpTeam"></div>
+</div>
+<div class="fp-actions">
+<button class="fp-btn" id="fpPrev" title="Previous">‹</button>
+<button class="fp-btn" id="fpNext" title="Next">›</button>
+<button class="fp-btn fp-ghost" id="fpOpenFull" title="Open Full Projector">Open</button>
+<button class="fp-btn fp-ghost" id="fpClose" title="Close">Close</button>
+</div>
+</div>
+
+
+<!-- Body (reuse modal-style layout) -->
+<div class="fp-body">
+<div class="modal-primary" id="fpPrimary"></div>
+<div id="fpBars"></div>
+</div>
+
+
+<!-- Footer -->
+<div class="fp-foot">
+<span id="fpCounter">0 / 0</span>
+<span class="fp-hint">Reflects current filtered projects</span>
+</div>
+</div>
+
+
+<!-- ========= /FILTER PROJECTOR PANEL ========= -->
+<div class="hidden" id="resultInfo"></div>
+<div class="grid hidden" id="grid"></div>
 </main>
 
-<!-- MODAL -->
-<div id="modalBg" role="dialog" aria-modal="true" aria-labelledby="modalCID">
+
+<!-- MODAL (PCMA namespaced) -->
+<div id="pcmaModalBg" role="dialog" aria-modal="true" aria-labelledby="pcmaModalCID">
   <!-- floating arrows -->
-  <button id="modalPrevFloat" class="modal-arrow" aria-label="Previous">
-    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <button id="pcmaModalPrev" class="pcma-modal-arrow" aria-label="Previous">
+    <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
       <polyline points="15 18 9 12 15 6"></polyline>
     </svg>
   </button>
-  <button id="modalNextFloat" class="modal-arrow" aria-label="Next">
-    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <button id="pcmaModalNext" class="pcma-modal-arrow" aria-label="Next">
+    <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
       <polyline points="9 18 15 12 9 6"></polyline>
     </svg>
   </button>
 
-  <div id="modalBox">
-    <div class="modal-top">
-      <div class="modal-top-left">
-        <img class="modal-top-logo" src="https://i.ibb.co/RRJpHk2/PCMA-logo-1.png" alt="PCMA" />
-        <div id="modalCID" class="modal-top-cid">—</div>
+  <div id="pcmaModalBox">
+    <div class="pcma-modal-top">
+      <div class="pcma-modal-top-left">
+        <img class="pcma-modal-top-logo" src="https://i.ibb.co/RRJpHk2/PCMA-logo-1.png" alt="PCMA" />
+        <div id="pcmaModalCID" class="pcma-modal-top-cid">—</div>
       </div>
-      <button id="closeModalTop" class="modal-close-btn">Close</button>
+      <button id="pcmaCloseModalTop" class="pcma-modal-close">Close</button>
     </div>
-    <div id="modalBody">
-      <div id="modalContent"></div>
-      <div id="modalButtons"></div>
-      <div id="modalImages"></div>
-    </div>
+
+<div id="pcmaModalBody">
+  <div id="pcmaModalContent"></div>
+
+  <!-- Buttons area: below main container, above sched/actual/slippage content -->
+  <div id="pcmaModalButtons">
+    <button type="button" id="projectDocsBtn" class="pd-docs-btn">
+      Project Documentation
+    </button>
   </div>
+
+  <div id="pcmaModalImages"></div>
+</div>
+  </div>
+  </div>
+
+
+
+<!-- /MODAL -->
+<!-- GALLERY -->
+<div aria-labelledby="galleryCID" aria-modal="true" class="gallery-overlay" id="galleryOverlay" role="dialog">
+<div class="gallery-box" id="galleryBox">
+<div class="gallery-top">
+<div class="gallery-title" id="galleryCID">—</div>
+<div class="gallery-actions">
+<a class="gallery-btn" href="#" id="galleryOpen" rel="noopener" target="_blank">Open</a>
+<button aria-label="Close gallery" class="gallery-btn" id="galleryClose">Close</button>
+</div>
+</div>
+<div class="gallery-main" id="galleryMain">
+<button aria-label="Previous image" class="nav-btn nav-prev" id="galleryPrev"><span>&lt;</span></button>
+<img alt="Gallery image" class="gallery-img" id="galleryImg"/>
+<button aria-label="Next image" class="nav-btn nav-next" id="galleryNext"><span>&gt;</span></button>
+</div>
+<div class="gallery-bottom">
+<div class="gallery-counter" id="galleryCounter">0 / 0</div>
+<div class="thumb-strip" id="galleryThumbs"></div>
+</div>
+</div>
 </div>
 
-<!-- GALLERY -->
-<div id="galleryOverlay" class="gallery-overlay" role="dialog" aria-modal="true" aria-labelledby="galleryCID">
-  <div class="gallery-box" id="galleryBox">
-    <div class="gallery-top">
-      <div class="gallery-title" id="galleryCID">—</div>
-      <div class="gallery-actions">
-        <a id="galleryOpen" class="gallery-btn" href="#" target="_blank" rel="noopener">Open</a>
-        <button id="galleryClose" class="gallery-btn" aria-label="Close gallery">Close</button>
-      </div>
-    </div>
-    <div class="gallery-main" id="galleryMain">
-      <button class="nav-btn nav-prev" id="galleryPrev" aria-label="Previous image"><span>&lt;</span></button>
-      <img id="galleryImg" class="gallery-img" alt="Gallery image"/>
-      <button class="nav-btn nav-next" id="galleryNext" aria-label="Next image"><span>&gt;</span></button>
-    </div>
-    <div class="gallery-bottom">
-      <div class="gallery-counter" id="galleryCounter">0 / 0</div>
-      <div class="thumb-strip" id="galleryThumbs"></div>
-    </div>
-  </div>
-</div>
 
 <!-- PROJECTOR MODE -->
-<div id="presentOverlay" class="present-overlay" aria-modal="true" role="dialog">
-  <div class="present-box">
-    <div class="present-top">
-      <div id="presentCID" class="present-cid">—</div>
-      <div class="present-actions">
-        <button id="presentPlay" class="present-btn" title="Play/Pause">Play</button>
-        <button id="presentOpen" class="present-btn" title="Open Current Image">Open</button>
-        <button id="presentClose" class="present-btn" title="Close">Close</button>
-      </div>
-    </div>
-    <div class="present-content">
-      <div class="present-left">
-        <button class="nav present-prev" aria-label="Prev" id="presentPrev">‹</button>
-        <div id="presentSlides"></div>
-        <div class="present-thumbs" id="presentThumbs"></div>
-        <button class="nav present-next" aria-label="Next" id="presentNext">›</button>
-      </div>
-      <div class="present-right">
-        <div class="present-grid">
-          <div class="present-cell span-2"><div class="present-title">Project Name</div><div id="presentProj" class="present-value">—</div></div>
-          <div class="present-cell span-2"><div class="present-title">Contractor</div><div id="presentContractor" class="present-value">—</div></div>
-          <div class="present-cell"><div class="present-title">Contract Amount</div><div id="presentAmt" class="present-value">—</div></div>
-          <div class="present-cell"><div class="present-title">Rev. Contract Amount</div><div id="presentRevAmt" class="present-value">—</div></div>
-          <div class="present-cell span-2">
-            <div class="present-title">NTP / Expiry / Rev.</div>
-            <div class="present-grid-3">
-              <div class="present-cell-small"><div class="present-title">NTP</div><div id="presentNTP" class="present-value">—</div></div>
-              <div class="present-cell-small"><div class="present-title">Expiry</div><div id="presentExpiry" class="present-value">—</div></div>
-              <div class="present-cell-small"><div class="present-title">Rev. Expiry</div><div id="presentRevExpiry" class="present-value">—</div></div>
-            </div>
-          </div>
-          <div class="present-cell span-2">
-            <div class="present-title">Schedule / Actual / Slippage</div>
-            <div class="mini-bars">
-              <div class="mini-row"><div class="mini-label">SCHED</div><div class="mini-bar"><div id="pMiniSched" class="mini-fill"></div></div></div>
-              <div class="mini-row"><div class="mini-label">ACTUAL</div><div class="mini-bar"><div id="pMiniActual" class="mini-fill"></div></div></div>
-              <div class="mini-row"><div class="mini-label">SLIPPAGE</div><div class="mini-bar"><div id="pMiniSlip" class="mini-fill"></div></div></div>
-            </div>
-          </div>
-          <div class="present-cell span-2"><div class="present-title">Remarks</div><div id="presentRemarks" class="present-remarks">—</div></div>
-          <div class="present-cell span-2"><div class="present-title">Status</div><div class="present-value"><span id="presentStatusChip" class="status-chip">—</span></div></div>
-        </div>
-      </div>
-    </div>
-    <div class="present-footer" style="display:flex;justify-content:space-between;">
-      <div id="presentCounter">0 / 0</div>
-      <div>Press ← / → to navigate • Esc to close</div>
-    </div>
-  </div>
+<div aria-modal="true" class="present-overlay" hidden="" id="presentOverlay" role="dialog">
+<div class="present-box">
+
+
+<!-- Header -->
+<div class="present-top">
+<div class="present-top-left">
+<div class="present-cid" id="presentCID">—</div>
+
+
+<!-- Team chips (same idea as modal header). Auto-hide if empty -->
+<div class="present-team hidden" id="presentTeam"></div>
+</div>
+<div class="present-actions">
+
+
+<!-- NEW: inside Projector header -->
+<button class="present-btn" id="presentPrevBtn" title="Previous">Previous</button>
+<button class="present-btn" id="presentNextBtn" title="Next">Next</button>
+
+
+<!-- existing buttons -->
+<button class="present-btn" id="presentPlay" title="Play/Pause">Play</button>
+<button class="present-btn" id="presentOpen" title="Open Current Image">Open</button>
+<button class="present-btn" id="presentClose" title="Close">Close</button>
+
+
+<!-- (optional theme select if you have it)
+  <select id="presentTheme" class="present-theme" title="Theme">…</select>
+  -->
+</div>
+</div>
+
+
+<!-- Body -->
+<div class="present-content">
+<!-- LEFT: Slides -->
+<div class="present-left">
+<button aria-label="Previous" class="nav present-prev" id="presentPrev">‹</button>
+<div class="present-slides" id="presentSlides"></div>
+<div class="present-thumbs" id="presentThumbs"></div>
+<button aria-label="Next" class="nav present-next" id="presentNext">›</button>
+</div>
+
+
+<!-- RIGHT: Modal-style layout -->
+<div class="present-right">
+
+
+<!-- We will build these from JS exactly like the modal -->
+<div class="modal-primary" id="presentPrimary"></div>
+<div id="presentBars"></div>
+</div>
+</div>
+<!-- Footer -->
+
+
+<div class="present-footer">
+<div id="presentCounter">0 / 0</div>
+<div>Press ← / → to navigate • Esc to close</div>
+</div>
+</div>
 </div>
 
   ...
   <!-- put these at the very end, before </body> -->
-  <script src="search.js"></script>
-  <script src="view-picture.js"></script>
-  <script src="modal.js"></script>
-  <script src="projector.js"></script>
-  <script>
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("service-worker.js").catch(console.error);
-    }
-  </script>
+<script src="filter.js"></script>
+<script src="view-picture.js"></script>
+<script src="modal.js"></script>
+<script src="projector.js"></script>
+
+
+<!-- STATUS PER PE OVERLAY -->
+<div aria-modal="true" class="pe-overlay" hidden id="peStatusOverlay" role="dialog">
+  <div class="pe-box">
+    <div class="pe-top">
+      <h3 class="pe-title">PROJECT STATUS PER PE</h3>
+ <div class="pe-controls">
+  <label>PE
+    <select class="pe-select" id="peSelect">
+      <option value="">All</option>
+    </select>
+  </label>
+  <label>Year
+    <select class="pe-select" id="peYear">
+      <option value="">All</option>
+    </select>
+  </label>
+
+  <button class="pe-btn" id="peGenerate">Generate</button>
+</div>
+
+  <button class="pe-overall-btn" id="openOverallStatus">
+    Overall Status
+  </button>
+
+
+  <span id="peHeaderSelectedValue"></span>
+      <button aria-label="Close" class="pe-btn pe-ghost" id="peClose">Close</button>
+    </div>
+
+
+<div class="pe-summary">
+  <div class="pe-sum-card">
+    <div class="pe-sum-label">TOTAL</div>
+    <div class="pe-sum-value" id="peTotalAll">0</div>
+  </div>
+  <div class="pe-sum-card">
+    <div class="pe-sum-label">ON-GOING</div>
+    <div class="pe-sum-value" id="peTotalOngoing">0</div>
+  </div>
+  <div class="pe-sum-card">
+    <div class="pe-sum-label">COMPLETED</div>
+    <div class="pe-sum-value" id="peTotalCompleted">0</div>
+  </div>
+  <div class="pe-sum-card">
+  <div class="pe-sum-label">NYS</div>
+  <div class="pe-sum-value" id="peTotalNYS">0</div>
+</div>
+  <div class="pe-sum-card">
+    <div class="pe-sum-label">TERMINATED</div>
+    <div class="pe-sum-value" id="peTotalTerminated">0</div>
+  </div>
+  <div class="pe-progress">
+    <div class="pe-progress-scale">
+      <span>0%</span>
+      <span>100%</span>
+    </div>
+    <div class="pe-progress-bar">
+      <div class="pe-progress-fill" id="peProgressFill"></div>
+      <span class="pe-progress-percent" id="peProgressText">
+        0% Completed
+      </span>
+    </div>
+    <div class="pe-progress-caption">Work in Progress..</div>
+  </div>
+</div>
+<div class="pe-grid">
+<div class="pe-col">
+<h4>On-Going</h4>
+<small style="opacity:.7;display:block;margin:-6px 0 10px;"></small>
+<div class="pe-list" id="peColOngoing"></div>
+</div>
+<div class="pe-col">
+<h4>Completed</h4>
+<small style="opacity:.7;display:block;margin:-6px 0 10px;"></small>
+<div class="pe-list" id="peColCompleted"></div>
+</div>
+<div class="pe-col">
+  <h4>Terminated</h4>
+  <div class="pe-split">
+    <div class="pe-subcol">
+      <h5>NYS</h5>
+	  <small style="opacity:.7;display:block;margin:-6px 0 10px;"></small>
+      <div class="pe-list" id="peColNYS"></div>
+    </div>
+    <div class="pe-subcol">
+      <h5>Terminated</h5>
+	  <small style="opacity:.7;display:block;margin:-6px 0 10px;"></small>
+      <div class="pe-list" id="peColTerminated"></div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+<!-- OVERALL STATUS OVERLAY -->
+<div aria-modal="true"
+     class="os-overlay"
+     hidden
+     id="overallStatusOverlay"
+     role="dialog">
+  <div class="os-box">
+    <div class="os-top">
+      <h3 class="os-title">OVERALL STATUS</h3>
+      <div class="os-header-info">
+        CY 2025 · 2024 · 2023
+      </div>
+      <button aria-label="Close" class="os-btn" id="osClose">
+        Close
+      </button>
+    </div>
+
+    <div class="os-body">
+
+      <!-- ========= CY 2025 (OVERALL) ========= -->
+      <section class="os-year-block">
+        <div class="os-year-header">
+          <span class="os-year-label">CY 2025 - OVERALL</span>
+          <button type="button"
+                  class="os-toggle-funds-btn"
+                  id="osToggleFunds2025">
+            Hide FUND Rows
+          </button>
+        </div>
+
+        <div class="os-year-row">
+          <div class="os-card os-card-total">
+            <div class="os-card-label">TOTAL</div>
+            <div class="os-card-value" id="os2025Total">0</div>
+          </div>
+          <div class="os-card os-card-ongoing">
+            <div class="os-card-label">ON-GOING</div>
+            <div class="os-card-value" id="os2025Ongoing">0</div>
+          </div>
+          <div class="os-card os-card-completed">
+            <div class="os-card-label">COMPLETED</div>
+            <div class="os-card-value" id="os2025Completed">0</div>
+          </div>
+          <div class="os-card os-card-nys">
+            <div class="os-card-label">NYS</div>
+            <div class="os-card-value" id="os2025NYS">0</div>
+          </div>
+          <div class="os-card os-card-terminated">
+            <div class="os-card-label">TERMINATED</div>
+            <div class="os-card-value" id="os2025Terminated">0</div>
+          </div>
+
+          <div class="os-equal">=</div>
+          <div class="os-pie-wrapper">
+            <div class="os-pie" data-row="2025">
+              <span class="os-pie-label" id="osPieLabel2025">0%</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========= CY 2025 FUND BREAKDOWN ========= -->
+      <div id="osFunds2025Group">
+        <!-- GAA -->
+        <section class="os-year-block os-fund-block" id="osFundRow2025GAA">
+          <div class="os-year-row os-year-row-fund">
+            <div class="os-fund-label">GAA</div>
+
+            <div class="os-card os-card-fund os-card-total-light">
+              <div class="os-card-label">TOTAL</div>
+              <div class="os-card-value" id="os2025GAATotal">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-ongoing-light">
+              <div class="os-card-label">ON-GOING</div>
+              <div class="os-card-value" id="os2025GAAOngoing">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-completed-light">
+              <div class="os-card-label">COMPLETED</div>
+              <div class="os-card-value" id="os2025GAACompleted">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-nys-light">
+              <div class="os-card-label">NYS</div>
+              <div class="os-card-value" id="os2025GAANYS">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-terminated-light">
+              <div class="os-card-label">TERMINATED</div>
+              <div class="os-card-value" id="os2025GAATerminated">0</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- DA -->
+        <section class="os-year-block os-fund-block" id="osFundRow2025DA">
+          <div class="os-year-row os-year-row-fund">
+            <div class="os-fund-label">DA</div>
+
+            <div class="os-card os-card-fund os-card-total-light">
+              <div class="os-card-label">TOTAL</div>
+              <div class="os-card-value" id="os2025DATotal">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-ongoing-light">
+              <div class="os-card-label">ON-GOING</div>
+              <div class="os-card-value" id="os2025DAOngoing">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-completed-light">
+              <div class="os-card-label">COMPLETED</div>
+              <div class="os-card-value" id="os2025DACompleted">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-nys-light">
+              <div class="os-card-label">NYS</div>
+              <div class="os-card-value" id="os2025DANYS">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-terminated-light">
+              <div class="os-card-label">TERMINATED</div>
+              <div class="os-card-value" id="os2025DATerminated">0</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- DAR -->
+        <section class="os-year-block os-fund-block" id="osFundRow2025DAR">
+          <div class="os-year-row os-year-row-fund">
+            <div class="os-fund-label">DAR</div>
+
+            <div class="os-card os-card-fund os-card-total-light">
+              <div class="os-card-label">TOTAL</div>
+              <div class="os-card-value" id="os2025DARTotal">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-ongoing-light">
+              <div class="os-card-label">ON-GOING</div>
+              <div class="os-card-value" id="os2025DAROngoing">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-completed-light">
+              <div class="os-card-label">COMPLETED</div>
+              <div class="os-card-value" id="os2025DARCompleted">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-nys-light">
+              <div class="os-card-label">NYS</div>
+              <div class="os-card-value" id="os2025DARNYS">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-terminated-light">
+              <div class="os-card-label">TERMINATED</div>
+              <div class="os-card-value" id="os2025DARTerminated">0</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- DepEd -->
+        <section class="os-year-block os-fund-block" id="osFundRow2025DepEd">
+          <div class="os-year-row os-year-row-fund">
+            <div class="os-fund-label">DepEd</div>
+
+            <div class="os-card os-card-fund os-card-total-light">
+              <div class="os-card-label">TOTAL</div>
+              <div class="os-card-value" id="os2025DepEdTotal">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-ongoing-light">
+              <div class="os-card-label">ON-GOING</div>
+              <div class="os-card-value" id="os2025DepEdOngoing">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-completed-light">
+              <div class="os-card-label">COMPLETED</div>
+              <div class="os-card-value" id="os2025DepEdCompleted">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-nys-light">
+              <div class="os-card-label">NYS</div>
+              <div class="os-card-value" id="os2025DepEdNYS">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-terminated-light">
+              <div class="os-card-label">TERMINATED</div>
+              <div class="os-card-value" id="os2025DepEdTerminated">0</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Maintenance -->
+        <section class="os-year-block os-fund-block" id="osFundRow2025Maintenance">
+          <div class="os-year-row os-year-row-fund">
+            <div class="os-fund-label">Maintenance</div>
+
+            <div class="os-card os-card-fund os-card-total-light">
+              <div class="os-card-label">TOTAL</div>
+              <div class="os-card-value" id="os2025MaintenanceTotal">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-ongoing-light">
+              <div class="os-card-label">ON-GOING</div>
+              <div class="os-card-value" id="os2025MaintenanceOngoing">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-completed-light">
+              <div class="os-card-label">COMPLETED</div>
+              <div class="os-card-value" id="os2025MaintenanceCompleted">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-nys-light">
+              <div class="os-card-label">NYS</div>
+              <div class="os-card-value" id="os2025MaintenanceNYS">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-terminated-light">
+              <div class="os-card-label">TERMINATED</div>
+              <div class="os-card-value" id="os2025MaintenanceTerminated">0</div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- ========= CY 2024 (OVERALL) ========= -->
+      <section class="os-year-block">
+        <div class="os-year-header">
+          <span class="os-year-label">CY 2024 - OVERALL</span>
+          <button type="button"
+                  class="os-toggle-funds-btn"
+                  id="osToggleFunds2024">
+            Hide FUND Rows
+          </button>
+        </div>
+
+        <div class="os-year-row">
+          <div class="os-card os-card-total">
+            <div class="os-card-label">TOTAL</div>
+            <div class="os-card-value" id="os2024Total">0</div>
+          </div>
+          <div class="os-card os-card-ongoing">
+            <div class="os-card-label">ON-GOING</div>
+            <div class="os-card-value" id="os2024Ongoing">0</div>
+          </div>
+          <div class="os-card os-card-completed">
+            <div class="os-card-label">COMPLETED</div>
+            <div class="os-card-value" id="os2024Completed">0</div>
+          </div>
+          <div class="os-card os-card-nys">
+            <div class="os-card-label">NYS</div>
+            <div class="os-card-value" id="os2024NYS">0</div>
+          </div>
+          <div class="os-card os-card-terminated">
+            <div class="os-card-label">TERMINATED</div>
+            <div class="os-card-value" id="os2024Terminated">0</div>
+          </div>
+
+          <div class="os-equal">=</div>
+          <div class="os-pie-wrapper">
+            <div class="os-pie" data-row="2024">
+              <span class="os-pie-label" id="osPieLabel2024">0%</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========= CY 2024 FUND BREAKDOWN ========= -->
+      <div id="osFunds2024Group">
+        <!-- GAA -->
+        <section class="os-year-block os-fund-block" id="osFundRow2024GAA">
+          <div class="os-year-row os-year-row-fund">
+            <div class="os-fund-label">GAA</div>
+
+            <div class="os-card os-card-fund os-card-total-light">
+              <div class="os-card-label">TOTAL</div>
+              <div class="os-card-value" id="os2024GAATotal">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-ongoing-light">
+              <div class="os-card-label">ON-GOING</div>
+              <div class="os-card-value" id="os2024GAAOngoing">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-completed-light">
+              <div class="os-card-label">COMPLETED</div>
+              <div class="os-card-value" id="os2024GAACompleted">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-nys-light">
+              <div class="os-card-label">NYS</div>
+              <div class="os-card-value" id="os2024GAANYS">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-terminated-light">
+              <div class="os-card-label">TERMINATED</div>
+              <div class="os-card-value" id="os2024GAATerminated">0</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- DA -->
+        <section class="os-year-block os-fund-block" id="osFundRow2024DA">
+          <div class="os-year-row os-year-row-fund">
+            <div class="os-fund-label">DA</div>
+
+            <div class="os-card os-card-fund os-card-total-light">
+              <div class="os-card-label">TOTAL</div>
+              <div class="os-card-value" id="os2024DATotal">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-ongoing-light">
+              <div class="os-card-label">ON-GOING</div>
+              <div class="os-card-value" id="os2024DAOngoing">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-completed-light">
+              <div class="os-card-label">COMPLETED</div>
+              <div class="os-card-value" id="os2024DACompleted">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-nys-light">
+              <div class="os-card-label">NYS</div>
+              <div class="os-card-value" id="os2024DANYS">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-terminated-light">
+              <div class="os-card-label">TERMINATED</div>
+              <div class="os-card-value" id="os2024DATerminated">0</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- DAR -->
+        <section class="os-year-block os-fund-block" id="osFundRow2024DAR">
+          <div class="os-year-row os-year-row-fund">
+            <div class="os-fund-label">DAR</div>
+
+            <div class="os-card os-card-fund os-card-total-light">
+              <div class="os-card-label">TOTAL</div>
+              <div class="os-card-value" id="os2024DARTotal">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-ongoing-light">
+              <div class="os-card-label">ON-GOING</div>
+              <div class="os-card-value" id="os2024DAROngoing">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-completed-light">
+              <div class="os-card-label">COMPLETED</div>
+              <div class="os-card-value" id="os2024DARCompleted">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-nys-light">
+              <div class="os-card-label">NYS</div>
+              <div class="os-card-value" id="os2024DARNYS">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-terminated-light">
+              <div class="os-card-label">TERMINATED</div>
+              <div class="os-card-value" id="os2024DARTerminated">0</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- DepEd -->
+        <section class="os-year-block os-fund-block" id="osFundRow2024DepEd">
+          <div class="os-year-row os-year-row-fund">
+            <div class="os-fund-label">DepEd</div>
+
+            <div class="os-card os-card-fund os-card-total-light">
+              <div class="os-card-label">TOTAL</div>
+              <div class="os-card-value" id="os2024DepEdTotal">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-ongoing-light">
+              <div class="os-card-label">ON-GOING</div>
+              <div class="os-card-value" id="os2024DepEdOngoing">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-completed-light">
+              <div class="os-card-label">COMPLETED</div>
+              <div class="os-card-value" id="os2024DepEdCompleted">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-nys-light">
+              <div class="os-card-label">NYS</div>
+              <div class="os-card-value" id="os2024DepEdNYS">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-terminated-light">
+              <div class="os-card-label">TERMINATED</div>
+              <div class="os-card-value" id="os2024DepEdTerminated">0</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Maintenance -->
+        <section class="os-year-block os-fund-block" id="osFundRow2024Maintenance">
+          <div class="os-year-row os-year-row-fund">
+            <div class="os-fund-label">Maintenance</div>
+
+            <div class="os-card os-card-fund os-card-total-light">
+              <div class="os-card-label">TOTAL</div>
+              <div class="os-card-value" id="os2024MaintenanceTotal">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-ongoing-light">
+              <div class="os-card-label">ON-GOING</div>
+              <div class="os-card-value" id="os2024MaintenanceOngoing">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-completed-light">
+              <div class="os-card-label">COMPLETED</div>
+              <div class="os-card-value" id="os2024MaintenanceCompleted">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-nys-light">
+              <div class="os-card-label">NYS</div>
+              <div class="os-card-value" id="os2024MaintenanceNYS">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-terminated-light">
+              <div class="os-card-label">TERMINATED</div>
+              <div class="os-card-value" id="os2024MaintenanceTerminated">0</div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- ========= CY 2023 (OVERALL) ========= -->
+      <section class="os-year-block">
+        <div class="os-year-header">
+          <span class="os-year-label">CY 2023 - OVERALL</span>
+          <button type="button"
+                  class="os-toggle-funds-btn"
+                  id="osToggleFunds2023">
+            Hide FUND Rows
+          </button>
+        </div>
+
+        <div class="os-year-row">
+          <div class="os-card os-card-total">
+            <div class="os-card-label">TOTAL</div>
+            <div class="os-card-value" id="os2023Total">0</div>
+          </div>
+          <div class="os-card os-card-ongoing">
+            <div class="os-card-label">ON-GOING</div>
+            <div class="os-card-value" id="os2023Ongoing">0</div>
+          </div>
+          <div class="os-card os-card-completed">
+            <div class="os-card-label">COMPLETED</div>
+            <div class="os-card-value" id="os2023Completed">0</div>
+          </div>
+          <div class="os-card os-card-nys">
+            <div class="os-card-label">NYS</div>
+            <div class="os-card-value" id="os2023NYS">0</div>
+          </div>
+          <div class="os-card os-card-terminated">
+            <div class="os-card-label">TERMINATED</div>
+            <div class="os-card-value" id="os2023Terminated">0</div>
+          </div>
+
+          <div class="os-equal">=</div>
+          <div class="os-pie-wrapper">
+            <div class="os-pie" data-row="2023">
+              <span class="os-pie-label" id="osPieLabel2023">0%</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========= CY 2023 FUND BREAKDOWN ========= -->
+      <div id="osFunds2023Group">
+        <!-- GAA -->
+        <section class="os-year-block os-fund-block" id="osFundRow2023GAA">
+          <div class="os-year-row os-year-row-fund">
+            <div class="os-fund-label">GAA</div>
+
+            <div class="os-card os-card-fund os-card-total-light">
+              <div class="os-card-label">TOTAL</div>
+              <div class="os-card-value" id="os2023GAATotal">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-ongoing-light">
+              <div class="os-card-label">ON-GOING</div>
+              <div class="os-card-value" id="os2023GAAOngoing">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-completed-light">
+              <div class="os-card-label">COMPLETED</div>
+              <div class="os-card-value" id="os2023GAACompleted">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-nys-light">
+              <div class="os-card-label">NYS</div>
+              <div class="os-card-value" id="os2023GAANYS">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-terminated-light">
+              <div class="os-card-label">TERMINATED</div>
+              <div class="os-card-value" id="os2023GAATerminated">0</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- DA -->
+        <section class="os-year-block os-fund-block" id="osFundRow2023DA">
+          <div class="os-year-row os-year-row-fund">
+            <div class="os-fund-label">DA</div>
+
+            <div class="os-card os-card-fund os-card-total-light">
+              <div class="os-card-label">TOTAL</div>
+              <div class="os-card-value" id="os2023DATotal">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-ongoing-light">
+              <div class="os-card-label">ON-GOING</div>
+              <div class="os-card-value" id="os2023DAOngoing">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-completed-light">
+              <div class="os-card-label">COMPLETED</div>
+              <div class="os-card-value" id="os2023DACompleted">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-nys-light">
+              <div class="os-card-label">NYS</div>
+              <div class="os-card-value" id="os2023DANYS">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-terminated-light">
+              <div class="os-card-label">TERMINATED</div>
+              <div class="os-card-value" id="os2023DATerminated">0</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- DAR -->
+        <section class="os-year-block os-fund-block" id="osFundRow2023DAR">
+          <div class="os-year-row os-year-row-fund">
+            <div class="os-fund-label">DAR</div>
+
+            <div class="os-card os-card-fund os-card-total-light">
+              <div class="os-card-label">TOTAL</div>
+              <div class="os-card-value" id="os2023DARTotal">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-ongoing-light">
+              <div class="os-card-label">ON-GOING</div>
+              <div class="os-card-value" id="os2023DAROngoing">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-completed-light">
+              <div class="os-card-label">COMPLETED</div>
+              <div class="os-card-value" id="os2023DARCompleted">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-nys-light">
+              <div class="os-card-label">NYS</div>
+              <div class="os-card-value" id="os2023DARNYS">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-terminated-light">
+              <div class="os-card-label">TERMINATED</div>
+              <div class="os-card-value" id="os2023DARTerminated">0</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- DepEd -->
+        <section class="os-year-block os-fund-block" id="osFundRow2023DepEd">
+          <div class="os-year-row os-year-row-fund">
+            <div class="os-fund-label">DepEd</div>
+
+            <div class="os-card os-card-fund os-card-total-light">
+              <div class="os-card-label">TOTAL</div>
+              <div class="os-card-value" id="os2023DepEdTotal">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-ongoing-light">
+              <div class="os-card-label">ON-GOING</div>
+              <div class="os-card-value" id="os2023DepEdOngoing">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-completed-light">
+              <div class="os-card-label">COMPLETED</div>
+              <div class="os-card-value" id="os2023DepEdCompleted">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-nys-light">
+              <div class="os-card-label">NYS</div>
+              <div class="os-card-value" id="os2023DepEdNYS">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-terminated-light">
+              <div class="os-card-label">TERMINATED</div>
+              <div class="os-card-value" id="os2023DepEdTerminated">0</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Maintenance -->
+        <section class="os-year-block os-fund-block" id="osFundRow2023Maintenance">
+          <div class="os-year-row os-year-row-fund">
+            <div class="os-fund-label">Maintenance</div>
+
+            <div class="os-card os-card-fund os-card-total-light">
+              <div class="os-card-label">TOTAL</div>
+              <div class="os-card-value" id="os2023MaintenanceTotal">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-ongoing-light">
+              <div class="os-card-label">ON-GOING</div>
+              <div class="os-card-value" id="os2023MaintenanceOngoing">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-completed-light">
+              <div class="os-card-label">COMPLETED</div>
+              <div class="os-card-value" id="os2023MaintenanceCompleted">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-nys-light">
+              <div class="os-card-label">NYS</div>
+              <div class="os-card-value" id="os2023MaintenanceNYS">0</div>
+            </div>
+            <div class="os-card os-card-fund os-card-terminated-light">
+              <div class="os-card-label">TERMINATED</div>
+              <div class="os-card-value" id="os2023MaintenanceTerminated">0</div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+<!-- PROJECT DOCUMENTATION WINDOW -->
+<div class="pd-overlay" id="projectDocsOverlay" aria-modal="true" role="dialog" hidden>
+  <div class="pd-box">
+    <div class="pd-top">
+      <h3 class="pd-title">PROJECT DOCUMENTATION</h3>
+      <button type="button" class="pd-close-btn" id="pdCloseBtn">Close</button>
+    </div>
+    <div class="pd-body" id="projectDocsBody">
+      <div class="pd-loading" id="projectDocsLoading">
+        Loading documentation…
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Status per PE logic -->
+<script src="StatusPE.js"></script>
+<script src="OverallStatus.js"></script>
+<script src="ProjectDocs.js"></script>
+  <script src="main.js"></script>
 </body>
 </html>
-

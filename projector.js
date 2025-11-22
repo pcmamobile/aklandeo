@@ -1,262 +1,440 @@
-// projector.js
+// projector.clean.js — Simplified & De-duplicated
+// • Keeps behavior intact
+// • Removes stray comments & duplication
+// • Shares helpers for team-role chips
 (function () {
-  const PCMA = window.PCMA;
-  if (!PCMA) return;
+  'use strict';
 
-  const presentOverlay = document.getElementById("presentOverlay");
-  const presentSlides = document.getElementById("presentSlides");
-  const presentThumbs = document.getElementById("presentThumbs");
-  const presentCID = document.getElementById("presentCID");
-  const presentProj = document.getElementById("presentProj");
-  const presentContractor = document.getElementById("presentContractor");
-  const presentAmt = document.getElementById("presentAmt");
-  const presentRevAmt = document.getElementById("presentRevAmt");
-  const presentNTP = document.getElementById("presentNTP");
-  const presentExpiry = document.getElementById("presentExpiry");
-  const presentRevExpiry = document.getElementById("presentRevExpiry");
-  const presentRemarks = document.getElementById("presentRemarks");
-  const presentStatusChip = document.getElementById("presentStatusChip");
-  const presentCounter = document.getElementById("presentCounter");
-  const presentPrev = document.getElementById("presentPrev");
-  const presentNext = document.getElementById("presentNext");
-  const presentPlay = document.getElementById("presentPlay");
-  const presentOpen = document.getElementById("presentOpen");
-  const presentClose = document.getElementById("presentClose");
+  const PCMA = (window.PCMA = window.PCMA || {});
+  const H = (PCMA.state || {});
 
-  const LOGO_FALLBACK = PCMA.config.LOGO_FALLBACK;
+  // ---------- Elements ----------
+  const presentOverlay = document.getElementById('presentOverlay');
+  if (!presentOverlay) return;
 
-  const presentState = {
-    items: [],
-    index: 0,
-    row: null,
+  presentOverlay.classList.remove('show');
+  presentOverlay.setAttribute('hidden', '');
+
+  const presentSlides  = document.getElementById('presentSlides');
+  const presentThumbs  = document.getElementById('presentThumbs');
+  const presentCID     = document.getElementById('presentCID');
+  const presentTeam    = document.getElementById('presentTeam');
+
+  const presentPrimary = document.getElementById('presentPrimary');
+  const presentBars    = document.getElementById('presentBars');
+  const presentCounter = document.getElementById('presentCounter');
+
+  const presentPrev    = document.getElementById('presentPrev');
+  const presentNext    = document.getElementById('presentNext');
+
+  const presentPlay    = document.getElementById('presentPlay');
+  const presentOpen    = document.getElementById('presentOpen');
+  const presentClose   = document.getElementById('presentClose');
+  const presentPrevBtn = document.getElementById('presentPrevBtn');
+  const presentNextBtn = document.getElementById('presentNextBtn');
+
+  const LOGO_FALLBACK =
+    (PCMA.config && PCMA.config.LOGO_FALLBACK) ||
+    'https://lh3.googleusercontent.com/d/1VanVX82ANGfKA8jcGZL8cVDQh4EuN8-r=s800?authuser=0';
+
+  // ---------- State ----------
+  const state = {
+    projects: [],  // current filtered list
+    pIndex: 0,
+    items: [],     // slides for current project
+    sIndex: 0,
     timer: null,
     delay: 6000,
   };
 
-  function statusChipColor(t) {
-    const s = (t || "").toLowerCase().trim();
-    if (s === "completed (pcma)" || s === "pcma") return "#2563eb";
-    if (s === "completed") return "#16a34a";
-    if (s === "on-going") return "#f59e0b";
-    if (s === "100%") return "#14b8a6";
-    return "#64748b";
-  }
+  // ---------- Helpers ----------
+  const getFilteredProjects = () => (
+    (PCMA.state && Array.isArray(PCMA.state.lastRenderedRows))
+      ? PCMA.state.lastRenderedRows.filter(r => Array.isArray(r) && r.length)
+      : []
+  );
 
-  function fmtDateSafe(x) {
-    const raw = (x || "").toString().trim();
-    if (!raw) return "—";
-    const d = new Date(raw);
-    if (!isNaN(d))
-      return d.toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "2-digit",
-      });
-    return raw;
-  }
-
-  function showPresentIndex(i) {
-    if (!presentState.items.length) return;
-    const N = presentState.items.length;
-    presentState.index = ((i % N) + N) % N;
-    [...presentSlides.children].forEach((el, idx) =>
-      el.classList.toggle("active", idx === presentState.index)
+  function findCol(...keys) {
+    const headers = H.headers || [];
+    return headers.findIndex(h =>
+      keys.some(k => String(h || '').toLowerCase().includes(String(k).toLowerCase()))
     );
-    [...presentThumbs.children].forEach((el, idx) =>
-      el.classList.toggle("active", idx === presentState.index)
-    );
-    presentCounter.textContent = `${presentState.index + 1} / ${N}`;
+  }
+  const text = (v) => (v == null ? '' : String(v));
+
+  function parseMoney(v){
+    if (v == null) return null;
+    const n = parseFloat(String(v).replace(/[^0-9.\-]/g,''));
+    return Number.isFinite(n) ? n : null;
+  }
+  function fmtPHP(n){
+    try { return '₱ ' + Number(n).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+    catch { return '₱ ' + n; }
+  }
+  function fmtDate(v){
+    if (!v) return '';
+    const d = new Date(v);
+    return isNaN(d) ? String(v) :
+      d.toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: '2-digit' });
+  }
+  function statusChipColor(t){
+    const s = (t || '').toLowerCase().trim();
+    if (s === 'completed (pcma)' || s === 'pcma') return '#2563eb';
+    if (s === 'completed') return '#16a34a';
+    if (s === 'on-going') return '#f59e0b';
+    if (s === '100%') return '#14b8a6';
+    return '#64748b';
   }
 
-  function startPresentAuto() {
-    if (presentState.timer || !presentState.items.length) return;
-    presentState.timer = setTimeout(function tick() {
-      showPresentIndex(presentState.index + 1);
-      presentState.timer = setTimeout(tick, presentState.delay);
-    }, presentState.delay);
-    presentPlay.textContent = "Pause";
+  // Shared team-role mapping for header & mini-block
+  function getTeamList(row){
+    const roles = [
+      ['PE', 'role-pe', 'project engineer',     '#ef4444', '#fff'],
+      ['PI', 'role-pi', 'project inspector',    '#22c55e', '#0b1220'],
+      ['RE', 'role-re', 'resident engineer',    '#f59e0b', '#0b1220'],
+      ['QE', 'role-qe', 'quantity engineer',    '#a855f7', '#fff'],
+      ['ME', 'role-me', 'materials engineer',   '#92400e', '#fff'],
+    ];
+    return roles.map(([abbr, cls, key, bg, fg])=>{
+      const idx = findCol(key);
+      const val = (idx > -1) ? (row[idx] ?? '').toString().trim() : '';
+      return { abbr, cls, val, bg, fg };
+    }).filter(r => r.val);
   }
-  function stopPresentAuto() {
-    if (presentState.timer) {
-      clearTimeout(presentState.timer);
-      presentState.timer = null;
+
+  // Build header team chips
+  function buildTeamChips(row){
+    presentTeam.innerHTML = '';
+    const list = getTeamList(row);
+    list.forEach(({abbr, cls, val, bg})=>{
+      const chip = document.createElement('span');
+      chip.className = 'role-chip';
+
+      const tag = document.createElement('span');
+      tag.className = `role-tag ${cls}`;
+      tag.textContent = abbr;
+      tag.style.color = bg;        // colored label
+      chip.style.background = 'transparent';
+      chip.style.border = '1px solid rgba(255,255,255,0.18)';
+      chip.style.color = '#e5e7eb';
+
+      chip.appendChild(tag);
+      chip.append(`: ${val}`);
+      presentTeam.appendChild(chip);
+    });
+    presentTeam.classList.toggle('hidden', list.length === 0);
+  }
+
+  function makeRow(label, value, isStatus){
+    const sRaw = (value == null ? '' : String(value)).trim();
+    const sLow = sRaw.toLowerCase();
+    const isEmpty =
+      sRaw === '' || sRaw === '-' || sRaw === '—' ||
+      sLow === 'n/a' || sLow === 'na' ||
+      sLow === 'null' || sLow === 'undefined';
+
+    const r = document.createElement('div');
+    r.className = 'primary-row';
+
+    if (isEmpty){ r.style.display = 'none'; return r; }
+
+    const l = document.createElement('div');
+    l.className = 'primary-label';
+    l.textContent = label + ' :';
+
+    const v = document.createElement('div');
+    v.className = 'primary-value';
+    v.textContent = sRaw;
+
+    if (isStatus){
+      v.classList.add('status');
+      v.style.background = statusChipColor(sRaw);
+      v.style.color = '#fff';
+      v.style.borderRadius = '999px';
+      v.style.padding = '6px 12px';
+      v.style.fontWeight = '900';
+      v.style.display = 'inline-block';
     }
-    presentPlay.textContent = "Play";
+
+    r.append(l, v);
+    return r;
   }
 
-  function openPresentation(row) {
-    presentState.row = row;
-    const headers = PCMA.state.headers;
+  function buildRightPane(row){
+    presentPrimary.innerHTML = '';
+    presentBars.innerHTML = '';
 
-    const cidIdx = headers.findIndex((h) => h.includes("contract id"));
-    const projIdx = headers.findIndex((h) => h.includes("project name"));
-    const amtIdx = headers.findIndex((h) => h.includes("contract amount"));
-    const revAmtIdx = headers.findIndex(
-      (h) =>
-        h.includes("rev. contract amount") ||
-        h.includes("revised contract amount") ||
-        h.includes("rev contract amount")
-    );
-    const contIdx = headers.findIndex((h) => h.includes("contractor"));
-    const statIdx = headers.findIndex((h) => h.includes("status"));
-    const ntpIdx = headers.findIndex(
-      (h) => h.includes("notice to proceed") || h.includes("ntp")
-    );
-    const expIdx = headers.findIndex(
-      (h) => h.includes("expiry date") || h.includes("original expiry date")
-    );
-    const revIdx = headers.findIndex(
-      (h) =>
-        h.includes("rev. expiry date") ||
-        h.includes("revised expiry date") ||
-        h.includes("rev expiry date")
-    );
-    const remIdx = headers.findIndex((h) => h.includes("remarks"));
+    const cidIdx    = findCol('contract id');
+    const projIdx   = findCol('project name');
+    const locIdx    = findCol('location');
+    const contIdx   = findCol('contractor');
+    const amtIdx    = findCol('contract amount','amount');
+    const revAmtIdx = findCol('rev. contract amount','revised contract amount','rev contract amount');
+    const ntpIdx    = findCol('notice to proceed','ntp');
+    const expIdx    = findCol('expiry date','original expiry date');
+    const revExpIdx = findCol('rev. expiry date','revised expiry date','rev expiry date');
+    const statIdx   = findCol('status');
+    const remIdx    = findCol('remarks');
+    const lbIdx     = findCol('last billing');
 
-    presentCID.textContent = cidIdx > -1 ? row[cidIdx] || "—" : "—";
-    presentProj.textContent = projIdx > -1 ? row[projIdx] || "—" : "—";
-    presentContractor.textContent = contIdx > -1 ? row[contIdx] || "—" : "—";
+    presentCID.textContent = (cidIdx > -1 ? (row[cidIdx] || '') : '') || '—';
+    buildTeamChips(row);
 
-    const amtRaw = amtIdx > -1 ? row[amtIdx] : "";
-    const revRaw = revAmtIdx > -1 ? row[revAmtIdx] : "";
-    const amtNum = PCMA.helpers.parseMoney(amtRaw);
-    const revNum = PCMA.helpers.parseMoney(revRaw);
-    presentAmt.textContent = amtNum != null ? PCMA.helpers.fmtPHP(amtNum) : amtRaw || "—";
-    presentRevAmt.textContent =
-      revNum != null ? PCMA.helpers.fmtPHP(revNum) : revRaw || "—";
+    const primary = document.createElement('div');
+    primary.className = 'modal-primary';
 
-    presentNTP.textContent = fmtDateSafe(ntpIdx > -1 ? row[ntpIdx] : "");
-    presentExpiry.textContent = fmtDateSafe(expIdx > -1 ? row[expIdx] : "");
-    presentRevExpiry.textContent = fmtDateSafe(revIdx > -1 ? row[revIdx] : "");
+    // A) Project / Contractor
+    const colA = document.createElement('div'); colA.className = 'primary-col group-a';
+    if (cidIdx  > -1 && row[cidIdx])  colA.appendChild(makeRow('Contract ID', row[cidIdx]));
+    if (projIdx > -1 && row[projIdx]) colA.appendChild(makeRow('Project Name', row[projIdx]));
+    if (contIdx > -1 && row[contIdx]) colA.appendChild(makeRow('Contractor', row[contIdx]));
 
-    presentRemarks.textContent = remIdx > -1 ? row[remIdx] || "—" : "—";
-    const st = statIdx > -1 ? row[statIdx] || "—" : "—";
-    presentStatusChip.textContent = st;
-    presentStatusChip.style.background = statusChipColor(st);
+    // B) Amounts
+    const colB = document.createElement('div'); colB.className = 'primary-col group-b';
+    if (amtIdx    > -1){ const n = parseMoney(row[amtIdx]);    colB.appendChild(makeRow('Contract Amount', n!=null ? fmtPHP(n) : String(row[amtIdx]??''))); }
+    if (revAmtIdx > -1){ const n = parseMoney(row[revAmtIdx]); colB.appendChild(makeRow('Rev. Contract Amount', n!=null ? fmtPHP(n) : String(row[revAmtIdx]??''))); }
 
-    // bars
-    const colSched = headers.findIndex((h) => h.includes("sched"));
-    const colActual = headers.findIndex((h) => h.includes("actual"));
-    const colSlip = headers.findIndex((h) => h.includes("slip"));
-    const s = PCMA.helpers.toPct(colSched > -1 ? row[colSched] : "0%");
-    const a = PCMA.helpers.toPct(colActual > -1 ? row[colActual] : "0%");
-    const l = PCMA.helpers.toPct(colSlip > -1 ? row[colSlip] : "0%");
+    // C) Dates + Status
+    const colC = document.createElement('div'); colC.className = 'primary-col group-c';
+    if (ntpIdx    > -1 && row[ntpIdx])    colC.appendChild(makeRow('NTP', fmtDate(row[ntpIdx])));
+    if (expIdx    > -1 && row[expIdx])    colC.appendChild(makeRow('Expiry Date', fmtDate(row[expIdx])));
+    if (revExpIdx > -1 && row[revExpIdx]) colC.appendChild(makeRow('Rev. Expiry Date', fmtDate(row[revExpIdx])));
+    if (statIdx   > -1 && row[statIdx])   colC.appendChild(makeRow('Status', String(row[statIdx]??''), true));
 
-    function animateMiniBar(fillEl, value, duration, formatter) {
-      const sign = value < 0 ? -1 : 1;
-      const endAbs = Math.min(Math.abs(value), 100);
-      const startTime = performance.now();
-      function step(now) {
-        const t = Math.min(1, (now - startTime) / duration);
-        const cur = endAbs * t;
-        fillEl.style.width = cur + "%";
-        const disp = sign * cur;
-        fillEl.textContent = formatter
-          ? formatter(disp)
-          : `${disp.toFixed(2)}%`;
-        if (t < 1) requestAnimationFrame(step);
-        else {
-          fillEl.style.width = endAbs + "%";
-          fillEl.textContent = formatter
-            ? formatter(sign * endAbs)
-            : `${(sign * endAbs).toFixed(2)}%`;
+    // D) Remarks / Last Billing
+    const colD = document.createElement('div'); colD.className = 'primary-col group-d';
+    if (remIdx > -1 && row[remIdx]) colD.appendChild(makeRow('Remarks', row[remIdx]));
+    if (lbIdx  > -1 && row[lbIdx])  colD.appendChild(makeRow('Last Billing', row[lbIdx]));
+
+    if (colA.children.length) primary.appendChild(colA);
+    if (colB.children.length) primary.appendChild(colB);
+    if (colC.children.length) primary.appendChild(colC);
+    if (colD.children.length) primary.appendChild(colD);
+
+    if (primary.children.length) presentPrimary.appendChild(primary);
+
+    // Mini bars (Sched / Actual / Slippage)
+    const schedIdx  = findCol('sched');
+    const actualIdx = findCol('actual');
+    const slipIdx   = findCol('slip');
+
+    const hasSched  = schedIdx  > -1 && row[schedIdx];
+    const hasActual = actualIdx > -1 && row[actualIdx];
+    const hasSlip   = slipIdx   > -1 && row[slipIdx];
+
+    if (hasSched || hasActual || hasSlip) {
+      const mini = document.createElement('div');
+      mini.className = 'mini-bars';
+
+      function animateFill(fillEl, value, duration, formatter) {
+        const barEl = fillEl.parentElement;
+        const v = Math.max(-100, Math.min(100, Number(value) || 0));
+        const start = performance.now();
+        function setTxt(x){
+          const txt = formatter ? formatter(x) : `${x.toFixed(2)}%`;
+          fillEl.textContent = txt;
+          barEl.setAttribute('data-pct', txt);
         }
+        function step(now){
+          const t = Math.min(1, (now - start)/duration);
+          fillEl.style.width = (Math.abs(v) * t) + '%';
+          setTxt(v * t);
+          if (t < 1) requestAnimationFrame(step);
+          else { fillEl.style.width = Math.abs(v) + '%'; setTxt(v); }
+        }
+        requestAnimationFrame(step);
       }
-      requestAnimationFrame(step);
-    }
-    function colorForSlippage(num) {
-      if (num > 0) return { bg: "#10b981", text: "#fff", sad: false };
-      if (num <= 0 && num > -5) return { bg: "#fecaca", text: "#7f1d1d", sad: false };
-      if (num <= -5 && num > -10) return { bg: "#f87171", text: "#fff", sad: true };
-      if (num <= -10) return { bg: "#dc2626", text: "#fff", sad: true };
-      return { bg: "#6b7280", text: "#fff", sad: false };
-    }
+      const toPct = (val) => {
+        if (val == null || String(val).trim()==='') return 0;
+        const s = String(val).trim();
+        if (s.endsWith('%')) return Number(s.replace('%','')) || 0;
+        const num = Number(s); return Number.isFinite(num) ? (num > 1 ? num : num*100) : 0;
+      };
+      const slipCfg = (num) => {
+        if (num > 0) return { bg:'#10b981', text:'#fff' };
+        if (num <= 0 && num > -5)  return { bg:'#fecaca', text:'#7f1d1d' };
+        if (num <= -5 && num > -10) return { bg:'#f87171', text:'#fff' };
+        if (num <= -10) return { bg:'#dc2626', text:'#fff' };
+        return { bg:'#6b7280', text:'#fff' };
+      };
 
-    const sEl = document.getElementById("pMiniSched");
-    const aEl = document.getElementById("pMiniActual");
-    const lEl = document.getElementById("pMiniSlip");
-    if (sEl) {
-      sEl.style.background = "#3b82f6";
-      animateMiniBar(sEl, s, 800, (v) => `${v.toFixed(2)}%`);
-    }
-    if (aEl) {
-      aEl.style.background = "#10b981";
-      animateMiniBar(aEl, a, 800, (v) => `${v.toFixed(2)}%`);
-    }
-    if (lEl) {
-      const cfg = colorForSlippage(l);
-      lEl.style.background = cfg.bg;
-      lEl.style.color = cfg.text;
-      animateMiniBar(lEl, l, 800, (v) =>
-        `${v.toFixed(2)}%${cfg.sad && v <= -10 ? " ☹️" : ""}`
-      );
-    }
+      if (hasSched){
+        const r = document.createElement('div'); r.className = 'mini-row';
+        r.innerHTML = `<div class="mini-label">SCHED--- :</div><div class="mini-bar"><div class="mini-fill"></div></div>`;
+        mini.appendChild(r);
+        const fill = r.querySelector('.mini-fill');
+        fill.style.background = '#3b82f6';
+        fill.style.color = '#fff';
+        animateFill(fill, toPct(row[schedIdx]), 800, v => `${v.toFixed(2)}%`);
+      }
+      if (hasActual){
+        const r = document.createElement('div'); r.className = 'mini-row';
+        r.innerHTML = `<div class="mini-label">ACTUAL--:</div><div class="mini-bar"><div class="mini-fill"></div></div>`;
+        mini.appendChild(r);
+        const fill = r.querySelector('.mini-fill');
+        fill.style.background = '#10b981';
+        fill.style.color = '#fff';
+        animateFill(fill, toPct(row[actualIdx]), 800, v => `${v.toFixed(2)}%`);
+      }
+      if (hasSlip){
+        const r = document.createElement('div'); r.className = 'mini-row';
+        r.innerHTML = `<div class="mini-label">SLIPPAGE :</div><div class="mini-bar"><div class="mini-fill"></div></div>`;
+        mini.appendChild(r);
+        const fill = r.querySelector('.mini-fill');
+        const pct = toPct(row[slipIdx]);
+        const cfg = slipCfg(pct);
+        fill.style.background = cfg.bg; fill.style.color = cfg.text;
+        animateFill(fill, pct, 800, v => `${v.toFixed(2)}%${(pct <= -10) ? ' ☹️' : ''}`);
+      }
 
-    // slides
-    presentSlides.innerHTML = "";
-    presentThumbs.innerHTML = "";
-    presentState.items = PCMA.collectImageUrls(row);
-    if (!presentState.items.length) {
-      const sld = document.createElement("div");
-      sld.className = "present-slide active";
+      // Team chips block under bars (left-aligned); reuse mapping
+      const teamBlock = document.createElement('div');
+      teamBlock.className = 'mini-team-block';
+      teamBlock.style.marginTop = '8px';
+      teamBlock.style.display = 'flex';
+      teamBlock.style.flexWrap = 'wrap';
+      teamBlock.style.gap = '6px';
+      teamBlock.style.justifyContent = 'flex-start';
+
+      getTeamList(row).forEach(({abbr, cls, val})=>{
+        const chip = document.createElement('span');
+        chip.className = 'role-chip';
+        const tag = document.createElement('span');
+        tag.className = `role-tag ${cls}`;
+        tag.textContent = abbr;
+        chip.appendChild(tag);
+        chip.append(`: ${val}`);
+        teamBlock.appendChild(chip);
+      });
+
+      if (teamBlock.children.length) mini.appendChild(teamBlock);
+      presentBars.appendChild(mini);
+    }
+  }
+
+  // ---------- Slides ----------
+  function rebuildSlidesForRow(row){
+    presentSlides.innerHTML = '';
+    presentThumbs.innerHTML = '';
+    state.items = (typeof PCMA.collectImageUrls === 'function' && PCMA.collectImageUrls(row)) || [];
+    state.sIndex = 0;
+
+    if (!state.items.length){
+      const sld = document.createElement('div');
+      sld.className = 'present-slide active';
       sld.innerHTML = `<img src="${LOGO_FALLBACK}" alt="No image">`;
       presentSlides.appendChild(sld);
-      presentCounter.textContent = "0 / 0";
-    } else {
-      presentState.items.forEach((it, i) => {
-        const sld = document.createElement("div");
-        sld.className = "present-slide" + (i === 0 ? " active" : "");
-        sld.innerHTML = `<img src="${it.url}" alt="${it.label}">`;
-        presentSlides.appendChild(sld);
-
-        const th = document.createElement("img");
-        th.className = "present-thumb" + (i === 0 ? " active" : "");
-        th.src = it.url;
-        th.alt = it.label;
-        th.onclick = () => showPresentIndex(i);
-        presentThumbs.appendChild(th);
-      });
-      presentCounter.textContent = `1 / ${presentState.items.length}`;
+      presentCounter.textContent = '0 / 0';
+      return;
     }
 
-    presentState.index = 0;
-    presentOverlay.classList.add("show");
-    document.body.classList.add("no-scroll");
-    stopPresentAuto();
-    startPresentAuto();
+    state.items.forEach((it, i) => {
+      const sld = document.createElement('div');
+      sld.className = 'present-slide' + (i === 0 ? ' active' : '');
+      sld.innerHTML = `<img src="${it.url}" alt="${it.label || ''}">`;
+      presentSlides.appendChild(sld);
+
+      const th = document.createElement('img');
+      th.className = 'present-thumb' + (i === 0 ? ' active' : '');
+      th.src = it.url; th.alt = it.label || '';
+      th.onclick = () => showSlide(i);
+      presentThumbs.appendChild(th);
+    });
+    presentCounter.textContent = `1 / ${state.items.length}`;
   }
 
-  // expose to modal.js
-  PCMA.openPresentation = openPresentation;
+  function showSlide(i){
+    if (!state.items.length) { presentCounter.textContent = '0 / 0'; return; }
+    const N = state.items.length;
+    state.sIndex = ((i % N) + N) % N;
+    const slides = Array.from(presentSlides.children);
+    const thumbs = Array.from(presentThumbs.children);
+    slides.forEach((el, k) => el.classList.toggle('active', k === state.sIndex));
+    thumbs.forEach((el, k) => el.classList.toggle('active', k === state.sIndex));
+    presentCounter.textContent = `${state.sIndex + 1} / ${N}`;
+  }
 
-  // events
-  presentPrev.addEventListener("click", () =>
-    showPresentIndex(presentState.index - 1)
-  );
-  presentNext.addEventListener("click", () =>
-    showPresentIndex(presentState.index + 1)
-  );
-  presentPlay.addEventListener("click", () => {
-    presentState.timer ? stopPresentAuto() : startPresentAuto();
-  });
-  presentOpen.addEventListener("click", () => {
-    if (presentState.items.length) {
-      window.open(presentState.items[presentState.index].url, "_blank", "noopener");
+  function startAuto(){
+    stopAuto();
+    if (!state.items.length) return;
+    state.timer = setTimeout(function tick(){
+      showSlide(state.sIndex + 1);
+      state.timer = setTimeout(tick, state.delay);
+    }, state.delay);
+    if (presentPlay) presentPlay.textContent = 'Pause';
+  }
+  function stopAuto(){
+    if (state.timer) clearTimeout(state.timer);
+    state.timer = null;
+    if (presentPlay) presentPlay.textContent = 'Play';
+  }
+
+  // ---------- Project navigation ----------
+  function openProjectByIndex(i){
+    state.projects = (PCMA.state && Array.isArray(PCMA.state.lastRenderedRows))
+      ? PCMA.state.lastRenderedRows.filter(r => Array.isArray(r) && r.length)
+      : [];
+    if (!state.projects.length) return;
+
+    const N = state.projects.length;
+    state.pIndex = ((i % N) + N) % N;
+    const row = state.projects[state.pIndex];
+
+    buildRightPane(row);
+    rebuildSlidesForRow(row);
+
+    stopAuto();
+    startAuto();
+
+    if (!presentOverlay.classList.contains('show')){
+      presentOverlay.classList.add('show');
+      presentOverlay.removeAttribute('hidden');
+      document.body.classList.add('no-scroll');
     }
-  });
-  presentClose.addEventListener("click", () => {
-    stopPresentAuto();
-    presentOverlay.classList.remove("show");
-    document.body.classList.remove("no-scroll");
-  });
-  window.addEventListener("keydown", (e) => {
-    if (!presentOverlay.classList.contains("show")) return;
-    if (e.key === "Escape") {
-      presentClose.click();
-    } else if (e.key === "ArrowRight") {
-      showPresentIndex(presentState.index + 1);
-    } else if (e.key === "ArrowLeft") {
-      showPresentIndex(presentState.index - 1);
+  }
+  const nextProject = () => openProjectByIndex(state.pIndex + 1);
+  const prevProject = () => openProjectByIndex(state.pIndex - 1);
+
+  // Public open()
+  function openPresentation(row){
+    const list = (PCMA.state && Array.isArray(PCMA.state.lastRenderedRows))
+      ? PCMA.state.lastRenderedRows.filter(r => Array.isArray(r) && r.length)
+      : [];
+    if (!list.length){ alert('No projects to present.'); return; }
+    let idx = list.findIndex(r => r === row);
+    if (idx < 0){
+      const sig = JSON.stringify(row);
+      idx = list.findIndex(r => JSON.stringify(r) === sig);
+      if (idx < 0) idx = 0;
     }
+    openProjectByIndex(idx);
+  }
+
+  // ---------- Events ----------
+  if (presentPrev) presentPrev.addEventListener('click', () => { showSlide(state.sIndex - 1); stopAuto(); });
+  if (presentNext) presentNext.addEventListener('click', () => { showSlide(state.sIndex + 1); stopAuto(); });
+  if (presentPrevBtn) presentPrevBtn.addEventListener('click', () => { prevProject(); stopAuto(); });
+  if (presentNextBtn) presentNextBtn.addEventListener('click', () => { nextProject(); stopAuto(); });
+
+  if (presentPlay) presentPlay.addEventListener('click', () => { state.timer ? stopAuto() : startAuto(); });
+  if (presentOpen) presentOpen.addEventListener('click', () => {
+    if (!state.items.length) return;
+    const it = state.items[state.sIndex];
+    if (it && it.url) window.open(it.url, '_blank', 'noopener');
   });
+  if (presentClose) presentClose.addEventListener('click', () => {
+    stopAuto();
+    presentOverlay.classList.remove('show');
+    presentOverlay.setAttribute('hidden','');
+    document.body.classList.remove('no-scroll');
+  });
+
+  window.addEventListener('keydown', (e) => {
+    if (!presentOverlay.classList.contains('show')) return;
+    if (e.key === 'Escape') presentClose?.click();
+    if (e.key === 'ArrowRight') { nextProject(); stopAuto(); }
+    if (e.key === 'ArrowLeft')  { prevProject(); stopAuto(); }
+  });
+
+  PCMA.openPresentation = openPresentation;
 })();

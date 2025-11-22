@@ -1,141 +1,270 @@
+/* PCMA Projector Mode — Simplified & De-duplicated
+   -----------------------------------------------------------
+   Goals:
+   • Keep behavior/markup identical
+   • Remove duplicate/conflicting rules
+   • Collapse themes into one tokenized palette
+   • Make selectors consistent + easy to tweak
+*/
+
+/* ========== Base Overlay / Container ========== */
 .present-overlay{
-  position:fixed;
-  inset:0;
-  background:#070b16;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  z-index:5000;
+  --blue-bg: #0c1f48;
+  --blue:    #2563eb;
+  --blueLt:  #60a5fa;
+  --blueLtr: #93c5fd;
+  --orange:  #f97316;
+  --orangeL: #fb923c;
+  --ink:     #0b1220;
+
+  position: fixed; inset: 0; z-index: 5000;
+  background: rgba(7,11,22,.95);
+  display: none; align-items: center; justify-content: center;
 }
-.present-overlay.show{display:flex;}
+.present-overlay.show{ display:flex; }
+.present-overlay[hidden]{ display:none!important; }
+
 .present-box{
-  width:min(100svw,1280px);
-  height:min(100svh,96svh);
-  background:linear-gradient(180deg,#0b1220 0%,#0b1220 55%,#0a0f1c 100%);
-  border:1px solid #1f2a44;
-  border-radius:18px;
-  overflow:hidden;
-  box-shadow:0 30px 100px rgba(0,0,0,.6);
-  display:grid;
-  grid-template-rows:auto 1fr auto;
+  width: 100svw; height: 100svh;
+  background: linear-gradient(180deg, var(--blue-bg) 0%, #0a1a3a 100%);
+  border: 0; border-radius: 0; box-shadow: none;
+  display:flex; flex-direction: column;
 }
+
+/* ========== Header (CID, actions, chips) ========== */
 .present-top{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:16px 20px;
-  background:linear-gradient(135deg,#2563eb,#1e40af);
-  border-bottom:4px solid #1e3a8a;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 18px;
+  background: linear-gradient(135deg, var(--blue), #1e40af);
+  border-bottom: 1px solid rgba(255,255,255,.12);
 }
-.present-cid{font-size:2rem;font-weight:900;color:#fff;}
-.present-actions{display:flex;gap:10px;}
+.present-top-left{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+
+.present-actions{ display:flex; gap:8px; }
 .present-btn{
-  background:#fff;
-  color:#1e40af;
-  border:none;
-  border-radius:10px;
-  padding:10px 14px;
-  font-weight:900;
-  cursor:pointer;
+  background: var(--orange); color: var(--ink);
+  border: none; border-radius: 10px;
+  padding: 8px 12px; font-weight: 900; cursor: pointer;
 }
+.present-btn:hover{ background: var(--orangeL); }
 
+.present-cid{
+  font-size: 1.15rem; font-weight: 900; color: #fff;
+  background:#ffffff22; padding:6px 10px; border-radius:10px;
+}
+.present-team{ display:flex; gap:6px; flex-wrap:wrap; }
+.role-chip{
+  border-radius: 999px; padding: 4px 10px; font-weight: 900; font-size: 1rem;
+  background: linear-gradient(135deg, var(--blueLt), var(--blueLtr));
+  color: var(--ink);
+  border: 1px solid rgba(255,255,255,0.18);
+}
+/* Single role tag style; colors are set inline by JS as needed */
+.present-overlay .role-tag{ font-weight: 900; margin-right: 2px; }
+
+.hidden{ display:none!important; }
+
+/* ========== Layout Split (Slides / Data) ========== */
 .present-content{
-  display:grid;
-  grid-template-columns:1.15fr .85fr;
-  gap:16px;
-  padding:16px;
-  overflow:hidden;
+  flex:1; display:grid; grid-template-columns:3fr 2fr;
+  gap:12px; padding:12px; overflow:hidden;
 }
-@media(max-width:980px){
-  .present-content{grid-template-columns:1fr;}
-}
+@media (max-width:1100px){ .present-content{ grid-template-columns:1fr; } }
 
+/* ========== Left: Slides / Thumbs / Nav ========== */
 .present-left{
-  position:relative;
-  background:#0f172a;
-  border:1px solid #1f2a44;
-  border-radius:12px;
-  overflow:hidden;
+  position:relative; background:#0f172a;
+  border:1px solid #1f2a44; border-radius:12px;
+  overflow:hidden; display:flex; flex-direction:column;
 }
+.present-slides{ flex:1; position:relative; }
 .present-slide{
-  position:absolute;
-  inset:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  opacity:0;
-  transition:opacity .4s ease;
+  position:absolute; inset:0; opacity:0; transition:opacity .2s ease;
+  display:flex; align-items:center; justify-content:center;
 }
-.present-slide.active{opacity:1;}
-.present-left .nav{
-  position:absolute;
-  top:50%;
-  transform:translateY(-50%);
-  background:rgba(0,0,0,.35);
-  border:none;
-  width:56px;
-  height:56px;
-  border-radius:999px;
-  color:#fff;
-  cursor:pointer;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-.present-prev{left:10px;}
-.present-next{right:10px;}
+.present-slide.active{ opacity:1; }
+.present-slide img{ max-width:100%; max-height:100%; object-fit:contain; }
 
 .present-thumbs{
-  position:absolute;
-  left:0;
-  right:0;
-  bottom:0;
-  background:rgba(7,11,22,.82);
-  padding:8px;
-  display:flex;
-  gap:8px;
-  overflow:auto;
-  border-top:1px solid #1f2a44;
+  display:flex; gap:8px; padding:10px; overflow:auto;
+  border-top:1px solid #1f2a44; background:#0b1220;
 }
 .present-thumb{
-  width:100px;
-  height:70px;
-  object-fit:cover;
-  border-radius:8px;
-  border:2px solid transparent;
-  opacity:.8;
-  cursor:pointer;
-  background:#111827;
-  flex:0 0 auto;
+  width:100px; height:70px; object-fit:cover; flex:0 0 auto;
+  border-radius:8px; border:2px solid transparent; opacity:.85; cursor:pointer; background:#111827;
 }
-.present-thumb.active{opacity:1;border-color:#86efac;}
+.present-thumb.active{ opacity:1; border-color: var(--orange); box-shadow: 0 0 0 2px rgba(96,165,250,0.60); }
 
-.present-right{display:flex;flex-direction:column;gap:12px;}
-.present-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.present-cell{
-  background:#0f172a;
-  border:1px solid #1f2a44;
-  border-radius:12px;
-  padding:14px;
+
+
+
+/* Arrow previous/Next Picture */
+.nav{
+  position:absolute; 
+  top:50%; 
+  transform:translateY(-50%);
+  width:60px; 
+  height:50px; 
+  border-radius:999px; 
+  border:none;
+  background: rgba(147,197,253,0.50); 
+  color: var(--ink);
+  font-size:30px; 
+  font-weight:900; 
+  display:grid; 
+  place-items:center;
+  cursor:pointer; 
+  backdrop-filter: blur(2px);
+  z-index: 10; /* make sure the arrows are on top and clickable */
 }
-.present-cell.span-2{grid-column:1/-1;}
-.present-title{
-  font-size:.8rem;
-  color:#93c5fd;
-  font-weight:800;
-  margin-bottom:6px;
-  letter-spacing:.08em;
-  text-transform:uppercase;
+
+.present-prev{ left:10px; } .present-next{ right:10px; }
+.nav:hover{ background: rgba(147,197,253,0.70); }
+
+
+
+
+/* lets do it again 
+In the right side of Projector window The Container of 
+Project ID, Project Name, Contractor, Contract Amount, Rev. Contract Amount, 
+NTP, Expiry Date, Rev. Expiry Date, Status, Remarks and Billing is Transparent, 
+Change the Color to lighter than the Background Color make the 
+Container round not square, provide space for the value top left 
+right and left. make the text/value Bigger, Bold, Color Green. 
+also the label inside that container, Bigger Size, Bold and Color Red*/
+
+
+
+#presentBars{ 
+margin-top:10px; } /* gap in bars and container */
+
+/* One-column container + wider label column */
+.modal-primary{ 
+display:grid; 
+grid-template-columns:1fr; 
+gap:12px; }
+
+.primary-row{ 
+display:grid; 
+grid-template-columns:200px 1fr; 
+align-items:center; 
+gap:12px; }
+
+/* === Projector: Right-side detail containers (Project ID, Name, Contractor, etc.) === */
+.present-overlay .present-right .primary-col {
+  /* lighter, opaque panel (tweak if your bg is different) */
+  background: #14306a;
+  border: 1px solid rgba(147, 197, 253, 0.65);
+  border-radius: 22px;          /* round instead of square */
+  padding: 5px 18px;           /* space inside: top/right/bottom/left */
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.10);
 }
-.present-value{font-size:1.2rem;color:#e5e7eb;font-weight:800;line-height:1.35;}
-.present-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
-.present-cell-small{
-  background:#0f172a;
-  border:1px dashed #1f2a44;
-  border-radius:12px;
-  padding:12px;
+
+/* LABEL: bigger, bold, red */
+.present-overlay .present-right .primary-col .primary-label {
+  font-size: 1.1rem;            /* slightly bigger label text */
+  font-weight: 700;             /* bold */
+  color: #ef4444;               /* red */
 }
-.present-remarks{white-space:pre-wrap;line-height:1.45;color:#e9efff;}
-.status-chip{display:inline-block;padding:6px 12px;border-radius:999px;font-weight:900;color:#fff;}
-.present-right .mini-label{color:#fff !important;}
-.present-footer{padding:10px 16px;color:#94a3b8;font-weight:800;}
+
+/* VALUE: bigger, bold, green + padding all around */
+.present-overlay .present-right .primary-col .primary-value {
+  padding: 2px 12px;            /* top / right / bottom / left */
+  border-radius: 12px;
+  font-size: 1.25rem;           /* bigger value text */
+  font-weight: 700;             /* bold */
+  color: #22c55e;               /* green */
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Lets do it Again In Mini Bars (Sched / Actual / Slippage) 
+Align the Mini Bars to Schedule, Actual and Slippage Mini Bars Should 
+be Round in the edge Center the Percentage inside the Mini Bars Vertical 
+and Horizontal Color the label/text "Sched" with Red Color the label/text 
+"Actual" with Green Color the label/text "Slippage" with Red Bold the Label/text 
+Color the Percentage/Value with white. also align the mini bar vertically and 
+put some border color it white
+
+
+/* ========== Mini Bars (Sched / Actual / Slippage) ========== */
+
+/* Each row: label on the left, bar on the right, vertically centered */
+.present-right #presentBars .mini-bars .mini-row{
+  display: flex;
+  align-items: center;          /* vertically align label + bar */
+  gap: 20px;                    /* space between label and bar */
+}
+
+/* Base label style: bold */
+.present-right #presentBars .mini-bars .mini-label{
+  display: flex;
+  align-items: center;
+  font-weight: 700;             /* bold label text */
+  padding: 5px;
+}
+
+/* 1st row = Sched → red */
+.present-right #presentBars .mini-bars .mini-row:nth-child(1) .mini-label{
+  color: #ADD8E6 !important;    /* red */
+}
+
+/* 2nd row = Actual → green */
+.present-right #presentBars .mini-bars .mini-row:nth-child(2) .mini-label{
+  color: #22c55e !important;    /* green */
+}
+
+/* 3rd row = Slippage → red */
+.present-right #presentBars .mini-bars .mini-row:nth-child(3) .mini-label{
+  color: #ef4444 !important;    /* red */
+}
+
+/* Bar: rounded edges, white border, vertically centered in row */
+.present-right #presentBars .mini-bars .mini-row > .mini-bar{
+  position: relative !important;
+  display: inline-block !important;
+  height: 25px !important;
+  flex: 0 0 40%;                /* about 40% width of the row */
+  max-width: 40% !important;
+  inline-size: 40% !important;
+  border-radius: 999px;         /* fully round ends */
+  overflow: hidden;
+  border: 1.5px solid #0000FF  ;    /* white border around the mini bar */
+  box-sizing: border-box;
+  align-self: center;           /* align bar vertically within the row */
+}
+
+/* The colored fill inside the bar (width animated by JS) */
+.present-right #presentBars .mini-bars .mini-fill{
+  height: 100%;
+  border-radius: 999px;         /* keep edges round inside */
+  color: transparent !important;/* hide inner text, we use ::after instead */
+}
+
+/* Center the percentage text in the bar & make it white */
+.present-right #presentBars .mini-bars .mini-bar::after{
+  content: attr(data-pct);      /* JS sets data-pct attr */
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;          /* vertical center */
+  justify-content: center;      /* horizontal center */
+  color: #ffffff !important;    /* percentage/value = white */
+  font-weight: 900;
+  line-height: 1;
+  pointer-events: none;
+  white-space: nowrap;
+  text-shadow: 0 1px 1px rgba(0,0,0,.35);
+}
+
+

@@ -85,3 +85,21 @@
 @media(max-width:768px){
   #filters{top:0;border-radius:0;}
 }
+
+/* Projector Mode button (beside Filter) */
+#presentGlobal{
+  background:#f59e0b;         /* orange */
+  color:#0b1220;              /* dark text */
+  border:none;
+  border-radius:8px;
+  padding:5px 10px;
+  font-weight:800;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-size:.85rem;
+  height:32px;                /* match Filter button */
+  cursor:pointer;
+}
+#presentGlobal:hover{ background:#fb923c; }
+

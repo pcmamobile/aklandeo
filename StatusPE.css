@@ -1,0 +1,551 @@
+/* ============================
+   STATUS PER PE – FULLSCREEN
+   ============================ */
+
+/* Full-screen overlay */
+.pe-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 4000;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.9); /* dark overlay */
+}
+
+.pe-overlay[hidden] {
+  display: none !important;
+}
+
+/* Main box */
+.pe-box {
+  background: #020617;  /* dark blue page background */
+  color: #e5e7eb;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+
+
+/* Stop body scrolling when open */
+body.no-scroll {
+  overflow: hidden;
+}
+
+/* ============================
+   HEADER (#FA9F66)
+   ============================ */
+
+.pe-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fa9f66;
+  padding: 10px 14px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+
+/* Title – left, #000, bold, 2rem */
+.pe-title {
+  margin: 0;
+  font-weight: 900;
+  font-size: 2rem;
+  color: #000000;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* Dropdown controls (PE + Year) after title */
+.pe-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: 12px;
+  flex-wrap: wrap;
+}
+
+/* Labels PE / Year */
+.pe-controls label {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  font-weight: 800;
+  color: #1d4ed8;    /* blue */
+  font-size: clamp(0.75rem, 1.4vw, 0.9rem);
+}
+
+/* Dropdown container – #FFF */
+.pe-select {
+  background: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #9ca3af;
+  padding: 4px 8px;
+  min-width: 120px;
+  font-size: clamp(0.8rem, 1.4vw, 0.95rem);
+  font-weight: 700;
+  color: #000;       /* black text */
+  outline: none;
+  cursor: pointer;
+}
+
+/* Dropdown options – black & bold */
+.pe-select option {
+  background: #ffffff;
+  color: #000;
+  font-weight: 700;
+}
+
+/* Generate button (optional) */
+#peGenerate.pe-btn {
+  background: #22c55e;
+  color: #052e16;
+  border-radius: 999px;
+  border: none;
+  padding: 6px 12px;
+  font-weight: 800;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+#peGenerate.pe-btn:hover {
+  background: #16a34a;
+}
+
+/* Selected value on right side of header */
+#peHeaderSelectedValue {
+  margin-left: auto;
+  margin-right: 8px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.85);
+  font-weight: 900;
+  font-size: clamp(1.1rem, 2.4vw, 1.6rem);
+  color: #000;
+  white-space: nowrap;
+}
+
+/* Close button – dark orange at far right */
+#peClose.pe-btn {
+  background: #ea580c;
+  color: #ffffff;
+  font-weight: 900;
+  border-radius: 999px;
+  border: none;
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+#peClose.pe-btn:hover {
+  background: #c2410c;
+}
+
+/* ============================
+   SUMMARY CARDS (5 containers)
+   ============================ */
+
+.pe-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+  justify-content: flex-start;  /* align from left */
+  align-items: stretch;
+}
+
+/* Container: #6161FF, value #E3D400 */
+.pe-sum-card {
+  background: #6C7787;
+  color: #f9fafb;
+  border-radius: 10px;
+  padding: 10px;
+  text-align: center;
+  font-weight: 700;
+  min-height: 80px;
+  min-width: 140px;
+  flex: 0 0 150px;              /* fixed width tile */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.pe-sum-label {
+  font-size: 1.2rem;
+  letter-spacing: 0.05em;
+}
+
+.pe-sum-value {
+  margin-top: 4px;
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: #e3d400;               /* value color */
+}
+
+.pe-sum-card small {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.7rem;
+  opacity: 0.9;
+}
+
+/* ============================
+   WORK-IN-PROGRESS BAR (NEW STYLE)
+   ============================ */
+
+/* Container – same height as the 5 tiles, fills remaining row */
+.pe-progress {
+  min-height: 80px;              /* same as summary cards */
+  flex: 1 1 auto;                /* from end of 5 boxes to right edge */
+  padding: 1px 20px;
+  border-radius: 12px;
+  background: #cfe9ff;           /* light sky background */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.35);
+}
+
+/* Optional small label above the bar */
+.pe-progress-scale {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: #0f172a;
+  margin-bottom: 4px;
+}
+
+/* Track: rounded white pill with dark border */
+.pe-progress-bar {
+  position: relative;
+  width: 100%;
+  height: 60px;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 1px solid #0f172a;
+  overflow: hidden;
+}
+
+/* Green fill inside the pill (JS sets width) */
+.pe-progress-fill {
+  position: absolute;
+  left: 3px;
+  top: 3px;
+  bottom: 3px;
+  width: 0%;                         /* still controlled by JS */
+  border-radius: 999px;
+  /* two-layer background: moving stripes + flowing green gradient */
+  background-image:
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.35) 25%,
+      transparent 25%,
+      transparent 50%,
+      rgba(255, 255, 255, 0.35) 50%,
+      rgba(255, 255, 255, 0.35) 75%,
+      transparent 75%,
+      transparent 100%
+    ),
+    linear-gradient(90deg, #16a34a, #22c55e, #16a34a);
+  background-size: 18px 18px, 200% 100%;
+  background-position: 0 0, 0 0;
+  box-shadow:
+    inset 0 0 4px rgba(0, 0, 0, 0.4),
+    0 0 4px rgba(74, 222, 128, 0.6);
+  transition: width 0.7s ease-out;
+  z-index: 1;
+  /* stripe movement + soft glow breathing */
+  animation:
+    peProgressStripes 0.6s linear infinite,
+    peProgressGlow 2s ease-in-out infinite;
+}
+
+@keyframes peProgressStripes {
+  from {
+    background-position: 0 0, 0 0;
+  }
+  to {
+    background-position: 18px 0, -200% 0;
+  }
+}
+
+@keyframes peProgressGlow {
+  0%, 100% {
+    box-shadow:
+      inset 0 0 4px rgba(0, 0, 0, 0.4),
+      0 0 4px rgba(74, 222, 128, 0.6);
+  }
+  50% {
+    box-shadow:
+      inset 0 0 6px rgba(0, 0, 0, 0.5),
+      0 0 12px rgba(74, 222, 128, 1);
+  }
+}
+
+
+
+/* Percentage text centered INSIDE the bar */
+.pe-progress-percent {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 2rem;
+  color: #0f172a;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.7);
+  z-index: 3;
+}
+
+/* Caption below bar */
+.pe-progress-caption {
+  margin-top: 6px;
+  font-size: 1rem;
+  font-weight: 900;
+  color: #0f172a;
+  text-align: center;
+}
+
+/* Finish flag pole at end of bar */
+.pe-progress-bar::after {
+  content: "";
+  position: absolute;
+  right: 30px;
+  bottom: 3px;
+  width: 4px;
+  height: 50px;
+  background: #fbbf24;           /* pole color */
+  border-radius: 2px;
+  z-index: 4;
+}
+
+/* Red flag */
+.pe-progress-bar::before {
+  content: "";
+  position: absolute;
+  right: 12px;
+  top: 6px;
+  border-left: 18px solid #ef4444; /* red flag */
+  border-top: 15px solid transparent;
+  border-bottom: 10px solid transparent;
+  z-index: 4;
+}
+
+
+
+
+/* ============================
+   MAIN COLUMNS (1/3, 1/3, 1/6, 1/6)
+   ============================ */
+
+.pe-grid {
+  display: grid;
+  grid-template-columns: 2fr 2fr 2fr; /* last column is split into 2 inside */
+  gap: 12px;
+  margin-top: 14px;
+}
+
+/* main column boxes */
+.pe-col {
+  background: #02081f;
+  border-radius: 10px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  border: 0.5px solid #3b3b3b; /* .5px solid #3B3B3B */
+}
+
+/* column headers */
+.pe-col > h4 {
+  margin: 0 0 4px 0;
+  padding: 6px;
+  text-align: center;
+  font-weight: 900;
+  font-size: 0.95rem;
+  color: #ffffff;
+  border-radius: 8px;
+}
+
+/* ON-GOING header background */
+.pe-col:nth-of-type(1) > h4 {
+  background: #1d4ed8;          /* blue */
+}
+
+/* COMPLETED header background */
+.pe-col:nth-of-type(2) > h4 {
+  background: #16a34a;          /* green */
+}
+
+/* Third col's main h4 hidden – we use NYS/Terminated sub headers */
+.pe-col:nth-of-type(3) > h4 {
+  display: none;
+}
+
+/* ============================
+   NYS + TERMINATED split (1/6 + 1/6)
+   ============================ */
+
+.pe-split {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  height: 100%;
+}
+
+.pe-subcol {
+  background: #02081f;
+  border-radius: 8px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  border: 0.5px solid #3b3b3b;
+}
+
+/* NYS / Terminated labels */
+.pe-subcol h5 {
+  margin: 0 0 4px 0;
+  padding: 4px;
+  text-align: center;
+  font-weight: 900;
+  font-size: 0.85rem;
+  color: #ffffff;
+  border-radius: 6px;
+}
+
+/* NYS – light red */
+.pe-subcol:first-child h5 {
+  background: #fca5a5;
+}
+
+/* TERMINATED – red */
+.pe-subcol:last-child h5 {
+  background: #dc2626;
+}
+
+/* ============================
+   CONTRACT ID LISTS
+   ============================ */
+
+.pe-list {
+  padding: 4px;
+  counter-reset: peIndex;
+}
+
+/* ON-GOING & COMPLETED: 3 vertical sub-columns */
+#peColOngoing,
+#peColCompleted {
+  column-count: 3;
+  column-gap: 6px;
+}
+
+/* NYS & TERMINATED: 2 vertical sub-columns */
+#peColNYS,
+#peColTerminated {
+  column-count: 2;
+  column-gap: 6px;
+}
+
+/* Contract ID item – transparent with edge line */
+.pe-item {
+  break-inside: avoid;
+  display: block;
+  margin-bottom: 4px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  background: transparent;
+  border: 0.5px solid #3b3b3b;
+  color: #919191;
+  font-weight: 700;
+  font-size: 1rem;              /* number + ID */
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
+  counter-increment: peIndex;
+}
+
+/* Number prefix – dark yellow + one space */
+.pe-item::before {
+  content: counter(peIndex) " ";
+  color: #e3d400;
+  font-weight: 900;
+  font-size: 1rem;
+}
+
+.pe-item:hover {
+  background: rgba(148, 163, 184, 0.15);
+  border-color: #e3d400;
+  transform: translateY(-1px);
+}
+
+.pe-empty {
+  text-align: center;
+  color: #9ca3af;
+  font-size: 0.8rem;
+  padding: 8px 4px;
+}
+
+/* ============================
+   MAIN MENU BUTTON – Status per PE
+   ============================ */
+
+#openPeStatus {
+  background: #22c55e;  /* green */
+  color: #022c22;
+  border: none;
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-weight: 800;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+}
+#openPeStatus:hover {
+  background: #16a34a;
+}
+
+/* ============================
+   Scrollbar + responsive
+   ============================ */
+
+.pe-box::-webkit-scrollbar {
+  width: 8px;
+}
+.pe-box::-webkit-scrollbar-track {
+  background: transparent;
+}
+.pe-box::-webkit-scrollbar-thumb {
+  background: #4b5563;
+  border-radius: 999px;
+}
+
+@media (max-width: 900px) {
+  .pe-top {
+    flex-wrap: wrap;
+  }
+  #peHeaderSelectedValue {
+    margin-left: 0;
+    margin-top: 6px;
+  }
+  .pe-summary {
+    flex-direction: column;
+  }
+  .pe-progress {
+    flex: 1 1 auto;
+  }
+  .pe-grid {
+    grid-template-columns: 1fr;
+  }
+  #peColOngoing,
+  #peColCompleted,
+  #peColNYS,
+  #peColTerminated {
+    column-count: 1;
+  }
+}
