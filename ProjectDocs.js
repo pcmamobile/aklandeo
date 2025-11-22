@@ -19,11 +19,88 @@ document.addEventListener("DOMContentLoaded", () => {
   const bodyEl    = document.getElementById("projectDocsBody");
   const loadingEl = document.getElementById("projectDocsLoading");
   const closeBtn  = document.getElementById("pdCloseBtn");
+  
+  
+  
+    let currentZoom = 1;
+
+  function setupZoomControls() {
+    if (!bodyEl) return;
+
+    // Create zoom bar
+    const bar = document.createElement("div");
+    bar.className = "pd-zoom-bar";
+
+    const label = document.createElement("span");
+    label.className = "pd-zoom-bar-label";
+    label.textContent = "Zoom";
+
+    const minusBtn = document.createElement("button");
+    minusBtn.type = "button";
+    minusBtn.textContent = "-";
+
+    const valueSpan = document.createElement("span");
+    valueSpan.className = "pd-zoom-value";
+    valueSpan.textContent = "100%";
+
+    const plusBtn = document.createElement("button");
+    plusBtn.type = "button";
+    plusBtn.textContent = "+";
+
+    bar.appendChild(label);
+    bar.appendChild(minusBtn);
+    bar.appendChild(valueSpan);
+    bar.appendChild(plusBtn);
+
+    // Insert zoom bar just above the ProjectDocs body
+    if (bodyEl.parentElement) {
+      bodyEl.parentElement.insertBefore(bar, bodyEl);
+    } else {
+      bodyEl.insertAdjacentElement("beforebegin", bar);
+    }
+
+    // Mark body as zoomable (CSS uses this)
+    bodyEl.classList.add("pd-body-zoomable");
+
+    function applyZoom() {
+      // On bigger screens, always reset to 100% (no zoom for desktop)
+      if (window.innerWidth > 768) {
+        currentZoom = 1;
+      }
+      valueSpan.textContent = Math.round(currentZoom * 100) + "%";
+      bodyEl.style.setProperty("--pd-zoom-scale", currentZoom);
+    }
+
+    minusBtn.addEventListener("click", () => {
+      // Only active on phone
+      if (window.innerWidth > 768) return;
+      currentZoom = Math.max(0.6, currentZoom - 0.1);  // min 60%
+      applyZoom();
+    });
+
+    plusBtn.addEventListener("click", () => {
+      if (window.innerWidth > 768) return;
+      currentZoom = Math.min(1.4, currentZoom + 0.1);  // max 140%
+      applyZoom();
+    });
+
+    window.addEventListener("resize", applyZoom);
+    applyZoom();
+  }
+
+  
+  
+  
+  
 
   if (!overlay || !bodyEl || !loadingEl || !closeBtn) {
     console.warn("ProjectDocs: overlay elements not found in DOM.");
     return;
   }
+
+  // Setup zoom bar for ProjectDocs (mobile only)
+  setupZoomControls();
+
 
   let pcmaData    = [];
   let voData      = [];

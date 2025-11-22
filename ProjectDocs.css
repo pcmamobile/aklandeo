@@ -302,3 +302,49 @@
 .pd-billing-header span {
   font-weight: 900;
 }
+
+/* ---------- ProjectDocs zoom controls (mobile only) ---------- */
+
+.pd-zoom-bar {
+  display: none;                /* hidden by default, shown only on mobile */
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-bottom: 6px;
+  font-size: 0.8rem;
+}
+
+.pd-zoom-bar-label {
+  opacity: 0.75;
+}
+
+.pd-zoom-bar button {
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+  background: #f9fafb;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.pd-zoom-value {
+  min-width: 40px;
+  text-align: center;
+}
+
+/* Mobile only: enable zoom scaling */
+@media (max-width: 768px) {
+  .pd-zoom-bar {
+    display: flex;
+  }
+
+  #projectDocsBody.pd-body-zoomable {
+    transform: scale(var(--pd-zoom-scale, 1));
+    transform-origin: top center;
+  }
+
+  /* make sure we can scroll when zoomed */
+  #projectDocsOverlay {
+    overflow: auto;
+  }
+}
