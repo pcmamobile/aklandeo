@@ -199,7 +199,7 @@
 
 /* Slightly smaller text in fund rows */
 .os-year-row-fund .os-card-label {
-  font-size: 1.1rem;
+  font-size: .9rem;
 }
 
 .os-year-row-fund .os-card-value {
@@ -352,5 +352,144 @@
   }
   .os-year-row {
     flex-wrap: wrap;
+  }
+}
+
+
+
+/* =========================================
+   MOBILE VERSION – Overall Status (phone)
+   ========================================= */
+@media (max-width: 600px) {
+  /* Make overlay behave like full-screen page on phone */
+  .os-overlay {
+    align-items: stretch;
+    justify-content: stretch;
+  }
+
+  .os-box {
+    width: 100%;
+    max-width: 100%;
+    height: 100vh;
+    max-height: 100vh;
+    margin: 0;
+    border-radius: 0;
+  }
+
+  /* Header */
+  .os-top {
+    padding: 8px 10px;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .os-title {
+    font-size: 1.1rem;
+    line-height: 1.25;
+  }
+
+  .os-header-info {
+    margin-left: 0;
+    width: 100%;
+    font-size: 0.8rem;
+    text-align: left;
+  }
+
+  .os-btn {
+    padding: 4px 10px;
+    font-size: 0.8rem;
+  }
+
+  .os-body {
+    padding: 8px 10px;
+  }
+
+  /* Year blocks */
+  .os-year-block {
+    margin-bottom: 8px;
+  }
+
+  .os-year-label {
+    font-size: 0.95rem;
+  }
+
+  /* MAIN CY rows: stack vertically instead of one long horizontal row */
+  .os-year-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+  }
+
+  .os-card {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: baseline;
+    min-height: 60px;
+    padding: 8px 10px;
+    text-align: left;
+  }
+
+  .os-card-label {
+    font-size: 1rem;
+    letter-spacing: 0.03em;
+  }
+
+  .os-card-value {
+    font-size: 2rem;
+  }
+
+  /* FUND rows under each year */
+  .os-year-row-fund {
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .os-fund-label {
+    flex: 0 0 auto;
+    width: 100%;
+    justify-content: flex-start;
+    padding: 4px 8px;
+    font-size: 0.9rem;
+    border-radius: 8px;
+  }
+
+  .os-card-fund {
+    min-height: 48px;
+    padding: 6px 8px;
+  }
+
+  .os-year-row-fund .os-card-label {
+    font-size: 0.95rem;
+  }
+
+  .os-year-row-fund .os-card-value {
+    font-size: 1.6rem;
+  }
+
+  /* Equal sign + pie: put under the cards, centered, smaller */
+  .os-equal {
+    font-size: 2.2rem;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .os-pie-wrapper {
+    justify-content: center;
+    margin-top: 4px;
+  }
+
+  .os-pie {
+    width: 120px;
+    height: 120px;
+    transform: scale(0.7);
+  }
+
+  .os-pie-label {
+    font-size: 2rem;
   }
 }

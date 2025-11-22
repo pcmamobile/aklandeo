@@ -549,3 +549,163 @@ body.no-scroll {
     column-count: 1;
   }
 }
+
+
+/* =========================================
+   MOBILE VERSION – Status per PE (phone)
+   ========================================= */
+@media (max-width: 600px) {
+  /* Make it feel like a full-screen page on phone */
+  .pe-overlay {
+    align-items: stretch;
+  }
+
+  .pe-box {
+    padding: 6px;
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+
+  /* HEADER */
+  .pe-top {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 8px 10px;
+    border-radius: 8px;
+  }
+
+  .pe-title {
+    font-size: 1.1rem;
+    white-space: normal;
+  }
+
+  .pe-controls {
+    width: 100%;
+    margin-left: 0;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .pe-controls label {
+    font-size: 0.75rem;
+  }
+
+  .pe-select {
+    min-width: 0;
+    width: 100%;
+    font-size: 0.8rem;
+    padding: 3px 6px;
+  }
+
+  #peHeaderSelectedValue {
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 4px;
+    width: 100%;
+    text-align: left;
+    font-size: 0.9rem;
+    padding: 4px 8px;
+  }
+
+  #peClose.pe-btn {
+    align-self: flex-end;
+    font-size: 0.75rem;
+    padding: 4px 10px;
+  }
+
+  /* SUMMARY + PROGRESS */
+  .pe-summary {
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .pe-sum-card {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+    min-height: 64px;
+    padding: 8px;
+  }
+
+  .pe-sum-label {
+    font-size: 1rem;
+  }
+
+  .pe-sum-value {
+    font-size: 1.8rem;
+  }
+
+  .pe-progress {
+    padding: 8px;
+    min-height: 70px;
+  }
+
+  .pe-progress-bar {
+    height: 44px;
+  }
+
+  .pe-progress-percent {
+    font-size: 1.3rem;
+  }
+
+  .pe-progress-caption {
+    font-size: 0.9rem;
+  }
+
+  /* MAIN GRID – stack columns vertically */
+  .pe-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .pe-col {
+    padding: 6px;
+  }
+
+  .pe-col > h4 {
+    font-size: 0.85rem;
+    padding: 4px;
+  }
+
+  .pe-subcol {
+    padding: 5px;
+  }
+
+  .pe-subcol h5 {
+    font-size: 0.8rem;
+    padding: 3px;
+  }
+
+  /* CONTRACT LISTS – single column, smaller items */
+  #peColOngoing,
+  #peColCompleted,
+  #peColNYS,
+  #peColTerminated {
+    column-count: 1;
+    column-gap: 4px;
+  }
+
+  .pe-item {
+    font-size: 0.85rem;
+    padding: 4px 6px;
+    margin-bottom: 3px;
+  }
+
+  .pe-item::before {
+    font-size: 0.85rem;
+  }
+
+  .pe-empty {
+    font-size: 0.75rem;
+    padding: 6px 4px;
+  }
+
+  /* Scrollbar less intrusive on small screens */
+  .pe-box::-webkit-scrollbar {
+    width: 6px;
+  }
+}
