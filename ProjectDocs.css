@@ -378,49 +378,57 @@
     margin-bottom: 2px;
   }
 
-  /* ---------- PCMA (Year | Month | % | Remarks) as stacked card ---------- */
+  /* ---------- PCMA (mobile) ----------
+   Row 1: YEAR - MONTH - Accomp.
+   Row 2: REMARKS
+----------------------------------- */
 
-  /* Hide the big header row on mobile – we’ll show labels inside each card */
-  .pd-month-header {
-    display: none;
-  }
+/* We can still hide the big header row if you want the card style */
+.pd-month-header {
+  display: none;
+}
 
-  /* Each month row becomes a small stacked card:
-     line 1: YEAR (left) | PERCENTAGE (right)
-     line 2: MONTH
-     line 3: REMARKS
-  */
-  .pd-month-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-areas:
-      "year value"
-      "month month"
-      "remarks remarks";
-    row-gap: 1px;
-    align-items: baseline;
-  }
+.pd-month-row {
+  display: grid;
+  grid-template-columns: 0.9fr 1.2fr 0.9fr;   /* YEAR | MONTH | Accomp. */
+  grid-template-areas:
+    "year month value"
+    "remarks remarks remarks";
+  row-gap: 2px;
+  column-gap: 4px;
+  align-items: baseline;
+  padding: 4px 0;
+}
 
-  .pd-month-year {
-    grid-area: year;
-    font-weight: 700;
-  }
+/* YEAR */
+.pd-month-year {
+  grid-area: year;
+  font-weight: 700;
+  font-size: 0.8rem;
+}
 
-  .pd-month-value {
-    grid-area: value;
-    text-align: right;
-    font-weight: 700;
-  }
+/* MONTH */
+.pd-month-name {
+  grid-area: month;
+  font-size: 0.8rem;
+  opacity: 0.9;
+}
 
-  .pd-month-name {
-    grid-area: month;
-    opacity: 0.85;
-  }
+/* Accomp. value */
+.pd-month-value {
+  grid-area: value;
+  text-align: right;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
 
-  .pd-month-remarks {
-    grid-area: remarks;
-    margin-top: 2px;
-  }
+/* REMARKS on its own line */
+.pd-month-remarks {
+  grid-area: remarks;
+  margin-top: 1px;
+  font-size: 0.78rem;
+}
+
 
   /* ---------- VO / WSO / CTE / BILLING tables ---------- */
   /* Don’t squish them – allow horizontal scroll instead */

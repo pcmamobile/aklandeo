@@ -508,9 +508,10 @@ document.addEventListener("DOMContentLoaded", () => {
         hMonth.className = "pd-month-name";
         hMonth.textContent = "MONTH";
 
-        const hPct = document.createElement("span");
-        hPct.className = "pd-month-value";
-        hPct.textContent = "ACCOMPLSIHMENT";
+		const hPct = document.createElement("span");
+		hPct.className = "pd-month-value";
+		hPct.textContent = "Accomp.";
+
 
         const hRem = document.createElement("span");
         hRem.className = "pd-month-remarks";
