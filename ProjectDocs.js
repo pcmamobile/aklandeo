@@ -348,22 +348,35 @@
 
       let percent = null;
 
-      // 1) Percentage from main cell
+
+      // 1) Get Percentage in Billing (2025) cell
       if (baseText) {
         const m = baseText.match(/(\d+(\.\d+)?)\s*%?/);
-        if (m) percent = parseFloat(m[1]);
+        if (m) {
+          percent = parseFloat(m[1]);
+        }
       }
 
-      // 2) Percentage inside (...) in remarks
+      // 2) Get Percentage inside "(" and ")" from Remarks
       if (remarksText) {
         const m = remarksText.match(/\((\s*\d+(\.\d+)?)\s*%?\s*\)/);
-        if (m) percent = parseFloat(m[1]);
+        if (m) {
+          percent = parseFloat(m[1]);
+        }
       }
 
-      // Final / Retention => 100%
+      // If the Value in the Remarks have "Mobilization" the Value will be 0%
+      if (/mobilization/i.test(remarksText)) {
+        percent = 0;
+      }
+
+      // If the Value in the Remarks have "Final" or "Retention" the Value will be 100%
       if (/final/i.test(remarksText) || /retention/i.test(remarksText)) {
         percent = 100;
       }
+
+
+
 
       // Check if text color red => add "- Paid"
       const rowColors = colorGrid[rowIndex] || [];
