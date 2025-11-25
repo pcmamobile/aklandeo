@@ -1,16 +1,50 @@
 /* ProjectDocs.css */
 
 /* Blue button inside PCMA modal */
-.pd-docs-btn {
-  background-color: #1d4ed8; /* blue */
+/* Purple Project Documentation button with glowing border animation */
+.pd-docs-btn,
+.btn-project-docs {
+  background: linear-gradient(135deg, #7c3aed, #a855f7); /* purple gradient */
   color: #ffffff;
   font-weight: bold;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 4px;
+  border-radius: 999px;              /* pill shape */
+  border: 2px solid #e9d5ff;         /* light purple border */
+  padding: 8px 18px;
   cursor: pointer;
   font-size: 12px;
+  letter-spacing: 0.5px;
+
+  /* Glow animation */
+  box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.6);
+  animation: pd-glow 1.6s ease-in-out infinite;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
 }
+
+.pd-docs-btn:hover,
+.btn-project-docs:hover {
+  transform: translateY(-1px) scale(1.03);
+  filter: brightness(1.05);
+}
+
+/* Optional: make it look slightly pressed when clicked */
+.pd-docs-btn:active,
+.btn-project-docs:active {
+  transform: translateY(0) scale(0.99);
+}
+
+/* Glow keyframes */
+@keyframes pd-glow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 12px 4px rgba(192, 132, 252, 0.9);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.6);
+  }
+}
+
 
 .pd-docs-btn:hover {
   background-color: #1e40af;
