@@ -1,474 +1,181 @@
-/* ProjectDocs.css
-   Project Documentation window: white background, black text, responsive
-*/
+/* ProjectDocs.css */
 
-/* OVERLAY - sits on top of the PCMA modal */
+/* Blue button inside PCMA modal */
+.pd-docs-btn {
+  background-color: #1d4ed8; /* blue */
+  color: #ffffff;
+  font-weight: bold;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.pd-docs-btn:hover {
+  background-color: #1e40af;
+}
+
+/* Row wrapper for the button (below main container) */
+.pcma-docs-row {
+  margin: 10px 0 6px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+/* === PROJECT DOCUMENTATION OVERLAY === */
+
 .pd-overlay {
   position: fixed;
   inset: 0;
-  z-index: 9000; /* higher than the main PCMA modal */
+  background: rgba(0, 0, 0, 0.45);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(15, 23, 42, 0.7); /* dark backdrop */
+  z-index: 9999;
 }
 
 .pd-overlay[hidden] {
-  display: none !important;
+  display: none;
 }
 
-/* WINDOW BOX */
 .pd-box {
   background: #ffffff;
-  color: #000000; /* all text black */
-  border-radius: 18px;
+  color: #000000;
   width: 95%;
-  max-width: 900px;
-  max-height: 85vh;
+  max-width: 1100px;
+  max-height: 90vh;
+  border-radius: 10px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
   overflow: hidden;
 }
 
-/* HEADER */
 .pd-top {
-  padding: 10px 16px;
+  padding: 8px 12px;
   border-bottom: 1px solid #e5e7eb;
+  background: #f3f4f6;
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: space-between;
 }
 
 .pd-title {
   margin: 0;
-  font-size: 1.3rem;
-  font-weight: 900;
-  letter-spacing: 0.06em;
+  font-size: 16px;
+  font-weight: 700;
 }
 
 .pd-close-btn {
-  margin-left: auto;
-  padding: 6px 12px;
-  border-radius: 999px;
-  border: 1px solid #4b5563;
-  background: #f3f4f6;
-  font-weight: 700;
+  border: none;
+  background: #ef4444;
+  color: #fff;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 4px;
   cursor: pointer;
 }
 
 .pd-close-btn:hover {
-  background: #e5e7eb;
+  background: #b91c1c;
 }
 
-/* BODY */
 .pd-body {
-  padding: 12px 16px;
-  overflow-y: auto;
-  font-size: 0.9rem;
+  padding: 10px 14px;
+  flex: 1;
+  overflow: auto;
+  font-size: 12px;
 }
 
-/* LOADING / EMPTY */
-.pd-loading,
-.pd-empty {
-  padding: 8px;
+.pd-loading {
+  text-align: center;
+  padding: 20px 0;
   font-style: italic;
-  color: #4b5563;
 }
 
-/* CONTRACT BLOCK */
-.pd-row {
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  padding: 8px 10px;
-  margin-bottom: 10px;
-}
-
-.pd-row-title {
-  font-weight: 800;
-  margin-bottom: 6px;
-  font-size: 0.95rem;
-}
-
-/* MONTH TABLE: YEAR | MONTH | PERCENTAGE | REMARKS */
-.pd-month-list {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.pd-month-row {
-  display: grid;
-  grid-template-columns: 70px 100px 120px 1fr; /* YEAR | MONTH | PERCENTAGE | REMARKS */
-  column-gap: 8px;
-  align-items: flex-start;  /* align remarks vertically */
-  padding: 4px 0;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.pd-month-row:last-child {
-  border-bottom: none;
-}
-
-.pd-month-year,
-.pd-month-name,
-.pd-month-value {
-  font-weight: 700;
-}
-
-.pd-month-remarks {
-  font-weight: 400;
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-
-/* HEADER ROW */
-.pd-month-header {
-  border-bottom: 2px solid #111827;
-  padding-bottom: 6px;
-  margin-bottom: 2px;
-}
-
-.pd-month-header .pd-month-year,
-.pd-month-header .pd-month-name,
-.pd-month-header .pd-month-value,
-.pd-month-header .pd-month-remarks {
-  font-weight: 900;
-}
-
-/* BLUE BUTTON (inside PCMA modal) */
-.pd-docs-btn {
-  background: #2563eb;   /* Color Fill = Blue */
-  color: #ffffff;
-  font-weight: 700;       /* Text = Bold */
-  border: none;
-  border-radius: 999px;
-  padding: 6px 14px;
-  font-size: 0.9rem;
-  cursor: pointer;
-}
-
-.pd-docs-btn:hover {
-  background: #1d4ed8;
-}
-
-/* Row that holds the button below Container, full width */
-.pcma-docs-row {
-  padding: 4px 14px 8px;
-}
-
-.pcma-docs-row .pd-docs-btn {
-  width: 100%;
-}
-
-/* S-CURVE BLOCK */
-.pd-scurve-block {
-  margin-top: 10px;
-  padding-top: 6px;
-  border-top: 1px dashed #d1d5db;
-}
-
-.pd-scurve-title {
-  font-weight: 700;
-  font-size: 0.85rem;
-  margin-bottom: 4px;
-  color: #111827;
-}
-
-/* size of s-curve */
-.pd-scurve-svg {
-  width: 100%;
-  height: 240px;
-  display: block;
-}
-
-/* RESPONSIVE (Phone / Tablet / Desktop) */
-@media (min-width: 640px) {
-  .pd-box {
-    width: 90%;
-  }
-}
-
-@media (min-width: 768px) {
-  .pd-box {
-    width: 80%;
-  }
-}
-
-@media (min-width: 1024px) {
-  .pd-box {
-    width: 70%;
-  }
-}
-
-/* VO section (below PCMA) */
-
-.pd-row-vo {
-  margin-top: 6px;
-}
-
-.pd-vo-list {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.pd-vo-row {
-  display: grid;
-  grid-template-columns: 50px 90px 90px 1fr; /* VO | Date | Add'l Days | Remarks */
-  column-gap: 8px;
-  padding: 3px 0;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.pd-vo-row:last-child {
-  border-bottom: none;
-}
-
-.pd-vo-header span {
-  font-weight: 900;
-}
-
-/* WSO / WRO / CTE section (below VO) */
-
-.pd-row-wso {
-  margin-top: 6px;
-}
-
-.pd-wso-list,
-.pd-cte-list {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.pd-wso-row {
-  display: grid;
-  grid-template-columns: 70px 110px 1fr; /* WSO | DATE | REASON */
-  column-gap: 8px;
-  padding: 3px 0;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-
-.pd-wso-row:last-child {
-  border-bottom: none;
-}
-
-.pd-wso-header span {
-  font-weight: 900;
-}
-
-.pd-cte-row {
-  display: grid;
-  grid-template-columns: 55px 90px 1fr; /* CTE | Date | Remarks */
-  column-gap: 8px;
-  padding: 3px 0;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.pd-cte-row:last-child {
-  border-bottom: none;
-}
-
-.pd-cte-header span {
-  font-weight: 900;
-}
-
-/* BILLING section (below WSO/CTE) */
-
-.pd-row-billing {
-  margin-top: 6px;
-}
-
-.pd-billing-list {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.pd-billing-row {
-  display: grid;
-  grid-template-columns: 60px 110px 120px 1fr; /* YEAR | MONTH | BILLING | REMARKS */
-  column-gap: 8px;
-  padding: 3px 0;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.pd-billing-row:last-child {
-  border-bottom: none;
-}
-
-.pd-billing-header span {
-  font-weight: 900;
-}
-
-/* ---------- ProjectDocs zoom controls (mobile only) ---------- */
-
-.pd-zoom-bar {
-  display: none;                /* hidden by default, shown only on mobile */
-  align-items: center;
-  justify-content: flex-end;
-  gap: 6px;
-  margin-bottom: 6px;
-  font-size: 0.8rem;
-}
-
-.pd-zoom-bar-label {
-  opacity: 0.75;
-}
-
-.pd-zoom-bar button {
-  padding: 2px 8px;
-  border-radius: 999px;
-  border: 1px solid #d1d5db;
-  background: #f9fafb;
+.pd-error {
+  color: #b91c1c;
   font-weight: 600;
-  cursor: pointer;
 }
 
-.pd-zoom-value {
-  min-width: 40px;
+/* Sections */
+
+.pd-section {
+  margin-bottom: 16px;
+}
+
+.pd-section h3 {
+  margin: 0 0 8px 0;
+  font-size: 13px;
+}
+
+/* Tables */
+
+.pd-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+
+.pd-table th,
+.pd-table td {
+  border: 1px solid #d1d5db;
+  padding: 4px 6px;
+}
+
+.pd-table th {
+  background: #f3f4f6;
+  text-align: center;
+  font-weight: 600;
+}
+
+.pd-table .col-year,
+.pd-table .col-month,
+.pd-table .col-accomp {
   text-align: center;
 }
 
-/* Mobile only: enable zoom scaling */
-@media (max-width: 768px) {
-  .pd-zoom-bar {
-    display: flex;
-  }
+.pd-table .col-remarks {
+  text-align: left;
+  vertical-align: top;
+  white-space: pre-wrap;
+}
 
+/* S-curve container: make it ~50% bigger than tiny chart */
+.pd-scurve-wrapper {
+  margin: 12px 0 18px;
+  height: 260px; /* controls size of chart */
+}
 
-/* MOBILE VERSION: ProjectDocs – phone portrait */
+.pd-scurve-wrapper canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* RESPONSIVE: mobile full screen, tablet, desktop */
+
 @media (max-width: 600px) {
-  /* Make the overlay window behave like a full-screen page on phone */
-  .pd-overlay {
-    align-items: flex-start;
-  }
-
   .pd-box {
     width: 100%;
-    max-width: 100%;
     height: 100%;
-    max-height: 100vh;
+    max-width: none;
+    max-height: none;
     border-radius: 0;
-    margin: 0;
-  }
-
-  .pd-top {
-    padding: 8px 10px;
-  }
-
-  .pd-title {
-    font-size: 1rem;
   }
 
   .pd-body {
-    padding: 8px 10px;
-    font-size: 0.78rem;   /* smaller text so data fits */
+    padding: 8px;
   }
 
-  .pd-row {
-    padding: 6px 8px;
-    margin-bottom: 6px;
-  }
-
-  .pd-row-title {
-    font-size: 0.85rem;
-    margin-bottom: 2px;
-  }
-
-  /* ---------- PCMA (mobile) ----------
-   Row 1: YEAR - MONTH - Accomp.
-   Row 2: REMARKS
------------------------------------ */
-
-/* We can still hide the big header row if you want the card style */
-.pd-month-header {
-  display: none;
-}
-
-.pd-month-row {
-  display: grid;
-  grid-template-columns: 0.9fr 1.2fr 0.9fr;   /* YEAR | MONTH | Accomp. */
-  grid-template-areas:
-    "year month value"
-    "remarks remarks remarks";
-  row-gap: 2px;
-  column-gap: 4px;
-  align-items: baseline;
-  padding: 4px 0;
-}
-
-/* YEAR */
-.pd-month-year {
-  grid-area: year;
-  font-weight: 700;
-  font-size: 0.8rem;
-}
-
-/* MONTH */
-.pd-month-name {
-  grid-area: month;
-  font-size: 0.8rem;
-  opacity: 0.9;
-}
-
-/* Accomp. value */
-.pd-month-value {
-  grid-area: value;
-  text-align: right;
-  font-weight: 700;
-  font-size: 0.85rem;
-}
-
-/* REMARKS on its own line */
-.pd-month-remarks {
-  grid-area: remarks;
-  margin-top: 1px;
-  font-size: 0.78rem;
-}
-
-
-  /* ---------- VO / WSO / CTE / BILLING tables ---------- */
-  /* Don’t squish them – allow horizontal scroll instead */
-  .pd-vo-list,
-  .pd-wso-list,
-  .pd-cte-list,
-  .pd-billing-list {
-    overflow-x: auto;
-  }
-
-  .pd-vo-row,
-  .pd-wso-row,
-  .pd-cte-row,
-  .pd-billing-row {
-    min-width: 420px;     /* table can scroll sideways instead of breaking */
-    font-size: 0.78rem;
-  }
-
-  /* ---------- S-Curve ---------- */
-
-  .pd-scurve-title {
-    font-size: 0.85rem;
-  }
-
-  .pd-scurve-svg {
-    width: 100%;
-    height: 180px;        /* smaller graph height for phones */
+  .pd-title {
+    font-size: 14px;
   }
 }
 
-
-
-
-  #projectDocsBody.pd-body-zoomable {
-    transform: scale(var(--pd-zoom-scale, 1));
-    transform-origin: top center;
-  }
-
-  /* make sure we can scroll when zoomed */
-  #projectDocsOverlay {
-    overflow: auto;
+@media (min-width: 601px) and (max-width: 1024px) {
+  .pd-box {
+    width: 96%;
+    max-width: 900px;
   }
 }

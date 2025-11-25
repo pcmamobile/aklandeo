@@ -186,6 +186,7 @@
 	
 	
 	    // Project Documentation button (below container, above SCHED/ACTUAL/SLIPPAGE)
+
     if (window.openProjectDocs) {
       const docsRow = document.createElement('div');
       docsRow.className = 'pcma-docs-row';
@@ -194,14 +195,23 @@
       docsBtn.id = 'projectDocsBtn';
       docsBtn.textContent = 'Project Documentation';
       docsBtn.className = 'pd-docs-btn'; // styled in ProjectDocs.css
+
+      // Pass the current row's Contract ID to ProjectDocs window
       docsBtn.onclick = (e) => {
         e.stopPropagation();
-        window.openProjectDocs();
+        const cid =
+          cidIdx >= 0 && row[cidIdx] != null ? String(row[cidIdx]).trim() : '';
+        if (window.openProjectDocs) {
+          window.openProjectDocs(cid);
+        }
       };
 
       docsRow.appendChild(docsBtn);
       modalContent.appendChild(docsRow);
     }
+
+
+
 
     // MINI bars
     const hasSched = schedIdx > -1 && row[schedIdx];
