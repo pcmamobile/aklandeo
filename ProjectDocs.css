@@ -1,6 +1,5 @@
 /* ProjectDocs.css */
 
-/* Blue button inside PCMA modal */
 /* Purple Project Documentation button with glowing border animation */
 .pd-docs-btn,
 .btn-project-docs {
@@ -16,135 +15,157 @@
 
   /* Glow animation */
   box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.6);
-  animation: pd-glow 1.6s ease-in-out infinite;
-  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+  animation: pd-glow 1.6s ease-in-out infinite alternate;
 }
 
 .pd-docs-btn:hover,
 .btn-project-docs:hover {
-  transform: translateY(-1px) scale(1.03);
-  filter: brightness(1.05);
+  transform: translateY(-1px) scale(1.02);
 }
 
-/* Optional: make it look slightly pressed when clicked */
 .pd-docs-btn:active,
 .btn-project-docs:active {
-  transform: translateY(0) scale(0.99);
+  transform: translateY(0) scale(0.98);
 }
 
-/* Glow keyframes */
 @keyframes pd-glow {
-  0% {
-    box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.6);
+  from {
+    box-shadow: 0 0 8px rgba(168, 85, 247, 0.5);
   }
-  50% {
-    box-shadow: 0 0 12px 4px rgba(192, 132, 252, 0.9);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.6);
+  to {
+    box-shadow: 0 0 20px rgba(168, 85, 247, 1);
   }
 }
 
-
-.pd-docs-btn:hover {
-  background-color: #1e40af;
-}
-
-/* Row wrapper for the button (below main container) */
+/* Optional wrapper row for the button */
 .pcma-docs-row {
   margin: 10px 0 6px;
   display: flex;
   justify-content: flex-start;
 }
 
-/* === PROJECT DOCUMENTATION OVERLAY === */
-
-.pd-overlay {
+/* Overlay */
+#projectDocsOverlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
   display: flex;
   align-items: center;
   justify-content: center;
+  background: rgba(0, 0, 0, 0.45); /* overlay above modal */
   z-index: 9999;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
 }
 
-.pd-overlay[hidden] {
-  display: none;
+/* Hide when [hidden] attribute is set */
+#projectDocsOverlay[hidden] {
+  display: none !important;
 }
 
+/* Window */
 .pd-box {
   background: #ffffff;
   color: #000000;
-  width: 95%;
-  max-width: 1100px;
+  width: 96%;
+  max-width: 1000px;
   max-height: 90vh;
-  border-radius: 10px;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
+  border-radius: 14px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.32);
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
+/* HEADER (older style, unused but kept) */
+.pd-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* title on left, button on right */
+  padding: 10px 14px;
+  background: #f3f4f6;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.pd-header-left {
+  display: flex;
+  flex-direction: column;
+  flex: 1;                /* take all remaining space, pushes button to the far right */
+}
+
+/* Actual header currently used (index.html .pd-top) */
 .pd-top {
   padding: 8px 12px;
   border-bottom: 1px solid #e5e7eb;
   background: #f3f4f6;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: space-between;  /* title on left, Close button on right */
+  gap: 8px;                        /* small space between title and button */
 }
 
 .pd-title {
-  margin: 0;
   font-size: 16px;
   font-weight: 700;
 }
 
-.pd-close-btn {
-  border: none;
-  background: #ef4444;
-  color: #fff;
-  font-size: 12px;
-  padding: 4px 10px;
-  border-radius: 4px;
-  cursor: pointer;
+.pd-subtitle {
+  font-size: 11px;
+  opacity: 0.8;
 }
 
-.pd-close-btn:hover {
+/* Close button on the right */
+#pdCloseBtn {
+  border: none;
+  background: #ef4444;
+  color: #ffffff;
+  padding: 4px 16px;
+  border-radius: 999px;
+  font-size: 12px;
+  line-height: 1.4;
+  cursor: pointer;
+  margin-left: 12px;       /* small gap from the title block */
+}
+
+#pdCloseBtn:hover {
   background: #b91c1c;
 }
 
-.pd-body {
-  padding: 10px 14px;
+/* Body */
+#projectDocsBody {
+  padding: 10px 14px 12px;
   flex: 1;
   overflow: auto;
   font-size: 12px;
+  background: #ffffff;
 }
 
 .pd-loading {
-  text-align: center;
-  padding: 20px 0;
-  font-style: italic;
-}
-
-.pd-error {
-  color: #b91c1c;
+  margin-bottom: 8px;
+  font-size: 11px;
   font-weight: 600;
+  color: #4b5563;
 }
 
 /* Sections */
-
 .pd-section {
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
 .pd-section h3 {
-  margin: 0 0 8px 0;
+  margin: 0 0 6px;
   font-size: 13px;
 }
 
+.pd-section h4 {
+  margin: 6px 0 4px;
+  font-size: 12px;
+}
+
 /* Tables */
+.pd-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
 
 .pd-table {
   width: 100%;
@@ -154,32 +175,171 @@
 
 .pd-table th,
 .pd-table td {
-  border: 1px solid #d1d5db;
   padding: 4px 6px;
+  border: 1px solid #e5e7eb;       /* vertical & horizontal borders per cell */
+  vertical-align: middle;
 }
 
 .pd-table th {
-  background: #f3f4f6;
-  text-align: center;
-  font-weight: 600;
-}
-
-.pd-table .col-year,
-.pd-table .col-month,
-.pd-table .col-accomp {
-  text-align: center;
-}
-
-.pd-table .col-remarks {
   text-align: left;
-  vertical-align: top;
-  white-space: pre-wrap;
+  font-weight: 700;
+  background: #f9fafb;
 }
 
-/* S-curve container: make it ~50% bigger than tiny chart */
+.pd-table tr:nth-child(even) td {
+  background: #f9fafb;
+}
+
+.pd-table .col-year {
+  width: 60px;
+}
+
+.pd-table .col-month {
+  width: 90px;
+}
+
+.pd-table .col-center {
+  text-align: center;
+}
+
+.pd-table .col-right {
+  text-align: right;
+}
+
+.pd-remarks {
+  white-space: normal;
+  word-break: break-word;
+}
+
+
+/* MONTHLY ACCOMPLISHMENT table – MONTH / ACTUAL / PCMA / REMARKS */
+.pd-table-pcma th,
+.pd-table-pcma td {
+  padding: 2px 4px; /* tighter */
+}
+
+/* Month column */
+.pd-table-pcma .col-month {
+  width: 100px;
+}
+
+/* ACTUAL and PCMA percentage columns */
+.pd-table-pcma .col-actual,
+.pd-table-pcma .col-pcma {
+  width: 60px;
+}
+
+/* Year group row (e.g. "2025") */
+.pd-table-pcma .pd-year-row td {
+  font-weight: 700;
+  background: #e5e7eb;
+}
+
+
+
+/* VO table – compress VO / DATE / ADD'L DAYS / REMARKS */
+.pd-table-vo th,
+.pd-table-vo td {
+  padding: 2px 4px; /* tighter cells */
+}
+
+.pd-table-vo .col-vo {
+  width: 60px;
+  text-align: center;
+}
+
+.pd-table-vo .col-date {
+  width: 90px;
+}
+
+.pd-table-vo .col-days {
+  width: 70px;
+  text-align: center;
+}
+
+/* WSO / WRO table – compress CODE / DATE / REASON */
+.pd-table-wso th,
+.pd-table-wso td {
+  padding: 2px 4px;
+}
+
+.pd-table-wso .col-code {
+  width: 70px;
+  text-align: center;
+}
+
+.pd-table-wso .col-date {
+  width: 90px;
+}
+
+/* CTE table – compress CTE / DAYS / REMARKS */
+.pd-table-cte th,
+.pd-table-cte td {
+  padding: 2px 4px;
+}
+
+.pd-table-cte .col-code {
+  width: 70px;
+  text-align: center;
+}
+
+.pd-table-cte .col-days {
+  width: 60px;
+  text-align: center;
+}
+
+/* Billing table – compress YEAR / MONTH / AMOUNT / REMARKS */
+.pd-table-billing th,
+.pd-table-billing td {
+  padding: 2px 4px;
+}
+
+.pd-table-billing .col-year {
+  width: 45px;
+  text-align: center;
+}
+
+.pd-table-billing .col-month {
+  width: 70px;
+}
+
+.pd-table-billing .col-amount {
+  width: 80px;
+  text-align: right;
+}
+
+
+
+
+/* S-curve legend / toggles */
+.pd-scurve-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0 4px;
+  font-size: 11px;
+}
+
+.pd-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  cursor: pointer;
+}
+
+.pd-toggle input[type="checkbox"] {
+  margin: 0;
+}
+
+/* S-curve wrapper – 50% bigger chart */
 .pd-scurve-wrapper {
-  margin: 12px 0 18px;
-  height: 260px; /* controls size of chart */
+  margin: 10px 0 16px;
+  height: 260px; /* controls chart height; already ~50% bigger */
 }
 
 .pd-scurve-wrapper canvas {
@@ -187,29 +347,72 @@
   height: 100% !important;
 }
 
-/* RESPONSIVE: mobile full screen, tablet, desktop */
+/* Error message */
+.pd-error {
+  padding: 8px 10px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #b91c1c;
+}
 
+/* Responsive – mobile */
 @media (max-width: 600px) {
   .pd-box {
     width: 100%;
-    height: 100%;
     max-width: none;
+    height: 100%;
     max-height: none;
     border-radius: 0;
   }
 
-  .pd-body {
-    padding: 8px;
+  #projectDocsBody {
+    padding: 8px 8px 10px;
   }
 
   .pd-title {
     font-size: 14px;
   }
+
+.pd-table {
+  width: 100%;
+  border-collapse: collapse;        /* make borders join cleanly */
+  font-size: 11px;
+  border: 1px solid #e5e7eb;       /* outer border of the table */
 }
 
+  .pd-scurve-wrapper {
+    height: 220px;
+  }
+}
+
+/* Responsive – tablet */
 @media (min-width: 601px) and (max-width: 1024px) {
   .pd-box {
     width: 96%;
     max-width: 900px;
   }
 }
+
+
+/* Force LEFT alignment for all value cells in PCMA, VO, WSO/WRO/CTE, CTE, Billing */
+
+.pd-table-pcma .col-year,
+.pd-table-pcma .col-month,
+.pd-table-pcma .col-actual,
+.pd-table-pcma .col-pcma,
+.pd-table-vo .col-vo,
+.pd-table-vo .col-date,
+.pd-table-vo .col-days,
+.pd-table-wso .col-code,
+.pd-table-wso .col-date,
+.pd-table-cte .col-code,
+.pd-table-cte .col-days,
+.pd-table-billing .col-year,
+.pd-table-billing .col-month,
+.pd-table-billing .col-amount {
+  text-align: left;
+}
+
+

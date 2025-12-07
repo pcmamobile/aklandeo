@@ -129,10 +129,11 @@
   background: #111827;
 }
 
-/* FUND blocks: left side, offset 20px from CY row */
+/* FUND blocks: no extra margin, the group handles spacing */
 .os-fund-block {
-  margin-left: 20px;
+  margin: 0;
 }
+
 
 /* ========= ROWS & CARDS ========= */
 
@@ -144,12 +145,19 @@
   width: 100%;
 }
 
-/* FUND rows: 60% width, left side, offset 20px */
+/* FUND rows: full-width grid inside one container */
 .os-year-row-fund {
-  width: 60%;
-  margin-left: 20px;
+  width: 65%;
+  margin-left: 10%;
   margin-right: 0;
+  display: grid;
+  grid-template-columns: 140px repeat(6, 1fr);  /* now has PERCENTAGE column */
+  align-items: stretch;
+  gap: 0;
 }
+
+
+
 
 /* FUND label in same row as containers */
 .os-fund-label {
@@ -180,6 +188,45 @@
   min-height: 50px;
   padding: 6px 8px;
 }
+
+
+/* Grid borders for fund rows */
+.os-year-row-fund .os-fund-label,
+.os-year-row-fund .os-card {
+  border-radius: 0;
+  border: 1px solid #4b5563;
+  box-shadow: none;
+}
+
+/* Header row: darker background + centered text vertically & horizontally */
+.os-fund-grid-header .os-fund-label-header,
+.os-fund-grid-header .os-fund-col-header {
+  background: #111827;
+  display: flex;              /* make each header cell a flex box */
+  align-items: center;        /* center vertically */
+  justify-content: center;    /* center horizontally */
+  text-align: center;
+}
+
+
+/* Show labels in header row only */
+.os-fund-grid-header .os-card-label {
+  display: block;
+}
+
+/* Data rows: hide "TOTAL / ON-GOING / ..." label text, show only values */
+.os-year-row-fund:not(.os-fund-grid-header) .os-card-label {
+  display: none;
+}
+
+.os-year-row-fund:not(.os-fund-grid-header) .os-card-value {
+  font-size: 1.6rem;   /* or 2rem if you prefer bigger */
+  color: #000000;      /* <-- make fund values black */
+}
+
+
+
+
 
 /* 8. Card value style */
 .os-card-value {
@@ -229,23 +276,28 @@
 
 /* 50% LIGHTER COLORS FOR FUND ROWS (GAA, DA, DAR, DepEd, Maintenance) */
 .os-card-total-light {
-  background: #9590FF;   /* lighter of #2C21FF */
+  background: #ffffff;   /* lighter of #2C21FF */
 }
 
 .os-card-ongoing-light {
-  background: #C7E3D0;   /* lighter of #8FC7A2 */
+  background: #ffffff;   /* lighter of #8FC7A2 */
 }
 
 .os-card-completed-light {
-  background: #87DBAB;   /* lighter of #0FB857 */
+  background: #ffffff;   /* lighter of #0FB857 */
 }
 
 .os-card-nys-light {
-  background: #E3A793;   /* lighter of #C75028 */
+  background: #ffffff;   /* lighter of #C75028 */
 }
 
 .os-card-terminated-light {
-  background: #F69D7F;   /* lighter of #ED3C00 */
+  background: #ffffff;   /* lighter of #ED3C00 */
+}
+
+
+.os-year-row-fund:not(.os-fund-grid-header) .os-card {
+  background: #ffffff;
 }
 
 /* ========= EQUAL SIGN & PIE WRAPPER ========= */
@@ -409,6 +461,7 @@
     margin-bottom: 8px;
   }
 
+
   .os-year-label {
     font-size: 0.95rem;
   }
@@ -439,15 +492,7 @@
     font-size: 2rem;
   }
 
-  /* FUND rows under each year */
-  .os-year-row-fund {
-    width: 100%;
-    margin-left: 0;
-    margin-right: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
+
 
   .os-fund-label {
     flex: 0 0 auto;
@@ -486,10 +531,11 @@
   .os-pie {
     width: 120px;
     height: 120px;
-    transform: scale(0.7);
+    transform: scale(0.7);media
   }
 
   .os-pie-label {
     font-size: 2rem;
   }
 }
+

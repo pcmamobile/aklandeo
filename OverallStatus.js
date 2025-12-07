@@ -11,8 +11,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (!openBtn || !overlay || !closeBtn) return;
 
-  const YEARS = ["2025", "2024", "2023"];
-  const FUNDS = ["GAA", "DA", "DAR", "DepEd", "Maintenance"];
+const YEARS = ["2025", "2024", "2023"];
+const FUNDS = ["GAA", "DA", "DAR", "DepEd", "Maintenance", "SpecialFund"];
+
 
   /* ---------- helpers ---------- */
 
@@ -182,6 +183,8 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
 
+
+
     const records = Array.isArray(S.records) ? S.records : [];
 
     records.forEach((row) => {
@@ -216,7 +219,9 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!fundStr) return;
 
         let fundKey = null;
-        if (fundStr.includes("maint")) {
+        if (fundStr.includes("special")) {
+          fundKey = "SpecialFund";
+        } else if (fundStr.includes("maint")) {
           fundKey = "Maintenance";
         } else if (fundStr.includes("deped")) {
           fundKey = "DepEd";
@@ -241,6 +246,32 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
+
+    YEARS.forEach((year) => {
+      const agg = {
+        total: 0,
+        ongoing: 0,
+        completed: 0,
+        nys: 0,
+        terminated: 0,
+      };
+
+      FUNDS.forEach((fund) => {
+        const fundStats = stats[year + fund];
+        if (!fundStats) return;
+
+        agg.total += fundStats.total;
+        agg.ongoing += fundStats.ongoing;
+        agg.completed += fundStats.completed;
+        agg.nys += fundStats.nys;
+        agg.terminated += fundStats.terminated;
+      });
+
+      // override the main year bucket with the sum of all funds
+      stats[year] = agg;
+    });
+
+
     const setText = (id, value) => {
       const el = document.getElementById(id);
       if (el) el.textContent = String(value);
@@ -259,21 +290,32 @@ document.addEventListener("DOMContentLoaded", () => {
       setText(prefix + "Terminated", s.terminated);
     });
 
-    // write fund rows
-    YEARS.forEach((year) => {
-      FUNDS.forEach((fund) => {
-        const key = year + fund;
-        const s = stats[key];
-        if (!s) return;
-        const prefix = "os" + year + fund;
+// write fund rows (including % column)
+YEARS.forEach((year) => {
+  FUNDS.forEach((fund) => {
+    const key = year + fund;
+    const s = stats[key];
+    if (!s) return;
+    const prefix = "os" + year + fund;
 
-        setText(prefix + "Total", s.total);
-        setText(prefix + "Ongoing", s.ongoing);
-        setText(prefix + "Completed", s.completed);
-        setText(prefix + "NYS", s.nys);
-        setText(prefix + "Terminated", s.terminated);
-      });
-    });
+    setText(prefix + "Total", s.total);
+    setText(prefix + "Ongoing", s.ongoing);
+    setText(prefix + "Completed", s.completed);
+    setText(prefix + "NYS", s.nys);
+    setText(prefix + "Terminated", s.terminated);
+
+    // NEW: percentage = (Completed + NYS + Terminated) / Total
+    let percentText = "0%";
+    if (s.total > 0) {
+      const numerator = s.completed + s.nys + s.terminated;
+      const pct = (numerator / s.total) * 100;
+      percentText = Math.round(pct) + "%";   // or pct.toFixed(1) + "%";
+    }
+    setText(prefix + "Percent", percentText);
+  });
+});
+
+
 
     // hide/show fund rows & groups based on data
     updateAllFundVisibility(stats);
@@ -284,41 +326,67 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* ---------- FUND VISIBILITY (per year) ---------- */
 
-  function updateAllFundVisibility(stats) {
-    YEARS.forEach((year) => {
-      const groupId = "osFunds" + year + "Group";
-      const toggleId = "osToggleFunds" + year;
-      const groupEl = document.getElementById(groupId);
-      const toggleBtn = document.getElementById(toggleId);
 
-      if (!groupEl || !toggleBtn) return;
+function updateAllFundVisibility(stats) {
+  YEARS.forEach((year) => {
+    const groupId = "osFunds" + year + "Group";
+    const toggleId = "osToggleFunds" + year;
+    const groupEl = document.getElementById(groupId);
+    const toggleBtn = document.getElementById(toggleId);
 
-      let visibleCount = 0;
+    if (!toggleBtn) return; // button must exist
 
-      FUNDS.forEach((fund) => {
-        const rowId = "osFundRow" + year + fund;
-        const rowEl = document.getElementById(rowId);
-        const s = stats[year + fund];
-        if (!rowEl || !s) return;
+    // Make sure SPECIAL FUND row is inside the group so it hides/unhides together
+    const specialRowId = "osFundRow" + year + "SpecialFund";
+    const specialRowEl = document.getElementById(specialRowId);
+    if (groupEl && specialRowEl && !groupEl.contains(specialRowEl)) {
+      groupEl.appendChild(specialRowEl);
+    }
 
-        if (s.total > 0) {
-          rowEl.style.display = "";
-          visibleCount++;
-        } else {
-          rowEl.style.display = "none";
-        }
-      });
+    let visibleCount = 0;
 
-      if (visibleCount === 0) {
-        groupEl.style.display = "none";
-        toggleBtn.style.display = "none";
+    // Decide which fund rows actually have data
+    FUNDS.forEach((fund) => {
+      const rowId = "osFundRow" + year + fund; // e.g. osFundRow2025GAA, osFundRow2025SpecialFund
+      const rowEl = document.getElementById(rowId);
+      const s = stats[year + fund];
+      if (!rowEl || !s) return;
+
+      if (s.total > 0) {
+        rowEl.style.display = ""; // this row has data
+        visibleCount++;
       } else {
-        groupEl.style.display = "";
-        toggleBtn.style.display = "";
-        toggleBtn.textContent = "Hide FUND Rows";
+        rowEl.style.display = "none";
       }
     });
-  }
+
+    if (!groupEl) {
+      // If there is no group container, just hide the button when nothing to show
+      if (visibleCount === 0) {
+        toggleBtn.style.display = "none";
+      } else {
+        toggleBtn.style.display = "";
+        toggleBtn.textContent = "Show FUND Rows";
+      }
+      return;
+    }
+
+    if (visibleCount === 0) {
+      // No fund rows with data → hide group & button
+      groupEl.style.display = "none";
+      toggleBtn.style.display = "none";
+    } else {
+      // There are fund rows with data:
+      //  - start with ALL fund rows hidden (group hidden)
+      //  - show the toggle button so user can Show/Hide
+      groupEl.style.display = "none";       // hide fund rows at first
+      toggleBtn.style.display = "";         // show the toggle button
+      toggleBtn.textContent = "Show FUND Rows";
+    }
+  });
+}
+
+
 
   /* ---------- PIE UPDATE ---------- */
 

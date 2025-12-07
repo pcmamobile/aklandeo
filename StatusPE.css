@@ -27,7 +27,7 @@
   flex-direction: column;
   padding: 10px;
   box-sizing: border-box;
-  overflow-y: auto;
+  overflow: hidden;  
 }
 
 
@@ -348,7 +348,10 @@ body.no-scroll {
   grid-template-columns: 2fr 2fr 2fr; /* last column is split into 2 inside */
   gap: 12px;
   margin-top: 14px;
+  flex: 1 1 auto;   /* NEW: use remaining height */
+  min-height: 0;    /* allow children to scroll inside */
 }
+
 
 /* main column boxes */
 .pe-col {
@@ -357,7 +360,8 @@ body.no-scroll {
   padding: 8px;
   display: flex;
   flex-direction: column;
-  border: 0.5px solid #3b3b3b; /* .5px solid #3B3B3B */
+  border: 0.5px solid #3b3b3b;
+  min-height: 0;      /* NEW */
 }
 
 /* column headers */
@@ -404,6 +408,7 @@ body.no-scroll {
   display: flex;
   flex-direction: column;
   border: 0.5px solid #3b3b3b;
+  min-height: 0;      /* NEW */
 }
 
 /* NYS / Terminated labels */
@@ -434,7 +439,10 @@ body.no-scroll {
 .pe-list {
   padding: 4px;
   counter-reset: peIndex;
+  flex: 1 1 auto;     /* fill column */
+  overflow-y: auto;   /* scroll ONLY inside this container */
 }
+
 
 /* ON-GOING & COMPLETED: 3 vertical sub-columns */
 #peColOngoing,

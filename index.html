@@ -349,190 +349,268 @@
 
     <div class="os-body">
 
-      <!-- ========= CY 2025 (OVERALL) ========= -->
-      <section class="os-year-block">
-        <div class="os-year-header">
-          <span class="os-year-label">CY 2025 - OVERALL</span>
-          <button type="button"
-                  class="os-toggle-funds-btn"
-                  id="osToggleFunds2025">
-            Hide FUND Rows
-          </button>
-        </div>
+<!-- ========= CY 2025 (OVERALL) ========= -->
+<section class="os-year-block">
+  <div class="os-year-header">
+    <span class="os-year-label">CY 2025 - OVERALL</span>
+    <button type="button"
+            class="os-toggle-funds-btn"
+            id="osToggleFunds2025">
+      Hide FUND Rows
+    </button>
+  </div>
 
-        <div class="os-year-row">
-          <div class="os-card os-card-total">
-            <div class="os-card-label">TOTAL</div>
-            <div class="os-card-value" id="os2025Total">0</div>
-          </div>
-          <div class="os-card os-card-ongoing">
-            <div class="os-card-label">ON-GOING</div>
-            <div class="os-card-value" id="os2025Ongoing">0</div>
-          </div>
-          <div class="os-card os-card-completed">
-            <div class="os-card-label">COMPLETED</div>
-            <div class="os-card-value" id="os2025Completed">0</div>
-          </div>
-          <div class="os-card os-card-nys">
-            <div class="os-card-label">NYS</div>
-            <div class="os-card-value" id="os2025NYS">0</div>
-          </div>
-          <div class="os-card os-card-terminated">
-            <div class="os-card-label">TERMINATED</div>
-            <div class="os-card-value" id="os2025Terminated">0</div>
-          </div>
+  <div class="os-year-row">
+    <div class="os-card os-card-total">
+      <div class="os-card-label">TOTAL</div>
+      <div class="os-card-value" id="os2025Total">0</div>
+    </div>
+    <div class="os-card os-card-ongoing">
+      <div class="os-card-label">ON-GOING</div>
+      <div class="os-card-value" id="os2025Ongoing">0</div>
+    </div>
+    <div class="os-card os-card-completed">
+      <div class="os-card-label">COMPLETED</div>
+      <div class="os-card-value" id="os2025Completed">0</div>
+    </div>
+    <div class="os-card os-card-nys">
+      <div class="os-card-label">NYS</div>
+      <div class="os-card-value" id="os2025NYS">0</div>
+    </div>
+    <div class="os-card os-card-terminated">
+      <div class="os-card-label">TERMINATED</div>
+      <div class="os-card-value" id="os2025Terminated">0</div>
+    </div>
 
-          <div class="os-equal">=</div>
-          <div class="os-pie-wrapper">
-            <div class="os-pie" data-row="2025">
-              <span class="os-pie-label" id="osPieLabel2025">0%</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ========= CY 2025 FUND BREAKDOWN ========= -->
-      <div id="osFunds2025Group">
-        <!-- GAA -->
-        <section class="os-year-block os-fund-block" id="osFundRow2025GAA">
-          <div class="os-year-row os-year-row-fund">
-            <div class="os-fund-label">GAA</div>
-
-            <div class="os-card os-card-fund os-card-total-light">
-              <div class="os-card-label">TOTAL</div>
-              <div class="os-card-value" id="os2025GAATotal">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-ongoing-light">
-              <div class="os-card-label">ON-GOING</div>
-              <div class="os-card-value" id="os2025GAAOngoing">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-completed-light">
-              <div class="os-card-label">COMPLETED</div>
-              <div class="os-card-value" id="os2025GAACompleted">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-nys-light">
-              <div class="os-card-label">NYS</div>
-              <div class="os-card-value" id="os2025GAANYS">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-terminated-light">
-              <div class="os-card-label">TERMINATED</div>
-              <div class="os-card-value" id="os2025GAATerminated">0</div>
-            </div>
-          </div>
-        </section>
-
-        <!-- DA -->
-        <section class="os-year-block os-fund-block" id="osFundRow2025DA">
-          <div class="os-year-row os-year-row-fund">
-            <div class="os-fund-label">DA</div>
-
-            <div class="os-card os-card-fund os-card-total-light">
-              <div class="os-card-label">TOTAL</div>
-              <div class="os-card-value" id="os2025DATotal">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-ongoing-light">
-              <div class="os-card-label">ON-GOING</div>
-              <div class="os-card-value" id="os2025DAOngoing">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-completed-light">
-              <div class="os-card-label">COMPLETED</div>
-              <div class="os-card-value" id="os2025DACompleted">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-nys-light">
-              <div class="os-card-label">NYS</div>
-              <div class="os-card-value" id="os2025DANYS">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-terminated-light">
-              <div class="os-card-label">TERMINATED</div>
-              <div class="os-card-value" id="os2025DATerminated">0</div>
-            </div>
-          </div>
-        </section>
-
-        <!-- DAR -->
-        <section class="os-year-block os-fund-block" id="osFundRow2025DAR">
-          <div class="os-year-row os-year-row-fund">
-            <div class="os-fund-label">DAR</div>
-
-            <div class="os-card os-card-fund os-card-total-light">
-              <div class="os-card-label">TOTAL</div>
-              <div class="os-card-value" id="os2025DARTotal">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-ongoing-light">
-              <div class="os-card-label">ON-GOING</div>
-              <div class="os-card-value" id="os2025DAROngoing">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-completed-light">
-              <div class="os-card-label">COMPLETED</div>
-              <div class="os-card-value" id="os2025DARCompleted">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-nys-light">
-              <div class="os-card-label">NYS</div>
-              <div class="os-card-value" id="os2025DARNYS">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-terminated-light">
-              <div class="os-card-label">TERMINATED</div>
-              <div class="os-card-value" id="os2025DARTerminated">0</div>
-            </div>
-          </div>
-        </section>
-
-        <!-- DepEd -->
-        <section class="os-year-block os-fund-block" id="osFundRow2025DepEd">
-          <div class="os-year-row os-year-row-fund">
-            <div class="os-fund-label">DepEd</div>
-
-            <div class="os-card os-card-fund os-card-total-light">
-              <div class="os-card-label">TOTAL</div>
-              <div class="os-card-value" id="os2025DepEdTotal">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-ongoing-light">
-              <div class="os-card-label">ON-GOING</div>
-              <div class="os-card-value" id="os2025DepEdOngoing">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-completed-light">
-              <div class="os-card-label">COMPLETED</div>
-              <div class="os-card-value" id="os2025DepEdCompleted">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-nys-light">
-              <div class="os-card-label">NYS</div>
-              <div class="os-card-value" id="os2025DepEdNYS">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-terminated-light">
-              <div class="os-card-label">TERMINATED</div>
-              <div class="os-card-value" id="os2025DepEdTerminated">0</div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Maintenance -->
-        <section class="os-year-block os-fund-block" id="osFundRow2025Maintenance">
-          <div class="os-year-row os-year-row-fund">
-            <div class="os-fund-label">Maintenance</div>
-
-            <div class="os-card os-card-fund os-card-total-light">
-              <div class="os-card-label">TOTAL</div>
-              <div class="os-card-value" id="os2025MaintenanceTotal">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-ongoing-light">
-              <div class="os-card-label">ON-GOING</div>
-              <div class="os-card-value" id="os2025MaintenanceOngoing">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-completed-light">
-              <div class="os-card-label">COMPLETED</div>
-              <div class="os-card-value" id="os2025MaintenanceCompleted">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-nys-light">
-              <div class="os-card-label">NYS</div>
-              <div class="os-card-value" id="os2025MaintenanceNYS">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-terminated-light">
-              <div class="os-card-label">TERMINATED</div>
-              <div class="os-card-value" id="os2025MaintenanceTerminated">0</div>
-            </div>
-          </div>
-        </section>
+    <div class="os-equal">=</div>
+    <div class="os-pie-wrapper">
+      <div class="os-pie" data-row="2025">
+        <span class="os-pie-label" id="osPieLabel2025">0%</span>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========= CY 2025 FUND BREAKDOWN (GRID) ========= -->
+<div id="osFunds2025Group">
+  <!-- Header row -->
+  <section class="os-year-block os-fund-block os-fund-header">
+    <div class="os-year-row os-year-row-fund os-fund-grid-header">
+      <div class="os-fund-label os-fund-label-header">Type of Project</div>
+
+      <div class="os-card os-card-fund os-card-total-light os-fund-col-header">
+        <div class="os-card-label">TOTAL</div>
+      </div>
+      <div class="os-card os-card-fund os-card-ongoing-light os-fund-col-header">
+        <div class="os-card-label">ON-GOING</div>
+      </div>
+      <div class="os-card os-card-fund os-card-completed-light os-fund-col-header">
+        <div class="os-card-label">COMPLETED</div>
+      </div>
+      <div class="os-card os-card-fund os-card-nys-light os-fund-col-header">
+        <div class="os-card-label">NYS</div>
+      </div>
+      <div class="os-card os-card-fund os-card-terminated-light os-fund-col-header">
+        <div class="os-card-label">TERMINATED</div>
+      </div>
+	    <div class="os-card os-card-fund os-fund-col-header">
+    <div class="os-card-label">%</div>
+  </div>
+    </div>
+  </section>
+
+  <!-- GAA -->
+  <section class="os-year-block os-fund-block" id="osFundRow2025GAA">
+    <div class="os-year-row os-year-row-fund">
+      <div class="os-fund-label">GAA</div>
+
+      <div class="os-card os-card-fund os-card-total-light">
+        <div class="os-card-label">TOTAL</div>
+        <div class="os-card-value" id="os2025GAATotal">0</div>
+      </div>
+      <div class="os-card os-card-fund os-card-ongoing-light">
+        <div class="os-card-label">ON-GOING</div>
+        <div class="os-card-value" id="os2025GAAOngoing">0</div>
+      </div>
+      <div class="os-card os-card-fund os-card-completed-light">
+        <div class="os-card-label">COMPLETED</div>
+        <div class="os-card-value" id="os2025GAACompleted">0</div>
+      </div>
+      <div class="os-card os-card-fund os-card-nys-light">
+        <div class="os-card-label">NYS</div>
+        <div class="os-card-value" id="os2025GAANYS">0</div>
+      </div>
+      <div class="os-card os-card-fund os-card-terminated-light">
+        <div class="os-card-label">TERMINATED</div>
+        <div class="os-card-value" id="os2025GAATerminated">0</div>
+      </div>
+	    <div class="os-card os-card-fund">
+      <div class="os-card-label">%</div>
+      <div class="os-card-value" id="os2025GAAPercent">0%</div>
+    </div>
+    </div>
+  </section>
+
+  <!-- DA -->
+  <section class="os-year-block os-fund-block" id="osFundRow2025DA">
+    <div class="os-year-row os-year-row-fund">
+      <div class="os-fund-label">DA</div>
+
+      <div class="os-card os-card-fund os-card-total-light">
+        <div class="os-card-label">TOTAL</div>
+        <div class="os-card-value" id="os2025DATotal">0</div>
+      </div>
+      <div class="os-card os-card-fund os-card-ongoing-light">
+        <div class="os-card-label">ON-GOING</div>
+        <div class="os-card-value" id="os2025DAOngoing">0</div>
+      </div>
+      <div class="os-card os-card-fund os-card-completed-light">
+        <div class="os-card-label">COMPLETED</div>
+        <div class="os-card-value" id="os2025DACompleted">0</div>
+      </div>
+      <div class="os-card os-card-fund os-card-nys-light">
+        <div class="os-card-label">NYS</div>
+        <div class="os-card-value" id="os2025DANYS">0</div>
+      </div>
+      <div class="os-card os-card-fund os-card-terminated-light">
+        <div class="os-card-label">TERMINATED</div>
+        <div class="os-card-value" id="os2025DATerminated">0</div>
+      </div>
+	    <div class="os-card os-card-fund">
+      <div class="os-card-label">%</div>
+      <div class="os-card-value" id="os2025DAPercent">0%</div>
+    </div>
+    </div>
+  </section>
+
+  <!-- DAR -->
+  <section class="os-year-block os-fund-block" id="osFundRow2025DAR">
+    <div class="os-year-row os-year-row-fund">
+      <div class="os-fund-label">DAR</div>
+
+      <div class="os-card os-card-fund os-card-total-light">
+        <div class="os-card-label">TOTAL</div>
+        <div class="os-card-value" id="os2025DARTotal">0</div>
+      </div>
+      <div class="os-card os-card-fund os-card-ongoing-light">
+        <div class="os-card-label">ON-GOING</div>
+        <div class="os-card-value" id="os2025DAROngoing">0</div>
+      </div>
+      <div class="os-card os-card-fund os-card-completed-light">
+        <div class="os-card-label">COMPLETED</div>
+        <div class="os-card-value" id="os2025DARCompleted">0</div>
+      </div>
+      <div class="os-card os-card-fund os-card-nys-light">
+        <div class="os-card-label">NYS</div>
+        <div class="os-card-value" id="os2025DARNYS">0</div>
+      </div>
+      <div class="os-card os-card-fund os-card-terminated-light">
+        <div class="os-card-label">TERMINATED</div>
+        <div class="os-card-value" id="os2025DARTerminated">0</div>
+      </div>
+	    <div class="os-card os-card-fund">
+      <div class="os-card-label">%</div>
+      <div class="os-card-value" id="os2025DARPercent">0%</div>
+    </div>
+    </div>
+  </section>
+
+  <!-- DepEd -->
+  <section class="os-year-block os-fund-block" id="osFundRow2025DepEd">
+    <div class="os-year-row os-year-row-fund">
+      <div class="os-fund-label">DepEd</div>
+
+      <div class="os-card os-card-fund os-card-total-light">
+        <div class="os-card-label">TOTAL</div>
+        <div class="os-card-value" id="os2025DepEdTotal">0</div>
+      </div>
+      <div class="os-card os-card-fund os-card-ongoing-light">
+        <div class="os-card-label">ON-GOING</div>
+        <div class="os-card-value" id="os2025DepEdOngoing">0</div>
+      </div>
+      <div class="os-card os-card-fund os-card-completed-light">
+        <div class="os-card-label">COMPLETED</div>
+        <div class="os-card-value" id="os2025DepEdCompleted">0</div>
+      </div>
+      <div class="os-card os-card-fund os-card-nys-light">
+        <div class="os-card-label">NYS</div>
+        <div class="os-card-value" id="os2025DepEdNYS">0</div>
+      </div>
+      <div class="os-card os-card-fund os-card-terminated-light">
+        <div class="os-card-label">TERMINATED</div>
+        <div class="os-card-value" id="os2025DepEdTerminated">0</div>
+      </div>
+	    <div class="os-card os-card-fund">
+      <div class="os-card-label">%</div>
+      <div class="os-card-value" id="os2025DepEdPercent">0%</div>
+    </div>
+    </div>
+  </section>
+
+  <!-- Maintenance -->
+  <section class="os-year-block os-fund-block" id="osFundRow2025Maintenance">
+    <div class="os-year-row os-year-row-fund">
+      <div class="os-fund-label">MAINTENANCE</div>
+
+      <div class="os-card os-card-fund os-card-total-light">
+        <div class="os-card-label">TOTAL</div>
+        <div class="os-card-value" id="os2025MaintenanceTotal">0</div>
+      </div>
+      <div class="os-card os-card-fund os-card-ongoing-light">
+        <div class="os-card-label">ON-GOING</div>
+        <div class="os-card-value" id="os2025MaintenanceOngoing">0</div>
+      </div>
+      <div class="os-card os-card-fund os-card-completed-light">
+        <div class="os-card-label">COMPLETED</div>
+        <div class="os-card-value" id="os2025MaintenanceCompleted">0</div>
+      </div>
+      <div class="os-card os-card-fund os-card-nys-light">
+        <div class="os-card-label">NYS</div>
+        <div class="os-card-value" id="os2025MaintenanceNYS">0</div>
+      </div>
+      <div class="os-card os-card-fund os-card-terminated-light">
+        <div class="os-card-label">TERMINATED</div>
+        <div class="os-card-value" id="os2025MaintenanceTerminated">0</div>
+      </div>
+	    <div class="os-card os-card-fund">
+      <div class="os-card-label">%</div>
+      <div class="os-card-value" id="os2025MaintenancePercent">0%</div>
+    </div>
+    </div>
+  </section>
+
+  <!-- SPECIAL FUND -->
+  <section class="os-year-block os-fund-block" id="osFundRow2025SpecialFund">
+    <div class="os-year-row os-year-row-fund">
+      <div class="os-fund-label">SPECIAL FUND</div>
+
+      <div class="os-card os-card-fund os-card-total-light">
+        <div class="os-card-label">TOTAL</div>
+        <div class="os-card-value" id="os2025SpecialFundTotal">0</div>
+      </div>
+      <div class="os-card os-card-fund os-card-ongoing-light">
+        <div class="os-card-label">ON-GOING</div>
+        <div class="os-card-value" id="os2025SpecialFundOngoing">0</div>
+      </div>
+      <div class="os-card os-card-fund os-card-completed-light">
+        <div class="os-card-label">COMPLETED</div>
+        <div class="os-card-value" id="os2025SpecialFundCompleted">0</div>
+      </div>
+      <div class="os-card os-card-fund os-card-nys-light">
+        <div class="os-card-label">NYS</div>
+        <div class="os-card-value" id="os2025SpecialFundNYS">0</div>
+      </div>
+      <div class="os-card os-card-fund os-card-terminated-light">
+        <div class="os-card-label">TERMINATED</div>
+        <div class="os-card-value" id="os2025SpecialFundTerminated">0</div>
+      </div>
+	    <div class="os-card os-card-fund">
+      <div class="os-card-label">%</div>
+      <div class="os-card-value" id="os2025SpecialFundPercent">0%</div>
+    </div>
+    </div>
+  </section>
+</div>
 
       <!-- ========= CY 2024 (OVERALL) ========= -->
       <section class="os-year-block">
@@ -578,6 +656,33 @@
 
       <!-- ========= CY 2024 FUND BREAKDOWN ========= -->
       <div id="osFunds2024Group">
+	  
+	    <!-- Header row -->
+  <section class="os-year-block os-fund-block os-fund-header">
+    <div class="os-year-row os-year-row-fund os-fund-grid-header">
+      <div class="os-fund-label os-fund-label-header">Type of Project</div>
+
+      <div class="os-card os-card-fund os-card-total-light os-fund-col-header">
+        <div class="os-card-label">TOTAL</div>
+      </div>
+      <div class="os-card os-card-fund os-card-ongoing-light os-fund-col-header">
+        <div class="os-card-label">ON-GOING</div>
+      </div>
+      <div class="os-card os-card-fund os-card-completed-light os-fund-col-header">
+        <div class="os-card-label">COMPLETED</div>
+      </div>
+      <div class="os-card os-card-fund os-card-nys-light os-fund-col-header">
+        <div class="os-card-label">NYS</div>
+      </div>
+      <div class="os-card os-card-fund os-card-terminated-light os-fund-col-header">
+        <div class="os-card-label">TERMINATED</div>
+      </div>
+	  	<div class="os-card os-card-fund os-fund-col-header">
+    <div class="os-card-label">%</div>
+  </div>
+    </div>
+  </section>
+  
         <!-- GAA -->
         <section class="os-year-block os-fund-block" id="osFundRow2024GAA">
           <div class="os-year-row os-year-row-fund">
@@ -603,6 +708,10 @@
               <div class="os-card-label">TERMINATED</div>
               <div class="os-card-value" id="os2024GAATerminated">0</div>
             </div>
+	    <div class="os-card os-card-fund">
+      <div class="os-card-label">%</div>
+      <div class="os-card-value" id="os2024GAAPercent">0%</div>
+    </div>
           </div>
         </section>
 
@@ -631,6 +740,10 @@
               <div class="os-card-label">TERMINATED</div>
               <div class="os-card-value" id="os2024DATerminated">0</div>
             </div>
+	    <div class="os-card os-card-fund">
+      <div class="os-card-label">%</div>
+      <div class="os-card-value" id="os2024DAPercent">0%</div>
+    </div>
           </div>
         </section>
 
@@ -659,6 +772,10 @@
               <div class="os-card-label">TERMINATED</div>
               <div class="os-card-value" id="os2024DARTerminated">0</div>
             </div>
+	    <div class="os-card os-card-fund">
+      <div class="os-card-label">%</div>
+      <div class="os-card-value" id="os2024DARPercent">0%</div>
+    </div>
           </div>
         </section>
 
@@ -687,13 +804,17 @@
               <div class="os-card-label">TERMINATED</div>
               <div class="os-card-value" id="os2024DepEdTerminated">0</div>
             </div>
+	    <div class="os-card os-card-fund">
+      <div class="os-card-label">%</div>
+      <div class="os-card-value" id="os2024DepEdPercent">0%</div>
+    </div>
           </div>
         </section>
 
         <!-- Maintenance -->
         <section class="os-year-block os-fund-block" id="osFundRow2024Maintenance">
           <div class="os-year-row os-year-row-fund">
-            <div class="os-fund-label">Maintenance</div>
+            <div class="os-fund-label">MAINTENANCE</div>
 
             <div class="os-card os-card-fund os-card-total-light">
               <div class="os-card-label">TOTAL</div>
@@ -715,9 +836,46 @@
               <div class="os-card-label">TERMINATED</div>
               <div class="os-card-value" id="os2024MaintenanceTerminated">0</div>
             </div>
+	    <div class="os-card os-card-fund">
+      <div class="os-card-label">%</div>
+      <div class="os-card-value" id="os2024MaintenancePercent">0%</div>
+    </div>
           </div>
         </section>
+
+
+  <!-- SPECIAL FUND -->
+  <section class="os-year-block os-fund-block" id="osFundRow2024SpecialFund">
+    <div class="os-year-row os-year-row-fund">
+      <div class="os-fund-label">SPECIAL FUND</div>
+
+      <div class="os-card os-card-fund os-card-total-light">
+        <div class="os-card-label">TOTAL</div>
+        <div class="os-card-value" id="os2024SpecialFundTotal">0</div>
       </div>
+      <div class="os-card os-card-fund os-card-ongoing-light">
+        <div class="os-card-label">ON-GOING</div>
+        <div class="os-card-value" id="os2024SpecialFundOngoing">0</div>
+      </div>
+      <div class="os-card os-card-fund os-card-completed-light">
+        <div class="os-card-label">COMPLETED</div>
+        <div class="os-card-value" id="os2024SpecialFundCompleted">0</div>
+      </div>
+      <div class="os-card os-card-fund os-card-nys-light">
+        <div class="os-card-label">NYS</div>
+        <div class="os-card-value" id="os2024SpecialFundNYS">0</div>
+      </div>
+      <div class="os-card os-card-fund os-card-terminated-light">
+        <div class="os-card-label">TERMINATED</div>
+        <div class="os-card-value" id="os2024SpecialFundTerminated">0</div>
+      </div>
+	    <div class="os-card os-card-fund">
+      <div class="os-card-label">%</div>
+      <div class="os-card-value" id="os2024SpecialFundPercent">0%</div>
+    </div>
+    </div>
+  </section>
+</div>
 
       <!-- ========= CY 2023 (OVERALL) ========= -->
       <section class="os-year-block">
@@ -763,6 +921,33 @@
 
       <!-- ========= CY 2023 FUND BREAKDOWN ========= -->
       <div id="osFunds2023Group">
+	  
+	    <!-- Header row -->
+  <section class="os-year-block os-fund-block os-fund-header">
+    <div class="os-year-row os-year-row-fund os-fund-grid-header">
+      <div class="os-fund-label os-fund-label-header">Type of Project</div>
+
+      <div class="os-card os-card-fund os-card-total-light os-fund-col-header">
+        <div class="os-card-label">TOTAL</div>
+      </div>
+      <div class="os-card os-card-fund os-card-ongoing-light os-fund-col-header">
+        <div class="os-card-label">ON-GOING</div>
+      </div>
+      <div class="os-card os-card-fund os-card-completed-light os-fund-col-header">
+        <div class="os-card-label">COMPLETED</div>
+      </div>
+      <div class="os-card os-card-fund os-card-nys-light os-fund-col-header">
+        <div class="os-card-label">NYS</div>
+      </div>
+      <div class="os-card os-card-fund os-card-terminated-light os-fund-col-header">
+        <div class="os-card-label">TERMINATED</div>
+      </div>
+	  	<div class="os-card os-card-fund os-fund-col-header">
+    <div class="os-card-label">%</div>
+  </div>
+    </div>
+  </section>
+	  
         <!-- GAA -->
         <section class="os-year-block os-fund-block" id="osFundRow2023GAA">
           <div class="os-year-row os-year-row-fund">
@@ -878,7 +1063,7 @@
         <!-- Maintenance -->
         <section class="os-year-block os-fund-block" id="osFundRow2023Maintenance">
           <div class="os-year-row os-year-row-fund">
-            <div class="os-fund-label">Maintenance</div>
+            <div class="os-fund-label">MAINTENANCE</div>
 
             <div class="os-card os-card-fund os-card-total-light">
               <div class="os-card-label">TOTAL</div>
@@ -902,6 +1087,35 @@
             </div>
           </div>
         </section>
+
+
+  <!-- SPECIAL FUND -->
+  <section class="os-year-block os-fund-block" id="osFundRow2023SpecialFund">
+    <div class="os-year-row os-year-row-fund">
+      <div class="os-fund-label">SPECIAL FUND</div>
+
+      <div class="os-card os-card-fund os-card-total-light">
+        <div class="os-card-label">TOTAL</div>
+        <div class="os-card-value" id="os2023SpecialFundTotal">0</div>
+      </div>
+      <div class="os-card os-card-fund os-card-ongoing-light">
+        <div class="os-card-label">ON-GOING</div>
+        <div class="os-card-value" id="os2023SpecialFundOngoing">0</div>
+      </div>
+      <div class="os-card os-card-fund os-card-completed-light">
+        <div class="os-card-label">COMPLETED</div>
+        <div class="os-card-value" id="os2023SpecialFundCompleted">0</div>
+      </div>
+      <div class="os-card os-card-fund os-card-nys-light">
+        <div class="os-card-label">NYS</div>
+        <div class="os-card-value" id="os2023SpecialFundNYS">0</div>
+      </div>
+      <div class="os-card os-card-fund os-card-terminated-light">
+        <div class="os-card-label">TERMINATED</div>
+        <div class="os-card-value" id="os2023SpecialFundTerminated">0</div>
+      </div>
+    </div>
+  </section>
       </div>
 
     </div>
