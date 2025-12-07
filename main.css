@@ -33,7 +33,7 @@ header{
 }
 .brand{display:flex;align-items:center;gap:12px;}
 .header-logo{
-  height:70px;
+  height:50px;
   width:auto;
   border-radius:10px;
   box-shadow:0 3px 6px rgba(0,0,0,.25);
@@ -104,6 +104,18 @@ main{max-width:1100px;margin:6px auto 10px auto;padding:5px;}
 }
 mark{background:#fef08a;padding:0 .15em;border-radius:.2em;}
 
-@media(max-width:768px){
-  header{display:none;}
+/* MOBILE: make layout 50% smaller but keep header visible */
+@media (max-width: 768px) {
+  /* optional: slightly tighter header on mobile */
+  header {
+    padding: 8px 10px;
+  }
+
+  body {
+    transform: scale(0.5);
+    transform-origin: top left;
+    width: 200%;   /* 100% / 0.5 = 200% so it still fills the screen */
+    height: 200%;
+  }
 }
+
