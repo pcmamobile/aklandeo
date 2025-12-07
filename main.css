@@ -104,15 +104,6 @@ main{max-width:1100px;margin:6px auto 10px auto;padding:5px;}
 }
 mark{background:#fef08a;padding:0 .15em;border-radius:.2em;}
 
-/* MOBILE: make layout 75% of original and prevent horizontal scroll */
-@media (max-width: 768px) {
-  /* slightly tighter header on mobile (optional) */
-  header {
-    padding: 8px 10px;
-  }
+@media(max-width:768px){
+  header{display:none;}
 }
-
-
-
-
-
