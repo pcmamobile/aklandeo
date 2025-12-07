@@ -112,10 +112,11 @@ mark{background:#fef08a;padding:0 .15em;border-radius:.2em;}
   }
 
   body {
-    transform: scale(0.75);
+    transform: scale(0.80);
     transform-origin: top left;
     width: 200%;   /* 100% / 0.5 = 200% so it still fills the screen */
     height: 200%;
   }
 }
+
 
