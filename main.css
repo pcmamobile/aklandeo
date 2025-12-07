@@ -104,6 +104,17 @@ main{max-width:1100px;margin:6px auto 10px auto;padding:5px;}
 }
 mark{background:#fef08a;padding:0 .15em;border-radius:.2em;}
 
-@media(max-width:768px){
+/* MOBILE: make all text 75% of original size */
+@media (max-width: 768px) {
+  /* scale base font size for everything that uses rem/em */
+  html {
+    font-size: 75%;   /* 16px → 12px, all rem text becomes smaller */
+  }
+
+  /* show header on mobile (you can remove this if you really want it hidden) */
+  header {
+    display: block;
+    padding: 8px 10px;  /* a bit tighter on small screens */
+  }
 }
 
