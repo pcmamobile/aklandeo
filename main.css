@@ -106,26 +106,12 @@ mark{background:#fef08a;padding:0 .15em;border-radius:.2em;}
 
 /* MOBILE: make layout 75% of original and prevent horizontal scroll */
 @media (max-width: 768px) {
-  /* prevent left-right scrolling */
-  html, body {
-    overflow-x: hidden;
-  }
-
   /* slightly tighter header on mobile (optional) */
   header {
     padding: 8px 10px;
   }
-
-  body {
-    /* make everything 75% of original size */
-    transform: scale(0.75);
-    transform-origin: top left;
-
-    /* adjust width so 0.75 * 133.333% ≈ 100% of screen */
-    width: 133.3333%;
-    height: auto;
-  }
 }
+
 
 
 
