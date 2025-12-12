@@ -30,17 +30,18 @@ header{
   gap:12px;
   max-width:1100px;
   margin:0 auto;
+  height:25px;
 }
 .brand{display:flex;align-items:center;gap:12px;}
 .header-logo{
-  height:50px;
+  height:40px;
   width:auto;
-  border-radius:10px;
+  border-radius:80px;
   box-shadow:0 3px 6px rgba(0,0,0,.25);
 }
 .header-title{
   margin:0;
-  font-size:1.8rem;
+  font-size:1.2rem;
   font-weight:700;
   letter-spacing:.5px;
 }
@@ -50,7 +51,7 @@ header{
   color:#fff;
   font-weight:800;
   padding:6px 10px;
-  border-radius:9px;
+  border-radius:80px;
   cursor:pointer;
   font-size:.85rem;
 }
@@ -84,10 +85,10 @@ main{max-width:1100px;margin:6px auto 10px auto;padding:5px;}
 }
 .card:hover{transform:scale(1.01);box-shadow:0 6px 12px rgba(0,0,0,.15);}
 .card-thumb{
-  width:40px;
-  height:40px;
+  width:55px;
+  height:55px;
   object-fit:cover;
-  border-radius:8px;
+  border-radius:80px;
   background:#eee;
   flex:0 0 auto;
 }

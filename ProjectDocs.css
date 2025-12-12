@@ -94,19 +94,29 @@
 
 /* Actual header currently used (index.html .pd-top) */
 .pd-top {
-  padding: 8px 12px;
   border-bottom: 1px solid #e5e7eb;
   background: #f3f4f6;
   display: flex;
   align-items: center;
+  max-height: 30px;
   justify-content: space-between;  /* title on left, Close button on right */
   gap: 8px;                        /* small space between title and button */
 }
 
 .pd-title {
   font-size: 16px;
+  margin-left: 8px;
   font-weight: 700;
 }
+
+/* Contract ID displayed after "PROJECT DOCUMENTATION" */
+.pd-title .pd-cid {
+  margin-left: 8px;
+  font-weight: 600;
+  font-size: 20px;
+  color: #111827;
+}
+
 
 .pd-subtitle {
   font-size: 11px;
@@ -227,6 +237,7 @@
 .pd-table-pcma .col-actual,
 .pd-table-pcma .col-pcma {
   width: 60px;
+  text-align: center;
 }
 
 /* Year group row (e.g. "2025") */
@@ -237,7 +248,7 @@
 
 
 
-/* VO table – compress VO / DATE / ADD'L DAYS / REMARKS */
+/* VO table – compress VO / AMOUNT / (+) DAYS / REMARKS */
 .pd-table-vo th,
 .pd-table-vo td {
   padding: 2px 4px; /* tighter cells */
@@ -248,7 +259,7 @@
   text-align: center;
 }
 
-.pd-table-vo .col-date {
+.pd-table-vo .col-amount {
   width: 90px;
 }
 
@@ -256,6 +267,7 @@
   width: 70px;
   text-align: center;
 }
+
 
 /* WSO / WRO table – compress CODE / DATE / REASON */
 .pd-table-wso th,
@@ -272,27 +284,53 @@
   width: 90px;
 }
 
-/* CTE table – compress CTE / DAYS / REMARKS */
+/* CTE table – compress like BILLING */
+.pd-table-cte {
+  width: auto;                 /* shrink to content, not full width */
+}
+
+/* smaller padding like Billing */
 .pd-table-cte th,
 .pd-table-cte td {
   padding: 2px 4px;
 }
 
+/* CTE column – similar to YEAR in Billing */
 .pd-table-cte .col-code {
-  width: 70px;
-  text-align: center;
+  width: 45px;                 /* narrower */
 }
 
+/* DAYS column – similar size to MONTH/AMOUNT */
 .pd-table-cte .col-days {
   width: 60px;
   text-align: center;
 }
+
+/* If you are using DATE / REV. EXPIRY DATE columns now or later */
+.pd-table-cte .col-date {
+  width: 80px;
+}
+
+.pd-table-cte .col-revdate {
+  width: auto;
+}
+
+/* Remarks stays flexible but still tight */
+.pd-table-cte .pd-remarks {
+  white-space: normal;
+}
+
 
 /* Billing table – compress YEAR / MONTH / AMOUNT / REMARKS */
 .pd-table-billing th,
 .pd-table-billing td {
   padding: 2px 4px;
 }
+
+.pd-table-billing {
+  width: auto;   /* shrink to content width */
+}
+
 
 .pd-table-billing .col-year {
   width: 45px;
@@ -307,6 +345,19 @@
   width: 80px;
   text-align: right;
 }
+
+/* Make STATUS sit closer to REMARKS in BILLING table */
+.pd-table-billing .pd-remarks {
+  padding-right: 2px;   /* smaller right padding on REMARKS */
+}
+
+.pd-table-billing .col-status {
+  width: auto;          /* narrow column */
+  text-align: left;     /* left-align text */
+  padding-left: 2px;    /* smaller left padding on STATUS */
+}
+
+
 
 
 
@@ -400,19 +451,14 @@
 
 .pd-table-pcma .col-year,
 .pd-table-pcma .col-month,
-.pd-table-pcma .col-actual,
-.pd-table-pcma .col-pcma,
 .pd-table-vo .col-vo,
 .pd-table-vo .col-date,
-.pd-table-vo .col-days,
 .pd-table-wso .col-code,
 .pd-table-wso .col-date,
 .pd-table-cte .col-code,
-.pd-table-cte .col-days,
 .pd-table-billing .col-year,
 .pd-table-billing .col-month,
 .pd-table-billing .col-amount {
   text-align: left;
 }
-
 

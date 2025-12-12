@@ -27,6 +27,8 @@
   const presentPrev    = document.getElementById('presentPrev');
   const presentNext    = document.getElementById('presentNext');
 
+const presentDocsBtn = document.getElementById('presentDocsBtn');
+
   const presentPlay    = document.getElementById('presentPlay');
   const presentOpen    = document.getElementById('presentOpen');
   const presentClose   = document.getElementById('presentClose');
@@ -102,28 +104,32 @@
     }).filter(r => r.val);
   }
 
-  // Build header team chips
-  function buildTeamChips(row){
-    presentTeam.innerHTML = '';
-    const list = getTeamList(row);
-    list.forEach(({abbr, cls, val, bg})=>{
-      const chip = document.createElement('span');
-      chip.className = 'role-chip';
+// Build header team chips (PE only, larger and black)
+function buildTeamChips(row){
+  presentTeam.innerHTML = '';
 
-      const tag = document.createElement('span');
-      tag.className = `role-tag ${cls}`;
-      tag.textContent = abbr;
-      tag.style.color = bg;        // colored label
-      chip.style.background = 'transparent';
-      chip.style.border = '1px solid rgba(255,255,255,0.18)';
-      chip.style.color = '#e5e7eb';
+  // Only keep PE for the header
+  const list = getTeamList(row).filter(r => r.abbr === 'PE');
 
-      chip.appendChild(tag);
-      chip.append(`: ${val}`);
-      presentTeam.appendChild(chip);
-    });
-    presentTeam.classList.toggle('hidden', list.length === 0);
-  }
+  list.forEach(({abbr, cls, val})=>{
+    const chip = document.createElement('span');
+    // extra class so we can style header PE differently
+    chip.className = 'role-chip header-pe-chip';
+
+    const tag = document.createElement('span');
+    tag.className = `role-tag ${cls}`;
+    tag.textContent = abbr;
+
+    // No inline color here; CSS will control color/size
+    chip.appendChild(tag);
+    chip.append(`: ${val}`);
+    presentTeam.appendChild(chip);
+  });
+
+  presentTeam.classList.toggle('hidden', list.length === 0);
+}
+
+
 
   function makeRow(label, value, isStatus){
     const sRaw = (value == null ? '' : String(value)).trim();
@@ -428,6 +434,22 @@
     presentOverlay.setAttribute('hidden','');
     document.body.classList.remove('no-scroll');
   });
+
+// Project Documentation from Projector header
+if (presentDocsBtn) {
+  presentDocsBtn.addEventListener('click', () => {
+    if (typeof window.openProjectDocs === 'function') {
+      const cid = (presentCID && presentCID.textContent || '').trim();
+      // If cid is empty, openProjectDocs will still fall back to modal CID logic
+      window.openProjectDocs(cid);
+    } else {
+      alert('Project Documentation module is not loaded.');
+    }
+  });
+}
+
+
+
 
   window.addEventListener('keydown', (e) => {
     if (!presentOverlay.classList.contains('show')) return;

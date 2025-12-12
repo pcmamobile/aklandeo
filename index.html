@@ -6,7 +6,7 @@
 
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
-<title>PCMA Mobile V4.0</title>
+<title>PCMA Mobile V5.0</title>
 <link href="https://drive.google.com/thumbnail?id=1VanVX82ANGfKA8jcGZL8cVDQh4EuN8-r&amp;sz=s800" rel="icon" sizes="32x32" type="image/png"/>
 <link href="https://drive.google.com/thumbnail?id=1VanVX82ANGfKA8jcGZL8cVDQh4EuN8-r&amp;sz=s800" rel="apple-touch-icon" sizes="180x180"/>
 <link href="manifest.json" rel="manifest">
@@ -26,7 +26,7 @@
 <div class="header-container">
 <div class="brand">
 <img alt="PCMA Logo" class="header-logo" decoding="async" src="https://drive.google.com/thumbnail?id=1VanVX82ANGfKA8jcGZL8cVDQh4EuN8-r&amp;sz=s800"/>
-<h2 class="header-title">PCMA Mobile V4.0</h2>
+<h2 class="header-title">PCMA Mobile V5.0</h2>
 </div>
 <button class="filter-toggle-btn" id="toggleFilters">Hide Search</button>
 </div>
@@ -175,6 +175,9 @@
 <div class="present-team hidden" id="presentTeam"></div>
 </div>
 <div class="present-actions">
+
+  <!-- Project Documentation button (same look as in Modal) -->
+  <button type="button" id="presentDocsBtn" class="btn-project-docs">Project Documentation</button>
 
 
 <!-- NEW: inside Projector header -->
@@ -1135,7 +1138,10 @@
 <div class="pd-overlay" id="projectDocsOverlay" aria-modal="true" role="dialog" hidden>
   <div class="pd-box">
     <div class="pd-top">
-      <h3 class="pd-title">PROJECT DOCUMENTATION</h3>
+  <h3 class="pd-title">
+    PROJECT DOCUMENTATION
+    <span id="pdHeaderCID" class="pd-cid"></span>
+  </h3>
       <button type="button" class="pd-close-btn" id="pdCloseBtn">Close</button>
     </div>
     <div class="pd-body" id="projectDocsBody">

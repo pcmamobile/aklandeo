@@ -1,6 +1,6 @@
 #filters{
   position:sticky;
-  top:82px;
+  top:65px;
   z-index:180;
   display:flex;
   flex-direction:column;
@@ -33,7 +33,7 @@
 .filter-combo input{
   font-size:.95rem;
   padding:7px 10px;
-  border-radius:9px;
+  border-radius:80px;
   border:2px solid #cbd5e1;
   background:#f8fafc;
   outline:none;
@@ -61,7 +61,7 @@
 #moreFilters select{
   font-size:.9rem;
   padding:6px 8px;
-  border-radius:8px;
+  border-radius:80px;
   border:2px solid #cbd5e1;
   background:#f8fafc;
   outline:none;
@@ -73,9 +73,9 @@
 #applyFilter,#clearFilter{
   padding:7px 8px;
   font-size:.9rem;
-  border-radius:8px;
+  border-radius:80px;
   font-weight:800;
-  height:33px;
+  height:53px;
   cursor:pointer;
   border:none;
 }
@@ -83,7 +83,7 @@
 #clearFilter{background:#e5e7eb;color:#111;}
 
 @media(max-width:768px){
-  #filters{top:0;border-radius:0;}
+  #filters{top:0;border-radius:80;}
 }
 
 /* Projector Mode button (beside Filter) */
@@ -91,7 +91,7 @@
   background:#f59e0b;         /* orange */
   color:#0b1220;              /* dark text */
   border:none;
-  border-radius:8px;
+  border-radius:80px;
   padding:5px 10px;
   font-weight:800;
   display:inline-flex;

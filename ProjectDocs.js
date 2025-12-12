@@ -61,6 +61,128 @@
     }
   }
 
+
+  // Parse a date from a cell string (e.g., "1/31/2025", "2025-01-31", "Jan 31, 2025")
+  function parseDateFromCell(value) {
+    if (!value) return null;
+    const str = String(value).trim();
+    if (!str) return null;
+
+    const d = new Date(str);
+    if (!isNaN(d.getTime())) return d;
+    return null;
+  }
+
+  // Format date as "Jan 1, 2025"
+  function formatDateShort(d) {
+    if (!(d instanceof Date) || isNaN(d.getTime())) return "";
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    return months[d.getMonth()] + " " + d.getDate() + ", " + d.getFullYear();
+  }
+
+  // Add N days to a date
+  function addDays(date, days) {
+    if (!(date instanceof Date) || isNaN(date.getTime())) return null;
+    const n = parseInt(days, 10);
+    if (!Number.isFinite(n)) return null;
+    const d = new Date(date.getTime());
+    d.setDate(d.getDate() + n);
+    return d;
+  }
+
+  // Extract numeric days from something like "30", "30 days", etc.
+  function parseDaysValue(value) {
+    if (value == null) return null;
+    const m = String(value).match(/-?\d+/);
+    if (!m) return null;
+    const n = parseInt(m[0], 10);
+    return Number.isFinite(n) ? n : null;
+  }
+
+  // Find the first existing column among several label options
+  function findFirstExistingColumn(headerRow, labels) {
+    for (let i = 0; i < labels.length; i++) {
+      const idx = findExactColumn(headerRow, labels[i]);
+      if (idx >= 0) return idx;
+    }
+    return -1;
+  }
+
+  // From CTE remarks, derive a base DATE:
+  // - if "WSO No. 1" → use "WRO1 Date"
+  // - if "VO1" in remarks → use "VO1 Date"
+  // - if "month of January 2025" → last day of that month (e.g. 31 Jan 2025)
+  function deriveCteBaseDateFromRemarks(remarks, header, row) {
+    if (!remarks) return null;
+    const txt = String(remarks);
+
+    // 1) "WSO No. 1" → WRO1 Date
+    const wsoMatch = txt.match(/WSO\s*(?:No\.?\s*)?(\d+)/i);
+    if (wsoMatch) {
+      const n = parseInt(wsoMatch[1], 10);
+      if (Number.isFinite(n)) {
+        const wroIdx = findExactColumn(header, "WRO" + n + " Date");
+        if (wroIdx >= 0 && row[wroIdx]) {
+          const d = parseDateFromCell(row[wroIdx]);
+          if (d) return d;
+        }
+      }
+    }
+
+    // 2) "VO1" inside remarks → VO1 Date (if that column exists in this sheet)
+    const voMatch = txt.match(/VO\s*(\d+)/i);
+    if (voMatch) {
+      const n = parseInt(voMatch[1], 10);
+      if (Number.isFinite(n)) {
+        const voIdx = findExactColumn(header, "VO" + n + " Date");
+        if (voIdx >= 0 && row[voIdx]) {
+          const d = parseDateFromCell(row[voIdx]);
+          if (d) return d;
+        }
+      }
+    }
+
+    // 3) "month of January 2025" → last day of that month
+    const monthMatch = txt.match(/month of\s+([A-Za-z]+)\s+(\d{4})/i);
+    if (monthMatch) {
+      const monthName = monthMatch[1];
+      const year = parseInt(monthMatch[2], 10);
+      const mNum = monthNameToNumber(monthName);
+      if (mNum && year) {
+        // last day of that month
+        const d = new Date(year, mNum, 0); // e.g., (2025, 1, 0) = 31 Jan 2025
+        if (!isNaN(d.getTime())) return d;
+      }
+    }
+
+    // Fallback: if remarks itself contains a parseable date
+    const fallback = parseDateFromCell(txt);
+    if (fallback) return fallback;
+
+    return null;
+  }
+
+  
+  
+  
+  
+  
+
+
+  // Extract numeric days from a cell like "30", "30 days", etc.
+  function parseDaysValue(value) {
+    if (value == null) return null;
+    const m = String(value).match(/-?\d+/);
+    if (!m) return null;
+    const n = parseInt(m[0], 10);
+    return Number.isFinite(n) ? n : null;
+  }
+
+
+
+
+
   // Find the row (after header row 3) that contains the Contract ID
   function findContractRow(values, contractId) {
     if (!values || values.length < 3) {
@@ -86,7 +208,7 @@
   // ---------- Google Sheets fetch helpers ----------
 
   async function fetchValues(sheetName) {
-    const range = encodeURIComponent(sheetName + "!A1:ZZ500");
+    const range = encodeURIComponent(sheetName + "!A1:ZZ5000");
     const url =
       "https://sheets.googleapis.com/v4/spreadsheets/" +
       encodeURIComponent(SHEET_ID) +
@@ -109,7 +231,7 @@
       "https://sheets.googleapis.com/v4/spreadsheets/" +
       encodeURIComponent(SHEET_ID) +
       "?ranges=" +
-      encodeURIComponent("BILLING!A1:ZZ500") +
+      encodeURIComponent("BILLING!A1:ZZ5000") +
       "&fields=" +
       encodeURIComponent(
         "sheets(data(rowData(values(formattedValue,effectiveFormat.textFormat.foregroundColor))))"
@@ -157,6 +279,47 @@
 
     return { values, colorGrid };
   }
+
+
+
+
+
+  // ---------- DESCRIPTION / SCOPE OF WORK ----------
+
+  function buildDescriptionInfo(values, contractId) {
+    const { header, row } = findContractRow(values, contractId);
+    if (!header || !row) return null;
+
+    const descIdx = findExactColumn(header, "DESCRIPTION/SCOPE OF WORK");
+    const originalIdx = findExactColumn(header, "Original");
+    const revisedIdx = findExactColumn(header, "Revised");
+
+    const description =
+      descIdx >= 0 ? (row[descIdx] || "").toString().trim() : "";
+    const original =
+      originalIdx >= 0 ? (row[originalIdx] || "").toString().trim() : "";
+    let revised =
+      revisedIdx >= 0 ? (row[revisedIdx] || "").toString().trim() : "";
+
+    // If no data in Revised → put "-"
+    if (!revised) revised = "-";
+
+    return {
+      description: description || "-",
+      original: original || "-",
+      revised: revised || "-",
+    };
+  }
+
+
+
+
+
+
+
+
+
+
 
   // ---------- PCMA (Planned) ----------
 
@@ -297,56 +460,66 @@
     return rows;
   }
 
-  // ---------- VO ----------
 
-  function buildVoRows(values, contractId) {
-    const { header, row } = findContractRow(values, contractId);
-    if (!header || !row) return [];
+// ---------- VO ----------
 
-    const rows = [];
+function buildVoRows(values, contractId) {
+  const { header, row } = findContractRow(values, contractId);
+  if (!header || !row) return [];
 
-    for (let i = 1; i <= 5; i++) {
-      const label = "VO" + i;
-      const dateLabel = "VO" + i + " Date";
-      const daysLabel = "VO" + i + " Additional Days";
-      const remarksLabel = "VO" + i + " Remarks";
+  const rows = [];
 
-      const dateIdx = findExactColumn(header, dateLabel);
-      const daysIdx = findExactColumn(header, daysLabel);
-      const remarksIdx = findExactColumn(header, remarksLabel);
+  for (let i = 1; i <= 5; i++) {
+    const label = "VO" + i;
 
-      const date = dateIdx >= 0 ? row[dateIdx] || "" : "";
-      const days = daysIdx >= 0 ? row[daysIdx] || "" : "";
-      const remarks = remarksIdx >= 0 ? row[remarksIdx] || "" : "";
+    // AMOUNT comes from VO1, VO2, ... column
+    const amountIdx = findExactColumn(header, label);
 
-      const hasAny =
-        (date && String(date).trim() !== "") ||
-        (days && String(days).trim() !== "") ||
-        (remarks && String(remarks).trim() !== "");
+    // DAYS still from "VOx Additional Days"
+    const daysLabel = label + " Additional Days";
+    const remarksLabel = label + " Remarks";
 
-      if (!hasAny) continue;
+    const daysIdx = findExactColumn(header, daysLabel);
+    const remarksIdx = findExactColumn(header, remarksLabel);
 
-      rows.push({
-        label,
-        date,
-        days,
-        remarks,
-      });
-    }
+    const amount =
+      amountIdx >= 0 ? (row[amountIdx] || "").toString().trim() : "";
+    const days =
+      daysIdx >= 0 ? (row[daysIdx] || "").toString().trim() : "";
+    const remarks =
+      remarksIdx >= 0 ? (row[remarksIdx] || "").toString().trim() : "";
 
-    return rows;
+    const hasAny =
+      (amount && amount !== "") ||
+      (days && days !== "") ||
+      (remarks && remarks !== "");
+
+    if (!hasAny) continue;
+
+    rows.push({
+      label,   // VO1, VO2, ...
+      amount,  // value from VO1, VO2, ...
+      days,    // value from VO1 Additional Days, etc.
+      remarks,
+    });
   }
 
-  // ---------- WSO / WRO / CTE ----------
+  return rows;
+}
 
+
+
+
+
+  // ---------- WSO / WRO / CTE ----------
   function buildWsoAndCteRows(values, contractId) {
     const { header, row } = findContractRow(values, contractId);
     if (!header || !row) return { wsoRows: [], cteRows: [] };
 
     const wsoRows = [];
-    const cteRows = [];
+    const cteEntries = [];
 
-    // WSO / CWSO / WRO1..4
+    // ---- 1) WSO / CWSO / WRO1..4  (same as before) ----
     for (let i = 1; i <= 4; i++) {
       const wsoDateIdx = findExactColumn(header, "WSO" + i + " Date");
       const wsoReasonIdx = findExactColumn(header, "WSO" + i + " Reason");
@@ -383,31 +556,141 @@
       }
     }
 
-    // CTE1..CTE10 – value is Days, plus Remarks
-    for (let i = 1; i <= 10; i++) {
+    // ---- 2) CTE1..CTE20 – Days + Remarks + base DATE from remarks ----
+    for (let i = 1; i <= 20; i++) {
       const label = "CTE" + i;
       const remarksLabel = "CTE" + i + " Remarks";
 
       const daysIdx = findExactColumn(header, label);
       const remarksIdx = findExactColumn(header, remarksLabel);
 
-      const days = daysIdx >= 0 ? row[daysIdx] || "" : "";
+      const daysRaw = daysIdx >= 0 ? row[daysIdx] || "" : "";
       const remarks = remarksIdx >= 0 ? row[remarksIdx] || "" : "";
 
       const hasAny =
-        (days && String(days).trim() !== "") ||
+        (daysRaw && String(daysRaw).trim() !== "") ||
         (remarks && String(remarks).trim() !== "");
       if (!hasAny) continue;
 
-      cteRows.push({
+      const baseDate = deriveCteBaseDateFromRemarks(remarks, header, row);
+
+      cteEntries.push({
         code: label,
-        days,
+        daysRaw,
         remarks,
+        baseDate, // Date object or null
       });
     }
 
+    // ---- 3) VO1..VO5 also appear in CTE table (if present in this sheet) ----
+    for (let i = 1; i <= 5; i++) {
+      const code = "VO" + i;
+      const dateLabel = "VO" + i + " Date";
+      const remarksLabel = "VO" + i + " Remarks";
+
+      const dateIdx = findExactColumn(header, dateLabel);
+
+      // DAYS can be in:
+      //  - "VOx Additional Days"
+      //  - "VOx Days"
+      //  - "VOx"
+      const daysIdx = findFirstExistingColumn(header, [
+        "VO" + i + " Additional Days",
+        "VO" + i + " Days",
+        "VO" + i,
+      ]);
+
+      const remarksIdx = findExactColumn(header, remarksLabel);
+
+      const dateVal =
+        dateIdx >= 0 ? (row[dateIdx] || "").toString().trim() : "";
+      const daysRaw =
+        daysIdx >= 0 ? (row[daysIdx] || "").toString().trim() : "";
+      const remarks =
+        remarksIdx >= 0 ? (row[remarksIdx] || "").toString().trim() : "";
+
+      const hasAny =
+        (dateVal && dateVal !== "") ||
+        (daysRaw && daysRaw !== "") ||
+        (remarks && remarks !== "");
+      if (!hasAny) continue;
+
+      const baseDate = parseDateFromCell(dateVal);
+
+      cteEntries.push({
+        code,
+        daysRaw,
+        remarks,
+        baseDate,
+      });
+    }
+
+
+    // ---- 4) Get Orig. Expiry as the starting date for cumulative REV. EXPIRY ----
+    const origExpiryIdx = findFirstExistingColumn(header, [
+      "Orig. Expiry",
+      "Orig Expiry",
+      "Original Expiry",
+      "Original Expiry Date",
+    ]);
+    let origExpiryDate = null;
+    if (origExpiryIdx >= 0) {
+      origExpiryDate = parseDateFromCell(row[origExpiryIdx]);
+    }
+
+    // ---- 5) Sort CTE/VO entries by DATE ascending ----
+    const sortedEntries = cteEntries
+      .map((e, idx) => ({ ...e, _idx: idx }))
+      .sort((a, b) => {
+        const da = a.baseDate;
+        const db = b.baseDate;
+        if (!da && !db) return a._idx - b._idx; // stable if both missing
+        if (!da) return 1; // entries without DATE go last
+        if (!db) return -1;
+        return da - db;
+      });
+
+    // ---- 6) Build cteRows with cumulative REV. EXPIRY DATE ----
+    const cteRows = [];
+    let prevRevExpiry = origExpiryDate; // starting point
+
+    sortedEntries.forEach((entry) => {
+      const { code, daysRaw, remarks, baseDate } = entry;
+
+      const daysNum = parseDaysValue(daysRaw);
+      const dateObj = baseDate || null;
+      let revExpiryObj = null;
+
+      if (prevRevExpiry && Number.isFinite(daysNum)) {
+        // Normal case:
+        // REV. EXPIRY (current) = REV. EXPIRY (previous) + DAYS(current)
+        revExpiryObj = addDays(prevRevExpiry, daysNum);
+        prevRevExpiry = revExpiryObj;
+      } else if (!prevRevExpiry && dateObj && Number.isFinite(daysNum)) {
+        // Fallback if Orig. Expiry is missing:
+        // First row uses DATE + DAYS
+        revExpiryObj = addDays(dateObj, daysNum);
+        prevRevExpiry = revExpiryObj;
+      } else {
+        // Cannot compute; keep prevRevExpiry unchanged, revExpiryObj stays null
+      }
+
+      cteRows.push({
+        code,
+        date: dateObj ? formatDateShort(dateObj) : "",
+        days: daysRaw || "",
+        remarks: remarks || "",
+        revExpiryDate: revExpiryObj ? formatDateShort(revExpiryObj) : "",
+      });
+    });
+
     return { wsoRows, cteRows };
   }
+
+
+
+
+
 
   // ---------- BILLING (2025) + percentages ----------
 
@@ -478,7 +761,7 @@
         percent = 100;
       }
 
-      // Check if text color red => add "- Paid" at the end of remarks
+ // Check if text color red => PAID / ON-PROCESS
       const rowColors = colorGrid[rowIndex] || [];
       const color = rowColors[colIndex] || null;
       let isRed = false;
@@ -491,18 +774,22 @@
         }
       }
 
-      let displayRemarks = remarksText;
-      if (isRed) {
-        displayRemarks = displayRemarks
-          ? displayRemarks + " - Paid"
-          : "Paid";
-      }
+      // STATUS column: PAID if red text; otherwise ON-PROCESS
+      const status = isRed ? "PAID" : "ON-PROCESS";
+
+      // Display values (use "-" if blank)
+      const displayAmount =
+        amountText && amountText.trim() !== "" ? amountText : "-";
+
+      const displayRemarks =
+        remarksText && remarksText.trim() !== "" ? remarksText : "-";
 
       rows.push({
         year,
         month: monthName,
-        amount: amountText,
+        amount: displayAmount,
         remarks: displayRemarks,
+        status,
         percentage: percent,
       });
     });
@@ -511,6 +798,50 @@
   }
 
   // ---------- RENDER SECTIONS ----------
+
+
+  function renderDescriptionSection(info) {
+    const container = document.getElementById("pdDescriptionSection");
+    if (!container) return;
+
+    // If we could not find a row for this Contract ID or sheet empty
+    if (!info) {
+      container.innerHTML =
+        "<h3>DESCRIPTION / SCOPE OF WORK</h3>" +
+        '<div class="pd-table-wrapper"><table class="pd-table pd-table-description"><tbody>' +
+        "<tr><th>DESCRIPTION / SCOPE OF WORK</th><td>-</td></tr>" +
+        "<tr><th>ORIGINAL</th><td>-</td></tr>" +
+        "<tr><th>REVISED</th><td>-</td></tr>" +
+        "</tbody></table></div>";
+      return;
+    }
+
+    const desc =
+      info.description && info.description.trim() !== ""
+        ? info.description
+        : "-";
+    const original =
+      info.original && info.original.trim() !== ""
+        ? info.original
+        : "-";
+    const revised =
+      info.revised && info.revised.trim() !== ""
+        ? info.revised
+        : "-";
+
+    container.innerHTML =
+      "<h3>DESCRIPTION / SCOPE OF WORK</h3>" +
+      '<div class="pd-table-wrapper"><table class="pd-table pd-table-description"><tbody>' +
+      "</td></tr>" +
+      "<tr><th>ORIGINAL</th><td>" +
+      original +
+      "</td></tr>" +
+      "<tr><th>REVISED</th><td>" +
+      revised +
+      "</td></tr>" +
+      "</tbody></table></div>";
+  }
+
 
 
 function renderPcmaSection(pcmaRows, pcmaExtraRows) {
@@ -597,27 +928,33 @@ function renderPcmaSection(pcmaRows, pcmaExtraRows) {
         "</td></tr>";
     }
 
-    const actualDisplay =
-      typeof r.actual === "number" ? r.actual + "%" : "";
-    const pcmaDisplay =
-      typeof r.pcma === "number" ? r.pcma + "%" : "";
+// If no numeric value, show "None"
+const actualDisplay =
+  typeof r.actual === "number" ? r.actual + "%" : "-";
+const pcmaDisplay =
+  typeof r.pcma === "number" ? r.pcma + "%" : "-";
 
-    html +=
-      "<tr>" +
-      // 4 spaces before month name
-      '<td class="col-month">&nbsp;&nbsp;&nbsp;&nbsp;' +
-      (r.month || "") +
-      "</td>" +
-      '<td class="col-actual">' +
-      actualDisplay +
-      "</td>" +
-      '<td class="col-pcma">' +
-      pcmaDisplay +
-      "</td>" +
-      '<td class="pd-remarks">' +
-      (r.remarks || "") +
-      "</td>" +
-      "</tr>";
+// If remarks empty/blank, also show "None"
+const remarksDisplay =
+  r.remarks && String(r.remarks).trim() !== "" ? r.remarks : "-";
+
+html +=
+  "<tr>" +
+  // 4 spaces before month name
+  '<td class="col-month">&nbsp;&nbsp;&nbsp;&nbsp;' +
+  (r.month || "") +
+  "</td>" +
+  '<td class="col-actual">' +
+  actualDisplay +
+  "</td>" +
+  '<td class="col-pcma">' +
+  pcmaDisplay +
+  "</td>" +
+  '<td class="pd-remarks">' +
+  remarksDisplay +
+  "</td>" +
+  "</tr>";
+
   });
 
   html += "</tbody></table></div>";
@@ -633,30 +970,37 @@ function renderVoSection(voRows) {
 
   if (!voRows.length) {
     container.innerHTML =
-      "<h3>VO</h3><p>No VO data for this Contract ID.</p>";
+      "<h3>VARIATION ORDER (VO)</h3><p></p>";
     return;
   }
 
   let html =
     "<h3>VARIATION ORDER (VO)</h3>" +
     '<div class="pd-table-wrapper"><table class="pd-table pd-table-vo"><thead><tr>' +
-    "<th>VO</th><th>DATE</th><th>ADD'L DAYS</th><th>REMARKS</th>" +
+    "<th>VO</th><th>AMOUNT</th><th>(+) DAYS</th><th>REMARKS</th>" +
     "</tr></thead><tbody>";
 
   voRows.forEach((r) => {
+    const amountDisplay =
+      r.amount && String(r.amount).trim() !== "" ? r.amount : "-";
+    const daysDisplay =
+      r.days && String(r.days).trim() !== "" ? r.days : "-";
+    const remarksDisplay =
+      r.remarks && String(r.remarks).trim() !== "" ? r.remarks : "-";
+
     html +=
       "<tr>" +
       '<td class="col-vo">' +
-      r.label +
+      (r.label || "") +
       "</td>" +
-      '<td class="col-date">' +
-      (r.date || "") +
+      '<td class="col-amount">' +
+      amountDisplay +
       "</td>" +
       '<td class="col-days">' +
-      (r.days || "") +
+      daysDisplay +
       "</td>" +
       '<td class="pd-remarks">' +
-      (r.remarks || "") +
+      remarksDisplay +
       "</td>" +
       "</tr>";
   });
@@ -667,13 +1011,16 @@ function renderVoSection(voRows) {
 
 
 
+
+
+
 function renderWsoSection(wsoRows) {
   const container = document.getElementById("pdWsoSection");
   if (!container) return;
 
   if (!wsoRows.length) {
     container.innerHTML =
-      "<h3>SUSPENSION ORDER</h3><p>No WSO/WRO/CTE data for this Contract ID.</p>";
+      "<h3>SUSPENSION ORDER</h3><p></p>";
     return;
   }
 
@@ -705,40 +1052,76 @@ function renderWsoSection(wsoRows) {
   container.innerHTML = html;
 }
 
-function renderCteSection(cteRows) {
-  const container = document.getElementById("pdCteSection");
-  if (!container) return;
 
-  if (!cteRows.length) {
-    container.innerHTML =
-      "<h3>CONTRACT TIME EXTENSION (CTE)</h3><p>No CTE data for this Contract ID.</p>";
-    return;
-  }
 
-  let html =
-    "<h3>CONTRACT TIME EXTENSION (CTE)</h3>" +
-    '<div class="pd-table-wrapper"><table class="pd-table pd-table-cte"><thead><tr>' +
-    "<th>CTE</th><th>DAYS</th><th>REMARKS</th>" +
-    "</tr></thead><tbody>";
+  function renderCteSection(cteRows) {
+    const container = document.getElementById("pdCteSection");
+    if (!container) return;
+
+    if (!cteRows.length) {
+      container.innerHTML =
+        "<h3>CONTRACT TIME EXTENSION (CTE)</h3><p>No CTE data for this Contract ID.</p>";
+      return;
+    }
+
+    let html =
+      "<h3>CONTRACT TIME EXTENSION (CTE)</h3>" +
+      '<div class="pd-table-wrapper"><table class="pd-table pd-table-cte"><thead><tr>' +
+      "<th>CTE</th><th>DATE</th><th>(+) DAYS</th><th>REMARKS</th><th>REV. EXPIRY DATE</th>" +
+      "</tr></thead><tbody>";
 
   cteRows.forEach((r) => {
-    html +=
-      "<tr>" +
-      '<td class="col-code">' +
-      r.code +
-      "</td>" +
-      '<td class="col-days">' +
-      (r.days || "") +
-      "</td>" +
-      '<td class="pd-remarks">' +
-      (r.remarks || "") +
-      "</td>" +
-      "</tr>";
-  });
+    const codeStr = (r.code || "").toString().trim();
 
-  html += "</tbody></table></div>";
-  container.innerHTML = html;
-}
+    // --- DAYS: show as integer (no decimal places) ---
+    const rawDays = (r.days != null ? r.days : "").toString().trim();
+    let daysDisplay = "";
+
+    if (rawDays) {
+      // extract first integer (e.g. "30.00", "30 days" → 30)
+      const m = rawDays.match(/-?\d+/);
+      if (m) {
+        daysDisplay = parseInt(m[0], 10).toString();
+      } else {
+        // if cannot parse digits, just show original
+        daysDisplay = rawDays;
+      }
+    } else {
+      daysDisplay = ""; // or "-" if you prefer
+    }
+
+    // --- REMARKS: for VO1..VO5 force "due to VOx" ---
+    let remarksDisplay = (r.remarks != null ? r.remarks : "").toString();
+
+    if (/^vo\d+$/i.test(codeStr)) {
+      // Code is VO1..VO5 → override remarks
+      remarksDisplay = "due to " + codeStr.toUpperCase();
+    }
+      html +=
+        "<tr>" +
+        '<td class="col-code">' +
+        (r.code || "") +
+        "</td>" +
+        '<td class="col-date">' +
+        (r.date || "") + // already "Jan 1, 2025" style
+        "</td>" +
+      '<td class="col-days">' +
+      daysDisplay +
+        "</td>" +
+      '<td class="pd-remarks">' +
+      remarksDisplay +
+        "</td>" +
+        '<td class="col-revdate">' +
+        (r.revExpiryDate || "") + // also "Jan 1, 2025"
+        "</td>" +
+        "</tr>";
+    });
+
+    html += "</tbody></table></div>";
+    container.innerHTML = html;
+  }
+
+
 
 
 
@@ -749,17 +1132,23 @@ function renderBillingSection(billingRows) {
 
   if (!billingRows.length) {
     container.innerHTML =
-      "<h3>BILLING</h3><p>No Billing data for this Contract ID.</p>";
+      "<h3>BILLING</h3><p></p>";     /* "<h3>BILLING</h3><p>N.A.</p>";*/
     return;
   }
 
   let html =
     "<h3>BILLING</h3>" +
     '<div class="pd-table-wrapper"><table class="pd-table pd-table-billing"><thead><tr>' +
-    "<th>YEAR</th><th>MONTH</th><th>AMOUNT</th><th>REMARKS</th>" +
+    "<th>YEAR</th><th>MONTH</th><th>AMOUNT</th><th>REMARKS</th><th>STATUS</th>" +
     "</tr></thead><tbody>";
 
+
   billingRows.forEach((r) => {
+    const remarksDisplay =
+      r.remarks && String(r.remarks).trim() !== "" ? r.remarks : "-";
+    const statusDisplay =
+      r.status && String(r.status).trim() !== "" ? r.status : "ON-PROCESS";
+
     html +=
       "<tr>" +
       '<td class="col-year">' +
@@ -769,13 +1158,17 @@ function renderBillingSection(billingRows) {
       (r.month || "") +
       "</td>" +
       '<td class="col-amount">' +
-      (r.amount || "") +
+      (r.amount || "-") +
       "</td>" +
       '<td class="pd-remarks">' +
-      (r.remarks || "") +
+      remarksDisplay +
+      "</td>" +
+      '<td class="col-status">' +
+      statusDisplay +
       "</td>" +
       "</tr>";
   });
+
 
   html += "</tbody></table></div>";
   container.innerHTML = html;
@@ -1136,33 +1529,36 @@ const dataLabelPlugin = {
     }
   }
 
-function buildBodySkeleton() {
-  const body = document.getElementById("projectDocsBody");
-  if (!body) return { body: null, loadingEl: null };
+  function buildBodySkeleton() {
+    const body = document.getElementById("projectDocsBody");
+    if (!body) return { body: null, loadingEl: null };
 
-  body.innerHTML =
-    '<div id="projectDocsLoading" class="pd-loading">Loading documentation…</div>' +
-    // 1. MONTHLY ACCOMPLISHMENT
-    '<section id="pdPcmaSection" class="pd-section"></section>' +
-    // 2. S-Curve (toggles + chart)
-    '<div class="pd-scurve-controls">' +
-    '<label class="pd-toggle"><input type="checkbox" id="pdToggleActual" checked><span>ACTUAL</span></label>' +
-    '<label class="pd-toggle"><input type="checkbox" id="pdTogglePcma" checked><span>PCMA</span></label>' +
-    '<label class="pd-toggle"><input type="checkbox" id="pdToggleBilling" checked><span>BILLING</span></label>' +
-    "</div>" +
-    '<div class="pd-scurve-wrapper"><canvas id="pdSCurveCanvas"></canvas></div>' +
-    // 3. BILLING
-    '<section id="pdBillingSection" class="pd-section"></section>' +
-    // 4. WSO / WRO / CTE (Suspension Order table)
-    '<section id="pdWsoSection" class="pd-section"></section>' +
-    // 5. VARIATION ORDER (VO)
-    '<section id="pdVoSection" class="pd-section"></section>' +
-    // 6. CONTRACT TIME EXTENSION (CTE) – separate section
-    '<section id="pdCteSection" class="pd-section"></section>';
+    body.innerHTML =
+      '<div id="projectDocsLoading" class="pd-loading">Loading documentation…</div>' +
+      // 1. DESCRIPTION / SCOPE OF WORK
+      '<section id="pdDescriptionSection" class="pd-section"></section>' +
+      // 2. MONTHLY ACCOMPLISHMENT
+      '<section id="pdPcmaSection" class="pd-section"></section>' +
+      // 3. S-Curve (toggles + chart)
+      '<div class="pd-scurve-controls">' +
+      '<label class="pd-toggle"><input type="checkbox" id="pdToggleActual" checked><span>ACTUAL</span></label>' +
+      '<label class="pd-toggle"><input type="checkbox" id="pdTogglePcma" checked><span>PCMA</span></label>' +
+      '<label class="pd-toggle"><input type="checkbox" id="pdToggleBilling" checked><span>BILLING</span></label>' +
+      "</div>" +
+      '<div class="pd-scurve-wrapper"><canvas id="pdSCurveCanvas"></canvas></div>' +
+      // 4. BILLING
+      '<section id="pdBillingSection" class="pd-section"></section>' +
+      // 5. WSO / WRO / CTE (Suspension Order table)
+      '<section id="pdWsoSection" class="pd-section"></section>' +
+      // 6. VARIATION ORDER (VO)
+      '<section id="pdVoSection" class="pd-section"></section>' +
+      // 7. CONTRACT TIME EXTENSION (CTE) – separate section
+      '<section id="pdCteSection" class="pd-section"></section>';
 
-  const loadingEl = document.getElementById("projectDocsLoading");
-  return { body, loadingEl };
-}
+    const loadingEl = document.getElementById("projectDocsLoading");
+    return { body, loadingEl };
+  }
+
 
 
   // ---------- MAIN OPEN FUNCTION ----------
@@ -1178,6 +1574,11 @@ async function openProjectDocs(contractId) {
       alert("No Contract ID found.");
       return;
     }
+	
+	  const headerCidEl = document.getElementById("pdHeaderCID");
+  if (headerCidEl) {
+    headerCidEl.textContent = " ( " + contractId + " ) ";   // e.g. "PROJECT DOCUMENTATION - C-2025-001"
+  }
 
     openOverlay();
 
@@ -1186,14 +1587,16 @@ async function openProjectDocs(contractId) {
     if (loadingEl) loadingEl.style.display = "block";
 
     try {
-      const [pcmaValues, voValues, wsoValues, billingSheet] =
+      const [pcmaValues, voValues, wsoValues, billingSheet, descriptionValues] =
         await Promise.all([
           fetchValues("PCMA"),
           fetchValues("VO"),
           fetchValues("WSO/WRO/CTE"),
           fetchBillingSheet(),
+          fetchValues("DESCRIPTION"),
         ]);
 
+      const descriptionInfo = buildDescriptionInfo(descriptionValues, contractId);
       const pcmaRows = buildPcmaRows(pcmaValues, contractId);
       const pcmaExtraRows = buildPcmaExtraRows(pcmaValues, contractId);
       const voRows = buildVoRows(voValues, contractId);
@@ -1203,12 +1606,17 @@ async function openProjectDocs(contractId) {
       );
       const billingRows = buildBillingRows(billingSheet, contractId);
 
-renderPcmaSection(pcmaRows, pcmaExtraRows);
-renderBillingSection(billingRows);
-renderWsoSection(wsoRows);
-renderVoSection(voRows);
-renderCteSection(cteRows);
-buildSCurveChart(pcmaRows, pcmaExtraRows, billingRows);
+      renderDescriptionSection(descriptionInfo);
+      renderPcmaSection(pcmaRows, pcmaExtraRows);
+      renderBillingSection(billingRows);
+      renderWsoSection(wsoRows);
+      renderVoSection(voRows);
+      renderCteSection(cteRows);
+      buildSCurveChart(pcmaRows, pcmaExtraRows, billingRows);
+
+
+
+
 
     } catch (err) {
       console.error("ProjectDocs error:", err);

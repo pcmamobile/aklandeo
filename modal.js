@@ -185,30 +185,85 @@
     modalContent.appendChild(primary);
 	
 	
-	    // Project Documentation button (below container, above SCHED/ACTUAL/SLIPPAGE)
-
-    if (window.openProjectDocs) {
+	
+	
+	
+    // Project Documentation + Site Instruction + Upload Picture buttons
+    if (window.openProjectDocs || window.openSiteInstruction || window.openUploadPicture) {
       const docsRow = document.createElement('div');
       docsRow.className = 'pcma-docs-row';
 
-      const docsBtn = document.createElement('button');
-      docsBtn.id = 'projectDocsBtn';
-      docsBtn.textContent = 'Project Documentation';
-      docsBtn.className = 'pd-docs-btn'; // styled in ProjectDocs.css
+      // Get this row's Contract ID
+      const cid =
+        cidIdx >= 0 && row[cidIdx] != null
+          ? String(row[cidIdx]).trim()
+          : '';
 
-      // Pass the current row's Contract ID to ProjectDocs window
-      docsBtn.onclick = (e) => {
-        e.stopPropagation();
-        const cid =
-          cidIdx >= 0 && row[cidIdx] != null ? String(row[cidIdx]).trim() : '';
-        if (window.openProjectDocs) {
-          window.openProjectDocs(cid);
-        }
-      };
 
-      docsRow.appendChild(docsBtn);
+
+// Project Documentation
+if (window.openProjectDocs) {
+  const docsBtn = document.createElement('button');
+  docsBtn.id = 'projectDocsBtn';
+  docsBtn.type = 'button';
+  docsBtn.textContent = 'Project Documentation'; // or 'Proj. Docs.'
+  docsBtn.className = 'pd-docs-btn';
+
+  docsBtn.onclick = (e) => {
+    e.stopPropagation();
+
+    // 1) Always show the PROJECT DOCUMENTATION overlay
+    const overlay = document.getElementById('projectDocsOverlay');
+    if (overlay) {
+      overlay.hidden = false;
+    }
+
+    // 2) Then load the data (if the function exists)
+    if (typeof window.openProjectDocs === 'function') {
+      // Prefer the Contract ID from this row; if empty, the function
+      // will fall back to reading #pcmaModalCID
+      window.openProjectDocs(cid);
+    }
+  };
+
+  docsRow.appendChild(docsBtn);
+}
+
+
+
+
+      // Site Instruction (AFTER Project Documentation)
+      if (window.openSiteInstruction) {
+        const siBtn = document.createElement('button');
+        siBtn.id = 'sitenstructionBtn';
+        siBtn.type = 'button';
+        siBtn.textContent = 'Site Instruction';
+        siBtn.className = 'si-btn'; // styled in SI.css
+        siBtn.onclick = (e) => {
+          e.stopPropagation();
+          window.openSiteInstruction(cid);
+        };
+        docsRow.appendChild(siBtn);
+      }
+
+      // NEW: Upload Picture (AFTER Site Instruction)
+      if (window.openUploadPicture) {
+        const upBtn = document.createElement('button');
+        upBtn.id = 'uploadPictureBtn';
+        upBtn.type = 'button';
+        upBtn.textContent = 'Upload Picture';
+        upBtn.className = 'upload-btn'; // optional style in CSS
+        upBtn.onclick = (e) => {
+          e.stopPropagation();
+          window.openUploadPicture(cid);
+        };
+        docsRow.appendChild(upBtn);
+      }
+
       modalContent.appendChild(docsRow);
     }
+
+
 
 
 
