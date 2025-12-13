@@ -290,4 +290,42 @@
 }
 
 
+/* ===========================
+   Mobile: make TAB text smaller
+   =========================== */
+@media (max-width: 520px){
+  .am-tabs{
+    gap:4px;
+    padding:6px 8px;
+  }
+
+  .am-tab{
+    margin: 0;
+    font-size: .5rem;
+    font-weight: 500;
+    letter-spacing: .1px;
+    padding: 8px 4px; /* optional, helps fit long words like ACCOMPLISHMENT */
+  }
+  
+  
+    /* Mobile: PE dropdown + table headers + table values text smaller */
+  .am-pe-filter,
+  .am-table thead th,
+  .am-table tbody td,
+  .am-cid-link{
+    margin: 0;
+    font-size: .5rem;
+    font-weight: 500;
+    letter-spacing: .1px;
+  }
+
+  /* Optional: dropdown list items (some browsers may ignore) */
+  .am-pe-filter option{
+    font-size: .5rem;
+    font-weight: 500;
+    letter-spacing: .1px;
+  }
+
+  
+}
 

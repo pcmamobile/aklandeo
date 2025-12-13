@@ -384,175 +384,167 @@
     setAccStatus(`ACCOMPLISHMENT: Showing ${rowsForDisplay.length} project(s) needing update for ${monthLabel}.`);
   }
 
-  function renderAccomplishmentTable(monthLabel, rows) {
-    if (!el.accTable) return;
-    el.accTable.innerHTML = "";
-    el.accTable.dataset.monthLabel = monthLabel;
-    el.accTable.dataset.totalCount = String(rows.length);
+// amend.js — REPLACE your entire renderAccomplishmentTable(...) with this
 
-const thead = document.createElement("thead");
-    const tr1 = document.createElement("tr");
-    const tr2 = document.createElement("tr");
+function renderAccomplishmentTable(monthLabel, rows) {
+  if (!el.accTable) return;
+  el.accTable.innerHTML = "";
+  el.accTable.dataset.monthLabel = monthLabel;
+  el.accTable.dataset.totalCount = String(rows.length);
 
-    const thPe = document.createElement("th");
-    thPe.rowSpan = 2;
+  const thead = document.createElement("thead");
+  const trH = document.createElement("tr");
 
-    // PE dropdown (filter)
-    const peHead = document.createElement("div");
-    peHead.className = "am-pe-head";
+  // Column 1: PE dropdown (filter) — label removed
+  const thPe = document.createElement("th");
 
-    const peLabel = document.createElement("div");
-    peLabel.textContent = "PE";
+  const peHead = document.createElement("div");
+  peHead.className = "am-pe-head";
 
-    const peSelect = document.createElement("select");
-    peSelect.className = "am-pe-filter";
-    peSelect.id = "amPeFilter";
+  const peSelect = document.createElement("select");
+  peSelect.className = "am-pe-filter";
+  peSelect.id = "amPeFilter";
 
-    const optAll = document.createElement("option");
-    optAll.value = "";
-    optAll.textContent = "All";
-    peSelect.appendChild(optAll);
+  const optAll = document.createElement("option");
+  optAll.value = "";
+  optAll.textContent = "All";
+  peSelect.appendChild(optAll);
 
-    // Options: unique PEs from rows (ascending)
-    const uniqPE = Array.from(new Set(rows.map((r) => r.pe))).sort((a, b) => {
-      const ap = a.toLowerCase();
-      const bp = b.toLowerCase();
-      if (ap < bp) return -1;
-      if (ap > bp) return 1;
-      return 0;
-    });
+  // Options: unique PEs from rows (ascending)
+  const uniqPE = Array.from(new Set(rows.map((r) => r.pe))).sort((a, b) => {
+    const aa = (a || "").toString();
+    const bb = (b || "").toString();
+    return aa.localeCompare(bb);
+  });
 
-    uniqPE.forEach((pe) => {
-      const opt = document.createElement("option");
-      opt.value = pe;
-      opt.textContent = pe;
-      peSelect.appendChild(opt);
-    });
+  for (const pe of uniqPE) {
+    const opt = document.createElement("option");
+    opt.value = pe;
+    opt.textContent = pe;
+    peSelect.appendChild(opt);
+  }
 
-    // Preserve previous selection (if still available)
-    if (state.peFilter && uniqPE.includes(state.peFilter)) peSelect.value = state.peFilter;
-    else { state.peFilter = ""; peSelect.value = ""; }
+  if (state.peFilter && uniqPE.includes(state.peFilter)) peSelect.value = state.peFilter;
+  else {
+    state.peFilter = "";
+    peSelect.value = "";
+  }
 
-    peSelect.addEventListener("change", () => {
-      state.peFilter = peSelect.value;
-      applyPeFilter();
-    });
+  peSelect.addEventListener("change", () => {
+    state.peFilter = peSelect.value;
+    applyPeFilter();
+  });
 
-    peHead.appendChild(peLabel);
-    peHead.appendChild(peSelect);
-    thPe.appendChild(peHead);
+  peHead.appendChild(peSelect);
+  thPe.appendChild(peHead);
 
-    el.peFilter = peSelect;
+  el.peFilter = peSelect;
 
-    const thCid = document.createElement("th");
-    thCid.textContent = "Contract ID";
-    thCid.rowSpan = 2;
+  // Column 2: Contract ID
+  const thCid = document.createElement("th");
+  thCid.textContent = "Contract ID";
 
-    const thMonth = document.createElement("th");
-    thMonth.textContent = monthLabel;
-    thMonth.colSpan = 2;
-    thMonth.className = "am-td-center";
+  // Column 3: ACTUAL
+  const thActual = document.createElement("th");
+  thActual.textContent = "ACTUAL";
+  thActual.className = "am-td-center";
 
-    const thActual = document.createElement("th");
-    thActual.textContent = "ACTUAL";
-    thActual.className = "am-td-center";
+  // Column 4: PCMA
+  const thPcma = document.createElement("th");
+  thPcma.textContent = "PCMA";
+  thPcma.className = "am-td-center";
 
-    const thPcma = document.createElement("th");
-    thPcma.textContent = "PCMA";
-    thPcma.className = "am-td-center";
+  trH.appendChild(thPe);
+  trH.appendChild(thCid);
+  trH.appendChild(thActual);
+  trH.appendChild(thPcma);
 
-    tr1.appendChild(thPe);
-    tr1.appendChild(thCid);
-    tr1.appendChild(thMonth);
+  thead.appendChild(trH);
 
-    tr2.appendChild(thActual);
-    tr2.appendChild(thPcma);
+  const tbody = document.createElement("tbody");
 
-    thead.appendChild(tr1);
-    thead.appendChild(tr2);
-
-    const tbody = document.createElement("tbody");
-
-    if (!rows.length) {
-      const tr = document.createElement("tr");
-      const td = document.createElement("td");
-      td.colSpan = 4;
-      td.className = "am-muted";
-      td.textContent = "No items to amend for the latest month.";
-      tr.appendChild(td);
-      tbody.appendChild(tr);
-    } else {
-      for (const r of rows) {
-        const tr = document.createElement("tr");
-        tr.dataset.pe = r.pe;
-
-        const tdPe = document.createElement("td");
-        tdPe.textContent = r.pe;
-
-const tdCid = document.createElement("td");
-
-// Contract ID clickable -> open ProjectDocs (do NOT close Amend)
-const cidBtn = document.createElement("button");
-cidBtn.type = "button";
-cidBtn.className = "am-cid-link";
-cidBtn.textContent = r.cid;
-cidBtn.title = "Open Project Documentation";
-cidBtn.addEventListener("click", (e) => {
-  e.preventDefault();
-  e.stopPropagation();
-
-  if (typeof window.openProjectDocs === "function") {
-    window.openProjectDocs(r.cid); // keeps Amend open
+  if (!rows.length) {
+    const tr = document.createElement("tr");
+    const td = document.createElement("td");
+    td.colSpan = 4;
+    td.className = "am-muted";
+    td.textContent = "No items to amend for the latest month.";
+    tr.appendChild(td);
+    tbody.appendChild(tr);
   } else {
-    alert('ProjectDocs is not loaded. Make sure "ProjectDocs.js" is included before "amend.js".');
-  }
-});
+    for (const r of rows) {
+      const tr = document.createElement("tr");
+      tr.dataset.pe = r.pe;
 
-tdCid.appendChild(cidBtn);
+      const tdPe = document.createElement("td");
+      tdPe.textContent = r.pe;
 
+      const tdCid = document.createElement("td");
 
+      // Contract ID clickable -> open ProjectDocs (do NOT close Amend)
+      const cidBtn = document.createElement("button");
+      cidBtn.type = "button";
+      cidBtn.className = "am-cid-link";
+      cidBtn.textContent = r.cid;
+      cidBtn.title = "Open Project Documentation";
+      cidBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
 
-        const tdA = document.createElement("td");
-        tdA.className = "am-td-center";
-        tdA.appendChild(createCheck(r.actualOk));
+        if (typeof window.openProjectDocs === "function") {
+          window.openProjectDocs(r.cid);
+          return;
+        }
 
-        const tdP = document.createElement("td");
-        tdP.className = "am-td-center";
-        tdP.appendChild(createCheck(r.pcmaOk));
+        if (typeof window.openProjectDocsOverlay === "function") {
+          window.openProjectDocsOverlay(r.cid);
+          return;
+        }
 
-        tr.appendChild(tdPe);
-        tr.appendChild(tdCid);
-        tr.appendChild(tdA);
-        tr.appendChild(tdP);
+        try {
+          const url = `${location.origin}${location.pathname}?contractId=${encodeURIComponent(r.cid)}&pd=1`;
+          window.open(url, "_blank");
+        } catch (_) {}
+      });
 
-        tbody.appendChild(tr);
-      }
+      tdCid.appendChild(cidBtn);
+
+      const tdActual = document.createElement("td");
+      tdActual.className = "am-td-center";
+      tdActual.appendChild(createCheck(r.actualOk));
+
+      const tdPcma = document.createElement("td");
+      tdPcma.className = "am-td-center";
+      tdPcma.appendChild(createCheck(r.pcmaOk));
+
+      tr.appendChild(tdPe);
+      tr.appendChild(tdCid);
+      tr.appendChild(tdActual);
+      tr.appendChild(tdPcma);
+
+      tbody.appendChild(tr);
     }
 
-    // If the user filters by PE and nothing matches, show a helper row
-    if (rows.length) {
-      const trNo = document.createElement("tr");
-      trNo.id = "amNoPeResults";
-      trNo.hidden = true;
-
-      const tdNo = document.createElement("td");
-      tdNo.colSpan = 4;
-      tdNo.className = "am-muted";
-      tdNo.textContent = "No items for the selected PE.";
-      trNo.appendChild(tdNo);
-
-      tbody.appendChild(trNo);
-    }
-
-    el.accTable.appendChild(thead);
-    el.accTable.appendChild(tbody);
-
-    // Freeze header rows correctly + apply current PE filter
-    requestAnimationFrame(() => {
-      applyStickyHeaderOffsets(el.accTable);
-      applyPeFilter();
-    });
+    // No items message row (after filtering)
+    const trNo = document.createElement("tr");
+    trNo.className = "am-nope";
+    const tdNo = document.createElement("td");
+    tdNo.colSpan = 4;
+    tdNo.className = "am-muted";
+    tdNo.textContent = "No items match the selected PE filter.";
+    trNo.appendChild(tdNo);
+    tbody.appendChild(trNo);
   }
+
+  el.accTable.appendChild(thead);
+  el.accTable.appendChild(tbody);
+
+  // Freeze header rows correctly + apply current PE filter
+  requestAnimationFrame(() => {
+    applyStickyHeaderOffsets(el.accTable);
+    applyPeFilter();
+  });
+}
 
   // ---- Wiring ----
   function wireOverlayClose() {
