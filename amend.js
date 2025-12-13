@@ -491,32 +491,25 @@ const thead = document.createElement("thead");
 
 const tdCid = document.createElement("td");
 
-/* Make Contract ID clickable -> open ProjectDocs window */
+// Contract ID clickable -> open ProjectDocs (do NOT close Amend)
 const cidBtn = document.createElement("button");
 cidBtn.type = "button";
 cidBtn.className = "am-cid-link";
 cidBtn.textContent = r.cid;
 cidBtn.title = "Open Project Documentation";
 cidBtn.addEventListener("click", (e) => {
+  e.preventDefault();
   e.stopPropagation();
 
-  // Close Amend first to avoid overlay z-index conflicts (both overlays use z-index: 9999)
-  if (typeof window.closeAmend === "function") {
-    window.closeAmend();
-  }
-
-  // Show and load ProjectDocs
-  const overlay = document.getElementById("projectDocsOverlay");
-  if (overlay) overlay.hidden = false;
-
   if (typeof window.openProjectDocs === "function") {
-    window.openProjectDocs(r.cid);
+    window.openProjectDocs(r.cid); // keeps Amend open
   } else {
-    alert("ProjectDocs is not loaded. Make sure ProjectDocs.js is included before amend.js.");
+    alert('ProjectDocs is not loaded. Make sure "ProjectDocs.js" is included before "amend.js".');
   }
 });
 
 tdCid.appendChild(cidBtn);
+
 
 
         const tdA = document.createElement("td");
