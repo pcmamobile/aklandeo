@@ -164,9 +164,19 @@
 
 .am-table th:nth-child(2),
 .am-table td:nth-child(2){
-  width:260px;          /* Contract ID column */
+  width:120px;          /* Contract ID column */
 }
 
+/* NEW: ACTUAL & PCMA columns (70px each) */
+.am-table thead tr:nth-child(2) th:nth-child(1),
+.am-table tbody td:nth-child(3){
+  width:70px;
+}
+
+.am-table thead tr:nth-child(2) th:nth-child(2),
+.am-table tbody td:nth-child(4){
+  width:70px;
+}
 
 .am-table th,
 .am-table td{
@@ -321,6 +331,13 @@
 
   .am-table th:nth-child(2),
   .am-table td:nth-child(2){ width:220px; }
+  
+  .am-table thead tr:nth-child(2) th:nth-child(1),
+.am-table tbody td:nth-child(3){ width:70px; }
+
+.am-table thead tr:nth-child(2) th:nth-child(2),
+.am-table tbody td:nth-child(4){ width:70px; }
+
 
   .am-pe-filter{ max-width:130px; }
 
