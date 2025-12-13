@@ -332,10 +332,8 @@
   .am-table th:nth-child(2),
   .am-table td:nth-child(2){ width:50px; }
   
-  .am-table thead tr:nth-child(2) th:nth-child(1),
 .am-table tbody td:nth-child(3){ width:50px; }
 
-.am-table thead tr:nth-child(2) th:nth-child(2),
 .am-table tbody td:nth-child(4){ width:50px; }
 
 
