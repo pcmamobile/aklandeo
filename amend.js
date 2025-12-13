@@ -489,35 +489,8 @@ const thead = document.createElement("thead");
         const tdPe = document.createElement("td");
         tdPe.textContent = r.pe;
 
-const tdCid = document.createElement("td");
-
-/* Make Contract ID clickable -> open ProjectDocs window */
-const cidBtn = document.createElement("button");
-cidBtn.type = "button";
-cidBtn.className = "am-cid-link";
-cidBtn.textContent = r.cid;
-cidBtn.title = "Open Project Documentation";
-cidBtn.addEventListener("click", (e) => {
-  e.stopPropagation();
-
-  // Close Amend first to avoid overlay z-index conflicts (both overlays use z-index: 9999)
-  if (typeof window.closeAmend === "function") {
-    window.closeAmend();
-  }
-
-  // Show and load ProjectDocs
-  const overlay = document.getElementById("projectDocsOverlay");
-  if (overlay) overlay.hidden = false;
-
-  if (typeof window.openProjectDocs === "function") {
-    window.openProjectDocs(r.cid);
-  } else {
-    alert("ProjectDocs is not loaded. Make sure ProjectDocs.js is included before amend.js.");
-  }
-});
-
-tdCid.appendChild(cidBtn);
-
+        const tdCid = document.createElement("td");
+        tdCid.textContent = r.cid;
 
         const tdA = document.createElement("td");
         tdA.className = "am-td-center";
