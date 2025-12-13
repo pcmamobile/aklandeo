@@ -326,6 +326,39 @@
   }
 
 
+/* Contract ID column (mobile) */
+.am-table th:nth-child(2),
+.am-table td:nth-child(2){ width:50px; }
+
+/* Make Contract ID text fit in narrow column */
+.am-cid-link{
+  display:inline-block;
+  max-width:50px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+
+/* ACTUAL + PCMA header text smaller on mobile */
+.am-table thead tr:nth-child(2) th{
+  font-size:.5rem;
+}
+
+/* Show the per-cell labels on mobile */
+.am-mob-label{
+  display:block;
+}
+
+/* Stack label + check vertically inside ACTUAL/PCMA cells */
+.am-table tbody td:nth-child(3),
+.am-table tbody td:nth-child(4){
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:3px;
+}
 
 
   .am-pe-filter{ max-width:130px; }
