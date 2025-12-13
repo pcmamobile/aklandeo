@@ -70,6 +70,11 @@
 
   function openFloatingGallery(row) {
     const imgs = PCMA.collectImageUrls(row);
+	  const getImgNo = (it) => {
+    const m = String((it && it.label) || "").match(/\d+/);
+    return m ? parseInt(m[0], 10) : 0;
+  };
+  imgs.sort((a, b) => getImgNo(b) - getImgNo(a));
     if (!imgs.length) {
       alert("No images (Image 1 to Image 99) for this record.");
       return;

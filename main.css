@@ -119,3 +119,63 @@ mark{background:#fef08a;padding:0 .15em;border-radius:.2em;}
   }
 }
 
+/* AMEND WINDOW (simple overlay) */
+.amend-overlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.60);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 650;
+}
+
+.amend-box{
+  width: min(900px, 100%);
+  max-height: 90vh;
+  overflow: auto;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+}
+
+.amend-top{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8fafc;
+  position: sticky;
+  top: 0;
+}
+
+.amend-title{
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 900;
+  letter-spacing: .3px;
+}
+
+.amend-close{
+  background: rgba(37,99,235,.12);
+  border: 1px solid rgba(37,99,235,.35);
+  color: #1e40af;
+  font-weight: 900;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.amend-body{
+  padding: 14px;
+  color: #0f172a;
+}
+
+.amend-note{
+  margin: 0;
+  opacity: .85;
+  font-weight: 700;
+}

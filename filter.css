@@ -103,3 +103,25 @@
 }
 #presentGlobal:hover{ background:#fb923c; }
 
+/* Status per PE + Amend (same size/style as Projector Mode) */
+#openPeStatus,
+#openAmend{
+  border:none;
+  border-radius:80px;
+  padding:5px 10px;
+  font-weight:800;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-size:.85rem;
+  height:32px;
+  cursor:pointer;
+  color:#0b1220;
+}
+
+/* Optional: give each its own color */
+#openPeStatus{ background:#22c55e; }  /* green */
+#openAmend{ background:#f59e0b; }     /* orange (same as Projector) */
+
+#openPeStatus:hover{ background:#4ade80; }
+#openAmend:hover{ background:#fb923c; }

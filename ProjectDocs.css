@@ -52,7 +52,7 @@
   align-items: center;
   justify-content: center;
   background: rgba(0, 0, 0, 0.45); /* overlay above modal */
-  z-index: 9999;
+  z-index: 11000;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
 }
@@ -109,13 +109,50 @@
   font-weight: 700;
 }
 
-/* Contract ID displayed after "PROJECT DOCUMENTATION" */
-.pd-title .pd-cid {
-  margin-left: 8px;
-  font-weight: 600;
-  font-size: 20px;
-  color: #111827;
+/* ===== Project meta (below header): vertical "Label | Value" rows ===== */
+.pd-meta{
+  padding: 8px 14px;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
 }
+
+.pd-meta-row{
+  display: grid;
+  grid-template-columns: 110px 1fr; /* keeps Contract ID close to the left (no large gap) */
+  align-items: center;
+  column-gap: 0;
+}
+
+.pd-meta-row + .pd-meta-row{
+  margin-top: 4px;
+}
+
+.pd-meta-label{
+  font-size: 12px;
+  font-weight: 700;
+  color: #111827;
+  padding-right: 10px;
+  white-space: nowrap;
+}
+
+.pd-meta-value{
+  font-size: 12px;
+  font-weight: 400;  /* Value NOT bold */
+  color: #111827;
+  border-left: 1px solid #e5e7eb;  /* the | divider */
+  padding-left: 10px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 520px){
+  .pd-meta{ padding: 8px 10px; }
+  .pd-meta-row{ grid-template-columns: 95px 1fr; }
+  .pd-meta-label,
+  .pd-meta-value{ font-size: 11px; }
+}
+
+
 
 
 .pd-subtitle {

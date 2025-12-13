@@ -323,6 +323,7 @@ function buildTeamChips(row){
     presentSlides.innerHTML = '';
     presentThumbs.innerHTML = '';
     state.items = (typeof PCMA.collectImageUrls === 'function' && PCMA.collectImageUrls(row)) || [];
+	state.items = state.items.slice().reverse();
     state.sIndex = 0;
 
     if (!state.items.length){

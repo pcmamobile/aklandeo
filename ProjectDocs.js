@@ -27,7 +27,140 @@
     return -1;
   }
 
-  function monthNameToNumber(name) {
+  
+  // ---------- Meta helpers (Contract ID / Project Name / Contractor) ----------
+
+  function normalizeCellLower(text) {
+    return (text || "")
+      .toString()
+      .replace(/\s+/g, " ")
+      .trim()
+      .toLowerCase();
+  }
+
+  function findHeaderRowIndexByHints(values, hints) {
+    const maxScan = Math.min(values.length, 40);
+    for (let i = 0; i < maxScan; i++) {
+      const row = (values[i] || []).map(normalizeCellLower);
+      const hit = hints.some((h) => row.some((cell) => cell.includes(h)));
+      if (hit) return i;
+    }
+    // Fallback to 3rd row (index 2) which your PCMA sheet uses
+    return 2;
+  }
+
+  function findRowIndexByExactCell(values, startRow, contractId) {
+    const target = String(contractId || "").trim().toLowerCase();
+    if (!target) return -1;
+
+    for (let r = Math.max(0, startRow); r < values.length; r++) {
+      const row = values[r] || [];
+      for (let c = 0; c < row.length; c++) {
+        const cell = row[c];
+        if (cell != null && String(cell).trim().toLowerCase() === target) return r;
+      }
+    }
+    return -1;
+  }
+
+  function findColumnIndexByIncludes(headers, keywords) {
+    const keys = (keywords || []).map((k) => String(k).toLowerCase());
+    for (let i = 0; i < headers.length; i++) {
+      const h = normalizeCellLower(headers[i]);
+      if (!h) continue;
+      if (keys.some((k) => h.includes(k))) return i;
+    }
+    return -1;
+  }
+
+  function getMetaFromApp(appValues, contractId) {
+    // APP header row can move; detect it by hints (similar to filter.js logic)
+    if (!Array.isArray(appValues) || !appValues.length) return null;
+
+    const headerIdx = findHeaderRowIndexByHints(appValues, [
+      "contract id",
+      "project name",
+      "contractor",
+      "status",
+    ]);
+
+    const headers = appValues[headerIdx] || [];
+    const rowIdx = findRowIndexByExactCell(appValues, headerIdx + 1, contractId);
+    const row = rowIdx >= 0 ? (appValues[rowIdx] || []) : null;
+
+    if (!row) return null;
+
+    const colCID = findColumnIndexByIncludes(headers, ["contract id", "contract no", "contract"]);
+    const colProj = findColumnIndexByIncludes(headers, ["project name", "project title", "project"]);
+    const colContr = findColumnIndexByIncludes(headers, ["contractor"]);
+
+    const projectName = colProj >= 0 ? String(row[colProj] || "").trim() : "";
+    const contractor = colContr >= 0 ? String(row[colContr] || "").trim() : "";
+
+    // Require at least one useful field
+    if (!projectName && !contractor) return null;
+
+    return {
+      contractId: colCID >= 0 ? String(row[colCID] || contractId).trim() : String(contractId || "").trim(),
+      projectName,
+      contractor,
+    };
+  }
+
+  function getMetaFromPcma(pcmaValues, contractId) {
+    // PCMA uses 3rd row as header; we can reuse findContractRow()
+    try {
+      const found = findContractRow(pcmaValues, contractId);
+      if (!found || !found.header || !found.row) return null;
+
+      const headers = found.header || [];
+      const row = found.row || [];
+
+      const colCID = findColumnIndexByIncludes(headers, ["contract id", "contract"]);
+      const colProj = findColumnIndexByIncludes(headers, ["project name", "project title", "project"]);
+      const colContr = findColumnIndexByIncludes(headers, ["contractor"]);
+
+      const projectName = colProj >= 0 ? String(row[colProj] || "").trim() : "";
+      const contractor = colContr >= 0 ? String(row[colContr] || "").trim() : "";
+
+      if (!projectName && !contractor) return null;
+
+      return {
+        contractId: colCID >= 0 ? String(row[colCID] || contractId).trim() : String(contractId || "").trim(),
+        projectName,
+        contractor,
+      };
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function buildProjectMeta(appValues, pcmaValues, contractId) {
+    return (
+      getMetaFromApp(appValues, contractId) ||
+      getMetaFromPcma(pcmaValues, contractId) || {
+        contractId: String(contractId || "").trim(),
+        projectName: "",
+        contractor: "",
+      }
+    );
+  }
+
+  function applyProjectMeta(meta) {
+    const cid = (meta && meta.contractId) ? String(meta.contractId).trim() : "";
+    const name = (meta && meta.projectName) ? String(meta.projectName).trim() : "";
+    const contr = (meta && meta.contractor) ? String(meta.contractor).trim() : "";
+
+    const metaCIDEl = document.getElementById("pdMetaCID");
+    const metaNameEl = document.getElementById("pdMetaProjectName");
+    const metaContrEl = document.getElementById("pdMetaContractor");
+
+    if (metaCIDEl) metaCIDEl.textContent = cid || "—";
+    if (metaNameEl) metaNameEl.textContent = name || "—";
+    if (metaContrEl) metaContrEl.textContent = contr || "—";
+  }
+
+function monthNameToNumber(name) {
     if (!name) return 0;
     const key = name.toString().trim().slice(0, 3).toUpperCase();
     switch (key) {
@@ -1575,10 +1708,13 @@ async function openProjectDocs(contractId) {
       return;
     }
 	
-	  const headerCidEl = document.getElementById("pdHeaderCID");
-  if (headerCidEl) {
-    headerCidEl.textContent = " ( " + contractId + " ) ";   // e.g. "PROJECT DOCUMENTATION - C-2025-001"
-  }
+    // Fill meta (below header)
+    const metaCIDEl = document.getElementById("pdMetaCID");
+    const metaNameEl = document.getElementById("pdMetaProjectName");
+    const metaContrEl = document.getElementById("pdMetaContractor");
+    if (metaCIDEl) metaCIDEl.textContent = contractId;
+    if (metaNameEl) metaNameEl.textContent = "—";
+    if (metaContrEl) metaContrEl.textContent = "—";
 
     openOverlay();
 
@@ -1587,14 +1723,18 @@ async function openProjectDocs(contractId) {
     if (loadingEl) loadingEl.style.display = "block";
 
     try {
-      const [pcmaValues, voValues, wsoValues, billingSheet, descriptionValues] =
+      const [appValues, pcmaValues, voValues, wsoValues, billingSheet, descriptionValues] =
         await Promise.all([
+          fetchValues("APP"),
           fetchValues("PCMA"),
           fetchValues("VO"),
           fetchValues("WSO/WRO/CTE"),
           fetchBillingSheet(),
           fetchValues("DESCRIPTION"),
         ]);
+
+      // Fill meta (Project Name / Contractor) as soon as we have data
+      applyProjectMeta(buildProjectMeta(appValues, pcmaValues, contractId));
 
       const descriptionInfo = buildDescriptionInfo(descriptionValues, contractId);
       const pcmaRows = buildPcmaRows(pcmaValues, contractId);
@@ -1673,4 +1813,3 @@ function setupOverlayClose() {
   // Script is loaded at the end of <body>, so DOM is ready now.
   setupOverlayClose();
 })();
-

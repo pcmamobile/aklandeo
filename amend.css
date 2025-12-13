@@ -1,0 +1,353 @@
+/* ===========================
+   AMEND WINDOW (amend.css)
+   Mobile Responsive + Sticky Header
+   =========================== */
+
+.am-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.55);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+  padding:14px;
+}
+
+.am-overlay[hidden]{display:none !important;}
+
+.am-box{
+  width:min(1200px, 98vw);
+  height:min(86vh, 900px);
+  background:#f8fafc;
+  border-radius:16px;
+  box-shadow:0 20px 50px rgba(0,0,0,.35);
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  border:1px solid rgba(255,255,255,.2);
+}
+
+.am-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:10px 14px;
+  background:linear-gradient(135deg,#f59e0b,#ea580c);
+  border-bottom:3px solid rgba(0,0,0,.12);
+  color:#111;
+}
+
+.am-title{
+  margin:0;
+  font-size:1.05rem;
+  font-weight:900;
+  letter-spacing:.4px;
+}
+
+.am-btn{
+  appearance:none;
+  border:1px solid rgba(0,0,0,.18);
+  background:#fff;
+  color:#111;
+  font-weight:800;
+  padding:7px 12px;
+  border-radius:999px;
+  cursor:pointer;
+}
+
+.am-btn:hover{filter:brightness(.98);}
+.am-btn:active{transform:translateY(1px);}
+
+.am-btn.am-ghost{
+  background:rgba(255,255,255,.25);
+  border:1px solid rgba(255,255,255,.35);
+}
+
+.am-tabs{
+  display:grid;
+  grid-template-columns:repeat(4, 1fr); /* 4 equal tabs */
+  gap:6px;
+  padding:10px 12px;
+  background:#fff;
+  border-bottom:1px solid rgba(0,0,0,.08);
+}
+
+.am-tab{
+  appearance:none;
+  border:1px solid rgba(0,0,0,.12);
+  background:#f1f5f9;
+  color:#0f172a;
+  font-weight:900;
+  padding:10px 8px;
+  border-radius:12px;
+  cursor:pointer;
+  text-align:center;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.am-tab.is-active{
+  background:#2563eb;
+  color:#fff;
+  border-color:rgba(0,0,0,.10);
+}
+
+/* IMPORTANT: make the table wrapper the scroll container
+   so sticky header works (freeze header) */
+.am-body{
+  padding:10px 12px 14px;
+  flex:1;
+  overflow:hidden;     /* scroll happens inside .am-table-wrap */
+  display:flex;
+  flex-direction:column;
+  min-height:0;
+}
+
+.am-panel{display:none;}
+.am-panel.is-active{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  flex:1;
+  min-height:0;
+}
+
+.am-toolbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.am-subtitle{
+  font-weight:900;
+  color:#0f172a;
+}
+
+.am-status{
+  padding:10px 12px;
+  border-radius:12px;
+  background:#fff;
+  border:1px solid rgba(0,0,0,.08);
+  font-weight:800;
+  color:#334155;
+}
+
+.am-status.is-error{
+  border-color:rgba(239,68,68,.25);
+  background:#fff1f2;
+  color:#7f1d1d;
+}
+
+.am-table-wrap{
+  background:#fff;
+  border:1px solid rgba(0,0,0,.08);
+  border-radius:14px;
+  overflow:auto;                 /* vertical + horizontal scroll */
+  -webkit-overflow-scrolling:touch;
+  flex:1;
+  min-height:0;
+}
+
+/* Make columns controlled (prevents big empty gap) */
+.am-table{
+  table-layout: fixed;  /* IMPORTANT */
+}
+
+/* Column widths */
+.am-table th:nth-child(1),
+.am-table td:nth-child(1){
+  width:150px;          /* PE column */
+}
+
+.am-table th:nth-child(2),
+.am-table td:nth-child(2){
+  width:260px;          /* Contract ID column */
+}
+
+
+.am-table th,
+.am-table td{
+  padding:10px 10px;
+  border-bottom:1px solid rgba(0,0,0,.06);
+  text-align:left;
+  vertical-align:middle;
+  font-size:.9rem;
+  text-align: center;
+}
+
+.am-td-center{text-align:center;}
+
+/* FREEZE HEADER (sticky) */
+.am-table thead th{
+  position:sticky;
+  top:0;                          /* row1 sticks at 0; row2 top set by JS */
+  z-index:3;
+  background:#f8fafc;
+  font-weight:900;
+  color:#0f172a;
+  border-bottom:1px solid rgba(0,0,0,.10);
+}
+
+.am-table thead tr:nth-child(1) th{
+  background:#e2e8f0;
+  z-index:5;
+}
+
+.am-table thead tr:nth-child(2) th{
+  background:#f1f5f9;
+  z-index:4;
+}
+
+/* PE header dropdown styles */
+.am-pe-head{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  align-items: center;
+}
+
+.am-pe-filter{
+  width:100%;
+  min-width:0;
+  max-width:160px;
+  padding:6px 8px;
+  border-radius:10px;
+  border:1px solid rgba(0,0,0,.16);
+  background:#fff;
+  color:#0f172a;
+  font-weight:800;
+  font-size:.85rem;
+}
+
+.am-pe-filter:focus{
+  outline:none;
+  border-color:rgba(37,99,235,.55);
+  box-shadow:0 0 0 3px rgba(37,99,235,.18);
+}
+
+.am-check{
+  width:30px;
+  height:30px;
+  border-radius:10px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:1000;
+  line-height:1;
+  border:2px solid rgba(0,0,0,.12);
+  user-select:none;
+}
+
+.am-check.ok{
+  background:rgba(16,185,129,.16);
+  border-color:rgba(16,185,129,.35);
+  color:#047857;
+}
+
+.am-check.bad{
+  background:rgba(239,68,68,.14);
+  border-color:rgba(239,68,68,.35);
+  color:#b91c1c;
+}
+
+.am-muted{
+  color:#64748b;
+  font-weight:800;
+}
+
+
+/* Clickable Contract ID (open ProjectDocs) */
+.am-cid-link{
+  appearance:none;
+  border:none;
+  background:transparent;
+  padding:0;
+  margin:0;
+  font:inherit;
+  font-weight:900;
+  color:#2563eb;
+  cursor:pointer;
+  text-decoration:underline;
+}
+.am-cid-link:hover{ filter:brightness(0.9); }
+.am-cid-link:focus{
+  outline:2px solid rgba(37, 99, 235, 0.35);
+  outline-offset:2px;
+  border-radius:8px;
+}
+
+
+
+
+/* ===========================
+   MOBILE RESPONSIVE
+   =========================== */
+
+@media (max-width: 768px){
+  .am-box{height:min(92vh, 900px);}
+
+  .am-tabs{gap:5px;padding:8px 10px;}
+  .am-tab{padding:9px 6px;font-size:.80rem;border-radius:10px;}
+
+  .am-top{padding:9px 12px;}
+  .am-title{font-size:1.0rem;}
+  .am-btn{padding:7px 10px;font-size:.88rem;}
+
+  .am-body{padding:9px 10px 12px;}
+  .am-status{padding:9px 10px;font-size:.82rem;}
+
+  .am-table{min-width:560px;}
+  .am-table th,.am-table td{padding:8px 7px;font-size:.82rem;}
+  .am-check{width:26px;height:26px;border-radius:9px;}
+
+  .am-pe-filter{min-width:110px;font-size:.80rem;padding:6px 7px;}
+}
+
+@media (max-width: 600px){
+  /* Fullscreen modal feel on phones */
+  .am-overlay{padding:0;}
+  .am-box{
+    width:100vw;
+    height:100vh;
+    border-radius:0;
+  }
+
+
+  .am-table th:nth-child(1),
+  .am-table td:nth-child(1){ width:120px; }
+
+  .am-table th:nth-child(2),
+  .am-table td:nth-child(2){ width:220px; }
+
+  .am-pe-filter{ max-width:130px; }
+
+
+  .am-top{padding:8px 10px;}
+  .am-title{font-size:.98rem;}
+  .am-btn{padding:7px 10px;font-size:.86rem;}
+
+  .am-tabs{gap:4px;padding:8px 8px;}
+  .am-tab{padding:8px 4px;font-size:.74rem;border-radius:10px;}
+
+  .am-body{padding:8px 8px 10px;}
+  .am-status{padding:8px 9px;font-size:.78rem;}
+  .am-subtitle{font-size:.85rem;}
+
+  .am-table{min-width:520px;}
+  .am-table th,.am-table td{padding:7px 6px;font-size:.78rem;}
+  .am-check{width:24px;height:24px;border-radius:8px;}
+
+  .am-pe-head{gap:4px;}
+  .am-pe-filter{min-width:95px;font-size:.78rem;padding:5px 6px;}
+}
+
+/* Landscape phones: give more table space */
+@media (max-width: 900px) and (orientation: landscape){
+  .am-top{padding:7px 10px;}
+  .am-tabs{padding:7px 8px;}
+  .am-body{padding:7px 8px 8px;}
+  .am-status{margin:0;}
+}
