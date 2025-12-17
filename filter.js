@@ -257,13 +257,72 @@
   }
   PCMA.filterData = filterData;
 
+
+// ==== SORT HELPERS (Contract ID: latest year first; within year ascending) ====
+function _cidKey(cid) {
+  const raw = String(cid || "").trim().toUpperCase();
+  const cleaned = raw.replace(/[\s\-_/]+/g, ""); // remove common separators
+  const m = cleaned.match(/^(\d{2})([A-Z]+)?(\d+)?/);
+
+  const year = m ? parseInt(m[1], 10) : -1;          // 25 from 25GA0001
+  const letters = m && m[2] ? m[2] : "";             // GA
+  const num = m && m[3] ? parseInt(m[3], 10) : 0;    // 1 from 0001
+
+  return { year, letters, num, raw: cleaned || raw };
+}
+
+function _compareCID(aCID, bCID) {
+  const a = _cidKey(aCID);
+  const b = _cidKey(bCID);
+
+  // 1) Year: DESC (latest year on top)
+  if (a.year !== b.year) return b.year - a.year;
+
+  // 2) Letters: ASC (GA, GB, ...)
+  const lcmp = a.letters.localeCompare(b.letters);
+  if (lcmp !== 0) return lcmp;
+
+  // 3) Number: ASC (0001, 0002, ...)
+  if (a.num !== b.num) return a.num - b.num;
+
+  // 4) Fallback
+  return a.raw.localeCompare(b.raw);
+}
+
+function _sortRowsByCID(rows, colCID) {
+  if (!Array.isArray(rows) || rows.length === 0) return rows || [];
+  if (colCID < 0) return rows;
+
+  // decorate -> sort -> undecorate (stable even if engine isn't)
+  return rows
+    .map((r, i) => ({ r, i }))
+    .sort((A, B) => {
+      const aCID = A.r && A.r[colCID] != null ? A.r[colCID] : "";
+      const bCID = B.r && B.r[colCID] != null ? B.r[colCID] : "";
+      const c = _compareCID(aCID, bCID);
+      return c !== 0 ? c : A.i - B.i;
+    })
+    .map((x) => x.r);
+}
+
+
+
+
+
   // ==== GRID RENDER ====
   function renderGrid(rows) {
     const { headers } = PCMA.state;
     PCMA.state.lastRenderedRows = rows.slice();
-    el.grid.innerHTML = "";
+el.grid.innerHTML = "";
 
-    const colContractID = headers.findIndex((h) => h.includes("contract id"));
+const colContractID = headers.findIndex((h) => h.includes("contract id"));
+
+// NEW: sort rows by Contract ID (latest year first)
+const sortedRows = _sortRowsByCID(rows, colContractID);
+
+// keep state aligned with what’s rendered (important for modal click index)
+PCMA.state.lastRenderedRows = sortedRows.slice();
+
     const colProjectName = headers.findIndex((h) => h.includes("project name"));
     const colStatus = headers.findIndex((h) => h.includes("status"));
     const colEngineer = headers.findIndex((h) => h.includes("project engineer"));
@@ -277,7 +336,8 @@
       return;
     }
 
-    rows.forEach((r, idx) => {
+sortedRows.forEach((r, idx) => {
+
       if (!r || !r.join("").trim()) return;
 
       const card = document.createElement("div");

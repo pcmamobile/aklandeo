@@ -134,6 +134,69 @@
     return { year, month, key: year * 100 + month, label: `${year} ${m[2]}` };
   }
 
+
+// Also supports 2-digit year remark headers like: "25 Nov Remarks"
+const MONTHS_SHORT = {
+  jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6,
+  jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12,
+};
+
+function monthNumberFromName(name) {
+  const raw = normalize(name).toLowerCase();
+  if (!raw) return null;
+  if (MONTHS[raw]) return MONTHS[raw];
+  const abbr = raw.slice(0, 3);
+  return MONTHS_SHORT[abbr] || null;
+}
+
+function parseMonthFromAnyHeader(cell) {
+  // Examples:
+  // - "2025 November", "2025 November PCMA", "2025 Nov"
+  // - "25 Nov Remarks"
+  const s = normalize(cell);
+
+  // 4-digit year first
+  let m = s.match(/\b(20\d{2})\s+([A-Za-z]{3,})\b/);
+  if (m) {
+    const year = Number(m[1]);
+    const month = monthNumberFromName(m[2]);
+    if (!month) return null;
+    return { year, month, key: year * 100 + month };
+  }
+
+  // 2-digit year (assume 20xx)
+  m = s.match(/\b(\d{2})\s+([A-Za-z]{3})\b/);
+  if (m) {
+    const year = 2000 + Number(m[1]);
+    const month = monthNumberFromName(m[2]);
+    if (!month) return null;
+    return { year, month, key: year * 100 + month };
+  }
+
+  return null;
+}
+
+function pickRemarksIndexForMonth(headers, monthKey) {
+  // Prefer remark headers that match the same month key
+  for (let i = 0; i < headers.length; i++) {
+    const cell = normalize(headers[i]);
+    if (!cell) continue;
+    if (!isRemarksHeader(cell)) continue;
+
+    const m = parseMonthFromAnyHeader(cell) || parseMonthFromHeader(cell);
+    if (m && m.key === monthKey) return i;
+  }
+
+  // Fallback: any "REMARKS" (non-month-specific)
+  const idxGeneric = findHeaderIndex(headers, ["REMARKS", "REMARK"]);
+  if (idxGeneric !== -1) return idxGeneric;
+
+  return -1;
+}
+
+
+
+
   function isPcmaHeader(cell) {
     return /\bPCMA\b/i.test(normalize(cell));
   }
@@ -335,6 +398,8 @@
     const monthLabel = monthPair.monthLabel;
     const actualIdx = monthPair.actualIdx;
     const pcmaIdx = monthPair.pcmaIdx;
+	const remarksIdx = pickRemarksIndexForMonth(headers, monthPair.monthKey);
+	const idxAccomp = findHeaderIndex(headers, ["ACCOMP.", "ACCOMP", "ACCOMPLISHMENT"]);
 
     const dataRows = values.slice(3); // rows after header
 
@@ -351,6 +416,7 @@
 
       const actualVal = actualIdx >= 0 ? row[actualIdx] : "";
       const pcmaVal = pcmaIdx >= 0 ? row[pcmaIdx] : "";
+	  const remarksVal = remarksIdx >= 0 ? row[remarksIdx] : "";
 
       // If ACCOMP is 100% => actualOk should be true
       // We treat "ACCOMP." column if available; otherwise we fall back to actual cell presence.
@@ -358,13 +424,28 @@
       let accompPct = null;
       if (idxAccomp !== -1) accompPct = parseAccompPercent(row[idxAccomp]);
 
+	  const pcmaPct = parseAccompPercent(pcmaVal);
       const actualOk = (accompPct !== null && accompPct >= 100) ? true : !isEmptyCell(actualVal);
       const pcmaOk = !isEmptyCell(pcmaVal);
 
-      // If both checked, hide it (do not include)
-      if (actualOk && pcmaOk) continue;
+const remarksAuto = (remarksIdx >= 0) && (pcmaPct !== null && pcmaPct >= 100) && isEmptyCell(remarksVal);
+const remarksOk   =
+  (remarksIdx === -1) ? true :
+  (pcmaPct !== null && pcmaPct >= 100) ? true :
+  !isEmptyCell(remarksVal);
 
-      rowsForDisplay.push({ pe, cid, actualOk, pcmaOk });
+      // If both checked, hide it (do not include)
+      if (actualOk && pcmaOk && remarksOk) continue;
+
+rowsForDisplay.push({
+  pe,
+  cid,
+  actualOk,
+  pcmaOk,
+  remarksOk,
+  remarksText: normalize(remarksVal),
+  remarksAuto,
+});
     }
 
     // Ascend all PE (then CID)
@@ -395,7 +476,7 @@ function renderAccomplishmentTable(monthLabel, rows) {
   const thead = document.createElement("thead");
   const trH = document.createElement("tr");
 
-  // Column 1: PE dropdown (filter) — label removed
+  // Column 1: PE dropdown (filter)
   const thPe = document.createElement("th");
 
   const peHead = document.createElement("div");
@@ -437,27 +518,31 @@ function renderAccomplishmentTable(monthLabel, rows) {
 
   peHead.appendChild(peSelect);
   thPe.appendChild(peHead);
-
   el.peFilter = peSelect;
 
   // Column 2: Contract ID
   const thCid = document.createElement("th");
-  thCid.textContent = "Contract ID";
+  thCid.textContent = "ID";
 
   // Column 3: ACTUAL
   const thActual = document.createElement("th");
-  thActual.textContent = "ACTUAL";
+  thActual.textContent = "ACT";
   thActual.className = "am-td-center";
 
   // Column 4: PCMA
   const thPcma = document.createElement("th");
-  thPcma.textContent = "PCMA";
+  thPcma.textContent = "PCM";
   thPcma.className = "am-td-center";
+
+  // Column 5: REMARKS
+  const thRemarks = document.createElement("th");
+  thRemarks.textContent = "REM";
 
   trH.appendChild(thPe);
   trH.appendChild(thCid);
   trH.appendChild(thActual);
   trH.appendChild(thPcma);
+  trH.appendChild(thRemarks);
 
   thead.appendChild(trH);
 
@@ -466,7 +551,7 @@ function renderAccomplishmentTable(monthLabel, rows) {
   if (!rows.length) {
     const tr = document.createElement("tr");
     const td = document.createElement("td");
-    td.colSpan = 4;
+    td.colSpan = 5;
     td.className = "am-muted";
     td.textContent = "No items to amend for the latest month.";
     tr.appendChild(td);
@@ -517,21 +602,49 @@ function renderAccomplishmentTable(monthLabel, rows) {
       tdPcma.className = "am-td-center";
       tdPcma.appendChild(createCheck(r.pcmaOk));
 
+      const tdRemarks = document.createElement("td");
+
+      const remarkWrap = document.createElement("div");
+      remarkWrap.className = "am-remark-cell";
+      remarkWrap.appendChild(createCheck(r.remarksOk));
+
+      const remarkText = document.createElement("span");
+      remarkText.className = "am-remark-text";
+
+      const t = normalize(r.remarksText);
+      if (t) {
+        remarkText.textContent = t;
+        remarkText.title = t; // hover to see full text
+      } else if (r.remarksAuto) {
+        remarkText.textContent = "";
+        remarkText.classList.add("is-auto");
+      } else {
+        remarkText.textContent = "";
+        remarkText.classList.add("is-auto");
+      }
+
+      remarkWrap.appendChild(remarkText);
+      tdRemarks.appendChild(remarkWrap);
+
       tr.appendChild(tdPe);
       tr.appendChild(tdCid);
       tr.appendChild(tdActual);
       tr.appendChild(tdPcma);
+      tr.appendChild(tdRemarks);
 
       tbody.appendChild(tr);
     }
 
     // No items message row (after filtering)
     const trNo = document.createElement("tr");
-    trNo.className = "am-nope";
+    trNo.id = "amNoPeResults";
+    trNo.hidden = true;
+
     const tdNo = document.createElement("td");
-    tdNo.colSpan = 4;
+    tdNo.colSpan = 5;
     tdNo.className = "am-muted";
     tdNo.textContent = "No items match the selected PE filter.";
+
     trNo.appendChild(tdNo);
     tbody.appendChild(trNo);
   }
@@ -539,12 +652,12 @@ function renderAccomplishmentTable(monthLabel, rows) {
   el.accTable.appendChild(thead);
   el.accTable.appendChild(tbody);
 
-  // Freeze header rows correctly + apply current PE filter
   requestAnimationFrame(() => {
     applyStickyHeaderOffsets(el.accTable);
     applyPeFilter();
   });
 }
+
 
   // ---- Wiring ----
   function wireOverlayClose() {

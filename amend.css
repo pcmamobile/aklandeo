@@ -156,31 +156,36 @@
   table-layout: fixed;  /* IMPORTANT */
 }
 
-/* Column widths */
+/* Column widths (table-layout: fixed) */
 .am-table th:nth-child(1),
 .am-table td:nth-child(1){
-  width:150px;          /* PE column */
+  width:120px;          /* PE column */
 }
 
 .am-table th:nth-child(2),
 .am-table td:nth-child(2){
-  width:120px;          /* Contract ID column */
+  width:100px;          /* Contract ID column */
 }
 
-/* NEW: ACTUAL & PCMA columns (70px each) */
-.am-table thead tr:nth-child(2) th:nth-child(1),
-.am-table tbody td:nth-child(3){
-  width:70px;
+.am-table th:nth-child(3),
+.am-table td:nth-child(3){
+  width:40px;           /* ACTUAL */
 }
 
-.am-table thead tr:nth-child(2) th:nth-child(2),
-.am-table tbody td:nth-child(4){
-  width:70px;
+.am-table th:nth-child(4),
+.am-table td:nth-child(4){
+  width:40px;           /* PCMA */
 }
+
+.am-table th:nth-child(5),
+.am-table td:nth-child(5){
+  width:40px;          /* REMARKS */
+}
+
 
 .am-table th,
 .am-table td{
-  padding:10px 10px;
+  padding:5px 2px;
   border-bottom:1px solid rgba(0,0,0,.06);
   text-align:left;
   vertical-align:middle;
@@ -263,6 +268,35 @@
   color:#b91c1c;
 }
 
+
+/* Remarks cell (✓/✕ + text) */
+.am-table td:nth-child(5){
+  text-align:left;
+}
+
+.am-remark-cell{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  justify-content:flex-start;
+}
+
+.am-remark-text{
+  font-weight:800;
+  color:#0f172a;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  flex:1;
+}
+
+.am-remark-text.is-auto{
+  color:#64748b;
+}
+
+
+
+
 .am-muted{
   color:#64748b;
   font-weight:800;
@@ -295,7 +329,7 @@
    =========================== */
 @media (max-width: 520px){
   .am-tabs{
-    gap:4px;
+    gap:1px;
     padding:6px 8px;
   }
 

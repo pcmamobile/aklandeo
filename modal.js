@@ -117,6 +117,7 @@
     const statIdx    = findCol('status');
     const remIdx     = findCol('remarks');
     const lastBillIdx= findCol('last billing');
+	const projIdIdx  = findCol('Project ID', 'proj id', 'projectid');
     const uploadCol  = findCol('upload pictures');
 
     const peIdx = findCol('project engineer');
@@ -177,6 +178,7 @@
     colD.className = 'pcma-primary-col pcma-group-d';
     if (remIdx > -1 && row[remIdx])        colD.appendChild(createPrimaryRow('Remarks', row[remIdx]));
     if (lastBillIdx > -1 && row[lastBillIdx]) colD.appendChild(createPrimaryRow('Last Billing', row[lastBillIdx]));
+	if (projIdIdx > -1 && row[projIdIdx])      colD.appendChild(createPrimaryRow('Project ID', row[projIdIdx]));
 
     if (colA.children.length) primary.appendChild(colA);
     if (colB.children.length) primary.appendChild(colB);
