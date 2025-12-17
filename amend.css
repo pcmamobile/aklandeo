@@ -66,7 +66,7 @@
 
 .am-tabs{
   display:grid;
-  grid-template-columns:repeat(4, 1fr); /* 4 equal tabs */
+  grid-template-columns:repeat(5, 1fr); /* 4 equal tabs */
   gap:6px;
   padding:10px 12px;
   background:#fff;
@@ -294,7 +294,42 @@
   color:#64748b;
 }
 
+/* PCMA tab: 4 columns (PE | ID | PCMA | REMARKS) */
+.am-panel[data-am-panel="pcma"] .am-table td:nth-child(4){
+  text-align:left;
+}
 
+.am-panel[data-am-panel="pcma"] .am-toolbar,
+.am-panel[data-am-panel="pcma"] #amPcmaStatus{
+  display:none !important;
+}
+
+/* ACCEPTANCE tab: 5 columns (PE | ID | PR | CA | DUE) */
+.am-panel[data-am-panel="acceptance"] .am-toolbar,
+.am-panel[data-am-panel="acceptance"] #amAcceptanceStatus{
+  display:none !important;
+}
+
+.am-panel[data-am-panel="acceptance"] .am-due-val{
+  font-weight:700;
+  display:inline-block;
+  padding:2px 8px;
+  border-radius:10px;
+  color:#000;
+}
+
+.am-panel[data-am-panel="acceptance"] .am-due-val.due-neg{
+  background:rgba(255,0,0,.20);
+}
+
+.am-panel[data-am-panel="acceptance"] .am-due-val.due-pos{
+  background:rgba(0,255,0,.18);
+}
+
+/* Base CSS left-aligns column 5 for REMARKS; override for DUE */
+.am-panel[data-am-panel="acceptance"] .am-table td:nth-child(5){
+  text-align:center;
+}
 
 
 .am-muted{
@@ -330,7 +365,7 @@
 @media (max-width: 520px){
   .am-tabs{
     gap:1px;
-    padding:60px 8px;
+    padding:6px 8px;
   }
 
   .am-tab{
