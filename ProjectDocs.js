@@ -28,7 +28,7 @@
   }
 
   
-  // ---------- Meta helpers (Contract ID / Project Name / Contractor) ----------
+  // ---------- Meta helpers (Contract ID / Project ID / Project Name / Contractor) ----------
 
   function normalizeCellLower(text) {
     return (text || "")
@@ -79,6 +79,7 @@
 
     const headerIdx = findHeaderRowIndexByHints(appValues, [
       "contract id",
+      "project id",
       "project name",
       "contractor",
       "status",
@@ -91,71 +92,101 @@
     if (!row) return null;
 
     const colCID = findColumnIndexByIncludes(headers, ["contract id", "contract no", "contract"]);
-    const colProj = findColumnIndexByIncludes(headers, ["project name", "project title", "project"]);
+    const colProjId = findColumnIndexByIncludes(headers, [
+      "project id",
+      "project no",
+      "project number",
+      "project code",
+    ]);
+    const colProjName = findColumnIndexByIncludes(headers, ["project name", "project title", "project"]);
     const colContr = findColumnIndexByIncludes(headers, ["contractor"]);
 
-    const projectName = colProj >= 0 ? String(row[colProj] || "").trim() : "";
+    const projectId = colProjId >= 0 ? String(row[colProjId] || "").trim() : "";
+    // Project Name is fixed in Column "E" (index 4) in APP (per user requirement)
+    const projectNameColE = row.length > 4 ? String(row[4] || "").trim() : "";
+    const projectName = projectNameColE || (colProjName >= 0 ? String(row[colProjName] || "").trim() : "");
     const contractor = colContr >= 0 ? String(row[colContr] || "").trim() : "";
 
     // Require at least one useful field
-    if (!projectName && !contractor) return null;
+    if (!projectId && !projectName && !contractor) return null;
 
     return {
       contractId: colCID >= 0 ? String(row[colCID] || contractId).trim() : String(contractId || "").trim(),
+      projectId,
       projectName,
       contractor,
     };
   }
 
-  function getMetaFromPcma(pcmaValues, contractId) {
-    // PCMA uses 3rd row as header; we can reuse findContractRow()
-    try {
-      const found = findContractRow(pcmaValues, contractId);
-      if (!found || !found.header || !found.row) return null;
-
-      const headers = found.header || [];
-      const row = found.row || [];
-
-      const colCID = findColumnIndexByIncludes(headers, ["contract id", "contract"]);
-      const colProj = findColumnIndexByIncludes(headers, ["project name", "project title", "project"]);
-      const colContr = findColumnIndexByIncludes(headers, ["contractor"]);
-
-      const projectName = colProj >= 0 ? String(row[colProj] || "").trim() : "";
-      const contractor = colContr >= 0 ? String(row[colContr] || "").trim() : "";
-
-      if (!projectName && !contractor) return null;
-
-      return {
-        contractId: colCID >= 0 ? String(row[colCID] || contractId).trim() : String(contractId || "").trim(),
-        projectName,
-        contractor,
-      };
-    } catch (_) {
-      return null;
-    }
-  }
-
-  function buildProjectMeta(appValues, pcmaValues, contractId) {
+  function buildProjectMeta(appValues, contractId) {
     return (
-      getMetaFromApp(appValues, contractId) ||
-      getMetaFromPcma(pcmaValues, contractId) || {
+      getMetaFromApp(appValues, contractId) || {
         contractId: String(contractId || "").trim(),
+        projectId: "",
         projectName: "",
         contractor: "",
       }
     );
   }
 
+  function ensureMetaMarkupExists() {
+    const metaCIDEl = document.getElementById("pdMetaCID");
+    const metaProjIdEl = document.getElementById("pdMetaProjectId");
+    const metaNameEl = document.getElementById("pdMetaProjectName");
+    const metaContrEl = document.getElementById("pdMetaContractor");
+
+    // If all fields already exist, nothing to do
+    if (metaCIDEl && metaProjIdEl && metaNameEl && metaContrEl) return;
+
+    // If there is an existing meta container, ensure Project ID row exists there
+    const metaContainer = document.querySelector(".pd-meta");
+    if (metaContainer) {
+      if (!metaProjIdEl) {
+        const row = document.createElement("div");
+        row.className = "pd-meta-row";
+        row.innerHTML =
+          '<div class="pd-meta-label">Project ID</div>' +
+          '<div class="pd-meta-value" id="pdMetaProjectId">—</div>';
+
+        // Put Project ID just after the first meta row (usually Contract ID)
+        const firstRow = metaContainer.querySelector(".pd-meta-row");
+        if (firstRow && firstRow.parentNode === metaContainer) {
+          metaContainer.insertBefore(row, firstRow.nextSibling);
+        } else {
+          metaContainer.appendChild(row);
+        }
+      }
+      return;
+    }
+
+    // Otherwise, render meta inside the body (above DESCRIPTION / SCOPE OF WORK)
+    const host = document.getElementById("pdMetaSection");
+    if (!host) return;
+
+    host.innerHTML =
+      '<div class="pd-meta">' +
+      '<div class="pd-meta-row"><div class="pd-meta-label">Contract ID</div><div class="pd-meta-value" id="pdMetaCID">—</div></div>' +
+      '<div class="pd-meta-row"><div class="pd-meta-label">Project ID</div><div class="pd-meta-value" id="pdMetaProjectId">—</div></div>' +
+      '<div class="pd-meta-row"><div class="pd-meta-label">Project Name</div><div class="pd-meta-value" id="pdMetaProjectName">—</div></div>' +
+      '<div class="pd-meta-row"><div class="pd-meta-label">Contractor</div><div class="pd-meta-value" id="pdMetaContractor">—</div></div>' +
+      "</div>";
+  }
+
   function applyProjectMeta(meta) {
-    const cid = (meta && meta.contractId) ? String(meta.contractId).trim() : "";
-    const name = (meta && meta.projectName) ? String(meta.projectName).trim() : "";
-    const contr = (meta && meta.contractor) ? String(meta.contractor).trim() : "";
+    ensureMetaMarkupExists();
+
+    const cid = meta && meta.contractId ? String(meta.contractId).trim() : "";
+    const pid = meta && meta.projectId ? String(meta.projectId).trim() : "";
+    const name = meta && meta.projectName ? String(meta.projectName).trim() : "";
+    const contr = meta && meta.contractor ? String(meta.contractor).trim() : "";
 
     const metaCIDEl = document.getElementById("pdMetaCID");
+    const metaProjIdEl = document.getElementById("pdMetaProjectId");
     const metaNameEl = document.getElementById("pdMetaProjectName");
     const metaContrEl = document.getElementById("pdMetaContractor");
 
     if (metaCIDEl) metaCIDEl.textContent = cid || "—";
+    if (metaProjIdEl) metaProjIdEl.textContent = pid || "—";
     if (metaNameEl) metaNameEl.textContent = name || "—";
     if (metaContrEl) metaContrEl.textContent = contr || "—";
   }
@@ -1668,6 +1699,8 @@ const dataLabelPlugin = {
 
     body.innerHTML =
       '<div id="projectDocsLoading" class="pd-loading">Loading documentation…</div>' +
+      // META (Contract ID / Project ID / Project Name / Contractor)
+      '<section id="pdMetaSection" class="pd-section"></section>' +
       // 1. DESCRIPTION / SCOPE OF WORK
       '<section id="pdDescriptionSection" class="pd-section"></section>' +
       // 2. MONTHLY ACCOMPLISHMENT
@@ -1708,11 +1741,14 @@ async function openProjectDocs(contractId) {
       return;
     }
 	
-    // Fill meta (below header)
+    // Fill meta (as early as possible)
+    ensureMetaMarkupExists();
     const metaCIDEl = document.getElementById("pdMetaCID");
+    const metaProjIdEl = document.getElementById("pdMetaProjectId");
     const metaNameEl = document.getElementById("pdMetaProjectName");
     const metaContrEl = document.getElementById("pdMetaContractor");
     if (metaCIDEl) metaCIDEl.textContent = contractId;
+    if (metaProjIdEl) metaProjIdEl.textContent = "—";
     if (metaNameEl) metaNameEl.textContent = "—";
     if (metaContrEl) metaContrEl.textContent = "—";
 
@@ -1734,7 +1770,7 @@ async function openProjectDocs(contractId) {
         ]);
 
       // Fill meta (Project Name / Contractor) as soon as we have data
-      applyProjectMeta(buildProjectMeta(appValues, pcmaValues, contractId));
+      applyProjectMeta(buildProjectMeta(appValues, contractId));
 
       const descriptionInfo = buildDescriptionInfo(descriptionValues, contractId);
       const pcmaRows = buildPcmaRows(pcmaValues, contractId);
