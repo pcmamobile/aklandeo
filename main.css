@@ -1,10 +1,12 @@
 :root{
+  --footer-h:64px;
   --brand:#2563eb;
   --brand-dark:#1e40af;
   --bg:#f4f6f8;
 }
 *{box-sizing:border-box;}
 body{
+  padding-bottom: var(--footer-h);
   font-family:"Segoe UI",Arial,sans-serif;
   margin:0;
   background:var(--bg);
@@ -178,4 +180,45 @@ mark{background:#fef08a;padding:0 .15em;border-radius:.2em;}
   margin: 0;
   opacity: .85;
   font-weight: 700;
+}
+
+/* FOOTER (Home / Reload) */
+.app-footer{
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 220; /* above sticky header (z-index:200) */
+  background: rgba(255,255,255,.96);
+  border-top: 1px solid #e2e8f0;
+  backdrop-filter: blur(6px);
+}
+.footer-inner{
+  max-width:1100px;
+  margin:0 auto;
+  padding:10px 12px;
+  display:flex;
+  gap:10px;
+}
+.footer-btn{
+  flex:1;
+  border-radius:12px;
+  padding:10px 12px;
+  font-weight:900;
+  border:1px solid rgba(37,99,235,.35);
+  background: rgba(37,99,235,.12);
+  color:#1e40af;
+  cursor:pointer;
+}
+.footer-btn.primary{
+  background: linear-gradient(135deg,var(--brand),var(--brand-dark));
+  border-color: transparent;
+  color:#fff;
+}
+.footer-btn:active{ transform: translateY(1px); }
+
+@media (max-width: 768px){
+  :root{ --footer-h:56px; }
+  .footer-inner{ padding:8px 10px; }
+  .footer-btn{ padding:8px 10px; border-radius:10px; }
 }
