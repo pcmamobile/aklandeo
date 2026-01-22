@@ -46,6 +46,8 @@ pcmaPeFilter: null,
     acceptanceTable: null,
     acceptanceReload: null,
     acceptancePeFilter: null,
+	printBtn: null,
+topBar: null,
   };
 
   function q(id) { return document.getElementById(id); }
@@ -66,6 +68,8 @@ pcmaPeFilter: null,
   el.acceptanceSubtitle = q("amAcceptanceSubtitle");
   el.acceptanceTable = q("amAcceptanceTable");
   el.acceptanceReload = q("amAcceptanceReload");
+  el.topBar = document.querySelector(".am-top");
+el.printBtn = q("amPrintBtn");
 
     el.tabButtons = Array.from(document.querySelectorAll(".am-tab[data-am-tab]"));
     el.panels = Array.from(document.querySelectorAll(".am-panel[data-am-panel]"));
@@ -1177,6 +1181,8 @@ async function loadAcceptanceTab() {
   const idxID = findHeaderIndex(headers, ["ID", "CONTRACT ID", "CID", "CONTRACTID", "CONTRACT"]);
 
   const idxPR = findHeaderIndex(headers, [
+    "Punchlist Report (After 1Y Defects Liability Period)",
+    "PUNCHLIST REPORT (AFTER 1Y DEFECTS LIABILITY PERIOD)",
     "Punchlist Report (After One-Year Defects Liability Period)",
     "PUNCHLIST REPORT (AFTER ONE-YEAR DEFECTS LIABILITY PERIOD)",
     "PUNCHLIST REPORT",
@@ -1189,7 +1195,7 @@ async function loadAcceptanceTab() {
 
   if (idxPE === -1) throw new Error('Header "PROJECT ENGINEER" not found in DATE (3rd row).');
   if (idxID === -1) throw new Error('Header "ID/Contract ID" not found in DATE (3rd row).');
-  if (idxPR === -1) throw new Error('Header "Punchlist Report (After One-Year Defects Liability Period)" not found in DATE (3rd row).');
+  if (idxPR === -1) throw new Error('Header "Punchlist Report (After 1Y/One-Year Defects Liability Period)" not found in DATE (3rd row).');
   if (idxCA === -1) throw new Error('Header "Date of CA" not found in DATE (3rd row).');
   if (idxCompletion === -1) throw new Error('Header "Date of Completion" not found in DATE (3rd row).');
 
@@ -1403,6 +1409,263 @@ function renderAcceptanceTable(rows) {
   });
 }
 
+
+
+function escapeHtml(s) {
+  return (s ?? "")
+    .toString()
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+// Collect ONLY visible rows from ACCOMPLISHMENT table (PE filter already applied)
+function collectVisibleAccRows() {
+  if (!el.accTable) return [];
+  const tbody = el.accTable.querySelector("tbody");
+  if (!tbody) return [];
+
+  const out = [];
+  const trs = Array.from(tbody.querySelectorAll("tr"))
+    .filter(tr => (tr.dataset && tr.dataset.pe) && !tr.hidden);
+
+  for (const tr of trs) {
+    const tds = tr.children;
+
+    const pe = normalize(tds[0]?.textContent);
+    const cid =
+      normalize(tr.querySelector(".am-cid-link")?.textContent) ||
+      normalize(tds[1]?.textContent);
+
+    if (!pe || !cid) continue;
+    out.push({ pe, cid });
+  }
+  return out;
+}
+
+// Build ContractID -> { act, pcma, remarks } from PCMA sheet using LATEST month columns
+async function buildLatestMonthValueMapFromPcmaSheet() {
+  const values = await fetchSheetValues(SHEET_ACCOMPLISHMENT, "PCMA"); // PCMA sheet
+  const headerRow = values[2] || [];        // 3rd row header
+  const headers = headerRow.map(normalize);
+
+  const idxCID = findHeaderIndex(headers, ["CONTRACT ID", "CID", "CONTRACTID", "CONTRACT"]);
+  if (idxCID === -1) throw new Error('PCMA: Header "Contract ID" not found (3rd row).');
+
+  const monthPair = pickLatestMonthPair(headers);
+  if (!monthPair) throw new Error("PCMA: No month columns found (e.g., '2025 November' and '2025 November PCMA').");
+
+  const actualIdx  = monthPair.actualIdx;
+  const pcmaIdx    = monthPair.pcmaIdx;
+  const remarksIdx = pickRemarksIndexForMonth(headers, monthPair.monthKey);
+
+  const map = new Map();
+
+  for (const row of values.slice(3)) {
+    const cid = normalize(row[idxCID]);
+    if (!cid) continue;
+
+    map.set(cid, {
+      act: normalize(actualIdx >= 0 ? row[actualIdx] : ""),
+      pcma: normalize(pcmaIdx >= 0 ? row[pcmaIdx] : ""),
+      remarks: normalize(remarksIdx >= 0 ? row[remarksIdx] : ""),
+    });
+  }
+
+  return { map, monthLabel: monthPair.monthLabel };
+}
+
+// Build ContractID -> Project Name map from APP (prefer header "Project Name", fallback column E)
+async function buildProjectNameMapFromApp() {
+  const values = await fetchSheetValues(SHEET_APP, "APP", 2); // APP header is 2nd row
+  const headerRow = values[1] || [];
+  const headers = headerRow.map(normalize);
+
+  const idxID = findHeaderIndex(headers, ["ID", "CONTRACT ID", "CID", "CONTRACTID", "CONTRACT"]);
+  if (idxID === -1) throw new Error('APP: Header "ID/Contract ID" not found (2nd row).');
+
+  let idxProjectName = findHeaderIndex(headers, ["PROJECT NAME"]);
+  if (idxProjectName === -1) idxProjectName = 4; // Column E fallback
+
+  const map = new Map();
+  for (const row of values.slice(2)) {
+    const id = normalize(row[idxID]);
+    if (!id) continue;
+    if (!map.has(id)) map.set(id, normalize(row[idxProjectName]));
+  }
+  return map;
+}
+
+function makePrintHtml(rows, meta) {
+  const title = "AMEND – ACCOMPLISHMENT (VISIBLE ROWS)";
+  const generatedAt = meta?.generatedAt || "";
+  const peFilter = meta?.peFilter ? `PE Filter: ${escapeHtml(meta.peFilter)}` : "PE Filter: All";
+  const monthLabel = meta?.monthLabel ? ` | Month: ${escapeHtml(meta.monthLabel)}` : "";
+  const total = rows.length;
+
+  const bodyRows = rows.map(r => `
+    <tr>
+      <td>${escapeHtml(r.pe)}</td>
+      <td>${escapeHtml(r.cid)}</td>
+      <td>${escapeHtml(r.projectName || "")}</td>
+      <td class="c">${escapeHtml(r.act || "-")}</td>
+      <td class="c">${escapeHtml(r.pcma || "-")}</td>
+      <td>${escapeHtml(r.remarks || "-")}</td>
+    </tr>
+  `).join("");
+
+  return `<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>${escapeHtml(title)}</title>
+  <style>
+    @page { size: A4 portrait; margin: 10mm; }
+    body { font-family: Arial, sans-serif; font-size: 10pt; color:#000; }
+    h1 { margin:0 0 4mm 0; font-size:14pt; }
+    .meta { margin:0 0 3mm 0; font-size:9pt; }
+    table { width:100%; border-collapse:collapse; }
+    th, td { border:1px solid #000; padding:3px 4px; vertical-align:top; }
+    th { background:#f2f2f2; text-align:center; font-weight:700; }
+    td.c { text-align:center; width:18mm; }
+    td:nth-child(1), td:nth-child(2) { white-space:nowrap; }
+    thead { display: table-header-group; }
+    tr { page-break-inside: avoid; }
+  </style>
+</head>
+<body>
+  <h1>${escapeHtml(title)}</h1>
+  <div class="meta">${escapeHtml(generatedAt)} | ${peFilter}${monthLabel} | Total: ${total}</div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>PROJECT ENGINEER</th>
+        <th>CONTRACT ID</th>
+        <th>PROJECT NAME</th>
+        <th>ACT</th>
+        <th>PCMA</th>
+        <th>REMARKS</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${bodyRows}
+    </tbody>
+  </table>
+</body>
+</html>`;
+}
+
+async function printA4LandscapeFromVisible() {
+  // Require ACCOMPLISHMENT tab
+  const active = getActiveTabKey();
+  if (active !== "accomplishment") {
+    alert('Go to the "ACCOMPLISHMENT" tab first, then click Print A4.');
+    return;
+  }
+
+  // Ensure latest filter state applied
+  try { applyPeFilter(); } catch (_) {}
+
+  const visible = collectVisibleAccRows();
+  if (!visible.length) {
+    alert("No visible rows to print.");
+    return;
+  }
+
+  // Open popup first (avoid popup blocker)
+  const w = window.open("", "_blank", "width=1200,height=800");
+  if (!w) {
+    alert("Pop-up blocked. Please allow pop-ups for this site to print.");
+    return;
+  }
+  w.document.write("<!doctype html><html><head><title>Preparing…</title></head><body>Preparing print layout…</body></html>");
+  w.document.close();
+
+  // Build maps
+  let pcmaMap = new Map();
+  let monthLabel = "";
+  try {
+    const r = await buildLatestMonthValueMapFromPcmaSheet();
+    pcmaMap = r.map;
+    monthLabel = r.monthLabel || "";
+  } catch (e) {
+    console.warn(e);
+  }
+
+  let nameMap = new Map();
+  try {
+    nameMap = await buildProjectNameMapFromApp();
+  } catch (e) {
+    console.warn(e);
+  }
+
+  const rows = visible.map(v => {
+    const m = pcmaMap.get(v.cid) || {};
+    return {
+      pe: v.pe,
+      cid: v.cid,
+      projectName: nameMap.get(v.cid) || "",
+      act: m.act || "",
+      pcma: m.pcma || "",
+      remarks: m.remarks || "",
+    };
+  });
+
+  const now = new Date();
+  const generatedAt = now.toLocaleString("en-PH", { timeZone: "Asia/Manila" });
+
+  const html = makePrintHtml(rows, {
+    generatedAt,
+    peFilter: state.peFilter || "",
+    monthLabel,
+  });
+
+  w.document.open();
+  w.document.write(html);
+  w.document.close();
+  w.focus();
+
+  w.onload = () => { try { w.print(); } catch (_) {} };
+  setTimeout(() => { try { w.print(); } catch (_) {} }, 500);
+}
+
+// Auto-add Print button beside Close in the AMEND header
+function ensurePrintButton() {
+  if (!el.topBar) return;
+
+  const existing = document.getElementById("amPrintBtn");
+  if (existing) return;
+
+  const btn = document.createElement("button");
+  btn.id = "amPrintBtn";
+  btn.type = "button";
+  btn.className = "am-btn";
+  btn.textContent = "Print A4";
+
+  btn.addEventListener("click", (e) => {
+    e.preventDefault();
+    printA4LandscapeFromVisible();
+  });
+
+  if (el.closeBtn && el.closeBtn.parentElement) {
+    el.closeBtn.parentElement.insertBefore(btn, el.closeBtn);
+  } else {
+    el.topBar.appendChild(btn);
+  }
+
+  el.printBtn = btn;
+}
+
+
+
+
+
+
+
+
   // ---- Wiring ----
   function wireOverlayClose() {
     if (el.closeBtn) el.closeBtn.addEventListener("click", closeAmend);
@@ -1502,6 +1765,7 @@ function getActiveTabKey() {
 
   document.addEventListener("DOMContentLoaded", () => {
     initDomRefs();
+	ensurePrintButton();
     wireTabs();
     wireOverlayClose();
     wireOpenButton();

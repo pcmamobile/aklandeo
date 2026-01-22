@@ -856,110 +856,108 @@ function buildVoRows(values, contractId) {
 
 
 
-  // ---------- BILLING (2025) + percentages ----------
 
-  function buildBillingRows(billingSheet, contractId) {
-    const values = billingSheet.values || [];
-    const colorGrid = billingSheet.colorGrid || [];
-    const { header, row, rowIndex } = findContractRow(values, contractId);
-    if (!header || !row || rowIndex < 0) return [];
+// ---------- BILLING (all years) + percentages ----------
+function buildBillingRows(billingSheet, contractId) {
+  const values = billingSheet.values || [];
+  const colorGrid = billingSheet.colorGrid || [];
+  const { header, row, rowIndex } = findContractRow(values, contractId);
+  if (!header || !row || rowIndex < 0) return [];
 
-    const rows = [];
+  const rows = [];
 
-    header.forEach((title, colIndex) => {
-      if (!title) return;
-      const match = /^(\d{4})\s+([A-Za-z]+)$/.exec(title.toString().trim());
-      if (!match) return;
+  header.forEach((title, colIndex) => {
+    if (!title) return;
 
-      const year = match[1];
-      const monthName = match[2];
+    // Match headers like: "2026 January"
+    const match = /^(\d{4})\s+([A-Za-z]+)$/.exec(String(title).trim());
+    if (!match) return;
 
-      // Billing (2025) only
-      if (year !== "2025") return;
+    const year = match[1];
+    const monthName = match[2];
 
-      const amountText = (row[colIndex] || "").toString().trim();
+    const amountText = String(row[colIndex] || "").trim();
 
-      // Remarks column "2025 March Remarks"
-      const remarksHeader = year + " " + monthName + " Remarks";
-      let remarksColIndex = -1;
+    // Remarks column can be:
+    //  - "2026 January Remarks" (full month)
+    //  - "2026 Jan Remarks" (short month)
+    //  - extra spaces, etc.
+    let remarksColIndex = -1;
+
+    // (1) Exact match: "YYYY Month Remarks"
+    const remarksHeader = year + " " + monthName + " Remarks";
+    for (let j = 0; j < header.length; j++) {
+      if (normalizeHeader(header[j]) === normalizeHeader(remarksHeader)) {
+        remarksColIndex = j;
+        break;
+      }
+    }
+
+    // (2) Fallback: find any header that contains year + month(short) + "remarks"
+    if (remarksColIndex < 0) {
+      const shortMonth = monthName.slice(0, 3).toLowerCase();
       for (let j = 0; j < header.length; j++) {
-        if (normalizeHeader(header[j]) === normalizeHeader(remarksHeader)) {
+        const h = String(header[j] || "").toLowerCase();
+        if (h.includes(year.toLowerCase()) && h.includes(shortMonth) && h.includes("remarks")) {
           remarksColIndex = j;
           break;
         }
       }
+    }
 
-      const remarksText =
-        remarksColIndex >= 0
-          ? (row[remarksColIndex] || "").toString().trim()
-          : "";
+    const remarksText =
+      remarksColIndex >= 0 ? String(row[remarksColIndex] || "").trim() : "";
 
-      // Hide if no value at all
-      if (!amountText && !remarksText) return;
+    // Hide if no value at all
+    if (!amountText && !remarksText) return;
 
-      let percent = null;
+    let percent = null;
 
-      // 1) Try to get percentage from Billing cell itself
-      if (amountText) {
-        const m = amountText.match(/(\d+(?:\.\d+)?)\s*%?/);
-        if (m) {
-          percent = parseFloat(m[1]);
-        }
-      }
+    // 1) Try to get percentage from Billing cell itself
+    if (amountText) {
+      const m = amountText.match(/(\d+(?:\.\d+)?)\s*%?/);
+      if (m) percent = parseFloat(m[1]);
+    }
 
-      // 2) Get percentage inside "(" and ")" from Remarks, example "(35%)"
-      if (remarksText) {
-        const m = remarksText.match(/\((\s*\d+(?:\.\d+)?)\s*%?\s*\)/);
-        if (m) {
-          percent = parseFloat(m[1]);
-        }
-      }
+    // 2) Get percentage inside "(" and ")" from Remarks, example "(35%)"
+    if (remarksText) {
+      const m = remarksText.match(/\((\s*\d+(?:\.\d+)?)\s*%?\s*\)/);
+      if (m) percent = parseFloat(m[1]);
+    }
 
-      // If the value in the Remarks have "Mobilization" the Value will be 0%
-      if (/mobilization/i.test(remarksText)) {
-        percent = 0;
-      }
+    // Mobilization => 0%
+    if (/mobilization/i.test(remarksText)) percent = 0;
 
-      // If the value in the Remarks have "Final" or "Retention" the Value will be 100%
-      if (/final/i.test(remarksText) || /retention/i.test(remarksText)) {
-        percent = 100;
-      }
+    // Final or Retention => 100%
+    if (/final/i.test(remarksText) || /retention/i.test(remarksText)) percent = 100;
 
- // Check if text color red => PAID / ON-PROCESS
-      const rowColors = colorGrid[rowIndex] || [];
-      const color = rowColors[colIndex] || null;
-      let isRed = false;
-      if (color) {
-        const r = color.red || 0;
-        const g = color.green || 0;
-        const b = color.blue || 0;
-        if (r >= 0.7 && g <= 0.3 && b <= 0.3) {
-          isRed = true;
-        }
-      }
+    // Check if text color red => PAID / ON-PROCESS
+    const rowColors = colorGrid[rowIndex] || [];
+    const color = rowColors[colIndex] || null;
+    let isRed = false;
 
-      // STATUS column: PAID if red text; otherwise ON-PROCESS
-      const status = isRed ? "PAID" : "ON-PROCESS";
+    if (color) {
+      const r = color.red || 0;
+      const g = color.green || 0;
+      const b = color.blue || 0;
+      if (r >= 0.7 && g <= 0.3 && b <= 0.3) isRed = true;
+    }
 
-      // Display values (use "-" if blank)
-      const displayAmount =
-        amountText && amountText.trim() !== "" ? amountText : "-";
+    const status = isRed ? "PAID" : "ON-PROCESS";
 
-      const displayRemarks =
-        remarksText && remarksText.trim() !== "" ? remarksText : "-";
-
-      rows.push({
-        year,
-        month: monthName,
-        amount: displayAmount,
-        remarks: displayRemarks,
-        status,
-        percentage: percent,
-      });
+    rows.push({
+      year,
+      month: monthName,
+      amount: amountText && amountText !== "" ? amountText : "-",
+      remarks: remarksText && remarksText !== "" ? remarksText : "-",
+      status,
+      percentage: percent,
     });
+  });
 
-    return rows;
-  }
+  return rows;
+}
+
 
   // ---------- RENDER SECTIONS ----------
 
