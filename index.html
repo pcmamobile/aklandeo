@@ -1,106 +1,985 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-<link href="StatusPE.css" rel="stylesheet"/>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <title>PCMA Mobile V7.0</title>
 
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1" name="viewport"/>
-<title>PCMA Mobile V6.0</title>
-<link href="https://drive.google.com/thumbnail?id=1VanVX82ANGfKA8jcGZL8cVDQh4EuN8-r&amp;sz=s800" rel="icon" sizes="32x32" type="image/png"/>
-<link href="https://drive.google.com/thumbnail?id=1VanVX82ANGfKA8jcGZL8cVDQh4EuN8-r&amp;sz=s800" rel="apple-touch-icon" sizes="180x180"/>
-<link href="manifest.json" rel="manifest">
-<meta content="#2563eb" name="theme-color"/>
-<link href="main.css" rel="stylesheet"/>
-<link href="filter.css" rel="stylesheet"/>
-<link href="modal.css" rel="stylesheet"/>
-<link href="view-picture.css" rel="stylesheet"/>
-<link href="projector.css" rel="stylesheet"/>
-<link href="OverallStatus.css" rel="stylesheet" />
-<link href="ProjectDocs.css" rel="stylesheet" />
-<link rel="stylesheet" href="amend.css">
+  <link href="https://drive.google.com/thumbnail?id=1VanVX82ANGfKA8jcGZL8cVDQh4EuN8-r&amp;sz=s800" rel="icon" sizes="32x32" type="image/png"/>
+  <link href="https://drive.google.com/thumbnail?id=1VanVX82ANGfKA8jcGZL8cVDQh4EuN8-r&amp;sz=s800" rel="apple-touch-icon" sizes="180x180"/>
+  <meta content="#2563eb" name="theme-color"/>
+  
+  <!-- Chart.js dependency for ProjectDocs S-Curve -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+  <style>
+    /* =========================================================
+       main.css & Global UI
+       ========================================================= */
+    :root{
+      --footer-h:85px;
+      --brand:#2563eb;
+      --brand-dark:#1e40af;
+      --bg:#f4f6f8;
+    }
+    *{box-sizing:border-box;}
+    body{
+      padding-bottom: var(--footer-h);
+      font-family:"Segoe UI",Arial,sans-serif;
+      margin:0;
+      background:var(--bg);
+      color:#111;
+    }
+    .hidden{display:none!important;}
+    .no-scroll{overflow:hidden;}
 
+    /* HEADER */
+    header{
+      background:linear-gradient(135deg,#2563eb,#1e40af);
+      color:#fff;
+      padding:12px 16px;
+      border-bottom:3px solid #1e3a8a;
+      position:sticky;
+      top:0;
+      z-index:200;
+    }
+    .header-container{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      max-width:1100px;
+      margin:0 auto;
+      height:25px;
+    }
+    .brand{display:flex;align-items:center;gap:12px;}
+    .header-logo{
+      height:40px;
+      width:auto;
+      border-radius:80px;
+      box-shadow:0 3px 6px rgba(0,0,0,.25);
+    }
+    .header-title{
+      margin:0;
+      font-size:1.2rem;
+      font-weight:700;
+      letter-spacing:.5px;
+    }
 
-</link></head>
+    main { max-width:1100px; margin:6px auto 10px auto; padding:5px; }
+
+    /* =========================================================
+       Home View (3D Design)
+       ========================================================= */
+    .home-view {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 10px;
+      min-height: calc(100vh - 150px);
+      animation: fadeIn 0.4s ease-out;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .home-title-area {
+      text-align: center;
+      margin-bottom: 30px;
+      margin-top: 10px;
+    }
+    .home-title-area h2 {
+      color: var(--brand-dark);
+      font-size: 1.8rem;
+      margin: 0 0 5px 0;
+      font-weight: 900;
+    }
+    .home-title-area p {
+      color: #64748b;
+      margin: 0;
+      font-weight: 600;
+    }
+
+    .home-btn-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 24px;
+      width: 100%;
+      max-width: 600px;
+      padding-bottom: 40px;
+    }
+
+    .btn-3d {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      background: linear-gradient(145deg, #ffffff, #e2e8f0);
+      border: none;
+      border-radius: 20px;
+      padding: 28px 16px;
+      font-weight: 800;
+      font-size: 1.1rem;
+      text-decoration: none;
+      text-align: center;
+      box-shadow: 
+        0 10px 0 #94a3b8, 
+        0 20px 25px rgba(0,0,0,0.15),
+        inset 0 2px 0 rgba(255,255,255,1);
+      transition: all 0.15s ease;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    .btn-3d:active {
+      transform: translateY(10px);
+      box-shadow: 
+        0 0 0 #94a3b8, 
+        0 10px 15px rgba(0,0,0,0.15),
+        inset 0 2px 0 rgba(255,255,255,1);
+    }
+
+    .btn-3d svg {
+      width: 52px;
+      height: 52px;
+      stroke-width: 1.8;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15));
+    }
+
+    .btn-projects { color: #2563eb; }
+    .btn-projects svg { stroke: #2563eb; }
+
+    .btn-download { color: #16a34a; }
+    .btn-download svg { stroke: #16a34a; }
+
+    .btn-dashboard { color: #d97706; }
+    .btn-dashboard svg { stroke: #d97706; }
+
+    .btn-tracker { color: #7c3aed; }
+    .btn-tracker svg { stroke: #7c3aed; }
+
+    .btn-leaderboards { color: #dc2626; }
+    .btn-leaderboards svg { stroke: #dc2626; }
+
+    .btn-pcmarev { color: #0d9488; } /* Teal */
+    .btn-pcmarev svg { stroke: #0d9488; }
+
+    /* =========================================================
+       App View (Grid)
+       ========================================================= */
+    #resultInfo{
+      max-width:1100px;
+      margin:4px auto 10px auto;
+      padding:0 6px;
+      color:#334155;
+      font-weight:800;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(320px,1fr));
+      gap:10px;
+    }
+    .card{
+      background:#fff;
+      border-radius:12px;
+      box-shadow:0 3px 8px rgba(0,0,0,.1);
+      cursor:pointer;
+      transition:transform .15s,box-shadow .15s;
+      overflow:hidden;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:10px;
+    }
+    .card:hover{transform:scale(1.01);box-shadow:0 6px 12px rgba(0,0,0,.15);}
+    .card-thumb{
+      width:55px;
+      height:55px;
+      object-fit:cover;
+      border-radius:80px;
+      background:#eee;
+      flex:0 0 auto;
+    }
+    .card-content{padding:4px 2px;flex:1;font-size:.75rem;line-height:1.05;}
+    .contract-id{font-size:1.2rem;font-weight:900;color:#8b0000;letter-spacing:.2px;}
+    .engineer-name{color:#2563eb;font-weight:700;}
+    .status{
+      font-weight:700;
+      margin-top:4px;
+      padding:2px 10px;
+      border-radius:999px;
+      display:inline-block;
+      color:#fff;
+    }
+    mark{background:#fef08a;padding:0 .15em;border-radius:.2em;}
+
+    @media (max-width: 768px) {
+      html { font-size: 75%; }
+      header { display: block; padding: 8px 10px; }
+    }
+
+    /* FOOTER - ALWAYS VISIBLE 3D */
+    .app-footer{
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 12000; /* Set very high to overlay modals */
+      background: rgba(255,255,255,.95);
+      border-top: 1px solid #e2e8f0;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 -4px 15px rgba(0,0,0,0.06);
+    }
+    .footer-inner{
+      max-width:1100px;
+      margin:0 auto;
+      padding:10px 12px 16px; 
+      display:flex;
+      gap:12px;
+    }
+    .footer-btn{
+      flex:1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      border-radius:14px;
+      padding:8px 4px;
+      font-weight:800;
+      font-size: .78rem;
+      border:none;
+      background: linear-gradient(145deg, #ffffff, #e2e8f0);
+      color:#1e293b;
+      box-shadow: 0 4px 0 #94a3b8, 0 8px 10px rgba(0,0,0,0.1), inset 0 2px 0 #fff;
+      cursor:pointer;
+      transition: all 0.1s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .footer-btn:active{
+      transform: translateY(4px);
+      box-shadow: 0 0 0 #94a3b8, 0 4px 6px rgba(0,0,0,0.1), inset 0 2px 0 #fff;
+    }
+    .footer-btn svg {
+      width: 24px;
+      height: 24px;
+      stroke: currentColor;
+      stroke-width: 2.2;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .footer-btn.primary{
+      background: linear-gradient(145deg, #3b82f6, #1d4ed8);
+      color:#fff;
+      box-shadow: 0 4px 0 #1e3a8a, 0 8px 10px rgba(37,99,235,0.2), inset 0 2px 0 rgba(255,255,255,0.2);
+    }
+    .footer-btn.primary:active{
+      transform: translateY(4px);
+      box-shadow: 0 0 0 #1e3a8a, 0 4px 6px rgba(37,99,235,0.2), inset 0 2px 0 rgba(255,255,255,0.2);
+    }
+
+    @media (max-width: 768px){
+      :root{ --footer-h: 80px; }
+      .footer-inner{ padding: 8px 10px 14px; gap:8px; }
+      .footer-btn { padding: 6px 2px; font-size: 0.75rem; }
+      .footer-btn svg { width: 22px; height: 22px; }
+    }
+
+    /* =========================================================
+       filter.css
+       ========================================================= */
+    #filters{
+      position:sticky;
+      top: 52px; /* Pulled much closer to the header */
+      z-index:180;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      margin:0 auto 6px auto;
+      padding:8px 12px;
+      background:#fff;
+      border:1px solid #e5e7eb;
+      border-radius:14px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
+      max-width:1100px;
+    }
+    
+    .search-filter-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      width: 100%;
+    }
+
+    .filter-combo {
+      flex: 1;
+    }
+    .filter-combo .input-icon-wrap {
+      position: relative;
+      display: block;
+      width: 100%;
+    }
+    
+    /* 3D Search Input Box */
+    .filter-combo input {
+      font-size: .95rem;
+      padding: 0 16px;
+      border-radius: 80px;
+      border: 1px solid #cbd5e1;
+      background: #f8fafc;
+      outline: none;
+      transition: border-color .15s ease, box-shadow .15s ease;
+      width: 100%;
+      height: 42px;
+      /* 3D Sunken Effect */
+      box-shadow: inset 0 3px 5px rgba(0,0,0,0.08), inset 0 -2px 4px rgba(255,255,255,1), 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .filter-combo input:focus {
+      border-color: #3b82f6;
+      box-shadow: inset 0 3px 5px rgba(0,0,0,0.08), inset 0 -2px 4px rgba(255,255,255,1), 0 0 0 3px rgba(59,130,246,0.3);
+    }
+
+    /* 3D Filter Button */
+    #toggleMoreFilters {
+      background: linear-gradient(145deg, #3b82f6, #1d4ed8);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 0 18px;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      font-size: .9rem;
+      height: 42px;
+      /* 3D Solid Edge and Drop Shadow */
+      box-shadow: 0 4px 0 #1e3a8a, 0 6px 10px rgba(37,99,235,0.2), inset 0 2px 0 rgba(255,255,255,0.2);
+      transition: all 0.1s ease;
+      -webkit-tap-highlight-color: transparent;
+      flex-shrink: 0;
+    }
+    #toggleMoreFilters:active {
+      transform: translateY(4px);
+      box-shadow: 0 0 0 #1e3a8a, 0 2px 4px rgba(37,99,235,0.2), inset 0 2px 0 rgba(255,255,255,0.2);
+    }
+
+    #moreFilters{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+      gap:6px;
+      margin-top:2px;
+    }
+    #moreFilters.hidden{display:none;}
+    #moreFilters label{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      font-size:.8rem;
+      color:#0f172a;
+      font-weight:700;
+    }
+    #moreFilters select{
+      font-size:.9rem;
+      padding:0 12px;
+      border-radius:12px;
+      border: 1px solid #cbd5e1;
+      background:#f8fafc;
+      outline:none;
+      transition:border-color .15s ease,box-shadow .15s ease;
+      height:38px;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.04), inset 0 -1px 2px rgba(255,255,255,1);
+    }
+    #moreFilters select:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.15);}
+
+    /* 3D Apply/Clear Buttons */
+    #applyFilter, #clearFilter {
+      padding: 0 16px;
+      font-size: .9rem;
+      border-radius: 12px;
+      font-weight: 800;
+      height: 38px;
+      cursor: pointer;
+      border: none;
+      transition: all 0.1s ease;
+      margin-top: auto; /* Aligns to bottom if wrapped */
+    }
+    #applyFilter {
+      background: linear-gradient(145deg, #3b82f6, #1d4ed8);
+      color: #fff;
+      box-shadow: 0 4px 0 #1e3a8a, 0 6px 10px rgba(37,99,235,0.2), inset 0 2px 0 rgba(255,255,255,0.2);
+    }
+    #applyFilter:active {
+      transform: translateY(4px);
+      box-shadow: 0 0 0 #1e3a8a, 0 2px 4px rgba(37,99,235,0.2), inset 0 2px 0 rgba(255,255,255,0.2);
+    }
+    #clearFilter {
+      background: linear-gradient(145deg, #f1f5f9, #e2e8f0);
+      color: #334155;
+      box-shadow: 0 4px 0 #94a3b8, 0 6px 10px rgba(0,0,0,0.1), inset 0 2px 0 rgba(255,255,255,1);
+    }
+    #clearFilter:active {
+      transform: translateY(4px);
+      box-shadow: 0 0 0 #94a3b8, 0 2px 4px rgba(0,0,0,0.1), inset 0 2px 0 rgba(255,255,255,1);
+    }
+
+    @media(max-width:768px){
+      #filters{
+        top: 56px; 
+        border-radius: 14px;
+      }
+    }
+
+    /* =========================================================
+       modal.css
+       ========================================================= */
+    :root {
+      --pcma-accent: #f97316;
+      --pcma-bg: #fff;
+      --pcma-ink: #0f172a;
+      --pcma-muted: #e5e7eb;
+      --pcma-ring: rgba(0,0,0,.08);
+    }
+
+    #pcmaModalBg{
+      display:none;
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.45);
+      justify-content:center;
+      align-items:center;
+      z-index:5000;
+    }
+    #pcmaModalBg.pcma-show{display:flex;}
+
+    #pcmaModalBox{
+      background:var(--pcma-bg);
+      width:100vw; height:100vh;
+      max-width:100vw; max-height:100vh;
+      border-radius:0;
+      display:flex; flex-direction:column;
+      overflow:hidden;
+      margin-top:8px;
+    }
+    @media (max-width:768px){ #pcmaModalBox{ margin-top:0; } }
+
+    .pcma-modal-top{
+      position:sticky; top:0; z-index:5;
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      background:var(--pcma-accent); color:#fff;
+      min-height:30px; padding:10px 14px 10px;
+      border-bottom:1px solid var(--pcma-ring);
+      box-shadow:0 2px 4px var(--pcma-ring);
+    }
+    .pcma-modal-top-left{ display:flex; align-items:Center; gap:10px; }
+    .pcma-modal-top-logo{ width:40px; height:40px; align-items:center; border-radius:80px; object-fit:cover; }
+    .pcma-modal-top-cid{ font-weight:900; color:#fff; line-height:1; }
+
+    .pcma-modal-close{
+      background:#fff; border:none; color:var(--pcma-accent);
+      font-weight:900; padding:6px 12px; border-radius:8px; cursor:pointer; line-height:1;
+    }
+    .pcma-modal-close:hover{ background:#ffe8d7; }
+
+    #pcmaModalBody{ flex:1 1 auto; overflow:auto; background:#fff; }
+    #pcmaModalContent{
+      display:flex; flex-direction:column; gap:10px;
+      padding:14px; max-width:1100px; margin:0 auto;
+    }
+    
+    /* Side-by-side 3D Modal Buttons Container */
+    #pcmaModalButtons{
+      padding:10px 14px 100px; max-width:1100px; margin:0 auto;
+      display:flex; flex-direction:row; gap:12px;
+      justify-content: center;
+    }
+
+    /* Shared 3D styles for Docs and Upload Buttons */
+    .modal-btn-3d {
+      flex: 1;
+      padding: 12px 6px;
+      border-radius: 14px;
+      font-size: 0.8rem;
+      border: none;
+      cursor: pointer;
+      font-weight: 800;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      text-transform: uppercase;
+      text-align: center;
+      line-height: 1.15;
+      transition: all 0.1s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .modal-btn-3d svg {
+      width: 26px;
+      height: 26px;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* Docs 3D Button */
+    .btn-docs-3d {
+      background: linear-gradient(145deg, #8b5cf6, #6d28d9);
+      color: #fff;
+      box-shadow: 0 6px 0 #4c1d95, 0 10px 15px rgba(109, 40, 217, 0.3), inset 0 2px 0 rgba(255,255,255,0.2);
+    }
+    .btn-docs-3d:active {
+      transform: translateY(6px);
+      box-shadow: 0 0 0 #4c1d95, 0 4px 6px rgba(109, 40, 217, 0.3), inset 0 2px 0 rgba(255,255,255,0.2);
+    }
+
+    /* Upload/View 3D Button */
+    .btn-upload-3d {
+      background: linear-gradient(145deg, #0ea5e9, #2563eb);
+      color: #fff;
+      box-shadow: 0 6px 0 #1e3a8a, 0 10px 15px rgba(37, 99, 235, 0.3), inset 0 2px 0 rgba(255,255,255,0.2);
+    }
+    .btn-upload-3d:active {
+      transform: translateY(6px);
+      box-shadow: 0 0 0 #1e3a8a, 0 4px 6px rgba(37, 99, 235, 0.3), inset 0 2px 0 rgba(255,255,255,0.2);
+    }
+
+    /* FLOAT ARROWS */
+    .pcma-modal-arrow{
+      position:fixed; top:50%; transform:translateY(-50%);
+      background:rgba(0,0,0,.05);
+      border:none; width:48px; height:72px; border-radius:999px;
+      display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:5100;
+    }
+    #pcmaModalPrev{ left:10px; }
+    #pcmaModalNext{ right:10px; }
+    .pcma-modal-arrow svg{ width:26px; height:26px; stroke:#fff; }
+    @media (max-width:768px){ .pcma-modal-arrow{ width:40px; height:60px; } }
+
+    /* HERO IMAGE */
+    .pcma-hero{
+      width:100%; border-radius:16px; overflow:hidden;
+      background:#0f172a; border:1px solid rgba(15,23,42,.35); max-height:260px;
+    }
+    .pcma-hero img{ width:100%; height:260px; object-fit:cover; display:block; }
+
+    /* PRIMARY GRID */
+    .pcma-primary{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));
+      gap:10px;
+      background:linear-gradient(135deg, #eff6ff 50%, #dbeafe 50%, var(--pcma-accent) 80%);
+      border:2px solid rgba(148,163,184,.35);
+      border-radius:16px;
+      box-shadow:0 8px 25px rgba(15,23,42,.12);
+      padding:5px;
+    }
+    .pcma-primary-col{
+      background:rgba(255,255,255,.45);
+      border:1px solid rgba(255,255,255,.25);
+      border-radius:12px;
+      padding:8px 8px 6px;
+      display:flex; flex-direction:column; gap:6px;
+    }
+    .pcma-primary-row{ display:flex; align-items:flex-start; gap:0; }
+    .pcma-primary-label{
+      flex:0 0 120px; max-width:120px; font-size:.8rem; font-weight:600;
+      color:var(--pcma-ink); white-space:nowrap;
+    }
+    .pcma-primary-value{
+      flex:1; background:#fff; border-radius:10px; padding:3px 9px 4px;
+      font-weight:600; font-size:.9rem; color:var(--pcma-ink);
+      word-break:break-word; min-height:27px;
+    }
+    .pcma-primary-col.pcma-group-a .pcma-primary-label,
+    .pcma-primary-col.pcma-group-d .pcma-primary-label{ flex:0 0 92px; max-width:92px; }
+
+    .pcma-primary-value.pcma-status{
+      background:var(--pcma-accent); color:#fff;
+      box-shadow:0 0 0 1px rgba(255,255,255,.25);
+    }
+
+    @media (max-width:600px){
+      .pcma-primary{ grid-template-columns:1fr; }
+      .pcma-primary-label{ flex:0 0 110px; max-width:110px; }
+    }
+
+    /* =========================================================
+       MINI BARS + PROGRESS (3D CSS Added Here)
+       ========================================================= */
+    .pcma-mini-bars{ display:flex; flex-direction:column; gap:6px; margin-top:10px; }
+    .pcma-mini-row{ display:flex; align-items:center; gap:10px; }
+    .pcma-mini-label{ width:82px; text-align:left; font-weight:900; color:var(--pcma-ink); letter-spacing:.2px; }
+    
+    /* 3D Track */
+    .pcma-mini-bar{ 
+      flex:1; 
+      height:22px; 
+      background:var(--pcma-muted); 
+      border-radius:999px; 
+      overflow:hidden; 
+      box-shadow: inset 0 3px 5px rgba(0,0,0,0.15), inset 0 -2px 3px rgba(255,255,255,0.9);
+      border: 1px solid #cbd5e1;
+    }
+    
+    /* 3D Glossy Fill */
+    .pcma-mini-fill{
+      height:100%; width:0%; display:flex; align-items:center; justify-content:center;
+      font-size:.8rem; font-weight:800; color:#fff; transition:width 650ms ease-out;
+      white-space:nowrap; padding:0 6px;
+      border-radius:999px; /* Gives the inner bar rounded pill edges */
+      background-image: linear-gradient(to bottom, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 40%, rgba(0,0,0,0.1) 100%);
+      box-shadow: inset 0 2px 3px rgba(255,255,255,0.6), inset 0 -2px 3px rgba(0,0,0,0.2);
+      border-right: 1px solid rgba(0,0,0,0.15);
+      text-shadow: 0 1px 2px rgba(0,0,0,0.4); /* Text pop */
+    }
+
+    /* PROGRESS */
+    .pcma-progress{ margin-top:12px; }
+    .pcma-progress-label{ font-weight:800; color:var(--pcma-ink); margin-bottom:6px; font-size:1.05rem; text-align:center; text-shadow: 0 1px 1px rgba(0,0,0,0.05); }
+    
+    .pcma-progress-bar{ 
+      width:100%; 
+      background:var(--pcma-muted); 
+      border-radius:12px; 
+      height:28px; 
+      overflow:hidden; 
+      position:relative; 
+      box-shadow: inset 0 3px 5px rgba(0,0,0,0.15), inset 0 -2px 3px rgba(255,255,255,0.9);
+      border: 1px solid #cbd5e1;
+    }
+    
+    .pcma-progress-fill{
+      height:100%; 
+      border-radius:12px; 
+      text-align:center; 
+      line-height:26px; /* Adjusted to fit within borders */
+      font-weight:800; color:#fff; font-size:1rem; width:0%; transition:width 900ms ease-out;
+      white-space:nowrap; padding:0 8px;
+      background-image: linear-gradient(to bottom, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 40%, rgba(0,0,0,0.1) 100%);
+      box-shadow: inset 0 2px 3px rgba(255,255,255,0.6), inset 0 -2px 3px rgba(0,0,0,0.2);
+      border-right: 1px solid rgba(0,0,0,0.15);
+      text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+    }
+    .pcma-no-scroll{ overflow:hidden; }
+
+    /* =========================================================
+       TEAM BADGES 3D
+       ========================================================= */
+    .pcma-team {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 10px 12px;
+      margin-top: 6px;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+    }
+    .pcma-team-label {
+      font-weight: 800;
+      color: #475569;
+      display: block;
+      margin-bottom: 8px;
+      text-shadow: 0 1px 0 #fff;
+    }
+    .pcma-staff-badge {
+      display: inline-block;
+      background: linear-gradient(145deg, #eff6ff, #bfdbfe);
+      color: #1e3a8a;
+      border-radius: 999px;
+      padding: 5px 14px;
+      font-weight: 600;
+      font-size: .8rem;
+      border: 1px solid #93c5fd;
+      box-shadow: 0 3px 0 #60a5fa, 0 5px 5px rgba(0,0,0,0.08), inset 0 2px 1px rgba(255,255,255,0.8);
+      text-shadow: 0 1px 1px rgba(255,255,255,0.6);
+      margin-bottom: 4px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .pcma-staff-badge strong {
+      font-weight: 900;
+      color: #1d4ed8;
+      margin-right: 3px;
+    }
+
+    /* =========================================================
+       ProjectDocs.css
+       ========================================================= */
+    #projectDocsOverlay {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.45); 
+      z-index: 11000;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    #projectDocsOverlay[hidden] { display: none !important; }
+
+    .pd-box {
+      background: #ffffff;
+      color: #000000;
+      width: 96%;
+      max-width: 1000px;
+      max-height: 90vh;
+      border-radius: 14px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.32);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .pd-top {
+      border-bottom: 1px solid #e5e7eb;
+      background: #f3f4f6;
+      display: flex;
+      align-items: center;
+      max-height: 30px;
+      justify-content: space-between;  
+      gap: 8px;                        
+    }
+    .pd-title { font-size: 16px; margin-left: 8px; font-weight: 700; }
+
+    .pd-meta{
+      padding: 8px 14px;
+      background: #ffffff;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .pd-meta-row{
+      display: grid;
+      grid-template-columns: 110px 1fr; 
+      align-items: center;
+      column-gap: 0;
+    }
+    .pd-meta-row + .pd-meta-row{ margin-top: 4px; }
+    .pd-meta-label{
+      font-size: 12px; font-weight: 700; color: #111827;
+      padding-right: 10px; white-space: nowrap;
+    }
+    .pd-meta-value{
+      font-size: 12px; font-weight: 400; color: #111827;
+      border-left: 1px solid #e5e7eb; padding-left: 10px;
+      min-width: 0; overflow-wrap: anywhere;
+    }
+
+    @media (max-width: 520px){
+      .pd-meta{ padding: 8px 10px; }
+      .pd-meta-row{ grid-template-columns: 95px 1fr; }
+      .pd-meta-label, .pd-meta-value{ font-size: 11px; }
+    }
+
+    #pdMetaSection .pd-meta{ border: 1px solid #e5e7eb; border-radius: 10px; }
+
+    #pdCloseBtn {
+      border: none;
+      background: #ef4444;
+      color: #ffffff;
+      padding: 4px 16px;
+      border-radius: 999px;
+      font-size: 12px;
+      line-height: 1.4;
+      cursor: pointer;
+      margin-left: 12px;       
+    }
+    #pdCloseBtn:hover { background: #b91c1c; }
+
+    /* Huge padding bottom so footer won't block bottom content */
+    #projectDocsBody {
+      padding: 10px 14px 100px;
+      flex: 1;
+      overflow: auto;
+      font-size: 12px;
+      background: #ffffff;
+    }
+    .pd-loading { margin-bottom: 8px; font-size: 11px; font-weight: 600; color: #4b5563; }
+
+    .pd-section { margin-bottom: 14px; }
+    .pd-section h3 { margin: 0 0 6px; font-size: 13px; }
+    .pd-section h4 { margin: 6px 0 4px; font-size: 12px; }
+
+    .pd-table-wrapper { width: 100%; overflow-x: auto; }
+    .pd-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+    .pd-table th, .pd-table td { padding: 4px 6px; border: 1px solid #e5e7eb; vertical-align: middle; }
+    .pd-table th { text-align: left; font-weight: 700; background: #f9fafb; }
+    .pd-table tr:nth-child(even) td { background: #f9fafb; }
+
+    .pd-table .col-year { width: 60px; }
+    .pd-table .col-month { width: 90px; }
+    .pd-table .col-center { text-align: center; }
+    .pd-table .col-right { text-align: right; }
+    .pd-remarks { white-space: normal; word-break: break-word; }
+
+    .pd-table-pcma th, .pd-table-pcma td { padding: 2px 4px; }
+    .pd-table-pcma .col-month { width: 100px; }
+    .pd-table-pcma .col-actual, .pd-table-pcma .col-pcma { width: 60px; text-align: center; }
+    .pd-table-pcma .pd-year-row td { font-weight: 700; background: #e5e7eb; }
+
+    .pd-table-vo th, .pd-table-vo td { padding: 2px 4px; }
+    .pd-table-vo .col-vo { width: 60px; text-align: center; }
+    .pd-table-vo .col-amount { width: 90px; }
+    .pd-table-vo .col-days { width: 70px; text-align: center; }
+
+    .pd-table-wso th, .pd-table-wso td { padding: 2px 4px; }
+    .pd-table-wso .col-code { width: 70px; text-align: center; }
+    .pd-table-wso .col-date { width: 90px; }
+
+    .pd-table-cte { width: auto; }
+    .pd-table-cte th, .pd-table-cte td { padding: 2px 4px; }
+    .pd-table-cte .col-code { width: 45px; }
+    .pd-table-cte .col-days { width: 60px; text-align: center; }
+    .pd-table-cte .col-date { width: 80px; }
+    .pd-table-cte .col-revdate { width: auto; }
+    .pd-table-cte .pd-remarks { white-space: normal; }
+
+    .pd-table-billing th, .pd-table-billing td { padding: 2px 4px; }
+    .pd-table-billing { width: auto; }
+    .pd-table-billing .col-year { width: 45px; text-align: center; }
+    .pd-table-billing .col-month { width: 70px; }
+    .pd-table-billing .col-amount { width: 80px; text-align: right; }
+    .pd-table-billing .pd-remarks { padding-right: 2px; }
+    .pd-table-billing .col-status { width: auto; text-align: left; padding-left: 2px; }
+
+    .pd-scurve-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 4px 0 4px; font-size: 11px; }
+    .pd-toggle { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; background: #f3f4f6; border: 1px solid #e5e7eb; cursor: pointer; }
+    .pd-toggle input[type="checkbox"] { margin: 0; }
+    .pd-scurve-wrapper { margin: 10px 0 16px; height: 260px; }
+    .pd-scurve-wrapper canvas { width: 100% !important; height: 100% !important; }
+    .pd-error { padding: 8px 10px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; font-size: 12px; color: #b91c1c; }
+
+    @media (max-width: 600px) {
+      .pd-box { width: 100%; max-width: none; height: 100%; max-height: none; border-radius: 0; }
+      #projectDocsBody { padding: 8px 8px 100px; }
+      .pd-title { font-size: 14px; }
+      .pd-table { width: 100%; border-collapse: collapse; font-size: 11px; border: 1px solid #e5e7eb; }
+      .pd-scurve-wrapper { height: 220px; }
+    }
+    @media (min-width: 601px) and (max-width: 1024px) {
+      .pd-box { width: 96%; max-width: 900px; }
+    }
+
+    .pd-table-pcma .col-year, .pd-table-pcma .col-month, .pd-table-vo .col-vo,
+    .pd-table-vo .col-date, .pd-table-wso .col-code, .pd-table-wso .col-date,
+    .pd-table-cte .col-code, .pd-table-billing .col-year, .pd-table-billing .col-month,
+    .pd-table-billing .col-amount { text-align: left; }
+
+  </style>
+</head>
 <body>
+
 <header>
-<div class="header-container">
-<div class="brand">
-<img alt="PCMA Logo" class="header-logo" decoding="async" src="https://drive.google.com/thumbnail?id=1VanVX82ANGfKA8jcGZL8cVDQh4EuN8-r&amp;sz=s800"/>
-<h2 class="header-title">PCMA Mobile V6.0</h2>
-</div>
-<button class="filter-toggle-btn" id="toggleFilters">Hide Search</button>
-</div>
+  <div class="header-container">
+    <div class="brand">
+      <img alt="PCMA Logo" class="header-logo" decoding="async" src="https://drive.google.com/thumbnail?id=1VanVX82ANGfKA8jcGZL8cVDQh4EuN8-r&amp;sz=s800"/>
+      <h2 class="header-title">PCMA Mobile V7.0</h2>
+    </div>
+  </div>
 </header>
-<main>
-<div id="filters">
-<div class="top-actions">
-<button id="toggleMoreFilters">Filter</button>
 
-<!-- NEW: Projector Mode button (moved from Modal) -->
-<button id="presentGlobal" title="Open Projector Mode">Projector</button>
-<button id="openPeStatus" title="Status per PE">Status</button>
-<button id="openAmend" title="Amend">Amend</button>
-</div>
-<label class="filter-combo">
-<span class="input-icon-wrap">
-<input autocomplete="off" id="filterCombo" type="text"/>
+<!-- 3D HOME WINDOW -->
+<main id="homeView" class="home-view">
+  <div class="home-title-area">
+    <h2>Welcome to PCMA Mobile</h2>
+    <p>Select a module to continue</p>
+  </div>
+  <div class="home-btn-grid">
+    
+    <!-- PROJECT BUTTON -->
+    <button class="btn-3d btn-projects" id="btnGoProjects">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+      </svg>
+      <span>Projects</span>
+    </button>
+    
+    <!-- DOWNLOAD BUTTON -->
+    <a href="https://drive.google.com/file/d/1CTogwlTvQxwPW0KrdHyGSVxMZ3cjH3PM/view?usp=sharing" target="_blank" class="btn-3d btn-download">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="7 10 12 15 17 10"></polyline>
+        <line x1="12" y1="15" x2="12" y2="3"></line>
+      </svg>
+      <span>Download APK</span>
+    </a>
+    
+    <!-- DASHBOARD BUTTON -->
+    <a href="https://script.google.com/macros/s/AKfycbxss_VVSxn6xXHEFRwhZeSx0KRJRMSQ9c_50nR_Zx_zCtEpqoI3AN8_2rJONvwUzykeSw/exec" target="_blank" class="btn-3d btn-dashboard">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <rect x="3" y="3" width="7" height="9"></rect>
+        <rect x="14" y="3" width="7" height="5"></rect>
+        <rect x="14" y="12" width="7" height="9"></rect>
+        <rect x="3" y="16" width="7" height="5"></rect>
+      </svg>
+      <span>Dashboard</span>
+    </a>
 
-</span>
-</label>
-<div class="hidden" id="moreFilters">
-<label>YEAR <select id="filterYear"><option value="">All</option></select></label>
-<label>PROJECT ENGINEER <select id="filterEngineer"><option value="">All</option></select></label>
-<label>CONTRACTOR <select id="filterContractor"><option value="">All</option></select></label>
-<label>STATUS <select id="filterStatus"><option value="">All</option></select></label>
-<button id="applyFilter">Apply</button>
-<button id="clearFilter">Clear</button>
-</div>
-</div>
+    <!-- DOCUTRACKER BUTTON -->
+    <a href="https://script.google.com/macros/s/AKfycbzYg1ffxNLonomCMkZgUNkTsq-VrH9L8t8J1PfLuYtmpftgE34Rs8PNiBKsSLqw7n1clA/exec" target="_blank" class="btn-3d btn-tracker">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+        <polyline points="14 2 14 8 20 8"></polyline>
+        <line x1="16" y1="13" x2="8" y2="13"></line>
+        <line x1="16" y1="17" x2="8" y2="17"></line>
+        <polyline points="10 9 9 9 8 9"></polyline>
+      </svg>
+      <span>DocuTracker</span>
+    </a>
 
+    <!-- LEADERBOARDS BUTTON -->
+    <a href="https://script.google.com/macros/s/AKfycbxss_VVSxn6xXHEFRwhZeSx0KRJRMSQ9c_50nR_Zx_zCtEpqoI3AN8_2rJONvwUzykeSw/exec?page=upload" target="_blank" class="btn-3d btn-leaderboards">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M8 21h8"></path>
+        <path d="M12 17v4"></path>
+        <path d="M7 4h10"></path>
+        <path d="M5 4h14v7a7 7 0 0 1-14 0V4z"></path>
+      </svg>
+      <span>Leaderboards</span>
+    </a>
 
-<!-- ========= FILTER PROJECTOR PANEL (inline) ========= -->
-<div class="filter-presenter" hidden="" id="filterPresenter">
-<!-- Header -->
-<div class="fp-top">
-<div class="fp-left">
-<div class="fp-cid" id="fpCID">—</div>
-<div class="fp-team" id="fpTeam"></div>
-</div>
-<div class="fp-actions">
-<button class="fp-btn" id="fpPrev" title="Previous">‹</button>
-<button class="fp-btn" id="fpNext" title="Next">›</button>
-<button class="fp-btn fp-ghost" id="fpOpenFull" title="Open Full Projector">Open</button>
-<button class="fp-btn fp-ghost" id="fpClose" title="Close">Close</button>
-</div>
-</div>
+    <!-- PCMA REVISION MONITORING BUTTON -->
+    <a href="https://script.google.com/macros/s/AKfycbwIpWr1UICDBB-5SSjNZfAzINmNC7cfiGBmKt54jjH0toEDQfFsbu5QTyX36jfF03A02A/exec?fbclid=IwZXh0bgNhZW0CMTEAc3J0YwZhcHBfaWQPNDM3NjI2MzE2OTczNzg4AAEeeARYP2rIEIu-3sqJFJci6nMtpj_jWa0HwX3qVIz7b6EAMxCtTL_ZQbNjYz8_aem_9v6JVRjnUgCaTKIbxzHBTw" target="_blank" class="btn-3d btn-pcmarev">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+      </svg>
+      <span>PCMA Revision<br>Monitoring</span>
+    </a>
 
+  </div>
+</main>
 
-<!-- Body (reuse modal-style layout) -->
-<div class="fp-body">
-<div class="modal-primary" id="fpPrimary"></div>
-<div id="fpBars"></div>
-</div>
+<!-- PROJECT GRID VIEW -->
+<main id="appView" class="hidden">
+  <div id="filters">
+    <div class="search-filter-row">
+      <label class="filter-combo">
+        <span class="input-icon-wrap">
+          <input autocomplete="off" id="filterCombo" type="text" placeholder="Search..."/>
+        </span>
+      </label>
+      <button id="toggleMoreFilters">Filter</button>
+    </div>
+    <div class="hidden" id="moreFilters">
+      <label>YEAR <select id="filterYear"><option value="">All</option></select></label>
+      <label>PROJECT ENGINEER <select id="filterEngineer"><option value="">All</option></select></label>
+      <label>CONTRACTOR <select id="filterContractor"><option value="">All</option></select></label>
+      <label>STATUS <select id="filterStatus"><option value="">All</option></select></label>
+      <button id="applyFilter">Apply</button>
+      <button id="clearFilter">Clear</button>
+    </div>
+  </div>
 
-
-<!-- Footer -->
-<div class="fp-foot">
-<span id="fpCounter">0 / 0</span>
-<span class="fp-hint">Reflects current filtered projects</span>
-</div>
-</div>
-
-
-<!-- ========= /FILTER PROJECTOR PANEL ========= -->
-<div class="hidden" id="resultInfo"></div>
-<div class="grid hidden" id="grid"></div>
+  <div class="hidden" id="resultInfo"></div>
+  <div class="grid hidden" id="grid"></div>
 </main>
 
 
-<!-- MODAL (PCMA namespaced) -->
+<!-- PCMA MODAL -->
 <div id="pcmaModalBg" role="dialog" aria-modal="true" aria-labelledby="pcmaModalCID">
-  <!-- floating arrows -->
   <button id="pcmaModalPrev" class="pcma-modal-arrow" aria-label="Previous">
     <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
       <polyline points="15 18 9 12 15 6"></polyline>
@@ -120,1014 +999,12 @@
       </div>
       <button id="pcmaCloseModalTop" class="pcma-modal-close">Close</button>
     </div>
-
-<div id="pcmaModalBody">
-  <div id="pcmaModalContent"></div>
-
-  <!-- Buttons area: below main container, above sched/actual/slippage content -->
-  <div id="pcmaModalButtons">
-    <button type="button" id="projectDocsBtn" class="pd-docs-btn">
-      Project Documentation
-    </button>
-  </div>
-
-  <div id="pcmaModalImages"></div>
-</div>
-  </div>
-  </div>
-
-
-
-<!-- /MODAL -->
-<!-- GALLERY -->
-<div aria-labelledby="galleryCID" aria-modal="true" class="gallery-overlay" id="galleryOverlay" role="dialog">
-<div class="gallery-box" id="galleryBox">
-<div class="gallery-top">
-<div class="gallery-title" id="galleryCID">—</div>
-<div class="gallery-actions">
-<a class="gallery-btn" href="#" id="galleryOpen" rel="noopener" target="_blank">Open</a>
-<button aria-label="Close gallery" class="gallery-btn" id="galleryClose">Close</button>
-</div>
-</div>
-<div class="gallery-main" id="galleryMain">
-<button aria-label="Previous image" class="nav-btn nav-prev" id="galleryPrev"><span>&lt;</span></button>
-<img alt="Gallery image" class="gallery-img" id="galleryImg"/>
-<button aria-label="Next image" class="nav-btn nav-next" id="galleryNext"><span>&gt;</span></button>
-</div>
-<div class="gallery-bottom">
-<div class="gallery-counter" id="galleryCounter">0 / 0</div>
-<div class="thumb-strip" id="galleryThumbs"></div>
-</div>
-</div>
-</div>
-
-
-<!-- PROJECTOR MODE -->
-<div aria-modal="true" class="present-overlay" hidden="" id="presentOverlay" role="dialog">
-<div class="present-box">
-
-
-<!-- Header -->
-<div class="present-top">
-<div class="present-top-left">
-<div class="present-cid" id="presentCID">—</div>
-
-
-<!-- Team chips (same idea as modal header). Auto-hide if empty -->
-<div class="present-team hidden" id="presentTeam"></div>
-</div>
-<div class="present-actions">
-
-  <!-- Project Documentation button (same look as in Modal) -->
-  <button type="button" id="presentDocsBtn" class="btn-project-docs">Project Documentation</button>
-
-
-<!-- NEW: inside Projector header -->
-<button class="present-btn" id="presentPrevBtn" title="Previous">Previous</button>
-<button class="present-btn" id="presentNextBtn" title="Next">Next</button>
-
-
-<!-- existing buttons -->
-<button class="present-btn" id="presentPlay" title="Play/Pause">Play</button>
-<button class="present-btn" id="presentOpen" title="Open Current Image">Open</button>
-<button class="present-btn" id="presentClose" title="Close">Close</button>
-
-
-<!-- (optional theme select if you have it)
-  <select id="presentTheme" class="present-theme" title="Theme">…</select>
-  -->
-</div>
-</div>
-
-
-<!-- Body -->
-<div class="present-content">
-<!-- LEFT: Slides -->
-<div class="present-left">
-<button aria-label="Previous" class="nav present-prev" id="presentPrev">‹</button>
-<div class="present-slides" id="presentSlides"></div>
-<div class="present-thumbs" id="presentThumbs"></div>
-<button aria-label="Next" class="nav present-next" id="presentNext">›</button>
-</div>
-
-
-<!-- RIGHT: Modal-style layout -->
-<div class="present-right">
-
-
-<!-- We will build these from JS exactly like the modal -->
-<div class="modal-primary" id="presentPrimary"></div>
-<div id="presentBars"></div>
-</div>
-</div>
-<!-- Footer -->
-
-
-<div class="present-footer">
-<div id="presentCounter">0 / 0</div>
-<div>Press ← / → to navigate • Esc to close</div>
-</div>
-</div>
-</div>
-
-  ...
-  <!-- put these at the very end, before </body> -->
-<script src="filter.js"></script>
-<script src="view-picture.js"></script>
-<script src="modal.js"></script>
-<script src="projector.js"></script>
-
-
-<!-- STATUS PER PE OVERLAY -->
-<div aria-modal="true" class="pe-overlay" hidden id="peStatusOverlay" role="dialog">
-  <div class="pe-box">
-    <div class="pe-top">
-      <h3 class="pe-title">PROJECT STATUS PER PE</h3>
- <div class="pe-controls">
-  <label>PE
-    <select class="pe-select" id="peSelect">
-      <option value="">All</option>
-    </select>
-  </label>
-  <label>Year
-    <select class="pe-select" id="peYear">
-      <option value="">All</option>
-    </select>
-  </label>
-
-  <button class="pe-btn" id="peGenerate">Generate</button>
-</div>
-
-  <button class="pe-overall-btn" id="openOverallStatus">
-    Overall Status
-  </button>
-
-
-  <span id="peHeaderSelectedValue"></span>
-      <button aria-label="Close" class="pe-btn pe-ghost" id="peClose">Close</button>
-    </div>
-
-
-<div class="pe-summary">
-  <div class="pe-sum-card">
-    <div class="pe-sum-label">TOTAL</div>
-    <div class="pe-sum-value" id="peTotalAll">0</div>
-  </div>
-  <div class="pe-sum-card">
-    <div class="pe-sum-label">ON-GOING</div>
-    <div class="pe-sum-value" id="peTotalOngoing">0</div>
-  </div>
-  <div class="pe-sum-card">
-    <div class="pe-sum-label">COMPLETED</div>
-    <div class="pe-sum-value" id="peTotalCompleted">0</div>
-  </div>
-  <div class="pe-sum-card">
-  <div class="pe-sum-label">NYS</div>
-  <div class="pe-sum-value" id="peTotalNYS">0</div>
-</div>
-  <div class="pe-sum-card">
-    <div class="pe-sum-label">TERMINATED</div>
-    <div class="pe-sum-value" id="peTotalTerminated">0</div>
-  </div>
-  <div class="pe-progress">
-    <div class="pe-progress-scale">
-      <span>0%</span>
-      <span>100%</span>
-    </div>
-    <div class="pe-progress-bar">
-      <div class="pe-progress-fill" id="peProgressFill"></div>
-      <span class="pe-progress-percent" id="peProgressText">
-        0% Completed
-      </span>
-    </div>
-    <div class="pe-progress-caption">Work in Progress..</div>
-  </div>
-</div>
-<div class="pe-grid">
-<div class="pe-col">
-<h4>On-Going</h4>
-<small style="opacity:.7;display:block;margin:-6px 0 10px;"></small>
-<div class="pe-list" id="peColOngoing"></div>
-</div>
-<div class="pe-col">
-<h4>Completed</h4>
-<small style="opacity:.7;display:block;margin:-6px 0 10px;"></small>
-<div class="pe-list" id="peColCompleted"></div>
-</div>
-<div class="pe-col">
-  <h4>Terminated</h4>
-  <div class="pe-split">
-    <div class="pe-subcol">
-      <h5>NYS</h5>
-	  <small style="opacity:.7;display:block;margin:-6px 0 10px;"></small>
-      <div class="pe-list" id="peColNYS"></div>
-    </div>
-    <div class="pe-subcol">
-      <h5>Terminated</h5>
-	  <small style="opacity:.7;display:block;margin:-6px 0 10px;"></small>
-      <div class="pe-list" id="peColTerminated"></div>
+    <div id="pcmaModalBody">
+      <div id="pcmaModalContent"></div>
+      <div id="pcmaModalButtons"></div>
     </div>
   </div>
 </div>
-</div>
-</div>
-</div>
-</div>
-
-
-<!-- OVERALL STATUS OVERLAY -->
-<div aria-modal="true"
-     class="os-overlay"
-     hidden
-     id="overallStatusOverlay"
-     role="dialog">
-  <div class="os-box">
-    <div class="os-top">
-      <h3 class="os-title">OVERALL STATUS</h3>
-      <div class="os-header-info">
-        CY 2025 · 2024 · 2023
-      </div>
-      <button aria-label="Close" class="os-btn" id="osClose">
-        Close
-      </button>
-    </div>
-
-    <div class="os-body">
-
-<!-- ========= CY 2025 (OVERALL) ========= -->
-<section class="os-year-block">
-  <div class="os-year-header">
-    <span class="os-year-label">CY 2025 - OVERALL</span>
-    <button type="button"
-            class="os-toggle-funds-btn"
-            id="osToggleFunds2025">
-      Hide FUND Rows
-    </button>
-  </div>
-
-  <div class="os-year-row">
-    <div class="os-card os-card-total">
-      <div class="os-card-label">TOTAL</div>
-      <div class="os-card-value" id="os2025Total">0</div>
-    </div>
-    <div class="os-card os-card-ongoing">
-      <div class="os-card-label">ON-GOING</div>
-      <div class="os-card-value" id="os2025Ongoing">0</div>
-    </div>
-    <div class="os-card os-card-completed">
-      <div class="os-card-label">COMPLETED</div>
-      <div class="os-card-value" id="os2025Completed">0</div>
-    </div>
-    <div class="os-card os-card-nys">
-      <div class="os-card-label">NYS</div>
-      <div class="os-card-value" id="os2025NYS">0</div>
-    </div>
-    <div class="os-card os-card-terminated">
-      <div class="os-card-label">TERMINATED</div>
-      <div class="os-card-value" id="os2025Terminated">0</div>
-    </div>
-
-    <div class="os-equal">=</div>
-    <div class="os-pie-wrapper">
-      <div class="os-pie" data-row="2025">
-        <span class="os-pie-label" id="osPieLabel2025">0%</span>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ========= CY 2025 FUND BREAKDOWN (GRID) ========= -->
-<div id="osFunds2025Group">
-  <!-- Header row -->
-  <section class="os-year-block os-fund-block os-fund-header">
-    <div class="os-year-row os-year-row-fund os-fund-grid-header">
-      <div class="os-fund-label os-fund-label-header">Type of Project</div>
-
-      <div class="os-card os-card-fund os-card-total-light os-fund-col-header">
-        <div class="os-card-label">TOTAL</div>
-      </div>
-      <div class="os-card os-card-fund os-card-ongoing-light os-fund-col-header">
-        <div class="os-card-label">ON-GOING</div>
-      </div>
-      <div class="os-card os-card-fund os-card-completed-light os-fund-col-header">
-        <div class="os-card-label">COMPLETED</div>
-      </div>
-      <div class="os-card os-card-fund os-card-nys-light os-fund-col-header">
-        <div class="os-card-label">NYS</div>
-      </div>
-      <div class="os-card os-card-fund os-card-terminated-light os-fund-col-header">
-        <div class="os-card-label">TERMINATED</div>
-      </div>
-	    <div class="os-card os-card-fund os-fund-col-header">
-    <div class="os-card-label">%</div>
-  </div>
-    </div>
-  </section>
-
-  <!-- GAA -->
-  <section class="os-year-block os-fund-block" id="osFundRow2025GAA">
-    <div class="os-year-row os-year-row-fund">
-      <div class="os-fund-label">GAA</div>
-
-      <div class="os-card os-card-fund os-card-total-light">
-        <div class="os-card-label">TOTAL</div>
-        <div class="os-card-value" id="os2025GAATotal">0</div>
-      </div>
-      <div class="os-card os-card-fund os-card-ongoing-light">
-        <div class="os-card-label">ON-GOING</div>
-        <div class="os-card-value" id="os2025GAAOngoing">0</div>
-      </div>
-      <div class="os-card os-card-fund os-card-completed-light">
-        <div class="os-card-label">COMPLETED</div>
-        <div class="os-card-value" id="os2025GAACompleted">0</div>
-      </div>
-      <div class="os-card os-card-fund os-card-nys-light">
-        <div class="os-card-label">NYS</div>
-        <div class="os-card-value" id="os2025GAANYS">0</div>
-      </div>
-      <div class="os-card os-card-fund os-card-terminated-light">
-        <div class="os-card-label">TERMINATED</div>
-        <div class="os-card-value" id="os2025GAATerminated">0</div>
-      </div>
-	    <div class="os-card os-card-fund">
-      <div class="os-card-label">%</div>
-      <div class="os-card-value" id="os2025GAAPercent">0%</div>
-    </div>
-    </div>
-  </section>
-
-  <!-- DA -->
-  <section class="os-year-block os-fund-block" id="osFundRow2025DA">
-    <div class="os-year-row os-year-row-fund">
-      <div class="os-fund-label">DA</div>
-
-      <div class="os-card os-card-fund os-card-total-light">
-        <div class="os-card-label">TOTAL</div>
-        <div class="os-card-value" id="os2025DATotal">0</div>
-      </div>
-      <div class="os-card os-card-fund os-card-ongoing-light">
-        <div class="os-card-label">ON-GOING</div>
-        <div class="os-card-value" id="os2025DAOngoing">0</div>
-      </div>
-      <div class="os-card os-card-fund os-card-completed-light">
-        <div class="os-card-label">COMPLETED</div>
-        <div class="os-card-value" id="os2025DACompleted">0</div>
-      </div>
-      <div class="os-card os-card-fund os-card-nys-light">
-        <div class="os-card-label">NYS</div>
-        <div class="os-card-value" id="os2025DANYS">0</div>
-      </div>
-      <div class="os-card os-card-fund os-card-terminated-light">
-        <div class="os-card-label">TERMINATED</div>
-        <div class="os-card-value" id="os2025DATerminated">0</div>
-      </div>
-	    <div class="os-card os-card-fund">
-      <div class="os-card-label">%</div>
-      <div class="os-card-value" id="os2025DAPercent">0%</div>
-    </div>
-    </div>
-  </section>
-
-  <!-- DAR -->
-  <section class="os-year-block os-fund-block" id="osFundRow2025DAR">
-    <div class="os-year-row os-year-row-fund">
-      <div class="os-fund-label">DAR</div>
-
-      <div class="os-card os-card-fund os-card-total-light">
-        <div class="os-card-label">TOTAL</div>
-        <div class="os-card-value" id="os2025DARTotal">0</div>
-      </div>
-      <div class="os-card os-card-fund os-card-ongoing-light">
-        <div class="os-card-label">ON-GOING</div>
-        <div class="os-card-value" id="os2025DAROngoing">0</div>
-      </div>
-      <div class="os-card os-card-fund os-card-completed-light">
-        <div class="os-card-label">COMPLETED</div>
-        <div class="os-card-value" id="os2025DARCompleted">0</div>
-      </div>
-      <div class="os-card os-card-fund os-card-nys-light">
-        <div class="os-card-label">NYS</div>
-        <div class="os-card-value" id="os2025DARNYS">0</div>
-      </div>
-      <div class="os-card os-card-fund os-card-terminated-light">
-        <div class="os-card-label">TERMINATED</div>
-        <div class="os-card-value" id="os2025DARTerminated">0</div>
-      </div>
-	    <div class="os-card os-card-fund">
-      <div class="os-card-label">%</div>
-      <div class="os-card-value" id="os2025DARPercent">0%</div>
-    </div>
-    </div>
-  </section>
-
-  <!-- DepEd -->
-  <section class="os-year-block os-fund-block" id="osFundRow2025DepEd">
-    <div class="os-year-row os-year-row-fund">
-      <div class="os-fund-label">DepEd</div>
-
-      <div class="os-card os-card-fund os-card-total-light">
-        <div class="os-card-label">TOTAL</div>
-        <div class="os-card-value" id="os2025DepEdTotal">0</div>
-      </div>
-      <div class="os-card os-card-fund os-card-ongoing-light">
-        <div class="os-card-label">ON-GOING</div>
-        <div class="os-card-value" id="os2025DepEdOngoing">0</div>
-      </div>
-      <div class="os-card os-card-fund os-card-completed-light">
-        <div class="os-card-label">COMPLETED</div>
-        <div class="os-card-value" id="os2025DepEdCompleted">0</div>
-      </div>
-      <div class="os-card os-card-fund os-card-nys-light">
-        <div class="os-card-label">NYS</div>
-        <div class="os-card-value" id="os2025DepEdNYS">0</div>
-      </div>
-      <div class="os-card os-card-fund os-card-terminated-light">
-        <div class="os-card-label">TERMINATED</div>
-        <div class="os-card-value" id="os2025DepEdTerminated">0</div>
-      </div>
-	    <div class="os-card os-card-fund">
-      <div class="os-card-label">%</div>
-      <div class="os-card-value" id="os2025DepEdPercent">0%</div>
-    </div>
-    </div>
-  </section>
-
-  <!-- Maintenance -->
-  <section class="os-year-block os-fund-block" id="osFundRow2025Maintenance">
-    <div class="os-year-row os-year-row-fund">
-      <div class="os-fund-label">MAINTENANCE</div>
-
-      <div class="os-card os-card-fund os-card-total-light">
-        <div class="os-card-label">TOTAL</div>
-        <div class="os-card-value" id="os2025MaintenanceTotal">0</div>
-      </div>
-      <div class="os-card os-card-fund os-card-ongoing-light">
-        <div class="os-card-label">ON-GOING</div>
-        <div class="os-card-value" id="os2025MaintenanceOngoing">0</div>
-      </div>
-      <div class="os-card os-card-fund os-card-completed-light">
-        <div class="os-card-label">COMPLETED</div>
-        <div class="os-card-value" id="os2025MaintenanceCompleted">0</div>
-      </div>
-      <div class="os-card os-card-fund os-card-nys-light">
-        <div class="os-card-label">NYS</div>
-        <div class="os-card-value" id="os2025MaintenanceNYS">0</div>
-      </div>
-      <div class="os-card os-card-fund os-card-terminated-light">
-        <div class="os-card-label">TERMINATED</div>
-        <div class="os-card-value" id="os2025MaintenanceTerminated">0</div>
-      </div>
-	    <div class="os-card os-card-fund">
-      <div class="os-card-label">%</div>
-      <div class="os-card-value" id="os2025MaintenancePercent">0%</div>
-    </div>
-    </div>
-  </section>
-
-  <!-- SPECIAL FUND -->
-  <section class="os-year-block os-fund-block" id="osFundRow2025SpecialFund">
-    <div class="os-year-row os-year-row-fund">
-      <div class="os-fund-label">SPECIAL FUND</div>
-
-      <div class="os-card os-card-fund os-card-total-light">
-        <div class="os-card-label">TOTAL</div>
-        <div class="os-card-value" id="os2025SpecialFundTotal">0</div>
-      </div>
-      <div class="os-card os-card-fund os-card-ongoing-light">
-        <div class="os-card-label">ON-GOING</div>
-        <div class="os-card-value" id="os2025SpecialFundOngoing">0</div>
-      </div>
-      <div class="os-card os-card-fund os-card-completed-light">
-        <div class="os-card-label">COMPLETED</div>
-        <div class="os-card-value" id="os2025SpecialFundCompleted">0</div>
-      </div>
-      <div class="os-card os-card-fund os-card-nys-light">
-        <div class="os-card-label">NYS</div>
-        <div class="os-card-value" id="os2025SpecialFundNYS">0</div>
-      </div>
-      <div class="os-card os-card-fund os-card-terminated-light">
-        <div class="os-card-label">TERMINATED</div>
-        <div class="os-card-value" id="os2025SpecialFundTerminated">0</div>
-      </div>
-	    <div class="os-card os-card-fund">
-      <div class="os-card-label">%</div>
-      <div class="os-card-value" id="os2025SpecialFundPercent">0%</div>
-    </div>
-    </div>
-  </section>
-</div>
-
-      <!-- ========= CY 2024 (OVERALL) ========= -->
-      <section class="os-year-block">
-        <div class="os-year-header">
-          <span class="os-year-label">CY 2024 - OVERALL</span>
-          <button type="button"
-                  class="os-toggle-funds-btn"
-                  id="osToggleFunds2024">
-            Hide FUND Rows
-          </button>
-        </div>
-
-        <div class="os-year-row">
-          <div class="os-card os-card-total">
-            <div class="os-card-label">TOTAL</div>
-            <div class="os-card-value" id="os2024Total">0</div>
-          </div>
-          <div class="os-card os-card-ongoing">
-            <div class="os-card-label">ON-GOING</div>
-            <div class="os-card-value" id="os2024Ongoing">0</div>
-          </div>
-          <div class="os-card os-card-completed">
-            <div class="os-card-label">COMPLETED</div>
-            <div class="os-card-value" id="os2024Completed">0</div>
-          </div>
-          <div class="os-card os-card-nys">
-            <div class="os-card-label">NYS</div>
-            <div class="os-card-value" id="os2024NYS">0</div>
-          </div>
-          <div class="os-card os-card-terminated">
-            <div class="os-card-label">TERMINATED</div>
-            <div class="os-card-value" id="os2024Terminated">0</div>
-          </div>
-
-          <div class="os-equal">=</div>
-          <div class="os-pie-wrapper">
-            <div class="os-pie" data-row="2024">
-              <span class="os-pie-label" id="osPieLabel2024">0%</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ========= CY 2024 FUND BREAKDOWN ========= -->
-      <div id="osFunds2024Group">
-	  
-	    <!-- Header row -->
-  <section class="os-year-block os-fund-block os-fund-header">
-    <div class="os-year-row os-year-row-fund os-fund-grid-header">
-      <div class="os-fund-label os-fund-label-header">Type of Project</div>
-
-      <div class="os-card os-card-fund os-card-total-light os-fund-col-header">
-        <div class="os-card-label">TOTAL</div>
-      </div>
-      <div class="os-card os-card-fund os-card-ongoing-light os-fund-col-header">
-        <div class="os-card-label">ON-GOING</div>
-      </div>
-      <div class="os-card os-card-fund os-card-completed-light os-fund-col-header">
-        <div class="os-card-label">COMPLETED</div>
-      </div>
-      <div class="os-card os-card-fund os-card-nys-light os-fund-col-header">
-        <div class="os-card-label">NYS</div>
-      </div>
-      <div class="os-card os-card-fund os-card-terminated-light os-fund-col-header">
-        <div class="os-card-label">TERMINATED</div>
-      </div>
-	  	<div class="os-card os-card-fund os-fund-col-header">
-    <div class="os-card-label">%</div>
-  </div>
-    </div>
-  </section>
-  
-        <!-- GAA -->
-        <section class="os-year-block os-fund-block" id="osFundRow2024GAA">
-          <div class="os-year-row os-year-row-fund">
-            <div class="os-fund-label">GAA</div>
-
-            <div class="os-card os-card-fund os-card-total-light">
-              <div class="os-card-label">TOTAL</div>
-              <div class="os-card-value" id="os2024GAATotal">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-ongoing-light">
-              <div class="os-card-label">ON-GOING</div>
-              <div class="os-card-value" id="os2024GAAOngoing">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-completed-light">
-              <div class="os-card-label">COMPLETED</div>
-              <div class="os-card-value" id="os2024GAACompleted">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-nys-light">
-              <div class="os-card-label">NYS</div>
-              <div class="os-card-value" id="os2024GAANYS">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-terminated-light">
-              <div class="os-card-label">TERMINATED</div>
-              <div class="os-card-value" id="os2024GAATerminated">0</div>
-            </div>
-	    <div class="os-card os-card-fund">
-      <div class="os-card-label">%</div>
-      <div class="os-card-value" id="os2024GAAPercent">0%</div>
-    </div>
-          </div>
-        </section>
-
-        <!-- DA -->
-        <section class="os-year-block os-fund-block" id="osFundRow2024DA">
-          <div class="os-year-row os-year-row-fund">
-            <div class="os-fund-label">DA</div>
-
-            <div class="os-card os-card-fund os-card-total-light">
-              <div class="os-card-label">TOTAL</div>
-              <div class="os-card-value" id="os2024DATotal">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-ongoing-light">
-              <div class="os-card-label">ON-GOING</div>
-              <div class="os-card-value" id="os2024DAOngoing">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-completed-light">
-              <div class="os-card-label">COMPLETED</div>
-              <div class="os-card-value" id="os2024DACompleted">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-nys-light">
-              <div class="os-card-label">NYS</div>
-              <div class="os-card-value" id="os2024DANYS">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-terminated-light">
-              <div class="os-card-label">TERMINATED</div>
-              <div class="os-card-value" id="os2024DATerminated">0</div>
-            </div>
-	    <div class="os-card os-card-fund">
-      <div class="os-card-label">%</div>
-      <div class="os-card-value" id="os2024DAPercent">0%</div>
-    </div>
-          </div>
-        </section>
-
-        <!-- DAR -->
-        <section class="os-year-block os-fund-block" id="osFundRow2024DAR">
-          <div class="os-year-row os-year-row-fund">
-            <div class="os-fund-label">DAR</div>
-
-            <div class="os-card os-card-fund os-card-total-light">
-              <div class="os-card-label">TOTAL</div>
-              <div class="os-card-value" id="os2024DARTotal">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-ongoing-light">
-              <div class="os-card-label">ON-GOING</div>
-              <div class="os-card-value" id="os2024DAROngoing">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-completed-light">
-              <div class="os-card-label">COMPLETED</div>
-              <div class="os-card-value" id="os2024DARCompleted">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-nys-light">
-              <div class="os-card-label">NYS</div>
-              <div class="os-card-value" id="os2024DARNYS">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-terminated-light">
-              <div class="os-card-label">TERMINATED</div>
-              <div class="os-card-value" id="os2024DARTerminated">0</div>
-            </div>
-	    <div class="os-card os-card-fund">
-      <div class="os-card-label">%</div>
-      <div class="os-card-value" id="os2024DARPercent">0%</div>
-    </div>
-          </div>
-        </section>
-
-        <!-- DepEd -->
-        <section class="os-year-block os-fund-block" id="osFundRow2024DepEd">
-          <div class="os-year-row os-year-row-fund">
-            <div class="os-fund-label">DepEd</div>
-
-            <div class="os-card os-card-fund os-card-total-light">
-              <div class="os-card-label">TOTAL</div>
-              <div class="os-card-value" id="os2024DepEdTotal">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-ongoing-light">
-              <div class="os-card-label">ON-GOING</div>
-              <div class="os-card-value" id="os2024DepEdOngoing">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-completed-light">
-              <div class="os-card-label">COMPLETED</div>
-              <div class="os-card-value" id="os2024DepEdCompleted">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-nys-light">
-              <div class="os-card-label">NYS</div>
-              <div class="os-card-value" id="os2024DepEdNYS">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-terminated-light">
-              <div class="os-card-label">TERMINATED</div>
-              <div class="os-card-value" id="os2024DepEdTerminated">0</div>
-            </div>
-	    <div class="os-card os-card-fund">
-      <div class="os-card-label">%</div>
-      <div class="os-card-value" id="os2024DepEdPercent">0%</div>
-    </div>
-          </div>
-        </section>
-
-        <!-- Maintenance -->
-        <section class="os-year-block os-fund-block" id="osFundRow2024Maintenance">
-          <div class="os-year-row os-year-row-fund">
-            <div class="os-fund-label">MAINTENANCE</div>
-
-            <div class="os-card os-card-fund os-card-total-light">
-              <div class="os-card-label">TOTAL</div>
-              <div class="os-card-value" id="os2024MaintenanceTotal">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-ongoing-light">
-              <div class="os-card-label">ON-GOING</div>
-              <div class="os-card-value" id="os2024MaintenanceOngoing">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-completed-light">
-              <div class="os-card-label">COMPLETED</div>
-              <div class="os-card-value" id="os2024MaintenanceCompleted">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-nys-light">
-              <div class="os-card-label">NYS</div>
-              <div class="os-card-value" id="os2024MaintenanceNYS">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-terminated-light">
-              <div class="os-card-label">TERMINATED</div>
-              <div class="os-card-value" id="os2024MaintenanceTerminated">0</div>
-            </div>
-	    <div class="os-card os-card-fund">
-      <div class="os-card-label">%</div>
-      <div class="os-card-value" id="os2024MaintenancePercent">0%</div>
-    </div>
-          </div>
-        </section>
-
-
-  <!-- SPECIAL FUND -->
-  <section class="os-year-block os-fund-block" id="osFundRow2024SpecialFund">
-    <div class="os-year-row os-year-row-fund">
-      <div class="os-fund-label">SPECIAL FUND</div>
-
-      <div class="os-card os-card-fund os-card-total-light">
-        <div class="os-card-label">TOTAL</div>
-        <div class="os-card-value" id="os2024SpecialFundTotal">0</div>
-      </div>
-      <div class="os-card os-card-fund os-card-ongoing-light">
-        <div class="os-card-label">ON-GOING</div>
-        <div class="os-card-value" id="os2024SpecialFundOngoing">0</div>
-      </div>
-      <div class="os-card os-card-fund os-card-completed-light">
-        <div class="os-card-label">COMPLETED</div>
-        <div class="os-card-value" id="os2024SpecialFundCompleted">0</div>
-      </div>
-      <div class="os-card os-card-fund os-card-nys-light">
-        <div class="os-card-label">NYS</div>
-        <div class="os-card-value" id="os2024SpecialFundNYS">0</div>
-      </div>
-      <div class="os-card os-card-fund os-card-terminated-light">
-        <div class="os-card-label">TERMINATED</div>
-        <div class="os-card-value" id="os2024SpecialFundTerminated">0</div>
-      </div>
-	    <div class="os-card os-card-fund">
-      <div class="os-card-label">%</div>
-      <div class="os-card-value" id="os2024SpecialFundPercent">0%</div>
-    </div>
-    </div>
-  </section>
-</div>
-
-      <!-- ========= CY 2023 (OVERALL) ========= -->
-      <section class="os-year-block">
-        <div class="os-year-header">
-          <span class="os-year-label">CY 2023 - OVERALL</span>
-          <button type="button"
-                  class="os-toggle-funds-btn"
-                  id="osToggleFunds2023">
-            Hide FUND Rows
-          </button>
-        </div>
-
-        <div class="os-year-row">
-          <div class="os-card os-card-total">
-            <div class="os-card-label">TOTAL</div>
-            <div class="os-card-value" id="os2023Total">0</div>
-          </div>
-          <div class="os-card os-card-ongoing">
-            <div class="os-card-label">ON-GOING</div>
-            <div class="os-card-value" id="os2023Ongoing">0</div>
-          </div>
-          <div class="os-card os-card-completed">
-            <div class="os-card-label">COMPLETED</div>
-            <div class="os-card-value" id="os2023Completed">0</div>
-          </div>
-          <div class="os-card os-card-nys">
-            <div class="os-card-label">NYS</div>
-            <div class="os-card-value" id="os2023NYS">0</div>
-          </div>
-          <div class="os-card os-card-terminated">
-            <div class="os-card-label">TERMINATED</div>
-            <div class="os-card-value" id="os2023Terminated">0</div>
-          </div>
-
-          <div class="os-equal">=</div>
-          <div class="os-pie-wrapper">
-            <div class="os-pie" data-row="2023">
-              <span class="os-pie-label" id="osPieLabel2023">0%</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ========= CY 2023 FUND BREAKDOWN ========= -->
-      <div id="osFunds2023Group">
-	  
-	    <!-- Header row -->
-  <section class="os-year-block os-fund-block os-fund-header">
-    <div class="os-year-row os-year-row-fund os-fund-grid-header">
-      <div class="os-fund-label os-fund-label-header">Type of Project</div>
-
-      <div class="os-card os-card-fund os-card-total-light os-fund-col-header">
-        <div class="os-card-label">TOTAL</div>
-      </div>
-      <div class="os-card os-card-fund os-card-ongoing-light os-fund-col-header">
-        <div class="os-card-label">ON-GOING</div>
-      </div>
-      <div class="os-card os-card-fund os-card-completed-light os-fund-col-header">
-        <div class="os-card-label">COMPLETED</div>
-      </div>
-      <div class="os-card os-card-fund os-card-nys-light os-fund-col-header">
-        <div class="os-card-label">NYS</div>
-      </div>
-      <div class="os-card os-card-fund os-card-terminated-light os-fund-col-header">
-        <div class="os-card-label">TERMINATED</div>
-      </div>
-	  	<div class="os-card os-card-fund os-fund-col-header">
-    <div class="os-card-label">%</div>
-  </div>
-    </div>
-  </section>
-	  
-        <!-- GAA -->
-        <section class="os-year-block os-fund-block" id="osFundRow2023GAA">
-          <div class="os-year-row os-year-row-fund">
-            <div class="os-fund-label">GAA</div>
-
-            <div class="os-card os-card-fund os-card-total-light">
-              <div class="os-card-label">TOTAL</div>
-              <div class="os-card-value" id="os2023GAATotal">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-ongoing-light">
-              <div class="os-card-label">ON-GOING</div>
-              <div class="os-card-value" id="os2023GAAOngoing">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-completed-light">
-              <div class="os-card-label">COMPLETED</div>
-              <div class="os-card-value" id="os2023GAACompleted">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-nys-light">
-              <div class="os-card-label">NYS</div>
-              <div class="os-card-value" id="os2023GAANYS">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-terminated-light">
-              <div class="os-card-label">TERMINATED</div>
-              <div class="os-card-value" id="os2023GAATerminated">0</div>
-            </div>
-          </div>
-        </section>
-
-        <!-- DA -->
-        <section class="os-year-block os-fund-block" id="osFundRow2023DA">
-          <div class="os-year-row os-year-row-fund">
-            <div class="os-fund-label">DA</div>
-
-            <div class="os-card os-card-fund os-card-total-light">
-              <div class="os-card-label">TOTAL</div>
-              <div class="os-card-value" id="os2023DATotal">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-ongoing-light">
-              <div class="os-card-label">ON-GOING</div>
-              <div class="os-card-value" id="os2023DAOngoing">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-completed-light">
-              <div class="os-card-label">COMPLETED</div>
-              <div class="os-card-value" id="os2023DACompleted">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-nys-light">
-              <div class="os-card-label">NYS</div>
-              <div class="os-card-value" id="os2023DANYS">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-terminated-light">
-              <div class="os-card-label">TERMINATED</div>
-              <div class="os-card-value" id="os2023DATerminated">0</div>
-            </div>
-          </div>
-        </section>
-
-        <!-- DAR -->
-        <section class="os-year-block os-fund-block" id="osFundRow2023DAR">
-          <div class="os-year-row os-year-row-fund">
-            <div class="os-fund-label">DAR</div>
-
-            <div class="os-card os-card-fund os-card-total-light">
-              <div class="os-card-label">TOTAL</div>
-              <div class="os-card-value" id="os2023DARTotal">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-ongoing-light">
-              <div class="os-card-label">ON-GOING</div>
-              <div class="os-card-value" id="os2023DAROngoing">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-completed-light">
-              <div class="os-card-label">COMPLETED</div>
-              <div class="os-card-value" id="os2023DARCompleted">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-nys-light">
-              <div class="os-card-label">NYS</div>
-              <div class="os-card-value" id="os2023DARNYS">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-terminated-light">
-              <div class="os-card-label">TERMINATED</div>
-              <div class="os-card-value" id="os2023DARTerminated">0</div>
-            </div>
-          </div>
-        </section>
-
-        <!-- DepEd -->
-        <section class="os-year-block os-fund-block" id="osFundRow2023DepEd">
-          <div class="os-year-row os-year-row-fund">
-            <div class="os-fund-label">DepEd</div>
-
-            <div class="os-card os-card-fund os-card-total-light">
-              <div class="os-card-label">TOTAL</div>
-              <div class="os-card-value" id="os2023DepEdTotal">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-ongoing-light">
-              <div class="os-card-label">ON-GOING</div>
-              <div class="os-card-value" id="os2023DepEdOngoing">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-completed-light">
-              <div class="os-card-label">COMPLETED</div>
-              <div class="os-card-value" id="os2023DepEdCompleted">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-nys-light">
-              <div class="os-card-label">NYS</div>
-              <div class="os-card-value" id="os2023DepEdNYS">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-terminated-light">
-              <div class="os-card-label">TERMINATED</div>
-              <div class="os-card-value" id="os2023DepEdTerminated">0</div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Maintenance -->
-        <section class="os-year-block os-fund-block" id="osFundRow2023Maintenance">
-          <div class="os-year-row os-year-row-fund">
-            <div class="os-fund-label">MAINTENANCE</div>
-
-            <div class="os-card os-card-fund os-card-total-light">
-              <div class="os-card-label">TOTAL</div>
-              <div class="os-card-value" id="os2023MaintenanceTotal">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-ongoing-light">
-              <div class="os-card-label">ON-GOING</div>
-              <div class="os-card-value" id="os2023MaintenanceOngoing">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-completed-light">
-              <div class="os-card-label">COMPLETED</div>
-              <div class="os-card-value" id="os2023MaintenanceCompleted">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-nys-light">
-              <div class="os-card-label">NYS</div>
-              <div class="os-card-value" id="os2023MaintenanceNYS">0</div>
-            </div>
-            <div class="os-card os-card-fund os-card-terminated-light">
-              <div class="os-card-label">TERMINATED</div>
-              <div class="os-card-value" id="os2023MaintenanceTerminated">0</div>
-            </div>
-          </div>
-        </section>
-
-
-  <!-- SPECIAL FUND -->
-  <section class="os-year-block os-fund-block" id="osFundRow2023SpecialFund">
-    <div class="os-year-row os-year-row-fund">
-      <div class="os-fund-label">SPECIAL FUND</div>
-
-      <div class="os-card os-card-fund os-card-total-light">
-        <div class="os-card-label">TOTAL</div>
-        <div class="os-card-value" id="os2023SpecialFundTotal">0</div>
-      </div>
-      <div class="os-card os-card-fund os-card-ongoing-light">
-        <div class="os-card-label">ON-GOING</div>
-        <div class="os-card-value" id="os2023SpecialFundOngoing">0</div>
-      </div>
-      <div class="os-card os-card-fund os-card-completed-light">
-        <div class="os-card-label">COMPLETED</div>
-        <div class="os-card-value" id="os2023SpecialFundCompleted">0</div>
-      </div>
-      <div class="os-card os-card-fund os-card-nys-light">
-        <div class="os-card-label">NYS</div>
-        <div class="os-card-value" id="os2023SpecialFundNYS">0</div>
-      </div>
-      <div class="os-card os-card-fund os-card-terminated-light">
-        <div class="os-card-label">TERMINATED</div>
-        <div class="os-card-value" id="os2023SpecialFundTerminated">0</div>
-      </div>
-    </div>
-  </section>
-      </div>
-
-    </div>
-  </div>
-</div>
-
-
 
 
 <!-- PROJECT DOCUMENTATION WINDOW -->
@@ -1137,94 +1014,1563 @@
       <h3 class="pd-title">PROJECT DOCUMENTATION</h3>
       <button type="button" class="pd-close-btn" id="pdCloseBtn">Close</button>
     </div>
-
-    <!-- NEW: Meta (below header) -->
-
     <div class="pd-body" id="projectDocsBody">
       <div class="pd-loading" id="projectDocsLoading">Loading documentation…</div>
     </div>
   </div>
 </div>
 
-
-
-
-<!-- AMEND WINDOW -->
-<div class="am-overlay" id="amendOverlay" aria-modal="true" role="dialog" hidden>
-  <div class="am-box">
-    <div class="am-top">
-      <h3 class="am-title">AMEND</h3>
-	          <div class="am-toolbar">
-          <button type="button" class="am-btn" id="amAccReload">Reload</button>
-        </div>
-      <button type="button" class="am-btn am-ghost" id="amCloseBtn">Close</button>
-    </div>
-
-    <div class="am-tabs" role="tablist" aria-label="Amend Tabs">
-      <button type="button" class="am-tab is-active" data-am-tab="accomplishment">ACCOMPLISHMENT</button>
-	  <button type="button" class="am-tab" data-am-tab="pcma">PCMA</button>
-      <button type="button" class="am-tab" data-am-tab="upload">UPLOAD</button>
-      <button type="button" class="am-tab" data-am-tab="documents">DOCUMENTS</button>
-      <button type="button" class="am-tab" data-am-tab="acceptance">ACCEPTANCE</button>
-    </div>
-
-    <div class="am-body">
-      <!-- ACCOMPLISHMENT -->
-      <section class="am-panel is-active" data-am-panel="accomplishment">
-        <div class="am-table-wrap">
-          <table class="am-table" id="amAccTable" aria-label="Amend Accomplishment Table"></table></div>
-      </section>
-
-      <!-- PCMA -->
-		<section class="am-panel" data-am-panel="pcma">
-		<div class="am-status">PCMA: (content here)</div>
-		</section>
-
-      <!-- UPLOADS -->
-      <section class="am-panel" data-am-panel="upload">
-        <div class="am-status">Coming soon…</div>
-      </section>
-
-      <!-- DOCUMENTS -->
-      <section class="am-panel" data-am-panel="documents">
-        <div class="am-status">Coming soon…</div>
-      </section>
-
-      <!-- ACCEPTANCE -->
-      <section class="am-panel" data-am-panel="acceptance">
-        <div class="am-status">Coming soon…</div>
-      </section>
-    </div>
-  </div>
-</div>
-<!-- /AMEND WINDOW -->
-
-
+<!-- PERMANENT 3D FOOTER -->
 <footer class="app-footer">
   <div class="footer-inner">
-    <button id="footerHomeBtn" type="button" class="footer-btn">Home</button>
-    <button id="footerReloadBtn" type="button" class="footer-btn primary">Reload</button>
+    <button id="footerBackBtn" type="button" class="footer-btn">
+      <svg viewBox="0 0 24 24">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+      <span>Back</span>
+    </button>
+    
+    <button id="footerHomeBtn" type="button" class="footer-btn">
+      <svg viewBox="0 0 24 24">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+      </svg>
+      <span>Home</span>
+    </button>
+    
+    <button id="footerReloadBtn" type="button" class="footer-btn primary">
+      <svg viewBox="0 0 24 24">
+        <polyline points="23 4 23 10 17 10"></polyline>
+        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+      </svg>
+      <span>Reload</span>
+    </button>
   </div>
 </footer>
 
+<script>
+  // Create Global PCMA Namespace
+  const PCMA = (window.PCMA = window.PCMA || {});
+
+  // =========================================================
+  // Navigation & View Switching logic
+  // =========================================================
+  document.addEventListener("DOMContentLoaded", () => {
+    const backBtn = document.getElementById("footerBackBtn");
+    const homeBtn = document.getElementById("footerHomeBtn");
+    const reloadBtn = document.getElementById("footerReloadBtn");
+    const btnGoProjects = document.getElementById("btnGoProjects");
+    const homeView = document.getElementById("homeView");
+    const appView = document.getElementById("appView");
+
+    // Project Button -> Switches to Grid View
+    if (btnGoProjects) {
+      btnGoProjects.addEventListener("click", () => {
+        if (homeView && appView) {
+          homeView.classList.add("hidden");
+          appView.classList.remove("hidden");
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+      });
+    }
+
+    // Context-aware Back Button
+    if (backBtn) {
+      backBtn.addEventListener("click", () => {
+        const docsOverlay = document.getElementById("projectDocsOverlay");
+        const modalBg = document.getElementById("pcmaModalBg");
+
+        // 1. Close documentation overlay if open
+        if (docsOverlay && !docsOverlay.hidden) {
+          if (typeof window.closeOverlay === "function") window.closeOverlay();
+          return;
+        }
+
+        // 2. Close project details modal if open
+        if (modalBg && modalBg.classList.contains("pcma-show")) {
+          modalBg.classList.remove("pcma-show");
+          document.documentElement.classList.remove('pcma-no-scroll');
+          return;
+        }
+
+        // 3. If in App/Grid View, go back to 3D Home
+        if (appView && !appView.classList.contains("hidden")) {
+          appView.classList.add("hidden");
+          if (homeView) homeView.classList.remove("hidden");
+          window.scrollTo({ top: 0, behavior: "smooth" });
+          return;
+        }
+
+        // 4. Default history back
+        window.history.back();
+      });
+    }
+
+    // Home Footer Button -> Immediately Return to 3D Home View
+    if (homeBtn) {
+      homeBtn.addEventListener("click", () => {
+        // Close active modals safely
+        const knownOverlayIds = ["projectDocsOverlay", "pcmaModalBg"];
+        knownOverlayIds.forEach((id) => {
+          const el = document.getElementById(id);
+          if (el) {
+            el.hidden = true;
+            el.classList.remove("pcma-show");
+            el.classList.remove("hidden"); // Bug fix: Do not add the globally overriding 'hidden' class to modals
+          }
+        });
+
+        if (typeof window.closeOverlay === "function") {
+          try { window.closeOverlay(); } catch (e) {}
+        }
+        document.documentElement.classList.remove("pcma-no-scroll");
+        document.body.classList.remove("no-scroll");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+
+        // Hide App View, Show Home View
+        if (homeView && appView) {
+          appView.classList.add("hidden");
+          homeView.classList.remove("hidden");
+        }
+      });
+    }
+
+    if (reloadBtn) {
+      reloadBtn.addEventListener("click", () => { location.reload(); });
+    }
+  });
 
 
+  // =========================================================
+  // filter.js logic
+  // =========================================================
+  (function () {
+    PCMA.config = {
+      SHEET_ID: "1LSYLZ7tfSeVupQMPsCOHG4SlnzPQqOAIe03QI1qRMr8",
+      RANGE: "APP",
+      API_KEY: "AIzaSyCz6fNJr3ecn-M2HActqM1aCXbxqRLj2e8",
+      LOGO_FALLBACK: "https://lh3.googleusercontent.com/d/1VanVX82ANGfKA8jcGZL8cVDQh4EuN8-r=s800?authuser=0",
+    };
 
+    const el = {
+      grid: document.getElementById("grid"),
+      resultInfo: document.getElementById("resultInfo"),
+      filtersBox: document.getElementById("filters"),
+      toggleFiltersBtn: document.getElementById("toggleFilters"),
+      filterCombo: document.getElementById("filterCombo"),
+      filterYear: document.getElementById("filterYear"),
+      filterStatus: document.getElementById("filterStatus"),
+      filterContractor: document.getElementById("filterContractor"),
+      filterEngineer: document.getElementById("filterEngineer"),
+      applyFilterBtn: document.getElementById("applyFilter"),
+      clearFilterBtn: document.getElementById("clearFilter"),
+      moreFiltersBox: document.getElementById("moreFilters"),
+      toggleMoreFiltersBtn: document.getElementById("toggleMoreFilters"),
+    };
 
+    PCMA.state = { headers: [], records: [], lastRenderedRows: [] };
 
-<!-- Status per PE logic -->
-<script src="StatusPE.js"></script>
-<script src="OverallStatus.js"></script>
-<script src="PCMA.js"></script>
-<script src="VO.js"></script>
-<script src="WSO_WRO_CTE.js"></script>
-<script src="BILLING.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="ProjectDocs.js"></script>
-<script src="main.js"></script>
-<script src="config.js"></script>
-<script src="amend.js"></script>
+    PCMA.helpers = {
+      isValidUrl(u) { try { const x = new URL(u); return x.protocol === "http:" || x.protocol === "https:"; } catch { return false; } },
+      toPct(val, fallback = 0) { if (val == null) return fallback; const m = String(val).replace(",", ".").match(/-?\d+(\.\d+)?/); return m ? parseFloat(m[0]) : fallback; },
+      parseMoney(v) { if (v == null) return null; const s = String(v).replace(/[^0-9.\-]/g, ""); const n = parseFloat(s); return Number.isFinite(n) ? n : null; },
+      fmtPHP(n) { try { return "₱ " + Number(n).toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); } catch { return "₱ " + n; } },
+    };
 
+    PCMA.el = el;
 
+    async function loadData() {
+      const { SHEET_ID, RANGE, API_KEY } = PCMA.config;
+      const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`;
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        if (!data.values || !data.values.length) throw new Error("No data");
+
+        const keyHints = ["contract id", "project name", "location", "status"];
+        let headerRowIndex = 0;
+        for (let i = 0; i < data.values.length; i++) {
+          const row = (data.values[i] || []).map((c) => String(c || "").trim().toLowerCase());
+          const hit = keyHints.some((h) => row.some((cell) => cell.includes(h)));
+          if (hit) { headerRowIndex = i; break; }
+        }
+
+        PCMA.state.headers = (data.values[headerRowIndex] || []).map((h) => (h || "").trim().toLowerCase().replace(/[:]+/g, ""));
+        PCMA.state.records = data.values.slice(headerRowIndex + 1);
+
+        populateFilterOptions();
+        restoreFilterState();
+
+        const all = PCMA.state.records.filter((r) => r && r.join("").trim());
+        renderGrid(all);
+        el.grid.classList.remove("hidden");
+        el.resultInfo.textContent = `${all.length} results`;
+        el.resultInfo.classList.remove("hidden");
+      } catch (err) {
+        console.error(err);
+        el.grid.classList.remove("hidden");
+        el.grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:#b91c1c;">Failed to load data.</div>';
+      }
+    }
+
+    function populateFilterOptions() {
+      const { headers, records } = PCMA.state;
+      const years = new Set(), contractors = new Set(), engineers = new Set(), statuses = new Set();
+      const colYear = headers.findIndex((h) => h.includes("year"));
+      const colContractor = headers.findIndex((h) => h.includes("contractor"));
+      const colEngineer = headers.findIndex((h) => h.includes("project engineer"));
+      const colStatus = headers.findIndex((h) => h.includes("status"));
+      records.forEach((r) => {
+        if (colYear >= 0 && r[colYear]) years.add(r[colYear]);
+        if (colContractor >= 0 && r[colContractor]) contractors.add(r[colContractor]);
+        if (colEngineer >= 0 && r[colEngineer]) engineers.add(r[colEngineer]);
+        if (colStatus >= 0 && r[colStatus]) statuses.add(String(r[colStatus]).trim());
+      });
+
+      el.filterYear.innerHTML = '<option value="">All</option>' + [...years].sort().map((y) => `<option value="${y}">${y}</option>`).join("");
+      el.filterContractor.innerHTML = '<option value="">All</option>' + [...contractors].sort().map((c) => `<option value="${c}">${c}</option>`).join("");
+      el.filterEngineer.innerHTML = '<option value="">All</option>' + [...engineers].sort().map((e) => `<option value="${e}">${e}</option>`).join("");
+      el.filterStatus.innerHTML = '<option value="">All</option>' + [...statuses].sort().map((s) => `<option value="${s}">${s}</option>`).join("");
+    }
+
+    function saveFilterState() {
+      const s = {
+        combo: el.filterCombo.value || "",
+        year: el.filterYear.value || "",
+        status: el.filterStatus.value || "",
+        contractor: el.filterContractor.value || "",
+        engineer: el.filterEngineer.value || "",
+        more: !el.moreFiltersBox.classList.contains("hidden"),
+      };
+      localStorage.setItem("pcma_filters", JSON.stringify(s));
+    }
+
+    function restoreFilterState() {
+      try {
+        const raw = localStorage.getItem("pcma_filters");
+        if (!raw) return;
+        const s = JSON.parse(raw);
+        el.filterCombo.value = s.combo || "";
+        el.filterYear.value = s.year || "";
+        el.filterStatus.value = s.status || "";
+        el.filterContractor.value = s.contractor || "";
+        el.filterEngineer.value = s.engineer || "";
+        if (s.more) el.moreFiltersBox.classList.remove("hidden");
+      } catch {}
+    }
+
+    function filterData(text, year, engineer, contractor, status) {
+      const { headers, records } = PCMA.state;
+      const q = (text || "").toLowerCase().trim();
+      const idx = {
+        cid: headers.findIndex((h) => h.includes("contract id")),
+        project: headers.findIndex((h) => h.includes("project name")),
+        location: headers.findIndex((h) => h.includes("location")),
+        pe: headers.findIndex((h) => h.includes("project engineer")),
+        pi: headers.findIndex((h) => h.includes("project inspector")),
+        re: headers.findIndex((h) => h.includes("resident engineer")),
+        qe: headers.findIndex((h) => h.includes("quantity engineer")),
+        me: headers.findIndex((h) => h.includes("materials engineer")),
+        contractor: headers.findIndex((h) => h.includes("contractor")),
+        status: headers.findIndex((h) => h.includes("status")),
+        year: headers.findIndex((h) => h.includes("year")),
+      };
+
+      return records.filter((r) => {
+        if (!r || !r.join("").trim()) return false;
+        let textOK = true;
+        if (q) {
+          textOK = Object.values(idx).some((ci) => ci >= 0 && String(r[ci] || "").toLowerCase().includes(q));
+        }
+        if (!textOK) return false;
+        if (year && (!(idx.year >= 0) || String(r[idx.year] || "").toLowerCase() !== year)) return false;
+        if (engineer && (!(idx.pe >= 0) || String(r[idx.pe] || "").toLowerCase() !== engineer)) return false;
+        if (contractor && (!(idx.contractor >= 0) || String(r[idx.contractor] || "").toLowerCase() !== contractor)) return false;
+        if (status && (!(idx.status >= 0) || String(r[idx.status] || "").toLowerCase() !== status)) return false;
+        return true;
+      });
+    }
+
+    function _cidKey(cid) {
+      const raw = String(cid || "").trim().toUpperCase();
+      const cleaned = raw.replace(/[\s\-_/]+/g, ""); 
+      const m = cleaned.match(/^(\d{2})([A-Z]+)?(\d+)?/);
+      const year = m ? parseInt(m[1], 10) : -1;          
+      const letters = m && m[2] ? m[2] : "";             
+      const num = m && m[3] ? parseInt(m[3], 10) : 0;    
+      return { year, letters, num, raw: cleaned || raw };
+    }
+
+    function _compareCID(aCID, bCID) {
+      const a = _cidKey(aCID);
+      const b = _cidKey(bCID);
+      if (a.year !== b.year) return b.year - a.year;
+      const lcmp = a.letters.localeCompare(b.letters);
+      if (lcmp !== 0) return lcmp;
+      if (a.num !== b.num) return a.num - b.num;
+      return a.raw.localeCompare(b.raw);
+    }
+
+    function _sortRowsByCID(rows, colCID) {
+      if (!Array.isArray(rows) || rows.length === 0) return rows || [];
+      if (colCID < 0) return rows;
+      return rows.map((r, i) => ({ r, i })).sort((A, B) => {
+        const aCID = A.r && A.r[colCID] != null ? A.r[colCID] : "";
+        const bCID = B.r && B.r[colCID] != null ? B.r[colCID] : "";
+        const c = _compareCID(aCID, bCID);
+        return c !== 0 ? c : A.i - B.i;
+      }).map((x) => x.r);
+    }
+
+    function renderGrid(rows) {
+      const { headers } = PCMA.state;
+      el.grid.innerHTML = "";
+
+      const colContractID = headers.findIndex((h) => h.includes("contract id"));
+      const sortedRows = _sortRowsByCID(rows, colContractID);
+      PCMA.state.lastRenderedRows = sortedRows.slice();
+
+      const colProjectName = headers.findIndex((h) => h.includes("project name"));
+      const colStatus = headers.findIndex((h) => h.includes("status"));
+      const colEngineer = headers.findIndex((h) => h.includes("project engineer"));
+      const colLocation = headers.findIndex((h) => h.includes("location"));
+      const colImage1 = headers.findIndex((h) => h.includes("image 1"));
+      const q = (el.filterCombo.value || "").trim().toLowerCase();
+
+      if (!rows.length) {
+        el.grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:#777;">No data found.</div>';
+        return;
+      }
+
+      sortedRows.forEach((r, idx) => {
+        if (!r || !r.join("").trim()) return;
+
+        const card = document.createElement("div");
+        card.className = "card";
+        card.dataset.rowIndex = String(idx);
+
+        const img = document.createElement("img");
+        const link = colImage1 >= 0 && r[colImage1] ? String(r[colImage1]).trim() : "";
+        img.src = link || PCMA.config.LOGO_FALLBACK;
+        img.className = "card-thumb";
+        img.loading = "lazy";
+        img.decoding = "async";
+        img.onerror = () => { img.src = PCMA.config.LOGO_FALLBACK; };
+        card.appendChild(img);
+
+        const content = document.createElement("div");
+        content.className = "card-content";
+
+        const top = document.createElement("div");
+        top.style.display = "flex";
+        top.style.justifyContent = "space-between";
+        top.style.alignItems = "baseline";
+
+        const cidVal = colContractID >= 0 && r[colContractID] ? String(r[colContractID]) : "";
+        const engVal = colEngineer >= 0 && r[colEngineer] ? String(r[colEngineer]) : "";
+
+        let cidHtml = cidVal;
+        if (q && cidVal.toLowerCase().includes(q)) cidHtml = cidVal.replace(new RegExp(q, "ig"), (m) => `<mark>${m}</mark>`);
+        top.innerHTML = `<span class="contract-id">${cidHtml}</span><span class="engineer-name">${engVal}</span>`;
+        content.appendChild(top);
+
+        const projVal = colProjectName >= 0 && r[colProjectName] ? String(r[colProjectName]) : "";
+        let projHtml = projVal;
+        if (q && projVal.toLowerCase().includes(q)) projHtml = projVal.replace(new RegExp(q, "ig"), (m) => `<mark>${m}</mark>`);
+        const projDiv = document.createElement("div");
+        projDiv.innerHTML = projHtml;
+        projDiv.style.marginTop = "2px";
+        content.appendChild(projDiv);
+
+        if (colLocation >= 0 && r[colLocation]) {
+          const locVal = String(r[colLocation]);
+          let locHtml = locVal;
+          if (q && locVal.toLowerCase().includes(q)) locHtml = locVal.replace(new RegExp(q, "ig"), (m) => `<mark>${m}</mark>`);
+          const locDiv = document.createElement("div");
+          locDiv.innerHTML = locHtml;
+          locDiv.style.opacity = 0.85;
+          content.appendChild(locDiv);
+        }
+
+        const statusDiv = document.createElement("div");
+        const statusText = (colStatus >= 0 && r[colStatus] ? String(r[colStatus]) : "").trim();
+        const tt = statusText.toLowerCase();
+        let bg = "#777";
+        if (tt === "completed (pcma)" || tt === "pcma") bg = "#2563eb";
+        else if (tt === "completed") bg = "#16a34a";
+        else if (tt === "on-going") bg = "#f97316";
+        else if (tt === "100%") bg = "#14b8a6";
+        statusDiv.innerHTML = `<span class="status" style="background:${bg}">${statusText}</span>`;
+        content.appendChild(statusDiv);
+
+        card.appendChild(content);
+
+        card.addEventListener("click", () => {
+          PCMA.state.lastRowForProjector = PCMA.state.lastRenderedRows[idx];
+          if (typeof window.PCMA.openDetailFromList === "function") {
+            window.PCMA.openDetailFromList(idx);
+          }
+        });
+
+        el.grid.appendChild(card);
+      });
+    }
+
+    el.filterCombo.addEventListener("input", () => {
+      const rows = filterData(el.filterCombo.value, "", "", "", "");
+      el.grid.classList.remove("hidden");
+      renderGrid(rows);
+      el.resultInfo.textContent = `${rows.length} result${rows.length !== 1 ? "s" : ""}`;
+      el.resultInfo.classList.remove("hidden");
+      saveFilterState();
+    });
+
+    el.applyFilterBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const combo = el.filterCombo.value || "";
+      const y = (el.filterYear.value || "").toLowerCase();
+      const s = (el.filterStatus.value || "").toLowerCase();
+      const c = (el.filterContractor.value || "").toLowerCase();
+      const pe = (el.filterEngineer.value || "").toLowerCase();
+      const filtered = filterData(combo, y, pe, c, s);
+      renderGrid(filtered);
+      el.resultInfo.textContent = `${filtered.length} result${filtered.length !== 1 ? "s" : ""}`;
+      el.resultInfo.classList.remove("hidden");
+      el.moreFiltersBox.classList.add("hidden");
+      const st = JSON.parse(localStorage.getItem("pcma_filters") || "{}");
+      st.more = false;
+      localStorage.setItem("pcma_filters", JSON.stringify(st));
+      saveFilterState();
+    });
+
+    el.clearFilterBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      el.filterCombo.value = "";
+      el.filterYear.value = "";
+      el.filterStatus.value = "";
+      el.filterContractor.value = "";
+      el.filterEngineer.value = "";
+      const all = PCMA.state.records.filter((r) => r && r.join("").trim());
+      renderGrid(all);
+      el.resultInfo.textContent = `${all.length} results`;
+      el.resultInfo.classList.remove("hidden");
+      el.moreFiltersBox.classList.add("hidden");
+      const st = JSON.parse(localStorage.getItem("pcma_filters") || "{}");
+      st.more = false;
+      localStorage.setItem("pcma_filters", JSON.stringify(st));
+      saveFilterState();
+    });
+
+    el.toggleMoreFiltersBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      el.moreFiltersBox.classList.toggle("hidden");
+      saveFilterState();
+    });
+
+    // We no longer toggle the filter visibility via an ID element if the original button isn't needed,
+    // but preserving the logic securely.
+    if (el.toggleFiltersBtn) {
+      el.toggleFiltersBtn.addEventListener("click", () => {
+        if (window.innerWidth <= 768) return;
+        const isHidden = el.filtersBox.style.display === "none";
+        el.filtersBox.style.display = isHidden ? "flex" : "none";
+        el.toggleFiltersBtn.textContent = isHidden ? "Hide Search" : "Show Search";
+      });
+    }
+
+    // Delay loading until we actually need it, or pre-load
+    loadData();
+  })();
+
+  // =========================================================
+  // modal.js logic
+  // =========================================================
+  (function () {
+    const modalBg        = document.getElementById('pcmaModalBg');
+    const modalContent   = document.getElementById('pcmaModalContent');
+    const modalButtons   = document.getElementById('pcmaModalButtons');
+    const modalCID       = document.getElementById('pcmaModalCID');
+    const closeModalTop  = document.getElementById('pcmaCloseModalTop');
+    const modalPrevFloat = document.getElementById('pcmaModalPrev');
+    const modalNextFloat = document.getElementById('pcmaModalNext');
+
+    if (!modalBg || !modalContent || !modalButtons || !modalCID) return;
+
+    let modalNavList = [];
+    let modalNavIndex = 0;
+
+    function findCol() {
+      const headers = PCMA.state?.headers || [];
+      const keys = [...arguments].map(k => String(k).toLowerCase());
+      return headers.findIndex(h => keys.some(k => String(h || '').toLowerCase().includes(k)));
+    }
+
+    function addNoScroll()  { document.documentElement.classList.add('pcma-no-scroll'); }
+    function removeNoScroll(){ document.documentElement.classList.remove('pcma-no-scroll'); }
+    function openBg()  { 
+      modalBg.hidden = false;
+      modalBg.classList.remove('hidden');
+      modalBg.classList.add('pcma-show'); 
+      addNoScroll(); 
+    }
+    function closeBg() { modalBg.classList.remove('pcma-show'); removeNoScroll(); }
+
+    function createPrimaryRow(label, value, isStatus) {
+      const r = document.createElement('div');
+      r.className = 'pcma-primary-row';
+      const l = document.createElement('div');
+      l.className = 'pcma-primary-label';
+      l.textContent = `${label} :`;
+      const v = document.createElement('div');
+      v.className = 'pcma-primary-value';
+      if (isStatus) v.classList.add('pcma-status');
+      v.textContent = value;
+      r.append(l, v);
+      return r;
+    }
+
+    function toMoney(n) {
+      if (n == null || n === '') return null;
+      const s = String(n).replace(/[^0-9.\-]/g, '');
+      const f = parseFloat(s);
+      if (Number.isNaN(f)) return null;
+      try { return '₱ ' + f.toLocaleString('en-PH', { minimumFractionDigits: 2 }); } catch { return '₱ ' + f; }
+    }
+
+    function toDate(v) {
+      if (!v) return '';
+      const d = new Date(v);
+      return isNaN(d) ? String(v) : d.toLocaleDateString('en-PH', { year:'numeric', month:'short', day:'2-digit' });
+    }
+
+    function animateBar(fillEl, value, duration, formatter) {
+      const sign = value < 0 ? -1 : 1;
+      const endAbs = Math.min(Math.abs(value), 100);
+      const start = performance.now();
+      function step(now) {
+        const t = Math.min(1, (now - start) / duration);
+        const cur = endAbs * t;
+        fillEl.style.width = cur + '%';
+        const disp = sign * cur;
+        fillEl.textContent = formatter ? formatter(disp) : `${disp.toFixed(2)}%`
+        if (t < 1) requestAnimationFrame(step);
+        else {
+          fillEl.style.width = endAbs + '%';
+          fillEl.textContent = formatter ? formatter(sign * endAbs) : `${(sign * endAbs).toFixed(2)}%`;
+        }
+      }
+      requestAnimationFrame(step);
+    }
+
+    const slipColor = (num) => {
+      if (num > 0) return { bg: '#10b981', text: '#fff', sad: false };
+      if (num <= 0 && num > -5)  return { bg: '#fecaca', text: '#7f1d1d', sad: false };
+      if (num <= -5 && num > -10) return { bg: '#f87171', text: '#fff', sad: true };
+      if (num <= -10) return { bg: '#dc2626', text: '#fff', sad: true };
+      return { bg: '#6b7280', text: '#fff', sad: false };
+    };
+
+    function showDetail(row) {
+      openBg();
+      modalContent.innerHTML = '';
+      modalButtons.innerHTML = '';
+
+      const LOGO_FALLBACK = PCMA.config?.LOGO_FALLBACK;
+      const cidIdx     = findCol('contract id');
+      const projIdx    = findCol('project name');
+      const locIdx     = findCol('location');
+      const contIdx    = findCol('contractor');
+      const amtIdx     = findCol('contract amount','amount');
+      const revAmtIdx  = findCol('rev. contract amount','revised contract amount','rev contract amount');
+      const ntpIdx     = findCol('notice to proceed','ntp');
+      const expIdx     = findCol('expiry date','original expiry date');
+      const revExpIdx  = findCol('rev. expiry date','revised expiry date','rev expiry date');
+      const statIdx    = findCol('status');
+      const remIdx     = findCol('remarks');
+      const lastBillIdx= findCol('last billing');
+      const projIdIdx  = findCol('Project ID', 'proj id', 'projectid');
+      const uploadCol  = findCol('upload pictures');
+
+      const peIdx = findCol('project engineer');
+      const piIdx = findCol('project inspector');
+      const reIdx = findCol('resident engineer');
+      const qeIdx = findCol('quantity engineer');
+      const meIdx = findCol('materials engineer');
+
+      const schedIdx = findCol('sched');
+      const actualIdx= findCol('actual');
+      const slipIdx  = findCol('slip');
+      const delayIdx = findCol('delay');
+      let   progIdx  = findCol('progress');
+      if (progIdx < 0 && (PCMA.state?.headers?.length || 0) > 18) progIdx = 18;
+
+      let heroImgUrl = row[33] ? String(row[33]).trim() : '';
+
+      modalCID.textContent = (cidIdx >= 0 ? row[cidIdx] : '') || '—';
+
+      if (heroImgUrl) {
+        const wrap = document.createElement('div');
+        wrap.className = 'pcma-hero';
+        const im = document.createElement('img');
+        im.src = heroImgUrl;
+        if (LOGO_FALLBACK) im.onerror = () => { im.src = LOGO_FALLBACK; };
+        wrap.appendChild(im);
+        modalContent.appendChild(wrap);
+      }
+
+      const primary = document.createElement('div');
+      primary.className = 'pcma-primary';
+
+      const colA = document.createElement('div');
+      colA.className = 'pcma-primary-col pcma-group-a';
+      if (projIdx > -1 && row[projIdx]) colA.appendChild(createPrimaryRow('Project Name', row[projIdx]));
+      if (locIdx  > -1 && row[locIdx])  colA.appendChild(createPrimaryRow('Location', row[locIdx]));
+      if (contIdx > -1 && row[contIdx]) colA.appendChild(createPrimaryRow('Contractor', row[contIdx]));
+
+      const colB = document.createElement('div');
+      colB.className = 'pcma-primary-col';
+      if (amtIdx > -1 && row[amtIdx])     colB.appendChild(createPrimaryRow('Contract Amount', toMoney(row[amtIdx]) ?? row[amtIdx]));
+      if (revAmtIdx > -1 && row[revAmtIdx]) colB.appendChild(createPrimaryRow('Rev. Contract Amount', toMoney(row[revAmtIdx]) ?? row[revAmtIdx]));
+
+      const colC = document.createElement('div');
+      colC.className = 'pcma-primary-col';
+      if (ntpIdx > -1 && row[ntpIdx])  colC.appendChild(createPrimaryRow('NTP', toDate(row[ntpIdx])));
+      if (expIdx > -1 && row[expIdx])  colC.appendChild(createPrimaryRow('Expiry Date', toDate(row[expIdx])));
+      if (revExpIdx > -1 && row[revExpIdx]) colC.appendChild(createPrimaryRow('Rev. Expiry Date', toDate(row[revExpIdx])));
+      if (statIdx > -1 && row[statIdx]) colC.appendChild(createPrimaryRow('Status', row[statIdx], true));
+
+      const colD = document.createElement('div');
+      colD.className = 'pcma-primary-col pcma-group-d';
+      if (remIdx > -1 && row[remIdx])        colD.appendChild(createPrimaryRow('Remarks', row[remIdx]));
+      if (lastBillIdx > -1 && row[lastBillIdx]) colD.appendChild(createPrimaryRow('Last Billing', row[lastBillIdx]));
+      if (projIdIdx > -1 && row[projIdIdx])      colD.appendChild(createPrimaryRow('Project ID', row[projIdIdx]));
+
+      if (colA.children.length) primary.appendChild(colA);
+      if (colB.children.length) primary.appendChild(colB);
+      if (colC.children.length) primary.appendChild(colC);
+      if (colD.children.length) primary.appendChild(colD);
+      modalContent.appendChild(primary);
+
+      // Create 3D Project Docs Button
+      let docsBtn = null;
+      if (window.openProjectDocs) {
+        const cid = cidIdx >= 0 && row[cidIdx] != null ? String(row[cidIdx]).trim() : '';
+        docsBtn = document.createElement('button');
+        docsBtn.id = 'projectDocsBtn';
+        docsBtn.type = 'button';
+        docsBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg><span>Project Docs</span>';
+        docsBtn.className = 'modal-btn-3d btn-docs-3d';
+        docsBtn.onclick = (e) => {
+          e.stopPropagation();
+          const overlay = document.getElementById('projectDocsOverlay');
+          if (overlay) overlay.hidden = false;
+          if (typeof window.openProjectDocs === 'function') window.openProjectDocs(cid);
+        };
+      }
+
+      // Create 3D Upload/View Photos Button
+      let uploadBtn = null;
+      if (uploadCol > -1) {
+        const link = String(row[uploadCol] || '').trim();
+        if (link && PCMA.helpers?.isValidUrl?.(link)) {
+          uploadBtn = document.createElement('button');
+          uploadBtn.id = 'pcmaUploadBtn';
+          uploadBtn.type = 'button';
+          uploadBtn.innerHTML = '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg><span>Upload/View Photos</span>';
+          uploadBtn.className = 'modal-btn-3d btn-upload-3d';
+          uploadBtn.onclick = (e) => { e.stopPropagation(); window.open(link, '_blank', 'noopener'); };
+        }
+      }
+
+      // Append buttons side-by-side to the modal button container
+      if (docsBtn || uploadBtn) {
+        if (docsBtn) modalButtons.appendChild(docsBtn);
+        if (uploadBtn) modalButtons.appendChild(uploadBtn);
+      }
+
+      // MINI bars
+      const hasSched = schedIdx > -1 && row[schedIdx];
+      const hasActual= actualIdx > -1 && row[actualIdx];
+      const hasSlip  = slipIdx > -1 && row[slipIdx];
+
+      if (hasSched || hasActual || hasSlip) {
+        const mini = document.createElement('div');
+        mini.className = 'pcma-mini-bars';
+
+        function pct(val){ return PCMA.helpers?.toPct ? PCMA.helpers.toPct(val, 0) : Number(val) || 0; }
+        function addMini(label, val, baseColor, isSlippage){
+          const r = document.createElement('div'); r.className = 'pcma-mini-row';
+          const lab = document.createElement('div'); lab.className = 'pcma-mini-label'; lab.textContent = label;
+          const bar = document.createElement('div'); bar.className = 'pcma-mini-bar';
+          const fill= document.createElement('div'); fill.className = 'pcma-mini-fill';
+          bar.appendChild(fill); r.append(lab, bar); mini.appendChild(r);
+
+          const num = pct(val);
+          if (isSlippage){
+            const cfg = slipColor(num);
+            fill.style.backgroundColor = cfg.bg;
+            fill.style.color = cfg.text;
+            animateBar(fill, num, 800, v => `${v.toFixed(2)}%${cfg.sad && v <= -10 ? ' ☹️' : ''}`);
+          } else {
+            fill.style.backgroundColor = baseColor;
+            animateBar(fill, num, 800, v => `${v.toFixed(2)}%`);
+          }
+        }
+
+        if (hasSched)  addMini('SCHED',    row[schedIdx],  '#3b82f6', false);
+        if (hasActual) addMini('ACTUAL',   row[actualIdx], '#10b981', false);
+        if (hasSlip)   addMini('SLIPPAGE', row[slipIdx],   null,      true);
+
+        const progRaw  = (progIdx > -1 && row[progIdx]) ? String(row[progIdx]).trim() : '';
+        const delayRaw = (delayIdx > -1 && row[delayIdx]) ? String(row[delayIdx]).trim() : '';
+
+        if (progRaw) {
+          const wrap  = document.createElement('div'); wrap.className = 'pcma-progress';
+          const label = document.createElement('div'); label.className = 'pcma-progress-label'; label.textContent = 'Time Lapsed';
+          const bar   = document.createElement('div'); bar.className   = 'pcma-progress-bar';
+          const fill  = document.createElement('div'); fill.className  = 'pcma-progress-fill'; fill.textContent = '0%';
+          bar.appendChild(fill); wrap.append(label, bar); mini.appendChild(wrap);
+
+          const pctNum = Math.max(0, pct(progRaw));
+          const colorFor = (v) => (v > 100 ? '#dc2626' : v >= 100 ? '#16a34a' : v > 80 ? '#f97316' : '#60a5fa');
+          fill.style.backgroundColor = colorFor(pctNum);
+
+          requestAnimationFrame(() => {
+            const start = performance.now(); const duration = 900;
+            (function step(now){
+              const t = Math.min(1, (now - start) / duration);
+              const curr = pctNum * t;
+              const width = Math.min(curr, 100);
+              fill.style.width = width + '%';
+              fill.textContent = `${Math.round(curr)}%${delayRaw ? ' ('+delayRaw+')' : ''}`;
+              if (t < 1) requestAnimationFrame(step);
+              else {
+                fill.style.width = Math.min(pctNum, 100) + '%';
+                fill.style.backgroundColor = colorFor(pctNum);
+                fill.textContent = `${Math.round(pctNum)}%${delayRaw ? ' ('+delayRaw+')' : ''}`;
+              }
+            })(start);
+          });
+        }
+        modalContent.appendChild(mini);
+      }
+
+      // TEAM badges
+      const roles = [
+        ['PE', peIdx], ['PI', piIdx], ['RE', reIdx], ['QE', qeIdx], ['ME', meIdx],
+      ].map(([label, idx]) => (idx > -1 && row[idx])
+        ? `<span class="pcma-staff-badge"><strong>${label}:</strong> ${row[idx]}</span>`
+        : ''
+      ).join('');
+
+      if (roles.trim()) {
+        const team = document.createElement('div');
+        team.className = 'pcma-team';
+        team.innerHTML = `<span class="pcma-team-label">TEAM</span>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;padding-bottom:4px;">${roles}</div>`;
+        modalContent.appendChild(team);
+      }
+    }
+
+    function goModal(delta) {
+      if (!modalNavList.length) return;
+      let next = modalNavIndex + delta;
+      next = Math.max(0, Math.min(next, modalNavList.length - 1));
+      if (next === modalNavIndex) return;
+      modalNavIndex = next;
+      showDetail(modalNavList[modalNavIndex]);
+    }
+
+    PCMA.openDetailFromList = function (idx) {
+      const list = PCMA.state?.lastRenderedRows || [];
+      if (!Array.isArray(list) || !list.length) return;
+      modalNavList = list.slice();
+      modalNavIndex = Math.max(0, Math.min(idx, modalNavList.length - 1));
+      showDetail(modalNavList[modalNavIndex]);
+    };
+
+    if (closeModalTop)  closeModalTop.addEventListener('click', closeBg);
+    modalBg.addEventListener('click', (e) => { if (e.target === modalBg) closeBg(); });
+    window.addEventListener('keydown', (e) => {
+      if (!modalBg.classList.contains('pcma-show')) return;
+      if (e.key === 'Escape')      closeBg();
+      else if (e.key === 'ArrowRight') goModal(1);
+      else if (e.key === 'ArrowLeft')  goModal(-1);
+    });
+
+    if (modalPrevFloat) modalPrevFloat.addEventListener('click', (e) => { e.stopPropagation(); goModal(-1); });
+    if (modalNextFloat) modalNextFloat.addEventListener('click', (e) => { e.stopPropagation(); goModal(1); });
+  })();
+
+  // =========================================================
+  // ProjectDocs.js logic
+  // =========================================================
+  (function () {
+    const SHEET_ID = "1LSYLZ7tfSeVupQMPsCOHG4SlnzPQqOAIe03QI1qRMr8";
+    const API_KEY = "AIzaSyCz6fNJr3ecn-M2HActqM1aCXbxqRLj2e8";
+    let scurveChart = null;
+
+    function normalizeHeader(text) { return (text || "").toString().replace(/\s+/g, " ").trim().toUpperCase(); }
+    function findExactColumn(headerRow, target) {
+      const t = normalizeHeader(target);
+      for (let i = 0; i < headerRow.length; i++) { if (normalizeHeader(headerRow[i]) === t) return i; }
+      return -1;
+    }
+    function normalizeCellLower(text) { return (text || "").toString().replace(/\s+/g, " ").trim().toLowerCase(); }
+
+    function findHeaderRowIndexByHints(values, hints) {
+      const maxScan = Math.min(values.length, 40);
+      for (let i = 0; i < maxScan; i++) {
+        const row = (values[i] || []).map(normalizeCellLower);
+        if (hints.some((h) => row.some((cell) => cell.includes(h)))) return i;
+      }
+      return 2;
+    }
+
+    function findRowIndexByExactCell(values, startRow, contractId) {
+      const target = String(contractId || "").trim().toLowerCase();
+      if (!target) return -1;
+      for (let r = Math.max(0, startRow); r < values.length; r++) {
+        const row = values[r] || [];
+        for (let c = 0; c < row.length; c++) {
+          if (row[c] != null && String(row[c]).trim().toLowerCase() === target) return r;
+        }
+      }
+      return -1;
+    }
+
+    function findColumnIndexByIncludes(headers, keywords) {
+      const keys = (keywords || []).map((k) => String(k).toLowerCase());
+      for (let i = 0; i < headers.length; i++) {
+        const h = normalizeCellLower(headers[i]);
+        if (!h) continue;
+        if (keys.some((k) => h.includes(k))) return i;
+      }
+      return -1;
+    }
+
+    function getMetaFromApp(appValues, contractId) {
+      if (!Array.isArray(appValues) || !appValues.length) return null;
+      const headerIdx = findHeaderRowIndexByHints(appValues, ["contract id", "project id", "project name", "contractor", "status"]);
+      const headers = appValues[headerIdx] || [];
+      const rowIdx = findRowIndexByExactCell(appValues, headerIdx + 1, contractId);
+      const row = rowIdx >= 0 ? (appValues[rowIdx] || []) : null;
+      if (!row) return null;
+
+      const colCID = findColumnIndexByIncludes(headers, ["contract id", "contract no", "contract"]);
+      const colProjId = findColumnIndexByIncludes(headers, ["project id", "project no", "project number", "project code"]);
+      const colProjName = findColumnIndexByIncludes(headers, ["project name", "project title", "project"]);
+      const colContr = findColumnIndexByIncludes(headers, ["contractor"]);
+
+      const projectId = colProjId >= 0 ? String(row[colProjId] || "").trim() : "";
+      const projectNameColE = row.length > 4 ? String(row[4] || "").trim() : "";
+      const projectName = projectNameColE || (colProjName >= 0 ? String(row[colProjName] || "").trim() : "");
+      const contractor = colContr >= 0 ? String(row[colContr] || "").trim() : "";
+      if (!projectId && !projectName && !contractor) return null;
+
+      return {
+        contractId: colCID >= 0 ? String(row[colCID] || contractId).trim() : String(contractId || "").trim(),
+        projectId, projectName, contractor,
+      };
+    }
+
+    function buildProjectMeta(appValues, contractId) {
+      return getMetaFromApp(appValues, contractId) || { contractId: String(contractId || "").trim(), projectId: "", projectName: "", contractor: "" };
+    }
+
+    function ensureMetaMarkupExists() {
+      const metaCIDEl = document.getElementById("pdMetaCID");
+      const metaProjIdEl = document.getElementById("pdMetaProjectId");
+      const metaNameEl = document.getElementById("pdMetaProjectName");
+      const metaContrEl = document.getElementById("pdMetaContractor");
+
+      if (metaCIDEl && metaProjIdEl && metaNameEl && metaContrEl) return;
+      const metaContainer = document.querySelector(".pd-meta");
+      if (metaContainer) {
+        if (!metaProjIdEl) {
+          const row = document.createElement("div");
+          row.className = "pd-meta-row";
+          row.innerHTML = '<div class="pd-meta-label">Project ID</div><div class="pd-meta-value" id="pdMetaProjectId">—</div>';
+          const firstRow = metaContainer.querySelector(".pd-meta-row");
+          if (firstRow && firstRow.parentNode === metaContainer) metaContainer.insertBefore(row, firstRow.nextSibling);
+          else metaContainer.appendChild(row);
+        }
+        return;
+      }
+
+      const host = document.getElementById("pdMetaSection");
+      if (!host) return;
+      host.innerHTML =
+        '<div class="pd-meta">' +
+        '<div class="pd-meta-row"><div class="pd-meta-label">Contract ID</div><div class="pd-meta-value" id="pdMetaCID">—</div></div>' +
+        '<div class="pd-meta-row"><div class="pd-meta-label">Project ID</div><div class="pd-meta-value" id="pdMetaProjectId">—</div></div>' +
+        '<div class="pd-meta-row"><div class="pd-meta-label">Project Name</div><div class="pd-meta-value" id="pdMetaProjectName">—</div></div>' +
+        '<div class="pd-meta-row"><div class="pd-meta-label">Contractor</div><div class="pd-meta-value" id="pdMetaContractor">—</div></div>' +
+        "</div>";
+    }
+
+    function applyProjectMeta(meta) {
+      ensureMetaMarkupExists();
+      const cid = meta && meta.contractId ? String(meta.contractId).trim() : "";
+      const pid = meta && meta.projectId ? String(meta.projectId).trim() : "";
+      const name = meta && meta.projectName ? String(meta.projectName).trim() : "";
+      const contr = meta && meta.contractor ? String(meta.contractor).trim() : "";
+
+      if (document.getElementById("pdMetaCID")) document.getElementById("pdMetaCID").textContent = cid || "—";
+      if (document.getElementById("pdMetaProjectId")) document.getElementById("pdMetaProjectId").textContent = pid || "—";
+      if (document.getElementById("pdMetaProjectName")) document.getElementById("pdMetaProjectName").textContent = name || "—";
+      if (document.getElementById("pdMetaContractor")) document.getElementById("pdMetaContractor").textContent = contr || "—";
+    }
+
+    function monthNameToNumber(name) {
+      if (!name) return 0;
+      const key = name.toString().trim().slice(0, 3).toUpperCase();
+      const map = { JAN:1, FEB:2, MAR:3, APR:4, MAY:5, JUN:6, JUL:7, AUG:8, SEP:9, SEPT:9, OCT:10, NOV:11, DEC:12 };
+      return map[key] || 0;
+    }
+
+    function parseDateFromCell(value) {
+      if (!value) return null;
+      const str = String(value).trim();
+      if (!str) return null;
+      const d = new Date(str);
+      return !isNaN(d.getTime()) ? d : null;
+    }
+
+    function formatDateShort(d) {
+      if (!(d instanceof Date) || isNaN(d.getTime())) return "";
+      const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      return months[d.getMonth()] + " " + d.getDate() + ", " + d.getFullYear();
+    }
+
+    function addDays(date, days) {
+      if (!(date instanceof Date) || isNaN(date.getTime())) return null;
+      const n = parseInt(days, 10);
+      if (!Number.isFinite(n)) return null;
+      const d = new Date(date.getTime());
+      d.setDate(d.getDate() + n);
+      return d;
+    }
+
+    function parseDaysValue(value) {
+      if (value == null) return null;
+      const m = String(value).match(/-?\d+/);
+      return m ? (Number.isFinite(parseInt(m[0], 10)) ? parseInt(m[0], 10) : null) : null;
+    }
+
+    function findFirstExistingColumn(headerRow, labels) {
+      for (let i = 0; i < labels.length; i++) {
+        const idx = findExactColumn(headerRow, labels[i]);
+        if (idx >= 0) return idx;
+      }
+      return -1;
+    }
+
+    function deriveCteBaseDateFromRemarks(remarks, header, row) {
+      if (!remarks) return null;
+      const txt = String(remarks);
+
+      const wsoMatch = txt.match(/WSO\s*(?:No\.?\s*)?(\d+)/i);
+      if (wsoMatch && Number.isFinite(parseInt(wsoMatch[1], 10))) {
+        const wroIdx = findExactColumn(header, "WRO" + parseInt(wsoMatch[1], 10) + " Date");
+        if (wroIdx >= 0 && row[wroIdx]) { const d = parseDateFromCell(row[wroIdx]); if (d) return d; }
+      }
+
+      const voMatch = txt.match(/VO\s*(\d+)/i);
+      if (voMatch && Number.isFinite(parseInt(voMatch[1], 10))) {
+        const voIdx = findExactColumn(header, "VO" + parseInt(voMatch[1], 10) + " Date");
+        if (voIdx >= 0 && row[voIdx]) { const d = parseDateFromCell(row[voIdx]); if (d) return d; }
+      }
+
+      const monthMatch = txt.match(/month of\s+([A-Za-z]+)\s+(\d{4})/i);
+      if (monthMatch) {
+        const mNum = monthNameToNumber(monthMatch[1]);
+        const year = parseInt(monthMatch[2], 10);
+        if (mNum && year) {
+          const d = new Date(year, mNum, 0);
+          if (!isNaN(d.getTime())) return d;
+        }
+      }
+      return parseDateFromCell(txt);
+    }
+
+    function findContractRow(values, contractId) {
+      if (!values || values.length < 3) return { header: null, row: null, rowIndex: -1 };
+      const header = values[2] || [];
+      const target = String(contractId).trim().toLowerCase();
+      for (let r = 3; r < values.length; r++) {
+        const row = values[r] || [];
+        for (let c = 0; c < row.length; c++) {
+          if (row[c] != null && String(row[c]).trim().toLowerCase() === target) return { header, row, rowIndex: r };
+        }
+      }
+      return { header, row: null, rowIndex: -1 };
+    }
+
+    async function fetchValues(sheetName) {
+      const range = encodeURIComponent(sheetName + "!A1:ZZ5000");
+      const url = "https://sheets.googleapis.com/v4/spreadsheets/" + encodeURIComponent(SHEET_ID) + "/values/" + range + "?key=" + encodeURIComponent(API_KEY);
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("Failed to fetch range " + sheetName);
+      const json = await res.json();
+      return json.values || [];
+    }
+
+    async function fetchBillingSheet() {
+      const url = "https://sheets.googleapis.com/v4/spreadsheets/" + encodeURIComponent(SHEET_ID) + "?ranges=" + encodeURIComponent("BILLING!A1:ZZ5000") + "&fields=" + encodeURIComponent("sheets(data(rowData(values(formattedValue,effectiveFormat.textFormat.foregroundColor))))") + "&key=" + encodeURIComponent(API_KEY);
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("Failed to fetch BILLING sheet");
+      const json = await res.json();
+
+      const sheet = json.sheets && json.sheets[0];
+      const data = sheet && sheet.data && sheet.data[0];
+      const rowData = (data && data.rowData) || [];
+
+      const values = [];
+      const colorGrid = [];
+
+      rowData.forEach((row) => {
+        const cells = row.values || [];
+        const rowValues = [];
+        const rowColors = [];
+        cells.forEach((cell) => {
+          const v = cell && Object.prototype.hasOwnProperty.call(cell, "formattedValue") ? cell.formattedValue : "";
+          rowValues.push(v != null ? String(v) : "");
+          const color = cell && cell.effectiveFormat && cell.effectiveFormat.textFormat && cell.effectiveFormat.textFormat.foregroundColor;
+          rowColors.push(color || null);
+        });
+        values.push(rowValues);
+        colorGrid.push(rowColors);
+      });
+      return { values, colorGrid };
+    }
+
+    function buildDescriptionInfo(values, contractId) {
+      const { header, row } = findContractRow(values, contractId);
+      if (!header || !row) return null;
+      const descIdx = findExactColumn(header, "DESCRIPTION/SCOPE OF WORK");
+      const originalIdx = findExactColumn(header, "Original");
+      const revisedIdx = findExactColumn(header, "Revised");
+
+      const description = descIdx >= 0 ? (row[descIdx] || "").toString().trim() : "";
+      const original = originalIdx >= 0 ? (row[originalIdx] || "").toString().trim() : "";
+      let revised = revisedIdx >= 0 ? (row[revisedIdx] || "").toString().trim() : "";
+      if (!revised) revised = "-";
+
+      return { description: description || "-", original: original || "-", revised };
+    }
+
+    function buildPcmaRows(values, contractId) {
+      const { header, row } = findContractRow(values, contractId);
+      if (!header || !row) return [];
+      const monthColumns = [];
+      header.forEach((title, colIndex) => {
+        if (!title) return;
+        const match = /^(\d{4})\s+([A-Za-z]+)$/.exec(title.toString().trim());
+        if (match) {
+          const year = match[1], monthName = match[2], shortMonth = monthName.slice(0, 3).toLowerCase();
+          let remarksIndex = -1;
+          for (let j = 0; j < header.length; j++) {
+            const h = (header[j] || "").toString().toLowerCase();
+            if (h.includes(shortMonth) && h.includes("remarks")) { remarksIndex = j; break; }
+          }
+          monthColumns.push({ year, month: monthName, percCol: colIndex, remarksCol: remarksIndex });
+        }
+      });
+
+      const rows = [];
+      let reached100 = false;
+      monthColumns.forEach((m) => {
+        if (reached100) return;
+        const rawPerc = (row[m.percCol] || "").toString().trim();
+        const rawRemarks = m.remarksCol >= 0 ? (row[m.remarksCol] || "").toString().trim() : "";
+        if (!rawPerc && !rawRemarks) return;
+
+        let numericPerc = null;
+        if (rawPerc) {
+          const numMatch = rawPerc.match(/-?\d+(\.\d+)?/);
+          if (numMatch) numericPerc = parseFloat(numMatch[0]);
+        }
+        rows.push({ year: m.year, month: m.month, percentage: numericPerc, remarks: rawRemarks });
+        if (numericPerc === 100) reached100 = true;
+      });
+      return rows;
+    }
+
+    function buildPcmaExtraRows(values, contractId) {
+      const { header, row } = findContractRow(values, contractId);
+      if (!header || !row) return [];
+      const monthColumns = [];
+      header.forEach((title, colIndex) => {
+        if (!title) return;
+        const match = /^(\d{4})\s+([A-Za-z]+)\s+PCMA$/i.exec(title.toString().trim());
+        if (match) {
+          const year = match[1], monthName = match[2], shortMonth = monthName.slice(0, 3).toLowerCase();
+          let remarksIndex = -1;
+          for (let j = 0; j < header.length; j++) {
+            const h = (header[j] || "").toString().toLowerCase();
+            if (h.includes(shortMonth) && h.includes("remarks")) { remarksIndex = j; break; }
+          }
+          monthColumns.push({ year, month: monthName, percCol: colIndex, remarksCol: remarksIndex });
+        }
+      });
+
+      const rows = [];
+      let reached100 = false;
+      monthColumns.forEach((m) => {
+        if (reached100) return;
+        const rawPerc = (row[m.percCol] || "").toString().trim();
+        const rawRemarks = m.remarksCol >= 0 ? (row[m.remarksCol] || "").toString().trim() : "";
+        if (!rawPerc && !rawRemarks) return;
+
+        let numericPerc = null;
+        if (rawPerc) {
+          const numMatch = rawPerc.match(/-?\d+(\.\d+)?/);
+          if (numMatch) numericPerc = parseFloat(numMatch[0]);
+        }
+        rows.push({ year: m.year, month: m.month, percentage: numericPerc, remarks: rawRemarks });
+        if (numericPerc === 100) reached100 = true;
+      });
+      return rows;
+    }
+
+    function buildVoRows(values, contractId) {
+      const { header, row } = findContractRow(values, contractId);
+      if (!header || !row) return [];
+      const rows = [];
+      for (let i = 1; i <= 5; i++) {
+        const label = "VO" + i;
+        const amountIdx = findExactColumn(header, label);
+        const daysIdx = findExactColumn(header, label + " Additional Days");
+        const remarksIdx = findExactColumn(header, label + " Remarks");
+        const amount = amountIdx >= 0 ? (row[amountIdx] || "").toString().trim() : "";
+        const days = daysIdx >= 0 ? (row[daysIdx] || "").toString().trim() : "";
+        const remarks = remarksIdx >= 0 ? (row[remarksIdx] || "").toString().trim() : "";
+        if (amount || days || remarks) rows.push({ label, amount, days, remarks });
+      }
+      return rows;
+    }
+
+    function buildWsoAndCteRows(values, contractId) {
+      const { header, row } = findContractRow(values, contractId);
+      if (!header || !row) return { wsoRows: [], cteRows: [] };
+      const wsoRows = [];
+      const cteEntries = [];
+
+      for (let i = 1; i <= 4; i++) {
+        const wsoDateIdx = findExactColumn(header, "WSO" + i + " Date");
+        const wsoReasonIdx = findExactColumn(header, "WSO" + i + " Reason");
+        const cwsoDateIdx = findExactColumn(header, "CWSO" + i + "a Date");
+        const wroDateIdx = findExactColumn(header, "WRO" + i + " Date");
+
+        const wsoDate = wsoDateIdx >= 0 ? row[wsoDateIdx] || "" : "";
+        const wsoReason = wsoReasonIdx >= 0 ? row[wsoReasonIdx] || "" : "";
+        if (wsoDate || wsoReason) wsoRows.push({ code: "WSO" + i, date: wsoDate, reason: wsoReason || "" });
+
+        const cwsoDate = cwsoDateIdx >= 0 ? row[cwsoDateIdx] || "" : "";
+        if (cwsoDate) wsoRows.push({ code: "CWSO" + i + "a", date: cwsoDate, reason: "Continuing Suspension" });
+
+        const wroDate = wroDateIdx >= 0 ? row[wroDateIdx] || "" : "";
+        if (wroDate) wsoRows.push({ code: "WRO" + i, date: wroDate, reason: "Resolved" });
+      }
+
+      for (let i = 1; i <= 20; i++) {
+        const label = "CTE" + i;
+        const daysIdx = findExactColumn(header, label);
+        const remarksIdx = findExactColumn(header, label + " Remarks");
+        const daysRaw = daysIdx >= 0 ? row[daysIdx] || "" : "";
+        const remarks = remarksIdx >= 0 ? row[remarksIdx] || "" : "";
+
+        if ((daysRaw && String(daysRaw).trim() !== "") || (remarks && String(remarks).trim() !== "")) {
+          const baseDate = deriveCteBaseDateFromRemarks(remarks, header, row);
+          cteEntries.push({ code: label, daysRaw, remarks, baseDate });
+        }
+      }
+
+      for (let i = 1; i <= 5; i++) {
+        const code = "VO" + i;
+        const dateIdx = findExactColumn(header, code + " Date");
+        const daysIdx = findFirstExistingColumn(header, [code + " Additional Days", code + " Days", code]);
+        const remarksIdx = findExactColumn(header, code + " Remarks");
+
+        const dateVal = dateIdx >= 0 ? (row[dateIdx] || "").toString().trim() : "";
+        const daysRaw = daysIdx >= 0 ? (row[daysIdx] || "").toString().trim() : "";
+        const remarks = remarksIdx >= 0 ? (row[remarksIdx] || "").toString().trim() : "";
+
+        if (dateVal || daysRaw || remarks) {
+          cteEntries.push({ code, daysRaw, remarks, baseDate: parseDateFromCell(dateVal) });
+        }
+      }
+
+      const origExpiryIdx = findFirstExistingColumn(header, ["Orig. Expiry", "Orig Expiry", "Original Expiry", "Original Expiry Date"]);
+      let origExpiryDate = origExpiryIdx >= 0 ? parseDateFromCell(row[origExpiryIdx]) : null;
+
+      const sortedEntries = cteEntries.map((e, idx) => ({ ...e, _idx: idx })).sort((a, b) => {
+        if (!a.baseDate && !b.baseDate) return a._idx - b._idx;
+        if (!a.baseDate) return 1;
+        if (!b.baseDate) return -1;
+        return a.baseDate - b.baseDate;
+      });
+
+      const cteRows = [];
+      let prevRevExpiry = origExpiryDate;
+
+      sortedEntries.forEach((entry) => {
+        const { code, daysRaw, remarks, baseDate } = entry;
+        const daysNum = parseDaysValue(daysRaw);
+        let revExpiryObj = null;
+
+        if (prevRevExpiry && Number.isFinite(daysNum)) {
+          revExpiryObj = addDays(prevRevExpiry, daysNum);
+          prevRevExpiry = revExpiryObj;
+        } else if (!prevRevExpiry && baseDate && Number.isFinite(daysNum)) {
+          revExpiryObj = addDays(baseDate, daysNum);
+          prevRevExpiry = revExpiryObj;
+        }
+        cteRows.push({ code, date: baseDate ? formatDateShort(baseDate) : "", days: daysRaw || "", remarks: remarks || "", revExpiryDate: revExpiryObj ? formatDateShort(revExpiryObj) : "" });
+      });
+
+      return { wsoRows, cteRows };
+    }
+
+    function buildBillingRows(billingSheet, contractId) {
+      const values = billingSheet.values || [];
+      const colorGrid = billingSheet.colorGrid || [];
+      const { header, row, rowIndex } = findContractRow(values, contractId);
+      if (!header || !row || rowIndex < 0) return [];
+      const rows = [];
+
+      header.forEach((title, colIndex) => {
+        if (!title) return;
+        const match = /^(\d{4})\s+([A-Za-z]+)$/.exec(String(title).trim());
+        if (!match) return;
+
+        const year = match[1], monthName = match[2];
+        const amountText = String(row[colIndex] || "").trim();
+        let remarksColIndex = -1;
+
+        const remarksHeader = year + " " + monthName + " Remarks";
+        for (let j = 0; j < header.length; j++) {
+          if (normalizeHeader(header[j]) === normalizeHeader(remarksHeader)) { remarksColIndex = j; break; }
+        }
+        if (remarksColIndex < 0) {
+          const shortMonth = monthName.slice(0, 3).toLowerCase();
+          for (let j = 0; j < header.length; j++) {
+            const h = String(header[j] || "").toLowerCase();
+            if (h.includes(year.toLowerCase()) && h.includes(shortMonth) && h.includes("remarks")) { remarksColIndex = j; break; }
+          }
+        }
+
+        const remarksText = remarksColIndex >= 0 ? String(row[remarksColIndex] || "").trim() : "";
+        if (!amountText && !remarksText) return;
+
+        let percent = null;
+        if (amountText) {
+          const m = amountText.match(/(\d+(?:\.\d+)?)\s*%?/);
+          if (m) percent = parseFloat(m[1]);
+        }
+        if (remarksText) {
+          const m = remarksText.match(/\((\s*\d+(?:\.\d+)?)\s*%?\s*\)/);
+          if (m) percent = parseFloat(m[1]);
+        }
+        if (/mobilization/i.test(remarksText)) percent = 0;
+        if (/final/i.test(remarksText) || /retention/i.test(remarksText)) percent = 100;
+
+        const rowColors = colorGrid[rowIndex] || [];
+        const color = rowColors[colIndex] || null;
+        let isRed = false;
+        if (color && (color.red || 0) >= 0.7 && (color.green || 0) <= 0.3 && (color.blue || 0) <= 0.3) isRed = true;
+
+        rows.push({
+          year, month: monthName,
+          amount: amountText && amountText !== "" ? amountText : "-",
+          remarks: remarksText && remarksText !== "" ? remarksText : "-",
+          status: isRed ? "PAID" : "ON-PROCESS",
+          percentage: percent,
+        });
+      });
+      return rows;
+    }
+
+    function renderDescriptionSection(info) {
+      const container = document.getElementById("pdDescriptionSection");
+      if (!container) return;
+      if (!info) {
+        container.innerHTML = "<h3>DESCRIPTION / SCOPE OF WORK</h3><div class='pd-table-wrapper'><table class='pd-table pd-table-description'><tbody><tr><th>DESCRIPTION / SCOPE OF WORK</th><td>-</td></tr><tr><th>ORIGINAL</th><td>-</td></tr><tr><th>REVISED</th><td>-</td></tr></tbody></table></div>";
+        return;
+      }
+      container.innerHTML = "<h3>DESCRIPTION / SCOPE OF WORK</h3><div class='pd-table-wrapper'><table class='pd-table pd-table-description'><tbody><tr><th>ORIGINAL</th><td>" + (info.original || "-") + "</td></tr><tr><th>REVISED</th><td>" + (info.revised || "-") + "</td></tr></tbody></table></div>";
+    }
+
+    function renderPcmaSection(pcmaRows, pcmaExtraRows) {
+      const container = document.getElementById("pdPcmaSection");
+      if (!container) return;
+      const combinedMap = new Map();
+      function upsertEntry(sourceRow, type) {
+        if (!sourceRow || !sourceRow.year || !sourceRow.month) return;
+        const mNum = monthNameToNumber(sourceRow.month);
+        if (!mNum) return;
+        const key = sourceRow.year + "-" + String(mNum).padStart(2, "0");
+        let entry = combinedMap.get(key);
+        if (!entry) { entry = { year: sourceRow.year, month: sourceRow.month, monthNum: mNum, actual: null, pcma: null, remarks: "" }; combinedMap.set(key, entry); }
+        if (typeof sourceRow.percentage === "number") { if (type === "actual") entry.actual = sourceRow.percentage; if (type === "pcma") entry.pcma = sourceRow.percentage; }
+        if (sourceRow.remarks && !entry.remarks) entry.remarks = sourceRow.remarks;
+      }
+
+      (pcmaRows || []).forEach((r) => upsertEntry(r, "actual"));
+      (pcmaExtraRows || []).forEach((r) => upsertEntry(r, "pcma"));
+
+      let rows = Array.from(combinedMap.values()).filter((r) => typeof r.actual === "number" || typeof r.pcma === "number" || (r.remarks && String(r.remarks).trim() !== ""));
+      if (!rows.length) { container.innerHTML = "<h3>MONTHLY ACCOMPLISHMENT</h3><p>No Monthly Accomplishment data for this Contract ID.</p>"; return; }
+      rows.sort((a, b) => { const ya = parseInt(a.year, 10) || 0; const yb = parseInt(b.year, 10) || 0; if (ya !== yb) return ya - yb; return a.monthNum - b.monthNum; });
+
+      let html = "<h3>MONTHLY ACCOMPLISHMENT</h3><div class='pd-table-wrapper'><table class='pd-table pd-table-pcma'><thead><tr><th>MONTH</th><th>ACTUAL</th><th>PCMA</th><th>REMARKS</th></tr></thead><tbody>";
+      let currentYear = null;
+      rows.forEach((r) => {
+        if (r.year !== currentYear) { currentYear = r.year; html += '<tr class="pd-year-row"><td class="pd-year-label" colspan="4">' + (currentYear || "") + "</td></tr>"; }
+        html += "<tr><td class='col-month'>&nbsp;&nbsp;&nbsp;&nbsp;" + (r.month || "") + "</td><td class='col-actual'>" + (typeof r.actual === "number" ? r.actual + "%" : "-") + "</td><td class='col-pcma'>" + (typeof r.pcma === "number" ? r.pcma + "%" : "-") + "</td><td class='pd-remarks'>" + (r.remarks && String(r.remarks).trim() !== "" ? r.remarks : "-") + "</td></tr>";
+      });
+      html += "</tbody></table></div>";
+      container.innerHTML = html;
+    }
+
+    function renderVoSection(voRows) {
+      const container = document.getElementById("pdVoSection");
+      if (!container) return;
+      if (!voRows.length) { container.innerHTML = "<h3>VARIATION ORDER (VO)</h3><p></p>"; return; }
+      let html = "<h3>VARIATION ORDER (VO)</h3><div class='pd-table-wrapper'><table class='pd-table pd-table-vo'><thead><tr><th>VO</th><th>AMOUNT</th><th>(+) DAYS</th><th>REMARKS</th></tr></thead><tbody>";
+      voRows.forEach((r) => { html += "<tr><td class='col-vo'>" + (r.label || "") + "</td><td class='col-amount'>" + (r.amount || "-") + "</td><td class='col-days'>" + (r.days || "-") + "</td><td class='pd-remarks'>" + (r.remarks || "-") + "</td></tr>"; });
+      html += "</tbody></table></div>";
+      container.innerHTML = html;
+    }
+
+    function renderWsoSection(wsoRows) {
+      const container = document.getElementById("pdWsoSection");
+      if (!container) return;
+      if (!wsoRows.length) { container.innerHTML = "<h3>SUSPENSION ORDER</h3><p></p>"; return; }
+      let html = "<h3>SUSPENSION ORDER</h3><div class='pd-table-wrapper'><table class='pd-table pd-table-wso'><thead><tr><th>CODE</th><th>DATE</th><th>REASON</th></tr></thead><tbody>";
+      wsoRows.forEach((r) => { html += "<tr><td class='col-code'>" + r.code + "</td><td class='col-date'>" + (r.date || "") + "</td><td class='pd-remarks'>" + (r.reason || "") + "</td></tr>"; });
+      html += "</tbody></table></div>";
+      container.innerHTML = html;
+    }
+
+    function renderCteSection(cteRows) {
+      const container = document.getElementById("pdCteSection");
+      if (!container) return;
+      if (!cteRows.length) { container.innerHTML = "<h3>CONTRACT TIME EXTENSION (CTE)</h3><p>No CTE data for this Contract ID.</p>"; return; }
+      let html = "<h3>CONTRACT TIME EXTENSION (CTE)</h3><div class='pd-table-wrapper'><table class='pd-table pd-table-cte'><thead><tr><th>CTE</th><th>DATE</th><th>(+) DAYS</th><th>REMARKS</th><th>REV. EXPIRY DATE</th></tr></thead><tbody>";
+      cteRows.forEach((r) => {
+        let daysDisplay = r.days ? (String(r.days).match(/-?\d+/) ? parseInt(String(r.days).match(/-?\d+/)[0], 10).toString() : String(r.days)) : "";
+        let remarksDisplay = r.remarks || "";
+        if (/^vo\d+$/i.test(String(r.code).trim())) remarksDisplay = "due to " + String(r.code).trim().toUpperCase();
+        html += "<tr><td class='col-code'>" + (r.code || "") + "</td><td class='col-date'>" + (r.date || "") + "</td><td class='col-days'>" + daysDisplay + "</td><td class='pd-remarks'>" + remarksDisplay + "</td><td class='col-revdate'>" + (r.revExpiryDate || "") + "</td></tr>";
+      });
+      html += "</tbody></table></div>";
+      container.innerHTML = html;
+    }
+
+    function renderBillingSection(billingRows) {
+      const container = document.getElementById("pdBillingSection");
+      if (!container) return;
+      if (!billingRows.length) { container.innerHTML = "<h3>BILLING</h3><p></p>"; return; }
+      let html = "<h3>BILLING</h3><div class='pd-table-wrapper'><table class='pd-table pd-table-billing'><thead><tr><th>YEAR</th><th>MONTH</th><th>AMOUNT</th><th>REMARKS</th><th>STATUS</th></tr></thead><tbody>";
+      billingRows.forEach((r) => { html += "<tr><td class='col-year'>" + (r.year || "") + "</td><td class='col-month'>" + (r.month || "") + "</td><td class='col-amount'>" + (r.amount || "-") + "</td><td class='pd-remarks'>" + (r.remarks || "-") + "</td><td class='col-status'>" + (r.status || "ON-PROCESS") + "</td></tr>"; });
+      html += "</tbody></table></div>";
+      container.innerHTML = html;
+    }
+
+    function buildSCurveChart(pcmaRows, pcmaExtraRows, billingRows) {
+      const canvas = document.getElementById("pdSCurveCanvas");
+      if (!canvas || typeof Chart === "undefined") return;
+
+      const monthMap = new Map();
+      function addRows(rows) {
+        rows.forEach((r) => {
+          if (!r || !r.year || !r.month) return;
+          const mNum = monthNameToNumber(r.month);
+          if (!mNum) return;
+          const key = r.year + "-" + String(mNum).padStart(2, "0");
+          if (!monthMap.has(key)) monthMap.set(key, { year: r.year, month: r.month, monthNum: mNum });
+        });
+      }
+      addRows(pcmaRows); addRows(pcmaExtraRows); addRows(billingRows);
+
+      if (!monthMap.size) { const ctx = canvas.getContext("2d"); ctx.clearRect(0, 0, canvas.width, canvas.height); return; }
+
+      const entries = Array.from(monthMap.entries()).sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0));
+      const labels = entries.map(([, info]) => info.month + " " + info.year);
+
+      function extractData(rowsObj) {
+        const dict = {};
+        rowsObj.forEach((r) => {
+          if (!r || typeof r.year === "undefined") return;
+          const mNum = monthNameToNumber(r.month);
+          if (mNum) dict[r.year + "-" + String(mNum).padStart(2, "0")] = typeof r.percentage === "number" ? r.percentage : null;
+        });
+        return entries.map(([key]) => typeof dict[key] === "number" ? dict[key] : null);
+      }
+
+      const pcmaData = extractData(pcmaRows);
+      const pcmaExtraData = extractData(pcmaExtraRows);
+      const billingData = extractData(billingRows);
+      const ctx = canvas.getContext("2d");
+
+      if (scurveChart) scurveChart.destroy();
+
+      const dataLabelPlugin = {
+        id: "pdDataLabelPlugin",
+        afterDatasetsDraw(chart) {
+          const { ctx } = chart;
+          const placedBoxes = [];
+          function overlaps(a, b) { return !(a.right < b.left || a.left > b.right || a.bottom < b.top || a.top > b.bottom); }
+
+          chart.data.datasets.forEach((dataset, datasetIndex) => {
+            if (!chart.isDatasetVisible(datasetIndex)) return;
+            const meta = chart.getDatasetMeta(datasetIndex);
+            meta.data.forEach((point, index) => {
+              const value = dataset.data[index];
+              if (value == null) return;
+              const pos = point.tooltipPosition();
+              const fontSize = 9;
+              ctx.save();
+              ctx.font = fontSize + "px Arial";
+              const textWidth = ctx.measureText(value + "%").width;
+              const boxWidth = textWidth + 8;
+              const boxHeight = fontSize + 4;
+              let x = pos.x, y = pos.y - (8 + datasetIndex * 10);
+              let box = { left: x - boxWidth / 2, right: x + boxWidth / 2, top: y - boxHeight, bottom: y };
+              let safety = 0;
+              while (placedBoxes.some((b) => overlaps(b, box)) && safety < 20) {
+                y -= boxHeight + 2; box.top = y - boxHeight; box.bottom = y; safety++;
+              }
+
+              const label = (dataset.label || "").toUpperCase();
+              let fillColor = "rgba(255, 255, 255, 0.9)", strokeColor = "rgba(148, 163, 184, 0.9)", textColor = "#000000";
+              if (label === "ACTUAL") { fillColor = "rgba(0, 128, 0, 0.9)"; strokeColor = "rgba(0, 100, 0, 1)"; textColor = "#ffffff"; }
+              else if (label === "PCMA") { fillColor = "rgba(37, 99, 235, 0.9)"; strokeColor = "rgba(30, 64, 175, 1)"; textColor = "#ffffff"; }
+              else if (label === "BILLING") { fillColor = "rgba(220, 38, 38, 0.9)"; strokeColor = "rgba(185, 28, 28, 1)"; textColor = "#ffffff"; }
+
+              ctx.textAlign = "center"; ctx.textBaseline = "middle";
+              ctx.beginPath();
+              ctx.roundRect(box.left, box.top, boxWidth, boxHeight, 3);
+              ctx.fillStyle = fillColor; ctx.strokeStyle = strokeColor; ctx.lineWidth = 0.8;
+              ctx.fill(); ctx.stroke();
+              ctx.fillStyle = textColor; ctx.fillText(value + "%", x, (box.top + box.bottom) / 2);
+              ctx.restore();
+              placedBoxes.push(box);
+            });
+          });
+        },
+      };
+
+      scurveChart = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: labels,
+          datasets: [
+            { label: "ACTUAL", data: pcmaData, tension: 0.4, borderColor: "rgba(0, 128, 0, 1)", backgroundColor: "rgba(0, 128, 0, 0.2)", borderWidth: 0.8, pointBackgroundColor: "rgba(0, 128, 0, 1)", pointRadius: 3, spanGaps: true, fill: true },
+            { label: "PCMA", data: pcmaExtraData, tension: 0.4, borderColor: "rgba(37, 99, 235, 1)", backgroundColor: "rgba(37, 99, 235, 0.25)", borderWidth: 0.8, pointBackgroundColor: "rgba(37, 99, 235, 1)", pointRadius: 3, spanGaps: true, fill: true },
+            { label: "BILLING", data: billingData, tension: 0.4, borderColor: "rgba(255, 0, 0, 1)", backgroundColor: "rgba(255, 0, 0, 0.2)", borderWidth: 0.8, pointBackgroundColor: "red", pointRadius: 3, spanGaps: true, fill: true },
+          ],
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          scales: { y: { min: 0, max: 100, ticks: { stepSize: 10, callback: (v) => v + "%" }, title: { display: true, text: "Percentage" } }, x: { grid: { display: true } } },
+          plugins: { legend: { position: "top" }, tooltip: { callbacks: { label: (ctx) => (ctx.dataset.label || "") + ": " + (typeof ctx.parsed.y === "number" ? ctx.parsed.y : "") + "%" } } }
+        },
+        plugins: [dataLabelPlugin],
+      });
+
+      function bindToggle(id, datasetIndex) {
+        const checkbox = document.getElementById(id);
+        if (!checkbox) return;
+        checkbox.checked = scurveChart.isDatasetVisible(datasetIndex);
+        checkbox.onchange = function () { scurveChart.setDatasetVisibility(datasetIndex, checkbox.checked); scurveChart.update(); };
+      }
+      bindToggle("pdToggleActual", 0); bindToggle("pdTogglePcma", 1); bindToggle("pdToggleBilling", 2);
+    }
+
+    function openOverlay() { 
+      const overlay = document.getElementById("projectDocsOverlay"); 
+      if (overlay) {
+        overlay.hidden = false; 
+        overlay.classList.remove("hidden");
+      }
+    }
+    function closeOverlay() { const overlay = document.getElementById("projectDocsOverlay"); if (overlay) overlay.hidden = true; if (scurveChart) { scurveChart.destroy(); scurveChart = null; } }
+    window.closeOverlay = closeOverlay;
+
+    function buildBodySkeleton() {
+      const body = document.getElementById("projectDocsBody");
+      if (!body) return { body: null, loadingEl: null };
+      body.innerHTML =
+        '<div id="projectDocsLoading" class="pd-loading">Loading documentation…</div>' +
+        '<section id="pdMetaSection" class="pd-section"></section>' +
+        '<section id="pdDescriptionSection" class="pd-section"></section>' +
+        '<section id="pdPcmaSection" class="pd-section"></section>' +
+        '<div class="pd-scurve-controls"><label class="pd-toggle"><input type="checkbox" id="pdToggleActual" checked><span>ACTUAL</span></label><label class="pd-toggle"><input type="checkbox" id="pdTogglePcma" checked><span>PCMA</span></label><label class="pd-toggle"><input type="checkbox" id="pdToggleBilling" checked><span>BILLING</span></label></div>' +
+        '<div class="pd-scurve-wrapper"><canvas id="pdSCurveCanvas"></canvas></div>' +
+        '<section id="pdBillingSection" class="pd-section"></section>' +
+        '<section id="pdWsoSection" class="pd-section"></section>' +
+        '<section id="pdVoSection" class="pd-section"></section>' +
+        '<section id="pdCteSection" class="pd-section"></section>';
+      return { body, loadingEl: document.getElementById("projectDocsLoading") };
+    }
+
+    async function openProjectDocs(contractId) {
+      if (!contractId) { const cidEl = document.getElementById("pcmaModalCID"); if (cidEl) contractId = cidEl.textContent.trim(); }
+      if (!contractId) { alert("No Contract ID found."); return; }
+
+      ensureMetaMarkupExists();
+      if (document.getElementById("pdMetaCID")) document.getElementById("pdMetaCID").textContent = contractId;
+      if (document.getElementById("pdMetaProjectId")) document.getElementById("pdMetaProjectId").textContent = "—";
+      if (document.getElementById("pdMetaProjectName")) document.getElementById("pdMetaProjectName").textContent = "—";
+      if (document.getElementById("pdMetaContractor")) document.getElementById("pdMetaContractor").textContent = "—";
+
+      openOverlay();
+      const { body, loadingEl } = buildBodySkeleton();
+      if (!body) return;
+      if (loadingEl) loadingEl.style.display = "block";
+
+      try {
+        const [appValues, pcmaValues, voValues, wsoValues, billingSheet, descriptionValues] = await Promise.all([
+          fetchValues("APP"), fetchValues("PCMA"), fetchValues("VO"), fetchValues("WSO/WRO/CTE"), fetchBillingSheet(), fetchValues("DESCRIPTION")
+        ]);
+        applyProjectMeta(buildProjectMeta(appValues, contractId));
+
+        const descriptionInfo = buildDescriptionInfo(descriptionValues, contractId);
+        const pcmaRows = buildPcmaRows(pcmaValues, contractId);
+        const pcmaExtraRows = buildPcmaExtraRows(pcmaValues, contractId);
+        const voRows = buildVoRows(voValues, contractId);
+        const { wsoRows, cteRows } = buildWsoAndCteRows(wsoValues, contractId);
+        const billingRows = buildBillingRows(billingSheet, contractId);
+
+        renderDescriptionSection(descriptionInfo);
+        renderPcmaSection(pcmaRows, pcmaExtraRows);
+        renderBillingSection(billingRows);
+        renderWsoSection(wsoRows);
+        renderVoSection(voRows);
+        renderCteSection(cteRows);
+        buildSCurveChart(pcmaRows, pcmaExtraRows, billingRows);
+
+      } catch (err) {
+        console.error("ProjectDocs error:", err);
+        if (body) body.innerHTML = '<div class="pd-error">Error loading Project Documentation. Please try again.</div>';
+      } finally {
+        if (loadingEl) loadingEl.style.display = "none";
+      }
+    }
+
+    window.openProjectDocs = openProjectDocs;
+
+    function setupOverlayClose() {
+      const closeBtn = document.getElementById("pdCloseBtn");
+      const overlay  = document.getElementById("projectDocsOverlay");
+      if (closeBtn) closeBtn.addEventListener("click", closeOverlay);
+      if (overlay) overlay.addEventListener("click", (e) => { if (e.target === overlay) closeOverlay(); });
+    }
+    setupOverlayClose();
+  })();
+</script>
 </body>
 </html>
