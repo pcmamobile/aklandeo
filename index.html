@@ -166,6 +166,9 @@
     .btn-pcmarev { color: #0d9488; } /* Teal */
     .btn-pcmarev svg { stroke: #0d9488; }
 
+    .btn-uploadmon { color: #be185d; } /* Pink/Rose */
+    .btn-uploadmon svg { stroke: #be185d; }
+
     /* =========================================================
        App View (Grid)
        ========================================================= */
@@ -897,25 +900,23 @@
       <span>Projects</span>
     </button>
     
-    <!-- DOWNLOAD BUTTON -->
-    <a href="https://drive.google.com/file/d/1CTogwlTvQxwPW0KrdHyGSVxMZ3cjH3PM/view?usp=sharing" target="_blank" class="btn-3d btn-download">
+    <!-- UPLOAD FILES MONITORING BUTTON -->
+    <a href="https://script.google.com/macros/s/AKfycbxss_VVSxn6xXHEFRwhZeSx0KRJRMSQ9c_50nR_Zx_zCtEpqoI3AN8_2rJONvwUzykeSw/exec?page=monitor" target="_blank" class="btn-3d btn-uploadmon">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-        <polyline points="7 10 12 15 17 10"></polyline>
-        <line x1="12" y1="15" x2="12" y2="3"></line>
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
       </svg>
-      <span>Download APK</span>
+      <span>Upload Files<br>Monitoring</span>
     </a>
-    
-    <!-- DASHBOARD BUTTON -->
+
+    <!-- DATABASE BUTTON -->
     <a href="https://script.google.com/macros/s/AKfycbxss_VVSxn6xXHEFRwhZeSx0KRJRMSQ9c_50nR_Zx_zCtEpqoI3AN8_2rJONvwUzykeSw/exec" target="_blank" class="btn-3d btn-dashboard">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-        <rect x="3" y="3" width="7" height="9"></rect>
-        <rect x="14" y="3" width="7" height="5"></rect>
-        <rect x="14" y="12" width="7" height="9"></rect>
-        <rect x="3" y="16" width="7" height="5"></rect>
+        <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+        <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+        <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
       </svg>
-      <span>Dashboard</span>
+      <span>Database</span>
     </a>
 
     <!-- DOCUTRACKER BUTTON -->
@@ -930,15 +931,14 @@
       <span>DocuTracker</span>
     </a>
 
-    <!-- LEADERBOARDS BUTTON -->
+    <!-- LEADERBOARDS & FILE UPLOADER BUTTON -->
     <a href="https://script.google.com/macros/s/AKfycbxss_VVSxn6xXHEFRwhZeSx0KRJRMSQ9c_50nR_Zx_zCtEpqoI3AN8_2rJONvwUzykeSw/exec?page=upload" target="_blank" class="btn-3d btn-leaderboards">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-        <path d="M8 21h8"></path>
-        <path d="M12 17v4"></path>
-        <path d="M7 4h10"></path>
-        <path d="M5 4h14v7a7 7 0 0 1-14 0V4z"></path>
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="17 8 12 3 7 8"></polyline>
+        <line x1="12" y1="3" x2="12" y2="15"></line>
       </svg>
-      <span>Leaderboards</span>
+      <span>Leaderboards &<br>File Uploader</span>
     </a>
 
     <!-- PCMA REVISION MONITORING BUTTON -->
@@ -947,6 +947,16 @@
         <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
       </svg>
       <span>PCMA Revision<br>Monitoring</span>
+    </a>
+
+    <!-- DOWNLOAD BUTTON -->
+    <a href="https://drive.google.com/file/d/1CTogwlTvQxwPW0KrdHyGSVxMZ3cjH3PM/view?usp=sharing" target="_blank" class="btn-3d btn-download">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="7 10 12 15 17 10"></polyline>
+        <line x1="12" y1="15" x2="12" y2="3"></line>
+      </svg>
+      <span>Download APK<br>for Android Only</span>
     </a>
 
   </div>
