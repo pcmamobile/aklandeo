@@ -717,7 +717,7 @@
     /* =========================================================
        ProjectDocs.css
        ========================================================= */
-    #projectDocsOverlay, #iframeOverlay {
+    #projectDocsOverlay, #uploadPhotosOverlay, #iframeOverlay {
       position: fixed;
       inset: 0;
       display: flex;
@@ -727,7 +727,7 @@
       z-index: 11000;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
-    #projectDocsOverlay[hidden], #iframeOverlay[hidden] { display: none !important; }
+    #projectDocsOverlay[hidden], #uploadPhotosOverlay[hidden], #iframeOverlay[hidden] { display: none !important; }
 
     .pd-box {
       background: #ffffff;
@@ -783,7 +783,7 @@
 
     #pdMetaSection .pd-meta{ border: 1px solid #e5e7eb; border-radius: 10px; }
 
-    #pdCloseBtn, #upCloseBtn, #lbCloseBtn {
+    #pdCloseBtn {
       border: none;
       background: #ef4444;
       color: #ffffff;
@@ -794,7 +794,7 @@
       cursor: pointer;
       margin-left: 12px;        
     }
-    #pdCloseBtn:hover, #upCloseBtn:hover, #lbCloseBtn:hover { background: #b91c1c; }
+    #pdCloseBtn:hover { background: #b91c1c; }
 
     /* Huge padding bottom so footer won't block bottom content */
     #projectDocsBody {
@@ -859,10 +859,22 @@
     .pd-scurve-wrapper canvas { width: 100% !important; height: 100% !important; }
     .pd-error { padding: 8px 10px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; font-size: 12px; color: #b91c1c; }
 
-    /* New styles for Iframe modal */
+    /* New styles for Iframe modals */
     .up-box { height: 90vh; }
     .up-body { padding: 0 !important; background: #f4f6f8 !important; display: flex; flex-direction: column; flex: 1; }
     .up-frame { width: 100%; height: 100%; border: none; flex: 1; }
+
+    /* Fullscreen modifiers for Leaderboards */
+    .fullscreen-box {
+      width: 100vw !important; 
+      max-width: none !important; 
+      height: 100vh !important; 
+      max-height: none !important; 
+      border-radius: 0 !important; 
+    }
+    .fullscreen-body {
+      padding: 0 0 var(--footer-h) 0 !important; 
+    }
 
     @media (max-width: 600px) {
       .pd-box { width: 100%; max-width: none; height: 100%; max-height: none; border-radius: 0; }
@@ -1061,10 +1073,6 @@
 <!-- LEADERBOARDS MODAL WINDOW -->
 <div class="pd-overlay" id="iframeOverlay" aria-modal="true" role="dialog" hidden>
   <div class="pd-box up-box" id="iframeBox">
-    <div class="pd-top">
-      <h3 class="pd-title">LEADERBOARDS & FILE UPLOADER</h3>
-      <button type="button" class="pd-close-btn" id="lbCloseBtn">Close</button>
-    </div>
     <div class="pd-body up-body" id="iframeBody">
       <iframe id="iframeFrame" class="up-frame" src=""></iframe>
     </div>
@@ -1131,7 +1139,11 @@
       btnLeaderboards.addEventListener("click", () => {
         const frame = document.getElementById('iframeFrame');
         const overlay = document.getElementById('iframeOverlay');
+        const box = document.getElementById('iframeBox');
+        const body = document.getElementById('iframeBody');
         if (frame && overlay) {
+          if (box) box.classList.add('fullscreen-box');
+          if (body) body.classList.add('fullscreen-body');
           frame.src = "Leaderboards.html";
           overlay.hidden = false;
           overlay.classList.remove('hidden');
@@ -1143,29 +1155,36 @@
     if (backBtn) {
       backBtn.addEventListener("click", () => {
         const docsOverlay = document.getElementById("projectDocsOverlay");
+        const uploadOverlay = document.getElementById("uploadPhotosOverlay");
         const iframeOverlay = document.getElementById("iframeOverlay");
         const modalBg = document.getElementById("pcmaModalBg");
 
-        // 1. Close iframe overlay (Photos/Leaderboards) if open
+        // 1. Close upload photos overlay if open
+        if (uploadOverlay && !uploadOverlay.hidden) {
+          if (typeof window.closeUploadOverlay === "function") window.closeUploadOverlay();
+          return;
+        }
+
+        // 2. Close iframe overlay (Leaderboards) if open
         if (iframeOverlay && !iframeOverlay.hidden) {
           if (typeof window.closeIframeOverlay === "function") window.closeIframeOverlay();
           return;
         }
 
-        // 2. Close documentation overlay if open
+        // 3. Close documentation overlay if open
         if (docsOverlay && !docsOverlay.hidden) {
           if (typeof window.closeOverlay === "function") window.closeOverlay();
           return;
         }
 
-        // 3. Close project details modal if open
+        // 4. Close project details modal if open
         if (modalBg && modalBg.classList.contains("pcma-show")) {
           modalBg.classList.remove("pcma-show");
           document.documentElement.classList.remove('pcma-no-scroll');
           return;
         }
 
-        // 4. If in App/Grid View, go back to 3D Home
+        // 5. If in App/Grid View, go back to 3D Home
         if (appView && !appView.classList.contains("hidden")) {
           appView.classList.add("hidden");
           if (homeView) homeView.classList.remove("hidden");
@@ -1173,7 +1192,7 @@
           return;
         }
 
-        // 5. Default history back
+        // 6. Default history back
         window.history.back();
       });
     }
@@ -1182,7 +1201,7 @@
     if (homeBtn) {
       homeBtn.addEventListener("click", () => {
         // Close active modals safely
-        const knownOverlayIds = ["projectDocsOverlay", "iframeOverlay", "pcmaModalBg"];
+        const knownOverlayIds = ["projectDocsOverlay", "uploadPhotosOverlay", "iframeOverlay", "pcmaModalBg"];
         knownOverlayIds.forEach((id) => {
           const el = document.getElementById(id);
           if (el) {
@@ -1194,6 +1213,9 @@
 
         if (typeof window.closeOverlay === "function") {
           try { window.closeOverlay(); } catch (e) {}
+        }
+        if (typeof window.closeUploadOverlay === "function") {
+          try { window.closeUploadOverlay(); } catch (e) {}
         }
         if (typeof window.closeIframeOverlay === "function") {
           try { window.closeIframeOverlay(); } catch (e) {}
@@ -1757,10 +1779,10 @@
           uploadBtn.onclick = (e) => { 
             e.stopPropagation(); 
             // Opens the link in the in-app overlay iframe
-            const frame = document.getElementById('iframeFrame');
-            const overlay = document.getElementById('iframeOverlay');
-            const box = document.getElementById('iframeBox');
-            const body = document.getElementById('iframeBody');
+            const frame = document.getElementById('uploadPhotosFrame');
+            const overlay = document.getElementById('uploadPhotosOverlay');
+            const box = document.getElementById('uploadPhotosBox');
+            const body = document.getElementById('uploadPhotosBody');
             if (frame && overlay) {
               if (box) box.classList.remove('fullscreen-box');
               if (body) body.classList.remove('fullscreen-body');
@@ -2663,14 +2685,14 @@
   })();
 
   // =========================================================
-  // IframeOverlay logic (Upload Photos & Leaderboards)
+  // Iframe/Upload Overlay logic
   // =========================================================
   (function () {
     function closeUploadOverlay() {
       const overlay = document.getElementById("uploadPhotosOverlay");
       const frame = document.getElementById('uploadPhotosFrame');
       if (overlay) overlay.hidden = true;
-      if (frame) frame.src = ""; // Clear src to stop any media/loading
+      if (frame) frame.src = ""; 
     }
     window.closeUploadOverlay = closeUploadOverlay;
 
@@ -2681,12 +2703,9 @@
       const overlay = document.getElementById("iframeOverlay");
       const frame = document.getElementById('iframeFrame');
       if (overlay) overlay.hidden = true;
-      if (frame) frame.src = ""; // Clear src to stop any media/loading
+      if (frame) frame.src = ""; 
     }
     window.closeIframeOverlay = closeIframeOverlay;
-
-    const lbCloseBtn = document.getElementById("lbCloseBtn");
-    if (lbCloseBtn) lbCloseBtn.addEventListener("click", closeIframeOverlay);
 
     const iframeOverlay  = document.getElementById("iframeOverlay");
     if (iframeOverlay) iframeOverlay.addEventListener("click", (e) => { if (e.target === iframeOverlay) closeIframeOverlay(); });
