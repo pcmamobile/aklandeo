@@ -783,7 +783,7 @@
 
     #pdMetaSection .pd-meta{ border: 1px solid #e5e7eb; border-radius: 10px; }
 
-    #pdCloseBtn {
+    #pdCloseBtn, #upCloseBtn, #lbCloseBtn {
       border: none;
       background: #ef4444;
       color: #ffffff;
@@ -794,7 +794,7 @@
       cursor: pointer;
       margin-left: 12px;        
     }
-    #pdCloseBtn:hover { background: #b91c1c; }
+    #pdCloseBtn:hover, #upCloseBtn:hover, #lbCloseBtn:hover { background: #b91c1c; }
 
     /* Huge padding bottom so footer won't block bottom content */
     #projectDocsBody {
@@ -863,18 +863,6 @@
     .up-box { height: 90vh; }
     .up-body { padding: 0 !important; background: #f4f6f8 !important; display: flex; flex-direction: column; flex: 1; }
     .up-frame { width: 100%; height: 100%; border: none; flex: 1; }
-
-    /* Fullscreen modifiers for Leaderboards */
-    .fullscreen-box {
-      width: 100vw !important; 
-      max-width: none !important; 
-      height: 100vh !important; 
-      max-height: none !important; 
-      border-radius: 0 !important; 
-    }
-    .fullscreen-body {
-      padding: 0 0 var(--footer-h) 0 !important; 
-    }
 
     @media (max-width: 600px) {
       .pd-box { width: 100%; max-width: none; height: 100%; max-height: none; border-radius: 0; }
@@ -1061,9 +1049,22 @@
   </div>
 </div>
 
-<!-- IFRAME MODAL WINDOW (Used for Upload Photos & Leaderboards) -->
+<!-- UPLOAD PHOTOS WINDOW -->
+<div class="pd-overlay" id="uploadPhotosOverlay" aria-modal="true" role="dialog" hidden>
+  <div class="pd-box up-box">
+    <div class="pd-body up-body" id="uploadPhotosBody">
+      <iframe id="uploadPhotosFrame" class="up-frame" src=""></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- LEADERBOARDS MODAL WINDOW -->
 <div class="pd-overlay" id="iframeOverlay" aria-modal="true" role="dialog" hidden>
   <div class="pd-box up-box" id="iframeBox">
+    <div class="pd-top">
+      <h3 class="pd-title">LEADERBOARDS & FILE UPLOADER</h3>
+      <button type="button" class="pd-close-btn" id="lbCloseBtn">Close</button>
+    </div>
     <div class="pd-body up-body" id="iframeBody">
       <iframe id="iframeFrame" class="up-frame" src=""></iframe>
     </div>
@@ -1130,11 +1131,7 @@
       btnLeaderboards.addEventListener("click", () => {
         const frame = document.getElementById('iframeFrame');
         const overlay = document.getElementById('iframeOverlay');
-        const box = document.getElementById('iframeBox');
-        const body = document.getElementById('iframeBody');
         if (frame && overlay) {
-          if (box) box.classList.add('fullscreen-box');
-          if (body) body.classList.add('fullscreen-body');
           frame.src = "Leaderboards.html";
           overlay.hidden = false;
           overlay.classList.remove('hidden');
@@ -2669,6 +2666,17 @@
   // IframeOverlay logic (Upload Photos & Leaderboards)
   // =========================================================
   (function () {
+    function closeUploadOverlay() {
+      const overlay = document.getElementById("uploadPhotosOverlay");
+      const frame = document.getElementById('uploadPhotosFrame');
+      if (overlay) overlay.hidden = true;
+      if (frame) frame.src = ""; // Clear src to stop any media/loading
+    }
+    window.closeUploadOverlay = closeUploadOverlay;
+
+    const upOverlay  = document.getElementById("uploadPhotosOverlay");
+    if (upOverlay) upOverlay.addEventListener("click", (e) => { if (e.target === upOverlay) closeUploadOverlay(); });
+
     function closeIframeOverlay() {
       const overlay = document.getElementById("iframeOverlay");
       const frame = document.getElementById('iframeFrame');
@@ -2677,8 +2685,11 @@
     }
     window.closeIframeOverlay = closeIframeOverlay;
 
-    const overlay  = document.getElementById("iframeOverlay");
-    if (overlay) overlay.addEventListener("click", (e) => { if (e.target === overlay) closeIframeOverlay(); });
+    const lbCloseBtn = document.getElementById("lbCloseBtn");
+    if (lbCloseBtn) lbCloseBtn.addEventListener("click", closeIframeOverlay);
+
+    const iframeOverlay  = document.getElementById("iframeOverlay");
+    if (iframeOverlay) iframeOverlay.addEventListener("click", (e) => { if (e.target === iframeOverlay) closeIframeOverlay(); });
   })();
 </script>
 </body>
