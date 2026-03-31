@@ -717,7 +717,7 @@
     /* =========================================================
        ProjectDocs.css
        ========================================================= */
-    #projectDocsOverlay {
+    #projectDocsOverlay, #uploadPhotosOverlay {
       position: fixed;
       inset: 0;
       display: flex;
@@ -727,7 +727,7 @@
       z-index: 11000;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
-    #projectDocsOverlay[hidden] { display: none !important; }
+    #projectDocsOverlay[hidden], #uploadPhotosOverlay[hidden] { display: none !important; }
 
     .pd-box {
       background: #ffffff;
@@ -859,6 +859,11 @@
     .pd-scurve-wrapper canvas { width: 100% !important; height: 100% !important; }
     .pd-error { padding: 8px 10px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; font-size: 12px; color: #b91c1c; }
 
+    /* New styles for Upload Photos modal */
+    .up-box { height: 90vh; }
+    .up-body { padding: 0 !important; background: #f4f6f8 !important; display: flex; flex-direction: column; flex: 1; }
+    .up-frame { width: 100%; height: 100%; border: none; flex: 1; }
+
     @media (max-width: 600px) {
       .pd-box { width: 100%; max-width: none; height: 100%; max-height: none; border-radius: 0; }
       #projectDocsBody { padding: 8px 8px 100px; }
@@ -903,6 +908,16 @@
       </svg>
       <span>Projects</span>
     </button>
+    
+    <!-- NEW DATA BUTTON (Local Link) -->
+    <a href="DataBase.html" class="btn-3d btn-data">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+        <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+        <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+      </svg>
+      <span>Data</span>
+    </a>
     
     <!-- UPLOAD FILES MONITORING BUTTON -->
     <a href="https://script.google.com/macros/s/AKfycbxss_VVSxn6xXHEFRwhZeSx0KRJRMSQ9c_50nR_Zx_zCtEpqoI3AN8_2rJONvwUzykeSw/exec?page=monitor" target="_blank" class="btn-3d btn-uploadmon">
@@ -1034,6 +1049,19 @@
   </div>
 </div>
 
+<!-- UPLOAD PHOTOS WINDOW -->
+<div class="pd-overlay" id="uploadPhotosOverlay" aria-modal="true" role="dialog" hidden>
+  <div class="pd-box up-box">
+    <div class="pd-top">
+      <h3 class="pd-title">UPLOAD/VIEW PHOTOS</h3>
+      <button type="button" class="pd-close-btn" id="upCloseBtn">Close</button>
+    </div>
+    <div class="pd-body up-body" id="uploadPhotosBody">
+      <iframe id="uploadPhotosFrame" class="up-frame" src=""></iframe>
+    </div>
+  </div>
+</div>
+
 <!-- PERMANENT 3D FOOTER -->
 <footer class="app-footer">
   <div class="footer-inner">
@@ -1092,22 +1120,29 @@
     if (backBtn) {
       backBtn.addEventListener("click", () => {
         const docsOverlay = document.getElementById("projectDocsOverlay");
+        const uploadOverlay = document.getElementById("uploadPhotosOverlay");
         const modalBg = document.getElementById("pcmaModalBg");
 
-        // 1. Close documentation overlay if open
+        // 1. Close upload photos overlay if open
+        if (uploadOverlay && !uploadOverlay.hidden) {
+          if (typeof window.closeUploadOverlay === "function") window.closeUploadOverlay();
+          return;
+        }
+
+        // 2. Close documentation overlay if open
         if (docsOverlay && !docsOverlay.hidden) {
           if (typeof window.closeOverlay === "function") window.closeOverlay();
           return;
         }
 
-        // 2. Close project details modal if open
+        // 3. Close project details modal if open
         if (modalBg && modalBg.classList.contains("pcma-show")) {
           modalBg.classList.remove("pcma-show");
           document.documentElement.classList.remove('pcma-no-scroll');
           return;
         }
 
-        // 3. If in App/Grid View, go back to 3D Home
+        // 4. If in App/Grid View, go back to 3D Home
         if (appView && !appView.classList.contains("hidden")) {
           appView.classList.add("hidden");
           if (homeView) homeView.classList.remove("hidden");
@@ -1115,7 +1150,7 @@
           return;
         }
 
-        // 4. Default history back
+        // 5. Default history back
         window.history.back();
       });
     }
@@ -1124,7 +1159,7 @@
     if (homeBtn) {
       homeBtn.addEventListener("click", () => {
         // Close active modals safely
-        const knownOverlayIds = ["projectDocsOverlay", "pcmaModalBg"];
+        const knownOverlayIds = ["projectDocsOverlay", "uploadPhotosOverlay", "pcmaModalBg"];
         knownOverlayIds.forEach((id) => {
           const el = document.getElementById(id);
           if (el) {
@@ -1136,6 +1171,9 @@
 
         if (typeof window.closeOverlay === "function") {
           try { window.closeOverlay(); } catch (e) {}
+        }
+        if (typeof window.closeUploadOverlay === "function") {
+          try { window.closeUploadOverlay(); } catch (e) {}
         }
         document.documentElement.classList.remove("pcma-no-scroll");
         document.body.classList.remove("no-scroll");
@@ -1695,7 +1733,14 @@
           uploadBtn.className = 'modal-btn-3d btn-upload-3d';
           uploadBtn.onclick = (e) => { 
             e.stopPropagation(); 
-            window.open(`Upload Photos.html?cid=${encodeURIComponent(cid)}&link=${encodeURIComponent(link)}`, '_blank', 'noopener'); 
+            // Opens the link in the in-app overlay iframe
+            const frame = document.getElementById('uploadPhotosFrame');
+            const overlay = document.getElementById('uploadPhotosOverlay');
+            if (frame && overlay) {
+              frame.src = `Upload Photos.html?cid=${encodeURIComponent(cid)}&link=${encodeURIComponent(link)}`;
+              overlay.hidden = false;
+              overlay.classList.remove('hidden');
+            }
           };
         }
       }
@@ -2588,6 +2633,24 @@
       if (overlay) overlay.addEventListener("click", (e) => { if (e.target === overlay) closeOverlay(); });
     }
     setupOverlayClose();
+  })();
+
+  // =========================================================
+  // UploadPhotosOverlay logic
+  // =========================================================
+  (function () {
+    function closeUploadOverlay() {
+      const overlay = document.getElementById("uploadPhotosOverlay");
+      const frame = document.getElementById('uploadPhotosFrame');
+      if (overlay) overlay.hidden = true;
+      if (frame) frame.src = ""; // Clear src to stop any media/loading
+    }
+    window.closeUploadOverlay = closeUploadOverlay;
+
+    const closeBtn = document.getElementById("upCloseBtn");
+    const overlay  = document.getElementById("uploadPhotosOverlay");
+    if (closeBtn) closeBtn.addEventListener("click", closeUploadOverlay);
+    if (overlay) overlay.addEventListener("click", (e) => { if (e.target === overlay) closeUploadOverlay(); });
   })();
 </script>
 </body>
