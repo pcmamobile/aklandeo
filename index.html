@@ -150,6 +150,10 @@
 
     .btn-projects { color: #2563eb; }
     .btn-projects svg { stroke: #2563eb; }
+    
+    /* New Data Button Styling */
+    .btn-data { color: #0891b2; } /* Cyan */
+    .btn-data svg { stroke: #0891b2; }
 
     .btn-download { color: #16a34a; }
     .btn-download svg { stroke: #16a34a; }
@@ -788,7 +792,7 @@
       font-size: 12px;
       line-height: 1.4;
       cursor: pointer;
-      margin-left: 12px;       
+      margin-left: 12px;        
     }
     #pdCloseBtn:hover { background: #b91c1c; }
 
@@ -909,7 +913,7 @@
       <span>Upload Files<br>Monitoring</span>
     </a>
 
-    <!-- DATABASE BUTTON -->
+    <!-- EXISTING DATABASE BUTTON (Google Script Link) -->
     <a href="https://script.google.com/macros/s/AKfycbxss_VVSxn6xXHEFRwhZeSx0KRJRMSQ9c_50nR_Zx_zCtEpqoI3AN8_2rJONvwUzykeSw/exec" target="_blank" class="btn-3d btn-dashboard">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
         <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
@@ -1611,7 +1615,7 @@
       const actualIdx= findCol('actual');
       const slipIdx  = findCol('slip');
       const delayIdx = findCol('delay');
-      let   progIdx  = findCol('progress');
+      let    progIdx  = findCol('progress');
       if (progIdx < 0 && (PCMA.state?.headers?.length || 0) > 18) progIdx = 18;
 
       let heroImgUrl = row[33] ? String(row[33]).trim() : '';
@@ -1683,12 +1687,16 @@
       if (uploadCol > -1) {
         const link = String(row[uploadCol] || '').trim();
         if (link && PCMA.helpers?.isValidUrl?.(link)) {
+          const cid = cidIdx >= 0 && row[cidIdx] != null ? String(row[cidIdx]).trim() : '';
           uploadBtn = document.createElement('button');
           uploadBtn.id = 'pcmaUploadBtn';
           uploadBtn.type = 'button';
           uploadBtn.innerHTML = '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg><span>Upload/View Photos</span>';
           uploadBtn.className = 'modal-btn-3d btn-upload-3d';
-          uploadBtn.onclick = (e) => { e.stopPropagation(); window.open(link, '_blank', 'noopener'); };
+          uploadBtn.onclick = (e) => { 
+            e.stopPropagation(); 
+            window.open(`Upload Photos.html?cid=${encodeURIComponent(cid)}&link=${encodeURIComponent(link)}`, '_blank', 'noopener'); 
+          };
         }
       }
 

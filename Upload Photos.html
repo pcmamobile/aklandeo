@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Photo Uploader App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+      :root {
+        --bg-gradient: linear-gradient(135deg, #74ebd5 0%, #9face6 100%);
+        --card-bg: #ffffff;
+        --text-main: #2d3436;
+        --text-muted: #636e72;
+        
+        --color-grey: #b2bec3;
+        --shadow-grey: #636e72;
+        
+        --color-green: #00b894;
+        --shadow-green: #00896f;
+        
+        --color-blue: #0984e3;
+        --shadow-blue: #06528d;
+        
+        --color-red: #d63031;
+        --shadow-red: #a02020;
+
+        --color-purple: #6c5ce7;
+        --shadow-purple: #4839b8;
+        
+        --color-orange: #e17055;
+        --shadow-orange: #a84d37;
+      }
+
+      body { 
+        font-family: 'Segoe UI', Roboto, Helvetica, sans-serif; 
+        padding: 20px; 
+        margin: 0; 
+        background: var(--bg-gradient); 
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+      }
+
+      .app-container {
+        background: var(--card-bg);
+        width: 100%;
+        max-width: 480px;
+        padding: 30px 25px;
+        border-radius: 24px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.2), inset 0 5px 10px rgba(255,255,255,0.7);
+        border: 4px solid #fff;
+        position: relative;
+        margin-top: 20px;
+        margin-bottom: 20px;
+        box-sizing: border-box;
+      }
+
+      h2 { 
+        text-align: center; 
+        color: var(--text-main); 
+        font-size: 26px; 
+        margin-top: 0;
+        margin-bottom: 25px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+      }
+      h2 i { color: var(--color-blue); margin-right: 8px; }
+
+      .input-group { margin-bottom: 20px; position: relative; }
+      label { 
+        display: block; 
+        font-weight: 700; 
+        margin-bottom: 8px; 
+        color: var(--text-main); 
+        font-size: 14px;
+      }
+      
+      .input-wrapper { position: relative; }
+      .input-wrapper i {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--color-grey);
+        font-size: 18px;
+        transition: 0.3s;
+      }
+
+      input[type="text"] { 
+        width: 100%; 
+        padding: 16px 16px 16px 45px; 
+        box-sizing: border-box; 
+        border: 2px solid #dfe6e9; 
+        border-radius: 16px; 
+        font-size: 16px; 
+        background: #f8f9fa;
+        color: var(--text-main);
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: inset 0 3px 6px rgba(0,0,0,0.04);
+      }
+      
+      input[type="text"]:focus {
+        outline: none;
+        border-color: var(--color-blue);
+        background: #fff;
+        box-shadow: inset 0 3px 6px rgba(0,0,0,0.02), 0 0 0 4px rgba(9, 132, 227, 0.2);
+      }
+      input[type="text"]:focus + i, .input-wrapper input:focus ~ i { color: var(--color-blue); }
+
+      /* 3D Button Styles */
+      .btn-3d { 
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        width: 100%; 
+        padding: 16px; 
+        margin-bottom: 16px; 
+        font-size: 16px; 
+        font-weight: 800; 
+        text-align: center; 
+        border: none; 
+        border-radius: 16px; 
+        cursor: pointer; 
+        transition: all 0.1s ease; 
+        position: relative;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      
+      .btn-3d:active {
+        transform: translateY(6px);
+      }
+
+      .btn-grey { 
+        background-color: var(--color-grey); 
+        color: white; 
+        box-shadow: 0 6px var(--shadow-grey), 0 10px 15px rgba(0,0,0,0.1);
+      }
+      .btn-grey:active { box-shadow: 0 0 var(--shadow-grey), 0 2px 5px rgba(0,0,0,0.1); }
+
+      .btn-green { 
+        background-color: var(--color-green); 
+        color: white; 
+        box-shadow: 0 6px var(--shadow-green), 0 10px 15px rgba(0,0,0,0.15);
+      }
+      .btn-green:active { box-shadow: 0 0 var(--shadow-green), 0 2px 5px rgba(0,0,0,0.1); }
+
+      .btn-blue { 
+        background-color: var(--color-blue); 
+        color: white; 
+        box-shadow: 0 6px var(--shadow-blue), 0 10px 15px rgba(0,0,0,0.15);
+      }
+      .btn-blue:active { box-shadow: 0 0 var(--shadow-blue), 0 2px 5px rgba(0,0,0,0.1); }
+
+      .btn-red { 
+        background-color: var(--color-red); 
+        color: white; 
+        box-shadow: 0 6px var(--shadow-red), 0 10px 15px rgba(0,0,0,0.15);
+        margin-top: 15px;
+      }
+      .btn-red:active { box-shadow: 0 0 var(--shadow-red), 0 2px 5px rgba(0,0,0,0.1); }
+
+      .btn-purple { 
+        background-color: var(--color-purple); 
+        color: white; 
+        box-shadow: 0 6px var(--shadow-purple), 0 10px 15px rgba(0,0,0,0.15);
+      }
+      .btn-purple:active { box-shadow: 0 0 var(--shadow-purple), 0 2px 5px rgba(0,0,0,0.1); }
+
+      .btn-orange { 
+        background-color: var(--color-orange); 
+        color: white; 
+        box-shadow: 0 6px var(--shadow-orange), 0 10px 15px rgba(0,0,0,0.15);
+      }
+      .btn-orange:active { box-shadow: 0 0 var(--shadow-orange), 0 2px 5px rgba(0,0,0,0.1); }
+
+      #loader { 
+        display: none; 
+        text-align: center; 
+        margin: 15px 0 25px 0; 
+        font-weight: 800; 
+        color: var(--color-blue); 
+        font-size: 15px;
+        animation: pulse 1.5s infinite;
+      }
+      @keyframes pulse { 0% { opacity: 0.5; transform: scale(0.98); } 50% { opacity: 1; transform: scale(1); } 100% { opacity: 0.5; transform: scale(0.98); } }
+      
+      #file-input { display: none; }
+      
+      /* Progress Bar 3D Styles */
+      #progress-container { display: none; margin-bottom: 25px; padding: 15px; background: #f8f9fa; border-radius: 16px; border: 2px solid #dfe6e9;}
+      #progress-track { 
+        background: #dfe6e9; 
+        border-radius: 20px; 
+        overflow: hidden; 
+        height: 24px; 
+        width: 100%; 
+        box-shadow: inset 0 3px 6px rgba(0,0,0,0.1);
+        position: relative;
+      }
+      #progress-bar { 
+        background: repeating-linear-gradient(45deg, var(--color-blue), var(--color-blue) 10px, #0873c4 10px, #0873c4 20px);
+        width: 0%; 
+        height: 100%; 
+        transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+        box-shadow: inset 0 -3px 6px rgba(0,0,0,0.15), inset 0 3px 6px rgba(255,255,255,0.3);
+      }
+      #progress-text { text-align: center; font-size: 14px; margin-top: 12px; color: var(--text-main); font-weight: 800; }
+
+      /* Popup Modal 3D Styles */
+      #modal-overlay, #custom-alert { 
+        display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+        background: rgba(0,0,0,0.5); backdrop-filter: blur(5px);
+        align-items: center; justify-content: center; z-index: 1000; 
+      }
+      #modal-content, .alert-content { 
+        background: #fff; 
+        padding: 30px; 
+        border-radius: 24px; 
+        width: 85%; 
+        max-width: 380px; 
+        text-align: center; 
+        box-shadow: 0 15px 0 #d1d8e0, 0 25px 40px rgba(0,0,0,0.3); 
+        border: 4px solid #fff;
+        transform: translateY(-20px);
+        animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+      }
+      @keyframes popIn { to { transform: translateY(0); } }
+      
+      #modal-content h3, .alert-content h3 { margin-top: 0; color: var(--text-main); font-size: 22px; font-weight: 800; margin-bottom: 20px;}
+      .modal-icon { font-size: 40px; margin-bottom: 15px; }
+      
+      .modal-stat { font-size: 16px; margin: 15px 0; font-weight: bold; background: #f8f9fa; padding: 12px; border-radius: 12px; border: 2px solid #dfe6e9;}
+      .success-text { color: var(--color-green); }
+      .fail-text { color: var(--color-red); }
+
+      hr.divider {
+        border: 0;
+        height: 2px;
+        background: #dfe6e9;
+        margin: 30px 0;
+        position: relative;
+        overflow: visible;
+      }
+      hr.divider::before {
+        content: '\f03e';
+        font-family: 'FontAwesome';
+        position: absolute;
+        top: -12px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--card-bg);
+        padding: 0 15px;
+        color: #b2bec3;
+        font-size: 18px;
+      }
+
+      /* History Styles */
+      #history-container { margin-top: 35px; background: #f8f9fa; padding: 20px; border-radius: 20px; border: 2px solid #dfe6e9;}
+      #history-container h3 { font-size: 18px; color: var(--text-main); margin-top: 0; margin-bottom: 15px; text-align: center; font-weight: 800;}
+      #history-container h3 i { color: var(--color-purple); margin-right: 8px;}
+      
+      #history-list { padding: 0; margin: 0; max-height: 250px; overflow-y: auto; padding-right: 5px;}
+      #history-list::-webkit-scrollbar { width: 6px; }
+      #history-list::-webkit-scrollbar-thumb { background: #b2bec3; border-radius: 10px; }
+      
+      .history-item { 
+        background: #fff; 
+        padding: 15px; 
+        border-radius: 12px; 
+        margin-bottom: 12px; 
+        box-shadow: 0 4px 0 #dfe6e9, 0 5px 10px rgba(0,0,0,0.05); 
+        font-size: 14px; 
+        border-left: 5px solid var(--color-blue);
+        transition: transform 0.2s;
+      }
+      .history-item:hover { transform: translateY(-2px); box-shadow: 0 6px 0 #dfe6e9, 0 8px 15px rgba(0,0,0,0.08); }
+      .history-name { font-weight: 800; color: var(--color-blue); font-size: 15px; }
+      .history-name i { margin-right: 5px; }
+      .history-time { color: var(--text-muted); font-size: 12px; float: right; font-weight: 600; background: #f1f2f6; padding: 3px 8px; border-radius: 10px;}
+      .history-action { color: var(--text-main); margin-top: 10px; font-weight: 600; display: flex; align-items: center; gap: 8px;}
+      .history-action i { color: var(--color-green); }
+    </style>
+  </head>
+  <body>
+    <div class="app-container">
+      <h2><i class="fa-solid fa-cloud-arrow-up"></i> Upload Photos</h2>
+
+      <div class="input-group">
+        <label for="cid">Contract ID:</label>
+        <div class="input-wrapper">
+          <input type="text" id="cid" onblur="loadStats()" placeholder="e.g. 25GA0001">
+          <i class="fa-solid fa-hashtag"></i>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label for="uploader">Your Name:</label>
+        <div class="input-wrapper">
+          <input type="text" id="uploader" placeholder="Who is uploading?">
+          <i class="fa-solid fa-user-astronaut"></i>
+        </div>
+      </div>
+
+      <div id="loader"><i class="fa-solid fa-arrows-rotate fa-spin"></i> <span id="loader-text">Syncing folders...</span></div>
+
+      <div id="progress-container">
+        <div style="display:flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; font-weight: 700; color: var(--text-muted);">
+          <span><i class="fa-solid fa-cloud-arrow-up"></i> Uploading...</span>
+          <span id="progress-percent">0%</span>
+        </div>
+        <div id="progress-track">
+          <div id="progress-bar"></div>
+        </div>
+        <div id="progress-text">0/0 Photos (0.00 mb)</div>
+      </div>
+
+      <!-- Upload Buttons -->
+      <button id="btn-precon" class="btn-3d btn-grey" onclick="triggerUpload('PRE-CON')">
+        <i class="fa-solid fa-clipboard-list"></i> PRE-CON (Empty)
+      </button>
+      
+      <button id="btn-ongoing" class="btn-3d btn-grey" onclick="triggerUpload('ON-GOING')">
+        <i class="fa-solid fa-person-digging"></i> ON-GOING (Empty)
+      </button>
+      
+      <button id="btn-completed" class="btn-3d btn-grey" onclick="triggerUpload('COMPLETED')">
+        <i class="fa-solid fa-check-double"></i> COMPLETED (Empty)
+      </button>
+
+      <hr class="divider">
+      
+      <button class="btn-3d btn-purple" style="margin-top:10px;" onclick="viewPictures()">
+        <i class="fa-solid fa-images"></i> View Gallery
+      </button>
+
+      <div id="history-container">
+        <h3><i class="fa-solid fa-clock-rotate-left"></i> Upload History</h3>
+        <div id="history-list">
+          <div style="text-align:center; color:#a4b0be; font-size:14px; padding: 20px 0; font-weight: 600;">
+            <i class="fa-solid fa-folder-open" style="font-size: 24px; display:block; margin-bottom: 10px; color: #dfe6e9;"></i>
+            Enter a Contract ID to view history
+          </div>
+        </div>
+      </div>
+
+      <input type="file" id="file-input" multiple accept="image/*">
+    </div>
+
+    <!-- Upload Summary Modal -->
+    <div id="modal-overlay">
+      <div id="modal-content">
+        <div class="modal-icon" style="color: var(--color-green);"><i class="fa-solid fa-circle-check"></i></div>
+        <h3>Upload Complete</h3>
+        <div class="modal-stat success-text">
+          <i class="fa-solid fa-file-circle-check"></i> Successfully Uploaded: <span id="success-count">0</span>
+        </div>
+        <div class="modal-stat fail-text" id="fail-container">
+          <i class="fa-solid fa-file-circle-xmark"></i> Failed to Upload: <span id="fail-count">0</span>
+        </div>
+        <button class="btn-3d btn-blue" style="margin-top: 15px;" onclick="closeModal()">
+          <i class="fa-solid fa-thumbs-up"></i> Awesome
+        </button>
+        <button id="retry-btn" class="btn-3d btn-red" style="display:none;" onclick="retryFailed()">
+          <i class="fa-solid fa-rotate-right"></i> Retry Failed
+        </button>
+      </div>
+    </div>
+
+    <!-- Custom Alert Modal -->
+    <div id="custom-alert" style="z-index: 2000;">
+      <div class="alert-content">
+        <div class="modal-icon" style="color: var(--color-orange);"><i class="fa-solid fa-circle-exclamation"></i></div>
+        <h3>Notice</h3>
+        <p id="custom-alert-msg" style="color:var(--text-main); font-size:15px; font-weight:600; margin-bottom:25px; white-space: pre-wrap;"></p>
+        <button id="custom-alert-btn" class="btn-3d btn-blue" style="margin-top:0;">
+          <i class="fa-solid fa-check"></i> Got it
+        </button>
+      </div>
+    </div>
+
+    <script>
+      // ==========================================
+      // REPLACE THIS URL WITH YOUR GAS WEB APP URL
+      // ==========================================
+      const API_URL = "https://script.google.com/macros/s/AKfycbz99boUS9ZTSVl7ho3aKkfqBQ2PGzQkYHUuYHFKI3ZnVQnIzD2lFnu--wD29MUpfe5W/exec"; // <-- Paste your exact deployed GAS URL here
+
+      let currentCategory = '';
+      let totalBytes = 0;
+      let totalPhotos = 0;
+      let completedPhotos = 0;
+      let uploadedFileIds = [];
+      let pendingFiles = [];
+      let failedFiles = [];
+
+      window.onload = function() {
+        // Auto-fill Contract ID if it exists in the Browser URL (?cid=123)
+        const urlParams = new URLSearchParams(window.location.search);
+        const cidParam = urlParams.get('cid');
+        let cidInput = document.getElementById('cid');
+        
+        if (cidParam) {
+            cidInput.value = cidParam;
+            loadStats();
+        }
+      };
+
+      // --- API Wrappers ---
+      async function apiGet(action, params = {}) {
+        let url = new URL(API_URL);
+        url.searchParams.append('action', action);
+        for (let k in params) url.searchParams.append(k, params[k]);
+        
+        let response = await fetch(url);
+        let json = await response.json();
+        if (json.status !== 'success') throw new Error(json.message);
+        return json.data;
+      }
+
+      async function apiPost(action, payload) {
+        payload.action = action;
+        // Text plain avoids CORS preflight OPTIONS requests for Google Scripts
+        let response = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+        let json = await response.json();
+        if (json.status !== 'success') throw new Error(json.message);
+        return json.data;
+      }
+
+      // --- UI Utilities ---
+      function showMessage(msg, callback = null) {
+        document.getElementById('custom-alert-msg').innerText = msg;
+        document.getElementById('custom-alert').style.display = 'flex';
+        document.getElementById('custom-alert-btn').onclick = function() {
+          document.getElementById('custom-alert').style.display = 'none';
+          if (callback) callback();
+        };
+      }
+
+      function showLoader(msg) { 
+        document.getElementById('loader-text').innerText = msg; 
+        document.getElementById('loader').style.display = 'block'; 
+      }
+      function hideLoader() { document.getElementById('loader').style.display = 'none'; }
+      function showError(err) { hideLoader(); showMessage("Error: " + err.message); }
+
+      // --- Core Functions ---
+      async function loadStats() {
+        let cid = document.getElementById('cid').value.trim();
+        if (!cid) return;
+        showLoader("Checking records...");
+        
+        try {
+          let stats = await apiGet('getFolderStats', { contractId: cid });
+          updateButtons(stats);
+          loadHistory(cid);
+        } catch (err) {
+          showError(err);
+        }
+      }
+
+      async function loadHistory(cid) {
+        try {
+          let historyData = await apiGet('getUploadHistory', { contractId: cid });
+          displayHistory(historyData);
+        } catch (err) {
+          console.error("Failed to load history", err);
+        }
+      }
+
+      function displayHistory(historyData) {
+        let list = document.getElementById('history-list');
+        list.innerHTML = "";
+        
+        if (historyData.length === 0) {
+          list.innerHTML = `
+            <div style='text-align:center; color:#a4b0be; font-size:14px; padding: 20px 0; font-weight: 600;'>
+              <i class="fa-solid fa-folder-open" style="font-size: 24px; display:block; margin-bottom: 10px; color: #dfe6e9;"></i>
+              No upload history yet.
+            </div>`;
+          return;
+        }
+
+        historyData.forEach(item => {
+          let div = document.createElement('div');
+          div.className = "history-item";
+          div.innerHTML = `
+            <div>
+              <span class="history-name"><i class="fa-solid fa-user-circle"></i> ${item.uploader}</span> 
+              <span class="history-time">${item.timestamp}</span>
+            </div>
+            <div class="history-action">
+              <i class="fa-solid fa-image"></i> Uploaded ${item.count} Photos
+            </div>
+          `;
+          list.appendChild(div);
+        });
+      }
+
+      function updateButtons(stats) {
+        hideLoader();
+        setButtonState('btn-precon', 'PRE-CON', stats.preCon, 'btn-orange', 'fa-clipboard-list');
+        setButtonState('btn-ongoing', 'ON-GOING', stats.onGoing, 'btn-blue', 'fa-person-digging');
+        setButtonState('btn-completed', 'COMPLETED', stats.completed, 'btn-green', 'fa-check-double');
+      }
+
+      function setButtonState(btnId, label, count, activeClass, iconClass) {
+        let btn = document.getElementById(btnId);
+        if (count > 0) {
+          btn.className = `btn-3d ${activeClass}`;
+          btn.innerHTML = `<i class="fa-solid ${iconClass}"></i> ${label} (${count} Photos)`;
+        } else {
+          btn.className = 'btn-3d btn-grey';
+          btn.innerHTML = `<i class="fa-solid ${iconClass}"></i> ${label} (Empty)`;
+        }
+      }
+
+      function triggerUpload(category) {
+        let cid = document.getElementById('cid').value.trim();
+        if (!cid) { showMessage("Please enter a Contract ID first."); return; }
+        let uploader = document.getElementById('uploader').value.trim();
+        if (!uploader) { showMessage("Please enter your name."); return; }
+
+        currentCategory = category;
+        document.getElementById('file-input').click();
+      }
+
+      document.getElementById('file-input').addEventListener('change', async function(e) {
+        if (e.target.files.length === 0) return;
+        
+        let cid = document.getElementById('cid').value.trim();
+        let filesToUpload = Array.from(e.target.files);
+        
+        showLoader("Checking for duplicates...");
+
+        try {
+          let existingFiles = await apiGet('getExistingFiles', { contractId: cid, category: currentCategory });
+          hideLoader();
+
+          let duplicateCount = 0;
+          pendingFiles = [];
+
+          filesToUpload.forEach(file => {
+            let isDuplicate = existingFiles.some(ex => ex.name === file.name && ex.size === file.size);
+            if (isDuplicate) {
+              duplicateCount++;
+            } else {
+              pendingFiles.push(file);
+            }
+          });
+
+          if (duplicateCount > 0) {
+            let msg = `${duplicateCount} Photo(s) already uploaded.\n`;
+            if (pendingFiles.length > 0) {
+              msg += `${pendingFiles.length} Photo(s) will be uploaded.`;
+              showMessage(msg, () => startBatchUpload());
+            } else {
+              msg += `No new photos to upload.`;
+              showMessage(msg);
+              document.getElementById('file-input').value = ""; 
+            }
+          } else {
+            startBatchUpload();
+          }
+        } catch (err) {
+          showError(err);
+        }
+      });
+
+      function retryFailed() {
+        closeModal();
+        pendingFiles = [...failedFiles];
+        startBatchUpload();
+      }
+
+      async function startBatchUpload() {
+        if (pendingFiles.length === 0) return;
+
+        failedFiles = [];
+        totalBytes = pendingFiles.reduce((acc, file) => acc + file.size, 0);
+        totalPhotos = pendingFiles.length;
+        completedPhotos = 0;
+        uploadedFileIds = [];
+
+        document.getElementById('progress-container').style.display = 'block';
+        updateProgressUI(completedPhotos, totalPhotos, totalBytes);
+
+        const CONCURRENCY_LIMIT = 3; // Reduced slightly to avoid fetching timeouts on free tiers
+        let activeUploads = 0;
+        let currentIndex = 0;
+
+        await new Promise((resolve) => {
+          function next() {
+            if (currentIndex >= pendingFiles.length && activeUploads === 0) {
+              resolve(); 
+              return;
+            }
+            while (activeUploads < CONCURRENCY_LIMIT && currentIndex < pendingFiles.length) {
+              let file = pendingFiles[currentIndex++];
+              activeUploads++;
+              processSingleFile(file).then(() => {
+                activeUploads--;
+                next(); 
+              });
+            }
+          }
+          next(); 
+        });
+
+        updateProgressUI(totalPhotos, totalPhotos, totalBytes);
+        finalizeUpload();
+      }
+
+      function processSingleFile(file) {
+        return new Promise((resolve) => {
+          let reader = new FileReader();
+          reader.onload = async function(e) {
+            let fileData = {
+              fileName: file.name,
+              mimeType: file.type,
+              base64: e.target.result.split(',')[1]
+            };
+            let cid = document.getElementById('cid').value.trim();
+            let uploader = document.getElementById('uploader').value.trim();
+
+            try {
+              let fileId = await apiPost('uploadAndRecordPhoto', {
+                contractId: cid,
+                category: currentCategory,
+                fileData: fileData,
+                uploaderName: uploader
+              });
+              completedPhotos++;
+              uploadedFileIds.push(fileId);
+            } catch (err) {
+              completedPhotos++;
+              failedFiles.push(file);
+            }
+            updateProgressUI(completedPhotos, totalPhotos, totalBytes);
+            resolve();
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      function updateProgressUI(currentCount, totalCount, totalSize) {
+        let percent = totalCount === 0 ? 0 : Math.round((currentCount / totalCount) * 100);
+        if (percent > 100) percent = 100; 
+        
+        let totalMb = (totalSize / (1024 * 1024)).toFixed(2);
+
+        document.getElementById('progress-bar').style.width = percent + '%';
+        document.getElementById('progress-percent').innerText = percent + '%';
+        document.getElementById('progress-text').innerText = `${currentCount}/${totalCount} Photos (${totalMb} mb)`;
+      }
+
+      async function finalizeUpload() {
+        let cid = document.getElementById('cid').value.trim();
+        let uploader = document.getElementById('uploader').value.trim();
+
+        if (uploadedFileIds.length > 0) {
+          document.getElementById('progress-text').innerHTML = "<i class='fa-solid fa-spinner fa-spin'></i> Logging history...";
+          
+          try {
+            await apiPost('recordBatchHistory', {
+              contractId: cid,
+              uploaderName: uploader,
+              numPhotos: uploadedFileIds.length
+            });
+            
+            document.getElementById('progress-text').innerHTML = "<i class='fa-solid fa-spinner fa-spin'></i> Refreshing stats...";
+            loadStats(); // Refreshes stats and history
+            
+            document.getElementById('file-input').value = ""; 
+            document.getElementById('progress-container').style.display = 'none';
+            showSummaryModal();
+          } catch (err) {
+            showError(err);
+          }
+        } else {
+          document.getElementById('progress-container').style.display = 'none';
+          showSummaryModal();
+        }
+      }
+
+      function showSummaryModal() {
+        document.getElementById('success-count').innerText = uploadedFileIds.length;
+        document.getElementById('fail-count').innerText = failedFiles.length;
+        
+        if (failedFiles.length > 0) {
+          document.getElementById('fail-container').style.display = 'block';
+          document.getElementById('retry-btn').style.display = 'inline-flex';
+        } else {
+          document.getElementById('fail-container').style.display = 'none';
+          document.getElementById('retry-btn').style.display = 'none';
+        }
+        
+        document.getElementById('modal-overlay').style.display = 'flex';
+      }
+
+      function closeModal() {
+        document.getElementById('modal-overlay').style.display = 'none';
+      }
+
+      function viewPictures() {
+        let cid = document.getElementById('cid').value.trim();
+        if (!cid) { showMessage("Please enter a Contract ID first."); return; }
+        
+        // As pure HTML, you will host a separate view.html file
+        // Or you can create a gallery inside this same document.
+        // For now, it redirects to a generic gallery url with the Contract ID.
+        window.location.href = 'view.html?cid=' + encodeURIComponent(cid);
+      }
+    </script>
+  </body>
+</html>
