@@ -717,7 +717,7 @@
     /* =========================================================
        ProjectDocs.css
        ========================================================= */
-    #projectDocsOverlay, #uploadPhotosOverlay {
+    #projectDocsOverlay, #iframeOverlay {
       position: fixed;
       inset: 0;
       display: flex;
@@ -727,7 +727,7 @@
       z-index: 11000;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
-    #projectDocsOverlay[hidden], #uploadPhotosOverlay[hidden] { display: none !important; }
+    #projectDocsOverlay[hidden], #iframeOverlay[hidden] { display: none !important; }
 
     .pd-box {
       background: #ffffff;
@@ -859,10 +859,22 @@
     .pd-scurve-wrapper canvas { width: 100% !important; height: 100% !important; }
     .pd-error { padding: 8px 10px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; font-size: 12px; color: #b91c1c; }
 
-    /* New styles for Upload Photos modal */
+    /* New styles for Iframe modal */
     .up-box { height: 90vh; }
     .up-body { padding: 0 !important; background: #f4f6f8 !important; display: flex; flex-direction: column; flex: 1; }
     .up-frame { width: 100%; height: 100%; border: none; flex: 1; }
+
+    /* Fullscreen modifiers for Leaderboards */
+    .fullscreen-box {
+      width: 100vw !important; 
+      max-width: none !important; 
+      height: 100vh !important; 
+      max-height: none !important; 
+      border-radius: 0 !important; 
+    }
+    .fullscreen-body {
+      padding: 0 0 var(--footer-h) 0 !important; 
+    }
 
     @media (max-width: 600px) {
       .pd-box { width: 100%; max-width: none; height: 100%; max-height: none; border-radius: 0; }
@@ -909,6 +921,16 @@
       <span>Projects</span>
     </button>
     
+    <!-- NEW DATA BUTTON (Local Link) -->
+    <a href="DataBase.html" class="btn-3d btn-data">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+        <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+        <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+      </svg>
+      <span>Data</span>
+    </a>
+    
     <!-- UPLOAD FILES MONITORING BUTTON -->
     <a href="https://script.google.com/macros/s/AKfycbxss_VVSxn6xXHEFRwhZeSx0KRJRMSQ9c_50nR_Zx_zCtEpqoI3AN8_2rJONvwUzykeSw/exec?page=monitor" target="_blank" class="btn-3d btn-uploadmon">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -941,14 +963,14 @@
     </a>
 
     <!-- LEADERBOARDS & FILE UPLOADER BUTTON -->
-    <a href="Leaderboards.html" class="btn-3d btn-leaderboards">
+    <button type="button" class="btn-3d btn-leaderboards" id="btnLeaderboards">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
         <polyline points="17 8 12 3 7 8"></polyline>
         <line x1="12" y1="3" x2="12" y2="15"></line>
       </svg>
       <span>Leaderboards &<br>File Uploader</span>
-    </a>
+    </button>
 
     <!-- PCMA REVISION MONITORING BUTTON -->
     <a href="https://script.google.com/macros/s/AKfycbwIpWr1UICDBB-5SSjNZfAzINmNC7cfiGBmKt54jjH0toEDQfFsbu5QTyX36jfF03A02A/exec?fbclid=IwZXh0bgNhZW0CMTEAc3J0YwZhcHBfaWQPNDM3NjI2MzE2OTczNzg4AAEeeARYP2rIEIu-3sqJFJci6nMtpj_jWa0HwX3qVIz7b6EAMxCtTL_ZQbNjYz8_aem_9v6JVRjnUgCaTKIbxzHBTw" target="_blank" class="btn-3d btn-pcmarev">
@@ -1039,11 +1061,11 @@
   </div>
 </div>
 
-<!-- UPLOAD PHOTOS WINDOW -->
-<div class="pd-overlay" id="uploadPhotosOverlay" aria-modal="true" role="dialog" hidden>
-  <div class="pd-box up-box">
-    <div class="pd-body up-body" id="uploadPhotosBody">
-      <iframe id="uploadPhotosFrame" class="up-frame" src=""></iframe>
+<!-- IFRAME MODAL WINDOW (Used for Upload Photos & Leaderboards) -->
+<div class="pd-overlay" id="iframeOverlay" aria-modal="true" role="dialog" hidden>
+  <div class="pd-box up-box" id="iframeBox">
+    <div class="pd-body up-body" id="iframeBody">
+      <iframe id="iframeFrame" class="up-frame" src=""></iframe>
     </div>
   </div>
 </div>
@@ -1088,6 +1110,7 @@
     const homeBtn = document.getElementById("footerHomeBtn");
     const reloadBtn = document.getElementById("footerReloadBtn");
     const btnGoProjects = document.getElementById("btnGoProjects");
+    const btnLeaderboards = document.getElementById("btnLeaderboards");
     const homeView = document.getElementById("homeView");
     const appView = document.getElementById("appView");
 
@@ -1102,16 +1125,33 @@
       });
     }
 
+    // Leaderboards Button -> Opens Overlay
+    if (btnLeaderboards) {
+      btnLeaderboards.addEventListener("click", () => {
+        const frame = document.getElementById('iframeFrame');
+        const overlay = document.getElementById('iframeOverlay');
+        const box = document.getElementById('iframeBox');
+        const body = document.getElementById('iframeBody');
+        if (frame && overlay) {
+          if (box) box.classList.add('fullscreen-box');
+          if (body) body.classList.add('fullscreen-body');
+          frame.src = "Leaderboards.html";
+          overlay.hidden = false;
+          overlay.classList.remove('hidden');
+        }
+      });
+    }
+
     // Context-aware Back Button
     if (backBtn) {
       backBtn.addEventListener("click", () => {
         const docsOverlay = document.getElementById("projectDocsOverlay");
-        const uploadOverlay = document.getElementById("uploadPhotosOverlay");
+        const iframeOverlay = document.getElementById("iframeOverlay");
         const modalBg = document.getElementById("pcmaModalBg");
 
-        // 1. Close upload photos overlay if open
-        if (uploadOverlay && !uploadOverlay.hidden) {
-          if (typeof window.closeUploadOverlay === "function") window.closeUploadOverlay();
+        // 1. Close iframe overlay (Photos/Leaderboards) if open
+        if (iframeOverlay && !iframeOverlay.hidden) {
+          if (typeof window.closeIframeOverlay === "function") window.closeIframeOverlay();
           return;
         }
 
@@ -1145,7 +1185,7 @@
     if (homeBtn) {
       homeBtn.addEventListener("click", () => {
         // Close active modals safely
-        const knownOverlayIds = ["projectDocsOverlay", "uploadPhotosOverlay", "pcmaModalBg"];
+        const knownOverlayIds = ["projectDocsOverlay", "iframeOverlay", "pcmaModalBg"];
         knownOverlayIds.forEach((id) => {
           const el = document.getElementById(id);
           if (el) {
@@ -1158,8 +1198,8 @@
         if (typeof window.closeOverlay === "function") {
           try { window.closeOverlay(); } catch (e) {}
         }
-        if (typeof window.closeUploadOverlay === "function") {
-          try { window.closeUploadOverlay(); } catch (e) {}
+        if (typeof window.closeIframeOverlay === "function") {
+          try { window.closeIframeOverlay(); } catch (e) {}
         }
         document.documentElement.classList.remove("pcma-no-scroll");
         document.body.classList.remove("no-scroll");
@@ -1720,9 +1760,13 @@
           uploadBtn.onclick = (e) => { 
             e.stopPropagation(); 
             // Opens the link in the in-app overlay iframe
-            const frame = document.getElementById('uploadPhotosFrame');
-            const overlay = document.getElementById('uploadPhotosOverlay');
+            const frame = document.getElementById('iframeFrame');
+            const overlay = document.getElementById('iframeOverlay');
+            const box = document.getElementById('iframeBox');
+            const body = document.getElementById('iframeBody');
             if (frame && overlay) {
+              if (box) box.classList.remove('fullscreen-box');
+              if (body) body.classList.remove('fullscreen-body');
               frame.src = `Upload Photos.html?cid=${encodeURIComponent(cid)}&link=${encodeURIComponent(link)}`;
               overlay.hidden = false;
               overlay.classList.remove('hidden');
@@ -2622,21 +2666,19 @@
   })();
 
   // =========================================================
-  // UploadPhotosOverlay logic
+  // IframeOverlay logic (Upload Photos & Leaderboards)
   // =========================================================
   (function () {
-    function closeUploadOverlay() {
-      const overlay = document.getElementById("uploadPhotosOverlay");
-      const frame = document.getElementById('uploadPhotosFrame');
+    function closeIframeOverlay() {
+      const overlay = document.getElementById("iframeOverlay");
+      const frame = document.getElementById('iframeFrame');
       if (overlay) overlay.hidden = true;
       if (frame) frame.src = ""; // Clear src to stop any media/loading
     }
-    window.closeUploadOverlay = closeUploadOverlay;
+    window.closeIframeOverlay = closeIframeOverlay;
 
-    const closeBtn = document.getElementById("upCloseBtn");
-    const overlay  = document.getElementById("uploadPhotosOverlay");
-    if (closeBtn) closeBtn.addEventListener("click", closeUploadOverlay);
-    if (overlay) overlay.addEventListener("click", (e) => { if (e.target === overlay) closeUploadOverlay(); });
+    const overlay  = document.getElementById("iframeOverlay");
+    if (overlay) overlay.addEventListener("click", (e) => { if (e.target === overlay) closeIframeOverlay(); });
   })();
 </script>
 </body>
