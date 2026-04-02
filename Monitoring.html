@@ -598,8 +598,8 @@
                 <div class="flex items-center gap-3">
                     <i class="fa-solid fa-folder-open text-neon-orange"></i> 
                     <div>
-                        <div class="leading-tight">Pending ${docTypeName}</div>
-                        <div class="text-sm text-gray-400 font-normal mt-1"><i class="fa-solid ${roleIcons[role]}"></i> ${person} | ${year}</div>
+                        <div class="leading-tight hidden md:block">Pending ${docTypeName}</div>
+                        <div class="text-base md:text-sm text-white md:text-gray-400 font-bold md:font-normal mt-0 md:mt-1"><i class="fa-solid ${roleIcons[role]} hidden md:inline-block"></i> ${person} | ${year}</div>
                     </div>
                 </div>
             `;
@@ -611,10 +611,10 @@
                     <div class="absolute top-0 left-0 w-1 h-full bg-neon-pink"></div>
                     <div class="flex items-center gap-2 mb-3">
                         <i class="fa-solid fa-file-contract text-neon-blue"></i>
-                        <span class="font-bold text-gray-100 text-lg leading-tight">Contract ID:<br/>${p.contractId}</span>
+                        <span class="font-bold text-gray-100 text-lg leading-tight">${p.contractId}</span>
                     </div>
                     <div class="bg-[#20202d] rounded-lg p-3 border border-red-500/20 mt-auto">
-                        <span class="text-xs text-gray-400 uppercase tracking-wider block mb-2">Missing Files</span>
+                        <span class="text-xs text-gray-400 uppercase tracking-wider block mb-2 hidden md:block">Missing Files</span>
                         <div class="flex flex-wrap gap-2">
                             ${p.missingDocs.map(doc => `<span class="bg-red-500/10 text-red-400 px-2 py-1 rounded-md text-sm font-bold border border-red-500/30 shadow-sm"><i class="fa-solid fa-cloud-arrow-up mr-1"></i>${doc}</span>`).join('')}
                         </div>
