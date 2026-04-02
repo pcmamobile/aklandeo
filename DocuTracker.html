@@ -33,8 +33,7 @@
         .btn-3d-gray { background-color: #4b5563; box-shadow: 0 5px 0 #374151, 0 8px 15px rgba(0,0,0,0.2); }
         .btn-3d-gray:active { box-shadow: 0 0 0 #374151; }
         .input-3d { background: #f0f4f8; border: none; border-radius: 8px; box-shadow: inset 4px 4px 8px #d1d5d8, inset -4px -4px 8px #ffffff; padding: 12px 16px; width: 100%; outline: none; }
-        .tab-btn { padding: 10px 16px; border-radius: 8px 8px 0 0; background: #e2e8f0; font-weight: 600; color: #64748b; cursor: pointer; font-size: 0.875rem; transition: all 0.3s ease; }
-        @media (min-width: 768px) { .tab-btn { padding: 10px 20px; font-size: 1rem; } }
+        .tab-btn { padding: 10px 16px; border-radius: 8px 8px 0 0; background: #e2e8f0; font-weight: 600; color: #64748b; cursor: pointer; transition: all 0.3s ease; }
         .tab-btn.active { background: white; color: #3b82f6; border-top: 3px solid #3b82f6; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -44,6 +43,16 @@
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 50; justify-content: center; align-items: center; }
         th { background: #f8fafc; font-weight: 600; color: #475569; font-size: 0.75rem; text-transform: uppercase; white-space: nowrap; }
         td { border-bottom: 1px solid #e2e8f0; color: #334155; font-size: 0.875rem; }
+
+        /* Responsive Mobile Tables (Cards View) */
+        @media (max-width: 767px) {
+            table, thead, tbody, th, td, tr { display: block; width: 100%; }
+            thead tr { display: none; } /* visually hide headers */
+            tr { border: 1px solid #cbd5e1; border-radius: 0.75rem; margin-bottom: 1.25rem; background-color: #fff; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); overflow: hidden; }
+            td { border-bottom: 1px solid #f1f5f9; padding: 0.75rem 0.75rem 0.75rem 38% !important; position: relative; min-height: 3.5rem; word-wrap: break-word; text-align: left; }
+            td:last-child { border-bottom: none; }
+            td::before { content: attr(data-label); position: absolute; left: 0.75rem; top: 1rem; font-weight: 700; font-size: 0.70rem; color: #64748b; text-transform: uppercase; width: 32%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        }
     </style>
 </head>
 <body class="min-h-screen relative flex flex-col">
@@ -89,10 +98,17 @@
                     <p class="text-xs md:text-sm text-gray-500 truncate">Welcome, <span id="display-user" class="font-bold text-blue-600"></span> (<span id="display-role"></span><span id="display-designation"></span>)</p>
                 </div>
             </div>
-            <div class="flex flex-wrap gap-2 w-full md:w-auto justify-start md:justify-end">
-                <button onclick="manualRefresh()" class="btn-3d py-1.5 px-3 md:py-2 md:px-4 text-sm md:text-base bg-blue-500 shadow-[0_5px_0_#1d4ed8] flex-1 md:flex-none text-center"><i class="fa-solid fa-arrows-rotate mr-1"></i> Refresh</button>
-                <button onclick="openChangePasswordModal()" class="btn-3d py-1.5 px-3 md:py-2 md:px-4 text-sm md:text-base bg-purple-500 shadow-[0_5px_0_#7e22ce] flex-1 md:flex-none text-center"><i class="fa-solid fa-key mr-1"></i> Password</button>
-                <button onclick="handleLogout()" class="btn-3d py-1.5 px-3 md:py-2 md:px-4 text-sm md:text-base bg-red-500 shadow-[0_5px_0_#b91c1c] w-full md:w-auto text-center mt-1 md:mt-0"><i class="fa-solid fa-power-off mr-1"></i> Logout</button>
+            <!-- Mobile 3-column / Desktop flex header buttons -->
+            <div class="grid grid-cols-3 md:flex gap-2 w-full md:w-auto justify-start md:justify-end">
+                <button onclick="manualRefresh()" class="btn-3d py-2 md:py-2 md:px-4 text-sm md:text-base bg-blue-500 shadow-[0_5px_0_#1d4ed8] text-center flex items-center justify-center">
+                    <i class="fa-solid fa-arrows-rotate md:mr-2"></i><span class="hidden md:inline">Refresh</span>
+                </button>
+                <button onclick="openChangePasswordModal()" class="btn-3d py-2 md:py-2 md:px-4 text-sm md:text-base bg-purple-500 shadow-[0_5px_0_#7e22ce] text-center flex items-center justify-center">
+                    <i class="fa-solid fa-key md:mr-2"></i><span class="hidden md:inline">Password</span>
+                </button>
+                <button onclick="handleLogout()" class="btn-3d py-2 md:py-2 md:px-4 text-sm md:text-base bg-red-500 shadow-[0_5px_0_#b91c1c] text-center flex items-center justify-center">
+                    <i class="fa-solid fa-power-off md:mr-2"></i><span class="hidden md:inline">Logout</span>
+                </button>
             </div>
         </div>
 
@@ -116,10 +132,10 @@
         </div>
 
         <div class="box-3d bg-white flex-1 flex flex-col overflow-hidden">
-            <div id="tabs-container" class="flex overflow-x-auto hide-scrollbar pt-4 px-4 gap-2 bg-gray-100 border-b w-full"></div>
-            <div class="p-4 md:p-6 flex-1 overflow-auto bg-white rounded-b-xl relative">
+            <div id="tabs-container"></div>
+            <div class="p-2 md:p-6 flex-1 overflow-auto bg-white rounded-b-xl relative">
                 
-                <div id="receiving-form-container" class="hidden max-w-2xl mx-auto bg-gray-50 p-4 md:p-6 rounded-xl border border-gray-200">
+                <div id="receiving-form-container" class="hidden max-w-2xl mx-auto bg-gray-50 p-4 md:p-6 rounded-xl border border-gray-200 mt-2 md:mt-0">
                     <h3 class="text-lg md:text-xl font-bold mb-4 text-blue-700"><i class="fa-solid fa-cloud-arrow-up mr-2"></i>Upload New Document</h3>
                     <form id="upload-form" onsubmit="event.preventDefault(); submitNewDocument();">
                         <div class="mb-4"><label class="block text-sm font-semibold mb-1">Title</label><input type="text" id="doc-title" class="input-3d" required></div>
@@ -143,9 +159,7 @@
                                 <i class="fa-solid fa-chevron-down text-gray-400"></i>
                             </div>
                             <div id="doc-user-dropdown" class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg hidden max-h-56 overflow-y-auto">
-                                <div id="doc-user-options" class="p-2 flex flex-col gap-1">
-                                    <!-- Options injected via JS -->
-                                </div>
+                                <div id="doc-user-options" class="p-2 flex flex-col gap-1"></div>
                             </div>
                         </div>
 
@@ -154,8 +168,8 @@
                     </form>
                 </div>
 
-                <div id="data-table-container" class="overflow-x-auto hidden">
-                    <table class="w-full text-left border-collapse min-w-max">
+                <div id="data-table-container" class="overflow-x-auto hidden w-full px-2 md:px-0 mt-2 md:mt-0">
+                    <table class="w-full text-left border-collapse min-w-full">
                         <thead id="table-head"></thead>
                         <tbody id="table-body"></tbody>
                     </table>
@@ -252,11 +266,8 @@
         </div>
     </div>
 
-    <!-- PURE JS API INTEGRATION BLOCK -->
     <script>
         // --- CONSTANTS & CONFIGURATION ---
-        
-        // PASTE YOUR DEPLOYED WEB APP URL HERE:
         const API_URL = "https://script.google.com/macros/s/AKfycby-8Rg5WH-thHgmZ1g2G-5HsfyQkR5ISMuFsEMC7fZDdFAdvmJpZaPZSTaaK2ma8s18WA/exec";
 
         // UI Variables
@@ -270,11 +281,7 @@
         const USER_TABS = ["Incoming", "Processing", "Completed"];
 
         // --- AUTHENTICATION & API WRAPPER ---
-        
         async function apiCall(payload) {
-            if (API_URL.includes("YOUR_GOOGLE_APPS")) {
-                throw new Error("Please add your Google Apps Script Web App URL to line 302 of the code!");
-            }
             try {
                 const res = await fetch(API_URL, {
                     method: 'POST',
@@ -298,6 +305,14 @@
             }); 
         }
 
+        // --- DATE FORMATTER: mmmm dd, yyyy ---
+        function formatCustomDate(dateStr) {
+            if (!dateStr) return '';
+            const d = new Date(dateStr);
+            if (isNaN(d)) return dateStr;
+            return d.toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' });
+        }
+
         // --- SILENT TOAST NOTIFICATION SYSTEM ---
         function showToast(message, type = 'success') {
             const container = document.getElementById('toast-container');
@@ -310,13 +325,7 @@
             toast.innerHTML = `<i class="fa-solid ${icon} text-lg"></i> <span class="font-semibold text-sm">${message}</span>`;
             
             container.appendChild(toast);
-            
-            // Animate in
-            setTimeout(() => {
-                toast.classList.remove('translate-y-full', 'opacity-0');
-            }, 10);
-            
-            // Auto remove
+            setTimeout(() => { toast.classList.remove('translate-y-full', 'opacity-0'); }, 10);
             setTimeout(() => {
                 toast.classList.add('opacity-0', 'translate-y-full');
                 setTimeout(() => toast.remove(), 300);
@@ -410,7 +419,6 @@
         function setAuth(account, role, designation) {
             hideLoader();
             currentUser = { account, role, designation };
-            
             try { localStorage.setItem('docuTrackerSession', JSON.stringify(currentUser)); } catch (e) {}
 
             document.getElementById('login-view').classList.add('hidden');
@@ -448,20 +456,33 @@
             const tabContainer = document.getElementById('tabs-container');
             tabContainer.innerHTML = '';
             
+            // Dynamic TABS layout based on user role (Grid for 3 user tabs, flex for many admin tabs)
+            if (currentUser.role === 'User') {
+                tabContainer.className = "grid grid-cols-3 gap-1 px-1 pt-2 bg-gray-100 border-b w-full"; 
+            } else {
+                tabContainer.className = "flex overflow-x-auto hide-scrollbar pt-4 px-4 gap-2 bg-gray-100 border-b w-full";
+            }
+            
             tabs.forEach((tab, index) => {
                 const btn = document.createElement('div');
-                btn.className = `tab-btn relative flex-shrink-0 whitespace-nowrap ${index === 0 ? 'active' : ''}`;
+                
+                if (currentUser.role === 'User') {
+                    btn.className = `tab-btn relative flex justify-center items-center text-center text-xs md:text-sm py-3 font-bold rounded-t-lg ${index === 0 ? 'active' : ''}`;
+                } else {
+                    btn.className = `tab-btn relative flex-shrink-0 whitespace-nowrap text-sm md:text-base py-3 ${index === 0 ? 'active' : ''}`;
+                }
+                
                 const badgeId = `badge-${tab.replace(/\s+/g, '-')}`;
-                btn.innerHTML = `<span>${tab}</span><span id="${badgeId}" class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold shadow-md z-10" style="display:none;">0</span>`;
+                btn.innerHTML = `<span>${tab}</span><span id="${badgeId}" class="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold shadow-md z-10" style="display:none;">0</span>`;
                 btn.onclick = () => switchTab(tab, btn);
                 tabContainer.appendChild(btn);
             });
 
-            await manualRefresh(false, true); // true = init users dropdown
+            await manualRefresh(false, true); 
             switchTab(tabs[0], tabContainer.firstChild);
 
             if(autoRefreshTimer) clearInterval(autoRefreshTimer);
-            autoRefreshTimer = setInterval(() => { if (currentUser) manualRefresh(true); }, 30000); // 30 sec auto refresh
+            autoRefreshTimer = setInterval(() => { if (currentUser) manualRefresh(true); }, 30000); 
         }
 
         async function manualRefresh(silent = false, initUsers = false) {
@@ -632,9 +653,11 @@
                 cols.forEach(c => {
                     let cellContent = '';
                     if (c.key === 'action') {
-                        cellContent = getActions(tabName, doc);
+                        cellContent = `<div class="flex flex-wrap gap-2">${getActions(tabName, doc)}</div>`;
                     } else {
                         let v = doc[c.key] || '';
+                        
+                        // Custom Date Math and Formats
                         if (c.key === 'Deadline' && v && !['Approved', 'Completed', 'Archive'].includes(tabName)) {
                             const today = new Date();
                             today.setHours(0,0,0,0);
@@ -643,55 +666,55 @@
                             if (!isNaN(dDate)) {
                                 const diffTime = dDate.getTime() - today.getTime();
                                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                                const fDate = formatCustomDate(v);
                                 
                                 if (diffDays < 0) {
-                                    cellContent = `<span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-bold whitespace-nowrap border border-red-200 shadow-sm"><i class="fa-solid fa-triangle-exclamation mr-1"></i>${dDate.toLocaleDateString()} (Overdue)</span>`;
+                                    const absDays = Math.abs(diffDays);
+                                    cellContent = `<span class="bg-red-100 text-red-700 px-2 py-1 rounded text-[11px] font-bold border border-red-200 shadow-sm inline-block mt-1 md:mt-0 whitespace-normal"><i class="fa-solid fa-triangle-exclamation mr-1"></i>${fDate} (${absDays} day${absDays!==1?'s':''} overdue)</span>`;
                                 } else if (diffDays <= 3) {
-                                    cellContent = `<span class="bg-orange-100 text-orange-700 px-2 py-1 rounded text-xs font-bold whitespace-nowrap border border-orange-200 shadow-sm"><i class="fa-solid fa-clock mr-1"></i>${dDate.toLocaleDateString()} (${diffDays} day${diffDays===1?'':'s'} left)</span>`;
+                                    cellContent = `<span class="bg-orange-100 text-orange-700 px-2 py-1 rounded text-[11px] font-bold border border-orange-200 shadow-sm inline-block mt-1 md:mt-0 whitespace-normal"><i class="fa-solid fa-clock mr-1"></i>${fDate} (${diffDays} day${diffDays!==1?'s':''} left)</span>`;
                                 } else {
-                                    cellContent = dDate.toLocaleDateString();
+                                    cellContent = fDate;
                                 }
-                            } else {
-                                cellContent = v;
-                            }
+                            } else { cellContent = v; }
                         } 
-                        else if (v instanceof Date || v.toString().includes('T00:00')) {
-                            cellContent = new Date(v).toLocaleDateString();
+                        else if (c.key.includes('Date') || v instanceof Date || (typeof v === 'string' && v.includes('T00:00'))) {
+                            cellContent = formatCustomDate(v);
                         } else {
                             cellContent = v;
                         }
                     }
-                    tr += `<td class="p-3 md:p-4 whitespace-nowrap">${cellContent}</td>`;
+                    tr += `<td data-label="${c.label}" class="p-3 md:p-4 whitespace-normal text-sm font-medium md:font-normal text-gray-800">${cellContent}</td>`;
                 });
                 body.innerHTML += tr + '</tr>';
             });
         }
 
         function getActions(tabName, doc) {
-            let html = `<button onclick="viewFile('${doc['Received File ID']}', ${doc.rowIndex}, '${tabName}')" class="bg-blue-100 text-blue-700 px-3 py-1 rounded mr-2 mb-2 whitespace-nowrap"><i class="fa-solid fa-eye"></i> View</button>`;
+            let html = `<button onclick="viewFile('${doc['Received File ID']}', ${doc.rowIndex}, '${tabName}')" class="bg-blue-100 text-blue-700 px-3 py-1.5 rounded text-xs font-bold"><i class="fa-solid fa-eye"></i> View</button>`;
             if(currentUser.role === 'Admin') {
                 if(tabName === 'For Evaluation') {
-                    html += `<button onclick="openReassignModal(${doc.rowIndex})" class="bg-cyan-100 text-cyan-700 px-3 py-1 rounded mr-2 mb-2 whitespace-nowrap"><i class="fa-solid fa-user-pen"></i> Reassign</button>`;
-                    html += `<button onclick="openArchiveModal(${doc.rowIndex})" class="bg-gray-200 text-gray-700 px-3 py-1 rounded mr-2 mb-2 whitespace-nowrap"><i class="fa-solid fa-box-archive"></i> Archive</button>`;
+                    html += `<button onclick="openReassignModal(${doc.rowIndex})" class="bg-cyan-100 text-cyan-700 px-3 py-1.5 rounded text-xs font-bold"><i class="fa-solid fa-user-pen"></i> Reassign</button>`;
+                    html += `<button onclick="openArchiveModal(${doc.rowIndex})" class="bg-gray-200 text-gray-700 px-3 py-1.5 rounded text-xs font-bold"><i class="fa-solid fa-box-archive"></i> Archive</button>`;
                 }
                 if(tabName === 'In Progress') {
-                    html += `<button onclick="openReassignModal(${doc.rowIndex})" class="bg-cyan-100 text-cyan-700 px-3 py-1 rounded mr-2 mb-2 whitespace-nowrap"><i class="fa-solid fa-user-pen"></i> Reassign</button>`;
-                    html += `<button onclick="openDatesModal(${doc.rowIndex})" class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded mr-2 mb-2 whitespace-nowrap"><i class="fa-solid fa-plus"></i> Dates</button>`;
-                    html += `<button onclick="openArchiveModal(${doc.rowIndex})" class="bg-gray-200 text-gray-700 px-3 py-1 rounded mr-2 mb-2 whitespace-nowrap"><i class="fa-solid fa-box-archive"></i> Archive</button>`;
+                    html += `<button onclick="openReassignModal(${doc.rowIndex})" class="bg-cyan-100 text-cyan-700 px-3 py-1.5 rounded text-xs font-bold"><i class="fa-solid fa-user-pen"></i> Reassign</button>`;
+                    html += `<button onclick="openDatesModal(${doc.rowIndex})" class="bg-yellow-100 text-yellow-700 px-3 py-1.5 rounded text-xs font-bold"><i class="fa-solid fa-plus"></i> Dates</button>`;
+                    html += `<button onclick="openArchiveModal(${doc.rowIndex})" class="bg-gray-200 text-gray-700 px-3 py-1.5 rounded text-xs font-bold"><i class="fa-solid fa-box-archive"></i> Archive</button>`;
                 }
                 if(tabName === 'For Signature') {
-                    html += `<button onclick="openReassignModal(${doc.rowIndex})" class="bg-cyan-100 text-cyan-700 px-3 py-1 rounded mr-2 mb-2 whitespace-nowrap"><i class="fa-solid fa-user-pen"></i> Reassign</button>`;
-                    html += `<button onclick="openReplyModal(${doc.rowIndex}, '${(doc['Title/Description']||'').replace(/'/g, "\\'")}')" class="bg-purple-100 text-purple-700 px-3 py-1 rounded mr-2 mb-2 whitespace-nowrap"><i class="fa-solid fa-upload"></i> Reply</button>`;
-                    html += `<button onclick="openArchiveModal(${doc.rowIndex})" class="bg-gray-200 text-gray-700 px-3 py-1 rounded mr-2 mb-2 whitespace-nowrap"><i class="fa-solid fa-box-archive"></i> Archive</button>`;
+                    html += `<button onclick="openReassignModal(${doc.rowIndex})" class="bg-cyan-100 text-cyan-700 px-3 py-1.5 rounded text-xs font-bold"><i class="fa-solid fa-user-pen"></i> Reassign</button>`;
+                    html += `<button onclick="openReplyModal(${doc.rowIndex}, '${(doc['Title/Description']||'').replace(/'/g, "\\'")}')" class="bg-purple-100 text-purple-700 px-3 py-1.5 rounded text-xs font-bold"><i class="fa-solid fa-upload"></i> Reply</button>`;
+                    html += `<button onclick="openArchiveModal(${doc.rowIndex})" class="bg-gray-200 text-gray-700 px-3 py-1.5 rounded text-xs font-bold"><i class="fa-solid fa-box-archive"></i> Archive</button>`;
                 }
                 if(tabName === 'Approved') {
-                    html += `<button onclick="openReleaseModal(${doc.rowIndex})" class="bg-green-100 text-green-700 px-3 py-1 rounded mr-2 mb-2 whitespace-nowrap"><i class="fa-solid fa-check"></i> Release</button>`;
+                    html += `<button onclick="openReleaseModal(${doc.rowIndex})" class="bg-green-100 text-green-700 px-3 py-1.5 rounded text-xs font-bold"><i class="fa-solid fa-check"></i> Release</button>`;
                 }
                 if(['Approved', 'Completed', 'Archive'].includes(tabName) && doc['Reply File ID']) {
-                    html += `<button onclick="viewFile('${doc['Reply File ID']}', null, 'Reply')" class="bg-gray-200 text-gray-700 px-3 py-1 rounded mr-2 mb-2 whitespace-nowrap"><i class="fa-solid fa-envelope"></i> Reply File</button>`;
+                    html += `<button onclick="viewFile('${doc['Reply File ID']}', null, 'Reply')" class="bg-gray-200 text-gray-700 px-3 py-1.5 rounded text-xs font-bold"><i class="fa-solid fa-envelope"></i> Reply File</button>`;
                 }
             } else if(['Processing', 'Completed'].includes(tabName) && doc['Reply File ID']) {
-                html += `<button onclick="viewFile('${doc['Reply File ID']}', null, 'Reply')" class="bg-purple-100 text-purple-700 px-3 py-1 rounded mr-2 mb-2 whitespace-nowrap"><i class="fa-solid fa-envelope"></i> Reply</button>`;
+                html += `<button onclick="viewFile('${doc['Reply File ID']}', null, 'Reply')" class="bg-purple-100 text-purple-700 px-3 py-1.5 rounded text-xs font-bold"><i class="fa-solid fa-envelope"></i> Reply</button>`;
             }
             return html;
         }
@@ -708,7 +731,7 @@
             }
         }
 
-        // --- SUBMIT HANDLERS (UPDATED TO SILENT MODE) ---
+        // --- SUBMIT HANDLERS (SILENT MODE INCLUDED) ---
 
         async function submitNewDocument() {
             const f = document.getElementById('doc-file').files[0];
@@ -780,7 +803,7 @@
             try {
                 await apiCall({ action: 'updateRow', rowIndex: rowIdx, updateFields: { "User": newUsers, "Date Viewed by User": "" } });
                 showToast("Document successfully reassigned!", "success");
-                manualRefresh(true); // Silent table refresh
+                manualRefresh(true); 
             } catch(e) { 
                 showToast("Reassign Failed: " + e.message, "error"); 
             }
@@ -798,7 +821,7 @@
             try {
                 await apiCall({ action: 'updateRow', rowIndex: rowIdx, updateFields: { "Archive": "OK" } });
                 showToast("Document successfully archived!", "success");
-                manualRefresh(true); // Silent table refresh
+                manualRefresh(true); 
             } catch(e) { 
                 showToast("Archive Failed: " + e.message, "error"); 
             }
@@ -808,18 +831,23 @@
         async function submitDates() {
             const dl = document.getElementById('modal-date-letter').value, ds = document.getElementById('modal-date-signature').value;
             if(!dl || !ds) return alert("Fill both dates");
-            closeModal('modal-dates'); showLoader();
+            
+            closeModal('modal-dates'); 
+            showToast("Applying dates...", "success");
             try {
                 await apiCall({ action: 'updateRow', rowIndex: document.getElementById('dates-rowidx').value, updateFields: { "Date of Letter": dl, "Date for Signature": ds } });
-                await manualRefresh();
-            } catch(e) { alert("Failed: " + e.message); hideLoader(); }
+                showToast("Dates successfully saved!", "success");
+                manualRefresh(true);
+            } catch(e) { showToast("Failed: " + e.message, "error"); }
         }
 
         function openReplyModal(rowIdx, title) { document.getElementById('reply-rowidx').value = rowIdx; document.getElementById('reply-title').value = title; document.getElementById('modal-reply').style.display = 'flex'; }
         async function submitReply() {
             const da = document.getElementById('modal-date-approved').value, f = document.getElementById('modal-reply-file').files[0];
             if(!da || !f) return alert("Provide date & file");
-            closeModal('modal-reply'); showLoader();
+            
+            closeModal('modal-reply'); 
+            showToast("Uploading reply document...", "success");
             try {
                 const b64 = await getBase64(f);
                 await apiCall({
@@ -831,19 +859,23 @@
                     fileName: f.name,
                     dateApproved: da
                 });
-                await manualRefresh();
-            } catch(e) { alert("Failed: " + e.message); hideLoader(); }
+                showToast("Reply document attached!", "success");
+                manualRefresh(true);
+            } catch(e) { showToast("Failed: " + e.message, "error"); }
         }
 
         function openReleaseModal(rowIdx) { document.getElementById('release-rowidx').value = rowIdx; document.getElementById('modal-release').style.display = 'flex'; }
         async function submitRelease() {
             const dr = document.getElementById('modal-date-released').value;
             if(!dr) return alert("Select a date");
-            closeModal('modal-release'); showLoader();
+            
+            closeModal('modal-release'); 
+            showToast("Completing release...", "success");
             try {
                 await apiCall({ action: 'updateRow', rowIndex: document.getElementById('release-rowidx').value, updateFields: { "Date Released/Completed": dr } });
-                await manualRefresh();
-            } catch(e) { alert("Failed: " + e.message); hideLoader(); }
+                showToast("Release successfully completed!", "success");
+                manualRefresh(true);
+            } catch(e) { showToast("Failed: " + e.message, "error"); }
         }
 
         function openChangePasswordModal() {
@@ -866,11 +898,14 @@
                     currentPassword: cpCurrent,
                     newPassword: cpNew
                 });
-                if (res.success) alert("Password changed successfully!");
-                else alert("Failed: " + res.message);
+                if (res.success) {
+                    showToast("Password changed successfully!", "success");
+                } else {
+                    showToast("Failed: " + res.message, "error");
+                }
                 hideLoader();
             } catch(e) {
-                alert("Failed: " + e.message);
+                showToast("Failed: " + e.message, "error");
                 hideLoader();
             }
         }
