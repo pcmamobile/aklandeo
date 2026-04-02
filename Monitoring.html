@@ -119,13 +119,13 @@
 
     <!-- Header -->
     <header class="w-full max-w-6xl text-center mb-8 mt-4">
-        <h1 class="text-4xl md:text-6xl font-black mb-1 drop-shadow-lg text-transparent bg-clip-text bg-gradient-to-r from-neon-blue via-neon-purple to-neon-pink" style="filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));">
-            <i class="fa-solid fa-layer-group text-neon-blue mr-3"></i>File Tracker
+        <h1 class="text-3xl md:text-6xl font-black mb-1 drop-shadow-lg text-transparent bg-clip-text bg-gradient-to-r from-neon-blue via-neon-purple to-neon-pink" style="filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));">
+            <i class="fa-solid fa-layer-group text-neon-blue mr-3"></i><span class="md:hidden">Monitoring Project Documents</span><span class="hidden md:inline">File Tracker</span>
         </h1>
-        <h2 class="text-xl md:text-2xl font-bold text-gray-300 mb-3 tracking-wide">
+        <h2 class="text-lg md:text-2xl font-bold text-gray-300 mb-3 tracking-wide">
             Upload your Project Documents
         </h2>
-        <p class="text-gray-400 font-medium"><i class="fa-solid fa-server mr-2 text-neon-green"></i>Live Sync from Google Sheets API</p>
+        <p class="text-gray-400 font-medium text-sm md:text-base"><i class="fa-solid fa-server mr-2 text-neon-green"></i>Live Sync from Google Sheets API</p>
     </header>
 
     <!-- Main Dashboard Container -->
@@ -139,31 +139,31 @@
         </div>
 
         <!-- Document Type Toggle -->
-        <div class="flex flex-wrap justify-center mb-6 bg-[#181822] rounded-2xl p-2 w-fit mx-auto border border-gray-700/50 shadow-inner">
-            <button onclick="switchDocType('VO')" id="type-VO" class="px-4 md:px-6 py-2 rounded-xl font-bold text-sm transition-all bg-[#2a2a3a] text-neon-blue shadow-md border border-gray-600/50">Variation Orders</button>
-            <button onclick="switchDocType('SO')" id="type-SO" class="px-4 md:px-6 py-2 rounded-xl font-bold text-sm transition-all text-gray-400 hover:text-white border-transparent">Suspension Orders</button>
-            <button onclick="switchDocType('COMP')" id="type-COMP" class="px-4 md:px-6 py-2 rounded-xl font-bold text-sm transition-all text-gray-400 hover:text-white border-transparent">Completion</button>
-            <button onclick="switchDocType('ACC')" id="type-ACC" class="px-4 md:px-6 py-2 rounded-xl font-bold text-sm transition-all text-gray-400 hover:text-white border-transparent">Acceptance</button>
+        <div class="grid grid-cols-4 md:flex md:flex-wrap justify-center mb-6 bg-[#181822] rounded-2xl p-2 w-full md:w-fit mx-auto border border-gray-700/50 shadow-inner gap-1 md:gap-2">
+            <button onclick="switchDocType('VO')" id="type-VO" class="px-1 md:px-6 py-2 rounded-xl font-black text-xs md:text-sm transition-all bg-[#2a2a3a] text-neon-blue shadow-md border border-gray-600/50 text-center"><span class="md:hidden">VO</span><span class="hidden md:inline">Variation Orders</span></button>
+            <button onclick="switchDocType('SO')" id="type-SO" class="px-1 md:px-6 py-2 rounded-xl font-black text-xs md:text-sm transition-all text-gray-400 hover:text-white border-transparent text-center"><span class="md:hidden">SO</span><span class="hidden md:inline">Suspension Orders</span></button>
+            <button onclick="switchDocType('COMP')" id="type-COMP" class="px-1 md:px-6 py-2 rounded-xl font-black text-xs md:text-sm transition-all text-gray-400 hover:text-white border-transparent text-center"><span class="md:hidden">COC</span><span class="hidden md:inline">Completion</span></button>
+            <button onclick="switchDocType('ACC')" id="type-ACC" class="px-1 md:px-6 py-2 rounded-xl font-black text-xs md:text-sm transition-all text-gray-400 hover:text-white border-transparent text-center"><span class="md:hidden">CA</span><span class="hidden md:inline">Acceptance</span></button>
         </div>
 
         <!-- Role Tabs -->
-        <div class="flex flex-wrap justify-center gap-4 mb-8">
-            <button onclick="switchTab('PE')" id="tab-PE" class="btn-3d active-tab px-6 py-4 font-bold text-lg flex items-center gap-3 w-full sm:w-auto justify-center">
-                <i class="fa-solid fa-helmet-safety text-neon-orange text-2xl"></i> Project Engineer
+        <div class="grid grid-cols-4 md:flex md:flex-wrap justify-center gap-2 md:gap-4 mb-8 w-full max-w-3xl mx-auto">
+            <button onclick="switchTab('PE')" id="tab-PE" class="btn-3d active-tab py-2 md:py-4 px-2 md:px-6 font-black text-xs md:text-lg flex flex-col md:flex-row items-center gap-1 md:gap-3 w-full sm:w-auto justify-center">
+                <i class="fa-solid fa-helmet-safety text-neon-orange md:text-2xl"></i> <span class="md:hidden">PE</span><span class="hidden md:inline">Project Engineer</span>
             </button>
-            <button onclick="switchTab('PI')" id="tab-PI" class="btn-3d px-6 py-4 font-bold text-lg flex items-center gap-3 w-full sm:w-auto justify-center text-gray-400">
-                <i class="fa-solid fa-magnifying-glass-chart text-neon-green text-2xl"></i> Project Inspector
+            <button onclick="switchTab('PI')" id="tab-PI" class="btn-3d py-2 md:py-4 px-2 md:px-6 font-black text-xs md:text-lg flex flex-col md:flex-row items-center gap-1 md:gap-3 w-full sm:w-auto justify-center text-gray-400">
+                <i class="fa-solid fa-magnifying-glass-chart text-neon-green md:text-2xl"></i> <span class="md:hidden">PI</span><span class="hidden md:inline">Project Inspector</span>
             </button>
-            <button onclick="switchTab('RE')" id="tab-RE" class="btn-3d px-6 py-4 font-bold text-lg flex items-center gap-3 w-full sm:w-auto justify-center text-gray-400">
-                <i class="fa-solid fa-user-gear text-neon-purple text-2xl"></i> Resident Engineer
+            <button onclick="switchTab('RE')" id="tab-RE" class="btn-3d py-2 md:py-4 px-2 md:px-6 font-black text-xs md:text-lg flex flex-col md:flex-row items-center gap-1 md:gap-3 w-full sm:w-auto justify-center text-gray-400">
+                <i class="fa-solid fa-user-gear text-neon-purple md:text-2xl"></i> <span class="md:hidden">RE</span><span class="hidden md:inline">Resident Engineer</span>
             </button>
-            <button onclick="switchTab('QE')" id="tab-QE" class="btn-3d px-6 py-4 font-bold text-lg flex items-center gap-3 w-full sm:w-auto justify-center text-gray-400">
-                <i class="fa-solid fa-clipboard-check text-neon-pink text-2xl"></i> Quality Engineer
+            <button onclick="switchTab('QE')" id="tab-QE" class="btn-3d py-2 md:py-4 px-2 md:px-6 font-black text-xs md:text-lg flex flex-col md:flex-row items-center gap-1 md:gap-3 w-full sm:w-auto justify-center text-gray-400">
+                <i class="fa-solid fa-clipboard-check text-neon-pink md:text-2xl"></i> <span class="md:hidden">QE</span><span class="hidden md:inline">Quantity Engineer</span>
             </button>
         </div>
 
-        <!-- Table Container -->
-        <div class="w-full overflow-x-auto rounded-xl border border-gray-700/50 shadow-inner bg-[#181822] p-2">
+        <!-- Table Container (PC View) -->
+        <div class="hidden md:block w-full overflow-x-auto rounded-xl border border-gray-700/50 shadow-inner bg-[#181822] p-2">
             <table class="w-full text-left border-collapse min-w-[700px]">
                 <thead>
                     <tr class="text-neon-blue border-b-2 border-gray-700 bg-[#1c1c28]">
@@ -179,6 +179,11 @@
                     <!-- Dynamic Data injected here -->
                 </tbody>
             </table>
+        </div>
+
+        <!-- Mobile Data Container -->
+        <div id="mobile-container" class="md:hidden w-full flex flex-col gap-5">
+            <!-- Dynamic Data injected here -->
         </div>
     </main>
 
@@ -200,7 +205,7 @@
             </div>
             <!-- Modal Footer -->
             <div class="p-4 bg-gray-900 border-t border-gray-800 text-center">
-                <button onclick="closeModal()" class="btn-3d px-8 py-2 text-white font-bold text-sm">Close Panel</button>
+                <button onclick="closeModal()" class="btn-3d px-8 py-2 text-white font-bold text-sm mx-auto">Close Panel</button>
             </div>
         </div>
     </div>
@@ -227,9 +232,9 @@
         async function fetchData() {
             // Configuration derived from the provided prompt
             const SPREADSHEET_ID = '1LSYLZ7tfSeVupQMPsCOHG4SlnzPQqOAIe03QI1qRMr8';
-            const API_KEY = 'AIzaSyCz6fNJr3ecn-M2HActqM1aCXbxqRLj2e8'; // Your provided API Key
+            const API_KEY = 'AIzaSyCz6fNJr3ecn-M2HActqM1aCXbxqRLj2e8'; 
             const SHEET_NAME = 'UPLOAD';
-            const RANGE = `${SHEET_NAME}!A3:ZZ`; // Starting at Row 3 based on HEADER_ROW = 3
+            const RANGE = `${SHEET_NAME}!A3:ZZ`; 
 
             const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${RANGE}?key=${API_KEY}`;
 
@@ -297,8 +302,8 @@
                 PE: findCol(['PE', 'PROJECT ENGINEER']),
                 PI: findCol(['PI', 'PROJECT INSPECTOR']),
                 RE: findCol(['RE', 'RESIDENT ENGINEER']),
-                QE: findCol(['QE', 'QUALITY ENGINEER']),
-                RE_QE: findCol(['RE & QE', 'RE/QE', 'RE / QE']), // Fallback if they are merged in 1 column
+                QE: findCol(['QE', 'QUANTITY ENGINEER', 'QUALITY ENGINEER']), 
+                RE_QE: findCol(['RE & QE', 'RE/QE', 'RE / QE']), 
                 YEAR: findCol(['YEAR']),
                 CONTRACT: findCol(['CONTRACT ID', 'CONTRACT_ID', 'CONTRACT'])
             };
@@ -306,41 +311,27 @@
             // Identify all required Document Columns (categorized by type: VO, SO, COMP, ACC)
             const docsToTrack = [];
             
-            // 1. VO1 to VO5 (Type: VO)
             for(let i=1; i<=5; i++) docsToTrack.push({ type: 'VO', name: `VO${i}`, doc: findCol([`VO${i}`, `V.O.${i}`, `VO ${i}`]), up: findCol([`VO${i} UPLOADED`, `VO ${i} UPLOADED`, `VO${i} UP`]) });
-            
-            // 2. WSO1 to WSO4 (Type: SO)
             for(let i=1; i<=4; i++) docsToTrack.push({ type: 'SO', name: `WSO${i}`, doc: findCol([`WSO${i}`, `W.S.O.${i}`, `WSO ${i}`]), up: findCol([`WSO${i} UPLOADED`, `WSO ${i} UPLOADED`, `WSO${i} UP`]) });
-            
-            // 3. CWSO1 to CWSO4 (Type: SO)
             for(let i=1; i<=4; i++) docsToTrack.push({ type: 'SO', name: `CWSO${i}`, doc: findCol([`CWSO${i}`, `C.W.S.O.${i}`, `CWSO ${i}`]), up: findCol([`CWSO${i} UPLOADED`, `CWSO ${i} UPLOADED`, `CWSO${i} UP`]) });
-            
-            // 4. WRO1 to WRO4 (Type: SO)
             for(let i=1; i<=4; i++) docsToTrack.push({ type: 'SO', name: `WRO${i}`, doc: findCol([`WRO${i}`, `W.R.O.${i}`, `WRO ${i}`]), up: findCol([`WRO${i} UPLOADED`, `WRO ${i} UPLOADED`, `WRO${i} UP`]) });
-            
-            // 5. CTE1 to CTE20 (Type: SO)
             for(let i=1; i<=20; i++) docsToTrack.push({ type: 'SO', name: `CTE${i}`, doc: findCol([`CTE${i}`, `C.T.E.${i}`, `CTE ${i}`]), up: findCol([`CTE${i} UPLOADED`, `CTE ${i} UPLOADED`, `CTE${i} UP`]) });
 
-            // 6. Completion (Type: COMP)
             docsToTrack.push({ type: 'COMP', name: 'FCIR', doc: findCol(['FCIR']), up: findCol(['FCIR UPLOADED', 'FCIR UP']) });
             docsToTrack.push({ type: 'COMP', name: 'COC', doc: findCol(['COC']), up: findCol(['COC UPLOADED', 'COC UP']) });
 
-            // 7. Acceptance (Type: ACC)
             docsToTrack.push({ type: 'ACC', name: 'FAIR', doc: findCol(['FAIR']), up: findCol(['FAIR UPLOADED', 'FAIR UP']) });
             docsToTrack.push({ type: 'ACC', name: 'CFA', doc: findCol(['CFA']), up: findCol(['CFA UPLOADED', 'CFA UP']) });
 
             const yearsTracked = ['2023', '2024', '2025', '2026'];
 
-            // Process data rows
             for(let i = 0; i < rowsArray.length; i++) {
                 const row = rowsArray[i].values;
                 if(cols.YEAR === -1 || !row[cols.YEAR]) continue;
 
                 let rowYear = (row[cols.YEAR] || '').toString().trim();
-                
                 if(!yearsTracked.includes(rowYear)) continue;
 
-                // Stats containers per type
                 let missingVO = [], missingSO = [], missingCOMP = [], missingACC = [];
                 let stats = {
                     VO:   { total: 0, uploaded: 0 },
@@ -356,7 +347,6 @@
                         
                         if(hasDoc) {
                             stats[v.type].total++;
-                            
                             if(isUploaded) {
                                 stats[v.type].uploaded++;
                             } else {
@@ -371,7 +361,6 @@
 
                 const contractId = cols.CONTRACT !== -1 && row[cols.CONTRACT] ? row[cols.CONTRACT] : 'Unknown Contract ID';
 
-                // Assign logic
                 const assignToRole = (roleKey, rawNames) => {
                     if(!rawNames || typeof rawNames !== 'string' || rawNames.trim() === '') return;
                     
@@ -379,8 +368,6 @@
                     const uniqueNames = [...new Set(names)];
                     
                     uniqueNames.forEach(name => {
-                        
-                        // Process for VO, SO, COMP, and ACC categories
                         ['VO', 'SO', 'COMP', 'ACC'].forEach(docTypeKey => {
                             if(!window.appData[docTypeKey][roleKey][name]) {
                                 window.appData[docTypeKey][roleKey][name] = { 
@@ -402,24 +389,20 @@
                                 window.appData[docTypeKey][roleKey][name][rowYear].push({ contractId, missingDocs: targetMissingList });
                             }
                         });
-                        
                     });
                 };
 
-                // Assign unconditionally to ensure all names appear in the tables
                 if(cols.PE !== -1) assignToRole('PE', row[cols.PE]);
                 if(cols.PI !== -1) assignToRole('PI', row[cols.PI]);
                 if(cols.RE !== -1) assignToRole('RE', row[cols.RE]);
                 if(cols.QE !== -1) assignToRole('QE', row[cols.QE]);
                 
-                // Fallback if RE & QE are squeezed into the same column
                 if(cols.RE_QE !== -1) {
                     assignToRole('RE', row[cols.RE_QE]);
                     assignToRole('QE', row[cols.RE_QE]);
                 }
             }
 
-            // Remove loading screen and render
             document.getElementById('loader').classList.add('hidden');
             renderTable();
         }
@@ -444,7 +427,6 @@
         function switchTab(role) {
             currentRole = role;
             
-            // Update Tab UI styles
             ['PE', 'PI', 'RE', 'QE'].forEach(r => {
                 const btn = document.getElementById(`tab-${r}`);
                 if(r === role) {
@@ -457,22 +439,23 @@
             });
 
             // Update Header Title dynamically based on Role
-            const roleNames = { 
-                'PE': 'Project Engineer (PE)', 
-                'PI': 'Project Inspector (PI)', 
-                'RE': 'Resident Engineer (RE)', 
-                'QE': 'Quality Engineer (QE)' 
+            const roleNamesPC = { 
+                'PE': 'Project Engineer', 
+                'PI': 'Project Inspector', 
+                'RE': 'Resident Engineer', 
+                'QE': 'Quantity Engineer' 
             };
-            document.getElementById('table-role-header').innerHTML = `<i class="fa-solid fa-user-tie mr-2"></i>${roleNames[role]}`;
+            const roleNamesMobile = { 'PE': 'PE', 'PI': 'PI', 'RE': 'RE', 'QE': 'QE' };
+            document.getElementById('table-role-header').innerHTML = `<i class="fa-solid fa-user-tie mr-2"></i><span class="md:hidden">${roleNamesMobile[role]}</span><span class="hidden md:inline">${roleNamesPC[role]}</span>`;
 
             renderTable();
         }
 
         function renderTable() {
             const tbody = document.getElementById('table-body');
+            const mobileContainer = document.getElementById('mobile-container');
             const dataMap = window.appData[currentDocType][currentRole];
             
-            // Filter out persons who have 0 total Docs for the SELECTED category
             const persons = Object.keys(dataMap)
                                   .filter(person => dataMap[person].totalDocs > 0)
                                   .sort();
@@ -484,15 +467,35 @@
                 else if(currentDocType === 'COMP') categoryName = 'Completion Documents';
                 else if(currentDocType === 'ACC') categoryName = 'Acceptance Documents';
 
+                let shortCatName = categoryName;
+                if(currentDocType === 'COMP') shortCatName = 'COC Documents';
+                if(currentDocType === 'ACC') shortCatName = 'CA Documents';
+
                 tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-gray-400"><i class="fa-solid fa-check-circle text-4xl text-neon-green mb-3 block"></i>No personnel with registered ${categoryName} found for this role!</td></tr>`;
+                mobileContainer.innerHTML = `<div class="p-8 bg-[#1c1c28] rounded-xl border border-gray-700/50 text-center text-gray-400 w-full"><i class="fa-solid fa-check-circle text-4xl text-neon-green mb-3 block"></i>No personnel with registered ${shortCatName} found!</div>`;
                 return;
             }
 
-            let html = '';
+            let pcHtml = '';
+            let mobileHtml = '';
+            
             persons.forEach(person => {
                 const stats = dataMap[person];
                 
-                html += `
+                // Calculate Upload Percentage
+                let percent = 0;
+                if (stats.totalDocs > 0) {
+                    percent = Math.round((stats.uploadedDocs / stats.totalDocs) * 100);
+                } else {
+                    percent = 100;
+                }
+
+                let percentColor = percent === 100 ? 'text-neon-green' : (percent >= 50 ? 'text-neon-orange' : 'text-neon-pink');
+                let progressColor = percent === 100 ? 'bg-neon-green' : (percent >= 50 ? 'bg-neon-orange' : 'bg-neon-pink');
+                let displayPercent = stats.totalDocs === 0 ? '-' : `${percent}%`;
+
+                // --- PC HTML ---
+                pcHtml += `
                 <tr class="border-b border-gray-800 hover:bg-[#252536] transition-colors group">
                     <td class="p-4 sticky-col font-semibold flex items-center gap-3">
                         <div class="bg-gray-800 p-2 rounded-lg border border-gray-700 group-hover:border-neon-blue transition-colors">
@@ -501,38 +504,31 @@
                         <span class="truncate max-w-[150px] sm:max-w-xs block" title="${person}">${person}</span>
                     </td>`;
 
-                // Years Loop
+                // Years Loop (PC & Mobile values calculation)
+                let mobileButtonsHtml = '';
                 ['2023', '2024', '2025', '2026'].forEach(year => {
                     const projects = stats[year];
                     if(projects.length > 0) {
-                        // Clickable 3D Button for Pending Totals
-                        html += `
+                        pcHtml += `
                         <td class="p-4 text-center">
                             <button onclick="openModal('${currentDocType}', '${currentRole}', '${person.replace(/'/g, "\\'")}', '${year}')" class="td-clickable" title="Click to view ${projects.length} pending projects">
                                 ${projects.length}
                             </button>
                         </td>`;
+                        mobileButtonsHtml += `
+                        <div class="flex justify-center">
+                            <button onclick="openModal('${currentDocType}', '${currentRole}', '${person.replace(/'/g, "\\'")}', '${year}')" class="td-clickable" style="width:30px; height:30px; font-size:0.9rem;" title="Click to view ${projects.length} pending projects">
+                                ${projects.length}
+                            </button>
+                        </div>`;
                     } else {
-                        // Empty State (-)
-                        html += `<td class="p-4 text-center text-gray-600 font-bold">-</td>`;
+                        pcHtml += `<td class="p-4 text-center text-gray-600 font-bold">-</td>`;
+                        mobileButtonsHtml += `<div class="text-center text-gray-600 font-black text-lg">-</div>`;
                     }
                 });
 
-                // Calculate Upload Percentage
-                let percent = 0;
-                if (stats.totalDocs > 0) {
-                    percent = Math.round((stats.uploadedDocs / stats.totalDocs) * 100);
-                } else {
-                    percent = 100; // 100% implicitly clear if no Docs are required
-                }
-
-                // Dynamic Colors for Progress Bar
-                let percentColor = percent === 100 ? 'text-neon-green' : (percent >= 50 ? 'text-neon-orange' : 'text-neon-pink');
-                let progressColor = percent === 100 ? 'bg-neon-green' : (percent >= 50 ? 'bg-neon-orange' : 'bg-neon-pink');
-                let displayPercent = stats.totalDocs === 0 ? '-' : `${percent}%`;
-
-                // Upload % Column
-                html += `
+                // Upload % Column (PC)
+                pcHtml += `
                     <td class="p-4">
                         <div class="flex flex-col items-center justify-center w-full min-w-[120px]">
                             <div class="flex justify-between w-full px-1 mb-1 items-end">
@@ -545,9 +541,39 @@
                         </div>
                     </td>
                 </tr>`;
+
+                // --- MOBILE HTML ---
+                mobileHtml += `
+                <div class="bg-[#1c1c28] rounded-xl border border-gray-700/50 p-4 hover:border-neon-blue transition-colors group shadow-md w-full">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="bg-gray-800 p-2 rounded-lg border border-gray-700 group-hover:border-neon-blue transition-colors shadow-inner flex-shrink-0">
+                            <i class="fa-solid fa-user text-neon-blue text-lg"></i>
+                        </div>
+                        <span class="font-black text-lg text-gray-100 tracking-wide break-words">${person}</span>
+                    </div>
+                    <div class="pl-12">
+                        <div class="grid grid-cols-5 gap-1 mb-2 border-b border-gray-700/50 pb-1">
+                            <div class="text-center font-bold text-gray-400 text-[10px]">2023</div>
+                            <div class="text-center font-bold text-gray-400 text-[10px]">2024</div>
+                            <div class="text-center font-bold text-gray-400 text-[10px]">2025</div>
+                            <div class="text-center font-bold text-gray-400 text-[10px]">2026</div>
+                            <div class="text-center font-bold text-gray-400 text-[10px]">Up %</div>
+                        </div>
+                        <div class="grid grid-cols-5 gap-1 items-center">
+                            ${mobileButtonsHtml}
+                            <div class="flex flex-col items-center justify-center w-full">
+                                <span class="font-black text-[11px] ${percentColor} mb-1">${displayPercent}</span>
+                                <div class="w-full bg-[#121219] rounded-full h-1.5 shadow-inner border border-gray-700/50 max-w-[30px]">
+                                    <div class="${progressColor} h-1.5 rounded-full shadow-[0_0_8px_currentColor]" style="width: ${stats.totalDocs === 0 ? 0 : percent}%; transition: width 0.5s ease;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
             });
 
-            tbody.innerHTML = html;
+            tbody.innerHTML = pcHtml;
+            mobileContainer.innerHTML = mobileHtml;
         }
 
         function openModal(docType, role, person, year) {
@@ -555,7 +581,6 @@
             const modal = document.getElementById('modal');
             const modalBox = document.getElementById('modal-box');
             
-            // Set Titles dynamically depending on role tab
             const roleIcons = { 
                 'PE': 'fa-helmet-safety text-neon-orange', 
                 'PI': 'fa-magnifying-glass-chart text-neon-green', 
@@ -579,7 +604,6 @@
                 </div>
             `;
 
-            // Build List - Using a grid to take advantage of the wider modal
             let bodyHtml = `<div class="grid grid-cols-1 md:grid-cols-2 gap-4">`;
             projects.forEach(p => {
                 bodyHtml += `
@@ -601,7 +625,6 @@
 
             document.getElementById('modal-body').innerHTML = bodyHtml;
 
-            // Show animation
             modal.classList.remove('hidden');
             modal.classList.add('flex');
             setTimeout(() => {
@@ -623,7 +646,6 @@
             }, 200);
         }
 
-        // Close modal on outside click
         document.getElementById('modal').addEventListener('click', function(e) {
             if (e.target === this) {
                 closeModal();
