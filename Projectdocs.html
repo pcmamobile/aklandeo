@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Project Documentation</title>
+  
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 12px;
+      background: #ffffff;
+      color: #000000;
+      margin: 0;
+      padding: 14px 14px 100px 14px;
+    }
+
+    .pd-meta { padding: 8px 14px; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 10px; }
+    .pd-meta-row { display: grid; grid-template-columns: 110px 1fr; align-items: center; column-gap: 0; }
+    .pd-meta-row + .pd-meta-row { margin-top: 4px; }
+    .pd-meta-label { font-size: 12px; font-weight: 700; color: #111827; padding-right: 10px; white-space: nowrap; }
+    .pd-meta-value { font-size: 12px; font-weight: 400; color: #111827; border-left: 1px solid #e5e7eb; padding-left: 10px; min-width: 0; overflow-wrap: anywhere; }
+
+    .pd-loading { margin-bottom: 8px; font-size: 11px; font-weight: 600; color: #4b5563; }
+    .pd-section { margin-bottom: 14px; margin-top: 15px; }
+    .pd-section h3 { margin: 0 0 6px; font-size: 13px; font-weight: 900; text-transform: uppercase; color: #1e293b; border-bottom: 2px solid #e2e8f0; padding-bottom: 5px; }
+
+    .pd-table-wrapper { width: 100%; overflow-x: auto; }
+    .pd-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+    .pd-table th, .pd-table td { padding: 4px 6px; border: 1px solid #e5e7eb; vertical-align: middle; }
+    .pd-table th { text-align: left; font-weight: 700; background: #f8fafc; color: #334155; }
+    .pd-table tr:nth-child(even) td { background: #f9fafb; }
+    .pd-remarks { white-space: normal; word-break: break-word; }
+
+    .pd-table-pcma th, .pd-table-pcma td { padding: 2px 4px; }
+    .pd-table-pcma .col-month { width: 100px; }
+    .pd-table-pcma .col-actual, .pd-table-pcma .col-pcma { width: 60px; text-align: center; }
+    .pd-table-pcma .pd-year-row td { font-weight: 700; background: #e2e8f0; color: #0f172a; }
+
+    .pd-table-vo th, .pd-table-vo td { padding: 2px 4px; }
+    .pd-table-vo .col-vo { width: 60px; text-align: center; }
+    .pd-table-vo .col-amount { width: 90px; }
+    .pd-table-vo .col-days { width: 70px; text-align: center; }
+
+    .pd-table-wso th, .pd-table-wso td { padding: 2px 4px; }
+    .pd-table-wso .col-code { width: 70px; text-align: center; }
+    .pd-table-wso .col-date { width: 90px; }
+
+    .pd-table-cte { width: auto; }
+    .pd-table-cte th, .pd-table-cte td { padding: 2px 4px; }
+    .pd-table-cte .col-code { width: 45px; }
+    .pd-table-cte .col-days { width: 60px; text-align: center; }
+    .pd-table-cte .col-date { width: 80px; }
+    .pd-table-cte .col-revdate { width: auto; }
+
+    .pd-table-billing th, .pd-table-billing td { padding: 2px 4px; }
+    .pd-table-billing { width: auto; }
+    .pd-table-billing .col-year { width: 45px; text-align: center; }
+    .pd-table-billing .col-month { width: 70px; }
+    .pd-table-billing .col-amount { width: 80px; text-align: right; }
+    .pd-table-billing .col-status { width: auto; text-align: left; padding-left: 2px; font-weight: bold; }
+
+    .pd-scurve-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 4px 0 4px; font-size: 11px; }
+    .pd-toggle { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 999px; background: #f1f5f9; border: 1px solid #cbd5e1; cursor: pointer; font-weight: bold; color: #475569; }
+    .pd-toggle input[type="checkbox"] { margin: 0; }
+    .pd-scurve-wrapper { margin: 10px 0 16px; height: 260px; background: #f8fafc; border-radius: 8px; padding: 10px; border: 1px solid #e2e8f0; }
+    .pd-scurve-wrapper canvas { width: 100% !important; height: 100% !important; }
+    .pd-error { padding: 12px 14px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; font-size: 13px; color: #b91c1c; font-weight: bold; }
+
+    @media (max-width: 520px) {
+      body { padding: 10px 8px 60px; }
+      .pd-meta { padding: 8px 10px; }
+      .pd-meta-row { grid-template-columns: 95px 1fr; }
+      .pd-meta-label, .pd-meta-value { font-size: 11px; }
+      .pd-table { border: 1px solid #e5e7eb; }
+      .pd-scurve-wrapper { height: 220px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="projectDocsLoading" class="pd-loading">
+    <i class="fa-solid fa-circle-notch fa-spin"></i> Loading documentation...
+  </div>
+  
+  <section id="pdMetaSection" class="pd-section">
+    <div class="pd-meta">
+      <div class="pd-meta-row"><div class="pd-meta-label">Contract ID</div><div class="pd-meta-value" id="pdMetaCID">—</div></div>
+      <div class="pd-meta-row"><div class="pd-meta-label">Project ID</div><div class="pd-meta-value" id="pdMetaProjectId">—</div></div>
+      <div class="pd-meta-row"><div class="pd-meta-label">Project Name</div><div class="pd-meta-value" id="pdMetaProjectName">—</div></div>
+      <div class="pd-meta-row"><div class="pd-meta-label">Contractor</div><div class="pd-meta-value" id="pdMetaContractor">—</div></div>
+    </div>
+  </section>
+  
+  <section id="pdDescriptionSection" class="pd-section"></section>
+  
+  <section id="pdPcmaSection" class="pd-section"></section>
+  
+  <div class="pd-scurve-controls" id="pdScurveControls" style="display:none;">
+    <label class="pd-toggle"><input type="checkbox" id="pdToggleActual" checked><span>ACTUAL</span></label>
+    <label class="pd-toggle"><input type="checkbox" id="pdTogglePcma" checked><span>PCMA</span></label>
+    <label class="pd-toggle"><input type="checkbox" id="pdToggleBilling" checked><span>BILLING</span></label>
+  </div>
+  
+  <div class="pd-scurve-wrapper" id="pdScurveWrapper" style="display:none;">
+    <canvas id="pdSCurveCanvas"></canvas>
+  </div>
+  
+  <section id="pdBillingSection" class="pd-section"></section>
+  <section id="pdWsoSection" class="pd-section"></section>
+  <section id="pdVoSection" class="pd-section"></section>
+  <section id="pdCteSection" class="pd-section"></section>
+
+  <script>
+    const SHEET_ID = "1LSYLZ7tfSeVupQMPsCOHG4SlnzPQqOAIe03QI1qRMr8";
+    const API_KEY = "AIzaSyCz6fNJr3ecn-M2HActqM1aCXbxqRLj2e8";
+    let scurveChart = null;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const params = new URLSearchParams(window.location.search);
+      const contractId = params.get('cid');
+      if (contractId) {
+        document.getElementById("pdMetaCID").textContent = contractId;
+        loadProjectDocsData(contractId);
+      } else {
+        document.getElementById('projectDocsLoading').innerHTML = '<div class="pd-error">Error: No Contract ID provided.</div>';
+      }
+    });
+
+    function normalizeHeader(text) { return (text || "").toString().replace(/\s+/g, " ").trim().toUpperCase(); }
+    function findExactColumn(headerRow, target) {
+      const t = normalizeHeader(target);
+      for (let i = 0; i < headerRow.length; i++) { if (normalizeHeader(headerRow[i]) === t) return i; }
+      return -1;
+    }
+    function normalizeCellLower(text) { return (text || "").toString().replace(/\s+/g, " ").trim().toLowerCase(); }
+
+    function findHeaderRowIndexByHints(values, hints) {
+      const maxScan = Math.min(values.length, 40);
+      for (let i = 0; i < maxScan; i++) {
+        const row = (values[i] || []).map(normalizeCellLower);
+        if (hints.some((h) => row.some((cell) => cell.includes(h)))) return i;
+      }
+      return 2;
+    }
+
+    function findRowIndexByExactCell(values, startRow, contractId) {
+      const target = String(contractId || "").trim().toLowerCase();
+      if (!target) return -1;
+      for (let r = Math.max(0, startRow); r < values.length; r++) {
+        const row = values[r] || [];
+        for (let c = 0; c < row.length; c++) {
+          if (row[c] != null && String(row[c]).trim().toLowerCase() === target) return r;
+        }
+      }
+      return -1;
+    }
+
+    function findColumnIndexByIncludes(headers, keywords) {
+      const keys = (keywords || []).map((k) => String(k).toLowerCase());
+      for (let i = 0; i < headers.length; i++) {
+        const h = normalizeCellLower(headers[i]);
+        if (!h) continue;
+        if (keys.some((k) => h.includes(k))) return i;
+      }
+      return -1;
+    }
+
+    function applyProjectMeta(appValues, contractId) {
+      if (!Array.isArray(appValues) || !appValues.length) return;
+      const headerIdx = findHeaderRowIndexByHints(appValues, ["contract id", "project id", "project name", "contractor"]);
+      const headers = appValues[headerIdx] || [];
+      const rowIdx = findRowIndexByExactCell(appValues, headerIdx + 1, contractId);
+      const row = rowIdx >= 0 ? (appValues[rowIdx] || []) : null;
+      if (!row) return;
+
+      const colProjId = findColumnIndexByIncludes(headers, ["project id", "project no"]);
+      const colProjName = findColumnIndexByIncludes(headers, ["project name", "project title"]);
+      const colContr = findColumnIndexByIncludes(headers, ["contractor"]);
+
+      const projectId = colProjId >= 0 ? String(row[colProjId] || "").trim() : "";
+      const projectNameColE = row.length > 4 ? String(row[4] || "").trim() : "";
+      const projectName = projectNameColE || (colProjName >= 0 ? String(row[colProjName] || "").trim() : "");
+      const contractor = colContr >= 0 ? String(row[colContr] || "").trim() : "";
+
+      if (document.getElementById("pdMetaProjectId")) document.getElementById("pdMetaProjectId").textContent = projectId || "—";
+      if (document.getElementById("pdMetaProjectName")) document.getElementById("pdMetaProjectName").textContent = projectName || "—";
+      if (document.getElementById("pdMetaContractor")) document.getElementById("pdMetaContractor").textContent = contractor || "—";
+    }
+
+    function monthNameToNumber(name) {
+      if (!name) return 0;
+      const key = name.toString().trim().slice(0, 3).toUpperCase();
+      const map = { JAN:1, FEB:2, MAR:3, APR:4, MAY:5, JUN:6, JUL:7, AUG:8, SEP:9, SEPT:9, OCT:10, NOV:11, DEC:12 };
+      return map[key] || 0;
+    }
+
+    function parseDateFromCell(value) {
+      if (!value) return null;
+      const str = String(value).trim();
+      if (!str) return null;
+      const d = new Date(str);
+      return !isNaN(d.getTime()) ? d : null;
+    }
+
+    function formatDateShort(d) {
+      if (!(d instanceof Date) || isNaN(d.getTime())) return "";
+      const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      return months[d.getMonth()] + " " + d.getDate() + ", " + d.getFullYear();
+    }
+
+    function addDays(date, days) {
+      if (!(date instanceof Date) || isNaN(date.getTime())) return null;
+      const n = parseInt(days, 10);
+      if (!Number.isFinite(n)) return null;
+      const d = new Date(date.getTime());
+      d.setDate(d.getDate() + n);
+      return d;
+    }
+
+    function parseDaysValue(value) {
+      if (value == null) return null;
+      const m = String(value).match(/-?\d+/);
+      return m ? (Number.isFinite(parseInt(m[0], 10)) ? parseInt(m[0], 10) : null) : null;
+    }
+
+    function deriveCteBaseDateFromRemarks(remarks, header, row) {
+      if (!remarks) return null;
+      const txt = String(remarks);
+
+      const wsoMatch = txt.match(/WSO\s*(?:No\.?\s*)?(\d+)/i);
+      if (wsoMatch && Number.isFinite(parseInt(wsoMatch[1], 10))) {
+        const wroIdx = findExactColumn(header, "WRO" + parseInt(wsoMatch[1], 10) + " Date");
+        if (wroIdx >= 0 && row[wroIdx]) { const d = parseDateFromCell(row[wroIdx]); if (d) return d; }
+      }
+
+      const voMatch = txt.match(/VO\s*(\d+)/i);
+      if (voMatch && Number.isFinite(parseInt(voMatch[1], 10))) {
+        const voIdx = findExactColumn(header, "VO" + parseInt(voMatch[1], 10) + " Date");
+        if (voIdx >= 0 && row[voIdx]) { const d = parseDateFromCell(row[voIdx]); if (d) return d; }
+      }
+
+      const monthMatch = txt.match(/month of\s+([A-Za-z]+)\s+(\d{4})/i);
+      if (monthMatch) {
+        const mNum = monthNameToNumber(monthMatch[1]);
+        const year = parseInt(monthMatch[2], 10);
+        if (mNum && year) {
+          const d = new Date(year, mNum, 0);
+          if (!isNaN(d.getTime())) return d;
+        }
+      }
+      return parseDateFromCell(txt);
+    }
+
+    function findContractRow(values, contractId) {
+      if (!values || values.length < 3) return { header: null, row: null, rowIndex: -1 };
+      const header = values[2] || [];
+      const target = String(contractId).trim().toLowerCase();
+      for (let r = 3; r < values.length; r++) {
+        const row = values[r] || [];
+        for (let c = 0; c < row.length; c++) {
+          if (row[c] != null && String(row[c]).trim().toLowerCase() === target) return { header, row, rowIndex: r };
+        }
+      }
+      return { header, row: null, rowIndex: -1 };
+    }
+
+    async function fetchValuesSafe(sheetName) {
+      try {
+        const range = encodeURIComponent(sheetName + "!A1:ZZ5000"); // Using safe range limit
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?key=${API_KEY}`;
+        const res = await fetch(url);
+        if (!res.ok) return []; 
+        const json = await res.json();
+        return json.values || [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    async function fetchBillingSheetSafe() {
+      try {
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}?ranges=BILLING!A1:ZZ5000&fields=sheets(data(rowData(values(formattedValue,effectiveFormat.textFormat.foregroundColor))))&key=${API_KEY}`;
+        const res = await fetch(url);
+        if (!res.ok) return { values: [], colorGrid: [] };
+        const json = await res.json();
+
+        const sheet = json.sheets && json.sheets[0];
+        const data = sheet && sheet.data && sheet.data[0];
+        const rowData = (data && data.rowData) || [];
+
+        const values = [];
+        const colorGrid = [];
+
+        rowData.forEach((row) => {
+          const cells = row.values || [];
+          const rowValues = [];
+          const rowColors = [];
+          cells.forEach((cell) => {
+            const v = cell && cell.formattedValue ? cell.formattedValue : "";
+            rowValues.push(v != null ? String(v) : "");
+            const color = cell && cell.effectiveFormat && cell.effectiveFormat.textFormat && cell.effectiveFormat.textFormat.foregroundColor;
+            rowColors.push(color || null);
+          });
+          values.push(rowValues);
+          colorGrid.push(rowColors);
+        });
+        return { values, colorGrid };
+      } catch (e) {
+        return { values: [], colorGrid: [] };
+      }
+    }
+
+    function buildDescriptionInfo(values, contractId) {
+      if (!values || !values.length) return null;
+      const { header, row } = findContractRow(values, contractId);
+      if (!header || !row) return null;
+      const descIdx = findExactColumn(header, "DESCRIPTION/SCOPE OF WORK");
+      const originalIdx = findExactColumn(header, "Original");
+      const revisedIdx = findExactColumn(header, "Revised");
+
+      const description = descIdx >= 0 ? (row[descIdx] || "").toString().trim() : "";
+      const original = originalIdx >= 0 ? (row[originalIdx] || "").toString().trim() : "";
+      let revised = revisedIdx >= 0 ? (row[revisedIdx] || "").toString().trim() : "";
+      if (!revised) revised = "-";
+
+      return { description: description || "-", original: original || "-", revised };
+    }
+
+    function buildPcmaRows(values, contractId) {
+      if (!values || !values.length) return [];
+      const { header, row } = findContractRow(values, contractId);
+      if (!header || !row) return [];
+      const monthColumns = [];
+      header.forEach((title, colIndex) => {
+        if (!title) return;
+        const match = /^(\d{4})\s+([A-Za-z]+)$/.exec(title.toString().trim());
+        if (match) {
+          const year = match[1], monthName = match[2], shortMonth = monthName.slice(0, 3).toLowerCase();
+          let remarksIndex = -1;
+          for (let j = 0; j < header.length; j++) {
+            const h = (header[j] || "").toString().toLowerCase();
+            if (h.includes(shortMonth) && h.includes("remarks")) { remarksIndex = j; break; }
+          }
+          monthColumns.push({ year, month: monthName, percCol: colIndex, remarksCol: remarksIndex });
+        }
+      });
+
+      const rows = [];
+      let reached100 = false;
+      monthColumns.forEach((m) => {
+        if (reached100) return;
+        const rawPerc = (row[m.percCol] || "").toString().trim();
+        const rawRemarks = m.remarksCol >= 0 ? (row[m.remarksCol] || "").toString().trim() : "";
+        if (!rawPerc && !rawRemarks) return;
+
+        let numericPerc = null;
+        if (rawPerc) {
+          const numMatch = rawPerc.match(/-?\d+(\.\d+)?/);
+          if (numMatch) numericPerc = parseFloat(numMatch[0]);
+        }
+        rows.push({ year: m.year, month: m.month, percentage: numericPerc, remarks: rawRemarks });
+        if (numericPerc === 100) reached100 = true;
+      });
+      return rows;
+    }
+
+    function buildPcmaExtraRows(values, contractId) {
+      if (!values || !values.length) return [];
+      const { header, row } = findContractRow(values, contractId);
+      if (!header || !row) return [];
+      const monthColumns = [];
+      header.forEach((title, colIndex) => {
+        if (!title) return;
+        const match = /^(\d{4})\s+([A-Za-z]+)\s+PCMA$/i.exec(title.toString().trim());
+        if (match) {
+          const year = match[1], monthName = match[2], shortMonth = monthName.slice(0, 3).toLowerCase();
+          let remarksIndex = -1;
+          for (let j = 0; j < header.length; j++) {
+            const h = (header[j] || "").toString().toLowerCase();
+            if (h.includes(shortMonth) && h.includes("remarks")) { remarksIndex = j; break; }
+          }
+          monthColumns.push({ year, month: monthName, percCol: colIndex, remarksCol: remarksIndex });
+        }
+      });
+
+      const rows = [];
+      let reached100 = false;
+      monthColumns.forEach((m) => {
+        if (reached100) return;
+        const rawPerc = (row[m.percCol] || "").toString().trim();
+        const rawRemarks = m.remarksCol >= 0 ? (row[m.remarksCol] || "").toString().trim() : "";
+        if (!rawPerc && !rawRemarks) return;
+
+        let numericPerc = null;
+        if (rawPerc) {
+          const numMatch = rawPerc.match(/-?\d+(\.\d+)?/);
+          if (numMatch) numericPerc = parseFloat(numMatch[0]);
+        }
+        rows.push({ year: m.year, month: m.month, percentage: numericPerc, remarks: rawRemarks });
+        if (numericPerc === 100) reached100 = true;
+      });
+      return rows;
+    }
+
+    function buildVoRows(values, contractId) {
+      if (!values || !values.length) return [];
+      const { header, row } = findContractRow(values, contractId);
+      if (!header || !row) return [];
+      const rows = [];
+      for (let i = 1; i <= 5; i++) {
+        const label = "VO" + i;
+        const amountIdx = findExactColumn(header, label);
+        const daysIdx = findExactColumn(header, label + " Additional Days");
+        const remarksIdx = findExactColumn(header, label + " Remarks");
+        const amount = amountIdx >= 0 ? (row[amountIdx] || "").toString().trim() : "";
+        const days = daysIdx >= 0 ? (row[daysIdx] || "").toString().trim() : "";
+        const remarks = remarksIdx >= 0 ? (row[remarksIdx] || "").toString().trim() : "";
+        if (amount || days || remarks) rows.push({ label, amount, days, remarks });
+      }
+      return rows;
+    }
+
+    function buildWsoAndCteRows(values, contractId) {
+      if (!values || !values.length) return { wsoRows: [], cteRows: [] };
+      const { header, row } = findContractRow(values, contractId);
+      if (!header || !row) return { wsoRows: [], cteRows: [] };
+      const wsoRows = [];
+      const cteEntries = [];
+
+      for (let i = 1; i <= 4; i++) {
+        const wsoDateIdx = findExactColumn(header, "WSO" + i + " Date");
+        const wsoReasonIdx = findExactColumn(header, "WSO" + i + " Reason");
+        const cwsoDateIdx = findExactColumn(header, "CWSO" + i + "a Date");
+        const wroDateIdx = findExactColumn(header, "WRO" + i + " Date");
+
+        const wsoDate = wsoDateIdx >= 0 ? row[wsoDateIdx] || "" : "";
+        const wsoReason = wsoReasonIdx >= 0 ? row[wsoReasonIdx] || "" : "";
+        if (wsoDate || wsoReason) wsoRows.push({ code: "WSO" + i, date: wsoDate, reason: wsoReason || "" });
+
+        const cwsoDate = cwsoDateIdx >= 0 ? row[cwsoDateIdx] || "" : "";
+        if (cwsoDate) wsoRows.push({ code: "CWSO" + i + "a", date: cwsoDate, reason: "Continuing Suspension" });
+
+        const wroDate = wroDateIdx >= 0 ? row[wroDateIdx] || "" : "";
+        if (wroDate) wsoRows.push({ code: "WRO" + i, date: wroDate, reason: "Resolved" });
+      }
+
+      for (let i = 1; i <= 20; i++) {
+        const label = "CTE" + i;
+        const daysIdx = findExactColumn(header, label);
+        const remarksIdx = findExactColumn(header, label + " Remarks");
+        const daysRaw = daysIdx >= 0 ? row[daysIdx] || "" : "";
+        const remarks = remarksIdx >= 0 ? row[remarksIdx] || "" : "";
+
+        if ((daysRaw && String(daysRaw).trim() !== "") || (remarks && String(remarks).trim() !== "")) {
+          const baseDate = deriveCteBaseDateFromRemarks(remarks, header, row);
+          cteEntries.push({ code: label, daysRaw, remarks, baseDate });
+        }
+      }
+
+      for (let i = 1; i <= 5; i++) {
+        const code = "VO" + i;
+        const dateIdx = findExactColumn(header, code + " Date");
+        const daysIdx = findFirstExistingColumn(header, [code + " Additional Days", code + " Days", code]);
+        const remarksIdx = findExactColumn(header, code + " Remarks");
+
+        const dateVal = dateIdx >= 0 ? (row[dateIdx] || "").toString().trim() : "";
+        const daysRaw = daysIdx >= 0 ? (row[daysIdx] || "").toString().trim() : "";
+        const remarks = remarksIdx >= 0 ? (row[remarksIdx] || "").toString().trim() : "";
+
+        if (dateVal || daysRaw || remarks) {
+          cteEntries.push({ code, daysRaw, remarks, baseDate: parseDateFromCell(dateVal) });
+        }
+      }
+
+      const origExpiryIdx = findFirstExistingColumn(header, ["Orig. Expiry", "Orig Expiry", "Original Expiry", "Original Expiry Date"]);
+      let origExpiryDate = origExpiryIdx >= 0 ? parseDateFromCell(row[origExpiryIdx]) : null;
+
+      const sortedEntries = cteEntries.map((e, idx) => ({ ...e, _idx: idx })).sort((a, b) => {
+        if (!a.baseDate && !b.baseDate) return a._idx - b._idx;
+        if (!a.baseDate) return 1;
+        if (!b.baseDate) return -1;
+        return a.baseDate - b.baseDate;
+      });
+
+      const cteRows = [];
+      let prevRevExpiry = origExpiryDate;
+
+      sortedEntries.forEach((entry) => {
+        const { code, daysRaw, remarks, baseDate } = entry;
+        const daysNum = parseDaysValue(daysRaw);
+        let revExpiryObj = null;
+
+        if (prevRevExpiry && Number.isFinite(daysNum)) {
+          revExpiryObj = addDays(prevRevExpiry, daysNum);
+          prevRevExpiry = revExpiryObj;
+        } else if (!prevRevExpiry && baseDate && Number.isFinite(daysNum)) {
+          revExpiryObj = addDays(baseDate, daysNum);
+          prevRevExpiry = revExpiryObj;
+        }
+        cteRows.push({ code, date: baseDate ? formatDateShort(baseDate) : "", days: daysRaw || "", remarks: remarks || "", revExpiryDate: revExpiryObj ? formatDateShort(revExpiryObj) : "" });
+      });
+
+      return { wsoRows, cteRows };
+    }
+
+    function buildBillingRows(billingSheet, contractId) {
+      if (!billingSheet || !billingSheet.values || !billingSheet.values.length) return [];
+      const values = billingSheet.values || [];
+      const colorGrid = billingSheet.colorGrid || [];
+      const { header, row, rowIndex } = findContractRow(values, contractId);
+      if (!header || !row || rowIndex < 0) return [];
+      const rows = [];
+
+      header.forEach((title, colIndex) => {
+        if (!title) return;
+        const match = /^(\d{4})\s+([A-Za-z]+)$/.exec(String(title).trim());
+        if (!match) return;
+
+        const year = match[1], monthName = match[2];
+        const amountText = String(row[colIndex] || "").trim();
+        let remarksColIndex = -1;
+
+        const remarksHeader = year + " " + monthName + " Remarks";
+        for (let j = 0; j < header.length; j++) {
+          if (normalizeHeader(header[j]) === normalizeHeader(remarksHeader)) { remarksColIndex = j; break; }
+        }
+        if (remarksColIndex < 0) {
+          const shortMonth = monthName.slice(0, 3).toLowerCase();
+          for (let j = 0; j < header.length; j++) {
+            const h = String(header[j] || "").toLowerCase();
+            if (h.includes(year.toLowerCase()) && h.includes(shortMonth) && h.includes("remarks")) { remarksColIndex = j; break; }
+          }
+        }
+
+        const remarksText = remarksColIndex >= 0 ? String(row[remarksColIndex] || "").trim() : "";
+        if (!amountText && !remarksText) return;
+
+        let percent = null;
+        if (amountText) {
+          const m = amountText.match(/(\d+(?:\.\d+)?)\s*%?/);
+          if (m) percent = parseFloat(m[1]);
+        }
+        if (remarksText) {
+          const m = remarksText.match(/\((\s*\d+(?:\.\d+)?)\s*%?\s*\)/);
+          if (m) percent = parseFloat(m[1]);
+        }
+        if (/mobilization/i.test(remarksText)) percent = 0;
+        if (/final/i.test(remarksText) || /retention/i.test(remarksText)) percent = 100;
+
+        const rowColors = colorGrid[rowIndex] || [];
+        const color = rowColors[colIndex] || null;
+        let isRed = false;
+        if (color && (color.red || 0) >= 0.7 && (color.green || 0) <= 0.3 && (color.blue || 0) <= 0.3) isRed = true;
+
+        rows.push({
+          year, month: monthName,
+          amount: amountText && amountText !== "" ? amountText : "-",
+          remarks: remarksText && remarksText !== "" ? remarksText : "-",
+          status: isRed ? "PAID" : "ON-PROCESS",
+          percentage: percent,
+        });
+      });
+      return rows;
+    }
+
+    function renderDescriptionSection(info) {
+      const container = document.getElementById("pdDescriptionSection");
+      if (!container) return;
+      if (!info) {
+        container.innerHTML = "<h3>DESCRIPTION / SCOPE OF WORK</h3><div class='pd-table-wrapper'><table class='pd-table pd-table-description'><tbody><tr><th>DESCRIPTION / SCOPE OF WORK</th><td>-</td></tr><tr><th>ORIGINAL</th><td>-</td></tr><tr><th>REVISED</th><td>-</td></tr></tbody></table></div>";
+        return;
+      }
+      container.innerHTML = "<h3>DESCRIPTION / SCOPE OF WORK</h3><div class='pd-table-wrapper'><table class='pd-table pd-table-description'><tbody><tr><th>ORIGINAL</th><td>" + (info.original || "-") + "</td></tr><tr><th>REVISED</th><td>" + (info.revised || "-") + "</td></tr></tbody></table></div>";
+    }
+
+    function renderPcmaSection(pcmaRows, pcmaExtraRows) {
+      const container = document.getElementById("pdPcmaSection");
+      if (!container) return;
+      const combinedMap = new Map();
+      function upsertEntry(sourceRow, type) {
+        if (!sourceRow || !sourceRow.year || !sourceRow.month) return;
+        const mNum = monthNameToNumber(sourceRow.month);
+        if (!mNum) return;
+        const key = sourceRow.year + "-" + String(mNum).padStart(2, "0");
+        let entry = combinedMap.get(key);
+        if (!entry) { entry = { year: sourceRow.year, month: sourceRow.month, monthNum: mNum, actual: null, pcma: null, remarks: "" }; combinedMap.set(key, entry); }
+        if (typeof sourceRow.percentage === "number") { if (type === "actual") entry.actual = sourceRow.percentage; if (type === "pcma") entry.pcma = sourceRow.percentage; }
+        if (sourceRow.remarks && !entry.remarks) entry.remarks = sourceRow.remarks;
+      }
+
+      (pcmaRows || []).forEach((r) => upsertEntry(r, "actual"));
+      (pcmaExtraRows || []).forEach((r) => upsertEntry(r, "pcma"));
+
+      let rows = Array.from(combinedMap.values()).filter((r) => typeof r.actual === "number" || typeof r.pcma === "number" || (r.remarks && String(r.remarks).trim() !== ""));
+      if (!rows.length) { container.innerHTML = "<h3>MONTHLY ACCOMPLISHMENT</h3><p>No Monthly Accomplishment data for this Contract ID.</p>"; return; }
+      rows.sort((a, b) => { const ya = parseInt(a.year, 10) || 0; const yb = parseInt(b.year, 10) || 0; if (ya !== yb) return ya - yb; return a.monthNum - b.monthNum; });
+
+      let html = "<h3>MONTHLY ACCOMPLISHMENT</h3><div class='pd-table-wrapper'><table class='pd-table pd-table-pcma'><thead><tr><th>MONTH</th><th>ACTUAL</th><th>PCMA</th><th>REMARKS</th></tr></thead><tbody>";
+      let currentYear = null;
+      rows.forEach((r) => {
+        if (r.year !== currentYear) { currentYear = r.year; html += '<tr class="pd-year-row"><td class="pd-year-label" colspan="4">' + (currentYear || "") + "</td></tr>"; }
+        html += "<tr><td class='col-month'>&nbsp;&nbsp;&nbsp;&nbsp;" + (r.month || "") + "</td><td class='col-actual'>" + (typeof r.actual === "number" ? r.actual + "%" : "-") + "</td><td class='col-pcma'>" + (typeof r.pcma === "number" ? r.pcma + "%" : "-") + "</td><td class='pd-remarks'>" + (r.remarks && String(r.remarks).trim() !== "" ? r.remarks : "-") + "</td></tr>";
+      });
+      html += "</tbody></table></div>";
+      container.innerHTML = html;
+    }
+
+    function renderVoSection(voRows) {
+      const container = document.getElementById("pdVoSection");
+      if (!container) return;
+      if (!voRows || !voRows.length) { container.innerHTML = "<h3>VARIATION ORDER (VO)</h3><p>No VO data recorded.</p>"; return; }
+      let html = "<h3>VARIATION ORDER (VO)</h3><div class='pd-table-wrapper'><table class='pd-table pd-table-vo'><thead><tr><th>VO</th><th>AMOUNT</th><th>(+) DAYS</th><th>REMARKS</th></tr></thead><tbody>";
+      voRows.forEach((r) => { html += "<tr><td class='col-vo'>" + (r.label || "") + "</td><td class='col-amount'>" + (r.amount || "-") + "</td><td class='col-days'>" + (r.days || "-") + "</td><td class='pd-remarks'>" + (r.remarks || "-") + "</td></tr>"; });
+      html += "</tbody></table></div>";
+      container.innerHTML = html;
+    }
+
+    function renderWsoSection(wsoRows) {
+      const container = document.getElementById("pdWsoSection");
+      if (!container) return;
+      if (!wsoRows || !wsoRows.length) { container.innerHTML = "<h3>SUSPENSION ORDER</h3><p>No WSO data recorded.</p>"; return; }
+      let html = "<h3>SUSPENSION ORDER</h3><div class='pd-table-wrapper'><table class='pd-table pd-table-wso'><thead><tr><th>CODE</th><th>DATE</th><th>REASON</th></tr></thead><tbody>";
+      wsoRows.forEach((r) => { html += "<tr><td class='col-code'>" + r.code + "</td><td class='col-date'>" + (r.date || "") + "</td><td class='pd-remarks'>" + (r.reason || "") + "</td></tr>"; });
+      html += "</tbody></table></div>";
+      container.innerHTML = html;
+    }
+
+    function renderCteSection(cteRows) {
+      const container = document.getElementById("pdCteSection");
+      if (!container) return;
+      if (!cteRows || !cteRows.length) { container.innerHTML = "<h3>CONTRACT TIME EXTENSION (CTE)</h3><p>No CTE data recorded.</p>"; return; }
+      let html = "<h3>CONTRACT TIME EXTENSION (CTE)</h3><div class='pd-table-wrapper'><table class='pd-table pd-table-cte'><thead><tr><th>CTE</th><th>DATE</th><th>(+) DAYS</th><th>REMARKS</th><th>REV. EXPIRY DATE</th></tr></thead><tbody>";
+      cteRows.forEach((r) => {
+        let daysDisplay = r.days ? (String(r.days).match(/-?\d+/) ? parseInt(String(r.days).match(/-?\d+/)[0], 10).toString() : String(r.days)) : "";
+        let remarksDisplay = r.remarks || "";
+        if (/^vo\d+$/i.test(String(r.code).trim())) remarksDisplay = "due to " + String(r.code).trim().toUpperCase();
+        html += "<tr><td class='col-code'>" + (r.code || "") + "</td><td class='col-date'>" + (r.date || "") + "</td><td class='col-days'>" + daysDisplay + "</td><td class='pd-remarks'>" + remarksDisplay + "</td><td class='col-revdate'>" + (r.revExpiryDate || "") + "</td></tr>";
+      });
+      html += "</tbody></table></div>";
+      container.innerHTML = html;
+    }
+
+    function renderBillingSection(billingRows) {
+      const container = document.getElementById("pdBillingSection");
+      if (!container) return;
+      if (!billingRows || !billingRows.length) { container.innerHTML = "<h3>BILLING</h3><p>No Billing data recorded.</p>"; return; }
+      let html = "<h3>BILLING</h3><div class='pd-table-wrapper'><table class='pd-table pd-table-billing'><thead><tr><th>YEAR</th><th>MONTH</th><th>AMOUNT</th><th>REMARKS</th><th>STATUS</th></tr></thead><tbody>";
+      billingRows.forEach((r) => { html += "<tr><td class='col-year'>" + (r.year || "") + "</td><td class='col-month'>" + (r.month || "") + "</td><td class='col-amount'>" + (r.amount || "-") + "</td><td class='pd-remarks'>" + (r.remarks || "-") + "</td><td class='col-status'>" + (r.status || "ON-PROCESS") + "</td></tr>"; });
+      html += "</tbody></table></div>";
+      container.innerHTML = html;
+    }
+
+    function buildSCurveChart(pcmaRows, pcmaExtraRows, billingRows) {
+      const wrapper = document.getElementById("pdScurveWrapper");
+      const controls = document.getElementById("pdScurveControls");
+      const canvas = document.getElementById("pdSCurveCanvas");
+      if (!canvas || typeof Chart === "undefined") return;
+
+      const monthMap = new Map();
+      function addRows(rows) {
+        if (!rows) return;
+        rows.forEach((r) => {
+          if (!r || !r.year || !r.month) return;
+          const mNum = monthNameToNumber(r.month);
+          if (!mNum) return;
+          const key = r.year + "-" + String(mNum).padStart(2, "0");
+          if (!monthMap.has(key)) monthMap.set(key, { year: r.year, month: r.month, monthNum: mNum });
+        });
+      }
+      addRows(pcmaRows); addRows(pcmaExtraRows); addRows(billingRows);
+
+      if (!monthMap.size) { 
+        wrapper.style.display = "none";
+        controls.style.display = "none";
+        return; 
+      }
+      
+      wrapper.style.display = "block";
+      controls.style.display = "flex";
+
+      const entries = Array.from(monthMap.entries()).sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0));
+      const labels = entries.map(([, info]) => info.month + " " + info.year);
+
+      function extractData(rowsObj) {
+        const dict = {};
+        if (rowsObj) {
+          rowsObj.forEach((r) => {
+            if (!r || typeof r.year === "undefined") return;
+            const mNum = monthNameToNumber(r.month);
+            if (mNum) dict[r.year + "-" + String(mNum).padStart(2, "0")] = typeof r.percentage === "number" ? r.percentage : null;
+          });
+        }
+        return entries.map(([key]) => typeof dict[key] === "number" ? dict[key] : null);
+      }
+
+      const pcmaData = extractData(pcmaRows);
+      const pcmaExtraData = extractData(pcmaExtraRows);
+      const billingData = extractData(billingRows);
+      const ctx = canvas.getContext("2d");
+
+      if (scurveChart) scurveChart.destroy();
+
+      const dataLabelPlugin = {
+        id: "pdDataLabelPlugin",
+        afterDatasetsDraw(chart) {
+          const { ctx } = chart;
+          const placedBoxes = [];
+          function overlaps(a, b) { return !(a.right < b.left || a.left > b.right || a.bottom < b.top || a.top > b.bottom); }
+
+          chart.data.datasets.forEach((dataset, datasetIndex) => {
+            if (!chart.isDatasetVisible(datasetIndex)) return;
+            const meta = chart.getDatasetMeta(datasetIndex);
+            meta.data.forEach((point, index) => {
+              const value = dataset.data[index];
+              if (value == null) return;
+              const pos = point.tooltipPosition();
+              const fontSize = 9;
+              ctx.save();
+              ctx.font = "bold " + fontSize + "px Arial";
+              const textWidth = ctx.measureText(value + "%").width;
+              const boxWidth = textWidth + 8;
+              const boxHeight = fontSize + 6;
+              let x = pos.x, y = pos.y - (8 + datasetIndex * 12);
+              let box = { left: x - boxWidth / 2, right: x + boxWidth / 2, top: y - boxHeight, bottom: y };
+              let safety = 0;
+              while (placedBoxes.some((b) => overlaps(b, box)) && safety < 20) {
+                y -= boxHeight + 2; box.top = y - boxHeight; box.bottom = y; safety++;
+              }
+
+              const label = (dataset.label || "").toUpperCase();
+              let fillColor = "rgba(255, 255, 255, 0.95)", strokeColor = "rgba(148, 163, 184, 0.9)", textColor = "#000000";
+              if (label === "ACTUAL") { fillColor = "rgba(16, 185, 129, 0.95)"; strokeColor = "rgba(4, 120, 87, 1)"; textColor = "#ffffff"; }
+              else if (label === "PCMA") { fillColor = "rgba(59, 130, 246, 0.95)"; strokeColor = "rgba(30, 64, 175, 1)"; textColor = "#ffffff"; }
+              else if (label === "BILLING") { fillColor = "rgba(239, 68, 68, 0.95)"; strokeColor = "rgba(185, 28, 28, 1)"; textColor = "#ffffff"; }
+
+              ctx.textAlign = "center"; ctx.textBaseline = "middle";
+              ctx.beginPath();
+              
+              // Fallback for older browsers that don't support roundRect
+              if(ctx.roundRect) {
+                  ctx.roundRect(box.left, box.top, boxWidth, boxHeight, 4);
+              } else {
+                  ctx.rect(box.left, box.top, boxWidth, boxHeight);
+              }
+              
+              ctx.fillStyle = fillColor; ctx.strokeStyle = strokeColor; ctx.lineWidth = 1;
+              ctx.fill(); ctx.stroke();
+              ctx.fillStyle = textColor; ctx.fillText(value + "%", x, (box.top + box.bottom) / 2);
+              ctx.restore();
+              placedBoxes.push(box);
+            });
+          });
+        },
+      };
+
+      scurveChart = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: labels,
+          datasets: [
+            { label: "ACTUAL", data: pcmaData, tension: 0.4, borderColor: "rgba(16, 185, 129, 1)", backgroundColor: "rgba(16, 185, 129, 0.15)", borderWidth: 2, pointBackgroundColor: "rgba(16, 185, 129, 1)", pointBorderColor: "#fff", pointBorderWidth: 1, pointRadius: 4, spanGaps: true, fill: true },
+            { label: "PCMA", data: pcmaExtraData, tension: 0.4, borderColor: "rgba(59, 130, 246, 1)", backgroundColor: "rgba(59, 130, 246, 0.15)", borderWidth: 2, pointBackgroundColor: "rgba(59, 130, 246, 1)", pointBorderColor: "#fff", pointBorderWidth: 1, pointRadius: 4, spanGaps: true, fill: true },
+            { label: "BILLING", data: billingData, tension: 0.4, borderColor: "rgba(239, 68, 68, 1)", backgroundColor: "rgba(239, 68, 68, 0.15)", borderWidth: 2, pointBackgroundColor: "rgba(239, 68, 68, 1)", pointBorderColor: "#fff", pointBorderWidth: 1, pointRadius: 4, spanGaps: true, fill: true },
+          ],
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          scales: { 
+            y: { min: 0, max: 100, ticks: { stepSize: 10, callback: (v) => v + "%", font: { size: 10 } }, grid: { color: "#e2e8f0" }, border: { dash: [4, 4] } }, 
+            x: { grid: { display: false }, ticks: { font: { size: 10 }, maxRotation: 45, minRotation: 45 } } 
+          },
+          plugins: { 
+            legend: { display: false },
+            tooltip: { 
+              backgroundColor: "rgba(15, 23, 42, 0.9)",
+              titleFont: { size: 13 },
+              bodyFont: { size: 12, weight: 'bold' },
+              padding: 10,
+              cornerRadius: 8,
+              callbacks: { label: (ctx) => " " + (ctx.dataset.label || "") + ": " + (typeof ctx.parsed.y === "number" ? ctx.parsed.y : "") + "%" } 
+            } 
+          },
+          interaction: { mode: 'index', intersect: false }
+        },
+        plugins: [dataLabelPlugin],
+      });
+
+      function bindToggle(id, datasetIndex) {
+        const checkbox = document.getElementById(id);
+        if (!checkbox) return;
+        checkbox.checked = scurveChart.isDatasetVisible(datasetIndex);
+        checkbox.onchange = function () { 
+          scurveChart.setDatasetVisibility(datasetIndex, checkbox.checked); 
+          scurveChart.update(); 
+          checkbox.parentElement.style.opacity = checkbox.checked ? "1" : "0.5";
+        };
+      }
+      bindToggle("pdToggleActual", 0); bindToggle("pdTogglePcma", 1); bindToggle("pdToggleBilling", 2);
+    }
+
+    async function loadProjectDocsData(contractId) {
+      document.getElementById('projectDocsLoading').style.display = "block";
+      try {
+        const [appValues, pcmaValues, voValues, wsoValues, billingSheet, descriptionValues] = await Promise.all([
+          fetchValuesSafe("APP"), fetchValuesSafe("PCMA"), fetchValuesSafe("VO"), fetchValuesSafe("WSO/WRO/CTE"), fetchBillingSheetSafe(), fetchValuesSafe("DESCRIPTION")
+        ]);
+        
+        try { applyProjectMeta(appValues, contractId); } catch(e){ console.error("Meta parse error", e); }
+
+        let descriptionInfo = null, pcmaRows = [], pcmaExtraRows = [], voRows = [], wsoRows = [], cteRows = [], billingRows = [];
+
+        try { descriptionInfo = buildDescriptionInfo(descriptionValues, contractId); } catch(e){ console.error("Desc parse error", e); }
+        try { pcmaRows = buildPcmaRows(pcmaValues, contractId); } catch(e){ console.error("PCMA parse error", e); }
+        try { pcmaExtraRows = buildPcmaExtraRows(pcmaValues, contractId); } catch(e){ console.error("PCMA Extra parse error", e); }
+        try { voRows = buildVoRows(voValues, contractId); } catch(e){ console.error("VO parse error", e); }
+        try { 
+            const res = buildWsoAndCteRows(wsoValues, contractId);
+            wsoRows = res.wsoRows; cteRows = res.cteRows;
+        } catch(e){ console.error("WSO/CTE parse error", e); }
+        try { billingRows = buildBillingRows(billingSheet, contractId); } catch(e){ console.error("Billing parse error", e); }
+
+        try { renderDescriptionSection(descriptionInfo); } catch(e){ console.error("Render Desc error", e); }
+        try { renderPcmaSection(pcmaRows, pcmaExtraRows); } catch(e){ console.error("Render PCMA error", e); }
+        try { renderBillingSection(billingRows); } catch(e){ console.error("Render Billing error", e); }
+        try { renderWsoSection(wsoRows); } catch(e){ console.error("Render WSO error", e); }
+        try { renderVoSection(voRows); } catch(e){ console.error("Render VO error", e); }
+        try { renderCteSection(cteRows); } catch(e){ console.error("Render CTE error", e); }
+        try { buildSCurveChart(pcmaRows, pcmaExtraRows, billingRows); } catch(e){ console.error("Chart error", e); }
+
+      } catch (err) {
+        console.error("ProjectDocs global error:", err);
+        document.getElementById('projectDocsLoading').innerHTML = '<div class="pd-error">Error: Unable to fetch data from the server. Please check your internet connection.</div>';
+      } finally {
+        if(document.getElementById('projectDocsLoading').innerHTML.includes('Loading')) {
+           document.getElementById('projectDocsLoading').style.display = "none";
+        }
+      }
+    }
+  </script>
+</body>
+</html>

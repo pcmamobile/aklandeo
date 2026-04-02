@@ -9,7 +9,6 @@
   <link href="https://drive.google.com/thumbnail?id=1VanVX82ANGfKA8jcGZL8cVDQh4EuN8-r&amp;sz=s800" rel="apple-touch-icon" sizes="180x180"/>
   <meta content="#2563eb" name="theme-color"/>
   
-  <!-- Chart.js dependency for ProjectDocs S-Curve -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
@@ -232,12 +231,13 @@
       left: 0;
       right: 0;
       bottom: 0;
-      z-index: 12000; /* Set very high to overlay modals */
-      background: transparent;
-      border-top: none;
-      backdrop-filter: none;
-      box-shadow: none;
-      pointer-events: none; /* Allows clicking between the buttons */
+      z-index: 12000;
+      background: transparent !important;
+      border-top: none !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      box-shadow: none !important;
+      pointer-events: none;
     }
     .footer-inner{
       max-width:1100px;
@@ -246,7 +246,8 @@
       display:flex;
       gap:12px;
       justify-content: center;
-      pointer-events: auto; /* Restores clicking on the buttons themselves */
+      pointer-events: auto;
+      background: transparent !important;
     }
     .footer-btn{
       flex:1;
@@ -260,16 +261,16 @@
       padding:8px 4px;
       font-weight:900;
       font-size: .8rem;
-      border:none;
-      background: transparent;
-      box-shadow: none;
+      border:none !important;
+      background: transparent !important;
+      box-shadow: none !important;
       cursor:pointer;
       transition: all 0.1s ease;
       -webkit-tap-highlight-color: transparent;
     }
     .footer-btn:active{
       transform: translateY(4px);
-      box-shadow: none;
+      box-shadow: none !important;
     }
     .footer-btn svg {
       width: 32px;
@@ -279,30 +280,17 @@
       fill: none;
       stroke-linecap: round;
       stroke-linejoin: round;
-      /* Heavy double drop shadow (dark + light) so it pops on ANY background color */
       filter: drop-shadow(0 2px 4px rgba(0,0,0,0.9)) drop-shadow(0 0 3px rgba(255,255,255,0.7));
     }
     .footer-btn span {
       color: #ffffff;
-      /* Heavy text shadow to keep text readable on pure white or pure black backgrounds */
       text-shadow: 0 1px 4px rgba(0,0,0,0.9), 0 0 6px rgba(0,0,0,0.9);
       letter-spacing: 0.5px;
     }
 
-    /* Vibrant Icon Colors */
-    #footerReloadBtn svg { stroke: #22c55e; } /* Bright Green */
-    #footerHomeBtn svg { stroke: #3b82f6; }   /* Bright Blue */
-    #footerBackBtn svg { stroke: #f43f5e; }   /* Bright Rose/Red */
-
-    .footer-btn.primary{
-      background: transparent;
-      color:#fff;
-      box-shadow: none;
-    }
-    .footer-btn.primary:active{
-      transform: translateY(4px);
-      box-shadow: none;
-    }
+    #footerReloadBtn svg { stroke: #22c55e; }
+    #footerHomeBtn svg { stroke: #3b82f6; }
+    #footerBackBtn svg { stroke: #f43f5e; }
 
     @media (max-width: 768px){
       :root{ --footer-h: 80px; }
@@ -316,7 +304,7 @@
        ========================================================= */
     #filters{
       position:sticky;
-      top: 52px; /* Pulled much closer to the header */
+      top: 52px;
       z-index:180;
       display:flex;
       flex-direction:column;
@@ -330,23 +318,10 @@
       max-width:1100px;
     }
     
-    .search-filter-row {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      width: 100%;
-    }
-
-    .filter-combo {
-      flex: 1;
-    }
-    .filter-combo .input-icon-wrap {
-      position: relative;
-      display: block;
-      width: 100%;
-    }
+    .search-filter-row { display: flex; gap: 10px; align-items: center; width: 100%; }
+    .filter-combo { flex: 1; }
+    .filter-combo .input-icon-wrap { position: relative; display: block; width: 100%; }
     
-    /* 3D Search Input Box */
     .filter-combo input {
       font-size: .95rem;
       padding: 0 16px;
@@ -357,7 +332,6 @@
       transition: border-color .15s ease, box-shadow .15s ease;
       width: 100%;
       height: 42px;
-      /* 3D Sunken Effect */
       box-shadow: inset 0 3px 5px rgba(0,0,0,0.08), inset 0 -2px 4px rgba(255,255,255,1), 0 2px 4px rgba(0,0,0,0.05);
     }
     .filter-combo input:focus {
@@ -365,7 +339,6 @@
       box-shadow: inset 0 3px 5px rgba(0,0,0,0.08), inset 0 -2px 4px rgba(255,255,255,1), 0 0 0 3px rgba(59,130,246,0.3);
     }
 
-    /* 3D Filter Button */
     #toggleMoreFilters {
       background: linear-gradient(145deg, #3b82f6, #1d4ed8);
       color: #fff;
@@ -380,7 +353,6 @@
       gap: 4px;
       font-size: .9rem;
       height: 42px;
-      /* 3D Solid Edge and Drop Shadow */
       box-shadow: 0 4px 0 #1e3a8a, 0 6px 10px rgba(37,99,235,0.2), inset 0 2px 0 rgba(255,255,255,0.2);
       transition: all 0.1s ease;
       -webkit-tap-highlight-color: transparent;
@@ -391,21 +363,9 @@
       box-shadow: 0 0 0 #1e3a8a, 0 2px 4px rgba(37,99,235,0.2), inset 0 2px 0 rgba(255,255,255,0.2);
     }
 
-    #moreFilters{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
-      gap:6px;
-      margin-top:2px;
-    }
+    #moreFilters{ display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:6px; margin-top:2px; }
     #moreFilters.hidden{display:none;}
-    #moreFilters label{
-      display:flex;
-      flex-direction:column;
-      gap:4px;
-      font-size:.8rem;
-      color:#0f172a;
-      font-weight:700;
-    }
+    #moreFilters label{ display:flex; flex-direction:column; gap:4px; font-size:.8rem; color:#0f172a; font-weight:700; }
     #moreFilters select{
       font-size:.9rem;
       padding:0 12px;
@@ -419,7 +379,6 @@
     }
     #moreFilters select:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.15);}
 
-    /* 3D Apply/Clear Buttons */
     #applyFilter, #clearFilter {
       padding: 0 16px;
       font-size: .9rem;
@@ -429,7 +388,7 @@
       cursor: pointer;
       border: none;
       transition: all 0.1s ease;
-      margin-top: auto; /* Aligns to bottom if wrapped */
+      margin-top: auto;
     }
     #applyFilter {
       background: linear-gradient(145deg, #3b82f6, #1d4ed8);
@@ -450,12 +409,7 @@
       box-shadow: 0 0 0 #94a3b8, 0 2px 4px rgba(0,0,0,0.1), inset 0 2px 0 rgba(255,255,255,1);
     }
 
-    @media(max-width:768px){
-      #filters{
-        top: 56px; 
-        border-radius: 14px;
-      }
-    }
+    @media(max-width:768px){ #filters{ top: 56px; border-radius: 14px; } }
 
     /* =========================================================
        modal.css
@@ -468,15 +422,7 @@
       --pcma-ring: rgba(0,0,0,.08);
     }
 
-    #pcmaModalBg{
-      display:none;
-      position:fixed;
-      inset:0;
-      background:rgba(0,0,0,.45);
-      justify-content:center;
-      align-items:center;
-      z-index:5000;
-    }
+    #pcmaModalBg{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); justify-content:center; align-items:center; z-index:5000; }
     #pcmaModalBg.pcma-show{display:flex;}
 
     #pcmaModalBox{
@@ -508,308 +454,89 @@
     }
     .pcma-modal-close:hover{ background:#ffe8d7; }
 
-    #pcmaModalBody{ flex:1 1 auto; overflow:auto; background:#fff; }
-    #pcmaModalContent{
-      display:flex; flex-direction:column; gap:10px;
-      padding:14px; max-width:1100px; margin:0 auto;
-    }
+    #pcmaModalBody{ flex:1 1 auto; overflow:auto; background:#fff; padding-bottom: calc(var(--footer-h) + 20px); }
+    #pcmaModalContent{ display:flex; flex-direction:column; gap:10px; padding:14px; max-width:1100px; margin:0 auto; }
     
-    /* Side-by-side 3D Modal Buttons Container */
     #pcmaModalButtons{
       padding:10px 14px 20px; max-width:1100px; margin:0 auto;
       display:flex; flex-direction:row; gap:12px;
       justify-content: center;
     }
 
-    /* Shared 3D styles for Docs and Upload Buttons */
     .modal-btn-3d {
-      flex: 1;
-      padding: 12px 6px;
-      border-radius: 14px;
-      font-size: 0.8rem;
-      border: none;
-      cursor: pointer;
-      font-weight: 800;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      text-transform: uppercase;
-      text-align: center;
-      line-height: 1.15;
-      transition: all 0.1s ease;
+      flex: 1; padding: 12px 6px; border-radius: 14px; font-size: 0.8rem; border: none; cursor: pointer;
+      font-weight: 800; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 6px; text-transform: uppercase; text-align: center; line-height: 1.15; transition: all 0.1s ease;
       -webkit-tap-highlight-color: transparent;
     }
-    .modal-btn-3d svg {
-      width: 26px;
-      height: 26px;
-      stroke: currentColor;
-      stroke-width: 2;
-      fill: none;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
+    .modal-btn-3d svg { width: 26px; height: 26px; stroke: currentColor; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
 
-    /* Docs 3D Button */
-    .btn-docs-3d {
-      background: linear-gradient(145deg, #8b5cf6, #6d28d9);
-      color: #fff;
-      box-shadow: 0 6px 0 #4c1d95, 0 10px 15px rgba(109, 40, 217, 0.3), inset 0 2px 0 rgba(255,255,255,0.2);
-    }
-    .btn-docs-3d:active {
-      transform: translateY(6px);
-      box-shadow: 0 0 0 #4c1d95, 0 4px 6px rgba(109, 40, 217, 0.3), inset 0 2px 0 rgba(255,255,255,0.2);
-    }
+    .btn-docs-3d { background: linear-gradient(145deg, #8b5cf6, #6d28d9); color: #fff; box-shadow: 0 6px 0 #4c1d95, 0 10px 15px rgba(109, 40, 217, 0.3), inset 0 2px 0 rgba(255,255,255,0.2); }
+    .btn-docs-3d:active { transform: translateY(6px); box-shadow: 0 0 0 #4c1d95, 0 4px 6px rgba(109, 40, 217, 0.3), inset 0 2px 0 rgba(255,255,255,0.2); }
 
-    /* Upload/View 3D Button */
-    .btn-upload-3d {
-      background: linear-gradient(145deg, #0ea5e9, #2563eb);
-      color: #fff;
-      box-shadow: 0 6px 0 #1e3a8a, 0 10px 15px rgba(37, 99, 235, 0.3), inset 0 2px 0 rgba(255,255,255,0.2);
-    }
-    .btn-upload-3d:active {
-      transform: translateY(6px);
-      box-shadow: 0 0 0 #1e3a8a, 0 4px 6px rgba(37, 99, 235, 0.3), inset 0 2px 0 rgba(255,255,255,0.2);
-    }
+    .btn-upload-3d { background: linear-gradient(145deg, #0ea5e9, #2563eb); color: #fff; box-shadow: 0 6px 0 #1e3a8a, 0 10px 15px rgba(37, 99, 235, 0.3), inset 0 2px 0 rgba(255,255,255,0.2); }
+    .btn-upload-3d:active { transform: translateY(6px); box-shadow: 0 0 0 #1e3a8a, 0 4px 6px rgba(37, 99, 235, 0.3), inset 0 2px 0 rgba(255,255,255,0.2); }
 
     /* Photos Grid Layout below buttons */
-    #pcmaModalPhotos {
-      padding: 0 14px 100px;
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-    .pcma-photo-grid {
-      display: grid;
-      grid-template-columns: 1fr; /* Changed to 1 column */
-      gap: 15px; /* Added more gap for single column breathing room */
-      margin-top: 10px;
-    }
-    .pcma-photo-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 8px;
-      box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
-      transition: transform 0.15s;
-    }
-    .pcma-photo-card:hover {
-      transform: scale(1.03);
-    }
-    .pcma-photo-card img {
-      width: 100%;
-      height: auto; /* Natural height adjustment */
-      object-fit: cover;
-      border-radius: 8px;
-      margin-bottom: 0;
-      background: #e2e8f0;
-      cursor: pointer;
-    }
-    .pcma-photo-card img:hover {
-      opacity: 0.9;
-    }
-    .pcma-photo-label {
-      font-size: 0.7rem;
-      font-weight: 800;
-      color: #475569;
-      text-align: center;
-      text-transform: uppercase;
-      margin-top: 8px;
-    }
+    #pcmaModalPhotos { padding: 0 14px 100px; max-width: 1100px; margin: 0 auto; }
+    .pcma-photo-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 10px; }
+    .pcma-photo-card { display: flex; flex-direction: column; align-items: center; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 8px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); transition: transform 0.15s; }
+    .pcma-photo-card:hover { transform: scale(1.03); }
+    .pcma-photo-card img { width: 100%; height: auto; object-fit: cover; border-radius: 8px; margin-bottom: 0; background: #e2e8f0; cursor: pointer; }
+    .pcma-photo-card img:hover { opacity: 0.9; }
+    .pcma-photo-label { font-size: 0.7rem; font-weight: 800; color: #475569; text-align: center; text-transform: uppercase; margin-top: 8px; }
     
-    .pcma-photo-set-btns { 
-      display: flex; 
-      flex-direction: row; 
-      gap: 4px; 
-      width: 100%; 
-      margin-top: 8px; 
-    }
-    .pcma-photo-set-btns button { 
-      flex: 1; 
-      padding: 10px 4px; 
-      border: none; 
-      border-radius: 6px; 
-      font-size: 0.75rem; 
-      font-weight: 800; 
-      cursor: pointer; 
-      color: #fff; 
-      transition: opacity 0.2s; 
-      text-transform: uppercase; 
-    }
+    .pcma-photo-set-btns { display: flex; flex-direction: row; gap: 4px; width: 100%; margin-top: 8px; }
+    .pcma-photo-set-btns button { flex: 1; padding: 10px 4px; border: none; border-radius: 6px; font-size: 0.75rem; font-weight: 800; cursor: pointer; color: #fff; transition: opacity 0.2s; text-transform: uppercase; }
     .pcma-photo-set-btns button:hover { opacity: 0.8; }
     .set-icon-btn { background: #3b82f6; }
     .set-main-btn { background: #8b5cf6; }
 
-    @media (max-width: 600px) {
-      .pcma-photo-grid {
-         grid-template-columns: 1fr; /* Ensure single column on mobile */
-      }
-    }
+    @media (max-width: 600px) { .pcma-photo-grid { grid-template-columns: 1fr; } }
 
     /* FLOAT ARROWS */
-    .pcma-modal-arrow{
-      position:fixed; top:50%; transform:translateY(-50%);
-      background:rgba(0,0,0,.05);
-      border:none; width:48px; height:72px; border-radius:999px;
-      display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:5100;
-    }
+    .pcma-modal-arrow{ position:fixed; top:50%; transform:translateY(-50%); background:rgba(0,0,0,.05); border:none; width:48px; height:72px; border-radius:999px; display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:5100; }
     #pcmaModalPrev{ left:10px; }
     #pcmaModalNext{ right:10px; }
     .pcma-modal-arrow svg{ width:26px; height:26px; stroke:#fff; }
     @media (max-width:768px){ .pcma-modal-arrow{ width:40px; height:60px; } }
 
     /* HERO IMAGE */
-    .pcma-hero{
-      width:100%; border-radius:16px; overflow:hidden;
-      background:#0f172a; border:1px solid rgba(15,23,42,.35); max-height:260px;
-    }
+    .pcma-hero{ width:100%; border-radius:16px; overflow:hidden; background:#0f172a; border:1px solid rgba(15,23,42,.35); max-height:260px; }
     .pcma-hero img{ width:100%; height:260px; object-fit:cover; display:block; }
 
     /* PRIMARY GRID */
-    .pcma-primary{
-      display:grid;
-      grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));
-      gap:10px;
-      background:linear-gradient(135deg, #eff6ff 50%, #dbeafe 50%, var(--pcma-accent) 80%);
-      border:2px solid rgba(148,163,184,.35);
-      border-radius:16px;
-      box-shadow:0 8px 25px rgba(15,23,42,.12);
-      padding:5px;
-    }
-    .pcma-primary-col{
-      background:rgba(255,255,255,.45);
-      border:1px solid rgba(255,255,255,.25);
-      border-radius:12px;
-      padding:8px 8px 6px;
-      display:flex; flex-direction:column; gap:6px;
-    }
+    .pcma-primary{ display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:10px; background:linear-gradient(135deg, #eff6ff 50%, #dbeafe 50%, var(--pcma-accent) 80%); border:2px solid rgba(148,163,184,.35); border-radius:16px; box-shadow:0 8px 25px rgba(15,23,42,.12); padding:5px; }
+    .pcma-primary-col{ background:rgba(255,255,255,.45); border:1px solid rgba(255,255,255,.25); border-radius:12px; padding:8px 8px 6px; display:flex; flex-direction:column; gap:6px; }
     .pcma-primary-row{ display:flex; align-items:flex-start; gap:0; }
-    .pcma-primary-label{
-      flex:0 0 120px; max-width:120px; font-size:.8rem; font-weight:600;
-      color:var(--pcma-ink); white-space:nowrap;
-    }
-    .pcma-primary-value{
-      flex:1; background:#fff; border-radius:10px; padding:3px 9px 4px;
-      font-weight:600; font-size:.9rem; color:var(--pcma-ink);
-      word-break:break-word; min-height:27px;
-    }
-    .pcma-primary-col.pcma-group-a .pcma-primary-label,
-    .pcma-primary-col.pcma-group-d .pcma-primary-label{ flex:0 0 92px; max-width:92px; }
+    .pcma-primary-label{ flex:0 0 120px; max-width:120px; font-size:.8rem; font-weight:600; color:var(--pcma-ink); white-space:nowrap; }
+    .pcma-primary-value{ flex:1; background:#fff; border-radius:10px; padding:3px 9px 4px; font-weight:600; font-size:.9rem; color:var(--pcma-ink); word-break:break-word; min-height:27px; }
+    .pcma-primary-col.pcma-group-a .pcma-primary-label, .pcma-primary-col.pcma-group-d .pcma-primary-label{ flex:0 0 92px; max-width:92px; }
+    .pcma-primary-value.pcma-status{ background:var(--pcma-accent); color:#fff; box-shadow:0 0 0 1px rgba(255,255,255,.25); }
 
-    .pcma-primary-value.pcma-status{
-      background:var(--pcma-accent); color:#fff;
-      box-shadow:0 0 0 1px rgba(255,255,255,.25);
-    }
+    @media (max-width:600px){ .pcma-primary{ grid-template-columns:1fr; } .pcma-primary-label{ flex:0 0 110px; max-width:110px; } }
 
-    @media (max-width:600px){
-      .pcma-primary{ grid-template-columns:1fr; }
-      .pcma-primary-label{ flex:0 0 110px; max-width:110px; }
-    }
-
-    /* =========================================================
-       MINI BARS + PROGRESS (3D CSS Added Here)
-       ========================================================= */
+    /* MINI BARS + PROGRESS */
     .pcma-mini-bars{ display:flex; flex-direction:column; gap:6px; margin-top:10px; }
     .pcma-mini-row{ display:flex; align-items:center; gap:10px; }
     .pcma-mini-label{ width:82px; text-align:left; font-weight:900; color:var(--pcma-ink); letter-spacing:.2px; }
-    
-    /* 3D Track */
-    .pcma-mini-bar{ 
-      flex:1; 
-      height:22px; 
-      background:var(--pcma-muted); 
-      border-radius:999px; 
-      overflow:hidden; 
-      box-shadow: inset 0 3px 5px rgba(0,0,0,0.15), inset 0 -2px 3px rgba(255,255,255,0.9);
-      border: 1px solid #cbd5e1;
-    }
-    
-    /* 3D Glossy Fill */
-    .pcma-mini-fill{
-      height:100%; width:0%; display:flex; align-items:center; justify-content:center;
-      font-size:.8rem; font-weight:800; color:#fff; transition:width 650ms ease-out;
-      white-space:nowrap; padding:0 6px;
-      border-radius:999px; /* Gives the inner bar rounded pill edges */
-      background-image: linear-gradient(to bottom, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 40%, rgba(0,0,0,0.1) 100%);
-      box-shadow: inset 0 2px 3px rgba(255,255,255,0.6), inset 0 -2px 3px rgba(0,0,0,0.2);
-      border-right: 1px solid rgba(0,0,0,0.15);
-      text-shadow: 0 1px 2px rgba(0,0,0,0.4); /* Text pop */
-    }
+    .pcma-mini-bar{ flex:1; height:22px; background:var(--pcma-muted); border-radius:999px; overflow:hidden; box-shadow: inset 0 3px 5px rgba(0,0,0,0.15), inset 0 -2px 3px rgba(255,255,255,0.9); border: 1px solid #cbd5e1; }
+    .pcma-mini-fill{ height:100%; width:0%; display:flex; align-items:center; justify-content:center; font-size:.8rem; font-weight:800; color:#fff; transition:width 650ms ease-out; white-space:nowrap; padding:0 6px; border-radius:999px; background-image: linear-gradient(to bottom, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 40%, rgba(0,0,0,0.1) 100%); box-shadow: inset 0 2px 3px rgba(255,255,255,0.6), inset 0 -2px 3px rgba(0,0,0,0.2); border-right: 1px solid rgba(0,0,0,0.15); text-shadow: 0 1px 2px rgba(0,0,0,0.4); }
 
-    /* PROGRESS */
     .pcma-progress{ margin-top:12px; }
     .pcma-progress-label{ font-weight:800; color:var(--pcma-ink); margin-bottom:6px; font-size:1.05rem; text-align:center; text-shadow: 0 1px 1px rgba(0,0,0,0.05); }
+    .pcma-progress-bar{ width:100%; background:var(--pcma-muted); border-radius:12px; height:28px; overflow:hidden; position:relative; box-shadow: inset 0 3px 5px rgba(0,0,0,0.15), inset 0 -2px 3px rgba(255,255,255,0.9); border: 1px solid #cbd5e1; }
+    .pcma-progress-fill{ height:100%; border-radius:12px; text-align:center; line-height:26px; font-weight:800; color:#fff; font-size:1rem; width:0%; transition:width 900ms ease-out; white-space:nowrap; padding:0 8px; background-image: linear-gradient(to bottom, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 40%, rgba(0,0,0,0.1) 100%); box-shadow: inset 0 2px 3px rgba(255,255,255,0.6), inset 0 -2px 3px rgba(0,0,0,0.2); border-right: 1px solid rgba(0,0,0,0.15); text-shadow: 0 1px 2px rgba(0,0,0,0.4); }
     
-    .pcma-progress-bar{ 
-      width:100%; 
-      background:var(--pcma-muted); 
-      border-radius:12px; 
-      height:28px; 
-      overflow:hidden; 
-      position:relative; 
-      box-shadow: inset 0 3px 5px rgba(0,0,0,0.15), inset 0 -2px 3px rgba(255,255,255,0.9);
-      border: 1px solid #cbd5e1;
-    }
-    
-    .pcma-progress-fill{
-      height:100%; 
-      border-radius:12px; 
-      text-align:center; 
-      line-height:26px; /* Adjusted to fit within borders */
-      font-weight:800; color:#fff; font-size:1rem; width:0%; transition:width 900ms ease-out;
-      white-space:nowrap; padding:0 8px;
-      background-image: linear-gradient(to bottom, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 40%, rgba(0,0,0,0.1) 100%);
-      box-shadow: inset 0 2px 3px rgba(255,255,255,0.6), inset 0 -2px 3px rgba(0,0,0,0.2);
-      border-right: 1px solid rgba(0,0,0,0.15);
-      text-shadow: 0 1px 2px rgba(0,0,0,0.4);
-    }
-    .pcma-no-scroll{ overflow:hidden; }
+    .pcma-team { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 10px 12px; margin-top: 6px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); }
+    .pcma-team-label { font-weight: 800; color: #475569; display: block; margin-bottom: 8px; text-shadow: 0 1px 0 #fff; }
+    .pcma-staff-badge { display: inline-block; background: linear-gradient(145deg, #eff6ff, #bfdbfe); color: #1e3a8a; border-radius: 999px; padding: 5px 14px; font-weight: 600; font-size: .8rem; border: 1px solid #93c5fd; box-shadow: 0 3px 0 #60a5fa, 0 5px 5px rgba(0,0,0,0.08), inset 0 2px 1px rgba(255,255,255,0.8); text-shadow: 0 1px 1px rgba(255,255,255,0.6); margin-bottom: 4px; -webkit-tap-highlight-color: transparent; }
+    .pcma-staff-badge strong { font-weight: 900; color: #1d4ed8; margin-right: 3px; }
 
     /* =========================================================
-       TEAM BADGES 3D
+       IFRAME OVERLAY STYLES
        ========================================================= */
-    .pcma-team {
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 14px;
-      padding: 10px 12px;
-      margin-top: 6px;
-      box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
-    }
-    .pcma-team-label {
-      font-weight: 800;
-      color: #475569;
-      display: block;
-      margin-bottom: 8px;
-      text-shadow: 0 1px 0 #fff;
-    }
-    .pcma-staff-badge {
-      display: inline-block;
-      background: linear-gradient(145deg, #eff6ff, #bfdbfe);
-      color: #1e3a8a;
-      border-radius: 999px;
-      padding: 5px 14px;
-      font-weight: 600;
-      font-size: .8rem;
-      border: 1px solid #93c5fd;
-      box-shadow: 0 3px 0 #60a5fa, 0 5px 5px rgba(0,0,0,0.08), inset 0 2px 1px rgba(255,255,255,0.8);
-      text-shadow: 0 1px 1px rgba(255,255,255,0.6);
-      margin-bottom: 4px;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .pcma-staff-badge strong {
-      font-weight: 900;
-      color: #1d4ed8;
-      margin-right: 3px;
-    }
-
-    /* =========================================================
-       ProjectDocs.css
-       ========================================================= */
-    #projectDocsOverlay, #uploadPhotosOverlay, #iframeOverlay {
+    #iframeOverlay, #projectDocsOverlay, #uploadPhotosOverlay {
       position: fixed;
       inset: 0;
       display: flex;
@@ -819,170 +546,27 @@
       z-index: 11000;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
-    #projectDocsOverlay[hidden], #uploadPhotosOverlay[hidden], #iframeOverlay[hidden] { display: none !important; }
+    #iframeOverlay[hidden], #projectDocsOverlay[hidden], #uploadPhotosOverlay[hidden] { display: none !important; }
 
-    .pd-box {
-      background: #ffffff;
-      color: #000000;
-      width: 96%;
-      max-width: 1000px;
-      max-height: 90vh;
-      border-radius: 14px;
-      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.32);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    .pd-top {
-      border-bottom: 1px solid #e5e7eb;
-      background: #f3f4f6;
-      display: flex;
-      align-items: center;
-      max-height: 30px;
-      justify-content: space-between;  
-      gap: 8px;                        
-    }
-    .pd-title { font-size: 16px; margin-left: 8px; font-weight: 700; }
-
-    .pd-meta{
-      padding: 8px 14px;
-      background: #ffffff;
-      border-bottom: 1px solid #e5e7eb;
-    }
-    .pd-meta-row{
-      display: grid;
-      grid-template-columns: 110px 1fr; 
-      align-items: center;
-      column-gap: 0;
-    }
-    .pd-meta-row + .pd-meta-row{ margin-top: 4px; }
-    .pd-meta-label{
-      font-size: 12px; font-weight: 700; color: #111827;
-      padding-right: 10px; white-space: nowrap;
-    }
-    .pd-meta-value{
-      font-size: 12px; font-weight: 400; color: #111827;
-      border-left: 1px solid #e5e7eb; padding-left: 10px;
-      min-width: 0; overflow-wrap: anywhere;
-    }
-
-    @media (max-width: 520px){
-      .pd-meta{ padding: 8px 10px; }
-      .pd-meta-row{ grid-template-columns: 95px 1fr; }
-      .pd-meta-label, .pd-meta-value{ font-size: 11px; }
-    }
-
-    #pdMetaSection .pd-meta{ border: 1px solid #e5e7eb; border-radius: 10px; }
-
-    #pdCloseBtn, #upCloseBtn, #lbCloseBtn {
-      border: none;
-      background: #ef4444;
-      color: #ffffff;
-      padding: 4px 16px;
-      border-radius: 999px;
-      font-size: 12px;
-      line-height: 1.4;
-      cursor: pointer;
-      margin-left: 12px;        
-    }
-    #pdCloseBtn:hover, #upCloseBtn:hover, #lbCloseBtn:hover { background: #b91c1c; }
-
-    /* Huge padding bottom so footer won't block bottom content */
-    #projectDocsBody {
-      padding: 10px 14px 100px;
-      flex: 1;
-      overflow: auto;
-      font-size: 12px;
-      background: #ffffff;
-    }
-    .pd-loading { margin-bottom: 8px; font-size: 11px; font-weight: 600; color: #4b5563; }
-
-    .pd-section { margin-bottom: 14px; }
-    .pd-section h3 { margin: 0 0 6px; font-size: 13px; }
-    .pd-section h4 { margin: 6px 0 4px; font-size: 12px; }
-
-    .pd-table-wrapper { width: 100%; overflow-x: auto; }
-    .pd-table { width: 100%; border-collapse: collapse; font-size: 11px; }
-    .pd-table th, .pd-table td { padding: 4px 6px; border: 1px solid #e5e7eb; vertical-align: middle; }
-    .pd-table th { text-align: left; font-weight: 700; background: #f9fafb; }
-    .pd-table tr:nth-child(even) td { background: #f9fafb; }
-
-    .pd-table .col-year { width: 60px; }
-    .pd-table .col-month { width: 90px; }
-    .pd-table .col-center { text-align: center; }
-    .pd-table .col-right { text-align: right; }
-    .pd-remarks { white-space: normal; word-break: break-word; }
-
-    .pd-table-pcma th, .pd-table-pcma td { padding: 2px 4px; }
-    .pd-table-pcma .col-month { width: 100px; }
-    .pd-table-pcma .col-actual, .pd-table-pcma .col-pcma { width: 60px; text-align: center; }
-    .pd-table-pcma .pd-year-row td { font-weight: 700; background: #e5e7eb; }
-
-    .pd-table-vo th, .pd-table-vo td { padding: 2px 4px; }
-    .pd-table-vo .col-vo { width: 60px; text-align: center; }
-    .pd-table-vo .col-amount { width: 90px; }
-    .pd-table-vo .col-days { width: 70px; text-align: center; }
-
-    .pd-table-wso th, .pd-table-wso td { padding: 2px 4px; }
-    .pd-table-wso .col-code { width: 70px; text-align: center; }
-    .pd-table-wso .col-date { width: 90px; }
-
-    .pd-table-cte { width: auto; }
-    .pd-table-cte th, .pd-table-cte td { padding: 2px 4px; }
-    .pd-table-cte .col-code { width: 45px; }
-    .pd-table-cte .col-days { width: 60px; text-align: center; }
-    .pd-table-cte .col-date { width: 80px; }
-    .pd-table-cte .col-revdate { width: auto; }
-    .pd-table-cte .pd-remarks { white-space: normal; }
-
-    .pd-table-billing th, .pd-table-billing td { padding: 2px 4px; }
-    .pd-table-billing { width: auto; }
-    .pd-table-billing .col-year { width: 45px; text-align: center; }
-    .pd-table-billing .col-month { width: 70px; }
-    .pd-table-billing .col-amount { width: 80px; text-align: right; }
-    .pd-table-billing .pd-remarks { padding-right: 2px; }
-    .pd-table-billing .col-status { width: auto; text-align: left; padding-left: 2px; }
-
-    .pd-scurve-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 4px 0 4px; font-size: 11px; }
-    .pd-toggle { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; background: #f3f4f6; border: 1px solid #e5e7eb; cursor: pointer; }
-    .pd-toggle input[type="checkbox"] { margin: 0; }
-    .pd-scurve-wrapper { margin: 10px 0 16px; height: 260px; }
-    .pd-scurve-wrapper canvas { width: 100% !important; height: 100% !important; }
-    .pd-error { padding: 8px 10px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; font-size: 12px; color: #b91c1c; }
-
-    /* New styles for Iframe modals */
-    .up-box { height: 90vh; }
-    .up-body { padding: 0 !important; background: #f4f6f8 !important; display: flex; flex-direction: column; flex: 1; }
+    .up-box { height: 90vh; background: #ffffff; width: 96%; max-width: 1000px; border-radius: 14px; box-shadow: 0 18px 40px rgba(0, 0, 0, 0.32); display: flex; flex-direction: column; overflow: hidden;}
+    .up-body { padding: 0 !important; background: transparent !important; display: flex; flex-direction: column; flex: 1; }
     .up-frame { width: 100%; height: 100%; border: none; flex: 1; }
 
-    /* Fullscreen modifiers for Leaderboards */
-    .fullscreen-box {
+    /* Fullscreen modifiers (Dashboard, Monitoring, etc.) - Forces 100% Transparent Background */
+    .fullscreen-box { 
       width: 100vw !important; 
       max-width: none !important; 
       height: 100vh !important; 
       max-height: none !important; 
       border-radius: 0 !important; 
+      border: none !important; 
+      background: transparent !important; 
+      box-shadow: none !important; 
     }
-    .fullscreen-body {
-      padding: 0 0 var(--footer-h) 0 !important; 
+    .fullscreen-body { 
+      padding: 0 !important; /* Remove bottom padding to stretch to bottom */
+      background: transparent !important; 
     }
-
-    @media (max-width: 600px) {
-      .pd-box { width: 100%; max-width: none; height: 100%; max-height: none; border-radius: 0; }
-      #projectDocsBody { padding: 8px 8px 100px; }
-      .pd-title { font-size: 14px; }
-      .pd-table { width: 100%; border-collapse: collapse; font-size: 11px; border: 1px solid #e5e7eb; }
-      .pd-scurve-wrapper { height: 220px; }
-    }
-    @media (min-width: 601px) and (max-width: 1024px) {
-      .pd-box { width: 96%; max-width: 900px; }
-    }
-
-    .pd-table-pcma .col-year, .pd-table-pcma .col-month, .pd-table-vo .col-vo,
-    .pd-table-vo .col-date, .pd-table-wso .col-code, .pd-table-wso .col-date,
-    .pd-table-cte .col-code, .pd-table-billing .col-year, .pd-table-billing .col-month,
-    .pd-table-billing .col-amount { text-align: left; }
 
   </style>
 </head>
@@ -991,13 +575,12 @@
 <header>
   <div class="header-container">
     <div class="brand">
-      <img alt="PCMA Logo" class="header-logo" decoding="async" src="https://drive.google.com/thumbnail?id=1VanVX82ANGfKA8jcGZL8cVDQh4EuN8-r&amp;sz=s800"/>
+      <img alt="PCMA Logo" class="header-logo" decoding="async" src="https://drive.google.com/thumbnail?id=1VanVX82ANGfKA8jcGZL8cVDQh4EuN8-r&sz=s800"/>
       <h2 class="header-title">PCMA Mobile V7.0</h2>
     </div>
   </div>
 </header>
 
-<!-- 3D HOME WINDOW -->
 <main id="homeView" class="home-view">
   <div class="home-title-area">
     <h2>Welcome to PCMA Mobile</h2>
@@ -1005,7 +588,6 @@
   </div>
   <div class="home-btn-grid">
     
-    <!-- PROJECT BUTTON -->
     <button class="btn-3d btn-projects" id="btnGoProjects">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
         <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
@@ -1013,7 +595,6 @@
       <span>Projects</span>
     </button>
     
-    <!-- NEW DASHBOARD BUTTON (Local Link) -->
     <button type="button" class="btn-3d btn-data" data-src="DataBase.html">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
         <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
@@ -1023,7 +604,6 @@
       <span>Dashboard</span>
     </button>
     
-    <!-- MONITORING BUTTON -->
     <button type="button" class="btn-3d btn-uploadmon" data-src="Monitoring.html">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
         <circle cx="11" cy="11" r="8"></circle>
@@ -1032,7 +612,6 @@
       <span>Monitoring</span>
     </button>
 
-    <!-- DOCUTRACKER BUTTON -->
     <button type="button" class="btn-3d btn-tracker" data-src="DocuTracker.html">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -1044,7 +623,6 @@
       <span>DocuTracker</span>
     </button>
 
-    <!-- LEADERBOARDS & FILE UPLOADER BUTTON -->
     <button type="button" class="btn-3d btn-leaderboards" data-src="Leaderboards.html">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
@@ -1054,7 +632,6 @@
       <span>Leaderboards &<br>File Uploader</span>
     </button>
 
-    <!-- PCMA REVISION MONITORING BUTTON -->
     <button type="button" class="btn-3d btn-pcmarev" data-src="https://script.google.com/macros/s/AKfycbwIpWr1UICDBB-5SSjNZfAzINmNC7cfiGBmKt54jjH0toEDQfFsbu5QTyX36jfF03A02A/exec?fbclid=IwZXh0bgNhZW0CMTEAc3J0YwZhcHBfaWQPNDM3NjI2MzE2OTczNzg4AAEeeARYP2rIEIu-3sqJFJci6nMtpj_jWa0HwX3qVIz7b6EAMxCtTL_ZQbNjYz8_aem_9v6JVRjnUgCaTKIbxzHBTw">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
         <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
@@ -1062,20 +639,18 @@
       <span>PCMA Revision<br>Monitoring</span>
     </button>
 
-    <!-- DOWNLOAD BUTTON -->
-    <button type="button" class="btn-3d btn-download" data-src="https://drive.google.com/file/d/1CTogwlTvQxwPW0KrdHyGSVxMZ3cjH3PM/view?usp=sharing">
+    <a href="https://drive.google.com/file/d/1CTogwlTvQxwPW0KrdHyGSVxMZ3cjH3PM/view?usp=sharing" target="_blank" class="btn-3d btn-download">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
         <polyline points="7 10 12 15 17 10"></polyline>
         <line x1="12" y1="15" x2="12" y2="3"></line>
       </svg>
       <span>Download APK<br>for Android Only</span>
-    </button>
+    </a>
 
   </div>
 </main>
 
-<!-- PROJECT GRID VIEW -->
 <main id="appView" class="hidden">
   <div id="filters">
     <div class="search-filter-row">
@@ -1101,7 +676,6 @@
 </main>
 
 
-<!-- PCMA MODAL -->
 <div id="pcmaModalBg" role="dialog" aria-modal="true" aria-labelledby="pcmaModalCID">
   <button id="pcmaModalPrev" class="pcma-modal-arrow" aria-label="Previous">
     <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
@@ -1130,21 +704,14 @@
   </div>
 </div>
 
-
-<!-- PROJECT DOCUMENTATION WINDOW -->
 <div class="pd-overlay" id="projectDocsOverlay" aria-modal="true" role="dialog" hidden>
-  <div class="pd-box">
-    <div class="pd-top">
-      <h3 class="pd-title">PROJECT DOCUMENTATION</h3>
-      <button type="button" class="pd-close-btn" id="pdCloseBtn">Close</button>
-    </div>
-    <div class="pd-body" id="projectDocsBody">
-      <div class="pd-loading" id="projectDocsLoading">Loading documentation…</div>
+  <div class="pd-box up-box fullscreen-box">
+    <div class="pd-body up-body fullscreen-body">
+      <iframe id="projectDocsFrame" class="up-frame" src=""></iframe>
     </div>
   </div>
 </div>
 
-<!-- UPLOAD PHOTOS WINDOW -->
 <div class="pd-overlay" id="uploadPhotosOverlay" aria-modal="true" role="dialog" hidden>
   <div class="pd-box up-box">
     <div class="pd-body up-body" id="uploadPhotosBody">
@@ -1153,7 +720,6 @@
   </div>
 </div>
 
-<!-- IFRAME MODAL WINDOW (Used for Leaderboards Fullscreen) -->
 <div class="pd-overlay" id="iframeOverlay" aria-modal="true" role="dialog" hidden>
   <div class="pd-box up-box fullscreen-box" id="iframeBox">
     <div class="pd-body up-body fullscreen-body" id="iframeBody">
@@ -1162,7 +728,6 @@
   </div>
 </div>
 
-<!-- PERMANENT 3D FOOTER -->
 <footer class="app-footer">
   <div class="footer-inner">
     <button id="footerReloadBtn" type="button" class="footer-btn">
@@ -1205,7 +770,6 @@
     const homeView = document.getElementById("homeView");
     const appView = document.getElementById("appView");
 
-    // Project Button -> Switches to Grid View
     if (btnGoProjects) {
       btnGoProjects.addEventListener("click", () => {
         if (homeView && appView) {
@@ -1216,7 +780,6 @@
       });
     }
 
-    // Generic handler for Home Page buttons that load URLs in the full-screen iframe overlay
     const homeGrid = document.querySelector('.home-btn-grid');
     if (homeGrid) {
       const iframeBtns = homeGrid.querySelectorAll('button[data-src]');
@@ -1227,11 +790,7 @@
           if (src) {
             const frame = document.getElementById('iframeFrame');
             const overlay = document.getElementById('iframeOverlay');
-            const box = document.getElementById('iframeBox');
-            const body = document.getElementById('iframeBody');
             if (frame && overlay) {
-              if (box) box.classList.add('fullscreen-box');
-              if (body) body.classList.add('fullscreen-body');
               frame.src = src;
               overlay.hidden = false;
               overlay.classList.remove('hidden');
@@ -1241,40 +800,34 @@
       });
     }
 
-    // Context-aware Back Button
     if (backBtn) {
       backBtn.addEventListener("click", () => {
-        const docsOverlay = document.getElementById("projectDocsOverlay");
         const uploadOverlay = document.getElementById("uploadPhotosOverlay");
         const iframeOverlay = document.getElementById("iframeOverlay");
+        const docsOverlay = document.getElementById("projectDocsOverlay");
         const modalBg = document.getElementById("pcmaModalBg");
 
-        // 1. Close upload photos overlay if open
         if (uploadOverlay && !uploadOverlay.hidden) {
           if (typeof window.closeUploadOverlay === "function") window.closeUploadOverlay();
           return;
         }
 
-        // 2. Close iframe overlay (Leaderboards) if open
         if (iframeOverlay && !iframeOverlay.hidden) {
           if (typeof window.closeIframeOverlay === "function") window.closeIframeOverlay();
           return;
         }
-
-        // 3. Close documentation overlay if open
+        
         if (docsOverlay && !docsOverlay.hidden) {
-          if (typeof window.closeOverlay === "function") window.closeOverlay();
+          if (typeof window.closeProjectDocsOverlay === "function") window.closeProjectDocsOverlay();
           return;
         }
 
-        // 4. Close project details modal if open
         if (modalBg && modalBg.classList.contains("pcma-show")) {
           modalBg.classList.remove("pcma-show");
           document.documentElement.classList.remove('pcma-no-scroll');
           return;
         }
 
-        // 5. If in App/Grid View, go back to 3D Home
         if (appView && !appView.classList.contains("hidden")) {
           appView.classList.add("hidden");
           if (homeView) homeView.classList.remove("hidden");
@@ -1282,39 +835,30 @@
           return;
         }
 
-        // 6. Default history back
         window.history.back();
       });
     }
 
-    // Home Footer Button -> Immediately Return to 3D Home View
     if (homeBtn) {
       homeBtn.addEventListener("click", () => {
-        // Close active modals safely
-        const knownOverlayIds = ["projectDocsOverlay", "uploadPhotosOverlay", "iframeOverlay", "pcmaModalBg"];
+        const knownOverlayIds = ["uploadPhotosOverlay", "iframeOverlay", "projectDocsOverlay", "pcmaModalBg"];
         knownOverlayIds.forEach((id) => {
           const el = document.getElementById(id);
           if (el) {
             el.hidden = true;
             el.classList.remove("pcma-show");
-            el.classList.remove("hidden"); // Bug fix: Do not add the globally overriding 'hidden' class to modals
+            el.classList.remove("hidden");
           }
         });
 
-        if (typeof window.closeOverlay === "function") {
-          try { window.closeOverlay(); } catch (e) {}
-        }
-        if (typeof window.closeUploadOverlay === "function") {
-          try { window.closeUploadOverlay(); } catch (e) {}
-        }
-        if (typeof window.closeIframeOverlay === "function") {
-          try { window.closeIframeOverlay(); } catch (e) {}
-        }
+        if (typeof window.closeUploadOverlay === "function") window.closeUploadOverlay();
+        if (typeof window.closeIframeOverlay === "function") window.closeIframeOverlay();
+        if (typeof window.closeProjectDocsOverlay === "function") window.closeProjectDocsOverlay();
+
         document.documentElement.classList.remove("pcma-no-scroll");
         document.body.classList.remove("no-scroll");
         window.scrollTo({ top: 0, behavior: "smooth" });
 
-        // Hide App View, Show Home View
         if (homeView && appView) {
           appView.classList.add("hidden");
           homeView.classList.remove("hidden");
@@ -1337,6 +881,35 @@
     }
   });
 
+  // =========================================================
+  // Iframe/Upload Overlay logic
+  // =========================================================
+  (function () {
+    function closeProjectDocsOverlay() {
+      const overlay = document.getElementById("projectDocsOverlay");
+      const frame = document.getElementById('projectDocsFrame');
+      if (overlay) overlay.hidden = true;
+      if (frame) frame.src = ""; 
+    }
+    window.closeProjectDocsOverlay = closeProjectDocsOverlay;
+
+    function closeUploadOverlay() {
+      const overlay = document.getElementById("uploadPhotosOverlay");
+      const frame = document.getElementById('uploadPhotosFrame');
+      if (overlay) overlay.hidden = true;
+      if (frame) frame.src = ""; 
+    }
+    window.closeUploadOverlay = closeUploadOverlay;
+
+    function closeIframeOverlay() {
+      const overlay = document.getElementById("iframeOverlay");
+      const frame = document.getElementById('iframeFrame');
+      if (overlay) overlay.hidden = true;
+      if (frame) frame.src = ""; 
+    }
+    window.closeIframeOverlay = closeIframeOverlay;
+  })();
+
 
   // =========================================================
   // filter.js logic
@@ -1347,7 +920,7 @@
       RANGE: "APP",
       API_KEY: "AIzaSyCz6fNJr3ecn-M2HActqM1aCXbxqRLj2e8",
       LOGO_FALLBACK: "https://lh3.googleusercontent.com/d/1VanVX82ANGfKA8jcGZL8cVDQh4EuN8-r=s800?authuser=0",
-      GAS_WEBAPP_URL: "https://script.google.com/macros/s/AKfycbwE2zVf654nTieExX174j6eTPG5-BaVINGQIszgfe5sLvDvJARL-u2k0vQk_DlYukExNg/exec" // Needed for saving Photo IDs securely
+      GAS_WEBAPP_URL: "https://script.google.com/macros/s/AKfycbwE2zVf654nTieExX174j6eTPG5-BaVINGQIszgfe5sLvDvJARL-u2k0vQk_DlYukExNg/exec"
     };
 
     const el = {
@@ -1396,7 +969,6 @@
         PCMA.state.headers = (data.values[headerRowIndex] || []).map((h) => (h || "").trim().toLowerCase().replace(/[:]+/g, ""));
         const colProjName = PCMA.state.headers.findIndex((h) => h.includes("project name"));
         
-        // Filter out empty project names immediately during load
         PCMA.state.records = data.values.slice(headerRowIndex + 1).filter(r => {
           if (!r || !r.join("").trim()) return false;
           if (colProjName >= 0) {
@@ -1409,7 +981,6 @@
         populateFilterOptions();
         restoreFilterState();
 
-        // Re-apply currently selected filters during reload
         const combo = el.filterCombo.value || "";
         const y = (el.filterYear.value || "").toLowerCase();
         const s = (el.filterStatus.value || "").toLowerCase();
@@ -1428,7 +999,6 @@
       }
     }
     
-    // Expose loadData globally for the Soft Reload button
     window.PCMA.reload = loadData;
 
     function populateFilterOptions() {
@@ -1691,8 +1261,6 @@
       saveFilterState();
     });
 
-    // We no longer toggle the filter visibility via an ID element if the original button isn't needed,
-    // but preserving the logic securely.
     if (el.toggleFiltersBtn) {
       el.toggleFiltersBtn.addEventListener("click", () => {
         if (window.innerWidth <= 768) return;
@@ -1702,7 +1270,6 @@
       });
     }
 
-    // Delay loading until we actually need it, or pre-load
     loadData();
   })();
 
@@ -1726,7 +1293,6 @@
       btn.disabled = true;
 
       try {
-          // Sending a standard Form URL-Encoded POST request to Google Apps Script
           const res = await fetch(gasUrl, {
               method: 'POST',
               headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -1926,7 +1492,7 @@
 
       // Create 3D Project Docs Button
       let docsBtn = null;
-      if (window.openProjectDocs) {
+      if (true) {
         const cid = currentCid;
         docsBtn = document.createElement('button');
         docsBtn.id = 'projectDocsBtn';
@@ -1935,9 +1501,13 @@
         docsBtn.className = 'modal-btn-3d btn-docs-3d';
         docsBtn.onclick = (e) => {
           e.stopPropagation();
+          const frame = document.getElementById('projectDocsFrame');
           const overlay = document.getElementById('projectDocsOverlay');
-          if (overlay) overlay.hidden = false;
-          if (typeof window.openProjectDocs === 'function') window.openProjectDocs(cid);
+          if (frame && overlay) {
+            frame.src = `Projectdocs.html?cid=${encodeURIComponent(cid)}`;
+            overlay.hidden = false;
+            overlay.classList.remove('hidden');
+          }
         };
       }
 
@@ -1954,7 +1524,6 @@
           uploadBtn.className = 'modal-btn-3d btn-upload-3d';
           uploadBtn.onclick = (e) => { 
             e.stopPropagation(); 
-            // Opens the link in the in-app overlay iframe (without the title bar)
             const frame = document.getElementById('uploadPhotosFrame');
             const overlay = document.getElementById('uploadPhotosOverlay');
             if (frame && overlay) {
@@ -2146,802 +1715,6 @@
     if (modalNextFloat) modalNextFloat.addEventListener('click', (e) => { e.stopPropagation(); goModal(1); });
   })();
 
-  // =========================================================
-  // ProjectDocs.js logic
-  // =========================================================
-  (function () {
-    const SHEET_ID = "1LSYLZ7tfSeVupQMPsCOHG4SlnzPQqOAIe03QI1qRMr8";
-    const API_KEY = "AIzaSyCz6fNJr3ecn-M2HActqM1aCXbxqRLj2e8";
-    let scurveChart = null;
-
-    function normalizeHeader(text) { return (text || "").toString().replace(/\s+/g, " ").trim().toUpperCase(); }
-    function findExactColumn(headerRow, target) {
-      const t = normalizeHeader(target);
-      for (let i = 0; i < headerRow.length; i++) { if (normalizeHeader(headerRow[i]) === t) return i; }
-      return -1;
-    }
-    function normalizeCellLower(text) { return (text || "").toString().replace(/\s+/g, " ").trim().toLowerCase(); }
-
-    function findHeaderRowIndexByHints(values, hints) {
-      const maxScan = Math.min(values.length, 40);
-      for (let i = 0; i < maxScan; i++) {
-        const row = (values[i] || []).map(normalizeCellLower);
-        if (hints.some((h) => row.some((cell) => cell.includes(h)))) return i;
-      }
-      return 2;
-    }
-
-    function findRowIndexByExactCell(values, startRow, contractId) {
-      const target = String(contractId || "").trim().toLowerCase();
-      if (!target) return -1;
-      for (let r = Math.max(0, startRow); r < values.length; r++) {
-        const row = values[r] || [];
-        for (let c = 0; c < row.length; c++) {
-          if (row[c] != null && String(row[c]).trim().toLowerCase() === target) return r;
-        }
-      }
-      return -1;
-    }
-
-    function findColumnIndexByIncludes(headers, keywords) {
-      const keys = (keywords || []).map((k) => String(k).toLowerCase());
-      for (let i = 0; i < headers.length; i++) {
-        const h = normalizeCellLower(headers[i]);
-        if (!h) continue;
-        if (keys.some((k) => h.includes(k))) return i;
-      }
-      return -1;
-    }
-
-    function getMetaFromApp(appValues, contractId) {
-      if (!Array.isArray(appValues) || !appValues.length) return null;
-      const headerIdx = findHeaderRowIndexByHints(appValues, ["contract id", "project id", "project name", "contractor", "status"]);
-      const headers = appValues[headerIdx] || [];
-      const rowIdx = findRowIndexByExactCell(appValues, headerIdx + 1, contractId);
-      const row = rowIdx >= 0 ? (appValues[rowIdx] || []) : null;
-      if (!row) return null;
-
-      const colCID = findColumnIndexByIncludes(headers, ["contract id", "contract no", "contract"]);
-      const colProjId = findColumnIndexByIncludes(headers, ["project id", "project no", "project number", "project code"]);
-      const colProjName = findColumnIndexByIncludes(headers, ["project name", "project title", "project"]);
-      const colContr = findColumnIndexByIncludes(headers, ["contractor"]);
-
-      const projectId = colProjId >= 0 ? String(row[colProjId] || "").trim() : "";
-      const projectNameColE = row.length > 4 ? String(row[4] || "").trim() : "";
-      const projectName = projectNameColE || (colProjName >= 0 ? String(row[colProjName] || "").trim() : "");
-      const contractor = colContr >= 0 ? String(row[colContr] || "").trim() : "";
-      if (!projectId && !projectName && !contractor) return null;
-
-      return {
-        contractId: colCID >= 0 ? String(row[colCID] || contractId).trim() : String(contractId || "").trim(),
-        projectId, projectName, contractor,
-      };
-    }
-
-    function buildProjectMeta(appValues, contractId) {
-      return getMetaFromApp(appValues, contractId) || { contractId: String(contractId || "").trim(), projectId: "", projectName: "", contractor: "" };
-    }
-
-    function ensureMetaMarkupExists() {
-      const metaCIDEl = document.getElementById("pdMetaCID");
-      const metaProjIdEl = document.getElementById("pdMetaProjectId");
-      const metaNameEl = document.getElementById("pdMetaProjectName");
-      const metaContrEl = document.getElementById("pdMetaContractor");
-
-      if (metaCIDEl && metaProjIdEl && metaNameEl && metaContrEl) return;
-      const metaContainer = document.querySelector(".pd-meta");
-      if (metaContainer) {
-        if (!metaProjIdEl) {
-          const row = document.createElement("div");
-          row.className = "pd-meta-row";
-          row.innerHTML = '<div class="pd-meta-label">Project ID</div><div class="pd-meta-value" id="pdMetaProjectId">—</div>';
-          const firstRow = metaContainer.querySelector(".pd-meta-row");
-          if (firstRow && firstRow.parentNode === metaContainer) metaContainer.insertBefore(row, firstRow.nextSibling);
-          else metaContainer.appendChild(row);
-        }
-        return;
-      }
-
-      const host = document.getElementById("pdMetaSection");
-      if (!host) return;
-      host.innerHTML =
-        '<div class="pd-meta">' +
-        '<div class="pd-meta-row"><div class="pd-meta-label">Contract ID</div><div class="pd-meta-value" id="pdMetaCID">—</div></div>' +
-        '<div class="pd-meta-row"><div class="pd-meta-label">Project ID</div><div class="pd-meta-value" id="pdMetaProjectId">—</div></div>' +
-        '<div class="pd-meta-row"><div class="pd-meta-label">Project Name</div><div class="pd-meta-value" id="pdMetaProjectName">—</div></div>' +
-        '<div class="pd-meta-row"><div class="pd-meta-label">Contractor</div><div class="pd-meta-value" id="pdMetaContractor">—</div></div>' +
-        "</div>";
-    }
-
-    function applyProjectMeta(meta) {
-      ensureMetaMarkupExists();
-      const cid = meta && meta.contractId ? String(meta.contractId).trim() : "";
-      const pid = meta && meta.projectId ? String(meta.projectId).trim() : "";
-      const name = meta && meta.projectName ? String(meta.projectName).trim() : "";
-      const contr = meta && meta.contractor ? String(meta.contractor).trim() : "";
-
-      if (document.getElementById("pdMetaCID")) document.getElementById("pdMetaCID").textContent = cid || "—";
-      if (document.getElementById("pdMetaProjectId")) document.getElementById("pdMetaProjectId").textContent = pid || "—";
-      if (document.getElementById("pdMetaProjectName")) document.getElementById("pdMetaProjectName").textContent = name || "—";
-      if (document.getElementById("pdMetaContractor")) document.getElementById("pdMetaContractor").textContent = contr || "—";
-    }
-
-    function monthNameToNumber(name) {
-      if (!name) return 0;
-      const key = name.toString().trim().slice(0, 3).toUpperCase();
-      const map = { JAN:1, FEB:2, MAR:3, APR:4, MAY:5, JUN:6, JUL:7, AUG:8, SEP:9, SEPT:9, OCT:10, NOV:11, DEC:12 };
-      return map[key] || 0;
-    }
-
-    function parseDateFromCell(value) {
-      if (!value) return null;
-      const str = String(value).trim();
-      if (!str) return null;
-      const d = new Date(str);
-      return !isNaN(d.getTime()) ? d : null;
-    }
-
-    function formatDateShort(d) {
-      if (!(d instanceof Date) || isNaN(d.getTime())) return "";
-      const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-      return months[d.getMonth()] + " " + d.getDate() + ", " + d.getFullYear();
-    }
-
-    function addDays(date, days) {
-      if (!(date instanceof Date) || isNaN(date.getTime())) return null;
-      const n = parseInt(days, 10);
-      if (!Number.isFinite(n)) return null;
-      const d = new Date(date.getTime());
-      d.setDate(d.getDate() + n);
-      return d;
-    }
-
-    function parseDaysValue(value) {
-      if (value == null) return null;
-      const m = String(value).match(/-?\d+/);
-      return m ? (Number.isFinite(parseInt(m[0], 10)) ? parseInt(m[0], 10) : null) : null;
-    }
-
-    function findFirstExistingColumn(headerRow, labels) {
-      for (let i = 0; i < labels.length; i++) {
-        const idx = findExactColumn(headerRow, labels[i]);
-        if (idx >= 0) return idx;
-      }
-      return -1;
-    }
-
-    function deriveCteBaseDateFromRemarks(remarks, header, row) {
-      if (!remarks) return null;
-      const txt = String(remarks);
-
-      const wsoMatch = txt.match(/WSO\s*(?:No\.?\s*)?(\d+)/i);
-      if (wsoMatch && Number.isFinite(parseInt(wsoMatch[1], 10))) {
-        const wroIdx = findExactColumn(header, "WRO" + parseInt(wsoMatch[1], 10) + " Date");
-        if (wroIdx >= 0 && row[wroIdx]) { const d = parseDateFromCell(row[wroIdx]); if (d) return d; }
-      }
-
-      const voMatch = txt.match(/VO\s*(\d+)/i);
-      if (voMatch && Number.isFinite(parseInt(voMatch[1], 10))) {
-        const voIdx = findExactColumn(header, "VO" + parseInt(voMatch[1], 10) + " Date");
-        if (voIdx >= 0 && row[voIdx]) { const d = parseDateFromCell(row[voIdx]); if (d) return d; }
-      }
-
-      const monthMatch = txt.match(/month of\s+([A-Za-z]+)\s+(\d{4})/i);
-      if (monthMatch) {
-        const mNum = monthNameToNumber(monthMatch[1]);
-        const year = parseInt(monthMatch[2], 10);
-        if (mNum && year) {
-          const d = new Date(year, mNum, 0);
-          if (!isNaN(d.getTime())) return d;
-        }
-      }
-      return parseDateFromCell(txt);
-    }
-
-    function findContractRow(values, contractId) {
-      if (!values || values.length < 3) return { header: null, row: null, rowIndex: -1 };
-      const header = values[2] || [];
-      const target = String(contractId).trim().toLowerCase();
-      for (let r = 3; r < values.length; r++) {
-        const row = values[r] || [];
-        for (let c = 0; c < row.length; c++) {
-          if (row[c] != null && String(row[c]).trim().toLowerCase() === target) return { header, row, rowIndex: r };
-        }
-      }
-      return { header, row: null, rowIndex: -1 };
-    }
-
-    async function fetchValues(sheetName) {
-      const range = encodeURIComponent(sheetName + "!A1:EZ5000");
-      const url = "https://sheets.googleapis.com/v4/spreadsheets/" + encodeURIComponent(SHEET_ID) + "/values/" + range + "?key=" + encodeURIComponent(API_KEY);
-      const res = await fetch(url);
-      if (!res.ok) throw new Error("Failed to fetch range " + sheetName);
-      const json = await res.json();
-      return json.values || [];
-    }
-
-    async function fetchBillingSheet() {
-      const url = "https://sheets.googleapis.com/v4/spreadsheets/" + encodeURIComponent(SHEET_ID) + "?ranges=" + encodeURIComponent("BILLING!A1:ZZ5000") + "&fields=" + encodeURIComponent("sheets(data(rowData(values(formattedValue,effectiveFormat.textFormat.foregroundColor))))") + "&key=" + encodeURIComponent(API_KEY);
-      const res = await fetch(url);
-      if (!res.ok) throw new Error("Failed to fetch BILLING sheet");
-      const json = await res.json();
-
-      const sheet = json.sheets && json.sheets[0];
-      const data = sheet && sheet.data && sheet.data[0];
-      const rowData = (data && data.rowData) || [];
-
-      const values = [];
-      const colorGrid = [];
-
-      rowData.forEach((row) => {
-        const cells = row.values || [];
-        const rowValues = [];
-        const rowColors = [];
-        cells.forEach((cell) => {
-          const v = cell && Object.prototype.hasOwnProperty.call(cell, "formattedValue") ? cell.formattedValue : "";
-          rowValues.push(v != null ? String(v) : "");
-          const color = cell && cell.effectiveFormat && cell.effectiveFormat.textFormat && cell.effectiveFormat.textFormat.foregroundColor;
-          rowColors.push(color || null);
-        });
-        values.push(rowValues);
-        colorGrid.push(rowColors);
-      });
-      return { values, colorGrid };
-    }
-
-    function buildDescriptionInfo(values, contractId) {
-      const { header, row } = findContractRow(values, contractId);
-      if (!header || !row) return null;
-      const descIdx = findExactColumn(header, "DESCRIPTION/SCOPE OF WORK");
-      const originalIdx = findExactColumn(header, "Original");
-      const revisedIdx = findExactColumn(header, "Revised");
-
-      const description = descIdx >= 0 ? (row[descIdx] || "").toString().trim() : "";
-      const original = originalIdx >= 0 ? (row[originalIdx] || "").toString().trim() : "";
-      let revised = revisedIdx >= 0 ? (row[revisedIdx] || "").toString().trim() : "";
-      if (!revised) revised = "-";
-
-      return { description: description || "-", original: original || "-", revised };
-    }
-
-    function buildPcmaRows(values, contractId) {
-      const { header, row } = findContractRow(values, contractId);
-      if (!header || !row) return [];
-      const monthColumns = [];
-      header.forEach((title, colIndex) => {
-        if (!title) return;
-        const match = /^(\d{4})\s+([A-Za-z]+)$/.exec(title.toString().trim());
-        if (match) {
-          const year = match[1], monthName = match[2], shortMonth = monthName.slice(0, 3).toLowerCase();
-          let remarksIndex = -1;
-          for (let j = 0; j < header.length; j++) {
-            const h = (header[j] || "").toString().toLowerCase();
-            if (h.includes(shortMonth) && h.includes("remarks")) { remarksIndex = j; break; }
-          }
-          monthColumns.push({ year, month: monthName, percCol: colIndex, remarksCol: remarksIndex });
-        }
-      });
-
-      const rows = [];
-      let reached100 = false;
-      monthColumns.forEach((m) => {
-        if (reached100) return;
-        const rawPerc = (row[m.percCol] || "").toString().trim();
-        const rawRemarks = m.remarksCol >= 0 ? (row[m.remarksCol] || "").toString().trim() : "";
-        if (!rawPerc && !rawRemarks) return;
-
-        let numericPerc = null;
-        if (rawPerc) {
-          const numMatch = rawPerc.match(/-?\d+(\.\d+)?/);
-          if (numMatch) numericPerc = parseFloat(numMatch[0]);
-        }
-        rows.push({ year: m.year, month: m.month, percentage: numericPerc, remarks: rawRemarks });
-        if (numericPerc === 100) reached100 = true;
-      });
-      return rows;
-    }
-
-    function buildPcmaExtraRows(values, contractId) {
-      const { header, row } = findContractRow(values, contractId);
-      if (!header || !row) return [];
-      const monthColumns = [];
-      header.forEach((title, colIndex) => {
-        if (!title) return;
-        const match = /^(\d{4})\s+([A-Za-z]+)\s+PCMA$/i.exec(title.toString().trim());
-        if (match) {
-          const year = match[1], monthName = match[2], shortMonth = monthName.slice(0, 3).toLowerCase();
-          let remarksIndex = -1;
-          for (let j = 0; j < header.length; j++) {
-            const h = (header[j] || "").toString().toLowerCase();
-            if (h.includes(shortMonth) && h.includes("remarks")) { remarksIndex = j; break; }
-          }
-          monthColumns.push({ year, month: monthName, percCol: colIndex, remarksCol: remarksIndex });
-        }
-      });
-
-      const rows = [];
-      let reached100 = false;
-      monthColumns.forEach((m) => {
-        if (reached100) return;
-        const rawPerc = (row[m.percCol] || "").toString().trim();
-        const rawRemarks = m.remarksCol >= 0 ? (row[m.remarksCol] || "").toString().trim() : "";
-        if (!rawPerc && !rawRemarks) return;
-
-        let numericPerc = null;
-        if (rawPerc) {
-          const numMatch = rawPerc.match(/-?\d+(\.\d+)?/);
-          if (numMatch) numericPerc = parseFloat(numMatch[0]);
-        }
-        rows.push({ year: m.year, month: m.month, percentage: numericPerc, remarks: rawRemarks });
-        if (numericPerc === 100) reached100 = true;
-      });
-      return rows;
-    }
-
-    function buildVoRows(values, contractId) {
-      const { header, row } = findContractRow(values, contractId);
-      if (!header || !row) return [];
-      const rows = [];
-      for (let i = 1; i <= 5; i++) {
-        const label = "VO" + i;
-        const amountIdx = findExactColumn(header, label);
-        const daysIdx = findExactColumn(header, label + " Additional Days");
-        const remarksIdx = findExactColumn(header, label + " Remarks");
-        const amount = amountIdx >= 0 ? (row[amountIdx] || "").toString().trim() : "";
-        const days = daysIdx >= 0 ? (row[daysIdx] || "").toString().trim() : "";
-        const remarks = remarksIdx >= 0 ? (row[remarksIdx] || "").toString().trim() : "";
-        if (amount || days || remarks) rows.push({ label, amount, days, remarks });
-      }
-      return rows;
-    }
-
-    function buildWsoAndCteRows(values, contractId) {
-      const { header, row } = findContractRow(values, contractId);
-      if (!header || !row) return { wsoRows: [], cteRows: [] };
-      const wsoRows = [];
-      const cteEntries = [];
-
-      for (let i = 1; i <= 4; i++) {
-        const wsoDateIdx = findExactColumn(header, "WSO" + i + " Date");
-        const wsoReasonIdx = findExactColumn(header, "WSO" + i + " Reason");
-        const cwsoDateIdx = findExactColumn(header, "CWSO" + i + "a Date");
-        const wroDateIdx = findExactColumn(header, "WRO" + i + " Date");
-
-        const wsoDate = wsoDateIdx >= 0 ? row[wsoDateIdx] || "" : "";
-        const wsoReason = wsoReasonIdx >= 0 ? row[wsoReasonIdx] || "" : "";
-        if (wsoDate || wsoReason) wsoRows.push({ code: "WSO" + i, date: wsoDate, reason: wsoReason || "" });
-
-        const cwsoDate = cwsoDateIdx >= 0 ? row[cwsoDateIdx] || "" : "";
-        if (cwsoDate) wsoRows.push({ code: "CWSO" + i + "a", date: cwsoDate, reason: "Continuing Suspension" });
-
-        const wroDate = wroDateIdx >= 0 ? row[wroDateIdx] || "" : "";
-        if (wroDate) wsoRows.push({ code: "WRO" + i, date: wroDate, reason: "Resolved" });
-      }
-
-      for (let i = 1; i <= 20; i++) {
-        const label = "CTE" + i;
-        const daysIdx = findExactColumn(header, label);
-        const remarksIdx = findExactColumn(header, label + " Remarks");
-        const daysRaw = daysIdx >= 0 ? row[daysIdx] || "" : "";
-        const remarks = remarksIdx >= 0 ? row[remarksIdx] || "" : "";
-
-        if ((daysRaw && String(daysRaw).trim() !== "") || (remarks && String(remarks).trim() !== "")) {
-          const baseDate = deriveCteBaseDateFromRemarks(remarks, header, row);
-          cteEntries.push({ code: label, daysRaw, remarks, baseDate });
-        }
-      }
-
-      for (let i = 1; i <= 5; i++) {
-        const code = "VO" + i;
-        const dateIdx = findExactColumn(header, code + " Date");
-        const daysIdx = findFirstExistingColumn(header, [code + " Additional Days", code + " Days", code]);
-        const remarksIdx = findExactColumn(header, code + " Remarks");
-
-        const dateVal = dateIdx >= 0 ? (row[dateIdx] || "").toString().trim() : "";
-        const daysRaw = daysIdx >= 0 ? (row[daysIdx] || "").toString().trim() : "";
-        const remarks = remarksIdx >= 0 ? (row[remarksIdx] || "").toString().trim() : "";
-
-        if (dateVal || daysRaw || remarks) {
-          cteEntries.push({ code, daysRaw, remarks, baseDate: parseDateFromCell(dateVal) });
-        }
-      }
-
-      const origExpiryIdx = findFirstExistingColumn(header, ["Orig. Expiry", "Orig Expiry", "Original Expiry", "Original Expiry Date"]);
-      let origExpiryDate = origExpiryIdx >= 0 ? parseDateFromCell(row[origExpiryIdx]) : null;
-
-      const sortedEntries = cteEntries.map((e, idx) => ({ ...e, _idx: idx })).sort((a, b) => {
-        if (!a.baseDate && !b.baseDate) return a._idx - b._idx;
-        if (!a.baseDate) return 1;
-        if (!b.baseDate) return -1;
-        return a.baseDate - b.baseDate;
-      });
-
-      const cteRows = [];
-      let prevRevExpiry = origExpiryDate;
-
-      sortedEntries.forEach((entry) => {
-        const { code, daysRaw, remarks, baseDate } = entry;
-        const daysNum = parseDaysValue(daysRaw);
-        let revExpiryObj = null;
-
-        if (prevRevExpiry && Number.isFinite(daysNum)) {
-          revExpiryObj = addDays(prevRevExpiry, daysNum);
-          prevRevExpiry = revExpiryObj;
-        } else if (!prevRevExpiry && baseDate && Number.isFinite(daysNum)) {
-          revExpiryObj = addDays(baseDate, daysNum);
-          prevRevExpiry = revExpiryObj;
-        }
-        cteRows.push({ code, date: baseDate ? formatDateShort(baseDate) : "", days: daysRaw || "", remarks: remarks || "", revExpiryDate: revExpiryObj ? formatDateShort(revExpiryObj) : "" });
-      });
-
-      return { wsoRows, cteRows };
-    }
-
-    function buildBillingRows(billingSheet, contractId) {
-      const values = billingSheet.values || [];
-      const colorGrid = billingSheet.colorGrid || [];
-      const { header, row, rowIndex } = findContractRow(values, contractId);
-      if (!header || !row || rowIndex < 0) return [];
-      const rows = [];
-
-      header.forEach((title, colIndex) => {
-        if (!title) return;
-        const match = /^(\d{4})\s+([A-Za-z]+)$/.exec(String(title).trim());
-        if (!match) return;
-
-        const year = match[1], monthName = match[2];
-        const amountText = String(row[colIndex] || "").trim();
-        let remarksColIndex = -1;
-
-        const remarksHeader = year + " " + monthName + " Remarks";
-        for (let j = 0; j < header.length; j++) {
-          if (normalizeHeader(header[j]) === normalizeHeader(remarksHeader)) { remarksColIndex = j; break; }
-        }
-        if (remarksColIndex < 0) {
-          const shortMonth = monthName.slice(0, 3).toLowerCase();
-          for (let j = 0; j < header.length; j++) {
-            const h = String(header[j] || "").toLowerCase();
-            if (h.includes(year.toLowerCase()) && h.includes(shortMonth) && h.includes("remarks")) { remarksColIndex = j; break; }
-          }
-        }
-
-        const remarksText = remarksColIndex >= 0 ? String(row[remarksColIndex] || "").trim() : "";
-        if (!amountText && !remarksText) return;
-
-        let percent = null;
-        if (amountText) {
-          const m = amountText.match(/(\d+(?:\.\d+)?)\s*%?/);
-          if (m) percent = parseFloat(m[1]);
-        }
-        if (remarksText) {
-          const m = remarksText.match(/\((\s*\d+(?:\.\d+)?)\s*%?\s*\)/);
-          if (m) percent = parseFloat(m[1]);
-        }
-        if (/mobilization/i.test(remarksText)) percent = 0;
-        if (/final/i.test(remarksText) || /retention/i.test(remarksText)) percent = 100;
-
-        const rowColors = colorGrid[rowIndex] || [];
-        const color = rowColors[colIndex] || null;
-        let isRed = false;
-        if (color && (color.red || 0) >= 0.7 && (color.green || 0) <= 0.3 && (color.blue || 0) <= 0.3) isRed = true;
-
-        rows.push({
-          year, month: monthName,
-          amount: amountText && amountText !== "" ? amountText : "-",
-          remarks: remarksText && remarksText !== "" ? remarksText : "-",
-          status: isRed ? "PAID" : "ON-PROCESS",
-          percentage: percent,
-        });
-      });
-      return rows;
-    }
-
-    function renderDescriptionSection(info) {
-      const container = document.getElementById("pdDescriptionSection");
-      if (!container) return;
-      if (!info) {
-        container.innerHTML = "<h3>DESCRIPTION / SCOPE OF WORK</h3><div class='pd-table-wrapper'><table class='pd-table pd-table-description'><tbody><tr><th>DESCRIPTION / SCOPE OF WORK</th><td>-</td></tr><tr><th>ORIGINAL</th><td>-</td></tr><tr><th>REVISED</th><td>-</td></tr></tbody></table></div>";
-        return;
-      }
-      container.innerHTML = "<h3>DESCRIPTION / SCOPE OF WORK</h3><div class='pd-table-wrapper'><table class='pd-table pd-table-description'><tbody><tr><th>ORIGINAL</th><td>" + (info.original || "-") + "</td></tr><tr><th>REVISED</th><td>" + (info.revised || "-") + "</td></tr></tbody></table></div>";
-    }
-
-    function renderPcmaSection(pcmaRows, pcmaExtraRows) {
-      const container = document.getElementById("pdPcmaSection");
-      if (!container) return;
-      const combinedMap = new Map();
-      function upsertEntry(sourceRow, type) {
-        if (!sourceRow || !sourceRow.year || !sourceRow.month) return;
-        const mNum = monthNameToNumber(sourceRow.month);
-        if (!mNum) return;
-        const key = sourceRow.year + "-" + String(mNum).padStart(2, "0");
-        let entry = combinedMap.get(key);
-        if (!entry) { entry = { year: sourceRow.year, month: sourceRow.month, monthNum: mNum, actual: null, pcma: null, remarks: "" }; combinedMap.set(key, entry); }
-        if (typeof sourceRow.percentage === "number") { if (type === "actual") entry.actual = sourceRow.percentage; if (type === "pcma") entry.pcma = sourceRow.percentage; }
-        if (sourceRow.remarks && !entry.remarks) entry.remarks = sourceRow.remarks;
-      }
-
-      (pcmaRows || []).forEach((r) => upsertEntry(r, "actual"));
-      (pcmaExtraRows || []).forEach((r) => upsertEntry(r, "pcma"));
-
-      let rows = Array.from(combinedMap.values()).filter((r) => typeof r.actual === "number" || typeof r.pcma === "number" || (r.remarks && String(r.remarks).trim() !== ""));
-      if (!rows.length) { container.innerHTML = "<h3>MONTHLY ACCOMPLISHMENT</h3><p>No Monthly Accomplishment data for this Contract ID.</p>"; return; }
-      rows.sort((a, b) => { const ya = parseInt(a.year, 10) || 0; const yb = parseInt(b.year, 10) || 0; if (ya !== yb) return ya - yb; return a.monthNum - b.monthNum; });
-
-      let html = "<h3>MONTHLY ACCOMPLISHMENT</h3><div class='pd-table-wrapper'><table class='pd-table pd-table-pcma'><thead><tr><th>MONTH</th><th>ACTUAL</th><th>PCMA</th><th>REMARKS</th></tr></thead><tbody>";
-      let currentYear = null;
-      rows.forEach((r) => {
-        if (r.year !== currentYear) { currentYear = r.year; html += '<tr class="pd-year-row"><td class="pd-year-label" colspan="4">' + (currentYear || "") + "</td></tr>"; }
-        html += "<tr><td class='col-month'>&nbsp;&nbsp;&nbsp;&nbsp;" + (r.month || "") + "</td><td class='col-actual'>" + (typeof r.actual === "number" ? r.actual + "%" : "-") + "</td><td class='col-pcma'>" + (typeof r.pcma === "number" ? r.pcma + "%" : "-") + "</td><td class='pd-remarks'>" + (r.remarks && String(r.remarks).trim() !== "" ? r.remarks : "-") + "</td></tr>";
-      });
-      html += "</tbody></table></div>";
-      container.innerHTML = html;
-    }
-
-    function renderVoSection(voRows) {
-      const container = document.getElementById("pdVoSection");
-      if (!container) return;
-      if (!voRows.length) { container.innerHTML = "<h3>VARIATION ORDER (VO)</h3><p></p>"; return; }
-      let html = "<h3>VARIATION ORDER (VO)</h3><div class='pd-table-wrapper'><table class='pd-table pd-table-vo'><thead><tr><th>VO</th><th>AMOUNT</th><th>(+) DAYS</th><th>REMARKS</th></tr></thead><tbody>";
-      voRows.forEach((r) => { html += "<tr><td class='col-vo'>" + (r.label || "") + "</td><td class='col-amount'>" + (r.amount || "-") + "</td><td class='col-days'>" + (r.days || "-") + "</td><td class='pd-remarks'>" + (r.remarks || "-") + "</td></tr>"; });
-      html += "</tbody></table></div>";
-      container.innerHTML = html;
-    }
-
-    function renderWsoSection(wsoRows) {
-      const container = document.getElementById("pdWsoSection");
-      if (!container) return;
-      if (!wsoRows.length) { container.innerHTML = "<h3>SUSPENSION ORDER</h3><p></p>"; return; }
-      let html = "<h3>SUSPENSION ORDER</h3><div class='pd-table-wrapper'><table class='pd-table pd-table-wso'><thead><tr><th>CODE</th><th>DATE</th><th>REASON</th></tr></thead><tbody>";
-      wsoRows.forEach((r) => { html += "<tr><td class='col-code'>" + r.code + "</td><td class='col-date'>" + (r.date || "") + "</td><td class='pd-remarks'>" + (r.reason || "") + "</td></tr>"; });
-      html += "</tbody></table></div>";
-      container.innerHTML = html;
-    }
-
-    function renderCteSection(cteRows) {
-      const container = document.getElementById("pdCteSection");
-      if (!container) return;
-      if (!cteRows.length) { container.innerHTML = "<h3>CONTRACT TIME EXTENSION (CTE)</h3><p>No CTE data for this Contract ID.</p>"; return; }
-      let html = "<h3>CONTRACT TIME EXTENSION (CTE)</h3><div class='pd-table-wrapper'><table class='pd-table pd-table-cte'><thead><tr><th>CTE</th><th>DATE</th><th>(+) DAYS</th><th>REMARKS</th><th>REV. EXPIRY DATE</th></tr></thead><tbody>";
-      cteRows.forEach((r) => {
-        let daysDisplay = r.days ? (String(r.days).match(/-?\d+/) ? parseInt(String(r.days).match(/-?\d+/)[0], 10).toString() : String(r.days)) : "";
-        let remarksDisplay = r.remarks || "";
-        if (/^vo\d+$/i.test(String(r.code).trim())) remarksDisplay = "due to " + String(r.code).trim().toUpperCase();
-        html += "<tr><td class='col-code'>" + (r.code || "") + "</td><td class='col-date'>" + (r.date || "") + "</td><td class='col-days'>" + daysDisplay + "</td><td class='pd-remarks'>" + remarksDisplay + "</td><td class='col-revdate'>" + (r.revExpiryDate || "") + "</td></tr>";
-      });
-      html += "</tbody></table></div>";
-      container.innerHTML = html;
-    }
-
-    function renderBillingSection(billingRows) {
-      const container = document.getElementById("pdBillingSection");
-      if (!container) return;
-      if (!billingRows.length) { container.innerHTML = "<h3>BILLING</h3><p></p>"; return; }
-      let html = "<h3>BILLING</h3><div class='pd-table-wrapper'><table class='pd-table pd-table-billing'><thead><tr><th>YEAR</th><th>MONTH</th><th>AMOUNT</th><th>REMARKS</th><th>STATUS</th></tr></thead><tbody>";
-      billingRows.forEach((r) => { html += "<tr><td class='col-year'>" + (r.year || "") + "</td><td class='col-month'>" + (r.month || "") + "</td><td class='col-amount'>" + (r.amount || "-") + "</td><td class='pd-remarks'>" + (r.remarks || "-") + "</td><td class='col-status'>" + (r.status || "ON-PROCESS") + "</td></tr>"; });
-      html += "</tbody></table></div>";
-      container.innerHTML = html;
-    }
-
-    function buildSCurveChart(pcmaRows, pcmaExtraRows, billingRows) {
-      const canvas = document.getElementById("pdSCurveCanvas");
-      if (!canvas || typeof Chart === "undefined") return;
-
-      const monthMap = new Map();
-      function addRows(rows) {
-        rows.forEach((r) => {
-          if (!r || !r.year || !r.month) return;
-          const mNum = monthNameToNumber(r.month);
-          if (!mNum) return;
-          const key = r.year + "-" + String(mNum).padStart(2, "0");
-          if (!monthMap.has(key)) monthMap.set(key, { year: r.year, month: r.month, monthNum: mNum });
-        });
-      }
-      addRows(pcmaRows); addRows(pcmaExtraRows); addRows(billingRows);
-
-      if (!monthMap.size) { const ctx = canvas.getContext("2d"); ctx.clearRect(0, 0, canvas.width, canvas.height); return; }
-
-      const entries = Array.from(monthMap.entries()).sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0));
-      const labels = entries.map(([, info]) => info.month + " " + info.year);
-
-      function extractData(rowsObj) {
-        const dict = {};
-        rowsObj.forEach((r) => {
-          if (!r || typeof r.year === "undefined") return;
-          const mNum = monthNameToNumber(r.month);
-          if (mNum) dict[r.year + "-" + String(mNum).padStart(2, "0")] = typeof r.percentage === "number" ? r.percentage : null;
-        });
-        return entries.map(([key]) => typeof dict[key] === "number" ? dict[key] : null);
-      }
-
-      const pcmaData = extractData(pcmaRows);
-      const pcmaExtraData = extractData(pcmaExtraRows);
-      const billingData = extractData(billingRows);
-      const ctx = canvas.getContext("2d");
-
-      if (scurveChart) scurveChart.destroy();
-
-      const dataLabelPlugin = {
-        id: "pdDataLabelPlugin",
-        afterDatasetsDraw(chart) {
-          const { ctx } = chart;
-          const placedBoxes = [];
-          function overlaps(a, b) { return !(a.right < b.left || a.left > b.right || a.bottom < b.top || a.top > b.bottom); }
-
-          chart.data.datasets.forEach((dataset, datasetIndex) => {
-            if (!chart.isDatasetVisible(datasetIndex)) return;
-            const meta = chart.getDatasetMeta(datasetIndex);
-            meta.data.forEach((point, index) => {
-              const value = dataset.data[index];
-              if (value == null) return;
-              const pos = point.tooltipPosition();
-              const fontSize = 9;
-              ctx.save();
-              ctx.font = fontSize + "px Arial";
-              const textWidth = ctx.measureText(value + "%").width;
-              const boxWidth = textWidth + 8;
-              const boxHeight = fontSize + 4;
-              let x = pos.x, y = pos.y - (8 + datasetIndex * 10);
-              let box = { left: x - boxWidth / 2, right: x + boxWidth / 2, top: y - boxHeight, bottom: y };
-              let safety = 0;
-              while (placedBoxes.some((b) => overlaps(b, box)) && safety < 20) {
-                y -= boxHeight + 2; box.top = y - boxHeight; box.bottom = y; safety++;
-              }
-
-              const label = (dataset.label || "").toUpperCase();
-              let fillColor = "rgba(255, 255, 255, 0.9)", strokeColor = "rgba(148, 163, 184, 0.9)", textColor = "#000000";
-              if (label === "ACTUAL") { fillColor = "rgba(0, 128, 0, 0.9)"; strokeColor = "rgba(0, 100, 0, 1)"; textColor = "#ffffff"; }
-              else if (label === "PCMA") { fillColor = "rgba(37, 99, 235, 0.9)"; strokeColor = "rgba(30, 64, 175, 1)"; textColor = "#ffffff"; }
-              else if (label === "BILLING") { fillColor = "rgba(220, 38, 38, 0.9)"; strokeColor = "rgba(185, 28, 28, 1)"; textColor = "#ffffff"; }
-
-              ctx.textAlign = "center"; ctx.textBaseline = "middle";
-              ctx.beginPath();
-              ctx.roundRect(box.left, box.top, boxWidth, boxHeight, 3);
-              ctx.fillStyle = fillColor; ctx.strokeStyle = strokeColor; ctx.lineWidth = 0.8;
-              ctx.fill(); ctx.stroke();
-              ctx.fillStyle = textColor; ctx.fillText(value + "%", x, (box.top + box.bottom) / 2);
-              ctx.restore();
-              placedBoxes.push(box);
-            });
-          });
-        },
-      };
-
-      scurveChart = new Chart(ctx, {
-        type: "line",
-        data: {
-          labels: labels,
-          datasets: [
-            { label: "ACTUAL", data: pcmaData, tension: 0.4, borderColor: "rgba(0, 128, 0, 1)", backgroundColor: "rgba(0, 128, 0, 0.2)", borderWidth: 0.8, pointBackgroundColor: "rgba(0, 128, 0, 1)", pointRadius: 3, spanGaps: true, fill: true },
-            { label: "PCMA", data: pcmaExtraData, tension: 0.4, borderColor: "rgba(37, 99, 235, 1)", backgroundColor: "rgba(37, 99, 235, 0.25)", borderWidth: 0.8, pointBackgroundColor: "rgba(37, 99, 235, 1)", pointRadius: 3, spanGaps: true, fill: true },
-            { label: "BILLING", data: billingData, tension: 0.4, borderColor: "rgba(255, 0, 0, 1)", backgroundColor: "rgba(255, 0, 0, 0.2)", borderWidth: 0.8, pointBackgroundColor: "red", pointRadius: 3, spanGaps: true, fill: true },
-          ],
-        },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          scales: { y: { min: 0, max: 100, ticks: { stepSize: 10, callback: (v) => v + "%" }, title: { display: true, text: "Percentage" } }, x: { grid: { display: true } } },
-          plugins: { legend: { position: "top" }, tooltip: { callbacks: { label: (ctx) => (ctx.dataset.label || "") + ": " + (typeof ctx.parsed.y === "number" ? ctx.parsed.y : "") + "%" } } }
-        },
-        plugins: [dataLabelPlugin],
-      });
-
-      function bindToggle(id, datasetIndex) {
-        const checkbox = document.getElementById(id);
-        if (!checkbox) return;
-        checkbox.checked = scurveChart.isDatasetVisible(datasetIndex);
-        checkbox.onchange = function () { scurveChart.setDatasetVisibility(datasetIndex, checkbox.checked); scurveChart.update(); };
-      }
-      bindToggle("pdToggleActual", 0); bindToggle("pdTogglePcma", 1); bindToggle("pdToggleBilling", 2);
-    }
-
-    function openOverlay() { 
-      const overlay = document.getElementById("projectDocsOverlay"); 
-      if (overlay) {
-        overlay.hidden = false; 
-        overlay.classList.remove("hidden");
-      }
-    }
-    function closeOverlay() { const overlay = document.getElementById("projectDocsOverlay"); if (overlay) overlay.hidden = true; if (scurveChart) { scurveChart.destroy(); scurveChart = null; } }
-    window.closeOverlay = closeOverlay;
-
-    function buildBodySkeleton() {
-      const body = document.getElementById("projectDocsBody");
-      if (!body) return { body: null, loadingEl: null };
-      body.innerHTML =
-        '<div id="projectDocsLoading" class="pd-loading">Loading documentation…</div>' +
-        '<section id="pdMetaSection" class="pd-section"></section>' +
-        '<section id="pdDescriptionSection" class="pd-section"></section>' +
-        '<section id="pdPcmaSection" class="pd-section"></section>' +
-        '<div class="pd-scurve-controls"><label class="pd-toggle"><input type="checkbox" id="pdToggleActual" checked><span>ACTUAL</span></label><label class="pd-toggle"><input type="checkbox" id="pdTogglePcma" checked><span>PCMA</span></label><label class="pd-toggle"><input type="checkbox" id="pdToggleBilling" checked><span>BILLING</span></label></div>' +
-        '<div class="pd-scurve-wrapper"><canvas id="pdSCurveCanvas"></canvas></div>' +
-        '<section id="pdBillingSection" class="pd-section"></section>' +
-        '<section id="pdWsoSection" class="pd-section"></section>' +
-        '<section id="pdVoSection" class="pd-section"></section>' +
-        '<section id="pdCteSection" class="pd-section"></section>';
-      return { body, loadingEl: document.getElementById("projectDocsLoading") };
-    }
-
-    async function openProjectDocs(contractId) {
-      if (!contractId) { const cidEl = document.getElementById("pcmaModalCID"); if (cidEl) contractId = cidEl.textContent.trim(); }
-      if (!contractId) { alert("No Contract ID found."); return; }
-
-      ensureMetaMarkupExists();
-      if (document.getElementById("pdMetaCID")) document.getElementById("pdMetaCID").textContent = contractId;
-      if (document.getElementById("pdMetaProjectId")) document.getElementById("pdMetaProjectId").textContent = "—";
-      if (document.getElementById("pdMetaProjectName")) document.getElementById("pdMetaProjectName").textContent = "—";
-      if (document.getElementById("pdMetaContractor")) document.getElementById("pdMetaContractor").textContent = "—";
-
-      openOverlay();
-      const { body, loadingEl } = buildBodySkeleton();
-      if (!body) return;
-      if (loadingEl) loadingEl.style.display = "block";
-
-      try {
-        const [appValues, pcmaValues, voValues, wsoValues, billingSheet, descriptionValues] = await Promise.all([
-          fetchValues("APP"), fetchValues("PCMA"), fetchValues("VO"), fetchValues("WSO/WRO/CTE"), fetchBillingSheet(), fetchValues("DESCRIPTION")
-        ]);
-        applyProjectMeta(buildProjectMeta(appValues, contractId));
-
-        const descriptionInfo = buildDescriptionInfo(descriptionValues, contractId);
-        const pcmaRows = buildPcmaRows(pcmaValues, contractId);
-        const pcmaExtraRows = buildPcmaExtraRows(pcmaValues, contractId);
-        const voRows = buildVoRows(voValues, contractId);
-        const { wsoRows, cteRows } = buildWsoAndCteRows(wsoValues, contractId);
-        const billingRows = buildBillingRows(billingSheet, contractId);
-
-        renderDescriptionSection(descriptionInfo);
-        renderPcmaSection(pcmaRows, pcmaExtraRows);
-        renderBillingSection(billingRows);
-        renderWsoSection(wsoRows);
-        renderVoSection(voRows);
-        renderCteSection(cteRows);
-        buildSCurveChart(pcmaRows, pcmaExtraRows, billingRows);
-
-      } catch (err) {
-        console.error("ProjectDocs error:", err);
-        if (body) body.innerHTML = '<div class="pd-error">Error loading Project Documentation. Please try again.</div>';
-      } finally {
-        if (loadingEl) loadingEl.style.display = "none";
-      }
-    }
-
-    window.openProjectDocs = openProjectDocs;
-
-    function setupOverlayClose() {
-      const closeBtn = document.getElementById("pdCloseBtn");
-      const overlay  = document.getElementById("projectDocsOverlay");
-      if (closeBtn) closeBtn.addEventListener("click", closeOverlay);
-      if (overlay) overlay.addEventListener("click", (e) => { if (e.target === overlay) closeOverlay(); });
-    }
-    setupOverlayClose();
-  })();
-
-  // =========================================================
-  // Iframe/Upload Overlay logic
-  // =========================================================
-  (function () {
-    function closeUploadOverlay() {
-      const overlay = document.getElementById("uploadPhotosOverlay");
-      const frame = document.getElementById('uploadPhotosFrame');
-      if (overlay) overlay.hidden = true;
-      if (frame) frame.src = ""; 
-    }
-    window.closeUploadOverlay = closeUploadOverlay;
-
-    const upOverlay  = document.getElementById("uploadPhotosOverlay");
-    if (upOverlay) upOverlay.addEventListener("click", (e) => { if (e.target === upOverlay) closeUploadOverlay(); });
-
-    function closeIframeOverlay() {
-      const overlay = document.getElementById("iframeOverlay");
-      const frame = document.getElementById('iframeFrame');
-      if (overlay) overlay.hidden = true;
-      if (frame) frame.src = ""; 
-    }
-    window.closeIframeOverlay = closeIframeOverlay;
-
-    const iframeOverlay  = document.getElementById("iframeOverlay");
-    if (iframeOverlay) iframeOverlay.addEventListener("click", (e) => { if (e.target === iframeOverlay) closeIframeOverlay(); });
-  })();
 </script>
 </body>
 </html>
