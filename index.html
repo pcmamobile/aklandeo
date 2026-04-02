@@ -921,37 +921,27 @@
       <span>Projects</span>
     </button>
     
-    <!-- NEW DATA BUTTON (Local Link) -->
+    <!-- NEW DASHBOARD BUTTON (Local Link) -->
     <a href="DataBase.html" class="btn-3d btn-data">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
         <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
         <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
         <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
       </svg>
-      <span>Data</span>
+      <span>Dashboard</span>
     </a>
     
-    <!-- UPLOAD FILES MONITORING BUTTON -->
-    <a href="https://script.google.com/macros/s/AKfycbxss_VVSxn6xXHEFRwhZeSx0KRJRMSQ9c_50nR_Zx_zCtEpqoI3AN8_2rJONvwUzykeSw/exec?page=monitor" target="_blank" class="btn-3d btn-uploadmon">
+    <!-- MONITORING BUTTON -->
+    <a href="Monitoring.html" class="btn-3d btn-uploadmon">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
         <circle cx="11" cy="11" r="8"></circle>
         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
       </svg>
-      <span>Upload Files<br>Monitoring</span>
-    </a>
-
-    <!-- EXISTING DATABASE BUTTON (Google Script Link) -->
-    <a href="https://script.google.com/macros/s/AKfycbxss_VVSxn6xXHEFRwhZeSx0KRJRMSQ9c_50nR_Zx_zCtEpqoI3AN8_2rJONvwUzykeSw/exec" target="_blank" class="btn-3d btn-dashboard">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-        <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
-        <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
-        <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
-      </svg>
-      <span>Database</span>
+      <span>Monitoring</span>
     </a>
 
     <!-- DOCUTRACKER BUTTON -->
-    <a href="https://script.google.com/macros/s/AKfycbzYg1ffxNLonomCMkZgUNkTsq-VrH9L8t8J1PfLuYtmpftgE34Rs8PNiBKsSLqw7n1clA/exec" target="_blank" class="btn-3d btn-tracker">
+    <a href="DocuTracker.html" class="btn-3d btn-tracker">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
         <polyline points="14 2 14 8 20 8"></polyline>
@@ -1070,10 +1060,10 @@
   </div>
 </div>
 
-<!-- LEADERBOARDS MODAL WINDOW -->
+<!-- IFRAME MODAL WINDOW (Used for Leaderboards Fullscreen) -->
 <div class="pd-overlay" id="iframeOverlay" aria-modal="true" role="dialog" hidden>
-  <div class="pd-box up-box" id="iframeBox">
-    <div class="pd-body up-body" id="iframeBody">
+  <div class="pd-box up-box fullscreen-box" id="iframeBox">
+    <div class="pd-body up-body fullscreen-body" id="iframeBody">
       <iframe id="iframeFrame" class="up-frame" src=""></iframe>
     </div>
   </div>
@@ -1082,11 +1072,12 @@
 <!-- PERMANENT 3D FOOTER -->
 <footer class="app-footer">
   <div class="footer-inner">
-    <button id="footerBackBtn" type="button" class="footer-btn">
+    <button id="footerReloadBtn" type="button" class="footer-btn primary">
       <svg viewBox="0 0 24 24">
-        <polyline points="15 18 9 12 15 6"></polyline>
+        <polyline points="23 4 23 10 17 10"></polyline>
+        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
       </svg>
-      <span>Back</span>
+      <span>Reload</span>
     </button>
     
     <button id="footerHomeBtn" type="button" class="footer-btn">
@@ -1096,13 +1087,12 @@
       </svg>
       <span>Home</span>
     </button>
-    
-    <button id="footerReloadBtn" type="button" class="footer-btn primary">
+
+    <button id="footerBackBtn" type="button" class="footer-btn">
       <svg viewBox="0 0 24 24">
-        <polyline points="23 4 23 10 17 10"></polyline>
-        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+        <polyline points="15 18 9 12 15 6"></polyline>
       </svg>
-      <span>Reload</span>
+      <span>Back</span>
     </button>
   </div>
 </footer>
@@ -1233,7 +1223,17 @@
     }
 
     if (reloadBtn) {
-      reloadBtn.addEventListener("click", () => { location.reload(); });
+      reloadBtn.addEventListener("click", () => { 
+        if (typeof window.PCMA.reload === "function") {
+          const grid = document.getElementById("grid");
+          if (grid && !grid.classList.contains("hidden")) {
+            grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:#777;">Reloading data...</div>';
+          }
+          window.PCMA.reload(); 
+        } else {
+          location.reload(); 
+        }
+      });
     }
   });
 
@@ -1293,15 +1293,32 @@
         }
 
         PCMA.state.headers = (data.values[headerRowIndex] || []).map((h) => (h || "").trim().toLowerCase().replace(/[:]+/g, ""));
-        PCMA.state.records = data.values.slice(headerRowIndex + 1);
+        const colProjName = PCMA.state.headers.findIndex((h) => h.includes("project name"));
+        
+        // Filter out empty project names immediately during load
+        PCMA.state.records = data.values.slice(headerRowIndex + 1).filter(r => {
+          if (!r || !r.join("").trim()) return false;
+          if (colProjName >= 0) {
+            const name = String(r[colProjName] || "").trim();
+            if (!name) return false;
+          }
+          return true;
+        });
 
         populateFilterOptions();
         restoreFilterState();
 
-        const all = PCMA.state.records.filter((r) => r && r.join("").trim());
-        renderGrid(all);
+        // Re-apply currently selected filters during reload
+        const combo = el.filterCombo.value || "";
+        const y = (el.filterYear.value || "").toLowerCase();
+        const s = (el.filterStatus.value || "").toLowerCase();
+        const c = (el.filterContractor.value || "").toLowerCase();
+        const pe = (el.filterEngineer.value || "").toLowerCase();
+        const filtered = filterData(combo, y, pe, c, s);
+
+        renderGrid(filtered);
         el.grid.classList.remove("hidden");
-        el.resultInfo.textContent = `${all.length} results`;
+        el.resultInfo.textContent = `${filtered.length} results`;
         el.resultInfo.classList.remove("hidden");
       } catch (err) {
         console.error(err);
@@ -1309,6 +1326,9 @@
         el.grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:#b91c1c;">Failed to load data.</div>';
       }
     }
+    
+    // Expose loadData globally for the Soft Reload button
+    window.PCMA.reload = loadData;
 
     function populateFilterOptions() {
       const { headers, records } = PCMA.state;
@@ -1778,14 +1798,10 @@
           uploadBtn.className = 'modal-btn-3d btn-upload-3d';
           uploadBtn.onclick = (e) => { 
             e.stopPropagation(); 
-            // Opens the link in the in-app overlay iframe
+            // Opens the link in the in-app overlay iframe (without the title bar)
             const frame = document.getElementById('uploadPhotosFrame');
             const overlay = document.getElementById('uploadPhotosOverlay');
-            const box = document.getElementById('uploadPhotosBox');
-            const body = document.getElementById('uploadPhotosBody');
             if (frame && overlay) {
-              if (box) box.classList.remove('fullscreen-box');
-              if (body) body.classList.remove('fullscreen-body');
               frame.src = `Upload Photos.html?cid=${encodeURIComponent(cid)}&link=${encodeURIComponent(link)}`;
               overlay.hidden = false;
               overlay.classList.remove('hidden');
@@ -2120,7 +2136,7 @@
     }
 
     async function fetchValues(sheetName) {
-      const range = encodeURIComponent(sheetName + "!A1:ZZ5000");
+      const range = encodeURIComponent(sheetName + "!A1:EZ5000");
       const url = "https://sheets.googleapis.com/v4/spreadsheets/" + encodeURIComponent(SHEET_ID) + "/values/" + range + "?key=" + encodeURIComponent(API_KEY);
       const res = await fetch(url);
       if (!res.ok) throw new Error("Failed to fetch range " + sheetName);
