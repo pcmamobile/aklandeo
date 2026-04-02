@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Document Tracker</title>
+    
+    <script>
+        window.onerror = function(msg, url, line, col, error) {
+            document.body.innerHTML = "<div style='padding:40px;text-align:center;font-family:sans-serif;'> <h2 style='color:red;'>Loading Error!</h2> <p>Message: " + msg + " at Line: " + line + "</p> </div>";
+            return false;
+        };
+    </script>
+
+    <!-- Tailwind CSS & FontAwesome -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+        body { font-family: 'Poppins', sans-serif; background-color: #f0f4f8; color: #333; }
+        .box-3d { background: #ffffff; border-radius: 16px; box-shadow: 6px 6px 12px #c5c9cc, -6px -6px 12px #ffffff; border: 1px solid rgba(255,255,255,0.4); }
+        .box-3d-color-1 { border-left: 8px solid #3b82f6; }
+        .box-3d-color-2 { border-left: 8px solid #f59e0b; }
+        .box-3d-color-3 { border-left: 8px solid #8b5cf6; }
+        .box-3d-color-4 { border-left: 8px solid #10b981; }
+        .btn-3d { background-color: #3b82f6; color: white; border-radius: 8px; box-shadow: 0 5px 0 #2563eb, 0 8px 15px rgba(0,0,0,0.2); transition: all 0.1s; font-weight: 600; }
+        .btn-3d:active { transform: translateY(5px); box-shadow: 0 0 0 #2563eb; }
+        .btn-3d-green { background-color: #10b981; box-shadow: 0 5px 0 #059669, 0 8px 15px rgba(0,0,0,0.2); }
+        .btn-3d-green:active { box-shadow: 0 0 0 #059669; }
+        .btn-3d-purple { background-color: #8b5cf6; box-shadow: 0 5px 0 #6d28d9, 0 8px 15px rgba(0,0,0,0.2); }
+        .btn-3d-purple:active { box-shadow: 0 0 0 #6d28d9; }
+        .btn-3d-gray { background-color: #4b5563; box-shadow: 0 5px 0 #374151, 0 8px 15px rgba(0,0,0,0.2); }
+        .btn-3d-gray:active { box-shadow: 0 0 0 #374151; }
+        .input-3d { background: #f0f4f8; border: none; border-radius: 8px; box-shadow: inset 4px 4px 8px #d1d5d8, inset -4px -4px 8px #ffffff; padding: 12px 16px; width: 100%; outline: none; }
+        .tab-btn { padding: 10px 16px; border-radius: 8px 8px 0 0; background: #e2e8f0; font-weight: 600; color: #64748b; cursor: pointer; font-size: 0.875rem; transition: all 0.3s ease; }
+        @media (min-width: 768px) { .tab-btn { padding: 10px 20px; font-size: 1rem; } }
+        .tab-btn.active { background: white; color: #3b82f6; border-top: 3px solid #3b82f6; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        #loader { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 1000; justify-content: center; align-items: center; flex-direction: column; }
+        .spinner { border: 6px solid #f3f3f3; border-top: 6px solid #3b82f6; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 50; justify-content: center; align-items: center; }
+        th { background: #f8fafc; font-weight: 600; color: #475569; font-size: 0.75rem; text-transform: uppercase; white-space: nowrap; }
+        td { border-bottom: 1px solid #e2e8f0; color: #334155; font-size: 0.875rem; }
+    </style>
+</head>
+<body class="min-h-screen relative flex flex-col">
+
+    <div id="loader"><div class="spinner mb-4"></div><h2 class="text-xl font-bold">Processing...</h2></div>
+    
+    <!-- TOAST NOTIFICATIONS CONTAINER -->
+    <div id="toast-container" class="fixed bottom-4 right-4 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Login View -->
+    <div id="login-view" class="flex flex-1 items-center justify-center p-4">
+        <div id="login-box" class="box-3d p-6 md:p-10 max-w-md w-[95%] text-center">
+            <div class="mb-6 flex justify-center">
+                <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center box-3d">
+                    <i class="fa-solid fa-file-shield text-3xl text-blue-600"></i>
+                </div>
+            </div>
+            <h1 class="text-2xl md:text-3xl font-bold mb-2">DocuTracker</h1>
+            <p class="text-sm md:text-base text-gray-500 mb-8">Sign in to manage your documents</p>
+            
+            <form id="login-form" onsubmit="handleLogin(event)">
+                <div class="mb-5 text-left">
+                    <label class="block text-sm font-semibold mb-2 ml-1"><i class="fa-solid fa-user mr-2"></i>Username</label>
+                    <input type="text" id="username" class="input-3d" required placeholder="Enter username">
+                </div>
+                <div class="mb-8 text-left">
+                    <label class="block text-sm font-semibold mb-2 ml-1"><i class="fa-solid fa-lock mr-2"></i>Password</label>
+                    <input type="password" id="password" class="input-3d" required placeholder="Enter password">
+                </div>
+                <button type="submit" class="btn-3d w-full py-3 text-lg"><i class="fa-solid fa-right-to-bracket mr-2"></i> Log In</button>
+            </form>
+            <div id="login-error" class="bg-red-100 text-red-700 px-4 py-3 rounded mt-6 font-semibold hidden text-sm"></div>
+        </div>
+    </div>
+
+    <!-- Dashboard View -->
+    <div id="dashboard-view" class="hidden flex-1 flex flex-col p-3 md:p-8">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 md:mb-8 box-3d p-4 md:px-8">
+            <div class="flex items-center gap-4 w-full md:w-auto mb-4 md:mb-0">
+                <div class="w-10 h-10 md:w-12 md:h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-layer-group text-xl md:text-2xl text-blue-600"></i></div>
+                <div class="overflow-hidden">
+                    <h1 class="text-xl md:text-2xl font-bold truncate">Workspace</h1>
+                    <p class="text-xs md:text-sm text-gray-500 truncate">Welcome, <span id="display-user" class="font-bold text-blue-600"></span> (<span id="display-role"></span><span id="display-designation"></span>)</p>
+                </div>
+            </div>
+            <div class="flex flex-wrap gap-2 w-full md:w-auto justify-start md:justify-end">
+                <button onclick="manualRefresh()" class="btn-3d py-1.5 px-3 md:py-2 md:px-4 text-sm md:text-base bg-blue-500 shadow-[0_5px_0_#1d4ed8] flex-1 md:flex-none text-center"><i class="fa-solid fa-arrows-rotate mr-1"></i> Refresh</button>
+                <button onclick="openChangePasswordModal()" class="btn-3d py-1.5 px-3 md:py-2 md:px-4 text-sm md:text-base bg-purple-500 shadow-[0_5px_0_#7e22ce] flex-1 md:flex-none text-center"><i class="fa-solid fa-key mr-1"></i> Password</button>
+                <button onclick="handleLogout()" class="btn-3d py-1.5 px-3 md:py-2 md:px-4 text-sm md:text-base bg-red-500 shadow-[0_5px_0_#b91c1c] w-full md:w-auto text-center mt-1 md:mt-0"><i class="fa-solid fa-power-off mr-1"></i> Logout</button>
+            </div>
+        </div>
+
+        <div id="top-stats-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-6 md:mb-8">
+            <div class="box-3d box-3d-color-1 p-5 md:p-6 flex items-center justify-between">
+                <div><p class="text-xs md:text-sm font-semibold text-gray-500 uppercase">Received</p><h2 class="text-2xl md:text-3xl font-bold mt-1" id="stat-received">0</h2></div>
+                <i class="fa-solid fa-inbox text-3xl md:text-4xl text-blue-300"></i>
+            </div>
+            <div class="box-3d box-3d-color-2 p-5 md:p-6 flex items-center justify-between">
+                <div><p class="text-xs md:text-sm font-semibold text-gray-500 uppercase">In Progress</p><h2 class="text-2xl md:text-3xl font-bold mt-1" id="stat-processing">0</h2></div>
+                <i class="fa-solid fa-spinner text-3xl md:text-4xl text-yellow-300"></i>
+            </div>
+            <div class="box-3d box-3d-color-3 p-5 md:p-6 flex items-center justify-between">
+                <div><p class="text-xs md:text-sm font-semibold text-gray-500 uppercase">Approved</p><h2 class="text-2xl md:text-3xl font-bold mt-1" id="stat-approved">0</h2></div>
+                <i class="fa-solid fa-file-signature text-3xl md:text-4xl text-purple-300"></i>
+            </div>
+            <div class="box-3d box-3d-color-4 p-5 md:p-6 flex items-center justify-between">
+                <div><p class="text-xs md:text-sm font-semibold text-gray-500 uppercase">Completed</p><h2 class="text-2xl md:text-3xl font-bold mt-1" id="stat-completed">0</h2></div>
+                <i class="fa-solid fa-check-double text-3xl md:text-4xl text-green-300"></i>
+            </div>
+        </div>
+
+        <div class="box-3d bg-white flex-1 flex flex-col overflow-hidden">
+            <div id="tabs-container" class="flex overflow-x-auto hide-scrollbar pt-4 px-4 gap-2 bg-gray-100 border-b w-full"></div>
+            <div class="p-4 md:p-6 flex-1 overflow-auto bg-white rounded-b-xl relative">
+                
+                <div id="receiving-form-container" class="hidden max-w-2xl mx-auto bg-gray-50 p-4 md:p-6 rounded-xl border border-gray-200">
+                    <h3 class="text-lg md:text-xl font-bold mb-4 text-blue-700"><i class="fa-solid fa-cloud-arrow-up mr-2"></i>Upload New Document</h3>
+                    <form id="upload-form" onsubmit="event.preventDefault(); submitNewDocument();">
+                        <div class="mb-4"><label class="block text-sm font-semibold mb-1">Title</label><input type="text" id="doc-title" class="input-3d" required></div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                            <div><label class="block text-sm font-semibold mb-1">Date Received</label><input type="date" id="doc-date-received" class="input-3d" required></div>
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <label class="block text-sm font-semibold">Deadline</label>
+                                    <label class="text-xs flex items-center cursor-pointer text-gray-500 hover:text-gray-700">
+                                        <input type="checkbox" id="no-deadline-cb" class="mr-1" onchange="toggleDeadline()"> No Deadline
+                                    </label>
+                                </div>
+                                <input type="date" id="doc-deadline" class="input-3d" required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4 relative">
+                            <label class="block text-sm font-semibold mb-1">Assign to User(s)</label>
+                            <div id="doc-user-display" onclick="toggleDropdown('doc-user-dropdown')" class="input-3d bg-white cursor-pointer flex justify-between items-center min-h-[48px]">
+                                <span id="doc-user-text" class="text-gray-500 truncate">Select User(s)...</span>
+                                <i class="fa-solid fa-chevron-down text-gray-400"></i>
+                            </div>
+                            <div id="doc-user-dropdown" class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg hidden max-h-56 overflow-y-auto">
+                                <div id="doc-user-options" class="p-2 flex flex-col gap-1">
+                                    <!-- Options injected via JS -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-6"><label class="block text-sm font-semibold mb-1">Document File</label><input type="file" id="doc-file" class="input-3d bg-white text-sm" required></div>
+                        <button type="submit" class="btn-3d w-full py-3"><i class="fa-solid fa-upload mr-2"></i> Upload & Record</button>
+                    </form>
+                </div>
+
+                <div id="data-table-container" class="overflow-x-auto hidden">
+                    <table class="w-full text-left border-collapse min-w-max">
+                        <thead id="table-head"></thead>
+                        <tbody id="table-body"></tbody>
+                    </table>
+                    <div id="empty-state" class="hidden text-center py-10 text-gray-400"><i class="fa-regular fa-folder-open text-5xl md:text-6xl mb-4"></i><p class="text-sm md:text-base">No documents found.</p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="modal-dates" class="modal p-4">
+        <div class="box-3d p-6 md:p-8 w-full max-w-md mx-auto">
+            <h3 class="text-lg md:text-xl font-bold mb-4">Add Dates</h3>
+            <input type="hidden" id="dates-rowidx">
+            <div class="mb-4"><label class="block text-sm font-semibold mb-1">Date of Letter</label><input type="date" id="modal-date-letter" class="input-3d" required></div>
+            <div class="mb-6"><label class="block text-sm font-semibold mb-1">Date for Signature</label><input type="date" id="modal-date-signature" class="input-3d" required></div>
+            <div class="flex flex-col sm:flex-row gap-3 sm:gap-4"><button onclick="closeModal('modal-dates')" class="w-full sm:flex-1 py-2 bg-gray-200 rounded font-semibold text-gray-600">Cancel</button><button onclick="submitDates()" class="w-full sm:flex-1 btn-3d py-2">Save</button></div>
+        </div>
+    </div>
+
+    <div id="modal-reply" class="modal p-4">
+        <div class="box-3d p-6 md:p-8 w-full max-w-md mx-auto">
+            <h3 class="text-lg md:text-xl font-bold mb-4">Upload Reply</h3>
+            <input type="hidden" id="reply-rowidx"><input type="hidden" id="reply-title">
+            <div class="mb-4"><label class="block text-sm font-semibold mb-1">Date Approved</label><input type="date" id="modal-date-approved" class="input-3d" required></div>
+            <div class="mb-6"><label class="block text-sm font-semibold mb-1">Reply Document</label><input type="file" id="modal-reply-file" class="input-3d bg-white text-sm" required></div>
+            <div class="flex flex-col sm:flex-row gap-3 sm:gap-4"><button onclick="closeModal('modal-reply')" class="w-full sm:flex-1 py-2 bg-gray-200 rounded font-semibold text-gray-600">Cancel</button><button onclick="submitReply()" class="w-full sm:flex-1 btn-3d btn-3d-purple py-2">Upload</button></div>
+        </div>
+    </div>
+
+    <div id="modal-release" class="modal p-4">
+        <div class="box-3d p-6 md:p-8 w-full max-w-md mx-auto">
+            <h3 class="text-lg md:text-xl font-bold mb-4">Release Document</h3>
+            <input type="hidden" id="release-rowidx">
+            <div class="mb-6"><label class="block text-sm font-semibold mb-1">Date Completed</label><input type="date" id="modal-date-released" class="input-3d" required></div>
+            <div class="flex flex-col sm:flex-row gap-3 sm:gap-4"><button onclick="closeModal('modal-release')" class="w-full sm:flex-1 py-2 bg-gray-200 rounded font-semibold text-gray-600">Cancel</button><button onclick="submitRelease()" class="w-full sm:flex-1 btn-3d btn-3d-green py-2">Complete</button></div>
+        </div>
+    </div>
+
+    <div id="modal-change-password" class="modal p-4">
+        <div class="box-3d p-6 md:p-8 w-full max-w-md mx-auto">
+            <h3 class="text-lg md:text-xl font-bold mb-4"><i class="fa-solid fa-key text-purple-500 mr-2"></i> Change Password</h3>
+            <form id="change-password-form" onsubmit="submitChangePassword(event)">
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold mb-1">Current Password</label>
+                    <input type="password" id="cp-current" class="input-3d" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold mb-1">New Password</label>
+                    <input type="password" id="cp-new" class="input-3d" required>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-semibold mb-1">Confirm New Password</label>
+                    <input type="password" id="cp-confirm" class="input-3d" required>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                    <button type="button" onclick="closeModal('modal-change-password')" class="w-full sm:flex-1 py-2 bg-gray-200 rounded font-semibold text-gray-600">Cancel</button>
+                    <button type="submit" class="w-full sm:flex-1 btn-3d btn-3d-purple py-2">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div id="modal-reassign" class="modal p-4">
+        <div class="box-3d p-6 md:p-8 w-full max-w-md mx-auto overflow-visible">
+            <h3 class="text-lg md:text-xl font-bold mb-4"><i class="fa-solid fa-user-pen text-cyan-500 mr-2"></i> Reassign User(s)</h3>
+            <input type="hidden" id="reassign-rowidx">
+            <div class="mb-6 relative">
+                <label class="block text-sm font-semibold mb-1">Assign to New User(s)</label>
+                <div id="reassign-user-display" onclick="toggleDropdown('reassign-user-dropdown')" class="input-3d bg-white cursor-pointer flex justify-between items-center min-h-[48px]">
+                    <span id="reassign-user-text" class="text-gray-500 truncate">Select User(s)...</span>
+                    <i class="fa-solid fa-chevron-down text-gray-400"></i>
+                </div>
+                <div id="reassign-user-dropdown" class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg hidden max-h-48 overflow-y-auto">
+                    <div id="reassign-user-options" class="p-2 flex flex-col gap-1"></div>
+                </div>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-8">
+                <button onclick="closeModal('modal-reassign')" class="w-full sm:flex-1 py-2 bg-gray-200 rounded font-semibold text-gray-600">Cancel</button>
+                <button onclick="submitReassign()" class="w-full sm:flex-1 btn-3d py-2">Reassign</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-archive" class="modal p-4">
+        <div class="box-3d p-6 md:p-8 w-full max-w-md mx-auto text-center">
+            <h3 class="text-lg md:text-xl font-bold mb-4"><i class="fa-solid fa-box-archive text-gray-600 mr-2"></i> Confirm Archive</h3>
+            <p class="mb-6 text-gray-600 text-sm md:text-base">Are you sure you want to move this document to the Archive?</p>
+            <input type="hidden" id="archive-rowidx">
+            <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                <button onclick="closeModal('modal-archive')" class="w-full sm:flex-1 py-2 bg-gray-200 rounded font-semibold text-gray-600">Cancel</button>
+                <button onclick="submitArchive()" class="w-full sm:flex-1 btn-3d btn-3d-gray py-2">Yes, Archive</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PURE JS API INTEGRATION BLOCK -->
+    <script>
+        // --- CONSTANTS & CONFIGURATION ---
+        
+        // PASTE YOUR DEPLOYED WEB APP URL HERE:
+        const API_URL = "https://script.google.com/macros/s/AKfycby-8Rg5WH-thHgmZ1g2G-5HsfyQkR5ISMuFsEMC7fZDdFAdvmJpZaPZSTaaK2ma8s18WA/exec";
+
+        // UI Variables
+        let currentUser = null;
+        let currentTab = '';
+        let autoRefreshTimer = null; 
+        let globalTrackerData = []; 
+        let globalUsersData = [];
+
+        const ADMIN_TABS = ["Receiving", "For Evaluation", "In Progress", "For Signature", "Approved", "Completed", "Archive"];
+        const USER_TABS = ["Incoming", "Processing", "Completed"];
+
+        // --- AUTHENTICATION & API WRAPPER ---
+        
+        async function apiCall(payload) {
+            if (API_URL.includes("YOUR_GOOGLE_APPS")) {
+                throw new Error("Please add your Google Apps Script Web App URL to line 302 of the code!");
+            }
+            try {
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(payload),
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' } 
+                });
+                const data = await res.json();
+                if (data.error) throw new Error(data.error);
+                return data;
+            } catch (e) {
+                throw new Error("API Error: " + e.message);
+            }
+        }
+
+        function getBase64(file) { 
+            return new Promise((resolve, reject) => { 
+                const reader = new FileReader(); 
+                reader.readAsDataURL(file); 
+                reader.onload = () => resolve(reader.result); 
+                reader.onerror = error => reject(error); 
+            }); 
+        }
+
+        // --- SILENT TOAST NOTIFICATION SYSTEM ---
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            const bgColor = type === 'success' ? 'bg-green-600' : 'bg-red-600';
+            const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+            
+            toast.className = `flex items-center gap-3 text-white px-5 py-3 rounded shadow-xl transform transition-all duration-300 translate-y-full opacity-0 ${bgColor}`;
+            toast.innerHTML = `<i class="fa-solid ${icon} text-lg"></i> <span class="font-semibold text-sm">${message}</span>`;
+            
+            container.appendChild(toast);
+            
+            // Animate in
+            setTimeout(() => {
+                toast.classList.remove('translate-y-full', 'opacity-0');
+            }, 10);
+            
+            // Auto remove
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-full');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        // --- CORE APPLICATION LOGIC ---
+
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                const savedSession = localStorage.getItem('docuTrackerSession');
+                if (savedSession) {
+                    const data = JSON.parse(savedSession);
+                    setTimeout(() => { setAuth(data.account, data.role, data.designation); }, 50);
+                }
+            } catch (error) {}
+        });
+
+        function toggleDropdown(id) { document.getElementById(id).classList.toggle('hidden'); }
+        document.addEventListener('click', function(event) {
+            const docDisplay = document.getElementById('doc-user-display');
+            const docDropdown = document.getElementById('doc-user-dropdown');
+            if (docDisplay && !docDisplay.contains(event.target) && !docDropdown.contains(event.target)) docDropdown.classList.add('hidden');
+            
+            const reDisplay = document.getElementById('reassign-user-display');
+            const reDropdown = document.getElementById('reassign-user-dropdown');
+            if (reDisplay && !reDisplay.contains(event.target) && !reDropdown.contains(event.target)) reDropdown.classList.add('hidden');
+        });
+
+        function updateSelectedText(type) {
+            const container = document.getElementById(`${type}-user-options`);
+            const checkboxes = container.querySelectorAll('input[type="checkbox"]:checked');
+            const textSpan = document.getElementById(`${type}-user-text`);
+            
+            if (checkboxes.length === 0) {
+                textSpan.textContent = "Select User(s)...";
+                textSpan.classList.add('text-gray-500'); textSpan.classList.remove('text-gray-800', 'font-semibold');
+            } else if (checkboxes.length === 1) {
+                textSpan.textContent = checkboxes[0].getAttribute('data-label');
+                textSpan.classList.remove('text-gray-500'); textSpan.classList.add('text-gray-800', 'font-semibold');
+            } else {
+                textSpan.textContent = `${checkboxes.length} Users Selected`;
+                textSpan.classList.remove('text-gray-500'); textSpan.classList.add('text-gray-800', 'font-semibold');
+            }
+        }
+
+        function showLoader() { document.getElementById('loader').style.display = 'flex'; }
+        function hideLoader() { document.getElementById('loader').style.display = 'none'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        function toggleDeadline() {
+            const cb = document.getElementById('no-deadline-cb');
+            const deadlineInput = document.getElementById('doc-deadline');
+            if(cb.checked) {
+                deadlineInput.value = '';
+                deadlineInput.disabled = true;
+                deadlineInput.required = false;
+                deadlineInput.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                deadlineInput.disabled = false;
+                deadlineInput.required = true;
+                deadlineInput.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        function triggerError(msg) {
+            hideLoader();
+            const err = document.getElementById('login-error');
+            err.innerHTML = msg;
+            err.classList.remove('hidden');
+        }
+
+        async function handleLogin(event) {
+            event.preventDefault();
+            const user = document.getElementById('username').value.trim();
+            const pass = document.getElementById('password').value.trim();
+            showLoader();
+
+            try {
+                const res = await apiCall({ action: 'login', account: user, password: pass });
+                if (res.success) {
+                    setAuth(res.account, res.role, res.designation);
+                } else {
+                    triggerError(res.message);
+                }
+            } catch (e) {
+                triggerError(e.message);
+            }
+        }
+
+        function setAuth(account, role, designation) {
+            hideLoader();
+            currentUser = { account, role, designation };
+            
+            try { localStorage.setItem('docuTrackerSession', JSON.stringify(currentUser)); } catch (e) {}
+
+            document.getElementById('login-view').classList.add('hidden');
+            document.getElementById('dashboard-view').classList.remove('hidden');
+            document.getElementById('display-user').textContent = account;
+            document.getElementById('display-role').textContent = role;
+            
+            const desigEl = document.getElementById('display-designation');
+            if(desigEl) desigEl.textContent = designation ? ` - ${designation}` : '';
+            
+            initializeDashboard();
+        }
+
+        function handleLogout() {
+            currentUser = null;
+            if(autoRefreshTimer) clearInterval(autoRefreshTimer); 
+            try { localStorage.removeItem('docuTrackerSession'); } catch(e) {}
+            
+            document.getElementById('login-view').classList.remove('hidden');
+            document.getElementById('dashboard-view').classList.add('hidden');
+            document.getElementById('login-form').reset();
+            document.getElementById('login-error').classList.add('hidden');
+        }
+
+        async function initializeDashboard() {
+            showLoader();
+            const topStatsContainer = document.getElementById('top-stats-container');
+            if (currentUser.role === 'User') {
+                if (topStatsContainer) topStatsContainer.classList.add('hidden');
+            } else {
+                if (topStatsContainer) topStatsContainer.classList.remove('hidden');
+            }
+
+            const tabs = currentUser.role === 'Admin' ? ADMIN_TABS : USER_TABS;
+            const tabContainer = document.getElementById('tabs-container');
+            tabContainer.innerHTML = '';
+            
+            tabs.forEach((tab, index) => {
+                const btn = document.createElement('div');
+                btn.className = `tab-btn relative flex-shrink-0 whitespace-nowrap ${index === 0 ? 'active' : ''}`;
+                const badgeId = `badge-${tab.replace(/\s+/g, '-')}`;
+                btn.innerHTML = `<span>${tab}</span><span id="${badgeId}" class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold shadow-md z-10" style="display:none;">0</span>`;
+                btn.onclick = () => switchTab(tab, btn);
+                tabContainer.appendChild(btn);
+            });
+
+            await manualRefresh(false, true); // true = init users dropdown
+            switchTab(tabs[0], tabContainer.firstChild);
+
+            if(autoRefreshTimer) clearInterval(autoRefreshTimer);
+            autoRefreshTimer = setInterval(() => { if (currentUser) manualRefresh(true); }, 30000); // 30 sec auto refresh
+        }
+
+        async function manualRefresh(silent = false, initUsers = false) {
+            if(!currentUser) return;
+            if(!silent) showLoader();
+            try {
+                const res = await apiCall({ action: 'fetchAllData' });
+                if (res.success) {
+                    globalTrackerData = res.trackerData || [];
+                    globalUsersData = res.usersData || [];
+                    
+                    if(initUsers && currentUser.role === 'Admin') populateUsersDropdown();
+                    
+                    refreshStatsUI();
+                    if(currentTab !== "Receiving" && currentTab !== "") loadTableData(currentTab, true);
+                }
+            } catch(e) { console.error(e); }
+            if(!silent) hideLoader();
+        }
+
+        function populateUsersDropdown() {
+            const options1 = document.getElementById('doc-user-options');
+            const options2 = document.getElementById('reassign-user-options');
+            if(!options1 || !options2) return;
+            
+            options1.innerHTML = ''; options2.innerHTML = '';
+            
+            const allHtml1 = `<label class="flex items-center p-2 hover:bg-gray-50 rounded cursor-pointer border-b border-gray-100"><input type="checkbox" value="All Users" data-label="All Users" class="mr-3 w-4 h-4 text-blue-600 rounded border-gray-300" onchange="updateSelectedText('doc')"><span class="font-bold text-blue-600">All Users</span></label>`;
+            const allHtml2 = `<label class="flex items-center p-2 hover:bg-gray-50 rounded cursor-pointer border-b border-gray-100"><input type="checkbox" value="All Users" data-label="All Users" class="mr-3 w-4 h-4 text-blue-600 rounded border-gray-300" onchange="updateSelectedText('reassign')"><span class="font-bold text-blue-600">All Users</span></label>`;
+            
+            options1.innerHTML += allHtml1; options2.innerHTML += allHtml2;
+            
+            globalUsersData.forEach(u => {
+                const text = u.designation ? `${u.account} - ${u.designation}` : u.account;
+                options1.innerHTML += `<label class="flex items-center p-2 hover:bg-gray-50 rounded cursor-pointer"><input type="checkbox" value="${u.account}" data-label="${text}" class="mr-3 w-4 h-4 text-blue-600 rounded border-gray-300" onchange="updateSelectedText('doc')"><span class="text-gray-700">${text}</span></label>`;
+                options2.innerHTML += `<label class="flex items-center p-2 hover:bg-gray-50 rounded cursor-pointer"><input type="checkbox" value="${u.account}" data-label="${text}" class="mr-3 w-4 h-4 text-blue-600 rounded border-gray-300" onchange="updateSelectedText('reassign')"><span class="text-gray-700">${text}</span></label>`;
+            });
+            
+            updateSelectedText('doc'); updateSelectedText('reassign');
+        }
+
+        function refreshStatsUI() {
+            let stats = { received: 0, processing: 0, approved: 0, completed: 0 };
+            let counts = {};
+
+            globalTrackerData.forEach(doc => {
+                const isArchived = doc["Archive"] && String(doc["Archive"]).trim().toUpperCase() === "OK";
+                
+                if (!isArchived) { 
+                    if (doc["Date Released/Completed"]) stats.completed++;
+                    else if (doc["Reply File ID"]) stats.approved++;
+                    else if (doc["Date Viewed by User"]) stats.processing++;
+                    else stats.received++;
+                }
+
+                if (currentUser.role === "Admin") {
+                    if (isArchived) counts["Archive"] = (counts["Archive"] || 0) + 1;
+                    else {
+                        if (doc["User"] && !doc["Date Viewed by User"]) counts["For Evaluation"] = (counts["For Evaluation"] || 0) + 1;
+                        else if (doc["Date Viewed by User"] && !doc["Date for Signature"]) counts["In Progress"] = (counts["In Progress"] || 0) + 1;
+                        else if (doc["Date for Signature"] && !doc["Reply File ID"]) counts["For Signature"] = (counts["For Signature"] || 0) + 1;
+                        else if (doc["Reply File ID"] && !doc["Date Released/Completed"]) counts["Approved"] = (counts["Approved"] || 0) + 1;
+                        else if (doc["Date Released/Completed"]) counts["Completed"] = (counts["Completed"] || 0) + 1;
+                    }
+                } else if (currentUser.role === "User") {
+                    const docUsers = String(doc["User"]).toLowerCase().split(',').map(u => u.trim());
+                    const isAssigned = docUsers.includes(currentUser.account.toLowerCase()) || docUsers.includes("all users");
+                    if (!isArchived && isAssigned) {
+                        if (!doc["Date for Signature"]) counts["Incoming"] = (counts["Incoming"] || 0) + 1;
+                        else if (doc["Date for Signature"] && !doc["Reply File ID"]) counts["Processing"] = (counts["Processing"] || 0) + 1;
+                        else if (doc["Reply File ID"]) counts["Completed"] = (counts["Completed"] || 0) + 1;
+                    }
+                }
+            });
+
+            document.getElementById('stat-received').textContent = stats.received;
+            document.getElementById('stat-processing').textContent = stats.processing;
+            document.getElementById('stat-approved').textContent = stats.approved;
+            document.getElementById('stat-completed').textContent = stats.completed;
+
+            const tabs = currentUser.role === 'Admin' ? ADMIN_TABS : USER_TABS;
+            tabs.forEach(tab => {
+                if (tab !== "Receiving") { 
+                    const badge = document.getElementById(`badge-${tab.replace(/\s+/g, '-')}`);
+                    if (badge) {
+                        badge.textContent = counts[tab] || 0;
+                        badge.style.display = (counts[tab] || 0) > 0 ? 'flex' : 'none';
+                    }
+                }
+            });
+        }
+
+        function switchTab(tabName, element) {
+            currentTab = tabName;
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            if(element) element.classList.add('active');
+
+            if (tabName === "Receiving" && currentUser.role === "Admin") {
+                document.getElementById('data-table-container').classList.add('hidden');
+                document.getElementById('receiving-form-container').classList.remove('hidden');
+            } else {
+                document.getElementById('receiving-form-container').classList.add('hidden');
+                document.getElementById('data-table-container').classList.remove('hidden');
+                loadTableData(tabName);
+            }
+        }
+
+        function loadTableData(tabName, silent = false) {
+            let filteredDocs = [];
+            globalTrackerData.forEach(doc => {
+                const isArchived = doc["Archive"] && String(doc["Archive"]).trim().toUpperCase() === "OK";
+                let isMatch = false;
+
+                if (currentUser.role === "Admin") {
+                    if (tabName === "Archive" && isArchived) isMatch = true;
+                    else if (!isArchived) {
+                        if (tabName === "For Evaluation" && doc["User"] && !doc["Date Viewed by User"]) isMatch = true;
+                        if (tabName === "In Progress" && doc["Date Viewed by User"] && !doc["Date for Signature"]) isMatch = true;
+                        if (tabName === "For Signature" && doc["Date for Signature"] && !doc["Reply File ID"]) isMatch = true;
+                        if (tabName === "Approved" && doc["Reply File ID"] && !doc["Date Released/Completed"]) isMatch = true;
+                        if (tabName === "Completed" && doc["Date Released/Completed"]) isMatch = true;
+                    }
+                } 
+                else if (currentUser.role === "User") {
+                    const docUsers = String(doc["User"]).toLowerCase().split(',').map(u => u.trim());
+                    const isAssigned = docUsers.includes(currentUser.account.toLowerCase()) || docUsers.includes("all users");
+
+                    if (!isArchived && isAssigned) {
+                        if (tabName === "Incoming" && !doc["Date for Signature"]) isMatch = true;
+                        if (tabName === "Processing" && doc["Date for Signature"] && !doc["Reply File ID"]) isMatch = true;
+                        if (tabName === "Completed" && doc["Reply File ID"]) isMatch = true;
+                    }
+                }
+                if (isMatch) filteredDocs.push(doc);
+            });
+            renderTable(tabName, filteredDocs.reverse());
+        }
+
+        function renderTable(tabName, docs) {
+            const head = document.getElementById('table-head');
+            const body = document.getElementById('table-body');
+            const emptyState = document.getElementById('empty-state');
+            const tableCont = document.querySelector('table');
+            head.innerHTML = ''; body.innerHTML = '';
+
+            if(docs.length === 0) {
+                emptyState.classList.remove('hidden'); tableCont.classList.add('hidden');
+                return;
+            }
+            emptyState.classList.add('hidden'); tableCont.classList.remove('hidden');
+
+            let cols = [{ key: 'action', label: 'Action' }, { key: 'Title/Description', label: 'Title' }, { key: 'Date Received', label: 'Received' }, { key: 'Deadline', label: 'Deadline' }];
+            if(currentUser.role === 'Admin') {
+                cols.push({ key: 'User', label: 'User(s)' });
+                if(tabName !== 'For Evaluation' && tabName !== 'Archive') cols.push({ key: 'Date Viewed by User', label: 'Viewed' });
+                if(['For Signature', 'Approved', 'Completed'].includes(tabName)) { cols.push({ key: 'Date of Letter', label: 'Letter Date' }); cols.push({ key: 'Date for Signature', label: 'Sign Date' }); }
+                if(['Approved', 'Completed'].includes(tabName)) cols.push({ key: 'Date Approved', label: 'Approved' });
+                if(tabName === 'Completed') cols.push({ key: 'Date Released/Completed', label: 'Completed' });
+            } else {
+                if(['Processing', 'Completed'].includes(tabName)) { cols.push({ key: 'Date of Letter', label: 'Letter Date' }); cols.push({ key: 'Date for Signature', label: 'Sign Date' }); }
+                if(tabName === 'Completed') cols.push({ key: 'Date Approved', label: 'Approved' });
+            }
+
+            let trH = '<tr>'; cols.forEach(c => trH += `<th class="p-3 md:p-4 border-b">${c.label}</th>`); head.innerHTML = trH + '</tr>';
+
+            docs.forEach(doc => {
+                let tr = '<tr class="hover:bg-gray-50">';
+                cols.forEach(c => {
+                    let cellContent = '';
+                    if (c.key === 'action') {
+                        cellContent = getActions(tabName, doc);
+                    } else {
+                        let v = doc[c.key] || '';
+                        if (c.key === 'Deadline' && v && !['Approved', 'Completed', 'Archive'].includes(tabName)) {
+                            const today = new Date();
+                            today.setHours(0,0,0,0);
+                            const dDate = new Date(v);
+                            
+                            if (!isNaN(dDate)) {
+                                const diffTime = dDate.getTime() - today.getTime();
+                                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                                
+                                if (diffDays < 0) {
+                                    cellContent = `<span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-bold whitespace-nowrap border border-red-200 shadow-sm"><i class="fa-solid fa-triangle-exclamation mr-1"></i>${dDate.toLocaleDateString()} (Overdue)</span>`;
+                                } else if (diffDays <= 3) {
+                                    cellContent = `<span class="bg-orange-100 text-orange-700 px-2 py-1 rounded text-xs font-bold whitespace-nowrap border border-orange-200 shadow-sm"><i class="fa-solid fa-clock mr-1"></i>${dDate.toLocaleDateString()} (${diffDays} day${diffDays===1?'':'s'} left)</span>`;
+                                } else {
+                                    cellContent = dDate.toLocaleDateString();
+                                }
+                            } else {
+                                cellContent = v;
+                            }
+                        } 
+                        else if (v instanceof Date || v.toString().includes('T00:00')) {
+                            cellContent = new Date(v).toLocaleDateString();
+                        } else {
+                            cellContent = v;
+                        }
+                    }
+                    tr += `<td class="p-3 md:p-4 whitespace-nowrap">${cellContent}</td>`;
+                });
+                body.innerHTML += tr + '</tr>';
+            });
+        }
+
+        function getActions(tabName, doc) {
+            let html = `<button onclick="viewFile('${doc['Received File ID']}', ${doc.rowIndex}, '${tabName}')" class="bg-blue-100 text-blue-700 px-3 py-1 rounded mr-2 mb-2 whitespace-nowrap"><i class="fa-solid fa-eye"></i> View</button>`;
+            if(currentUser.role === 'Admin') {
+                if(tabName === 'For Evaluation') {
+                    html += `<button onclick="openReassignModal(${doc.rowIndex})" class="bg-cyan-100 text-cyan-700 px-3 py-1 rounded mr-2 mb-2 whitespace-nowrap"><i class="fa-solid fa-user-pen"></i> Reassign</button>`;
+                    html += `<button onclick="openArchiveModal(${doc.rowIndex})" class="bg-gray-200 text-gray-700 px-3 py-1 rounded mr-2 mb-2 whitespace-nowrap"><i class="fa-solid fa-box-archive"></i> Archive</button>`;
+                }
+                if(tabName === 'In Progress') {
+                    html += `<button onclick="openReassignModal(${doc.rowIndex})" class="bg-cyan-100 text-cyan-700 px-3 py-1 rounded mr-2 mb-2 whitespace-nowrap"><i class="fa-solid fa-user-pen"></i> Reassign</button>`;
+                    html += `<button onclick="openDatesModal(${doc.rowIndex})" class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded mr-2 mb-2 whitespace-nowrap"><i class="fa-solid fa-plus"></i> Dates</button>`;
+                    html += `<button onclick="openArchiveModal(${doc.rowIndex})" class="bg-gray-200 text-gray-700 px-3 py-1 rounded mr-2 mb-2 whitespace-nowrap"><i class="fa-solid fa-box-archive"></i> Archive</button>`;
+                }
+                if(tabName === 'For Signature') {
+                    html += `<button onclick="openReassignModal(${doc.rowIndex})" class="bg-cyan-100 text-cyan-700 px-3 py-1 rounded mr-2 mb-2 whitespace-nowrap"><i class="fa-solid fa-user-pen"></i> Reassign</button>`;
+                    html += `<button onclick="openReplyModal(${doc.rowIndex}, '${(doc['Title/Description']||'').replace(/'/g, "\\'")}')" class="bg-purple-100 text-purple-700 px-3 py-1 rounded mr-2 mb-2 whitespace-nowrap"><i class="fa-solid fa-upload"></i> Reply</button>`;
+                    html += `<button onclick="openArchiveModal(${doc.rowIndex})" class="bg-gray-200 text-gray-700 px-3 py-1 rounded mr-2 mb-2 whitespace-nowrap"><i class="fa-solid fa-box-archive"></i> Archive</button>`;
+                }
+                if(tabName === 'Approved') {
+                    html += `<button onclick="openReleaseModal(${doc.rowIndex})" class="bg-green-100 text-green-700 px-3 py-1 rounded mr-2 mb-2 whitespace-nowrap"><i class="fa-solid fa-check"></i> Release</button>`;
+                }
+                if(['Approved', 'Completed', 'Archive'].includes(tabName) && doc['Reply File ID']) {
+                    html += `<button onclick="viewFile('${doc['Reply File ID']}', null, 'Reply')" class="bg-gray-200 text-gray-700 px-3 py-1 rounded mr-2 mb-2 whitespace-nowrap"><i class="fa-solid fa-envelope"></i> Reply File</button>`;
+                }
+            } else if(['Processing', 'Completed'].includes(tabName) && doc['Reply File ID']) {
+                html += `<button onclick="viewFile('${doc['Reply File ID']}', null, 'Reply')" class="bg-purple-100 text-purple-700 px-3 py-1 rounded mr-2 mb-2 whitespace-nowrap"><i class="fa-solid fa-envelope"></i> Reply</button>`;
+            }
+            return html;
+        }
+
+        async function viewFile(fileId, rowIndex, tabName) {
+            if(!fileId) return alert("File ID not found!");
+            window.open(`https://drive.google.com/file/d/${fileId}/view`, '_blank');
+            if(currentUser.role === 'User' && tabName === 'Incoming' && rowIndex) {
+                const today = new Date().toISOString().split('T')[0];
+                try {
+                    await apiCall({ action: 'updateRow', rowIndex: rowIndex, updateFields: { "Date Viewed by User": today } });
+                    await manualRefresh(true);
+                } catch(e) {}
+            }
+        }
+
+        // --- SUBMIT HANDLERS (UPDATED TO SILENT MODE) ---
+
+        async function submitNewDocument() {
+            const f = document.getElementById('doc-file').files[0];
+            if(!f) return alert("Please select a file");
+            
+            const container = document.getElementById('doc-user-options');
+            const checkedBoxes = Array.from(container.querySelectorAll('input[type="checkbox"]:checked'));
+            const selectedUsers = checkedBoxes.map(cb => cb.value).join(', ');
+            
+            if (!selectedUsers) return alert("Please assign to at least one user.");
+
+            // Capture data BEFORE resetting the form
+            const desc = document.getElementById('doc-title').value;
+            const dateRec = document.getElementById('doc-date-received').value;
+            const deadline = document.getElementById('doc-deadline').value;
+
+            // --- SILENT UI RESET (Instantly clear form so user can start the next one) ---
+            document.getElementById('upload-form').reset(); 
+            container.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            updateSelectedText('doc');
+
+            const noDeadlineCb = document.getElementById('no-deadline-cb');
+            if(noDeadlineCb) { noDeadlineCb.checked = false; toggleDeadline(); }
+
+            // Slide-in toast notification
+            showToast("Upload started in background...", "success");
+
+            // Perform Upload in background
+            try {
+                const b64 = await getBase64(f);
+                await apiCall({
+                    action: 'uploadNewDoc',
+                    fileData: b64.split(',')[1], 
+                    mimeType: f.type,
+                    fileName: f.name,
+                    description: desc,
+                    dateReceived: dateRec,
+                    deadline: deadline,
+                    users: selectedUsers
+                });
+
+                showToast(`"${desc}" successfully recorded!`, "success");
+                manualRefresh(true); // Silent table refresh
+            } catch(e) { 
+                showToast(`Upload Failed for "${desc}": ` + e.message, "error"); 
+            }
+        }
+
+        function openReassignModal(rowIdx) {
+            document.getElementById('reassign-rowidx').value = rowIdx;
+            const container = document.getElementById('reassign-user-options');
+            if(container) container.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            updateSelectedText('reassign');
+            document.getElementById('modal-reassign').style.display = 'flex';
+        }
+
+        async function submitReassign() {
+            const container = document.getElementById('reassign-user-options');
+            const checkedBoxes = Array.from(container.querySelectorAll('input[type="checkbox"]:checked'));
+            const newUsers = checkedBoxes.map(cb => cb.value).join(', ');
+            const rowIdx = document.getElementById('reassign-rowidx').value;
+            
+            if(!newUsers) return alert("Please select at least one user.");
+            
+            // --- SILENT MODE: Close Modal & Notify ---
+            closeModal('modal-reassign'); 
+            showToast("Reassigning user in background...", "success");
+
+            try {
+                await apiCall({ action: 'updateRow', rowIndex: rowIdx, updateFields: { "User": newUsers, "Date Viewed by User": "" } });
+                showToast("Document successfully reassigned!", "success");
+                manualRefresh(true); // Silent table refresh
+            } catch(e) { 
+                showToast("Reassign Failed: " + e.message, "error"); 
+            }
+        }
+
+        function openArchiveModal(rowIdx) { document.getElementById('archive-rowidx').value = rowIdx; document.getElementById('modal-archive').style.display = 'flex'; }
+        
+        async function submitArchive() {
+            const rowIdx = document.getElementById('archive-rowidx').value;
+            
+            // --- SILENT MODE: Close Modal & Notify ---
+            closeModal('modal-archive'); 
+            showToast("Archiving document...", "success");
+
+            try {
+                await apiCall({ action: 'updateRow', rowIndex: rowIdx, updateFields: { "Archive": "OK" } });
+                showToast("Document successfully archived!", "success");
+                manualRefresh(true); // Silent table refresh
+            } catch(e) { 
+                showToast("Archive Failed: " + e.message, "error"); 
+            }
+        }
+
+        function openDatesModal(rowIdx) { document.getElementById('dates-rowidx').value = rowIdx; document.getElementById('modal-dates').style.display = 'flex'; }
+        async function submitDates() {
+            const dl = document.getElementById('modal-date-letter').value, ds = document.getElementById('modal-date-signature').value;
+            if(!dl || !ds) return alert("Fill both dates");
+            closeModal('modal-dates'); showLoader();
+            try {
+                await apiCall({ action: 'updateRow', rowIndex: document.getElementById('dates-rowidx').value, updateFields: { "Date of Letter": dl, "Date for Signature": ds } });
+                await manualRefresh();
+            } catch(e) { alert("Failed: " + e.message); hideLoader(); }
+        }
+
+        function openReplyModal(rowIdx, title) { document.getElementById('reply-rowidx').value = rowIdx; document.getElementById('reply-title').value = title; document.getElementById('modal-reply').style.display = 'flex'; }
+        async function submitReply() {
+            const da = document.getElementById('modal-date-approved').value, f = document.getElementById('modal-reply-file').files[0];
+            if(!da || !f) return alert("Provide date & file");
+            closeModal('modal-reply'); showLoader();
+            try {
+                const b64 = await getBase64(f);
+                await apiCall({
+                    action: 'uploadReply',
+                    rowIndex: document.getElementById('reply-rowidx').value,
+                    replyTitle: document.getElementById('reply-title').value + " Reply",
+                    fileData: b64.split(',')[1],
+                    mimeType: f.type,
+                    fileName: f.name,
+                    dateApproved: da
+                });
+                await manualRefresh();
+            } catch(e) { alert("Failed: " + e.message); hideLoader(); }
+        }
+
+        function openReleaseModal(rowIdx) { document.getElementById('release-rowidx').value = rowIdx; document.getElementById('modal-release').style.display = 'flex'; }
+        async function submitRelease() {
+            const dr = document.getElementById('modal-date-released').value;
+            if(!dr) return alert("Select a date");
+            closeModal('modal-release'); showLoader();
+            try {
+                await apiCall({ action: 'updateRow', rowIndex: document.getElementById('release-rowidx').value, updateFields: { "Date Released/Completed": dr } });
+                await manualRefresh();
+            } catch(e) { alert("Failed: " + e.message); hideLoader(); }
+        }
+
+        function openChangePasswordModal() {
+            document.getElementById('change-password-form').reset();
+            document.getElementById('modal-change-password').style.display = 'flex';
+        }
+
+        async function submitChangePassword(event) {
+            event.preventDefault();
+            const cpCurrent = document.getElementById('cp-current').value;
+            const cpNew = document.getElementById('cp-new').value;
+            const cpConfirm = document.getElementById('cp-confirm').value;
+            if (cpNew !== cpConfirm) return alert("New passwords do not match!");
+
+            closeModal('modal-change-password'); showLoader();
+            try {
+                const res = await apiCall({
+                    action: 'changePassword',
+                    account: currentUser.account,
+                    currentPassword: cpCurrent,
+                    newPassword: cpNew
+                });
+                if (res.success) alert("Password changed successfully!");
+                else alert("Failed: " + res.message);
+                hideLoader();
+            } catch(e) {
+                alert("Failed: " + e.message);
+                hideLoader();
+            }
+        }
+    </script>
+</body>
+</html>

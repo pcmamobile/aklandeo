@@ -151,8 +151,7 @@
     .btn-projects { color: #2563eb; }
     .btn-projects svg { stroke: #2563eb; }
     
-    /* New Data Button Styling */
-    .btn-data { color: #0891b2; } /* Cyan */
+    .btn-data { color: #0891b2; } 
     .btn-data svg { stroke: #0891b2; }
 
     .btn-download { color: #16a34a; }
@@ -167,10 +166,10 @@
     .btn-leaderboards { color: #dc2626; }
     .btn-leaderboards svg { stroke: #dc2626; }
 
-    .btn-pcmarev { color: #0d9488; } /* Teal */
+    .btn-pcmarev { color: #0d9488; } 
     .btn-pcmarev svg { stroke: #0d9488; }
 
-    .btn-uploadmon { color: #be185d; } /* Pink/Rose */
+    .btn-uploadmon { color: #be185d; } 
     .btn-uploadmon svg { stroke: #be185d; }
 
     /* =========================================================
@@ -500,7 +499,7 @@
     
     /* Side-by-side 3D Modal Buttons Container */
     #pcmaModalButtons{
-      padding:10px 14px 100px; max-width:1100px; margin:0 auto;
+      padding:10px 14px 20px; max-width:1100px; margin:0 auto;
       display:flex; flex-direction:row; gap:12px;
       justify-content: center;
     }
@@ -555,6 +554,79 @@
     .btn-upload-3d:active {
       transform: translateY(6px);
       box-shadow: 0 0 0 #1e3a8a, 0 4px 6px rgba(37, 99, 235, 0.3), inset 0 2px 0 rgba(255,255,255,0.2);
+    }
+
+    /* Photos Grid Layout below buttons */
+    #pcmaModalPhotos {
+      padding: 0 14px 100px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .pcma-photo-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .pcma-photo-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 8px;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+      transition: transform 0.15s;
+    }
+    .pcma-photo-card img {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 0;
+      background: #e2e8f0;
+      cursor: pointer;
+    }
+    .pcma-photo-card img:hover {
+      opacity: 0.9;
+    }
+    .pcma-photo-label {
+      font-size: 0.7rem;
+      font-weight: 800;
+      color: #475569;
+      text-align: center;
+      text-transform: uppercase;
+      margin-top: 8px;
+    }
+    
+    .pcma-photo-set-btns { 
+      display: flex; 
+      flex-direction: row; 
+      gap: 4px; 
+      width: 100%; 
+      margin-top: 8px; 
+    }
+    .pcma-photo-set-btns button { 
+      flex: 1; 
+      padding: 6px 4px; 
+      border: none; 
+      border-radius: 6px; 
+      font-size: 0.65rem; 
+      font-weight: 800; 
+      cursor: pointer; 
+      color: #fff; 
+      transition: opacity 0.2s; 
+      text-transform: uppercase; 
+    }
+    .pcma-photo-set-btns button:hover { opacity: 0.8; }
+    .set-icon-btn { background: #3b82f6; }
+    .set-main-btn { background: #8b5cf6; }
+
+    @media (max-width: 600px) {
+      .pcma-photo-grid {
+         grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+      }
     }
 
     /* FLOAT ARROWS */
@@ -922,26 +994,26 @@
     </button>
     
     <!-- NEW DASHBOARD BUTTON (Local Link) -->
-    <a href="DataBase.html" class="btn-3d btn-data">
+    <button type="button" class="btn-3d btn-data" data-src="DataBase.html">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
         <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
         <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
         <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
       </svg>
       <span>Dashboard</span>
-    </a>
+    </button>
     
     <!-- MONITORING BUTTON -->
-    <a href="Monitoring.html" class="btn-3d btn-uploadmon">
+    <button type="button" class="btn-3d btn-uploadmon" data-src="Monitoring.html">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
         <circle cx="11" cy="11" r="8"></circle>
         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
       </svg>
       <span>Monitoring</span>
-    </a>
+    </button>
 
     <!-- DOCUTRACKER BUTTON -->
-    <a href="DocuTracker.html" class="btn-3d btn-tracker">
+    <button type="button" class="btn-3d btn-tracker" data-src="DocuTracker.html">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
         <polyline points="14 2 14 8 20 8"></polyline>
@@ -950,10 +1022,10 @@
         <polyline points="10 9 9 9 8 9"></polyline>
       </svg>
       <span>DocuTracker</span>
-    </a>
+    </button>
 
     <!-- LEADERBOARDS & FILE UPLOADER BUTTON -->
-    <button type="button" class="btn-3d btn-leaderboards" id="btnLeaderboards">
+    <button type="button" class="btn-3d btn-leaderboards" data-src="Leaderboards.html">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
         <polyline points="17 8 12 3 7 8"></polyline>
@@ -963,22 +1035,22 @@
     </button>
 
     <!-- PCMA REVISION MONITORING BUTTON -->
-    <a href="https://script.google.com/macros/s/AKfycbwIpWr1UICDBB-5SSjNZfAzINmNC7cfiGBmKt54jjH0toEDQfFsbu5QTyX36jfF03A02A/exec?fbclid=IwZXh0bgNhZW0CMTEAc3J0YwZhcHBfaWQPNDM3NjI2MzE2OTczNzg4AAEeeARYP2rIEIu-3sqJFJci6nMtpj_jWa0HwX3qVIz7b6EAMxCtTL_ZQbNjYz8_aem_9v6JVRjnUgCaTKIbxzHBTw" target="_blank" class="btn-3d btn-pcmarev">
+    <button type="button" class="btn-3d btn-pcmarev" data-src="https://script.google.com/macros/s/AKfycbwIpWr1UICDBB-5SSjNZfAzINmNC7cfiGBmKt54jjH0toEDQfFsbu5QTyX36jfF03A02A/exec?fbclid=IwZXh0bgNhZW0CMTEAc3J0YwZhcHBfaWQPNDM3NjI2MzE2OTczNzg4AAEeeARYP2rIEIu-3sqJFJci6nMtpj_jWa0HwX3qVIz7b6EAMxCtTL_ZQbNjYz8_aem_9v6JVRjnUgCaTKIbxzHBTw">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
         <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
       </svg>
       <span>PCMA Revision<br>Monitoring</span>
-    </a>
+    </button>
 
     <!-- DOWNLOAD BUTTON -->
-    <a href="https://drive.google.com/file/d/1CTogwlTvQxwPW0KrdHyGSVxMZ3cjH3PM/view?usp=sharing" target="_blank" class="btn-3d btn-download">
+    <button type="button" class="btn-3d btn-download" data-src="https://drive.google.com/file/d/1CTogwlTvQxwPW0KrdHyGSVxMZ3cjH3PM/view?usp=sharing">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
         <polyline points="7 10 12 15 17 10"></polyline>
         <line x1="12" y1="15" x2="12" y2="3"></line>
       </svg>
       <span>Download APK<br>for Android Only</span>
-    </a>
+    </button>
 
   </div>
 </main>
@@ -1033,6 +1105,7 @@
     <div id="pcmaModalBody">
       <div id="pcmaModalContent"></div>
       <div id="pcmaModalButtons"></div>
+      <div id="pcmaModalPhotos"></div>
     </div>
   </div>
 </div>
@@ -1124,20 +1197,28 @@
       });
     }
 
-    // Leaderboards Button -> Opens Overlay
-    if (btnLeaderboards) {
-      btnLeaderboards.addEventListener("click", () => {
-        const frame = document.getElementById('iframeFrame');
-        const overlay = document.getElementById('iframeOverlay');
-        const box = document.getElementById('iframeBox');
-        const body = document.getElementById('iframeBody');
-        if (frame && overlay) {
-          if (box) box.classList.add('fullscreen-box');
-          if (body) body.classList.add('fullscreen-body');
-          frame.src = "Leaderboards.html";
-          overlay.hidden = false;
-          overlay.classList.remove('hidden');
-        }
+    // Generic handler for Home Page buttons that load URLs in the full-screen iframe overlay
+    const homeGrid = document.querySelector('.home-btn-grid');
+    if (homeGrid) {
+      const iframeBtns = homeGrid.querySelectorAll('button[data-src]');
+      iframeBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          const src = btn.getAttribute('data-src');
+          if (src) {
+            const frame = document.getElementById('iframeFrame');
+            const overlay = document.getElementById('iframeOverlay');
+            const box = document.getElementById('iframeBox');
+            const body = document.getElementById('iframeBody');
+            if (frame && overlay) {
+              if (box) box.classList.add('fullscreen-box');
+              if (body) body.classList.add('fullscreen-body');
+              frame.src = src;
+              overlay.hidden = false;
+              overlay.classList.remove('hidden');
+            }
+          }
+        });
       });
     }
 
@@ -1247,6 +1328,7 @@
       RANGE: "APP",
       API_KEY: "AIzaSyCz6fNJr3ecn-M2HActqM1aCXbxqRLj2e8",
       LOGO_FALLBACK: "https://lh3.googleusercontent.com/d/1VanVX82ANGfKA8jcGZL8cVDQh4EuN8-r=s800?authuser=0",
+      GAS_WEBAPP_URL: "https://script.google.com/macros/s/AKfycbwE2zVf654nTieExX174j6eTPG5-BaVINGQIszgfe5sLvDvJARL-u2k0vQk_DlYukExNg/exec" // Needed for saving Photo IDs securely
     };
 
     const el = {
@@ -1467,7 +1549,13 @@
         card.dataset.rowIndex = String(idx);
 
         const img = document.createElement("img");
-        const link = colImage1 >= 0 && r[colImage1] ? String(r[colImage1]).trim() : "";
+        const rawImg1 = colImage1 >= 0 && r[colImage1] ? String(r[colImage1]).trim() : "";
+        
+        let link = rawImg1;
+        if (rawImg1 && !rawImg1.startsWith('http')) {
+            link = `https://drive.google.com/thumbnail?id=${rawImg1}&sz=s800`;
+        }
+
         img.src = link || PCMA.config.LOGO_FALLBACK;
         img.className = "card-thumb";
         img.loading = "lazy";
@@ -1600,12 +1688,53 @@
   })();
 
   // =========================================================
+  // Set Image Logic (Communicates with Backend)
+  // =========================================================
+  PCMA.setImage = async function(contractId, column, fileId, event) {
+      event.stopPropagation();
+      const isConfirmed = confirm(`Are you sure you want to set this photo as ${column}?`);
+      if (!isConfirmed) return;
+
+      const gasUrl = PCMA.config.GAS_WEBAPP_URL;
+      if (!gasUrl || gasUrl.includes("YOUR_GOOGLE_APPS_SCRIPT_URL_HERE")) {
+          alert("Backend configuration missing!\n\nYou must deploy a Google Apps Script to save this file ID securely and update PCMA.config.GAS_WEBAPP_URL in your code.");
+          return;
+      }
+
+      const btn = event.target;
+      const originalText = btn.innerText;
+      btn.innerText = "Saving...";
+      btn.disabled = true;
+
+      try {
+          // Sending a standard Form URL-Encoded POST request to Google Apps Script
+          const res = await fetch(gasUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+              body: `action=setImage&contractId=${encodeURIComponent(contractId)}&columnName=${encodeURIComponent(column)}&fileId=${encodeURIComponent(fileId)}`
+          });
+          const data = await res.json();
+          if (data.status === 'success') {
+              alert(`${column} updated successfully! Please reload the app to see changes.`);
+          } else {
+              alert(`Failed to update image: ${data.message}`);
+          }
+      } catch (err) {
+          alert(`Network error connecting to backend: ${err.message}`);
+      } finally {
+          btn.innerText = originalText;
+          btn.disabled = false;
+      }
+  };
+
+  // =========================================================
   // modal.js logic
   // =========================================================
   (function () {
     const modalBg        = document.getElementById('pcmaModalBg');
     const modalContent   = document.getElementById('pcmaModalContent');
     const modalButtons   = document.getElementById('pcmaModalButtons');
+    const modalPhotos    = document.getElementById('pcmaModalPhotos');
     const modalCID       = document.getElementById('pcmaModalCID');
     const closeModalTop  = document.getElementById('pcmaCloseModalTop');
     const modalPrevFloat = document.getElementById('pcmaModalPrev');
@@ -1691,6 +1820,7 @@
       openBg();
       modalContent.innerHTML = '';
       modalButtons.innerHTML = '';
+      if (modalPhotos) modalPhotos.innerHTML = '';
 
       const LOGO_FALLBACK = PCMA.config?.LOGO_FALLBACK;
       const cidIdx     = findCol('contract id');
@@ -1721,9 +1851,16 @@
       let    progIdx  = findCol('progress');
       if (progIdx < 0 && (PCMA.state?.headers?.length || 0) > 18) progIdx = 18;
 
-      let heroImgUrl = row[33] ? String(row[33]).trim() : '';
+      const currentCid = (cidIdx >= 0 ? String(row[cidIdx]).trim() : '');
+      modalCID.textContent = currentCid || '—';
 
-      modalCID.textContent = (cidIdx >= 0 ? row[cidIdx] : '') || '—';
+      const img2Idx = findCol('image 2');
+      let rawImg2 = (img2Idx > -1 && row[img2Idx]) ? String(row[img2Idx]).trim() : '';
+      
+      let heroImgUrl = rawImg2;
+      if (rawImg2 && !rawImg2.startsWith('http')) {
+          heroImgUrl = `https://drive.google.com/thumbnail?id=${rawImg2}&sz=s800`;
+      }
 
       if (heroImgUrl) {
         const wrap = document.createElement('div');
@@ -1771,7 +1908,7 @@
       // Create 3D Project Docs Button
       let docsBtn = null;
       if (window.openProjectDocs) {
-        const cid = cidIdx >= 0 && row[cidIdx] != null ? String(row[cidIdx]).trim() : '';
+        const cid = currentCid;
         docsBtn = document.createElement('button');
         docsBtn.id = 'projectDocsBtn';
         docsBtn.type = 'button';
@@ -1790,7 +1927,7 @@
       if (uploadCol > -1) {
         const link = String(row[uploadCol] || '').trim();
         if (link && PCMA.helpers?.isValidUrl?.(link)) {
-          const cid = cidIdx >= 0 && row[cidIdx] != null ? String(row[cidIdx]).trim() : '';
+          const cid = currentCid;
           uploadBtn = document.createElement('button');
           uploadBtn.id = 'pcmaUploadBtn';
           uploadBtn.type = 'button';
@@ -1814,6 +1951,66 @@
       if (docsBtn || uploadBtn) {
         if (docsBtn) modalButtons.appendChild(docsBtn);
         if (uploadBtn) modalButtons.appendChild(uploadBtn);
+      }
+
+      // Setup Photo Gallery directly from the row data
+      if (modalPhotos) {
+        modalPhotos.innerHTML = '';
+        
+        const compIdx = findCol('completed');
+        const onGoingIdx = findCol('on-going', 'ongoing');
+        const mobIdx = findCol('mobilization');
+
+        const photosData = [
+          { label: 'Completed', val: compIdx > -1 ? row[compIdx] : '' },
+          { label: 'On-Going', val: onGoingIdx > -1 ? row[onGoingIdx] : '' },
+          { label: 'Mobilization', val: mobIdx > -1 ? row[mobIdx] : '' }
+        ];
+
+        let hasPhotos = false;
+        let html = '';
+
+        photosData.forEach(p => {
+          if (!p.val) return;
+          const rawString = String(p.val).trim();
+          if (!rawString) return;
+          
+          const parts = rawString.split('|');
+          let ids = [];
+          parts.forEach(part => {
+             const match = part.match(/[-\w]{25,}/);
+             if (match) {
+                 ids.push(match[0]);
+             }
+          });
+
+          if (ids.length > 0) {
+              hasPhotos = true;
+              html += `<div style="margin-top: 15px;">`;
+              html += `<div style="font-weight:900; font-size:14px; color:#1e293b; padding-bottom:5px; border-bottom:2px solid #e2e8f0; margin-bottom:10px; text-transform: uppercase;">${p.label}</div>`;
+              html += `<div class="pcma-photo-grid">`;
+              ids.forEach(id => {
+                  const thumbUrl = `https://drive.google.com/thumbnail?id=${id}&sz=s800`;
+                  const fullUrl = `https://drive.google.com/file/d/${id}/view`;
+                  html += `
+                    <div class="pcma-photo-card">
+                      <img src="${thumbUrl}" loading="lazy" onerror="this.src='${PCMA.config.LOGO_FALLBACK}'" onclick="window.open('${fullUrl}', '_blank', 'noopener')" />
+                      <div class="pcma-photo-set-btns">
+                        <button class="set-icon-btn" onclick="PCMA.setImage('${currentCid}', 'Image 1', '${id}', event)">Set Mini Icon</button>
+                        <button class="set-main-btn" onclick="PCMA.setImage('${currentCid}', 'Image 2', '${id}', event)">Set Main Photo</button>
+                      </div>
+                    </div>
+                  `;
+              });
+              html += `</div></div>`;
+          }
+        });
+
+        if (!hasPhotos) {
+            modalPhotos.innerHTML = '<div style="text-align:center; padding:20px; color:#64748b;">No photos uploaded for this project yet.</div>';
+        } else {
+            modalPhotos.innerHTML = html;
+        }
       }
 
       // MINI bars
