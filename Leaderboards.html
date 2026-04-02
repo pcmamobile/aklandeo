@@ -376,6 +376,8 @@
     }
     
     @media (max-width: 768px) {
+        .hide-mobile { display: none !important; }
+        
         /* Hide Desktop Headers */
         .listHeader { display: none; } 
         
@@ -392,6 +394,25 @@
         .toolbarTop { flex-direction: column; align-items: stretch; gap: 12px; }
         .reloadBtnWrap { width: 100%; }
         .reloadBtn { width: 100%; justify-content: center; }
+        
+        /* 1 row, 5 columns Icons only Tabs */
+        .upTabs { 
+            display: grid !important; 
+            grid-template-columns: repeat(5, 1fr); 
+            gap: 6px; 
+            width: 100%; 
+            overflow: hidden; 
+            padding-bottom: 0;
+        }
+        .upTabBtn { 
+            width: 100%; 
+            padding: 12px 0; 
+            font-size: 20px; 
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
         
         /* Filter Bar Grid */
         .filterBar { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 12px; border-radius: 12px; }
@@ -517,24 +538,24 @@
       <img src="https://drive.google.com/thumbnail?id=1yMWBN28rT9vKGmMGxHNrexXVoYfayRTC&sz=s800" alt="Logo">
       <div class="header-text">
         <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
-          <h1>✨ DPWH Document Center 3D</h1>
-          <span id="global-doc-stats" style="background: rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 12px; font-size: 12px; font-weight: 900; letter-spacing: 1px; border: 1px solid rgba(255,255,255,0.2); box-shadow: inset 0 2px 4px rgba(0,0,0,0.5); color: #38bdf8;">📊 0 / 0 Uploaded</span>
+          <h1>✨ Leaderboards & Uploads</h1>
+          <span id="global-doc-stats" class="hide-mobile" style="background: rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 12px; font-size: 12px; font-weight: 900; letter-spacing: 1px; border: 1px solid rgba(255,255,255,0.2); box-shadow: inset 0 2px 4px rgba(0,0,0,0.5); color: #38bdf8;">📊 0 / 0 Uploaded</span>
         </div>
-        <p>Advanced Project File Matrix & Live Tracking</p>
+        <p class="hide-mobile">Advanced Project File Matrix & Live Tracking</p>
       </div>
     </div>
 
     <div class="toolbarWrap">
       <div class="toolbarTop">
         <div class="upTabs">
-          <button class="btn-3d upTabBtn active" onclick="switchUpTab('home')">🏆 Leaderboards</button>
-          <button class="btn-3d upTabBtn" onclick="switchUpTab('pending')">⏳ Pending</button>
-          <button class="btn-3d upTabBtn" onclick="switchUpTab('approval')">🛡️ Approval</button>
-          <button class="btn-3d upTabBtn" onclick="switchUpTab('denied')">❌ Denied</button>
-          <button class="btn-3d upTabBtn" onclick="switchUpTab('uploaded')">✅ Uploaded</button>
+          <button class="btn-3d upTabBtn active" onclick="switchUpTab('home')">🏆<span class="hide-mobile">&nbsp;Leaderboards</span></button>
+          <button class="btn-3d upTabBtn" onclick="switchUpTab('pending')">⏳<span class="hide-mobile">&nbsp;Pending</span></button>
+          <button class="btn-3d upTabBtn" onclick="switchUpTab('approval')">🛡️<span class="hide-mobile">&nbsp;Approval</span></button>
+          <button class="btn-3d upTabBtn" onclick="switchUpTab('denied')">❌<span class="hide-mobile">&nbsp;Denied</span></button>
+          <button class="btn-3d upTabBtn" onclick="switchUpTab('uploaded')">✅<span class="hide-mobile">&nbsp;Uploaded</span></button>
         </div>
         
-        <div class="reloadBtnWrap">
+        <div class="reloadBtnWrap hide-mobile">
           <button class="btn-3d reloadBtn" onclick="forceReload()">🔄 Sync Matrix</button>
           <span id="reloadBadge" class="reloadBadge">⚡ NEW UPDATES</span>
         </div>
