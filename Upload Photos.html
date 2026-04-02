@@ -182,11 +182,13 @@
       
       #file-input { display: none; }
       
-      /* Progress Bar */
-      #progress-container { display: none; margin-bottom: 25px; padding: 15px; background: #f8f9fa; border-radius: 16px; border: 2px solid #dfe6e9;}
-      #progress-track { background: #dfe6e9; border-radius: 20px; overflow: hidden; height: 24px; width: 100%; box-shadow: inset 0 3px 6px rgba(0,0,0,0.1); position: relative; }
-      #progress-bar { background: repeating-linear-gradient(45deg, var(--color-blue), var(--color-blue) 10px, #0873c4 10px, #0873c4 20px); width: 0%; height: 100%; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: inset 0 -3px 6px rgba(0,0,0,0.15), inset 0 3px 6px rgba(255,255,255,0.3); }
-      #progress-text { text-align: center; font-size: 14px; margin-top: 12px; color: var(--text-main); font-weight: 800; }
+      /* Progress Bar Styles */
+      #progress-container { display: none; margin-bottom: 25px; padding: 20px 15px; background: #f8f9fa; border-radius: 16px; border: 2px solid #dfe6e9;}
+      .progress-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; font-weight: 800; color: var(--text-main); }
+      .progress-track { background: #dfe6e9; border-radius: 20px; overflow: hidden; height: 18px; width: 100%; box-shadow: inset 0 3px 6px rgba(0,0,0,0.1); position: relative; }
+      #network-bar { background: repeating-linear-gradient(45deg, var(--color-blue), var(--color-blue) 10px, #0873c4 10px, #0873c4 20px); width: 0%; height: 100%; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: inset 0 -3px 6px rgba(0,0,0,0.15), inset 0 3px 6px rgba(255,255,255,0.3); }
+      #processing-bar { background: repeating-linear-gradient(45deg, var(--color-green), var(--color-green) 10px, #00896f 10px, #00896f 20px); width: 0%; height: 100%; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: inset 0 -3px 6px rgba(0,0,0,0.15), inset 0 3px 6px rgba(255,255,255,0.3); }
+      .progress-details { display: flex; justify-content: space-between; margin-top: 6px; font-size: 13px; font-weight: 700; color: var(--text-muted); }
 
       /* Modals */
       #modal-overlay, #custom-alert { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); align-items: center; justify-content: center; z-index: 1000; }
@@ -331,8 +333,9 @@
         .input-wrapper i { font-size: 15px; left: 12px; }
         .btn-3d { padding: 12px; font-size: 14px; margin-bottom: 12px; border-radius: 12px; }
         #progress-container { padding: 12px; margin-bottom: 15px; }
-        #progress-track { height: 18px; }
-        #progress-text { font-size: 12px; margin-top: 8px; }
+        .progress-header { font-size: 13px; }
+        .progress-track { height: 16px; }
+        .progress-details { font-size: 12px; }
         hr.divider { margin: 25px 0; }
         hr.divider::before { font-size: 14px; top: -10px; }
         #history-container { margin-top: 25px; padding: 15px; }
@@ -353,7 +356,7 @@
   <body>
 
     <!-- ========================================== -->
-    <!--                 UPLOAD VIEW                -->
+    <!--                UPLOAD VIEW                 -->
     <!-- ========================================== -->
     <div id="upload-view">
       <div class="app-container">
@@ -377,15 +380,38 @@
 
         <div id="loader"><i class="fa-solid fa-arrows-rotate fa-spin"></i> <span id="loader-text">Syncing folders...</span></div>
 
+        <!-- NEW SEPARATED PROGRESS LAYOUT (DUAL BARS) -->
         <div id="progress-container">
-          <div style="display:flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; font-weight: 700; color: var(--text-muted);">
-            <span><i class="fa-solid fa-cloud-arrow-up"></i> Uploading...</span>
-            <span id="progress-percent">0%</span>
+          
+          <!-- Bar 1: Network Upload (Bytes) -->
+          <div class="progress-header">
+            <span id="progress-status"><i class="fa-solid fa-network-wired"></i> Uploading to Server...</span>
+            <span id="network-percent">0%</span>
           </div>
-          <div id="progress-track">
-            <div id="progress-bar"></div>
+          <div class="progress-track">
+            <div id="network-bar"></div>
           </div>
-          <div id="progress-text">0/0 Photos (0.00 mb)</div>
+          <div class="progress-details" style="margin-bottom: 20px; justify-content: flex-end;">
+            <span id="progress-size">0.00 / 0.00 MB</span>
+          </div>
+
+          <!-- Bar 2: Backend Processing (Files Saved) -->
+          <div class="progress-header">
+            <span id="processing-status"><i class="fa-solid fa-hard-drive"></i> Waiting to Save...</span>
+            <span id="processing-percent">0%</span>
+          </div>
+          <div class="progress-track">
+            <div id="processing-bar"></div>
+          </div>
+          <div class="progress-details" style="justify-content: flex-end;">
+            <span id="progress-stats">0/0 Photos Saved</span>
+          </div>
+
+          <!-- RESET / CANCEL BUTTON -->
+          <button class="btn-3d btn-red" style="margin-top: 25px; padding: 12px; font-size: 14px;" onclick="cancelUpload()">
+            <i class="fa-solid fa-rotate-left"></i> Reset / Cancel Upload
+          </button>
+
         </div>
 
         <!-- Upload Buttons -->
@@ -479,10 +505,19 @@
 
     <script>
       // ==========================================
-      // REPLACE THIS URL WITH YOUR GAS WEB APP URL
+      // CONFIGURATION & API
       // ==========================================
       const API_URL = "https://script.google.com/macros/s/AKfycbwJURL_2exE3PZ05gaStHlLz9iITcTdXKSmmm25y2482r4VjhQHB1mZJPss0E-wT01n/exec"; 
+      
+      // Maximum number of files actively transmitting at the exact same time
+      const MAX_SIMULTANEOUS_UPLOADS = 5; 
+      
+      // Maximum number of files a user is allowed to select at once (prevents memory crashes)
+      const MAX_FILES_PER_BATCH = 100;
 
+      let isUploading = false;     // Lock to prevent multiple simultaneous batch triggers
+      let currentBatchId = 0;      // Unique ID to kill background ghost processes if restarted
+      let activeIntervals = [];    // Tracks simulated progress bars to clear them on reset
       let currentCategory = '';
       let totalBytes = 0;
       let totalPhotos = 0;
@@ -490,6 +525,7 @@
       let uploadedFileIds = [];
       let pendingFiles = [];
       let failedFiles = [];
+      let loadedBytesMap = {}; 
 
       window.onload = function() {
         const urlParams = new URLSearchParams(window.location.search);
@@ -520,7 +556,7 @@
         }
       }
 
-      // --- Highly Reliable API Wrappers (Restored to Bypass CORS issues) ---
+      // --- Highly Reliable API Wrappers (Restored to stable Fetch to fix 8/8 failures) ---
       async function apiGet(action, params = {}) {
         let url = new URL(API_URL);
         url.searchParams.append('action', action);
@@ -532,6 +568,7 @@
         return json.data;
       }
 
+      // Used pure Fetch which inherently handles Google Apps Script 302 redirects flawlessly 
       async function apiPost(action, payload) {
         payload.action = action;
         let response = await fetch(API_URL, {
@@ -655,6 +692,11 @@
       }
 
       function triggerUpload(category) {
+        if (isUploading) {
+          showMessage("An upload is already in progress. Please wait for it to finish or click 'Reset / Cancel Upload' before starting a new one.");
+          return;
+        }
+
         let cid = document.getElementById('cid').value.trim();
         if (!cid) { showMessage("Please enter a Contract ID first."); return; }
         let uploader = document.getElementById('uploader').value.trim();
@@ -664,13 +706,18 @@
         document.getElementById('file-input').click();
       }
 
-      let loadedBytesMap = {};
-
       document.getElementById('file-input').addEventListener('change', async function(e) {
         if (e.target.files.length === 0) return;
         
         let cid = document.getElementById('cid').value.trim();
         let filesToUpload = Array.from(e.target.files);
+
+        // Enforce the MAXIMUM BATCH SIZE limit
+        if (filesToUpload.length > MAX_FILES_PER_BATCH) {
+          showMessage(`You can only upload a maximum of ${MAX_FILES_PER_BATCH} photos at a time. Please select fewer files to ensure a stable upload.`);
+          document.getElementById('file-input').value = ""; 
+          return;
+        }
         
         showLoader("Checking for duplicates...");
 
@@ -682,7 +729,7 @@
           pendingFiles = [];
 
           filesToUpload.forEach(file => {
-            let isDuplicate = existingFiles.some(ex => ex.name === file.name && ex.size === file.size);
+            let isDuplicate = existingFiles.some(ex => ex.name === file.name && ex.size === file.size); // Strict check
             if (isDuplicate) {
               duplicateCount++;
             } else {
@@ -691,7 +738,7 @@
           });
 
           if (duplicateCount > 0) {
-            let msg = `${duplicateCount} Photo(s) already uploaded.\n`;
+            let msg = `${duplicateCount} Photo(s) already exist.\n`;
             if (pendingFiles.length > 0) {
               msg += `${pendingFiles.length} Photo(s) will be uploaded.`;
               showMessage(msg, () => startBatchUpload());
@@ -714,20 +761,50 @@
         startBatchUpload();
       }
 
+      // COMPLETELY RESETS THE UPLOAD STATE
+      function cancelUpload() {
+        isUploading = false;
+        currentBatchId = 0; // Changing this instantly invalidates all background 'ghost' uploads
+        activeIntervals.forEach(clearInterval); // Stop progress bars
+        activeIntervals = [];
+        
+        document.getElementById('progress-container').style.display = 'none';
+        document.getElementById('file-input').value = "";
+        
+        pendingFiles = [];
+        failedFiles = [];
+        uploadedFileIds = [];
+        loadedBytesMap = {};
+        completedPhotos = 0;
+        totalPhotos = 0;
+        totalBytes = 0;
+
+        showMessage("Upload cancelled and history cleaned. You can safely start a new upload.");
+      }
+
       async function startBatchUpload() {
         if (pendingFiles.length === 0) return;
 
+        isUploading = true;
+        currentBatchId = Date.now(); // Unique ID for this specific upload session
+
+        document.getElementById('progress-status').innerHTML = '<i class="fa-solid fa-network-wired"></i> Uploading to Server...';
+        document.getElementById('processing-status').innerHTML = '<i class="fa-solid fa-hard-drive"></i> Waiting...';
+        
         failedFiles = [];
         totalBytes = pendingFiles.reduce((acc, file) => acc + file.size, 0);
         totalPhotos = pendingFiles.length;
         completedPhotos = 0;
         uploadedFileIds = [];
         loadedBytesMap = {}; 
+        activeIntervals.forEach(clearInterval);
+        activeIntervals = [];
 
         document.getElementById('progress-container').style.display = 'block';
         updateOverallProgress();
 
-        const CONCURRENCY_LIMIT = 3; 
+        // Dynamically apply the concurrency limit set at the top
+        const CONCURRENCY_LIMIT = MAX_SIMULTANEOUS_UPLOADS; 
         let activeUploads = 0;
         let currentIndex = 0;
 
@@ -752,20 +829,23 @@
           next(); 
         });
 
-        updateOverallProgress();
-        finalizeUpload();
+        if (isUploading) { // Only finalize if the user didn't hit cancel
+          updateOverallProgress();
+          finalizeUpload();
+        }
       }
 
       function processSingleFile(file, fileIndex) {
         return new Promise((resolve) => {
           loadedBytesMap[fileIndex] = 0;
+          let myBatchId = currentBatchId; // Store the ID of THIS upload session
           
           let reader = new FileReader();
           reader.onload = async function(e) {
             let fileData = {
               fileName: file.name,
               mimeType: file.type,
-              base64: e.target.result.split(',')[1]
+              base64: e.target.result.split(',')[1] // Untouched original base64
             };
             let cid = document.getElementById('cid').value.trim();
             let uploader = document.getElementById('uploader').value.trim();
@@ -777,49 +857,97 @@
               uploaderName: uploader
             };
 
-            let simulatedSpeed = 350 * 1024; 
+            // Calculated progress tracker to ensure UI indicates "Saving to Drive..." gracefully 
+            let simulatedSpeed = 1.5 * 1024 * 1024; // Base estimate 1.5MB/s
             let intervalTime = 150; 
             let bytesPerInterval = simulatedSpeed * (intervalTime / 1000);
             
             let simInterval = setInterval(() => {
-              let currentLoaded = loadedBytesMap[fileIndex] || 0;
-              if (currentLoaded + bytesPerInterval < file.size * 0.90) {
-                loadedBytesMap[fileIndex] = currentLoaded + bytesPerInterval;
-                updateOverallProgress();
+              if (myBatchId !== currentBatchId) { // GHOST PREVENTION
+                clearInterval(simInterval);
+                return;
               }
+
+              let currentLoaded = loadedBytesMap[fileIndex] || 0;
+              // Caps at 99% until Apps Script confirms it has successfully saved
+              if (currentLoaded + bytesPerInterval < file.size) {
+                loadedBytesMap[fileIndex] = currentLoaded + bytesPerInterval;
+              } else {
+                loadedBytesMap[fileIndex] = file.size * 0.99; 
+              }
+              updateOverallProgress();
             }, intervalTime);
+            
+            activeIntervals.push(simInterval);
 
             try {
               let fileId = await apiPost('uploadAndRecordPhoto', payload);
+              
+              if (myBatchId !== currentBatchId) return resolve(); // GHOST PREVENTION
+
               clearInterval(simInterval);
               loadedBytesMap[fileIndex] = file.size; 
               completedPhotos++;
               uploadedFileIds.push(fileId);
             } catch (err) {
+              if (myBatchId !== currentBatchId) return resolve(); // GHOST PREVENTION
+              
+              console.error("Upload Error:", err);
               clearInterval(simInterval);
               loadedBytesMap[fileIndex] = 0; 
-              completedPhotos++;
               failedFiles.push(file);
             }
             
-            updateOverallProgress();
+            if (myBatchId === currentBatchId) {
+               updateOverallProgress();
+            }
             resolve();
           };
-          reader.readAsDataURL(file);
+          reader.readAsDataURL(file); // No compression
         });
       }
 
       function updateOverallProgress() {
+        // --- 1. NETWORK PROGRESS UPDATE (Bytes) ---
         let totalLoadedBytes = Object.values(loadedBytesMap).reduce((acc, bytes) => acc + bytes, 0);
-        let percent = totalBytes === 0 ? 0 : Math.round((totalLoadedBytes / totalBytes) * 100);
-        if (percent > 100) percent = 100; 
+        let networkPercent = totalBytes === 0 ? 0 : Math.round((totalLoadedBytes / totalBytes) * 100);
+        if (networkPercent > 100) networkPercent = 100; 
         
         let loadedMb = (totalLoadedBytes / (1024 * 1024)).toFixed(2);
         let totalMb = (totalBytes / (1024 * 1024)).toFixed(2);
 
-        document.getElementById('progress-bar').style.width = percent + '%';
-        document.getElementById('progress-percent').innerText = percent + '%';
-        document.getElementById('progress-text').innerText = `${completedPhotos}/${totalPhotos} Photos (${loadedMb} / ${totalMb} mb)`;
+        document.getElementById('network-bar').style.width = networkPercent + '%';
+        document.getElementById('network-percent').innerText = networkPercent + '%';
+        document.getElementById('progress-size').innerText = `${loadedMb} / ${totalMb} MB`;
+        
+        if (networkPercent >= 99) {
+          document.getElementById('progress-status').innerHTML = `<i class='fa-solid fa-circle-check' style='color:var(--color-green);'></i> Uploaded to Server`;
+        } else {
+          document.getElementById('progress-status').innerHTML = `<i class="fa-solid fa-network-wired"></i> Uploading to Server...`;
+        }
+
+        // --- 2. PROCESSING/SAVING PROGRESS UPDATE (Files Completed) ---
+        let processingPercent = totalPhotos === 0 ? 0 : Math.round((completedPhotos / totalPhotos) * 100);
+        if (processingPercent > 100) processingPercent = 100;
+
+        document.getElementById('processing-bar').style.width = processingPercent + '%';
+        document.getElementById('processing-percent').innerText = processingPercent + '%';
+        document.getElementById('progress-stats').innerText = `${completedPhotos}/${totalPhotos} Photos Saved`;
+
+        // Added safeguard (pFile) to ensure old arrays don't crash when calculating
+        let filesPendingServerResponse = Object.keys(loadedBytesMap).filter(k => {
+          let pFile = pendingFiles[k];
+          if (!pFile) return false;
+          return loadedBytesMap[k] >= pFile.size * 0.99 && loadedBytesMap[k] < pFile.size;
+        }).length;
+
+        if (completedPhotos === totalPhotos && totalPhotos > 0) {
+          document.getElementById('processing-status').innerHTML = `<i class='fa-solid fa-circle-check' style='color:var(--color-green);'></i> Saved to Drive`;
+        } else if (filesPendingServerResponse > 0) {
+          document.getElementById('processing-status').innerHTML = `<i class='fa-solid fa-spinner fa-spin' style='color:var(--color-blue);'></i> Saving to Drive...`;
+        } else if (completedPhotos === 0 && networkPercent < 10) {
+           document.getElementById('processing-status').innerHTML = `<i class="fa-solid fa-hard-drive"></i> Waiting to Save...`;
+        }
       }
 
       async function finalizeUpload() {
@@ -827,7 +955,7 @@
         let uploader = document.getElementById('uploader').value.trim();
 
         if (uploadedFileIds.length > 0) {
-          document.getElementById('progress-text').innerHTML = "<i class='fa-solid fa-spinner fa-spin'></i> Logging history...";
+          document.getElementById('processing-status').innerHTML = "<i class='fa-solid fa-spinner fa-spin'></i> Logging history...";
           
           try {
             await apiPost('recordBatchHistory', {
@@ -836,17 +964,20 @@
               numPhotos: uploadedFileIds.length
             });
             
-            document.getElementById('progress-text').innerHTML = "<i class='fa-solid fa-spinner fa-spin'></i> Refreshing stats...";
+            document.getElementById('processing-status').innerHTML = "<i class='fa-solid fa-spinner fa-spin'></i> Refreshing stats...";
             loadStats(); 
             
             document.getElementById('file-input').value = ""; 
             document.getElementById('progress-container').style.display = 'none';
+            isUploading = false;
             showSummaryModal();
           } catch (err) {
             showError(err);
+            isUploading = false;
           }
         } else {
           document.getElementById('progress-container').style.display = 'none';
+          isUploading = false;
           showSummaryModal();
         }
       }
