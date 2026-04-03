@@ -6,7 +6,6 @@
   <title>3D Project Documentation Dashboard</title>
   
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- Added FontAwesome for Colorful Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
@@ -31,15 +30,13 @@
       overflow-x: hidden;
     }
 
-    /* Loading Screen */
-    .pd-loading { 
-      position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
-      background: rgba(226, 232, 240, 0.9); backdrop-filter: blur(5px);
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      font-size: 18px; font-weight: 800; color: #334155; z-index: 1000;
-      transition: opacity 0.5s;
+    /* 3D Text Highlight (No Edge Box) */
+    .text-3d-highlight {
+      color: #1e293b;
+      text-shadow: 1px 1px 0px #cbd5e1, 2px 2px 0px #94a3b8;
+      font-weight: 900;
+      letter-spacing: 0.5px;
     }
-    .pd-loading i { font-size: 40px; color: #3b82f6; margin-bottom: 15px; text-shadow: 0 5px 15px rgba(59, 130, 246, 0.4); }
 
     /* Layout Grids */
     .dashboard-wrapper {
@@ -90,7 +87,6 @@
       box-shadow: var(--shadow-inner-glow), var(--shadow-hover);
     }
     
-    /* Staggered Animations */
     .pd-card:nth-child(1) { animation-delay: 0.1s; }
     .pd-card:nth-child(2) { animation-delay: 0.2s; }
     .pd-card:nth-child(3) { animation-delay: 0.3s; }
@@ -110,31 +106,19 @@
     }
     .meta-card:hover { transform: scale(1.02); }
     .meta-info { display: flex; flex-direction: column; min-width: 0; width: 100%; }
-    .meta-label { font-size: 12px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-    
-    /* Fixed Meta Value to allow text wrap instead of hiding it */
-    .meta-value { 
-      font-size: 15px; 
-      font-weight: 700; 
-      color: var(--text-main); 
-      white-space: normal; 
-      word-wrap: break-word; 
-      line-height: 1.3;
-      margin-top: 4px;
-    }
+    .meta-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; }
+    .meta-value { font-size: 15px; font-weight: 700; color: var(--text-main); white-space: normal; word-wrap: break-word; line-height: 1.3; margin-top: 4px; }
 
     /* Colorful 3D Icons */
     .icon-3d {
       display: inline-flex; align-items: center; justify-content: center;
       width: 46px; height: 46px; min-width: 46px;
-      border-radius: 12px;
-      font-size: 20px;
+      border-radius: 12px; font-size: 20px;
       box-shadow: inset 1px 1px 2px rgba(255,255,255,0.8), 2px 4px 10px rgba(0,0,0,0.1);
       flex-shrink: 0;
     }
     .icon-sm { width: 36px; height: 36px; min-width: 36px; font-size: 16px; margin-right: 12px; border-radius: 10px; }
 
-    /* Gradient Palettes for Icons */
     .bg-blue { background: linear-gradient(135deg, #eff6ff, #bfdbfe); color: #1d4ed8; }
     .bg-purple { background: linear-gradient(135deg, #f5f3ff, #ddd6fe); color: #6d28d9; }
     .bg-orange { background: linear-gradient(135deg, #fff7ed, #fed7aa); color: #c2410c; }
@@ -145,50 +129,21 @@
 
     /* Section Headers */
     .section-title { 
-      display: flex; align-items: center; 
-      margin: 0 0 20px 0; font-size: 15px; font-weight: 900; 
-      color: var(--text-main); letter-spacing: 0.5px;
+      display: flex; align-items: center; margin: 0 0 20px 0; font-size: 15px; 
       border-bottom: 2px solid #f1f5f9; padding-bottom: 12px;
     }
 
-    /* 3D Tables */
+    /* Desktop Tables */
     .pd-table-wrapper { width: 100%; max-width: 100%; overflow-x: auto; border-radius: 12px; padding-bottom: 10px; }
     .pd-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; font-size: 13px; table-layout: auto; }
-    .pd-table th { 
-      text-align: left; font-weight: 800; color: var(--text-muted); 
-      text-transform: uppercase; padding: 0 12px; font-size: 11px;
-      white-space: nowrap;
-    }
-    .pd-table td { 
-      padding: 12px; background: #f8fafc; border: none; vertical-align: middle;
-      border-top: 1px solid #ffffff; border-bottom: 1px solid #e2e8f0;
-      word-wrap: break-word; overflow-wrap: break-word;
-    }
-    .pd-table tbody tr { 
-      box-shadow: 0 2px 4px rgba(0,0,0,0.02); 
-      transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-    .pd-table tbody tr:hover { 
-      transform: scale(1.01) translateY(-2px); 
-      box-shadow: 0 8px 15px rgba(0,0,0,0.06); 
-      background: #ffffff; 
-    }
+    .pd-table th { text-align: left; font-weight: 800; color: var(--text-muted); text-transform: uppercase; padding: 0 12px; font-size: 11px; white-space: nowrap; }
+    .pd-table td { padding: 12px; background: #f8fafc; border: none; vertical-align: middle; border-top: 1px solid #ffffff; border-bottom: 1px solid #e2e8f0; word-wrap: break-word; overflow-wrap: break-word; }
+    .pd-table tbody tr { box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    .pd-table tbody tr:hover { transform: scale(1.01) translateY(-2px); box-shadow: 0 8px 15px rgba(0,0,0,0.06); background: #ffffff; }
     .pd-table tbody td:first-child { border-top-left-radius: 10px; border-bottom-left-radius: 10px; border-left: 1px solid #ffffff;}
     .pd-table tbody td:last-child { border-top-right-radius: 10px; border-bottom-right-radius: 10px; border-right: 1px solid #e2e8f0; }
     
-    .pd-remarks { 
-      white-space: normal; 
-      word-break: break-word; 
-      overflow-wrap: break-word; 
-      color: #475569; 
-      font-weight: 500; 
-      max-width: 350px; 
-    }
-    /* Cell used for sub-rows (will behave normally on desktop, special on mobile) */
-    .pd-remarks-cell {
-      white-space: normal; word-break: break-word; overflow-wrap: break-word; color: #475569; font-weight: 500; max-width: 350px; 
-    }
-
+    .pd-remarks-cell { white-space: normal; word-break: break-word; overflow-wrap: break-word; color: #475569; font-weight: 500; max-width: 350px; }
     .pd-year-row td { font-weight: 900; background: #e2e8f0 !important; color: #0f172a; border-radius: 8px; }
     .col-actual, .col-pcma { font-weight: 800; color: #0ea5e9; text-align: center; }
     .col-status { font-weight: 800; }
@@ -198,24 +153,18 @@
     /* Chart & Controls */
     .chart-container { position: relative; }
     .pd-scurve-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 16px; }
-    .pd-toggle { 
-      display: inline-flex; align-items: center; gap: 8px; 
-      padding: 6px 14px; border-radius: 999px; 
-      background: linear-gradient(to bottom, #ffffff, #f1f5f9);
-      border: 1px solid #cbd5e1; cursor: pointer; font-weight: 800; color: #475569; font-size: 12px;
-      box-shadow: inset 0 1px 1px white, 0 2px 4px rgba(0,0,0,0.05);
-      transition: all 0.2s;
-    }
+    .pd-toggle { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 999px; background: linear-gradient(to bottom, #ffffff, #f1f5f9); border: 1px solid #cbd5e1; cursor: pointer; font-weight: 800; color: #475569; font-size: 12px; box-shadow: inset 0 1px 1px white, 0 2px 4px rgba(0,0,0,0.05); transition: all 0.2s; }
     .pd-toggle:hover { transform: translateY(-1px); box-shadow: inset 0 1px 1px white, 0 4px 6px rgba(0,0,0,0.08); }
     .pd-toggle input[type="checkbox"] { width: 16px; height: 16px; accent-color: #3b82f6; cursor: pointer; }
     .pd-scurve-wrapper { height: 320px; width: 100%; border-radius: 12px; padding: 10px; background: #f8fafc; box-shadow: inset 0 2px 6px rgba(0,0,0,0.04); }
     
-    /* Empty States & Errors */
     .pd-empty { text-align: center; padding: 30px 10px; color: #94a3b8; font-weight: 600; font-size: 14px; }
     .pd-empty i { font-size: 30px; margin-bottom: 10px; color: #cbd5e1; display: block; }
     .pd-error { padding: 16px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; font-size: 14px; color: #b91c1c; font-weight: bold; box-shadow: 0 4px 10px rgba(220,38,38,0.1); }
 
-    /* Keyframes */
+    /* Desktop View Helpers */
+    .pd-show-mobile { display: none !important; }
+
     @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -232,142 +181,83 @@
       .dashboard-wrapper { gap: 0; }
       .col-left, .col-right { gap: 0; }
       
-      .pd-card {
-        padding: 12px 6px 20px;
-        box-shadow: none; border: none; border-radius: 0;
-        border-bottom: 6px solid var(--bg-color);
-        background: transparent;
-      }
+      .pd-card { padding: 12px 6px 20px; box-shadow: none; border: none; border-radius: 0; border-bottom: 6px solid var(--bg-color); background: transparent; }
       .pd-card:hover { transform: none; box-shadow: none; }
       .pd-card:last-child { border-bottom: none; }
       
-      .section-title { font-size: 14px; margin: 0 0 10px 4px; padding-bottom: 6px; border-bottom: none; color: #1e293b; }
+      .section-title { font-size: 14px; margin: 0 0 10px 4px; padding-bottom: 6px; border-bottom: none; }
 
       /* Compress Meta Info (Icon/Label Row 1, Value Indented Row 2) */
-      .meta-grid { 
-        display: flex; flex-direction: column; gap: 0; 
-        padding: 8px 10px; border-bottom: 4px solid var(--bg-color);
-      }
-      .meta-card { 
-        display: grid;
-        grid-template-columns: auto 1fr;
-        grid-template-rows: auto auto;
-        align-items: center;
-        gap: 2px 10px;
-        padding: 10px 0; border-radius: 0; box-shadow: none; 
-        border: none; border-bottom: 1px dashed #cbd5e1;
-        background: transparent;
-      }
+      .meta-grid { display: flex; flex-direction: column; gap: 0; padding: 8px 10px; border-bottom: 4px solid var(--bg-color); }
+      .meta-card { display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; align-items: center; gap: 2px 10px; padding: 10px 0; border-radius: 0; box-shadow: none; border: none; border-bottom: 1px dashed #cbd5e1; background: transparent; }
       .meta-card:last-child { border-bottom: none; }
       .meta-card:hover { transform: none; }
       
-      /* Specific Meta Grid Placement */
       .meta-card .icon-3d { grid-column: 1; grid-row: 1; width: 26px; height: 26px; min-width: 26px; font-size: 12px; border-radius: 6px; box-shadow: none; border: 1px solid rgba(0,0,0,0.1); }
-      .meta-card .meta-info { display: contents; } /* Unpacks info wrapper */
-      .meta-card .meta-label { grid-column: 2; grid-row: 1; align-self: center; font-size: 11px; font-weight: 800; color: #475569; }
-      .meta-card .meta-label::after { content: ':'; }
-      .meta-card .meta-value { 
-        grid-column: 1 / -1; grid-row: 2; 
-        padding-left: 36px; /* Explicit Indent */
-        font-size: 13.5px; font-weight: 700; color: #0f172a; margin-top: 0;
-      }
+      .meta-card .meta-info { display: contents; }
+      .meta-card .meta-label { grid-column: 2; grid-row: 1; align-self: center; font-size: 11px; }
+      .meta-card .meta-value { grid-column: 1 / -1; grid-row: 2; padding-left: 36px; font-size: 13.5px; font-weight: 700; color: #0f172a; margin-top: 0; }
       
-      /* Scale Down Header Icons */
       .icon-sm { width: 22px; height: 22px; min-width: 22px; font-size: 11px; margin-right: 8px; border-radius: 4px; }
 
       /* Convert Tables to Strict Spreadsheet-Like Grids */
       .pd-table-wrapper { overflow: visible; padding-bottom: 0; padding: 0 4px; }
-      
-      .pd-table { 
-        display: flex; flex-direction: column; width: 100%; border-spacing: 0; 
-        border-top: 1px solid #94a3b8; border-left: 1px solid #94a3b8; 
-      }
+      .pd-table { display: flex; flex-direction: column; width: 100%; border-spacing: 0; border-top: 1px solid #94a3b8; border-left: 1px solid #94a3b8; }
       .pd-table thead, .pd-table tbody { display: contents; }
-      .pd-table tr { display: grid; width: 100%; }
+      .pd-table tr { display: grid; width: 100%; align-items: center; } /* Vertically Align Grid */
       
       /* Strict Borders for Every Cell */
       .pd-table th, .pd-table td { 
-        display: flex; align-items: flex-start; padding: 6px 8px; font-size: 12.5px; 
-        border-bottom: 1px solid #94a3b8 !important; 
-        border-right: 1px solid #94a3b8 !important; 
+        display: flex; align-items: center; padding: 6px 8px; font-size: 12.5px; 
+        border-bottom: 1px solid #94a3b8 !important; border-right: 1px solid #94a3b8 !important; 
         border-top: none !important; border-left: none !important;
-        background: #ffffff !important; border-radius: 0 !important; 
-        word-break: break-word;
+        background: #ffffff !important; border-radius: 0 !important; word-break: break-word;
       }
       
-      /* HIGHLIGHT: All Table Headers */
-      .pd-table th { 
-        font-size: 11px; font-weight: 900; color: #0f172a; align-items: center; 
-        background: #bae6fd !important; /* Visible Highlight */
-      }
-      
-      .pd-hide-mobile { display: none !important; }
-      
-      /* HIGHLIGHT: Icon Year Rows */
-      .pd-year-row { display: flex !important; }
-      .pd-year-row td { 
-        font-size: 13.5px; font-weight: 900; padding: 6px 8px !important; color: #0f172a; 
-        align-items: center; background: #bae6fd !important; /* Visible Highlight */
-        grid-column: 1 / -1 !important; /* Ensure it spans the whole grid */
-        border-right: 1px solid #94a3b8 !important;
-      }
+      /* Header & Sub-Header Highlights */
+      .pd-table th { background: #f1f5f9 !important; font-size: 11px; color: #1e293b; }
+      .pd-year-row td { background: #e2e8f0 !important; font-size: 13.5px; font-weight: 900; padding: 6px 8px !important; color: #0f172a; grid-column: 1 / -1 !important; border-right: 1px solid #94a3b8 !important; }
       .pd-year-row td i { margin-right: 6px; font-size: 13px; color: #0284c7 !important; }
 
-      /* Specific Sub-Row Setup (Indented, Wrap & Justify) */
-      .pd-remarks-cell { 
-        grid-column: 1 / -1; 
-        padding-left: 24px !important; /* Indent */
-        text-align: justify !important; /* Justify text */
-        color: #475569; font-size: 12px; padding-top: 6px !important; padding-bottom: 6px !important;
-      }
-      
-      .pd-empty-remark { display: none !important; } /* Hides empty remarks entirely */
+      .pd-hide-mobile { display: none !important; }
+      .pd-show-mobile { display: flex !important; flex-direction: column; gap: 4px; justify-content: center; }
 
-      /* --- Specific Grid Layouts per Data Type --- */
-      
-      /* 5. Scope of Work */
-      .pd-table-description tr { display: grid; grid-template-columns: 1fr; border-bottom: none; }
-      .pd-table-description th { border-right: 1px solid #94a3b8 !important; }
-      .pd-table-description td.pd-remarks-cell { 
-        padding-left: 20px !important; text-align: justify !important; 
-        border-right: 1px solid #94a3b8 !important; 
+      /* Sub-Rows (Wrap & Justify) */
+      .pd-sub-row { 
+        grid-column: 1 / -1; 
+        padding-left: 24px !important; 
+        text-align: justify !important; justify-content: flex-start !important; align-items: flex-start !important;
+        color: #475569; font-size: 12px; padding-top: 8px !important; padding-bottom: 8px !important;
       }
+
+      /* 5. Scope of Work */
+      .pd-table-description tr { display: grid; grid-template-columns: 1fr; }
+      .pd-table-description th { border-right: 1px solid #94a3b8 !important; }
+      .pd-table-description td.pd-remarks-cell { padding-left: 20px !important; text-align: justify !important; justify-content: flex-start !important; align-items: flex-start !important; border-right: 1px solid #94a3b8 !important; }
 
       /* 6. Monthly Accomplishment */
-      .tbl-pcma tr:not(.pd-year-row) { grid-template-columns: 1.2fr 1fr 1fr; }
-      /* 1/2 Indent & Bold Month */
-      .tbl-pcma td:nth-child(1) { padding-left: 12px !important; font-weight: 800; color: #1e293b; }
+      .tbl-pcma tr:not(.pd-year-row) { grid-template-columns: minmax(45px, 1.5fr) minmax(65px, 2fr) 60%; }
+      .tbl-pcma .col-month { padding-left: 12px !important; font-weight: bold; color: #1e293b; }
+      .tbl-pcma .pd-remarks-cell { text-align: justify !important; justify-content: flex-start !important; align-items: flex-start !important; font-size: 11.5px; }
 
       /* 7. Billing Status */
-      .tbl-billing tr:not(.pd-year-row) { 
-        /* Month | Amount (No Wrap) | Remarks | Status (Shrink) */
-        grid-template-columns: minmax(40px, auto) max-content 1fr min-content; 
-      }
-      .tbl-billing td:nth-child(2) { white-space: nowrap; font-weight: bold; } /* Amount */
-      .tbl-billing td:nth-child(3) { display: flex; flex-direction: column; justify-content: flex-start; } /* Remarks */
-      
-      /* Date below Remarks formatted Shrink-to-Fit */
-      .billing-date-mobile { 
-        width: fit-content; 
-        background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 4px; 
-        padding: 2px 6px; margin-top: 6px; color: #475569; font-size: 10.5px; font-weight: bold; 
-      }
+      .tbl-billing tr:not(.pd-year-row) { grid-template-columns: min-content max-content 1fr min-content; }
+      .tbl-billing .col-amount { white-space: nowrap; font-weight: bold; color: #0f172a; font-size: 11.5px; }
+      .tbl-billing .pd-remarks-cell { display: flex; flex-direction: column; justify-content: flex-start !important; align-items: flex-start !important; font-size: 11.5px; }
+      .billing-date-mobile { width: fit-content; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 4px; padding: 2px 6px; margin-top: 6px; color: #475569; font-size: 10px; font-weight: bold; white-space: nowrap; }
 
       /* 8. Suspension Order (WSO) */
-      .tbl-wso tr { grid-template-columns: auto 1fr; }
+      .tbl-wso tr:not(.pd-sub-row) { grid-template-columns: auto 1fr; }
 
       /* 9. Variation Order (VO) */
-      .tbl-vo tr { grid-template-columns: 1.2fr 1fr 1fr; }
+      .tbl-vo tr:not(.pd-sub-row) { grid-template-columns: 1.2fr 1fr 1fr; }
 
       /* 10. Time Extension (CTE) */
-      .tbl-cte tr { grid-template-columns: 1fr 1.2fr 0.8fr 1.2fr; }
+      .tbl-cte tr:not(.pd-sub-row) { grid-template-columns: 1fr 1.2fr 0.8fr 1.2fr; }
 
       /* Visual Tweaks */
-      .status-paid { color: #16a34a; background: #dcfce7; padding: 2px 6px; border-radius: 4px; box-shadow: none; font-size: 10px; white-space: nowrap; }
-      .status-process { color: #d97706; background: #fef3c7; padding: 2px 6px; border-radius: 4px; box-shadow: none; font-size: 10px; white-space: nowrap; }
-      .col-actual, .col-pcma { font-weight: 800; color: #0284c7; justify-content: center; }
+      .status-paid, .status-process { font-size: 9px; padding: 2px 6px; box-shadow: none; border-radius: 4px; }
       
-      /* Compact Chart */
       .pd-scurve-controls { gap: 6px; margin-bottom: 8px; justify-content: flex-start; padding: 0 4px; }
       .pd-toggle { padding: 4px 10px; font-size: 10px; }
       .pd-scurve-wrapper { height: 220px; padding: 4px; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; }
@@ -376,42 +266,34 @@
 </head>
 <body>
 
-  <!-- Loading Overlay -->
-  <div id="projectDocsLoading" class="pd-loading">
-    <div class="icon-3d bg-blue" style="width: 70px; height: 70px; font-size: 32px; margin-bottom: 20px; animation: pulse 1.5s infinite;">
-      <i class="fa-solid fa-cube fa-spin"></i>
-    </div>
-    Processing Dashboard...
-  </div>
-
   <div class="dashboard-wrapper">
     <!-- TOP ROW: Meta Info Grid -->
     <section id="pdMetaSection" class="meta-grid">
       <div class="meta-card">
         <div class="icon-3d bg-blue"><i class="fa-solid fa-fingerprint"></i></div>
         <div class="meta-info">
-          <div class="meta-label">Contract ID</div>
+          <div class="meta-label text-3d-highlight">Contract ID</div>
         </div>
         <div class="meta-value" id="pdMetaCID">—</div>
       </div>
       <div class="meta-card">
         <div class="icon-3d bg-purple"><i class="fa-solid fa-hashtag"></i></div>
         <div class="meta-info">
-          <div class="meta-label">Project ID</div>
+          <div class="meta-label text-3d-highlight">Project ID</div>
         </div>
         <div class="meta-value" id="pdMetaProjectId">—</div>
       </div>
       <div class="meta-card" style="grid-column: span 2;">
         <div class="icon-3d bg-orange"><i class="fa-solid fa-building"></i></div>
         <div class="meta-info">
-          <div class="meta-label">Project Name</div>
+          <div class="meta-label text-3d-highlight">Project Name</div>
         </div>
         <div class="meta-value" id="pdMetaProjectName">—</div>
       </div>
       <div class="meta-card">
         <div class="icon-3d bg-teal"><i class="fa-solid fa-helmet-safety"></i></div>
         <div class="meta-info">
-          <div class="meta-label">Contractor</div>
+          <div class="meta-label text-3d-highlight">Contractor</div>
         </div>
         <div class="meta-value" id="pdMetaContractor">—</div>
       </div>
@@ -422,13 +304,12 @@
       
       <!-- LEFT COLUMN -->
       <div class="col-left">
-        
         <!-- Description -->
         <section id="pdDescriptionSection" class="pd-card"></section>
 
         <!-- S-Curve Chart -->
         <section id="pdScurveCard" class="pd-card" style="display:none;">
-          <h3 class="section-title"><div class="icon-3d icon-sm bg-blue"><i class="fa-solid fa-chart-area"></i></div> S-CURVE & PROGRESS</h3>
+          <h3 class="section-title text-3d-highlight"><div class="icon-3d icon-sm bg-blue"><i class="fa-solid fa-chart-area"></i></div> S-CURVE & PROGRESS</h3>
           <div class="pd-scurve-controls" id="pdScurveControls">
             <label class="pd-toggle"><input type="checkbox" id="pdToggleActual" checked><span>ACTUAL</span></label>
             <label class="pd-toggle"><input type="checkbox" id="pdTogglePcma" checked><span>PCMA</span></label>
@@ -472,8 +353,6 @@
       if (contractId) {
         document.getElementById("pdMetaCID").textContent = contractId;
         loadProjectDocsData(contractId);
-      } else {
-        document.getElementById('projectDocsLoading').innerHTML = '<div class="pd-error"><i class="fa-solid fa-triangle-exclamation"></i> Error: No Contract ID provided in URL parameters.</div>';
       }
     });
 
@@ -935,7 +814,7 @@
     function renderDescriptionSection(info) {
       const container = document.getElementById("pdDescriptionSection");
       if (!container) return;
-      const title = `<h3 class="section-title">${ICONS.description} SCOPE OF WORK</h3>`;
+      const title = `<h3 class="section-title text-3d-highlight">${ICONS.description} SCOPE OF WORK</h3>`;
       if (!info) {
         container.innerHTML = title + `<div class='pd-empty'><i class="fa-solid fa-folder-open"></i> No Description Found</div>`;
         return;
@@ -944,8 +823,8 @@
         <div class='pd-table-wrapper'>
           <table class='pd-table pd-table-description'>
             <tbody>
-              <tr><th style="width:25%;">ORIGINAL</th><td class='pd-remarks-cell'>${info.original || "-"}</td></tr>
-              <tr><th>REVISED</th><td class='pd-remarks-cell'>${info.revised || "-"}</td></tr>
+              <tr><th class="text-3d-highlight" style="width:25%;">ORIGINAL</th><td class='pd-remarks-cell'>${info.original || "-"}</td></tr>
+              <tr><th class="text-3d-highlight">REVISED</th><td class='pd-remarks-cell'>${info.revised || "-"}</td></tr>
             </tbody>
           </table>
         </div>`;
@@ -954,7 +833,7 @@
     function renderPcmaSection(pcmaRows, pcmaExtraRows) {
       const container = document.getElementById("pdPcmaSection");
       if (!container) return;
-      const title = `<h3 class="section-title">${ICONS.pcma} MONTHLY ACCOMPLISHMENT</h3>`;
+      const title = `<h3 class="section-title text-3d-highlight">${ICONS.pcma} MONTHLY ACCOMPLISHMENT</h3>`;
       
       const combinedMap = new Map();
       function upsertEntry(sourceRow, type) {
@@ -980,15 +859,26 @@
       
       rows.sort((a, b) => { const ya = parseInt(a.year, 10) || 0; const yb = parseInt(b.year, 10) || 0; if (ya !== yb) return ya - yb; return a.monthNum - b.monthNum; });
 
-      let html = title + "<div class='pd-table-wrapper'><table class='pd-table tbl-pcma'><thead><tr><th>MONTH</th><th>ACTUAL</th><th>PCMA</th><th class='pd-hide-mobile'>REMARKS</th></tr></thead><tbody>";
+      let html = title + "<div class='pd-table-wrapper'><table class='pd-table tbl-pcma'><thead><tr><th class='text-3d-highlight'>MONTH</th><th class='text-3d-highlight pd-hide-mobile'>ACTUAL</th><th class='text-3d-highlight pd-hide-mobile'>PCMA</th><th class='text-3d-highlight pd-show-mobile'>ACTUAL / PCMA</th><th class='text-3d-highlight'>REMARKS</th></tr></thead><tbody>";
       let currentYear = null;
       rows.forEach((r) => {
-        if (r.year !== currentYear) { currentYear = r.year; html += '<tr class="pd-year-row"><td colspan="4"><i class="fa-regular fa-calendar"></i> ' + (currentYear || "") + "</td></tr>"; }
+        if (r.year !== currentYear) { currentYear = r.year; html += '<tr class="pd-year-row"><td colspan="5"><i class="fa-regular fa-calendar"></i> ' + (currentYear || "") + "</td></tr>"; }
         
-        let remarksContent = r.remarks && String(r.remarks).trim() !== "" && r.remarks !== "-" ? r.remarks : "";
-        let remarksClass = remarksContent ? "pd-remarks-cell" : "pd-remarks-cell pd-empty-remark";
+        let mStr = r.month ? r.month.slice(0,3).toUpperCase() : "-";
+        let actStr = typeof r.actual === "number" ? r.actual + "%" : "-";
+        let pcmaStr = typeof r.pcma === "number" ? r.pcma + "%" : "-";
+        let remarksContent = r.remarks && String(r.remarks).trim() !== "" ? r.remarks : "-";
         
-        html += "<tr><td>" + (r.month || "") + "</td><td class='col-actual'>" + (typeof r.actual === "number" ? r.actual + "%" : "-") + "</td><td class='col-pcma'>" + (typeof r.pcma === "number" ? r.pcma + "%" : "-") + "</td><td class='" + remarksClass + "'>" + remarksContent + "</td></tr>";
+        html += `<tr>
+            <td class="col-month">${mStr}</td>
+            <td class='col-actual pd-hide-mobile'>${actStr}</td>
+            <td class='col-pcma pd-hide-mobile'>${pcmaStr}</td>
+            <td class='pd-show-mobile'>
+                <div style="color:#16a34a; font-weight:800;">${actStr}</div>
+                <div style="color:#0284c7; font-weight:800; margin-top:2px;">${pcmaStr}</div>
+            </td>
+            <td class="pd-remarks-cell">${remarksContent}</td>
+        </tr>`;
       });
       html += "</tbody></table></div>";
       container.innerHTML = html;
@@ -997,13 +887,14 @@
     function renderVoSection(voRows) {
       const container = document.getElementById("pdVoSection");
       if (!container) return;
-      const title = `<h3 class="section-title">${ICONS.vo} VARIATION ORDER (VO)</h3>`;
+      const title = `<h3 class="section-title text-3d-highlight">${ICONS.vo} VARIATION ORDER (VO)</h3>`;
       if (!voRows || !voRows.length) { container.innerHTML = title + `<div class='pd-empty'><i class="fa-solid fa-folder-open"></i> No VO Data Recorded</div>`; return; }
-      let html = title + "<div class='pd-table-wrapper'><table class='pd-table tbl-vo'><thead><tr><th>VO</th><th>AMOUNT</th><th>(+) DAYS</th><th class='pd-hide-mobile'>REMARKS</th></tr></thead><tbody>";
+      let html = title + "<div class='pd-table-wrapper'><table class='pd-table tbl-vo'><thead><tr><th class='text-3d-highlight'>VO</th><th class='text-3d-highlight'>AMOUNT</th><th class='text-3d-highlight'>(+) DAYS</th><th class='text-3d-highlight pd-hide-mobile'>REMARKS</th></tr></thead><tbody>";
       voRows.forEach((r) => { 
-        let remarksContent = r.remarks && String(r.remarks).trim() !== "" && r.remarks !== "-" ? r.remarks : "";
-        let remarksClass = remarksContent ? "pd-remarks-cell" : "pd-remarks-cell pd-empty-remark";
-        html += "<tr><td><strong>" + (r.label || "") + "</strong></td><td>" + (r.amount || "-") + "</td><td style='text-align:center; font-weight:bold;'>" + (r.days || "-") + "</td><td class='" + remarksClass + "'>" + remarksContent + "</td></tr>"; 
+        let remarksContent = r.remarks && String(r.remarks).trim() !== "" ? r.remarks : "-";
+        let remarksMarkup = `<td class='pd-remarks-cell pd-hide-mobile'>${remarksContent}</td>`;
+        if (remarksContent !== "-") { remarksMarkup += `<td class="pd-remarks-cell pd-sub-row pd-show-mobile">${remarksContent}</td>`; }
+        html += `<tr><td><strong>${r.label || "-"}</strong></td><td>${r.amount || "-"}</td><td style='text-align:center; font-weight:bold;'>${r.days || "-"}</td>${remarksMarkup}</tr>`; 
       });
       html += "</tbody></table></div>";
       container.innerHTML = html;
@@ -1012,13 +903,14 @@
     function renderWsoSection(wsoRows) {
       const container = document.getElementById("pdWsoSection");
       if (!container) return;
-      const title = `<h3 class="section-title">${ICONS.wso} SUSPENSION ORDER</h3>`;
+      const title = `<h3 class="section-title text-3d-highlight">${ICONS.wso} SUSPENSION ORDER</h3>`;
       if (!wsoRows || !wsoRows.length) { container.innerHTML = title + `<div class='pd-empty'><i class="fa-solid fa-folder-open"></i> No WSO Data Recorded</div>`; return; }
-      let html = title + "<div class='pd-table-wrapper'><table class='pd-table tbl-wso'><thead><tr><th>CODE</th><th>DATE</th><th class='pd-hide-mobile'>REASON</th></tr></thead><tbody>";
+      let html = title + "<div class='pd-table-wrapper'><table class='pd-table tbl-wso'><thead><tr><th class='text-3d-highlight'>CODE</th><th class='text-3d-highlight'>DATE</th><th class='text-3d-highlight pd-hide-mobile'>REASON</th></tr></thead><tbody>";
       wsoRows.forEach((r) => { 
-        let remarksContent = r.reason && String(r.reason).trim() !== "" && r.reason !== "-" ? r.reason : "";
-        let remarksClass = remarksContent ? "pd-remarks-cell" : "pd-remarks-cell pd-empty-remark";
-        html += "<tr><td><strong>" + r.code + "</strong></td><td>" + (r.date || "") + "</td><td class='" + remarksClass + "'>" + remarksContent + "</td></tr>"; 
+        let remarksContent = r.reason && String(r.reason).trim() !== "" ? r.reason : "-";
+        let remarksMarkup = `<td class='pd-remarks-cell pd-hide-mobile'>${remarksContent}</td>`;
+        if (remarksContent !== "-") { remarksMarkup += `<td class="pd-remarks-cell pd-sub-row pd-show-mobile">${remarksContent}</td>`; }
+        html += `<tr><td><strong>${r.code || "-"}</strong></td><td>${r.date || "-"}</td>${remarksMarkup}</tr>`; 
       });
       html += "</tbody></table></div>";
       container.innerHTML = html;
@@ -1027,19 +919,20 @@
     function renderCteSection(cteRows) {
       const container = document.getElementById("pdCteSection");
       if (!container) return;
-      const title = `<h3 class="section-title">${ICONS.cte} TIME EXTENSION (CTE)</h3>`;
+      const title = `<h3 class="section-title text-3d-highlight">${ICONS.cte} TIME EXTENSION (CTE)</h3>`;
       if (!cteRows || !cteRows.length) { container.innerHTML = title + `<div class='pd-empty'><i class="fa-solid fa-folder-open"></i> No CTE Data Recorded</div>`; return; }
       
-      let html = title + "<div class='pd-table-wrapper'><table class='pd-table tbl-cte'><thead><tr><th>CTE</th><th>DATE</th><th>(+) DAYS</th><th>REV. EXPIRY</th><th class='pd-hide-mobile'>REMARKS</th></tr></thead><tbody>";
+      let html = title + "<div class='pd-table-wrapper'><table class='pd-table tbl-cte'><thead><tr><th class='text-3d-highlight'>CTE</th><th class='text-3d-highlight'>DATE</th><th class='text-3d-highlight'>(+) DAYS</th><th class='text-3d-highlight'>REV. EXPIRY</th><th class='text-3d-highlight pd-hide-mobile'>REMARKS</th></tr></thead><tbody>";
       cteRows.forEach((r) => {
-        let daysDisplay = r.days ? (String(r.days).match(/-?\d+/) ? parseInt(String(r.days).match(/-?\d+/)[0], 10).toString() : String(r.days)) : "";
-        let remarksDisplay = r.remarks || "";
+        let daysDisplay = r.days ? (String(r.days).match(/-?\d+/) ? parseInt(String(r.days).match(/-?\d+/)[0], 10).toString() : String(r.days)) : "-";
+        let remarksDisplay = r.remarks || "-";
         if (/^vo\d+$/i.test(String(r.code).trim())) remarksDisplay = "due to " + String(r.code).trim().toUpperCase();
         
-        let remarksContent = remarksDisplay && String(remarksDisplay).trim() !== "" && remarksDisplay !== "-" ? remarksDisplay : "";
-        let remarksClass = remarksContent ? "pd-remarks-cell" : "pd-remarks-cell pd-empty-remark";
+        let remarksContent = remarksDisplay && String(remarksDisplay).trim() !== "" ? remarksDisplay : "-";
+        let remarksMarkup = `<td class='pd-remarks-cell pd-hide-mobile'>${remarksContent}</td>`;
+        if (remarksContent !== "-") { remarksMarkup += `<td class="pd-remarks-cell pd-sub-row pd-show-mobile">${remarksContent}</td>`; }
 
-        html += "<tr><td><strong>" + (r.code || "") + "</strong></td><td>" + (r.date || "") + "</td><td style='text-align:center; font-weight:bold;'>" + daysDisplay + "</td><td>" + (r.revExpiryDate || "") + "</td><td class='" + remarksClass + "'>" + remarksContent + "</td></tr>";
+        html += `<tr><td><strong>${r.code || "-"}</strong></td><td>${r.date || "-"}</td><td style='text-align:center; font-weight:bold;'>${daysDisplay}</td><td>${r.revExpiryDate || "-"}</td>${remarksMarkup}</tr>`;
       });
       html += "</tbody></table></div>";
       container.innerHTML = html;
@@ -1048,10 +941,10 @@
     function renderBillingSection(billingRows) {
       const container = document.getElementById("pdBillingSection");
       if (!container) return;
-      const title = `<h3 class="section-title">${ICONS.billing} BILLING STATUS</h3>`;
+      const title = `<h3 class="section-title text-3d-highlight">${ICONS.billing} BILLING STATUS</h3>`;
       if (!billingRows || !billingRows.length) { container.innerHTML = title + `<div class='pd-empty'><i class="fa-solid fa-folder-open"></i> No Billing Data Recorded</div>`; return; }
       
-      let html = title + "<div class='pd-table-wrapper'><table class='pd-table tbl-billing'><thead><tr><th class='pd-hide-mobile'>YEAR</th><th>MONTH</th><th>AMOUNT</th><th>REMARKS</th><th>STATUS</th></tr></thead><tbody>";
+      let html = title + "<div class='pd-table-wrapper'><table class='pd-table tbl-billing'><thead><tr><th class='text-3d-highlight pd-hide-mobile'>YEAR</th><th class='text-3d-highlight'>MONTH</th><th class='text-3d-highlight'>AMOUNT</th><th class='text-3d-highlight'>REMARKS</th><th class='text-3d-highlight'>STATUS</th></tr></thead><tbody>";
       
       let currentYear = null;
       billingRows.forEach((r) => { 
@@ -1060,13 +953,18 @@
           html += '<tr class="pd-year-row"><td colspan="5"><i class="fa-regular fa-calendar"></i> ' + (currentYear || "") + "</td></tr>"; 
         }
 
-        let displayRemarks = r.remarks && r.remarks !== "-" ? r.remarks : "";
+        let mStr = r.month ? r.month.slice(0,3).toUpperCase() : "-";
+        
+        let amtStr = r.amount && r.amount !== "-" ? r.amount.toString().trim() : "-";
+        if (amtStr !== "-" && !amtStr.includes("₱")) { amtStr = "₱ " + amtStr; }
+
+        let displayRemarks = r.remarks && r.remarks !== "-" ? r.remarks : "-";
         let displayDateHtml = "";
         
-        if (displayRemarks && displayRemarks.includes("|")) {
+        if (displayRemarks !== "-" && displayRemarks.includes("|")) {
           let parts = displayRemarks.split("|");
           let rawDate = parts[0].trim();
-          displayRemarks = parts.slice(1).join("|").trim(); 
+          displayRemarks = parts.slice(1).join("|").trim() || "-"; 
           let d = new Date(rawDate);
           
           if (!isNaN(d.getTime())) {
@@ -1078,16 +976,16 @@
           }
         }
 
-        let remarkTextWrapped = displayRemarks ? `<div style="text-align: justify; word-break: break-word;">${displayRemarks}</div>` : "";
-        let remarksContent = remarkTextWrapped + displayDateHtml;
+        let remarkTextWrapped = displayRemarks !== "-" ? `<div style="text-align: justify; word-break: break-word;">${displayRemarks}</div>` : "-";
+        let remarksContent = displayRemarks !== "-" ? remarkTextWrapped + displayDateHtml : "-";
 
         let statusHtml = r.status === 'PAID' ? `<span class="status-paid"><i class="fa-solid fa-check"></i> PAID</span>` : `<span class="status-process"><i class="fa-solid fa-spinner fa-spin"></i> ON-PROCESS</span>`;
         
         html += `<tr>
-            <td class='pd-hide-mobile'>${r.year || ""}</td>
-            <td>${r.month || ""}</td>
-            <td>${r.amount || "-"}</td>
-            <td class='pd-remarks'>${remarksContent || "-"}</td>
+            <td class='pd-hide-mobile'>${r.year || "-"}</td>
+            <td class="col-month">${mStr}</td>
+            <td class="col-amount">${amtStr}</td>
+            <td class='pd-remarks-cell'>${remarksContent}</td>
             <td class='col-status'>${statusHtml}</td>
           </tr>`; 
       });
@@ -1243,8 +1141,6 @@
     }
 
     async function loadProjectDocsData(contractId) {
-      document.getElementById('projectDocsLoading').style.opacity = "1";
-      document.getElementById('projectDocsLoading').style.display = "flex";
       try {
         const [appValues, pcmaValues, voValues, wsoValues, billingSheet, descriptionValues] = await Promise.all([
           fetchValuesSafe("APP"), fetchValuesSafe("PCMA"), fetchValuesSafe("VO"), fetchValuesSafe("WSO/WRO/CTE"), fetchBillingSheetSafe(), fetchValuesSafe("DESCRIPTION")
@@ -1274,12 +1170,6 @@
 
       } catch (err) {
         console.error("ProjectDocs global error:", err);
-        document.getElementById('projectDocsLoading').innerHTML = '<div class="pd-error"><i class="fa-solid fa-wifi"></i> Error: Unable to fetch data. Please check your connection.</div>';
-      } finally {
-        if(document.getElementById('projectDocsLoading').innerHTML.includes('Processing')) {
-            document.getElementById('projectDocsLoading').style.opacity = "0";
-            setTimeout(() => { document.getElementById('projectDocsLoading').style.display = "none"; }, 500);
-        }
       }
     }
   </script>
