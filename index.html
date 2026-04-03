@@ -33,6 +33,8 @@
     .hidden{display:none!important;}
     .no-scroll{overflow:hidden;}
 
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+
     /* HEADER */
     header{
       background:linear-gradient(135deg,#2563eb,#1e40af);
@@ -289,9 +291,19 @@
       letter-spacing: 0.5px;
     }
 
-    #footerReloadBtn svg { stroke: #22c55e; }
-    #footerHomeBtn svg { stroke: #3b82f6; }
-    #footerBackBtn svg { stroke: #f43f5e; }
+    #footerReloadBtn svg { stroke: #22c55e; } /* Bright Green */
+    #footerHomeBtn svg { stroke: #3b82f6; }   /* Bright Blue */
+    #footerBackBtn svg { stroke: #f43f5e; }   /* Bright Rose/Red */
+
+    .footer-btn.primary{
+      background: transparent !important;
+      color:#fff;
+      box-shadow: none !important;
+    }
+    .footer-btn.primary:active{
+      transform: translateY(4px);
+      box-shadow: none !important;
+    }
 
     @media (max-width: 768px){
       :root{ --footer-h: 80px; }
@@ -889,16 +901,49 @@
     }
 
     if (reloadBtn) {
-      reloadBtn.addEventListener("click", () => { 
+      reloadBtn.addEventListener("click", async () => { 
+        const iconSvg = reloadBtn.querySelector('svg');
+        if (iconSvg) {
+          iconSvg.style.animation = "spin 1s linear infinite";
+        }
+
+        let isIframeOpen = false;
+        const overlays = ['iframeOverlay', 'projectDocsOverlay', 'uploadPhotosOverlay'];
+        overlays.forEach(id => {
+            const overlay = document.getElementById(id);
+            if (overlay && !overlay.hidden) {
+                isIframeOpen = true;
+                const frame = overlay.querySelector('iframe');
+                if (frame && frame.src && frame.src !== window.location.href) {
+                    const currentSrc = frame.src;
+                    frame.src = 'about:blank';
+                    setTimeout(() => { frame.src = currentSrc; }, 50);
+                }
+            }
+        });
+
         if (typeof window.PCMA.reload === "function") {
           const grid = document.getElementById("grid");
-          if (grid && !grid.classList.contains("hidden")) {
-            grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:#777;">Reloading data...</div>';
+          const isGridVisible = grid && !grid.classList.contains("hidden");
+          const modalBg = document.getElementById("pcmaModalBg");
+          const isModalOpen = modalBg && modalBg.classList.contains("pcma-show");
+          
+          if (isGridVisible && !isModalOpen && !isIframeOpen) {
+            grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:#777;font-weight:bold;">Reloading data...</div>';
           }
-          window.PCMA.reload(); 
+          
+          await window.PCMA.reload(); 
+
+          if (isModalOpen && typeof window.PCMA.refreshCurrentModal === "function") {
+              window.PCMA.refreshCurrentModal();
+          }
         } else {
           location.reload(); 
         }
+
+        setTimeout(() => {
+           if (iconSvg) iconSvg.style.animation = "";
+        }, 500);
       });
     }
   });
@@ -998,7 +1043,6 @@
         for (let r of rawRecords) {
           if (!r || !r.join("").trim()) continue;
 
-          // Optimization: Stop fetching if Contract ID is completely empty
           if (colContractId >= 0) {
             const cid = String(r[colContractId] || "").trim();
             if (!cid) {
@@ -1006,7 +1050,6 @@
             }
           }
           
-          // Filter out missing project names
           if (colProjName >= 0) {
             const name = String(r[colProjName] || "").trim();
             if (!name) continue;
@@ -1739,6 +1782,25 @@
       modalNavList = list.slice();
       modalNavIndex = Math.max(0, Math.min(idx, modalNavList.length - 1));
       showDetail(modalNavList[modalNavIndex]);
+    };
+
+    PCMA.refreshCurrentModal = function() {
+        if (!modalNavList || modalNavList.length === 0) return;
+        const cidIdx = findCol('contract id');
+        if (cidIdx < 0) return;
+        
+        const oldRow = modalNavList[modalNavIndex];
+        if (!oldRow) return;
+        
+        const currentCid = oldRow[cidIdx];
+        const newRows = PCMA.state?.lastRenderedRows || [];
+        const newRowIndex = newRows.findIndex(r => r[cidIdx] === currentCid);
+        
+        if (newRowIndex >= 0) {
+            modalNavList = newRows.slice();
+            modalNavIndex = newRowIndex;
+            showDetail(modalNavList[modalNavIndex]);
+        }
     };
 
     if (closeModalTop)  closeModalTop.addEventListener('click', closeBg);
