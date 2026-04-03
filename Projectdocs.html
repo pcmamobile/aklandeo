@@ -37,9 +37,10 @@
     /* Mode Toggle Button */
     .mode-toggle-btn {
       background: #ffffff; color: #3b82f6; border: 2px solid #bfdbfe;
-      padding: 8px 18px; border-radius: 999px; font-weight: 800; font-size: 13px;
+      width: 42px; height: 42px; border-radius: 50%; font-weight: 800; font-size: 18px;
       cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: all 0.2s;
-      display: inline-flex; align-items: center; gap: 8px; z-index: 10;
+      display: inline-flex; align-items: center; justify-content: center; z-index: 10;
+      padding: 0;
     }
     .mode-toggle-btn:hover { background: #eff6ff; transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.08); }
     .mode-toggle-btn.active { background: #334155; color: #ffffff; border-color: #1e293b; }
@@ -89,6 +90,15 @@
     .pd-card:nth-child(2) { animation-delay: 0.2s; }
     .pd-card:nth-child(3) { animation-delay: 0.3s; }
     .pd-card:nth-child(4) { animation-delay: 0.4s; }
+
+    /* Pastel Container Colors */
+    #pdDescriptionSection { background: #fff7ed !important; border-color: #ffedd5 !important; }
+    #pdScurveCard { background: #eff6ff !important; border-color: #dbeafe !important; }
+    #pdPcmaSection { background: #f0fdf4 !important; border-color: #dcfce7 !important; }
+    #pdBillingSection { background: #fefce8 !important; border-color: #fef08a !important; }
+    #pdWsoSection { background: #fef2f2 !important; border-color: #fee2e2 !important; }
+    #pdVoSection { background: #f5f3ff !important; border-color: #e0e7ff !important; }
+    #pdCteSection { background: #f0fdfa !important; border-color: #ccfbf1 !important; }
 
     /* Meta Cards (Top Row) */
     .meta-card {
@@ -212,7 +222,7 @@
       /* Base Row Design - Compacting Padding */
       .pd-table tr { 
         display: flex; flex-wrap: wrap; align-items: center; width: 100%; 
-        background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; 
+        background: rgba(255,255,255,0.7); border: 1px solid rgba(0,0,0,0.05); border-radius: 12px; 
         padding: 8px 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
       }
       .pd-table th, .pd-table td { 
@@ -233,7 +243,7 @@
       /* Universal Remarks formatting (Justified, Compacting font size) */
       .pd-remarks-cell { 
         width: 100% !important; flex: 1 1 100%; 
-        border-top: 1px dashed #e2e8f0 !important; margin-top: 8px !important; padding-top: 8px !important; 
+        border-top: 1px dashed rgba(0,0,0,0.1) !important; margin-top: 8px !important; padding-top: 8px !important; 
         color: #475569 !important; font-size: 11px !important; line-height: 1.4 !important; font-weight: 500;
         justify-content: flex-start !important; align-items: flex-start !important;
         text-align: justify !important; text-justify: inter-word; padding-left: 0 !important;
@@ -242,9 +252,9 @@
       .pd-empty-remark { display: none !important; border-top: none !important; margin-top: 0 !important; padding-top: 0 !important; }
       .pd-sub-row { 
         grid-column: 1 / -1; width: 100%; text-align: justify !important; text-justify: inter-word; 
-        padding-left: 0 !important; margin-top: 8px !important; border-top: 1px dashed #e2e8f0 !important; 
+        padding-left: 0 !important; margin-top: 8px !important; border-top: 1px dashed rgba(0,0,0,0.1) !important; 
         padding-top: 8px !important; color: #475569 !important; font-size: 11px !important; 
-        white-space: normal !important; word-wrap: break-word !important; 
+        white-space: normal !important; overflow-x: hidden !important; /* WRAPPED CTE REMARKS */
       }
 
       /* Highlight styling for specific references (Mobile) - Keeps the badge text together */
@@ -280,7 +290,7 @@
       .tbl-billing td:nth-child(3) { grid-column: 2; grid-row: 1; width: 100%; justify-content: flex-start; font-size: 16px; font-weight: 900; color: #0f172a; margin: 0; padding-left: 4px !important; white-space: nowrap; } /* Amount - nowrap to prevent breaking */
       .tbl-billing td:nth-child(5) { grid-column: 3; grid-row: 1; width: auto; justify-content: flex-end; margin: 0; } /* Status */
       .tbl-billing td.pd-remarks-cell { grid-column: 1 / -1; grid-row: 2; width: 100%; flex-direction: column; margin-top: 4px !important; font-size: 11px !important; } /* Remarks */
-      .billing-date-mobile { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; padding: 2px 6px; margin-top: 6px; color: #475569; font-size: 10px; font-weight: bold; align-self: flex-start; }
+      .billing-date-mobile { background: rgba(255,255,255,0.8); border: 1px solid rgba(0,0,0,0.1); border-radius: 4px; padding: 2px 6px; margin-top: 6px; color: #475569; font-size: 10px; font-weight: bold; align-self: flex-start; }
 
       /* 8. Suspension Order (WSO) Grid */
       .tbl-wso tr:not(.pd-year-row) { display: grid; grid-template-columns: auto 1fr; gap: 4px 8px; align-items: center; width: 100%; }
@@ -293,14 +303,13 @@
       .tbl-vo td:nth-child(1) { grid-column: 1; grid-row: 1; width: auto; font-size: 13px; font-weight: 900; color: #6d28d9; border: none !important; padding: 0 !important; margin: 0; } /* VO */
       .tbl-vo td:nth-child(2) { grid-column: 2; grid-row: 1; width: auto; font-size: 14px; font-weight: 900; color: #0f172a; justify-content: flex-start; padding-left: 6px !important; } /* Amount */
       .tbl-vo td:nth-child(3) { grid-column: 3; grid-row: 1; width: auto; font-size: 12px; font-weight: 800; color: #ea580c; justify-content: flex-end; text-align: right; padding: 0 !important; } /* Days */
-      .tbl-vo .pd-sub-row { grid-column: 1 / -1; grid-row: 2; width: 100%; } /* Remarks */
+      .tbl-vo .pd-sub-row { grid-column: 1 / -1; grid-row: 2; width: 100%; white-space: normal !important; overflow-x: hidden !important; } /* Remarks VO */
 
       /* 10. Time Extension (CTE) Grid */
       .tbl-cte tr:not(.pd-year-row) { display: grid; grid-template-columns: auto 1fr auto; gap: 4px 8px; align-items: center; width: 100%; }
       .tbl-cte td:nth-child(1) { grid-column: 1; grid-row: 1; width: auto; font-size: 13px; font-weight: 900; color: #0f766e; border: none !important; padding: 0 !important; margin: 0; } /* CTE */
       .tbl-cte td:nth-child(2) { grid-column: 2; grid-row: 1; width: auto; justify-content: flex-start; font-size: 12px; font-weight: 700; color: #475569; padding-left: 6px !important; } /* Date */
       .tbl-cte td:nth-child(3) { grid-column: 3; grid-row: 1; width: auto; justify-content: flex-end; font-size: 12px; font-weight: 900; color: #ea580c; text-align: right; padding: 0 !important; } /* Days */
-      /* Rev Expiry value unbolded font-weight: 500 */
       .tbl-cte td:nth-child(4) { grid-column: 1 / -1; grid-row: 2; width: auto; justify-content: flex-start; font-size: 12px; font-weight: 500; color: #1e293b; padding: 0 !important; margin-top: 4px; border: none !important; background: transparent !important; text-align: left; } 
       
       /* WRAPPED CTE REMARKS */
@@ -329,15 +338,15 @@
     .mobile-mode .content-grid { grid-template-columns: 1fr; width: 100%; } 
     
     .mobile-mode .pd-card { 
-      padding: 14px 10px; background: #ffffff; border-radius: 16px; 
+      padding: 14px 10px; border-radius: 16px; 
       box-shadow: 0 4px 12px rgba(0,0,0,0.04), 0 2px 4px rgba(0,0,0,0.02); 
       border: 1px solid rgba(255,255,255,0.8); width: 100%;
     }
     .mobile-mode .pd-card:hover { transform: none; box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
-    .mobile-mode .section-title { font-size: 14px; margin: 0 0 12px 0; padding-bottom: 10px; border-bottom: 2px solid #f8fafc; }
+    .mobile-mode .section-title { font-size: 14px; margin: 0 0 12px 0; padding-bottom: 10px; border-bottom: 2px solid rgba(0,0,0,0.05); }
 
     .mobile-mode .meta-grid { 
-      display: grid; grid-template-columns: 1fr 1fr; gap: 8px; 
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; 
       background: #ffffff; padding: 14px 12px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); border: 1px solid rgba(255,255,255,0.8);
     }
     .mobile-mode .meta-card { 
@@ -364,7 +373,7 @@
     
     .mobile-mode .pd-table tr { 
       display: flex; flex-wrap: wrap; align-items: center; width: 100%; 
-      background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; 
+      background: rgba(255,255,255,0.7); border: 1px solid rgba(0,0,0,0.05); border-radius: 12px; 
       padding: 8px 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
     }
     .mobile-mode .pd-table th, .mobile-mode .pd-table td { 
@@ -383,14 +392,19 @@
 
     .mobile-mode .pd-remarks-cell { 
       width: 100% !important; flex: 1 1 100%; 
-      border-top: 1px dashed #e2e8f0 !important; margin-top: 8px !important; padding-top: 8px !important; 
+      border-top: 1px dashed rgba(0,0,0,0.1) !important; margin-top: 8px !important; padding-top: 8px !important; 
       color: #475569 !important; font-size: 11px !important; line-height: 1.4 !important; font-weight: 500;
       justify-content: flex-start !important; align-items: flex-start !important;
       text-align: justify !important; text-justify: inter-word; padding-left: 0 !important;
       white-space: normal !important;
     }
     .mobile-mode .pd-empty-remark { display: none !important; border-top: none !important; margin-top: 0 !important; padding-top: 0 !important; }
-    .mobile-mode .pd-sub-row { grid-column: 1 / -1; width: 100%; text-align: justify !important; text-justify: inter-word; padding-left: 0 !important; margin-top: 8px !important; border-top: 1px dashed #e2e8f0 !important; padding-top: 8px !important; color: #475569 !important; font-size: 11px !important; white-space: normal !important; word-wrap: break-word !important; }
+    .mobile-mode .pd-sub-row { 
+      grid-column: 1 / -1; width: 100%; text-align: justify !important; text-justify: inter-word; 
+      padding-left: 0 !important; margin-top: 8px !important; border-top: 1px dashed rgba(0,0,0,0.1) !important; 
+      padding-top: 8px !important; color: #475569 !important; font-size: 11px !important; 
+      white-space: normal !important; overflow-x: hidden !important; /* WRAPPED CTE REMARKS */
+    }
 
     .mobile-mode .badge-highlight {
       background: #fef08a; color: #854d0e; padding: 1px 5px; 
@@ -417,7 +431,7 @@
     .mobile-mode .tbl-billing td:nth-child(3) { grid-column: 2; grid-row: 1; width: 100%; justify-content: flex-start; font-size: 16px; font-weight: 900; color: #0f172a; margin: 0; padding-left: 4px !important; white-space: nowrap; } 
     .mobile-mode .tbl-billing td:nth-child(5) { grid-column: 3; grid-row: 1; width: auto; justify-content: flex-end; margin: 0; } 
     .mobile-mode .tbl-billing td.pd-remarks-cell { grid-column: 1 / -1; grid-row: 2; width: 100%; flex-direction: column; margin-top: 4px !important; font-size: 11px !important; } 
-    .mobile-mode .billing-date-mobile { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; padding: 2px 6px; margin-top: 6px; color: #475569; font-size: 10px; font-weight: bold; align-self: flex-start; }
+    .mobile-mode .billing-date-mobile { background: rgba(255,255,255,0.8); border: 1px solid rgba(0,0,0,0.1); border-radius: 4px; padding: 2px 6px; margin-top: 6px; color: #475569; font-size: 10px; font-weight: bold; align-self: flex-start; }
 
     .mobile-mode .tbl-wso tr:not(.pd-year-row) { display: grid; grid-template-columns: auto 1fr; gap: 4px 8px; align-items: center; width: 100%; }
     .mobile-mode .tbl-wso td:nth-child(1) { grid-area: 1 / 1; width: auto; font-size: 13px; font-weight: 900; color: #b91c1c; } 
@@ -428,7 +442,7 @@
     .mobile-mode .tbl-vo td:nth-child(1) { grid-column: 1; grid-row: 1; width: auto; font-size: 13px; font-weight: 900; color: #6d28d9; border: none !important; padding: 0 !important; margin: 0; } 
     .mobile-mode .tbl-vo td:nth-child(2) { grid-column: 2; grid-row: 1; width: auto; font-size: 14px; font-weight: 900; color: #0f172a; justify-content: flex-start; padding-left: 6px !important; } 
     .mobile-mode .tbl-vo td:nth-child(3) { grid-column: 3; grid-row: 1; width: auto; font-size: 12px; font-weight: 800; color: #ea580c; justify-content: flex-end; text-align: right; padding: 0 !important; } 
-    .mobile-mode .tbl-vo .pd-sub-row { grid-column: 1 / -1; grid-row: 2; width: 100%; } 
+    .mobile-mode .tbl-vo .pd-sub-row { grid-column: 1 / -1; grid-row: 2; width: 100%; white-space: normal !important; overflow-x: hidden !important; }
 
     .mobile-mode .tbl-cte tr:not(.pd-year-row) { display: grid; grid-template-columns: auto 1fr auto; gap: 4px 8px; align-items: center; width: 100%; }
     .mobile-mode .tbl-cte td:nth-child(1) { grid-column: 1; grid-row: 1; width: auto; font-size: 13px; font-weight: 900; color: #0f766e; border: none !important; padding: 0 !important; margin: 0; } 
@@ -456,8 +470,8 @@
   <div class="dashboard-wrapper">
     <!-- View Mode Toggle -->
     <div style="display: flex; justify-content: flex-end; margin-bottom: -10px;">
-      <button id="modeToggleBtn" class="mode-toggle-btn">
-        <i class="fa-solid fa-mobile-screen"></i> <span>View Mobile Mode</span>
+      <button id="modeToggleBtn" class="mode-toggle-btn" title="View Mobile Mode">
+        <i class="fa-solid fa-mobile-screen"></i>
       </button>
     </div>
 
@@ -556,10 +570,12 @@
 
     function updateModeUI() {
       if (body.classList.contains('mobile-mode')) {
-        toggleBtn.innerHTML = '<i class="fa-solid fa-desktop"></i> <span>View PC Mode</span>';
+        toggleBtn.innerHTML = '<i class="fa-solid fa-desktop"></i>';
+        toggleBtn.title = 'View PC Mode';
         toggleBtn.classList.add('active');
       } else {
-        toggleBtn.innerHTML = '<i class="fa-solid fa-mobile-screen"></i> <span>View Mobile Mode</span>';
+        toggleBtn.innerHTML = '<i class="fa-solid fa-mobile-screen"></i>';
+        toggleBtn.title = 'View Mobile Mode';
         toggleBtn.classList.remove('active');
       }
       
@@ -1197,13 +1213,17 @@
       cteRows.forEach((r) => {
         let daysDisplay = r.days ? (String(r.days).match(/-?\d+/) ? parseInt(String(r.days).match(/-?\d+/)[0], 10).toString() : String(r.days)) : "-";
         let remarksDisplay = r.remarks || "-";
-        if (/^vo\d+$/i.test(String(r.code).trim())) remarksDisplay = "due to " + String(r.code).trim().toUpperCase();
+        
+        if (/^vo\d+$/i.test(String(r.code).trim())) {
+            remarksDisplay = "due to " + String(r.code).trim().toUpperCase();
+        }
         
         let remarksContent = remarksDisplay && String(remarksDisplay).trim() !== "" ? remarksDisplay : "-";
         
-        // Highlight logic for WSO and VO mentions - display inline-block nowrap to prevent separation
         if (remarksContent !== "-") {
+            // Apply proper highlight single time, then wrap with due to
             remarksContent = remarksContent.replace(/(WSO\s+No\.?\s*\d+|VO\s*\d+|WSO\s*\d+)/gi, '<span class="badge-highlight">$1</span>');
+            remarksContent = remarksContent.replace(/due to\s*(<span class="badge-highlight">.*?<\/span>)/gi, '<span style="white-space: nowrap;">due to&nbsp;&nbsp;&nbsp;$1</span>');
         }
 
         let remarksMarkup = `<td class='pd-remarks-cell pd-hide-mobile'>${remarksContent}</td>`;
