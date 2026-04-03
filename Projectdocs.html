@@ -3,115 +3,309 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Project Documentation</title>
+  <title>3D Project Documentation Dashboard</title>
   
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Added FontAwesome for Colorful Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
+    /* Base Variables & Theme */
+    :root {
+      --bg-color: #e2e8f0;
+      --card-bg: #ffffff;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --shadow-soft: 0 10px 25px rgba(0, 0, 0, 0.05), 0 4px 10px rgba(0, 0, 0, 0.03);
+      --shadow-hover: 0 20px 40px rgba(0, 0, 0, 0.08), 0 8px 15px rgba(0, 0, 0, 0.04);
+      --shadow-inner-glow: inset 0 2px 0px rgba(255, 255, 255, 1);
+      --border-radius: 20px;
+    }
+
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      font-size: 12px;
-      background: #ffffff;
-      color: #000000;
+      background: var(--bg-color);
+      color: var(--text-main);
       margin: 0;
-      padding: 14px 14px 100px 14px;
+      padding: 20px 30px 100px;
+      overflow-x: hidden;
     }
 
-    .pd-meta { padding: 8px 14px; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 10px; }
-    .pd-meta-row { display: grid; grid-template-columns: 110px 1fr; align-items: center; column-gap: 0; }
-    .pd-meta-row + .pd-meta-row { margin-top: 4px; }
-    .pd-meta-label { font-size: 12px; font-weight: 700; color: #111827; padding-right: 10px; white-space: nowrap; }
-    .pd-meta-value { font-size: 12px; font-weight: 400; color: #111827; border-left: 1px solid #e5e7eb; padding-left: 10px; min-width: 0; overflow-wrap: anywhere; }
-
-    .pd-loading { margin-bottom: 8px; font-size: 11px; font-weight: 600; color: #4b5563; }
-    .pd-section { margin-bottom: 14px; margin-top: 15px; }
-    .pd-section h3 { margin: 0 0 6px; font-size: 13px; font-weight: 900; text-transform: uppercase; color: #1e293b; border-bottom: 2px solid #e2e8f0; padding-bottom: 5px; }
-
-    .pd-table-wrapper { width: 100%; overflow-x: auto; }
-    .pd-table { width: 100%; border-collapse: collapse; font-size: 11px; }
-    .pd-table th, .pd-table td { padding: 4px 6px; border: 1px solid #e5e7eb; vertical-align: middle; }
-    .pd-table th { text-align: left; font-weight: 700; background: #f8fafc; color: #334155; }
-    .pd-table tr:nth-child(even) td { background: #f9fafb; }
-    .pd-remarks { white-space: normal; word-break: break-word; }
-
-    .pd-table-pcma th, .pd-table-pcma td { padding: 2px 4px; }
-    .pd-table-pcma .col-month { width: 100px; }
-    .pd-table-pcma .col-actual, .pd-table-pcma .col-pcma { width: 60px; text-align: center; }
-    .pd-table-pcma .pd-year-row td { font-weight: 700; background: #e2e8f0; color: #0f172a; }
-
-    .pd-table-vo th, .pd-table-vo td { padding: 2px 4px; }
-    .pd-table-vo .col-vo { width: 60px; text-align: center; }
-    .pd-table-vo .col-amount { width: 90px; }
-    .pd-table-vo .col-days { width: 70px; text-align: center; }
-
-    .pd-table-wso th, .pd-table-wso td { padding: 2px 4px; }
-    .pd-table-wso .col-code { width: 70px; text-align: center; }
-    .pd-table-wso .col-date { width: 90px; }
-
-    .pd-table-cte { width: auto; }
-    .pd-table-cte th, .pd-table-cte td { padding: 2px 4px; }
-    .pd-table-cte .col-code { width: 45px; }
-    .pd-table-cte .col-days { width: 60px; text-align: center; }
-    .pd-table-cte .col-date { width: 80px; }
-    .pd-table-cte .col-revdate { width: auto; }
-
-    .pd-table-billing th, .pd-table-billing td { padding: 2px 4px; }
-    .pd-table-billing { width: auto; }
-    .pd-table-billing .col-year { width: 45px; text-align: center; }
-    .pd-table-billing .col-month { width: 70px; }
-    .pd-table-billing .col-amount { width: 80px; text-align: right; }
-    .pd-table-billing .col-status { width: auto; text-align: left; padding-left: 2px; font-weight: bold; }
-
-    .pd-scurve-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 4px 0 4px; font-size: 11px; }
-    .pd-toggle { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 999px; background: #f1f5f9; border: 1px solid #cbd5e1; cursor: pointer; font-weight: bold; color: #475569; }
-    .pd-toggle input[type="checkbox"] { margin: 0; }
-    .pd-scurve-wrapper { margin: 10px 0 16px; height: 260px; background: #f8fafc; border-radius: 8px; padding: 10px; border: 1px solid #e2e8f0; }
-    .pd-scurve-wrapper canvas { width: 100% !important; height: 100% !important; }
-    .pd-error { padding: 12px 14px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; font-size: 13px; color: #b91c1c; font-weight: bold; }
-
-    @media (max-width: 520px) {
-      body { padding: 10px 8px 60px; }
-      .pd-meta { padding: 8px 10px; }
-      .pd-meta-row { grid-template-columns: 95px 1fr; }
-      .pd-meta-label, .pd-meta-value { font-size: 11px; }
-      .pd-table { border: 1px solid #e5e7eb; }
-      .pd-scurve-wrapper { height: 220px; }
+    /* Loading Screen */
+    .pd-loading { 
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
+      background: rgba(226, 232, 240, 0.9); backdrop-filter: blur(5px);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 800; color: #334155; z-index: 1000;
+      transition: opacity 0.5s;
     }
+    .pd-loading i { font-size: 40px; color: #3b82f6; margin-bottom: 15px; text-shadow: 0 5px 15px rgba(59, 130, 246, 0.4); }
+
+    /* Layout Grids */
+    .dashboard-wrapper {
+      max-width: 1600px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+      min-width: 0; /* Prevent grid blowout */
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      animation: slideDown 0.6s ease-out forwards;
+      min-width: 0; /* Prevent grid blowout */
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 25px;
+      align-items: start;
+      min-width: 0; /* Prevent grid blowout */
+    }
+
+    .col-left, .col-right {
+      display: flex; 
+      flex-direction: column; 
+      gap: 25px;
+      min-width: 0; /* CRUCIAL: allows inner content to wrap and shrink */
+    }
+
+    @media (max-width: 1100px) {
+      .content-grid { grid-template-columns: 1fr; }
+    }
+
+    /* 3D Cards */
+    .pd-card {
+      background: var(--card-bg);
+      border-radius: var(--border-radius);
+      padding: 24px;
+      box-shadow: var(--shadow-inner-glow), var(--shadow-soft);
+      border: 1px solid rgba(255,255,255,0.5);
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+      animation: slideUp 0.6s ease-out backwards;
+      min-width: 0; /* Prevent inner text from stretching card infinitely */
+    }
+    .pd-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-inner-glow), var(--shadow-hover);
+    }
+    
+    /* Staggered Animations */
+    .pd-card:nth-child(1) { animation-delay: 0.1s; }
+    .pd-card:nth-child(2) { animation-delay: 0.2s; }
+    .pd-card:nth-child(3) { animation-delay: 0.3s; }
+    .pd-card:nth-child(4) { animation-delay: 0.4s; }
+
+    /* Meta Cards (Top Row) */
+    .meta-card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 20px;
+      background: var(--card-bg);
+      border-radius: 16px;
+      box-shadow: var(--shadow-inner-glow), 0 8px 15px rgba(0,0,0,0.04);
+      transition: transform 0.2s;
+      min-width: 0; /* Prevent blowout */
+    }
+    .meta-card:hover { transform: scale(1.02); }
+    .meta-info { display: flex; flex-direction: column; min-width: 0; width: 100%; }
+    .meta-label { font-size: 12px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    
+    /* Fixed Meta Value to allow text wrap instead of hiding it */
+    .meta-value { 
+      font-size: 15px; 
+      font-weight: 700; 
+      color: var(--text-main); 
+      white-space: normal; 
+      word-wrap: break-word; 
+      line-height: 1.3;
+      margin-top: 4px;
+    }
+
+    /* Colorful 3D Icons */
+    .icon-3d {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 46px; height: 46px; min-width: 46px;
+      border-radius: 12px;
+      font-size: 20px;
+      box-shadow: inset 1px 1px 2px rgba(255,255,255,0.8), 2px 4px 10px rgba(0,0,0,0.1);
+      flex-shrink: 0;
+    }
+    .icon-sm { width: 36px; height: 36px; min-width: 36px; font-size: 16px; margin-right: 12px; border-radius: 10px; }
+
+    /* Gradient Palettes for Icons */
+    .bg-blue { background: linear-gradient(135deg, #eff6ff, #bfdbfe); color: #1d4ed8; }
+    .bg-purple { background: linear-gradient(135deg, #f5f3ff, #ddd6fe); color: #6d28d9; }
+    .bg-orange { background: linear-gradient(135deg, #fff7ed, #fed7aa); color: #c2410c; }
+    .bg-green { background: linear-gradient(135deg, #f0fdf4, #bbf7d0); color: #15803d; }
+    .bg-red { background: linear-gradient(135deg, #fef2f2, #fecaca); color: #b91c1c; }
+    .bg-teal { background: linear-gradient(135deg, #f0fdfa, #99f6e4); color: #0f766e; }
+    .bg-yellow { background: linear-gradient(135deg, #fefce8, #fef08a); color: #a16207; }
+
+    /* Section Headers */
+    .section-title { 
+      display: flex; align-items: center; 
+      margin: 0 0 20px 0; font-size: 15px; font-weight: 900; 
+      color: var(--text-main); letter-spacing: 0.5px;
+      border-bottom: 2px solid #f1f5f9; padding-bottom: 12px;
+    }
+
+    /* 3D Tables */
+    .pd-table-wrapper { width: 100%; max-width: 100%; overflow-x: auto; border-radius: 12px; padding-bottom: 10px; }
+    .pd-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; font-size: 13px; table-layout: auto; }
+    .pd-table th { 
+      text-align: left; font-weight: 800; color: var(--text-muted); 
+      text-transform: uppercase; padding: 0 12px; font-size: 11px;
+      white-space: nowrap;
+    }
+    .pd-table td { 
+      padding: 12px; background: #f8fafc; border: none; vertical-align: middle;
+      border-top: 1px solid #ffffff; border-bottom: 1px solid #e2e8f0;
+      word-wrap: break-word; overflow-wrap: break-word;
+    }
+    .pd-table tbody tr { 
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02); 
+      transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .pd-table tbody tr:hover { 
+      transform: scale(1.01) translateY(-2px); 
+      box-shadow: 0 8px 15px rgba(0,0,0,0.06); 
+      background: #ffffff; 
+    }
+    .pd-table tbody td:first-child { border-top-left-radius: 10px; border-bottom-left-radius: 10px; border-left: 1px solid #ffffff;}
+    .pd-table tbody td:last-child { border-top-right-radius: 10px; border-bottom-right-radius: 10px; border-right: 1px solid #e2e8f0; }
+    
+    .pd-remarks { 
+      white-space: normal; 
+      word-break: break-word; 
+      overflow-wrap: break-word; 
+      color: #475569; 
+      font-weight: 500; 
+      max-width: 350px; /* Constrains column from getting too large */
+    }
+    .pd-year-row td { font-weight: 900; background: #e2e8f0 !important; color: #0f172a; border-radius: 8px; }
+    .col-actual, .col-pcma { font-weight: 800; color: #0ea5e9; text-align: center; }
+    .col-status { font-weight: 800; }
+    .status-paid { color: #16a34a; background: #dcfce7; padding: 4px 10px; border-radius: 20px; display: inline-block; box-shadow: inset 0 1px 2px rgba(255,255,255,0.8); white-space: nowrap; }
+    .status-process { color: #d97706; background: #fef3c7; padding: 4px 10px; border-radius: 20px; display: inline-block; box-shadow: inset 0 1px 2px rgba(255,255,255,0.8); white-space: nowrap; }
+
+    /* Chart & Controls */
+    .chart-container { position: relative; }
+    .pd-scurve-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 16px; }
+    .pd-toggle { 
+      display: inline-flex; align-items: center; gap: 8px; 
+      padding: 6px 14px; border-radius: 999px; 
+      background: linear-gradient(to bottom, #ffffff, #f1f5f9);
+      border: 1px solid #cbd5e1; cursor: pointer; font-weight: 800; color: #475569; font-size: 12px;
+      box-shadow: inset 0 1px 1px white, 0 2px 4px rgba(0,0,0,0.05);
+      transition: all 0.2s;
+    }
+    .pd-toggle:hover { transform: translateY(-1px); box-shadow: inset 0 1px 1px white, 0 4px 6px rgba(0,0,0,0.08); }
+    .pd-toggle input[type="checkbox"] { width: 16px; height: 16px; accent-color: #3b82f6; cursor: pointer; }
+    .pd-scurve-wrapper { height: 320px; width: 100%; border-radius: 12px; padding: 10px; background: #f8fafc; box-shadow: inset 0 2px 6px rgba(0,0,0,0.04); }
+    
+    /* Emptry States & Errors */
+    .pd-empty { text-align: center; padding: 30px 10px; color: #94a3b8; font-weight: 600; font-size: 14px; }
+    .pd-empty i { font-size: 30px; margin-bottom: 10px; color: #cbd5e1; display: block; }
+    .pd-error { padding: 16px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; font-size: 14px; color: #b91c1c; font-weight: bold; box-shadow: 0 4px 10px rgba(220,38,38,0.1); }
+
+    /* Keyframes */
+    @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+
   </style>
 </head>
 <body>
 
+  <!-- Loading Overlay -->
   <div id="projectDocsLoading" class="pd-loading">
-    <i class="fa-solid fa-circle-notch fa-spin"></i> Loading documentation...
-  </div>
-  
-  <section id="pdMetaSection" class="pd-section">
-    <div class="pd-meta">
-      <div class="pd-meta-row"><div class="pd-meta-label">Contract ID</div><div class="pd-meta-value" id="pdMetaCID">—</div></div>
-      <div class="pd-meta-row"><div class="pd-meta-label">Project ID</div><div class="pd-meta-value" id="pdMetaProjectId">—</div></div>
-      <div class="pd-meta-row"><div class="pd-meta-label">Project Name</div><div class="pd-meta-value" id="pdMetaProjectName">—</div></div>
-      <div class="pd-meta-row"><div class="pd-meta-label">Contractor</div><div class="pd-meta-value" id="pdMetaContractor">—</div></div>
+    <div class="icon-3d bg-blue" style="width: 70px; height: 70px; font-size: 32px; margin-bottom: 20px; animation: pulse 1.5s infinite;">
+      <i class="fa-solid fa-cube fa-spin"></i>
     </div>
-  </section>
-  
-  <section id="pdDescriptionSection" class="pd-section"></section>
-  
-  <section id="pdPcmaSection" class="pd-section"></section>
-  
-  <div class="pd-scurve-controls" id="pdScurveControls" style="display:none;">
-    <label class="pd-toggle"><input type="checkbox" id="pdToggleActual" checked><span>ACTUAL</span></label>
-    <label class="pd-toggle"><input type="checkbox" id="pdTogglePcma" checked><span>PCMA</span></label>
-    <label class="pd-toggle"><input type="checkbox" id="pdToggleBilling" checked><span>BILLING</span></label>
+    Processing 3D Dashboard...
   </div>
-  
-  <div class="pd-scurve-wrapper" id="pdScurveWrapper" style="display:none;">
-    <canvas id="pdSCurveCanvas"></canvas>
+
+  <div class="dashboard-wrapper">
+    <!-- TOP ROW: Meta Info Grid -->
+    <section id="pdMetaSection" class="meta-grid">
+      <div class="meta-card">
+        <div class="icon-3d bg-blue"><i class="fa-solid fa-fingerprint"></i></div>
+        <div class="meta-info">
+          <div class="meta-label">Contract ID</div>
+          <div class="meta-value" id="pdMetaCID">—</div>
+        </div>
+      </div>
+      <div class="meta-card">
+        <div class="icon-3d bg-purple"><i class="fa-solid fa-hashtag"></i></div>
+        <div class="meta-info">
+          <div class="meta-label">Project ID</div>
+          <div class="meta-value" id="pdMetaProjectId">—</div>
+        </div>
+      </div>
+      <div class="meta-card" style="grid-column: span 2;">
+        <div class="icon-3d bg-orange"><i class="fa-solid fa-building"></i></div>
+        <div class="meta-info">
+          <div class="meta-label">Project Name</div>
+          <div class="meta-value" id="pdMetaProjectName">—</div>
+        </div>
+      </div>
+      <div class="meta-card">
+        <div class="icon-3d bg-teal"><i class="fa-solid fa-helmet-safety"></i></div>
+        <div class="meta-info">
+          <div class="meta-label">Contractor</div>
+          <div class="meta-value" id="pdMetaContractor">—</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MAIN CONTENT: 2 Column Grid -->
+    <div class="content-grid">
+      
+      <!-- LEFT COLUMN -->
+      <div class="col-left">
+        
+        <!-- Description -->
+        <section id="pdDescriptionSection" class="pd-card"></section>
+
+        <!-- S-Curve Chart (Only visible if data exists) -->
+        <section id="pdScurveCard" class="pd-card" style="display:none;">
+          <h3 class="section-title"><div class="icon-3d icon-sm bg-blue"><i class="fa-solid fa-chart-area"></i></div> S-CURVE & PROGRESS</h3>
+          <div class="pd-scurve-controls" id="pdScurveControls">
+            <label class="pd-toggle"><input type="checkbox" id="pdToggleActual" checked><span>ACTUAL</span></label>
+            <label class="pd-toggle"><input type="checkbox" id="pdTogglePcma" checked><span>PCMA</span></label>
+            <label class="pd-toggle"><input type="checkbox" id="pdToggleBilling" checked><span>BILLING</span></label>
+          </div>
+          <div class="pd-scurve-wrapper" id="pdScurveWrapper">
+            <canvas id="pdSCurveCanvas"></canvas>
+          </div>
+        </section>
+
+        <!-- PCMA -->
+        <section id="pdPcmaSection" class="pd-card"></section>
+      </div>
+
+      <!-- RIGHT COLUMN -->
+      <div class="col-right">
+        <!-- Billing -->
+        <section id="pdBillingSection" class="pd-card"></section>
+        
+        <!-- WSO -->
+        <section id="pdWsoSection" class="pd-card"></section>
+        
+        <!-- VO -->
+        <section id="pdVoSection" class="pd-card"></section>
+        
+        <!-- CTE -->
+        <section id="pdCteSection" class="pd-card"></section>
+      </div>
+
+    </div>
   </div>
-  
-  <section id="pdBillingSection" class="pd-section"></section>
-  <section id="pdWsoSection" class="pd-section"></section>
-  <section id="pdVoSection" class="pd-section"></section>
-  <section id="pdCteSection" class="pd-section"></section>
 
   <script>
     const SHEET_ID = "1LSYLZ7tfSeVupQMPsCOHG4SlnzPQqOAIe03QI1qRMr8";
@@ -125,7 +319,7 @@
         document.getElementById("pdMetaCID").textContent = contractId;
         loadProjectDocsData(contractId);
       } else {
-        document.getElementById('projectDocsLoading').innerHTML = '<div class="pd-error">Error: No Contract ID provided.</div>';
+        document.getElementById('projectDocsLoading').innerHTML = '<div class="pd-error"><i class="fa-solid fa-triangle-exclamation"></i> Error: No Contract ID provided in URL parameters.</div>';
       }
     });
 
@@ -254,6 +448,14 @@
       return parseDateFromCell(txt);
     }
 
+    function findFirstExistingColumn(header, candidates) {
+        for(let c of candidates) {
+            let idx = findExactColumn(header, c);
+            if(idx >= 0) return idx;
+        }
+        return -1;
+    }
+
     function findContractRow(values, contractId) {
       if (!values || values.length < 3) return { header: null, row: null, rowIndex: -1 };
       const header = values[2] || [];
@@ -269,7 +471,7 @@
 
     async function fetchValuesSafe(sheetName) {
       try {
-        const range = encodeURIComponent(sheetName + "!A1:ZZ5000"); // Using safe range limit
+        const range = encodeURIComponent(sheetName + "!A1:ZZ5000"); 
         const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?key=${API_KEY}`;
         const res = await fetch(url);
         if (!res.ok) return []; 
@@ -566,19 +768,40 @@
       return rows;
     }
 
+    // HTML Generators updated with 3D Styles & Colorful Icons
+    const ICONS = {
+      description: `<div class="icon-3d icon-sm bg-orange"><i class="fa-solid fa-file-contract"></i></div>`,
+      pcma: `<div class="icon-3d icon-sm bg-green"><i class="fa-solid fa-chart-line"></i></div>`,
+      billing: `<div class="icon-3d icon-sm bg-yellow"><i class="fa-solid fa-file-invoice-dollar"></i></div>`,
+      wso: `<div class="icon-3d icon-sm bg-red"><i class="fa-solid fa-circle-pause"></i></div>`,
+      vo: `<div class="icon-3d icon-sm bg-purple"><i class="fa-solid fa-money-bill-transfer"></i></div>`,
+      cte: `<div class="icon-3d icon-sm bg-teal"><i class="fa-solid fa-calendar-plus"></i></div>`
+    };
+
     function renderDescriptionSection(info) {
       const container = document.getElementById("pdDescriptionSection");
       if (!container) return;
+      const title = `<h3 class="section-title">${ICONS.description} SCOPE OF WORK</h3>`;
       if (!info) {
-        container.innerHTML = "<h3>DESCRIPTION / SCOPE OF WORK</h3><div class='pd-table-wrapper'><table class='pd-table pd-table-description'><tbody><tr><th>DESCRIPTION / SCOPE OF WORK</th><td>-</td></tr><tr><th>ORIGINAL</th><td>-</td></tr><tr><th>REVISED</th><td>-</td></tr></tbody></table></div>";
+        container.innerHTML = title + `<div class='pd-empty'><i class="fa-solid fa-folder-open"></i> No Description Found</div>`;
         return;
       }
-      container.innerHTML = "<h3>DESCRIPTION / SCOPE OF WORK</h3><div class='pd-table-wrapper'><table class='pd-table pd-table-description'><tbody><tr><th>ORIGINAL</th><td>" + (info.original || "-") + "</td></tr><tr><th>REVISED</th><td>" + (info.revised || "-") + "</td></tr></tbody></table></div>";
+      container.innerHTML = title + `
+        <div class='pd-table-wrapper'>
+          <table class='pd-table'>
+            <tbody>
+              <tr><th style="width:25%;">ORIGINAL</th><td class='pd-remarks'>${info.original || "-"}</td></tr>
+              <tr><th>REVISED</th><td class='pd-remarks'>${info.revised || "-"}</td></tr>
+            </tbody>
+          </table>
+        </div>`;
     }
 
     function renderPcmaSection(pcmaRows, pcmaExtraRows) {
       const container = document.getElementById("pdPcmaSection");
       if (!container) return;
+      const title = `<h3 class="section-title">${ICONS.pcma} MONTHLY ACCOMPLISHMENT</h3>`;
+      
       const combinedMap = new Map();
       function upsertEntry(sourceRow, type) {
         if (!sourceRow || !sourceRow.year || !sourceRow.month) return;
@@ -595,14 +818,19 @@
       (pcmaExtraRows || []).forEach((r) => upsertEntry(r, "pcma"));
 
       let rows = Array.from(combinedMap.values()).filter((r) => typeof r.actual === "number" || typeof r.pcma === "number" || (r.remarks && String(r.remarks).trim() !== ""));
-      if (!rows.length) { container.innerHTML = "<h3>MONTHLY ACCOMPLISHMENT</h3><p>No Monthly Accomplishment data for this Contract ID.</p>"; return; }
+      
+      if (!rows.length) { 
+        container.innerHTML = title + `<div class='pd-empty'><i class="fa-solid fa-chart-simple"></i> No Accomplishment Data</div>`; 
+        return; 
+      }
+      
       rows.sort((a, b) => { const ya = parseInt(a.year, 10) || 0; const yb = parseInt(b.year, 10) || 0; if (ya !== yb) return ya - yb; return a.monthNum - b.monthNum; });
 
-      let html = "<h3>MONTHLY ACCOMPLISHMENT</h3><div class='pd-table-wrapper'><table class='pd-table pd-table-pcma'><thead><tr><th>MONTH</th><th>ACTUAL</th><th>PCMA</th><th>REMARKS</th></tr></thead><tbody>";
+      let html = title + "<div class='pd-table-wrapper'><table class='pd-table'><thead><tr><th>MONTH</th><th>ACTUAL</th><th>PCMA</th><th>REMARKS</th></tr></thead><tbody>";
       let currentYear = null;
       rows.forEach((r) => {
-        if (r.year !== currentYear) { currentYear = r.year; html += '<tr class="pd-year-row"><td class="pd-year-label" colspan="4">' + (currentYear || "") + "</td></tr>"; }
-        html += "<tr><td class='col-month'>&nbsp;&nbsp;&nbsp;&nbsp;" + (r.month || "") + "</td><td class='col-actual'>" + (typeof r.actual === "number" ? r.actual + "%" : "-") + "</td><td class='col-pcma'>" + (typeof r.pcma === "number" ? r.pcma + "%" : "-") + "</td><td class='pd-remarks'>" + (r.remarks && String(r.remarks).trim() !== "" ? r.remarks : "-") + "</td></tr>";
+        if (r.year !== currentYear) { currentYear = r.year; html += '<tr class="pd-year-row"><td colspan="4"><i class="fa-regular fa-calendar" style="color:#64748b; margin-right:5px;"></i> ' + (currentYear || "") + "</td></tr>"; }
+        html += "<tr><td>" + (r.month || "") + "</td><td class='col-actual'>" + (typeof r.actual === "number" ? r.actual + "%" : "-") + "</td><td class='col-pcma'>" + (typeof r.pcma === "number" ? r.pcma + "%" : "-") + "</td><td class='pd-remarks'>" + (r.remarks && String(r.remarks).trim() !== "" ? r.remarks : "-") + "</td></tr>";
       });
       html += "</tbody></table></div>";
       container.innerHTML = html;
@@ -611,9 +839,10 @@
     function renderVoSection(voRows) {
       const container = document.getElementById("pdVoSection");
       if (!container) return;
-      if (!voRows || !voRows.length) { container.innerHTML = "<h3>VARIATION ORDER (VO)</h3><p>No VO data recorded.</p>"; return; }
-      let html = "<h3>VARIATION ORDER (VO)</h3><div class='pd-table-wrapper'><table class='pd-table pd-table-vo'><thead><tr><th>VO</th><th>AMOUNT</th><th>(+) DAYS</th><th>REMARKS</th></tr></thead><tbody>";
-      voRows.forEach((r) => { html += "<tr><td class='col-vo'>" + (r.label || "") + "</td><td class='col-amount'>" + (r.amount || "-") + "</td><td class='col-days'>" + (r.days || "-") + "</td><td class='pd-remarks'>" + (r.remarks || "-") + "</td></tr>"; });
+      const title = `<h3 class="section-title">${ICONS.vo} VARIATION ORDER (VO)</h3>`;
+      if (!voRows || !voRows.length) { container.innerHTML = title + `<div class='pd-empty'><i class="fa-solid fa-folder-open"></i> No VO Data Recorded</div>`; return; }
+      let html = title + "<div class='pd-table-wrapper'><table class='pd-table'><thead><tr><th>VO</th><th>AMOUNT</th><th>(+) DAYS</th><th>REMARKS</th></tr></thead><tbody>";
+      voRows.forEach((r) => { html += "<tr><td><strong>" + (r.label || "") + "</strong></td><td>" + (r.amount || "-") + "</td><td style='text-align:center; font-weight:bold;'>" + (r.days || "-") + "</td><td class='pd-remarks'>" + (r.remarks || "-") + "</td></tr>"; });
       html += "</tbody></table></div>";
       container.innerHTML = html;
     }
@@ -621,9 +850,10 @@
     function renderWsoSection(wsoRows) {
       const container = document.getElementById("pdWsoSection");
       if (!container) return;
-      if (!wsoRows || !wsoRows.length) { container.innerHTML = "<h3>SUSPENSION ORDER</h3><p>No WSO data recorded.</p>"; return; }
-      let html = "<h3>SUSPENSION ORDER</h3><div class='pd-table-wrapper'><table class='pd-table pd-table-wso'><thead><tr><th>CODE</th><th>DATE</th><th>REASON</th></tr></thead><tbody>";
-      wsoRows.forEach((r) => { html += "<tr><td class='col-code'>" + r.code + "</td><td class='col-date'>" + (r.date || "") + "</td><td class='pd-remarks'>" + (r.reason || "") + "</td></tr>"; });
+      const title = `<h3 class="section-title">${ICONS.wso} SUSPENSION ORDER</h3>`;
+      if (!wsoRows || !wsoRows.length) { container.innerHTML = title + `<div class='pd-empty'><i class="fa-solid fa-folder-open"></i> No WSO Data Recorded</div>`; return; }
+      let html = title + "<div class='pd-table-wrapper'><table class='pd-table'><thead><tr><th>CODE</th><th>DATE</th><th>REASON</th></tr></thead><tbody>";
+      wsoRows.forEach((r) => { html += "<tr><td><strong>" + r.code + "</strong></td><td>" + (r.date || "") + "</td><td class='pd-remarks'>" + (r.reason || "") + "</td></tr>"; });
       html += "</tbody></table></div>";
       container.innerHTML = html;
     }
@@ -631,13 +861,14 @@
     function renderCteSection(cteRows) {
       const container = document.getElementById("pdCteSection");
       if (!container) return;
-      if (!cteRows || !cteRows.length) { container.innerHTML = "<h3>CONTRACT TIME EXTENSION (CTE)</h3><p>No CTE data recorded.</p>"; return; }
-      let html = "<h3>CONTRACT TIME EXTENSION (CTE)</h3><div class='pd-table-wrapper'><table class='pd-table pd-table-cte'><thead><tr><th>CTE</th><th>DATE</th><th>(+) DAYS</th><th>REMARKS</th><th>REV. EXPIRY DATE</th></tr></thead><tbody>";
+      const title = `<h3 class="section-title">${ICONS.cte} TIME EXTENSION (CTE)</h3>`;
+      if (!cteRows || !cteRows.length) { container.innerHTML = title + `<div class='pd-empty'><i class="fa-solid fa-folder-open"></i> No CTE Data Recorded</div>`; return; }
+      let html = title + "<div class='pd-table-wrapper'><table class='pd-table'><thead><tr><th>CTE</th><th>DATE</th><th>(+) DAYS</th><th>REMARKS</th><th>REV. EXPIRY</th></tr></thead><tbody>";
       cteRows.forEach((r) => {
         let daysDisplay = r.days ? (String(r.days).match(/-?\d+/) ? parseInt(String(r.days).match(/-?\d+/)[0], 10).toString() : String(r.days)) : "";
         let remarksDisplay = r.remarks || "";
         if (/^vo\d+$/i.test(String(r.code).trim())) remarksDisplay = "due to " + String(r.code).trim().toUpperCase();
-        html += "<tr><td class='col-code'>" + (r.code || "") + "</td><td class='col-date'>" + (r.date || "") + "</td><td class='col-days'>" + daysDisplay + "</td><td class='pd-remarks'>" + remarksDisplay + "</td><td class='col-revdate'>" + (r.revExpiryDate || "") + "</td></tr>";
+        html += "<tr><td><strong>" + (r.code || "") + "</strong></td><td>" + (r.date || "") + "</td><td style='text-align:center; font-weight:bold;'>" + daysDisplay + "</td><td class='pd-remarks'>" + remarksDisplay + "</td><td>" + (r.revExpiryDate || "") + "</td></tr>";
       });
       html += "</tbody></table></div>";
       container.innerHTML = html;
@@ -646,16 +877,19 @@
     function renderBillingSection(billingRows) {
       const container = document.getElementById("pdBillingSection");
       if (!container) return;
-      if (!billingRows || !billingRows.length) { container.innerHTML = "<h3>BILLING</h3><p>No Billing data recorded.</p>"; return; }
-      let html = "<h3>BILLING</h3><div class='pd-table-wrapper'><table class='pd-table pd-table-billing'><thead><tr><th>YEAR</th><th>MONTH</th><th>AMOUNT</th><th>REMARKS</th><th>STATUS</th></tr></thead><tbody>";
-      billingRows.forEach((r) => { html += "<tr><td class='col-year'>" + (r.year || "") + "</td><td class='col-month'>" + (r.month || "") + "</td><td class='col-amount'>" + (r.amount || "-") + "</td><td class='pd-remarks'>" + (r.remarks || "-") + "</td><td class='col-status'>" + (r.status || "ON-PROCESS") + "</td></tr>"; });
+      const title = `<h3 class="section-title">${ICONS.billing} BILLING STATUS</h3>`;
+      if (!billingRows || !billingRows.length) { container.innerHTML = title + `<div class='pd-empty'><i class="fa-solid fa-folder-open"></i> No Billing Data Recorded</div>`; return; }
+      let html = title + "<div class='pd-table-wrapper'><table class='pd-table'><thead><tr><th>YEAR</th><th>MONTH</th><th>AMOUNT</th><th>REMARKS</th><th>STATUS</th></tr></thead><tbody>";
+      billingRows.forEach((r) => { 
+        let statusHtml = r.status === 'PAID' ? `<span class="status-paid"><i class="fa-solid fa-check"></i> PAID</span>` : `<span class="status-process"><i class="fa-solid fa-spinner fa-spin"></i> ON-PROCESS</span>`;
+        html += "<tr><td>" + (r.year || "") + "</td><td>" + (r.month || "") + "</td><td style='font-weight:bold; color:#0f172a;'>" + (r.amount || "-") + "</td><td class='pd-remarks'>" + (r.remarks || "-") + "</td><td class='col-status'>" + statusHtml + "</td></tr>"; 
+      });
       html += "</tbody></table></div>";
       container.innerHTML = html;
     }
 
     function buildSCurveChart(pcmaRows, pcmaExtraRows, billingRows) {
-      const wrapper = document.getElementById("pdScurveWrapper");
-      const controls = document.getElementById("pdScurveControls");
+      const card = document.getElementById("pdScurveCard");
       const canvas = document.getElementById("pdSCurveCanvas");
       if (!canvas || typeof Chart === "undefined") return;
 
@@ -673,13 +907,11 @@
       addRows(pcmaRows); addRows(pcmaExtraRows); addRows(billingRows);
 
       if (!monthMap.size) { 
-        wrapper.style.display = "none";
-        controls.style.display = "none";
+        card.style.display = "none";
         return; 
       }
       
-      wrapper.style.display = "block";
-      controls.style.display = "flex";
+      card.style.display = "block";
 
       const entries = Array.from(monthMap.entries()).sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0));
       const labels = entries.map(([, info]) => info.month + " " + info.year);
@@ -717,17 +949,17 @@
               const value = dataset.data[index];
               if (value == null) return;
               const pos = point.tooltipPosition();
-              const fontSize = 9;
+              const fontSize = 10;
               ctx.save();
-              ctx.font = "bold " + fontSize + "px Arial";
+              ctx.font = "bold " + fontSize + "px 'Segoe UI', Arial";
               const textWidth = ctx.measureText(value + "%").width;
-              const boxWidth = textWidth + 8;
-              const boxHeight = fontSize + 6;
-              let x = pos.x, y = pos.y - (8 + datasetIndex * 12);
+              const boxWidth = textWidth + 12;
+              const boxHeight = fontSize + 8;
+              let x = pos.x, y = pos.y - (10 + datasetIndex * 14);
               let box = { left: x - boxWidth / 2, right: x + boxWidth / 2, top: y - boxHeight, bottom: y };
               let safety = 0;
               while (placedBoxes.some((b) => overlaps(b, box)) && safety < 20) {
-                y -= boxHeight + 2; box.top = y - boxHeight; box.bottom = y; safety++;
+                y -= boxHeight + 3; box.top = y - boxHeight; box.bottom = y; safety++;
               }
 
               const label = (dataset.label || "").toUpperCase();
@@ -739,15 +971,15 @@
               ctx.textAlign = "center"; ctx.textBaseline = "middle";
               ctx.beginPath();
               
-              // Fallback for older browsers that don't support roundRect
               if(ctx.roundRect) {
-                  ctx.roundRect(box.left, box.top, boxWidth, boxHeight, 4);
+                  ctx.roundRect(box.left, box.top, boxWidth, boxHeight, 6);
               } else {
                   ctx.rect(box.left, box.top, boxWidth, boxHeight);
               }
               
               ctx.fillStyle = fillColor; ctx.strokeStyle = strokeColor; ctx.lineWidth = 1;
-              ctx.fill(); ctx.stroke();
+              ctx.shadowColor = 'rgba(0,0,0,0.15)'; ctx.shadowBlur = 4; ctx.shadowOffsetY = 2;
+              ctx.fill(); ctx.shadowColor = 'transparent'; ctx.stroke();
               ctx.fillStyle = textColor; ctx.fillText(value + "%", x, (box.top + box.bottom) / 2);
               ctx.restore();
               placedBoxes.push(box);
@@ -761,25 +993,27 @@
         data: {
           labels: labels,
           datasets: [
-            { label: "ACTUAL", data: pcmaData, tension: 0.4, borderColor: "rgba(16, 185, 129, 1)", backgroundColor: "rgba(16, 185, 129, 0.15)", borderWidth: 2, pointBackgroundColor: "rgba(16, 185, 129, 1)", pointBorderColor: "#fff", pointBorderWidth: 1, pointRadius: 4, spanGaps: true, fill: true },
-            { label: "PCMA", data: pcmaExtraData, tension: 0.4, borderColor: "rgba(59, 130, 246, 1)", backgroundColor: "rgba(59, 130, 246, 0.15)", borderWidth: 2, pointBackgroundColor: "rgba(59, 130, 246, 1)", pointBorderColor: "#fff", pointBorderWidth: 1, pointRadius: 4, spanGaps: true, fill: true },
-            { label: "BILLING", data: billingData, tension: 0.4, borderColor: "rgba(239, 68, 68, 1)", backgroundColor: "rgba(239, 68, 68, 0.15)", borderWidth: 2, pointBackgroundColor: "rgba(239, 68, 68, 1)", pointBorderColor: "#fff", pointBorderWidth: 1, pointRadius: 4, spanGaps: true, fill: true },
+            { label: "ACTUAL", data: pcmaData, tension: 0.4, borderColor: "rgba(16, 185, 129, 1)", backgroundColor: "rgba(16, 185, 129, 0.15)", borderWidth: 3, pointBackgroundColor: "rgba(16, 185, 129, 1)", pointBorderColor: "#fff", pointBorderWidth: 2, pointRadius: 5, pointHoverRadius: 7, spanGaps: true, fill: true },
+            { label: "PCMA", data: pcmaExtraData, tension: 0.4, borderColor: "rgba(59, 130, 246, 1)", backgroundColor: "rgba(59, 130, 246, 0.15)", borderWidth: 3, pointBackgroundColor: "rgba(59, 130, 246, 1)", pointBorderColor: "#fff", pointBorderWidth: 2, pointRadius: 5, pointHoverRadius: 7, spanGaps: true, fill: true },
+            { label: "BILLING", data: billingData, tension: 0.4, borderColor: "rgba(239, 68, 68, 1)", backgroundColor: "rgba(239, 68, 68, 0.15)", borderWidth: 3, pointBackgroundColor: "rgba(239, 68, 68, 1)", pointBorderColor: "#fff", pointBorderWidth: 2, pointRadius: 5, pointHoverRadius: 7, spanGaps: true, fill: true },
           ],
         },
         options: {
           responsive: true, maintainAspectRatio: false,
           scales: { 
-            y: { min: 0, max: 100, ticks: { stepSize: 10, callback: (v) => v + "%", font: { size: 10 } }, grid: { color: "#e2e8f0" }, border: { dash: [4, 4] } }, 
-            x: { grid: { display: false }, ticks: { font: { size: 10 }, maxRotation: 45, minRotation: 45 } } 
+            y: { min: 0, max: 100, ticks: { stepSize: 10, callback: (v) => v + "%", font: { size: 11, weight: 'bold' }, color: '#64748b' }, grid: { color: "rgba(226, 232, 240, 0.8)", drawBorder: false } }, 
+            x: { grid: { display: false }, ticks: { font: { size: 11, weight: '600' }, color: '#64748b', maxRotation: 45, minRotation: 45 } } 
           },
           plugins: { 
             legend: { display: false },
             tooltip: { 
-              backgroundColor: "rgba(15, 23, 42, 0.9)",
-              titleFont: { size: 13 },
-              bodyFont: { size: 12, weight: 'bold' },
-              padding: 10,
-              cornerRadius: 8,
+              backgroundColor: "rgba(15, 23, 42, 0.95)",
+              titleFont: { size: 13, family: "system-ui" },
+              bodyFont: { size: 14, weight: 'bold', family: "system-ui" },
+              padding: 12,
+              cornerRadius: 10,
+              boxPadding: 4,
+              usePointStyle: true,
               callbacks: { label: (ctx) => " " + (ctx.dataset.label || "") + ": " + (typeof ctx.parsed.y === "number" ? ctx.parsed.y : "") + "%" } 
             } 
           },
@@ -802,7 +1036,8 @@
     }
 
     async function loadProjectDocsData(contractId) {
-      document.getElementById('projectDocsLoading').style.display = "block";
+      document.getElementById('projectDocsLoading').style.opacity = "1";
+      document.getElementById('projectDocsLoading').style.display = "flex";
       try {
         const [appValues, pcmaValues, voValues, wsoValues, billingSheet, descriptionValues] = await Promise.all([
           fetchValuesSafe("APP"), fetchValuesSafe("PCMA"), fetchValuesSafe("VO"), fetchValuesSafe("WSO/WRO/CTE"), fetchBillingSheetSafe(), fetchValuesSafe("DESCRIPTION")
@@ -832,10 +1067,11 @@
 
       } catch (err) {
         console.error("ProjectDocs global error:", err);
-        document.getElementById('projectDocsLoading').innerHTML = '<div class="pd-error">Error: Unable to fetch data from the server. Please check your internet connection.</div>';
+        document.getElementById('projectDocsLoading').innerHTML = '<div class="pd-error"><i class="fa-solid fa-wifi"></i> Error: Unable to fetch data. Please check your connection.</div>';
       } finally {
-        if(document.getElementById('projectDocsLoading').innerHTML.includes('Loading')) {
-           document.getElementById('projectDocsLoading').style.display = "none";
+        if(document.getElementById('projectDocsLoading').innerHTML.includes('Processing')) {
+            document.getElementById('projectDocsLoading').style.opacity = "0";
+            setTimeout(() => { document.getElementById('projectDocsLoading').style.display = "none"; }, 500);
         }
       }
     }
