@@ -3,12 +3,13 @@
 <head>
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1" name="viewport"/>
-  <title>PCMA Mobile V7.0</title>
+  <title>PCMA Mobile V8.0</title>
 
-  <link href="https://drive.google.com/thumbnail?id=1VanVX82ANGfKA8jcGZL8cVDQh4EuN8-r&amp;sz=s800" rel="icon" sizes="32x32" type="image/png"/>
-  <link href="https://drive.google.com/thumbnail?id=1VanVX82ANGfKA8jcGZL8cVDQh4EuN8-r&amp;sz=s800" rel="apple-touch-icon" sizes="180x180"/>
+  <link href="https://drive.google.com/thumbnail?id=1VanVX82ANGfKA8jcGZL8cVDQh4EuN8-r&sz=s800" rel="icon" sizes="32x32" type="image/png"/>
+  <link href="https://drive.google.com/thumbnail?id=1VanVX82ANGfKA8jcGZL8cVDQh4EuN8-r&sz=s800" rel="apple-touch-icon" sizes="180x180"/>
   <meta content="#2563eb" name="theme-color"/>
   
+  <!-- Chart.js dependency for ProjectDocs S-Curve -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
@@ -318,7 +319,7 @@
       max-width:1100px;
     }
     
-    .search-filter-row { display: flex; gap: 10px; align-items: center; width: 100%; }
+    .search-filter-row { display: flex; gap: 8px; align-items: center; width: 100%; }
     .filter-combo { flex: 1; }
     .filter-combo .input-icon-wrap { position: relative; display: block; width: 100%; }
     
@@ -344,7 +345,7 @@
       color: #fff;
       border: none;
       border-radius: 12px;
-      padding: 0 18px;
+      padding: 0 16px;
       font-weight: 800;
       cursor: pointer;
       display: inline-flex;
@@ -363,6 +364,26 @@
       box-shadow: 0 0 0 #1e3a8a, 0 2px 4px rgba(37,99,235,0.2), inset 0 2px 0 rgba(255,255,255,0.2);
     }
 
+    #clearFilter {
+      background: linear-gradient(145deg, #fef2f2, #fecaca);
+      color: #dc2626;
+      border: none;
+      border-radius: 12px;
+      padding: 0 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 42px;
+      box-shadow: 0 4px 0 #b91c1c, 0 6px 10px rgba(220, 38, 38, 0.2), inset 0 2px 0 rgba(255,255,255,0.5);
+      transition: all 0.1s ease;
+      flex-shrink: 0;
+    }
+    #clearFilter:active {
+      transform: translateY(4px);
+      box-shadow: 0 0 0 #b91c1c, 0 2px 4px rgba(220, 38, 38, 0.2), inset 0 2px 0 rgba(255,255,255,0.5);
+    }
+
     #moreFilters{ display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:6px; margin-top:2px; }
     #moreFilters.hidden{display:none;}
     #moreFilters label{ display:flex; flex-direction:column; gap:4px; font-size:.8rem; color:#0f172a; font-weight:700; }
@@ -379,7 +400,7 @@
     }
     #moreFilters select:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.15);}
 
-    #applyFilter, #clearFilter {
+    #applyFilter {
       padding: 0 16px;
       font-size: .9rem;
       border-radius: 12px;
@@ -389,8 +410,6 @@
       border: none;
       transition: all 0.1s ease;
       margin-top: auto;
-    }
-    #applyFilter {
       background: linear-gradient(145deg, #3b82f6, #1d4ed8);
       color: #fff;
       box-shadow: 0 4px 0 #1e3a8a, 0 6px 10px rgba(37,99,235,0.2), inset 0 2px 0 rgba(255,255,255,0.2);
@@ -398,15 +417,6 @@
     #applyFilter:active {
       transform: translateY(4px);
       box-shadow: 0 0 0 #1e3a8a, 0 2px 4px rgba(37,99,235,0.2), inset 0 2px 0 rgba(255,255,255,0.2);
-    }
-    #clearFilter {
-      background: linear-gradient(145deg, #f1f5f9, #e2e8f0);
-      color: #334155;
-      box-shadow: 0 4px 0 #94a3b8, 0 6px 10px rgba(0,0,0,0.1), inset 0 2px 0 rgba(255,255,255,1);
-    }
-    #clearFilter:active {
-      transform: translateY(4px);
-      box-shadow: 0 0 0 #94a3b8, 0 2px 4px rgba(0,0,0,0.1), inset 0 2px 0 rgba(255,255,255,1);
     }
 
     @media(max-width:768px){ #filters{ top: 56px; border-radius: 14px; } }
@@ -438,21 +448,13 @@
 
     .pcma-modal-top{
       position:sticky; top:0; z-index:5;
-      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      display:flex; align-items:center; justify-content:center; gap:10px;
       background:var(--pcma-accent); color:#fff;
-      min-height:30px; padding:10px 14px 10px;
+      min-height:30px; padding:10px 14px;
       border-bottom:1px solid var(--pcma-ring);
       box-shadow:0 2px 4px var(--pcma-ring);
     }
-    .pcma-modal-top-left{ display:flex; align-items:Center; gap:10px; }
-    .pcma-modal-top-logo{ width:40px; height:40px; align-items:center; border-radius:80px; object-fit:cover; }
-    .pcma-modal-top-cid{ font-weight:900; color:#fff; line-height:1; }
-
-    .pcma-modal-close{
-      background:#fff; border:none; color:var(--pcma-accent);
-      font-weight:900; padding:6px 12px; border-radius:8px; cursor:pointer; line-height:1;
-    }
-    .pcma-modal-close:hover{ background:#ffe8d7; }
+    .pcma-modal-top-cid{ font-weight:900; color:#fff; line-height:1; font-size: 1.4rem; letter-spacing: 1px;}
 
     #pcmaModalBody{ flex:1 1 auto; overflow:auto; background:#fff; padding-bottom: calc(var(--footer-h) + 20px); }
     #pcmaModalContent{ display:flex; flex-direction:column; gap:10px; padding:14px; max-width:1100px; margin:0 auto; }
@@ -564,7 +566,7 @@
       box-shadow: none !important; 
     }
     .fullscreen-body { 
-      padding: 0 !important; /* Remove bottom padding to stretch to bottom */
+      padding: 0 !important; 
       background: transparent !important; 
     }
 
@@ -576,7 +578,7 @@
   <div class="header-container">
     <div class="brand">
       <img alt="PCMA Logo" class="header-logo" decoding="async" src="https://drive.google.com/thumbnail?id=1VanVX82ANGfKA8jcGZL8cVDQh4EuN8-r&sz=s800"/>
-      <h2 class="header-title">PCMA Mobile V7.0</h2>
+      <h2 class="header-title">PCMA Mobile V8.0</h2>
     </div>
   </div>
 </header>
@@ -659,15 +661,39 @@
           <input autocomplete="off" id="filterCombo" type="text" placeholder="Search..."/>
         </span>
       </label>
-      <button id="toggleMoreFilters">Filter</button>
+      <button id="clearFilter" title="Clear Filters">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+      <button id="toggleMoreFilters">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+      </button>
     </div>
     <div class="hidden" id="moreFilters">
-      <label>YEAR <select id="filterYear"><option value="">All</option></select></label>
-      <label>PROJECT ENGINEER <select id="filterEngineer"><option value="">All</option></select></label>
-      <label>CONTRACTOR <select id="filterContractor"><option value="">All</option></select></label>
-      <label>STATUS <select id="filterStatus"><option value="">All</option></select></label>
+      <label>
+        <span style="display:flex; align-items:center; gap:6px; color:#8b5cf6;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg> YEAR
+        </span>
+        <select id="filterYear"><option value="">All</option></select>
+      </label>
+      <label>
+        <span style="display:flex; align-items:center; gap:6px; color:#3b82f6;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> PROJECT ENGINEER
+        </span>
+        <select id="filterEngineer"><option value="">All</option></select>
+      </label>
+      <label>
+        <span style="display:flex; align-items:center; gap:6px; color:#f59e0b;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><line x1="9" y1="22" x2="9" y2="22"></line><line x1="15" y1="22" x2="15" y2="22"></line><line x1="9" y1="6" x2="9" y2="6.01"></line><line x1="15" y1="6" x2="15" y2="6.01"></line><line x1="9" y1="10" x2="9" y2="10.01"></line><line x1="15" y1="10" x2="15" y2="10.01"></line><line x1="9" y1="14" x2="9" y2="14.01"></line><line x1="15" y1="14" x2="15" y2="14.01"></line><line x1="9" y1="18" x2="9" y2="18.01"></line><line x1="15" y1="18" x2="15" y2="18.01"></line></svg> CONTRACTOR
+        </span>
+        <select id="filterContractor"><option value="">All</option></select>
+      </label>
+      <label>
+        <span style="display:flex; align-items:center; gap:6px; color:#10b981;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> STATUS
+        </span>
+        <select id="filterStatus"><option value="">All</option></select>
+      </label>
       <button id="applyFilter">Apply</button>
-      <button id="clearFilter">Clear</button>
     </div>
   </div>
 
@@ -689,12 +715,8 @@
   </button>
 
   <div id="pcmaModalBox">
-    <div class="pcma-modal-top">
-      <div class="pcma-modal-top-left">
-        <img class="pcma-modal-top-logo" src="https://i.ibb.co/RRJpHk2/PCMA-logo-1.png" alt="PCMA" />
-        <div id="pcmaModalCID" class="pcma-modal-top-cid">—</div>
-      </div>
-      <button id="pcmaCloseModalTop" class="pcma-modal-close">Close</button>
+    <div class="pcma-modal-top" style="justify-content: center;">
+      <div id="pcmaModalCID" class="pcma-modal-top-cid" style="font-size: 1.4rem; letter-spacing: 1px;">—</div>
     </div>
     <div id="pcmaModalBody">
       <div id="pcmaModalContent"></div>
@@ -917,7 +939,7 @@
   (function () {
     PCMA.config = {
       SHEET_ID: "1LSYLZ7tfSeVupQMPsCOHG4SlnzPQqOAIe03QI1qRMr8",
-      RANGE: "APP",
+      RANGE: "APP!A:AZ",
       API_KEY: "AIzaSyCz6fNJr3ecn-M2HActqM1aCXbxqRLj2e8",
       LOGO_FALLBACK: "https://lh3.googleusercontent.com/d/1VanVX82ANGfKA8jcGZL8cVDQh4EuN8-r=s800?authuser=0",
       GAS_WEBAPP_URL: "https://script.google.com/macros/s/AKfycbwE2zVf654nTieExX174j6eTPG5-BaVINGQIszgfe5sLvDvJARL-u2k0vQk_DlYukExNg/exec"
@@ -968,15 +990,32 @@
 
         PCMA.state.headers = (data.values[headerRowIndex] || []).map((h) => (h || "").trim().toLowerCase().replace(/[:]+/g, ""));
         const colProjName = PCMA.state.headers.findIndex((h) => h.includes("project name"));
+        const colContractId = PCMA.state.headers.findIndex((h) => h.includes("contract id"));
         
-        PCMA.state.records = data.values.slice(headerRowIndex + 1).filter(r => {
-          if (!r || !r.join("").trim()) return false;
+        let validRecords = [];
+        const rawRecords = data.values.slice(headerRowIndex + 1);
+        
+        for (let r of rawRecords) {
+          if (!r || !r.join("").trim()) continue;
+
+          // Optimization: Stop fetching if Contract ID is completely empty
+          if (colContractId >= 0) {
+            const cid = String(r[colContractId] || "").trim();
+            if (!cid) {
+              break; 
+            }
+          }
+          
+          // Filter out missing project names
           if (colProjName >= 0) {
             const name = String(r[colProjName] || "").trim();
-            if (!name) return false;
+            if (!name) continue;
           }
-          return true;
-        });
+          
+          validRecords.push(r);
+        }
+        
+        PCMA.state.records = validRecords;
 
         populateFilterOptions();
         restoreFilterState();
