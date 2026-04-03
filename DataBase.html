@@ -118,7 +118,7 @@
                 <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-2xl shadow-xl shadow-indigo-500/40 mb-5 transform hover:-translate-y-1 transition-transform rotate-3">
                     <i data-lucide="layers" class="w-10 h-10 text-white -rotate-3"></i>
                 </div>
-                <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400">Project Hub</h1>
+                <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400">DASHBOARD</h1>
                 <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-2 flex items-center justify-center gap-1.5"><i data-lucide="fingerprint" class="w-3 h-3"></i> Secure Access</p>
             </div>
 
@@ -2421,6 +2421,37 @@
                 return;
             }
             
+            // --- BILLING DATE VALIDATION ---
+            let missingBillingDate = false;
+            document.querySelectorAll('#billingDynamicFields .dyn-bill').forEach(valInput => {
+                const block = valInput.closest('.grid');
+                if (block) {
+                    const dateInput = block.querySelector('.dyn-bill-swa');
+                    if (dateInput) {
+                        const rawVal = valInput.value.replace(/[^\d.-]/g, '');
+                        const numVal = parseFloat(rawVal);
+                        if (!isNaN(numVal) && numVal !== 0 && !dateInput.dataset.rawDate) {
+                            missingBillingDate = true;
+                            // Highlight the missing field briefly
+                            dateInput.classList.add('border-rose-500', 'ring-2', 'ring-rose-500');
+                            setTimeout(() => dateInput.classList.remove('border-rose-500', 'ring-2', 'ring-rose-500'), 4000);
+                        }
+                    }
+                }
+            });
+
+            if (missingBillingDate) {
+                if(err) { 
+                    err.innerHTML = `<i data-lucide="alert-octagon" class="w-4 h-4"></i> Date of SWA/Billing is required for entered billing amounts.`; 
+                    err.classList.remove('hidden'); 
+                    lucide.createIcons(); 
+                }
+                showToast("Date of SWA/Billing is required when a billing amount is provided.", 'error');
+                switchModalTab('billing');
+                return;
+            }
+            // --- END BILLING DATE VALIDATION ---
+
             if (md === 'EDIT' && dirtyTabs.size === 0) {
                 closeModal();
                 showToast("No changes detected.", 'info');
