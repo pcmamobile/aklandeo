@@ -118,14 +118,14 @@
 <body class="p-4 md:p-8 min-h-screen flex flex-col items-center">
 
     <!-- Header -->
-    <header class="w-full max-w-6xl text-center mb-8 mt-4">
+    <header class="w-full max-w-6xl text-center mb-4 md:mb-8 mt-4">
         <h1 class="text-3xl md:text-6xl font-black mb-1 drop-shadow-lg text-transparent bg-clip-text bg-gradient-to-r from-neon-blue via-neon-purple to-neon-pink" style="filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));">
-            <i class="fa-solid fa-layer-group text-neon-blue mr-3"></i><span class="md:hidden">Monitoring Project Documents</span><span class="hidden md:inline">File Tracker</span>
+            <i class="fa-solid fa-layer-group text-neon-blue mr-3"></i><span class="md:hidden">Monitoring</span><span class="hidden md:inline">File Tracker</span>
         </h1>
-        <h2 class="text-lg md:text-2xl font-bold text-gray-300 mb-3 tracking-wide">
+        <h2 class="hidden md:block text-lg md:text-2xl font-bold text-gray-300 mb-3 tracking-wide">
             Upload your Project Documents
         </h2>
-        <p class="text-gray-400 font-medium text-sm md:text-base"><i class="fa-solid fa-server mr-2 text-neon-green"></i>Live Sync from Google Sheets API</p>
+        <p class="hidden md:block text-gray-400 font-medium text-sm md:text-base"><i class="fa-solid fa-server mr-2 text-neon-green"></i>Live Sync from Google Sheets API</p>
     </header>
 
     <!-- Main Dashboard Container -->
@@ -139,11 +139,11 @@
         </div>
 
         <!-- Document Type Toggle -->
-        <div class="grid grid-cols-4 md:flex md:flex-wrap justify-center mb-6 bg-[#181822] rounded-2xl p-2 w-full md:w-fit mx-auto border border-gray-700/50 shadow-inner gap-1 md:gap-2">
-            <button onclick="switchDocType('VO')" id="type-VO" class="px-1 md:px-6 py-2 rounded-xl font-black text-xs md:text-sm transition-all bg-[#2a2a3a] text-neon-blue shadow-md border border-gray-600/50 text-center"><span class="md:hidden">VO</span><span class="hidden md:inline">Variation Orders</span></button>
-            <button onclick="switchDocType('SO')" id="type-SO" class="px-1 md:px-6 py-2 rounded-xl font-black text-xs md:text-sm transition-all text-gray-400 hover:text-white border-transparent text-center"><span class="md:hidden">SO</span><span class="hidden md:inline">Suspension Orders</span></button>
-            <button onclick="switchDocType('COMP')" id="type-COMP" class="px-1 md:px-6 py-2 rounded-xl font-black text-xs md:text-sm transition-all text-gray-400 hover:text-white border-transparent text-center"><span class="md:hidden">COC</span><span class="hidden md:inline">Completion</span></button>
-            <button onclick="switchDocType('ACC')" id="type-ACC" class="px-1 md:px-6 py-2 rounded-xl font-black text-xs md:text-sm transition-all text-gray-400 hover:text-white border-transparent text-center"><span class="md:hidden">CA</span><span class="hidden md:inline">Acceptance</span></button>
+        <div class="sticky top-0 md:static z-50 grid grid-cols-4 md:flex md:flex-wrap justify-center mb-6 bg-[#181822]/95 backdrop-blur-md rounded-xl md:rounded-2xl p-2 w-full md:w-fit mx-auto border border-gray-700/50 shadow-[0_10px_30px_rgba(0,0,0,0.6)] md:shadow-inner gap-1 md:gap-2">
+            <button onclick="switchDocType('VO')" id="type-VO" class="px-1 md:px-6 py-2 rounded-lg md:rounded-xl font-black text-xs md:text-sm transition-all bg-[#2a2a3a] text-neon-blue shadow-md border border-gray-600/50 text-center"><span class="md:hidden">VO</span><span class="hidden md:inline">Variation Orders</span></button>
+            <button onclick="switchDocType('SO')" id="type-SO" class="px-1 md:px-6 py-2 rounded-lg md:rounded-xl font-black text-xs md:text-sm transition-all text-gray-400 hover:text-white border-transparent text-center"><span class="md:hidden">SO</span><span class="hidden md:inline">Suspension Orders</span></button>
+            <button onclick="switchDocType('COMP')" id="type-COMP" class="px-1 md:px-6 py-2 rounded-lg md:rounded-xl font-black text-xs md:text-sm transition-all text-gray-400 hover:text-white border-transparent text-center"><span class="md:hidden">COC</span><span class="hidden md:inline">Completion</span></button>
+            <button onclick="switchDocType('ACC')" id="type-ACC" class="px-1 md:px-6 py-2 rounded-lg md:rounded-xl font-black text-xs md:text-sm transition-all text-gray-400 hover:text-white border-transparent text-center"><span class="md:hidden">CA</span><span class="hidden md:inline">Acceptance</span></button>
         </div>
 
         <!-- Role Tabs -->
