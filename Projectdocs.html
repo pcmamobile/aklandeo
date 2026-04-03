@@ -221,111 +221,156 @@
 
 
     /* ========================================================
-       MOBILE OPTIMIZATION (COMPRESSED GRID LAYOUT)
+       MOBILE OPTIMIZATION (STRICT COMPRESSED GRID LAYOUT)
        ======================================================== */
     @media (max-width: 1100px) {
       .content-grid { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 768px) {
-      /* Maximize screen real estate & reset containers */
       body { padding: 0 0 60px 0; background: #ffffff; }
       .dashboard-wrapper { gap: 0; }
       .col-left, .col-right { gap: 0; }
       
       .pd-card {
-        padding: 12px 10px 16px;
-        box-shadow: none;
-        border: none;
-        border-radius: 0;
-        border-bottom: 4px solid var(--bg-color);
+        padding: 12px 6px 20px;
+        box-shadow: none; border: none; border-radius: 0;
+        border-bottom: 6px solid var(--bg-color);
         background: transparent;
       }
       .pd-card:hover { transform: none; box-shadow: none; }
       .pd-card:last-child { border-bottom: none; }
       
-      .section-title { font-size: 14px; margin: 0 0 8px 0; padding-bottom: 6px; border-bottom: none; color: #1e293b; }
+      .section-title { font-size: 14px; margin: 0 0 10px 4px; padding-bottom: 6px; border-bottom: none; color: #1e293b; }
 
-      /* Compress Meta Info (1 Row Per Item) */
+      /* Compress Meta Info (Icon/Label Row 1, Value Indented Row 2) */
       .meta-grid { 
         display: flex; flex-direction: column; gap: 0; 
-        padding: 10px 14px; border-bottom: 4px solid var(--bg-color);
+        padding: 8px 10px; border-bottom: 4px solid var(--bg-color);
       }
       .meta-card { 
-        display: flex; flex-direction: row; align-items: center; 
-        padding: 8px 0; border-radius: 0; box-shadow: none; 
+        display: grid;
+        grid-template-columns: auto 1fr;
+        grid-template-rows: auto auto;
+        align-items: center;
+        gap: 2px 10px;
+        padding: 10px 0; border-radius: 0; box-shadow: none; 
         border: none; border-bottom: 1px dashed #cbd5e1;
-        background: transparent; gap: 12px;
+        background: transparent;
       }
       .meta-card:last-child { border-bottom: none; }
       .meta-card:hover { transform: none; }
       
-      .meta-info { flex-direction: row; align-items: baseline; gap: 6px; width: auto; }
-      .meta-label { font-size: 12px; font-weight: 800; color: #64748b; }
-      .meta-label::after { content: ':'; }
-      .meta-value { font-size: 13px; font-weight: 700; color: #0f172a; margin-top: 0; }
+      /* Specific Meta Grid Placement */
+      .meta-card .icon-3d { grid-column: 1; grid-row: 1; width: 26px; height: 26px; min-width: 26px; font-size: 12px; border-radius: 6px; box-shadow: none; border: 1px solid rgba(0,0,0,0.1); }
+      .meta-card .meta-info { display: contents; } /* Unpacks info wrapper */
+      .meta-card .meta-label { grid-column: 2; grid-row: 1; align-self: center; font-size: 11px; font-weight: 800; color: #475569; }
+      .meta-card .meta-label::after { content: ':'; }
+      .meta-card .meta-value { 
+        grid-column: 1 / -1; grid-row: 2; 
+        padding-left: 36px; /* Explicit Indent */
+        font-size: 13.5px; font-weight: 700; color: #0f172a; margin-top: 0;
+      }
       
-      /* Scale Down Icons */
-      .icon-3d { width: 28px; height: 28px; min-width: 28px; font-size: 13px; border-radius: 6px; box-shadow: none; border: 1px solid rgba(0,0,0,0.05); }
-      .icon-sm { width: 20px; height: 20px; min-width: 20px; font-size: 10px; margin-right: 8px; border-radius: 4px; }
+      /* Scale Down Header Icons */
+      .icon-sm { width: 22px; height: 22px; min-width: 22px; font-size: 11px; margin-right: 8px; border-radius: 4px; }
 
-      /* Convert Tables to Strict Grids */
-      .pd-table-wrapper { overflow: visible; padding-bottom: 0; }
-      .pd-table { display: flex; flex-direction: column; width: 100%; border-spacing: 0; border-collapse: collapse; }
-      .pd-table thead, .pd-table tbody { display: flex; flex-direction: column; width: 100%; }
-      .pd-table tr { display: grid; border-bottom: 1px solid #e2e8f0; padding: 4px 0; }
-      .pd-table thead tr { border-bottom: 1px solid #94a3b8; padding: 4px 0; }
+      /* Convert Tables to Strict Spreadsheet-Like Grids */
+      .pd-table-wrapper { overflow: visible; padding-bottom: 0; padding: 0 4px; }
       
-      .pd-table th, .pd-table td { display: flex; align-items: flex-start; padding: 4px 6px; font-size: 12px; border: none !important; background: transparent !important; word-break: break-word; }
-      .pd-table th { font-size: 10.5px; font-weight: 800; color: #64748b; align-items: center; }
+      .pd-table { 
+        display: flex; flex-direction: column; width: 100%; border-spacing: 0; 
+        border-top: 1px solid #94a3b8; border-left: 1px solid #94a3b8; 
+      }
+      .pd-table thead, .pd-table tbody { display: contents; }
+      .pd-table tr { display: grid; width: 100%; }
+      
+      /* Strict Borders for Every Cell */
+      .pd-table th, .pd-table td { 
+        display: flex; align-items: flex-start; padding: 6px 8px; font-size: 12.5px; 
+        border-bottom: 1px solid #94a3b8 !important; 
+        border-right: 1px solid #94a3b8 !important; 
+        border-top: none !important; border-left: none !important;
+        background: #ffffff !important; border-radius: 0 !important; 
+        word-break: break-word;
+      }
+      
+      /* HIGHLIGHT: All Table Headers */
+      .pd-table th { 
+        font-size: 11px; font-weight: 900; color: #0f172a; align-items: center; 
+        background: #bae6fd !important; /* Visible Highlight */
+      }
       
       .pd-hide-mobile { display: none !important; }
       
-      /* Special Indented Remarks Sub-Row */
-      .pd-remarks-cell { grid-column: 1 / -1; padding-left: 28px !important; color: #475569; font-size: 11.5px; padding-top: 0px !important; }
+      /* HIGHLIGHT: Icon Year Rows */
+      .pd-year-row { display: flex !important; }
+      .pd-year-row td { 
+        font-size: 13.5px; font-weight: 900; padding: 6px 8px !important; color: #0f172a; 
+        align-items: center; background: #bae6fd !important; /* Visible Highlight */
+        grid-column: 1 / -1 !important; /* Ensure it spans the whole grid */
+        border-right: 1px solid #94a3b8 !important;
+      }
+      .pd-year-row td i { margin-right: 6px; font-size: 13px; color: #0284c7 !important; }
+
+      /* Specific Sub-Row Setup (Indented, Wrap & Justify) */
+      .pd-remarks-cell { 
+        grid-column: 1 / -1; 
+        padding-left: 24px !important; /* Indent */
+        text-align: justify !important; /* Justify text */
+        color: #475569; font-size: 12px; padding-top: 6px !important; padding-bottom: 6px !important;
+      }
       
-      /* Icon Year Rows */
-      .pd-year-row { display: flex !important; background: transparent !important; padding: 6px 0 2px !important; border-bottom: none !important; }
-      .pd-year-row td { font-size: 13px; font-weight: 900; padding: 0 4px !important; color: #1e293b; align-items: center; }
-      .pd-year-row td i { margin-right: 6px; font-size: 12px; color: #3b82f6 !important; }
+      .pd-empty-remark { display: none !important; } /* Hides empty remarks entirely */
 
       /* --- Specific Grid Layouts per Data Type --- */
       
-      /* Scope of Work */
-      .pd-table-description tr { display: flex; flex-direction: column; border-bottom: none; padding: 2px 0; gap: 2px; }
-      .pd-table-description th { font-size: 12px; padding: 4px; color: #0f172a; border-bottom: none; }
-      .pd-table-description td.pd-remarks-cell { padding-left: 20px !important; color: #475569; }
+      /* 5. Scope of Work */
+      .pd-table-description tr { display: grid; grid-template-columns: 1fr; border-bottom: none; }
+      .pd-table-description th { border-right: 1px solid #94a3b8 !important; }
+      .pd-table-description td.pd-remarks-cell { 
+        padding-left: 20px !important; text-align: justify !important; 
+        border-right: 1px solid #94a3b8 !important; 
+      }
 
-      /* Monthly Accomplishment */
-      .tbl-pcma tr:not(.pd-year-row) { grid-template-columns: 1fr 1fr 1fr; }
-      .tbl-pcma thead tr { grid-template-columns: 1fr 1fr 1fr; }
+      /* 6. Monthly Accomplishment */
+      .tbl-pcma tr:not(.pd-year-row) { grid-template-columns: 1.2fr 1fr 1fr; }
+      /* 1/2 Indent & Bold Month */
+      .tbl-pcma td:nth-child(1) { padding-left: 12px !important; font-weight: 800; color: #1e293b; }
 
-      /* Billing Status */
-      .tbl-billing tr:not(.pd-year-row) { grid-template-columns: 1fr 1.1fr 1.6fr 1fr; }
-      .tbl-billing thead tr { grid-template-columns: 1fr 1.1fr 1.6fr 1fr; }
-      .tbl-billing td.pd-remarks { display: flex; flex-direction: column; justify-content: flex-start; padding-top: 4px; color: #334155; }
-      .billing-date-mobile { width: 100%; color: #94a3b8; font-size: 10px; margin-top: 3px; font-weight: bold; }
+      /* 7. Billing Status */
+      .tbl-billing tr:not(.pd-year-row) { 
+        /* Month | Amount (No Wrap) | Remarks | Status (Shrink) */
+        grid-template-columns: minmax(40px, auto) max-content 1fr min-content; 
+      }
+      .tbl-billing td:nth-child(2) { white-space: nowrap; font-weight: bold; } /* Amount */
+      .tbl-billing td:nth-child(3) { display: flex; flex-direction: column; justify-content: flex-start; } /* Remarks */
+      
+      /* Date below Remarks formatted Shrink-to-Fit */
+      .billing-date-mobile { 
+        width: fit-content; 
+        background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 4px; 
+        padding: 2px 6px; margin-top: 6px; color: #475569; font-size: 10.5px; font-weight: bold; 
+      }
 
-      /* Suspension Order (WSO) */
-      .tbl-wso tr { grid-template-columns: 1fr 1.5fr; }
-      .tbl-wso thead tr { grid-template-columns: 1fr 1.5fr; }
+      /* 8. Suspension Order (WSO) */
+      .tbl-wso tr { grid-template-columns: auto 1fr; }
 
-      /* Variation Order (VO) */
-      .tbl-vo tr { grid-template-columns: 1fr 1.2fr 1fr; }
-      .tbl-vo thead tr { grid-template-columns: 1fr 1.2fr 1fr; }
+      /* 9. Variation Order (VO) */
+      .tbl-vo tr { grid-template-columns: 1.2fr 1fr 1fr; }
 
-      /* Time Extension (CTE) */
-      .tbl-cte tr { grid-template-columns: 1.2fr 1.5fr 1fr 1.5fr; }
-      .tbl-cte thead tr { grid-template-columns: 1.2fr 1.5fr 1fr 1.5fr; }
+      /* 10. Time Extension (CTE) */
+      .tbl-cte tr { grid-template-columns: 1fr 1.2fr 0.8fr 1.2fr; }
 
       /* Visual Tweaks */
-      .status-paid, .status-process { font-size: 9.5px; padding: 2px 6px; box-shadow: none; border-radius: 4px; }
-      .col-actual, .col-pcma { font-weight: 800; color: #0284c7; }
+      .status-paid { color: #16a34a; background: #dcfce7; padding: 2px 6px; border-radius: 4px; box-shadow: none; font-size: 10px; white-space: nowrap; }
+      .status-process { color: #d97706; background: #fef3c7; padding: 2px 6px; border-radius: 4px; box-shadow: none; font-size: 10px; white-space: nowrap; }
+      .col-actual, .col-pcma { font-weight: 800; color: #0284c7; justify-content: center; }
       
       /* Compact Chart */
       .pd-scurve-controls { gap: 6px; margin-bottom: 8px; justify-content: flex-start; padding: 0 4px; }
       .pd-toggle { padding: 4px 10px; font-size: 10px; }
-      .pd-scurve-wrapper { height: 220px; padding: 4px; border-radius: 8px; border: 1px solid #e2e8f0; background: #ffffff; }
+      .pd-scurve-wrapper { height: 220px; padding: 4px; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; }
     }
   </style>
 </head>
@@ -346,29 +391,29 @@
         <div class="icon-3d bg-blue"><i class="fa-solid fa-fingerprint"></i></div>
         <div class="meta-info">
           <div class="meta-label">Contract ID</div>
-          <div class="meta-value" id="pdMetaCID">—</div>
         </div>
+        <div class="meta-value" id="pdMetaCID">—</div>
       </div>
       <div class="meta-card">
         <div class="icon-3d bg-purple"><i class="fa-solid fa-hashtag"></i></div>
         <div class="meta-info">
           <div class="meta-label">Project ID</div>
-          <div class="meta-value" id="pdMetaProjectId">—</div>
         </div>
+        <div class="meta-value" id="pdMetaProjectId">—</div>
       </div>
       <div class="meta-card" style="grid-column: span 2;">
         <div class="icon-3d bg-orange"><i class="fa-solid fa-building"></i></div>
         <div class="meta-info">
           <div class="meta-label">Project Name</div>
-          <div class="meta-value" id="pdMetaProjectName">—</div>
         </div>
+        <div class="meta-value" id="pdMetaProjectName">—</div>
       </div>
       <div class="meta-card">
         <div class="icon-3d bg-teal"><i class="fa-solid fa-helmet-safety"></i></div>
         <div class="meta-info">
           <div class="meta-label">Contractor</div>
-          <div class="meta-value" id="pdMetaContractor">—</div>
         </div>
+        <div class="meta-value" id="pdMetaContractor">—</div>
       </div>
     </section>
 
@@ -939,7 +984,11 @@
       let currentYear = null;
       rows.forEach((r) => {
         if (r.year !== currentYear) { currentYear = r.year; html += '<tr class="pd-year-row"><td colspan="4"><i class="fa-regular fa-calendar"></i> ' + (currentYear || "") + "</td></tr>"; }
-        html += "<tr><td>" + (r.month || "") + "</td><td class='col-actual'>" + (typeof r.actual === "number" ? r.actual + "%" : "-") + "</td><td class='col-pcma'>" + (typeof r.pcma === "number" ? r.pcma + "%" : "-") + "</td><td class='pd-remarks-cell'>" + (r.remarks && String(r.remarks).trim() !== "" ? r.remarks : "-") + "</td></tr>";
+        
+        let remarksContent = r.remarks && String(r.remarks).trim() !== "" && r.remarks !== "-" ? r.remarks : "";
+        let remarksClass = remarksContent ? "pd-remarks-cell" : "pd-remarks-cell pd-empty-remark";
+        
+        html += "<tr><td>" + (r.month || "") + "</td><td class='col-actual'>" + (typeof r.actual === "number" ? r.actual + "%" : "-") + "</td><td class='col-pcma'>" + (typeof r.pcma === "number" ? r.pcma + "%" : "-") + "</td><td class='" + remarksClass + "'>" + remarksContent + "</td></tr>";
       });
       html += "</tbody></table></div>";
       container.innerHTML = html;
@@ -951,7 +1000,11 @@
       const title = `<h3 class="section-title">${ICONS.vo} VARIATION ORDER (VO)</h3>`;
       if (!voRows || !voRows.length) { container.innerHTML = title + `<div class='pd-empty'><i class="fa-solid fa-folder-open"></i> No VO Data Recorded</div>`; return; }
       let html = title + "<div class='pd-table-wrapper'><table class='pd-table tbl-vo'><thead><tr><th>VO</th><th>AMOUNT</th><th>(+) DAYS</th><th class='pd-hide-mobile'>REMARKS</th></tr></thead><tbody>";
-      voRows.forEach((r) => { html += "<tr><td><strong>" + (r.label || "") + "</strong></td><td>" + (r.amount || "-") + "</td><td style='text-align:center; font-weight:bold;'>" + (r.days || "-") + "</td><td class='pd-remarks-cell'>" + (r.remarks || "-") + "</td></tr>"; });
+      voRows.forEach((r) => { 
+        let remarksContent = r.remarks && String(r.remarks).trim() !== "" && r.remarks !== "-" ? r.remarks : "";
+        let remarksClass = remarksContent ? "pd-remarks-cell" : "pd-remarks-cell pd-empty-remark";
+        html += "<tr><td><strong>" + (r.label || "") + "</strong></td><td>" + (r.amount || "-") + "</td><td style='text-align:center; font-weight:bold;'>" + (r.days || "-") + "</td><td class='" + remarksClass + "'>" + remarksContent + "</td></tr>"; 
+      });
       html += "</tbody></table></div>";
       container.innerHTML = html;
     }
@@ -962,7 +1015,11 @@
       const title = `<h3 class="section-title">${ICONS.wso} SUSPENSION ORDER</h3>`;
       if (!wsoRows || !wsoRows.length) { container.innerHTML = title + `<div class='pd-empty'><i class="fa-solid fa-folder-open"></i> No WSO Data Recorded</div>`; return; }
       let html = title + "<div class='pd-table-wrapper'><table class='pd-table tbl-wso'><thead><tr><th>CODE</th><th>DATE</th><th class='pd-hide-mobile'>REASON</th></tr></thead><tbody>";
-      wsoRows.forEach((r) => { html += "<tr><td><strong>" + r.code + "</strong></td><td>" + (r.date || "") + "</td><td class='pd-remarks-cell'>" + (r.reason || "") + "</td></tr>"; });
+      wsoRows.forEach((r) => { 
+        let remarksContent = r.reason && String(r.reason).trim() !== "" && r.reason !== "-" ? r.reason : "";
+        let remarksClass = remarksContent ? "pd-remarks-cell" : "pd-remarks-cell pd-empty-remark";
+        html += "<tr><td><strong>" + r.code + "</strong></td><td>" + (r.date || "") + "</td><td class='" + remarksClass + "'>" + remarksContent + "</td></tr>"; 
+      });
       html += "</tbody></table></div>";
       container.innerHTML = html;
     }
@@ -973,13 +1030,16 @@
       const title = `<h3 class="section-title">${ICONS.cte} TIME EXTENSION (CTE)</h3>`;
       if (!cteRows || !cteRows.length) { container.innerHTML = title + `<div class='pd-empty'><i class="fa-solid fa-folder-open"></i> No CTE Data Recorded</div>`; return; }
       
-      // Reordered DOM for CTE so Rev. Expiry is visible on same row via CSS Grid in mobile
       let html = title + "<div class='pd-table-wrapper'><table class='pd-table tbl-cte'><thead><tr><th>CTE</th><th>DATE</th><th>(+) DAYS</th><th>REV. EXPIRY</th><th class='pd-hide-mobile'>REMARKS</th></tr></thead><tbody>";
       cteRows.forEach((r) => {
         let daysDisplay = r.days ? (String(r.days).match(/-?\d+/) ? parseInt(String(r.days).match(/-?\d+/)[0], 10).toString() : String(r.days)) : "";
         let remarksDisplay = r.remarks || "";
         if (/^vo\d+$/i.test(String(r.code).trim())) remarksDisplay = "due to " + String(r.code).trim().toUpperCase();
-        html += "<tr><td><strong>" + (r.code || "") + "</strong></td><td>" + (r.date || "") + "</td><td style='text-align:center; font-weight:bold;'>" + daysDisplay + "</td><td>" + (r.revExpiryDate || "") + "</td><td class='pd-remarks-cell'>" + remarksDisplay + "</td></tr>";
+        
+        let remarksContent = remarksDisplay && String(remarksDisplay).trim() !== "" && remarksDisplay !== "-" ? remarksDisplay : "";
+        let remarksClass = remarksContent ? "pd-remarks-cell" : "pd-remarks-cell pd-empty-remark";
+
+        html += "<tr><td><strong>" + (r.code || "") + "</strong></td><td>" + (r.date || "") + "</td><td style='text-align:center; font-weight:bold;'>" + daysDisplay + "</td><td>" + (r.revExpiryDate || "") + "</td><td class='" + remarksClass + "'>" + remarksContent + "</td></tr>";
       });
       html += "</tbody></table></div>";
       container.innerHTML = html;
@@ -995,18 +1055,16 @@
       
       let currentYear = null;
       billingRows.forEach((r) => { 
-        // Render Year grouping row dynamically
         if (r.year !== currentYear) { 
           currentYear = r.year; 
           html += '<tr class="pd-year-row"><td colspan="5"><i class="fa-regular fa-calendar"></i> ' + (currentYear || "") + "</td></tr>"; 
         }
 
-        // Parse remarks for the "|" separator and process date format
-        let displayRemarks = r.remarks || "-";
+        let displayRemarks = r.remarks && r.remarks !== "-" ? r.remarks : "";
         let displayDateHtml = "";
         
-        if (r.remarks && r.remarks.includes("|")) {
-          let parts = r.remarks.split("|");
+        if (displayRemarks && displayRemarks.includes("|")) {
+          let parts = displayRemarks.split("|");
           let rawDate = parts[0].trim();
           displayRemarks = parts.slice(1).join("|").trim(); 
           let d = new Date(rawDate);
@@ -1020,13 +1078,16 @@
           }
         }
 
+        let remarkTextWrapped = displayRemarks ? `<div style="text-align: justify; word-break: break-word;">${displayRemarks}</div>` : "";
+        let remarksContent = remarkTextWrapped + displayDateHtml;
+
         let statusHtml = r.status === 'PAID' ? `<span class="status-paid"><i class="fa-solid fa-check"></i> PAID</span>` : `<span class="status-process"><i class="fa-solid fa-spinner fa-spin"></i> ON-PROCESS</span>`;
         
         html += `<tr>
             <td class='pd-hide-mobile'>${r.year || ""}</td>
             <td>${r.month || ""}</td>
-            <td style='font-weight:bold; color:#0f172a;'>${r.amount || "-"}</td>
-            <td class='pd-remarks'>${displayRemarks}${displayDateHtml}</td>
+            <td>${r.amount || "-"}</td>
+            <td class='pd-remarks'>${remarksContent || "-"}</td>
             <td class='col-status'>${statusHtml}</td>
           </tr>`; 
       });
