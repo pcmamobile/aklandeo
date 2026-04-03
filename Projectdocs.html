@@ -3,12 +3,16 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <title>3D Project Documentation Dashboard</title>
+  <title>Project Documentation Dashboard</title>
   
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
+    /* Global Box Sizing to prevent any overflow */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { max-width: 100vw; overflow-x: hidden; }
+
     /* Base Variables & Theme */
     :root {
       --bg-color: #e2e8f0;
@@ -27,7 +31,6 @@
       color: var(--text-main);
       margin: 0;
       padding: 20px 30px 100px;
-      overflow-x: hidden;
       transition: background 0.3s ease, padding 0.3s ease;
     }
 
@@ -42,52 +45,46 @@
     .mode-toggle-btn.active { background: #334155; color: #ffffff; border-color: #1e293b; }
     .mode-toggle-btn.active:hover { background: #1e293b; }
 
-    /* 3D Text Highlight (No Edge Box) */
-    .text-3d-highlight {
-      color: #1e293b;
-      text-shadow: 1px 1px 0px #cbd5e1, 2px 2px 0px #94a3b8;
+    /* Clean Text Highlight (Shadow Removed) */
+    .text-clean-highlight {
+      color: #0f172a;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+    }
+
+    /* CSS 3D Gold Coin */
+    .coin-3d {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      background: radial-gradient(circle at 35% 35%, #fef08a, #eab308 60%, #a16207);
+      border-radius: 50%;
+      box-shadow: inset -1px -2px 2px rgba(133, 77, 14, 0.6), inset 1px 1px 2px rgba(255, 255, 255, 0.9), 1px 2px 3px rgba(0,0,0,0.2);
+      color: #713f12;
       font-weight: 900;
-      letter-spacing: 0.5px;
+      font-size: 11px;
+      margin-right: 4px;
+      vertical-align: middle;
+      text-shadow: 0.5px 0.5px 0px rgba(255,255,255,0.4);
+      line-height: 1;
     }
 
     /* Layout Grids */
-    .dashboard-wrapper {
-      max-width: 1600px;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      gap: 25px;
-      min-width: 0; 
-    }
-
-    .meta-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 20px;
-      animation: slideDown 0.6s ease-out forwards;
-      min-width: 0; 
-    }
-
-    .content-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 25px;
-      align-items: start;
-      min-width: 0; 
-      transition: grid-template-columns 0.3s;
-    }
-
-    .col-left, .col-right { display: flex; flex-direction: column; gap: 25px; min-width: 0; }
+    .dashboard-wrapper { max-width: 1600px; margin: 0 auto; display: flex; flex-direction: column; gap: 25px; min-width: 0; }
+    .meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; animation: slideDown 0.6s ease-out forwards; min-width: 0; }
+    .content-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; align-items: start; min-width: 0; transition: grid-template-columns 0.3s; }
+    .col-left, .col-right { display: flex; flex-direction: column; gap: 25px; min-width: 0; width: 100%; }
 
     /* 3D Cards */
     .pd-card {
       background: var(--card-bg); border-radius: var(--border-radius); padding: 24px;
       box-shadow: var(--shadow-inner-glow), var(--shadow-soft); border: 1px solid rgba(255,255,255,0.5);
       transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease, padding 0.3s, border-radius 0.3s;
-      animation: slideUp 0.6s ease-out backwards; min-width: 0; 
+      animation: slideUp 0.6s ease-out backwards; min-width: 0; width: 100%;
     }
     .pd-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-inner-glow), var(--shadow-hover); }
-    
     .pd-card:nth-child(1) { animation-delay: 0.1s; }
     .pd-card:nth-child(2) { animation-delay: 0.2s; }
     .pd-card:nth-child(3) { animation-delay: 0.3s; }
@@ -98,7 +95,7 @@
       display: flex; align-items: center; gap: 16px; padding: 20px;
       background: var(--card-bg); border-radius: 16px;
       box-shadow: var(--shadow-inner-glow), 0 8px 15px rgba(0,0,0,0.04);
-      transition: transform 0.2s; min-width: 0; 
+      transition: transform 0.2s; min-width: 0; width: 100%;
     }
     .meta-card:hover { transform: scale(1.02); }
     .meta-info { display: flex; flex-direction: column; min-width: 0; width: 100%; }
@@ -164,125 +161,294 @@
 
     /* ========================================================
        MOBILE OPTIMIZATION (BEAUTIFUL CARD LIST VIEW)
-       Controlled via .mobile-mode class (Toggleable)
+       Automatically activates on devices max-width: 768px
        ======================================================== */
-    body.mobile-mode { padding: 16px 12px 80px; background: #f1f5f9; }
-    .mobile-mode .dashboard-wrapper { gap: 16px; }
-    .mobile-mode .col-left, .mobile-mode .col-right { gap: 16px; }
-    .mobile-mode .content-grid { grid-template-columns: 1fr; } /* Force 1 column in mobile mode */
-    
-    /* Elevate Mobile Cards */
-    .mobile-mode .pd-card { 
-      padding: 18px 14px; background: #ffffff; border-radius: 20px; 
-      box-shadow: 0 6px 16px rgba(0,0,0,0.04), 0 2px 4px rgba(0,0,0,0.02); 
-      border: 1px solid rgba(255,255,255,0.8);
-    }
-    .mobile-mode .pd-card:hover { transform: none; box-shadow: 0 6px 16px rgba(0,0,0,0.04); }
-    .mobile-mode .section-title { font-size: 16px; margin: 0 0 16px 0; padding-bottom: 12px; border-bottom: 2px solid #f8fafc; }
+    @media (max-width: 768px) {
+      /* Optimize Padding and Background for Mobile Base */
+      body { padding: 12px 8px 60px; background: #f1f5f9; }
+      .dashboard-wrapper { gap: 12px; }
+      .col-left, .col-right { gap: 12px; }
+      .content-grid { grid-template-columns: 1fr; width: 100%; } 
+      
+      /* Elevate Mobile Cards - Compacting Paddings */
+      .pd-card { 
+        padding: 14px 10px; background: #ffffff; border-radius: 16px; 
+        box-shadow: 0 4px 12px rgba(0,0,0,0.04), 0 2px 4px rgba(0,0,0,0.02); 
+        border: 1px solid rgba(255,255,255,0.8); width: 100%;
+      }
+      .pd-card:hover { transform: none; box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
+      .section-title { font-size: 14px; margin: 0 0 12px 0; padding-bottom: 10px; border-bottom: 2px solid #f8fafc; }
 
-    /* Meta Grid -> Compact List */
+      /* Meta Grid -> Compressed 1 Container Dashboard */
+      .meta-grid { 
+        display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; 
+        background: #ffffff; padding: 14px 12px; border-radius: 16px; 
+        box-shadow: 0 4px 12px rgba(0,0,0,0.04); border: 1px solid rgba(255,255,255,0.8);
+      }
+      .meta-card { 
+        display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
+        padding: 0; background: transparent; border-radius: 0; border: none;
+        box-shadow: none; width: 100%;
+      }
+      /* ID's share the first row, others take full width below separated by dashed line */
+      .meta-card:nth-child(1) { grid-column: 1; grid-row: 1; }
+      .meta-card:nth-child(2) { grid-column: 2; grid-row: 1; }
+      .meta-card:nth-child(3) { grid-column: 1 / -1; grid-row: 2; border-top: 1px dashed #e2e8f0; padding-top: 8px; margin-top: 2px; }
+      .meta-card:nth-child(4) { grid-column: 1 / -1; grid-row: 3; border-top: 1px dashed #e2e8f0; padding-top: 8px; margin-top: 2px; }
+      .meta-card:nth-child(5) { grid-column: 1 / -1; grid-row: 4; border-top: 1px dashed #e2e8f0; padding-top: 8px; margin-top: 2px; }
+      
+      .meta-card .icon-3d { width: 22px; height: 22px; min-width: 22px; font-size: 10px; border-radius: 6px; }
+      .meta-info { flex-direction: row; gap: 6px; width: auto; align-items: center; }
+      .meta-label { font-size: 10px; font-weight: 800; color: #64748b; margin: 0; }
+      .meta-value { font-size: 13px; font-weight: 800; color: #0f172a; padding: 0; margin-top: 0; width: 100%; word-break: break-word; }
+      .icon-sm { width: 20px; height: 20px; min-width: 20px; font-size: 11px; margin-right: 8px; border-radius: 6px; }
+
+      /* CONVERT TABLES INTO BEAUTIFUL FLEX-CARDS */
+      .pd-table-wrapper { padding: 0; overflow: visible; width: 100%; }
+      .pd-table { display: flex; flex-direction: column; width: 100%; border: none; gap: 6px; }
+      .pd-table thead { display: none !important; }
+      .pd-table tbody { display: flex; flex-direction: column; width: 100%; gap: 6px; }
+      
+      /* Base Row Design - Compacting Padding */
+      .pd-table tr { 
+        display: flex; flex-wrap: wrap; align-items: center; width: 100%; 
+        background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; 
+        padding: 8px 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+      }
+      .pd-table th, .pd-table td { 
+        display: flex; border: none !important; background: transparent !important; 
+        padding: 0 !important; border-radius: 0 !important; 
+        align-items: center; word-break: break-word; font-size: 12px;
+      }
+      
+      .pd-hide-mobile { display: none !important; }
+      .pd-show-mobile { display: flex !important; flex-direction: column; gap: 2px; }
+      .pd-mobile-label { display: inline-block !important; font-size: 10px; color: #94a3b8; font-weight: 600; margin-right: 4px; }
+
+      /* Year Header Sub-Row Styling */
+      .pd-year-row { border: none !important; background: transparent !important; box-shadow: none !important; padding: 8px 4px 0 !important; margin-bottom: -2px; width: 100%; }
+      .pd-year-row td { background: transparent !important; padding: 0 !important; font-size: 13px !important; font-weight: 900 !important; color: #475569 !important; width: 100%; text-shadow: none; }
+      .pd-year-row td i { margin-right: 6px; font-size: 12px; color: #3b82f6 !important; }
+
+      /* Universal Remarks formatting (Justified, Compacting font size) */
+      .pd-remarks-cell { 
+        width: 100% !important; flex: 1 1 100%; 
+        border-top: 1px dashed #e2e8f0 !important; margin-top: 8px !important; padding-top: 8px !important; 
+        color: #475569 !important; font-size: 11px !important; line-height: 1.4 !important; font-weight: 500;
+        justify-content: flex-start !important; align-items: flex-start !important;
+        text-align: justify !important; text-justify: inter-word; padding-left: 0 !important;
+        white-space: normal !important; /* Ensure it normally wraps */
+      }
+      .pd-empty-remark { display: none !important; border-top: none !important; margin-top: 0 !important; padding-top: 0 !important; }
+      .pd-sub-row { 
+        grid-column: 1 / -1; width: 100%; text-align: justify !important; text-justify: inter-word; 
+        padding-left: 0 !important; margin-top: 8px !important; border-top: 1px dashed #e2e8f0 !important; 
+        padding-top: 8px !important; color: #475569 !important; font-size: 11px !important; 
+        white-space: normal !important; word-wrap: break-word !important; 
+      }
+
+      /* Highlight styling for specific references (Mobile) - Keeps the badge text together */
+      .badge-highlight {
+        background: #fef08a; color: #854d0e; padding: 1px 5px; 
+        border-radius: 4px; font-weight: 800; font-size: 10.5px;
+        border: 1px solid #fde047; white-space: nowrap !important; display: inline-block; margin: 0 2px;
+      }
+
+      /* 5. Scope of Work */
+      .pd-table-description tr { flex-direction: column; align-items: flex-start; gap: 4px; width: 100%; }
+      .pd-table-description th { display: block !important; font-size: 10px; color: #64748b; font-weight: 800; text-shadow: none; letter-spacing: 0.5px; width: 100%; }
+      .pd-table-description td.pd-remarks-cell { width: 100%; border-top: none !important; margin-top: 0 !important; padding-top: 0 !important; font-size: 11px !important; color: #0f172a !important; font-weight: 600; border-bottom: 1px solid #f1f5f9 !important; padding-bottom: 8px !important; text-align: justify !important; }
+      .pd-table-description tr:last-child td.pd-remarks-cell { border-bottom: none !important; padding-bottom: 0 !important; }
+
+      /* 6. Monthly Accomplishment Grid */
+      .tbl-pcma tr:not(.pd-year-row) { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; align-items: start; width: 100%; }
+      .tbl-pcma .col-month { width: auto; font-size: 13px; font-weight: 900; color: #0f172a; padding-left: 6px !important; }
+      .tbl-pcma .pd-show-mobile { width: auto; flex-direction: row; justify-content: flex-end; gap: 10px; }
+      .tbl-pcma .pd-show-mobile > div { align-items: flex-end; }
+      .tbl-pcma .pd-show-mobile > div span { font-size: 9px; color: #94a3b8; font-weight: 700; letter-spacing: 0.5px; }
+      .tbl-pcma .pd-remarks-cell { grid-column: 1 / -1; width: 100%; }
+
+      /* 7. Billing Status Grid (Amount & Status Side-by-Side strictly) */
+      .tbl-billing tr:not(.pd-year-row) { 
+        display: grid; 
+        grid-template-columns: max-content 1fr max-content; 
+        gap: 4px 8px; 
+        align-items: center; 
+        width: 100%; 
+      }
+      .tbl-billing td:nth-child(2) { grid-column: 1; grid-row: 1; width: auto; font-size: 12px; font-weight: 800; color: #64748b; } /* Month */
+      .tbl-billing td:nth-child(3) { grid-column: 2; grid-row: 1; width: 100%; justify-content: flex-start; font-size: 16px; font-weight: 900; color: #0f172a; margin: 0; padding-left: 4px !important; white-space: nowrap; } /* Amount - nowrap to prevent breaking */
+      .tbl-billing td:nth-child(5) { grid-column: 3; grid-row: 1; width: auto; justify-content: flex-end; margin: 0; } /* Status */
+      .tbl-billing td.pd-remarks-cell { grid-column: 1 / -1; grid-row: 2; width: 100%; flex-direction: column; margin-top: 4px !important; font-size: 11px !important; } /* Remarks */
+      .billing-date-mobile { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; padding: 2px 6px; margin-top: 6px; color: #475569; font-size: 10px; font-weight: bold; align-self: flex-start; }
+
+      /* 8. Suspension Order (WSO) Grid */
+      .tbl-wso tr:not(.pd-year-row) { display: grid; grid-template-columns: auto 1fr; gap: 4px 8px; align-items: center; width: 100%; }
+      .tbl-wso td:nth-child(1) { grid-area: 1 / 1; width: auto; font-size: 13px; font-weight: 900; color: #b91c1c; } /* Code */
+      .tbl-wso td:nth-child(2) { grid-area: 1 / 2; width: auto; justify-content: flex-end; font-size: 12px; font-weight: 700; color: #475569; } /* Date */
+      .tbl-wso .pd-sub-row { grid-column: 1 / -1; grid-row: 2; width: 100%; } /* Remarks */
+
+      /* 9. Variation Order (VO) Grid */
+      .tbl-vo tr:not(.pd-year-row) { display: grid; grid-template-columns: auto 1fr auto; gap: 4px 8px; align-items: center; width: 100%; }
+      .tbl-vo td:nth-child(1) { grid-column: 1; grid-row: 1; width: auto; font-size: 13px; font-weight: 900; color: #6d28d9; border: none !important; padding: 0 !important; margin: 0; } /* VO */
+      .tbl-vo td:nth-child(2) { grid-column: 2; grid-row: 1; width: auto; font-size: 14px; font-weight: 900; color: #0f172a; justify-content: flex-start; padding-left: 6px !important; } /* Amount */
+      .tbl-vo td:nth-child(3) { grid-column: 3; grid-row: 1; width: auto; font-size: 12px; font-weight: 800; color: #ea580c; justify-content: flex-end; text-align: right; padding: 0 !important; } /* Days */
+      .tbl-vo .pd-sub-row { grid-column: 1 / -1; grid-row: 2; width: 100%; } /* Remarks */
+
+      /* 10. Time Extension (CTE) Grid */
+      .tbl-cte tr:not(.pd-year-row) { display: grid; grid-template-columns: auto 1fr auto; gap: 4px 8px; align-items: center; width: 100%; }
+      .tbl-cte td:nth-child(1) { grid-column: 1; grid-row: 1; width: auto; font-size: 13px; font-weight: 900; color: #0f766e; border: none !important; padding: 0 !important; margin: 0; } /* CTE */
+      .tbl-cte td:nth-child(2) { grid-column: 2; grid-row: 1; width: auto; justify-content: flex-start; font-size: 12px; font-weight: 700; color: #475569; padding-left: 6px !important; } /* Date */
+      .tbl-cte td:nth-child(3) { grid-column: 3; grid-row: 1; width: auto; justify-content: flex-end; font-size: 12px; font-weight: 900; color: #ea580c; text-align: right; padding: 0 !important; } /* Days */
+      /* Rev Expiry value unbolded font-weight: 500 */
+      .tbl-cte td:nth-child(4) { grid-column: 1 / -1; grid-row: 2; width: auto; justify-content: flex-start; font-size: 12px; font-weight: 500; color: #1e293b; padding: 0 !important; margin-top: 4px; border: none !important; background: transparent !important; text-align: left; } 
+      
+      /* WRAPPED CTE REMARKS */
+      .tbl-cte .pd-sub-row { 
+        grid-column: 1 / -1; grid-row: 3; width: 100%; 
+        white-space: normal !important; overflow-x: hidden !important; 
+        text-align: justify !important; padding-bottom: 4px !important;
+      } 
+
+      /* Visual Tweaks: 50% Smaller Status Tags */
+      .status-paid { font-size: 7.5px; padding: 2px 4px; border-radius: 4px; font-weight: 900; letter-spacing: 0.5px; text-transform: uppercase; }
+      .status-process { font-size: 7.5px; padding: 2px 4px; border-radius: 4px; font-weight: 900; letter-spacing: 0.5px; text-transform: uppercase; }
+      
+      /* Chart Tweaks: Force controls to single row */
+      .pd-scurve-controls { justify-content: center; flex-wrap: nowrap; gap: 4px; margin-bottom: 12px; width: 100%; }
+      .pd-toggle { padding: 6px 4px; font-size: 9.5px; border-radius: 6px; flex: 1; justify-content: center; white-space: nowrap; }
+      .pd-scurve-wrapper { height: 220px; padding: 0; border: none; background: transparent; box-shadow: none; margin-bottom: 0; width: 100%; }
+    }
+    
+    /* ========================================================
+       MOBILE MODE (MANUAL TOGGLE)
+       ======================================================== */
+    body.mobile-mode { padding: 12px 8px 60px; background: #f1f5f9; }
+    .mobile-mode .dashboard-wrapper { gap: 12px; }
+    .mobile-mode .col-left, .mobile-mode .col-right { gap: 12px; }
+    .mobile-mode .content-grid { grid-template-columns: 1fr; width: 100%; } 
+    
+    .mobile-mode .pd-card { 
+      padding: 14px 10px; background: #ffffff; border-radius: 16px; 
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04), 0 2px 4px rgba(0,0,0,0.02); 
+      border: 1px solid rgba(255,255,255,0.8); width: 100%;
+    }
+    .mobile-mode .pd-card:hover { transform: none; box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
+    .mobile-mode .section-title { font-size: 14px; margin: 0 0 12px 0; padding-bottom: 10px; border-bottom: 2px solid #f8fafc; }
+
     .mobile-mode .meta-grid { 
-      display: flex; flex-direction: column; gap: 0; background: #ffffff; border-radius: 20px; padding: 16px 14px;
-      box-shadow: 0 6px 16px rgba(0,0,0,0.04); border: 1px solid rgba(255,255,255,0.8);
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px; 
+      background: #ffffff; padding: 14px 12px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); border: 1px solid rgba(255,255,255,0.8);
     }
     .mobile-mode .meta-card { 
-      display: flex; align-items: flex-start; gap: 14px; padding: 14px 0; border-radius: 0; box-shadow: none; border: none; 
-      border-bottom: 1px solid #f1f5f9; background: transparent;
+      display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
+      padding: 0; background: transparent; border-radius: 0; border: none;
+      box-shadow: none; width: 100%;
     }
-    .mobile-mode .meta-card:last-child { border-bottom: none; padding-bottom: 0; }
-    .mobile-mode .meta-card:first-child { padding-top: 0; }
-    .mobile-mode .meta-card:hover { transform: none; }
+    .mobile-mode .meta-card:nth-child(1) { grid-column: 1; grid-row: 1; }
+    .mobile-mode .meta-card:nth-child(2) { grid-column: 2; grid-row: 1; }
+    .mobile-mode .meta-card:nth-child(3) { grid-column: 1 / -1; grid-row: 2; border-top: 1px dashed #e2e8f0; padding-top: 8px; margin-top: 2px; }
+    .mobile-mode .meta-card:nth-child(4) { grid-column: 1 / -1; grid-row: 3; border-top: 1px dashed #e2e8f0; padding-top: 8px; margin-top: 2px; }
+    .mobile-mode .meta-card:nth-child(5) { grid-column: 1 / -1; grid-row: 4; border-top: 1px dashed #e2e8f0; padding-top: 8px; margin-top: 2px; }
     
-    .mobile-mode .meta-card .icon-3d { width: 38px; height: 38px; min-width: 38px; font-size: 16px; border-radius: 10px; }
-    .mobile-mode .meta-card .meta-info { flex: 1; display: flex; flex-direction: column; min-width: 0; }
-    .mobile-mode .meta-card .meta-label { font-size: 11px; font-weight: 800; color: #64748b; margin-bottom: 3px; }
-    .mobile-mode .meta-card .meta-value { font-size: 15px; font-weight: 800; color: #0f172a; padding: 0; margin-top: 0; }
-    .mobile-mode .icon-sm { width: 24px; height: 24px; min-width: 24px; font-size: 12px; margin-right: 10px; border-radius: 6px; }
+    .mobile-mode .meta-card .icon-3d { width: 22px; height: 22px; min-width: 22px; font-size: 10px; border-radius: 6px; }
+    .mobile-mode .meta-info { flex-direction: row; gap: 6px; width: auto; align-items: center; }
+    .mobile-mode .meta-label { font-size: 10px; font-weight: 800; color: #64748b; margin: 0; }
+    .mobile-mode .meta-value { font-size: 13px; font-weight: 800; color: #0f172a; padding: 0; margin-top: 0; width: 100%; word-break: break-word; }
+    .mobile-mode .icon-sm { width: 20px; height: 20px; min-width: 20px; font-size: 11px; margin-right: 8px; border-radius: 6px; }
 
-    /* CONVERT TABLES INTO BEAUTIFUL FLEX-CARDS */
-    .mobile-mode .pd-table-wrapper { padding: 0; overflow: visible; }
-    .mobile-mode .pd-table { display: flex; flex-direction: column; width: 100%; border: none; gap: 12px; }
+    .mobile-mode .pd-table-wrapper { padding: 0; overflow: visible; width: 100%; }
+    .mobile-mode .pd-table { display: flex; flex-direction: column; width: 100%; border: none; gap: 6px; }
     .mobile-mode .pd-table thead { display: none !important; }
-    .mobile-mode .pd-table tbody { display: flex; flex-direction: column; width: 100%; gap: 12px; }
+    .mobile-mode .pd-table tbody { display: flex; flex-direction: column; width: 100%; gap: 6px; }
     
-    /* Base Row Design */
     .mobile-mode .pd-table tr { 
       display: flex; flex-wrap: wrap; align-items: center; width: 100%; 
-      background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; 
-      padding: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+      background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; 
+      padding: 8px 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
     }
     .mobile-mode .pd-table th, .mobile-mode .pd-table td { 
       display: flex; border: none !important; background: transparent !important; 
       padding: 0 !important; border-radius: 0 !important; 
-      align-items: center; word-break: break-word; text-align: left;
+      align-items: center; word-break: break-word; font-size: 12px;
     }
     
     .mobile-mode .pd-hide-mobile { display: none !important; }
-    .mobile-mode .pd-show-mobile { display: flex !important; flex-direction: column; gap: 4px; }
-    .mobile-mode .pd-mobile-label { display: inline-block !important; font-size: 11px; color: #94a3b8; font-weight: 600; margin-right: 6px; }
+    .mobile-mode .pd-show-mobile { display: flex !important; flex-direction: column; gap: 2px; }
+    .mobile-mode .pd-mobile-label { display: inline-block !important; font-size: 10px; color: #94a3b8; font-weight: 600; margin-right: 4px; }
 
-    /* Year Header Sub-Row Styling */
-    .mobile-mode .pd-year-row { border: none !important; background: transparent !important; box-shadow: none !important; padding: 10px 4px 0 !important; margin-bottom: -4px; }
-    .mobile-mode .pd-year-row td { background: transparent !important; padding: 0 !important; font-size: 14px !important; font-weight: 900 !important; color: #475569 !important; width: 100%; text-shadow: none; }
-    .mobile-mode .pd-year-row td i { margin-right: 8px; font-size: 14px; color: #3b82f6 !important; }
+    .mobile-mode .pd-year-row { border: none !important; background: transparent !important; box-shadow: none !important; padding: 8px 4px 0 !important; margin-bottom: -2px; width: 100%; }
+    .mobile-mode .pd-year-row td { background: transparent !important; padding: 0 !important; font-size: 13px !important; font-weight: 900 !important; color: #475569 !important; width: 100%; text-shadow: none; }
+    .mobile-mode .pd-year-row td i { margin-right: 6px; font-size: 12px; color: #3b82f6 !important; }
 
-    /* Universal Remarks formatting */
     .mobile-mode .pd-remarks-cell { 
       width: 100% !important; flex: 1 1 100%; 
-      border-top: 1px dashed #e2e8f0 !important; margin-top: 12px !important; padding-top: 10px !important; 
-      color: #475569 !important; font-size: 13px !important; line-height: 1.5 !important; font-weight: 500;
+      border-top: 1px dashed #e2e8f0 !important; margin-top: 8px !important; padding-top: 8px !important; 
+      color: #475569 !important; font-size: 11px !important; line-height: 1.4 !important; font-weight: 500;
       justify-content: flex-start !important; align-items: flex-start !important;
+      text-align: justify !important; text-justify: inter-word; padding-left: 0 !important;
+      white-space: normal !important;
     }
     .mobile-mode .pd-empty-remark { display: none !important; border-top: none !important; margin-top: 0 !important; padding-top: 0 !important; }
+    .mobile-mode .pd-sub-row { grid-column: 1 / -1; width: 100%; text-align: justify !important; text-justify: inter-word; padding-left: 0 !important; margin-top: 8px !important; border-top: 1px dashed #e2e8f0 !important; padding-top: 8px !important; color: #475569 !important; font-size: 11px !important; white-space: normal !important; word-wrap: break-word !important; }
 
-    /* 5. Scope of Work */
-    .mobile-mode .pd-table-description tr { flex-direction: column; align-items: flex-start; gap: 6px; }
-    .mobile-mode .pd-table-description th { display: block !important; font-size: 11px; color: #64748b; font-weight: 800; text-shadow: none; letter-spacing: 0.5px; }
-    .mobile-mode .pd-table-description td.pd-remarks-cell { border-top: none !important; margin-top: 0 !important; padding-top: 0 !important; font-size: 14.5px !important; color: #0f172a !important; font-weight: 600; border-bottom: 1px solid #f1f5f9 !important; padding-bottom: 12px !important; }
+    .mobile-mode .badge-highlight {
+      background: #fef08a; color: #854d0e; padding: 1px 5px; 
+      border-radius: 4px; font-weight: 800; font-size: 10.5px;
+      border: 1px solid #fde047; white-space: nowrap !important; display: inline-block; margin: 0 2px;
+    }
+
+    .mobile-mode .pd-table-description tr { flex-direction: column; align-items: flex-start; gap: 4px; width: 100%; }
+    .mobile-mode .pd-table-description th { display: block !important; font-size: 10px; color: #64748b; font-weight: 800; text-shadow: none; letter-spacing: 0.5px; width: 100%; }
+    .mobile-mode .pd-table-description td.pd-remarks-cell { width: 100%; border-top: none !important; margin-top: 0 !important; padding-top: 0 !important; font-size: 11px !important; color: #0f172a !important; font-weight: 600; border-bottom: 1px solid #f1f5f9 !important; padding-bottom: 8px !important; text-align: justify !important; }
     .mobile-mode .pd-table-description tr:last-child td.pd-remarks-cell { border-bottom: none !important; padding-bottom: 0 !important; }
 
-    /* 6. Monthly Accomplishment */
-    .mobile-mode .tbl-pcma tr:not(.pd-year-row) { justify-content: space-between; align-items: center; }
-    .mobile-mode .tbl-pcma .col-month { width: 40%; font-size: 16px; font-weight: 900; color: #0f172a; }
-    .mobile-mode .tbl-pcma .pd-show-mobile { width: 60%; flex-direction: row; justify-content: flex-end; gap: 16px; }
+    .mobile-mode .tbl-pcma tr:not(.pd-year-row) { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; align-items: start; width: 100%; }
+    .mobile-mode .tbl-pcma .col-month { width: auto; font-size: 13px; font-weight: 900; color: #0f172a; padding-left: 6px !important; }
+    .mobile-mode .tbl-pcma .pd-show-mobile { width: auto; flex-direction: row; justify-content: flex-end; gap: 10px; }
     .mobile-mode .tbl-pcma .pd-show-mobile > div { align-items: flex-end; }
-    .mobile-mode .tbl-pcma .pd-show-mobile > div span { font-size: 10px; color: #94a3b8; font-weight: 700; letter-spacing: 0.5px; }
+    .mobile-mode .tbl-pcma .pd-show-mobile > div span { font-size: 9px; color: #94a3b8; font-weight: 700; letter-spacing: 0.5px; }
+    .mobile-mode .tbl-pcma .pd-remarks-cell { grid-column: 1 / -1; width: 100%; }
 
-    /* 7. Billing Status */
-    .mobile-mode .tbl-billing tr:not(.pd-year-row) { justify-content: space-between; row-gap: 8px; }
-    .mobile-mode .tbl-billing td:nth-child(2) { width: 50%; font-size: 14px; font-weight: 800; color: #64748b; }
-    .mobile-mode .tbl-billing td:nth-child(5) { width: 50%; justify-content: flex-end; }
-    .mobile-mode .tbl-billing td:nth-child(3) { width: 100%; font-size: 22px; font-weight: 900; color: #0f172a; margin-top: 4px; }
-    .mobile-mode .tbl-billing .pd-remarks-cell { flex-direction: column; }
-    .mobile-mode .billing-date-mobile { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; padding: 4px 8px; margin-top: 8px; color: #475569; font-size: 11px; font-weight: bold; align-self: flex-start; }
+    .mobile-mode .tbl-billing tr:not(.pd-year-row) { 
+      display: grid; grid-template-columns: max-content 1fr max-content; gap: 4px 8px; align-items: center; width: 100%; 
+    }
+    .mobile-mode .tbl-billing td:nth-child(2) { grid-column: 1; grid-row: 1; width: auto; font-size: 12px; font-weight: 800; color: #64748b; } 
+    .mobile-mode .tbl-billing td:nth-child(3) { grid-column: 2; grid-row: 1; width: 100%; justify-content: flex-start; font-size: 16px; font-weight: 900; color: #0f172a; margin: 0; padding-left: 4px !important; white-space: nowrap; } 
+    .mobile-mode .tbl-billing td:nth-child(5) { grid-column: 3; grid-row: 1; width: auto; justify-content: flex-end; margin: 0; } 
+    .mobile-mode .tbl-billing td.pd-remarks-cell { grid-column: 1 / -1; grid-row: 2; width: 100%; flex-direction: column; margin-top: 4px !important; font-size: 11px !important; } 
+    .mobile-mode .billing-date-mobile { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; padding: 2px 6px; margin-top: 6px; color: #475569; font-size: 10px; font-weight: bold; align-self: flex-start; }
 
-    /* 8. Suspension Order (WSO) */
-    .mobile-mode .tbl-wso tr:not(.pd-sub-row) { justify-content: space-between; }
-    .mobile-mode .tbl-wso td:nth-child(1) { width: 50%; font-size: 16px; font-weight: 900; color: #b91c1c; }
-    .mobile-mode .tbl-wso td:nth-child(2) { width: 50%; justify-content: flex-end; font-size: 14px; font-weight: 700; color: #475569; }
+    .mobile-mode .tbl-wso tr:not(.pd-year-row) { display: grid; grid-template-columns: auto 1fr; gap: 4px 8px; align-items: center; width: 100%; }
+    .mobile-mode .tbl-wso td:nth-child(1) { grid-area: 1 / 1; width: auto; font-size: 13px; font-weight: 900; color: #b91c1c; } 
+    .mobile-mode .tbl-wso td:nth-child(2) { grid-area: 1 / 2; width: auto; justify-content: flex-end; font-size: 12px; font-weight: 700; color: #475569; } 
+    .mobile-mode .tbl-wso .pd-sub-row { grid-column: 1 / -1; grid-row: 2; width: 100%; } 
 
-    /* 9. Variation Order (VO) */
-    .mobile-mode .tbl-vo tr:not(.pd-sub-row) { justify-content: space-between; row-gap: 8px; }
-    .mobile-mode .tbl-vo td:nth-child(1) { width: 100%; font-size: 16px; font-weight: 900; color: #6d28d9; border-bottom: 1px solid #f1f5f9 !important; padding-bottom: 12px !important; margin-bottom: 4px; }
-    .mobile-mode .tbl-vo td:nth-child(2) { width: 60%; font-size: 18px; font-weight: 900; color: #0f172a; }
-    .mobile-mode .tbl-vo td:nth-child(3) { width: 40%; justify-content: flex-end; font-size: 14px; font-weight: 800; color: #ea580c; }
+    .mobile-mode .tbl-vo tr:not(.pd-year-row) { display: grid; grid-template-columns: auto 1fr auto; gap: 4px 8px; align-items: center; width: 100%; }
+    .mobile-mode .tbl-vo td:nth-child(1) { grid-column: 1; grid-row: 1; width: auto; font-size: 13px; font-weight: 900; color: #6d28d9; border: none !important; padding: 0 !important; margin: 0; } 
+    .mobile-mode .tbl-vo td:nth-child(2) { grid-column: 2; grid-row: 1; width: auto; font-size: 14px; font-weight: 900; color: #0f172a; justify-content: flex-start; padding-left: 6px !important; } 
+    .mobile-mode .tbl-vo td:nth-child(3) { grid-column: 3; grid-row: 1; width: auto; font-size: 12px; font-weight: 800; color: #ea580c; justify-content: flex-end; text-align: right; padding: 0 !important; } 
+    .mobile-mode .tbl-vo .pd-sub-row { grid-column: 1 / -1; grid-row: 2; width: 100%; } 
 
-    /* 10. Time Extension (CTE) */
-    .mobile-mode .tbl-cte tr:not(.pd-sub-row) { justify-content: space-between; row-gap: 8px; }
-    .mobile-mode .tbl-cte td:nth-child(1) { width: 100%; font-size: 16px; font-weight: 900; color: #0f766e; border-bottom: 1px solid #f1f5f9 !important; padding-bottom: 12px !important; margin-bottom: 4px; }
-    .mobile-mode .tbl-cte td:nth-child(2) { width: 50%; font-size: 14px; font-weight: 700; color: #475569; }
-    .mobile-mode .tbl-cte td:nth-child(3) { width: 50%; justify-content: flex-end; font-size: 14px; font-weight: 900; color: #ea580c; }
-    .mobile-mode .tbl-cte td:nth-child(4) { width: 100%; font-size: 14px; font-weight: 800; color: #1e293b; background: #f8fafc !important; padding: 10px 12px !important; border-radius: 8px !important; margin-top: 8px; border: 1px solid #e2e8f0 !important; }
-
-    /* Visual Tweaks */
-    .mobile-mode .status-paid { font-size: 11px; padding: 4px 10px; border-radius: 6px; font-weight: 800; letter-spacing: 0.5px; }
-    .mobile-mode .status-process { font-size: 11px; padding: 4px 10px; border-radius: 6px; font-weight: 800; letter-spacing: 0.5px; }
+    .mobile-mode .tbl-cte tr:not(.pd-year-row) { display: grid; grid-template-columns: auto 1fr auto; gap: 4px 8px; align-items: center; width: 100%; }
+    .mobile-mode .tbl-cte td:nth-child(1) { grid-column: 1; grid-row: 1; width: auto; font-size: 13px; font-weight: 900; color: #0f766e; border: none !important; padding: 0 !important; margin: 0; } 
+    .mobile-mode .tbl-cte td:nth-child(2) { grid-column: 2; grid-row: 1; width: auto; justify-content: flex-start; font-size: 12px; font-weight: 700; color: #475569; padding-left: 6px !important; } 
+    .mobile-mode .tbl-cte td:nth-child(3) { grid-column: 3; grid-row: 1; width: auto; justify-content: flex-end; font-size: 12px; font-weight: 900; color: #ea580c; text-align: right; padding: 0 !important; } 
+    .mobile-mode .tbl-cte td:nth-child(4) { grid-column: 1 / -1; grid-row: 2; width: auto; justify-content: flex-start; font-size: 12px; font-weight: 500; color: #1e293b; padding: 0 !important; margin-top: 4px; border: none !important; background: transparent !important; text-align: left; } 
     
-    /* Chart Tweaks */
-    .mobile-mode .pd-scurve-controls { justify-content: center; gap: 10px; margin-bottom: 16px; }
-    .mobile-mode .pd-toggle { padding: 6px 14px; font-size: 11px; border-radius: 8px; }
-    .mobile-mode .pd-scurve-wrapper { height: 260px; padding: 0; border: none; background: transparent; box-shadow: none; margin-bottom: 0; }
+    /* WRAPPED CTE REMARKS */
+    .mobile-mode .tbl-cte .pd-sub-row { 
+      grid-column: 1 / -1; grid-row: 3; width: 100%; 
+      white-space: normal !important; overflow-x: hidden !important; 
+      text-align: justify !important; padding-bottom: 4px !important;
+    } 
 
+    .mobile-mode .status-paid { font-size: 7.5px; padding: 2px 4px; border-radius: 4px; font-weight: 900; letter-spacing: 0.5px; text-transform: uppercase; }
+    .mobile-mode .status-process { font-size: 7.5px; padding: 2px 4px; border-radius: 4px; font-weight: 900; letter-spacing: 0.5px; text-transform: uppercase; }
+    
+    .mobile-mode .pd-scurve-controls { justify-content: center; flex-wrap: nowrap; gap: 4px; margin-bottom: 12px; width: 100%; }
+    .mobile-mode .pd-toggle { padding: 6px 4px; font-size: 9.5px; border-radius: 6px; flex: 1; justify-content: center; white-space: nowrap; }
+    .mobile-mode .pd-scurve-wrapper { height: 220px; padding: 0; border: none; background: transparent; box-shadow: none; margin-bottom: 0; width: 100%; }
   </style>
 </head>
 <body>
@@ -298,32 +464,39 @@
     <!-- TOP ROW: Meta Info Grid -->
     <section id="pdMetaSection" class="meta-grid">
       <div class="meta-card">
-        <div class="icon-3d bg-blue"><i class="fa-solid fa-fingerprint"></i></div>
         <div class="meta-info">
-          <div class="meta-label text-3d-highlight">Contract ID</div>
-          <div class="meta-value" id="pdMetaCID">—</div>
+          <div class="icon-3d bg-blue"><i class="fa-solid fa-fingerprint"></i></div>
+          <div class="meta-label text-clean-highlight">Contract ID</div>
         </div>
+        <div class="meta-value" id="pdMetaCID">—</div>
       </div>
       <div class="meta-card">
-        <div class="icon-3d bg-purple"><i class="fa-solid fa-hashtag"></i></div>
         <div class="meta-info">
-          <div class="meta-label text-3d-highlight">Project ID</div>
-          <div class="meta-value" id="pdMetaProjectId">—</div>
+          <div class="icon-3d bg-purple"><i class="fa-solid fa-hashtag"></i></div>
+          <div class="meta-label text-clean-highlight">Project ID</div>
         </div>
+        <div class="meta-value" id="pdMetaProjectId">—</div>
       </div>
       <div class="meta-card" style="grid-column: span 2;">
-        <div class="icon-3d bg-orange"><i class="fa-solid fa-building"></i></div>
         <div class="meta-info">
-          <div class="meta-label text-3d-highlight">Project Name</div>
-          <div class="meta-value" id="pdMetaProjectName">—</div>
+          <div class="icon-3d bg-orange"><i class="fa-solid fa-building"></i></div>
+          <div class="meta-label text-clean-highlight">Project Name</div>
         </div>
+        <div class="meta-value" id="pdMetaProjectName">—</div>
       </div>
       <div class="meta-card">
-        <div class="icon-3d bg-teal"><i class="fa-solid fa-helmet-safety"></i></div>
         <div class="meta-info">
-          <div class="meta-label text-3d-highlight">Contractor</div>
-          <div class="meta-value" id="pdMetaContractor">—</div>
+          <div class="icon-3d bg-teal"><i class="fa-solid fa-helmet-safety"></i></div>
+          <div class="meta-label text-clean-highlight">Contractor</div>
         </div>
+        <div class="meta-value" id="pdMetaContractor">—</div>
+      </div>
+      <div class="meta-card">
+        <div class="meta-info">
+          <div class="icon-3d bg-yellow"><i class="fa-solid fa-coins"></i></div>
+          <div class="meta-label text-clean-highlight">Fund</div>
+        </div>
+        <div class="meta-value" id="pdMetaFund">—</div>
       </div>
     </section>
 
@@ -336,7 +509,7 @@
 
         <!-- S-Curve Chart -->
         <section id="pdScurveCard" class="pd-card" style="display:none;">
-          <h3 class="section-title text-3d-highlight"><div class="icon-3d icon-sm bg-blue"><i class="fa-solid fa-chart-area"></i></div> S-CURVE & PROGRESS</h3>
+          <h3 class="section-title text-clean-highlight"><div class="icon-3d icon-sm bg-blue"><i class="fa-solid fa-chart-area"></i></div> S-CURVE & PROGRESS</h3>
           <div class="pd-scurve-controls" id="pdScurveControls">
             <label class="pd-toggle"><input type="checkbox" id="pdToggleActual" checked><span>ACTUAL</span></label>
             <label class="pd-toggle"><input type="checkbox" id="pdTogglePcma" checked><span>PCMA</span></label>
@@ -372,6 +545,9 @@
     const SHEET_ID = "1LSYLZ7tfSeVupQMPsCOHG4SlnzPQqOAIe03QI1qRMr8";
     const API_KEY = "AIzaSyCz6fNJr3ecn-M2HActqM1aCXbxqRLj2e8";
     let scurveChart = null;
+
+    // A beautiful, reliable inline SVG 3D Gold Coin with Philippine Peso icon.
+    const pesoSvgIcon = `<svg width="18" height="18" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" style="vertical-align: sub; margin-right: 4px; filter: drop-shadow(1px 2px 2px rgba(0,0,0,0.15));"><circle cx="16" cy="18" r="14" fill="#b45309" /><circle cx="16" cy="16" r="14" fill="#fde047" /><circle cx="16" cy="16" r="11" fill="#facc15" stroke="#eab308" stroke-width="1" /><path d="M13 10h4.5c2.5 0 4.5 1.5 4.5 3.5S20 17 17.5 17H13v5" fill="none" stroke="#b45309" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 13h9M10 16h9" stroke="#b45309" stroke-width="2" stroke-linecap="round"/><path d="M13 9h4.5c2.5 0 4.5 1.5 4.5 3.5S20 16 17.5 16H13v5" fill="none" stroke="#fffbeb" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 12h9M10 15h9" stroke="#fffbeb" stroke-width="2" stroke-linecap="round"/></svg>`;
 
     /* --- Toggle Mode Logic --- */
     let isManualMode = false;
@@ -483,6 +659,19 @@
       if (document.getElementById("pdMetaProjectId")) document.getElementById("pdMetaProjectId").textContent = projectId || "—";
       if (document.getElementById("pdMetaProjectName")) document.getElementById("pdMetaProjectName").textContent = projectName || "—";
       if (document.getElementById("pdMetaContractor")) document.getElementById("pdMetaContractor").textContent = contractor || "—";
+    }
+
+    function applyPdoMeta(pdoValues, contractId) {
+      if (!Array.isArray(pdoValues) || pdoValues.length < 3) return;
+      const headers = pdoValues[2] || [];
+      const rowIdx = findRowIndexByExactCell(pdoValues, 3, contractId);
+      const row = rowIdx >= 0 ? (pdoValues[rowIdx] || []) : null;
+      if (!row) return;
+
+      const colFund = findColumnIndexByIncludes(headers, ["fund"]);
+      const fund = colFund >= 0 ? String(row[colFund] || "").trim() : "";
+
+      if (document.getElementById("pdMetaFund")) document.getElementById("pdMetaFund").textContent = fund || "—";
     }
 
     function monthNameToNumber(name) {
@@ -882,7 +1071,7 @@
     function renderDescriptionSection(info) {
       const container = document.getElementById("pdDescriptionSection");
       if (!container) return;
-      const title = `<h3 class="section-title text-3d-highlight">${ICONS.description} SCOPE OF WORK</h3>`;
+      const title = `<h3 class="section-title text-clean-highlight">${ICONS.description} SCOPE OF WORK</h3>`;
       if (!info) {
         container.innerHTML = title + `<div class='pd-empty'><i class="fa-solid fa-folder-open"></i> No Description Found</div>`;
         return;
@@ -891,8 +1080,8 @@
         <div class='pd-table-wrapper'>
           <table class='pd-table pd-table-description'>
             <tbody>
-              <tr><th class="text-3d-highlight" style="width:25%;">ORIGINAL</th><td class='pd-remarks-cell'>${info.original || "-"}</td></tr>
-              <tr><th class="text-3d-highlight">REVISED</th><td class='pd-remarks-cell'>${info.revised || "-"}</td></tr>
+              <tr><th class="text-clean-highlight" style="width:25%;">ORIGINAL</th><td class='pd-remarks-cell'>${info.original || "-"}</td></tr>
+              <tr><th class="text-clean-highlight">REVISED</th><td class='pd-remarks-cell'>${info.revised || "-"}</td></tr>
             </tbody>
           </table>
         </div>`;
@@ -901,7 +1090,7 @@
     function renderPcmaSection(pcmaRows, pcmaExtraRows) {
       const container = document.getElementById("pdPcmaSection");
       if (!container) return;
-      const title = `<h3 class="section-title text-3d-highlight">${ICONS.pcma} MONTHLY ACCOMPLISHMENT</h3>`;
+      const title = `<h3 class="section-title text-clean-highlight">${ICONS.pcma} MONTHLY ACCOMPLISHMENT</h3>`;
       
       const combinedMap = new Map();
       function upsertEntry(sourceRow, type) {
@@ -927,7 +1116,7 @@
       
       rows.sort((a, b) => { const ya = parseInt(a.year, 10) || 0; const yb = parseInt(b.year, 10) || 0; if (ya !== yb) return ya - yb; return a.monthNum - b.monthNum; });
 
-      let html = title + "<div class='pd-table-wrapper'><table class='pd-table tbl-pcma'><thead><tr><th class='text-3d-highlight'>MONTH</th><th class='text-3d-highlight pd-hide-mobile'>ACTUAL</th><th class='text-3d-highlight pd-hide-mobile'>PCMA</th><th class='text-3d-highlight pd-show-mobile'>ACTUAL / PCMA</th><th class='text-3d-highlight'>REMARKS</th></tr></thead><tbody>";
+      let html = title + "<div class='pd-table-wrapper'><table class='pd-table tbl-pcma'><thead><tr><th class='text-clean-highlight'>MONTH</th><th class='text-clean-highlight pd-hide-mobile'>ACTUAL</th><th class='text-clean-highlight pd-hide-mobile'>PCMA</th><th class='text-clean-highlight pd-show-mobile'>ACTUAL / PCMA</th><th class='text-clean-highlight'>REMARKS</th></tr></thead><tbody>";
       let currentYear = null;
       rows.forEach((r) => {
         if (r.year !== currentYear) { currentYear = r.year; html += '<tr class="pd-year-row"><td colspan="5"><i class="fa-regular fa-calendar"></i> ' + (currentYear || "") + "</td></tr>"; }
@@ -937,6 +1126,8 @@
         let pcmaStr = typeof r.pcma === "number" ? r.pcma + "%" : "-";
         let remarksContent = r.remarks && String(r.remarks).trim() !== "" ? r.remarks : "-";
         
+        let remarksClass = remarksContent !== "-" ? "pd-remarks-cell" : "pd-remarks-cell pd-empty-remark";
+
         html += `<tr>
             <td class="col-month">${mStr}</td>
             <td class='col-actual pd-hide-mobile'>${actStr}</td>
@@ -945,7 +1136,7 @@
                 <div style="color:#16a34a; font-weight:800;"><span class="pd-mobile-label">Actual:</span> ${actStr}</div>
                 <div style="color:#0284c7; font-weight:800; margin-top:2px;"><span class="pd-mobile-label">PCMA:</span> ${pcmaStr}</div>
             </td>
-            <td class="pd-remarks-cell">${remarksContent}</td>
+            <td class="${remarksClass}">${remarksContent}</td>
         </tr>`;
       });
       html += "</tbody></table></div>";
@@ -955,14 +1146,26 @@
     function renderVoSection(voRows) {
       const container = document.getElementById("pdVoSection");
       if (!container) return;
-      const title = `<h3 class="section-title text-3d-highlight">${ICONS.vo} VARIATION ORDER (VO)</h3>`;
+      const title = `<h3 class="section-title text-clean-highlight">${ICONS.vo} VARIATION ORDER (VO)</h3>`;
       if (!voRows || !voRows.length) { container.innerHTML = title + `<div class='pd-empty'><i class="fa-solid fa-folder-open"></i> No VO Data Recorded</div>`; return; }
-      let html = title + "<div class='pd-table-wrapper'><table class='pd-table tbl-vo'><thead><tr><th class='text-3d-highlight'>VO</th><th class='text-3d-highlight'>AMOUNT</th><th class='text-3d-highlight'>(+) DAYS</th><th class='text-3d-highlight pd-hide-mobile'>REMARKS</th></tr></thead><tbody>";
+      let html = title + "<div class='pd-table-wrapper'><table class='pd-table tbl-vo'><thead><tr><th class='text-clean-highlight'>VO</th><th class='text-clean-highlight'>AMOUNT</th><th class='text-clean-highlight'>(+) DAYS</th><th class='text-clean-highlight pd-hide-mobile'>REMARKS</th></tr></thead><tbody>";
       voRows.forEach((r) => { 
         let remarksContent = r.remarks && String(r.remarks).trim() !== "" ? r.remarks : "-";
         let remarksMarkup = `<td class='pd-remarks-cell pd-hide-mobile'>${remarksContent}</td>`;
         if (remarksContent !== "-") { remarksMarkup += `<td class="pd-remarks-cell pd-sub-row pd-show-mobile">${remarksContent}</td>`; }
-        html += `<tr><td><strong>${r.label || "-"}</strong></td><td>${r.amount || "-"}</td><td style='text-align:right; font-weight:bold;'><span class="pd-mobile-label">(+) Days:</span>${r.days || "-"}</td>${remarksMarkup}</tr>`; 
+        
+        let amtStr = r.amount && r.amount !== "-" ? r.amount.toString().trim() : "-";
+        if (amtStr !== "-" && !amtStr.includes("pesoSvgIcon")) {
+             amtStr = amtStr.replace("₱", "").trim();
+             amtStr = pesoSvgIcon + amtStr;
+        }
+
+        html += `<tr>
+            <td><strong>${r.label || "-"}</strong></td>
+            <td style="justify-content: flex-start; padding-left: 8px;">${amtStr}</td>
+            <td style='text-align:right; font-weight:bold;'><span class="pd-mobile-label">Days:</span>${r.days || "-"}</td>
+            ${remarksMarkup}
+        </tr>`; 
       });
       html += "</tbody></table></div>";
       container.innerHTML = html;
@@ -971,14 +1174,14 @@
     function renderWsoSection(wsoRows) {
       const container = document.getElementById("pdWsoSection");
       if (!container) return;
-      const title = `<h3 class="section-title text-3d-highlight">${ICONS.wso} SUSPENSION ORDER</h3>`;
+      const title = `<h3 class="section-title text-clean-highlight">${ICONS.wso} SUSPENSION ORDER</h3>`;
       if (!wsoRows || !wsoRows.length) { container.innerHTML = title + `<div class='pd-empty'><i class="fa-solid fa-folder-open"></i> No WSO Data Recorded</div>`; return; }
-      let html = title + "<div class='pd-table-wrapper'><table class='pd-table tbl-wso'><thead><tr><th class='text-3d-highlight'>CODE</th><th class='text-3d-highlight'>DATE</th><th class='text-3d-highlight pd-hide-mobile'>REASON</th></tr></thead><tbody>";
+      let html = title + "<div class='pd-table-wrapper'><table class='pd-table tbl-wso'><thead><tr><th class='text-clean-highlight'>CODE</th><th class='text-clean-highlight'>DATE</th><th class='text-clean-highlight pd-hide-mobile'>REASON</th></tr></thead><tbody>";
       wsoRows.forEach((r) => { 
         let remarksContent = r.reason && String(r.reason).trim() !== "" ? r.reason : "-";
         let remarksMarkup = `<td class='pd-remarks-cell pd-hide-mobile'>${remarksContent}</td>`;
         if (remarksContent !== "-") { remarksMarkup += `<td class="pd-remarks-cell pd-sub-row pd-show-mobile">${remarksContent}</td>`; }
-        html += `<tr><td><strong>${r.code || "-"}</strong></td><td>${r.date || "-"}</td>${remarksMarkup}</tr>`; 
+        html += `<tr><td><strong>${r.code || "-"}</strong></td><td style="justify-content: flex-end;">${r.date || "-"}</td>${remarksMarkup}</tr>`; 
       });
       html += "</tbody></table></div>";
       container.innerHTML = html;
@@ -987,20 +1190,32 @@
     function renderCteSection(cteRows) {
       const container = document.getElementById("pdCteSection");
       if (!container) return;
-      const title = `<h3 class="section-title text-3d-highlight">${ICONS.cte} TIME EXTENSION (CTE)</h3>`;
+      const title = `<h3 class="section-title text-clean-highlight">${ICONS.cte} TIME EXTENSION (CTE)</h3>`;
       if (!cteRows || !cteRows.length) { container.innerHTML = title + `<div class='pd-empty'><i class="fa-solid fa-folder-open"></i> No CTE Data Recorded</div>`; return; }
       
-      let html = title + "<div class='pd-table-wrapper'><table class='pd-table tbl-cte'><thead><tr><th class='text-3d-highlight'>CTE</th><th class='text-3d-highlight'>DATE</th><th class='text-3d-highlight'>(+) DAYS</th><th class='text-3d-highlight'>REV. EXPIRY</th><th class='text-3d-highlight pd-hide-mobile'>REMARKS</th></tr></thead><tbody>";
+      let html = title + "<div class='pd-table-wrapper'><table class='pd-table tbl-cte'><thead><tr><th class='text-clean-highlight'>CTE</th><th class='text-clean-highlight'>DATE</th><th class='text-clean-highlight'>(+) DAYS</th><th class='text-clean-highlight'>REV. EXPIRY</th><th class='text-clean-highlight pd-hide-mobile'>REMARKS</th></tr></thead><tbody>";
       cteRows.forEach((r) => {
         let daysDisplay = r.days ? (String(r.days).match(/-?\d+/) ? parseInt(String(r.days).match(/-?\d+/)[0], 10).toString() : String(r.days)) : "-";
         let remarksDisplay = r.remarks || "-";
         if (/^vo\d+$/i.test(String(r.code).trim())) remarksDisplay = "due to " + String(r.code).trim().toUpperCase();
         
         let remarksContent = remarksDisplay && String(remarksDisplay).trim() !== "" ? remarksDisplay : "-";
+        
+        // Highlight logic for WSO and VO mentions - display inline-block nowrap to prevent separation
+        if (remarksContent !== "-") {
+            remarksContent = remarksContent.replace(/(WSO\s+No\.?\s*\d+|VO\s*\d+|WSO\s*\d+)/gi, '<span class="badge-highlight">$1</span>');
+        }
+
         let remarksMarkup = `<td class='pd-remarks-cell pd-hide-mobile'>${remarksContent}</td>`;
         if (remarksContent !== "-") { remarksMarkup += `<td class="pd-remarks-cell pd-sub-row pd-show-mobile">${remarksContent}</td>`; }
 
-        html += `<tr><td><strong>${r.code || "-"}</strong></td><td>${r.date || "-"}</td><td style='text-align:right; font-weight:bold;'><span class="pd-mobile-label">(+) Days:</span>${daysDisplay}</td><td><span class="pd-mobile-label">Rev Expiry:</span>${r.revExpiryDate || "-"}</td>${remarksMarkup}</tr>`;
+        html += `<tr>
+            <td><strong>${r.code || "-"}</strong></td>
+            <td style="justify-content: flex-start; padding-left: 8px;">${r.date || "-"}</td>
+            <td style='text-align:right; font-weight:bold;'><span class="pd-mobile-label">Days:</span>${daysDisplay}</td>
+            <td style='justify-content: flex-start;'><span class="pd-mobile-label">Rev Expiry:</span>${r.revExpiryDate || "-"}</td>
+            ${remarksMarkup}
+        </tr>`;
       });
       html += "</tbody></table></div>";
       container.innerHTML = html;
@@ -1009,10 +1224,10 @@
     function renderBillingSection(billingRows) {
       const container = document.getElementById("pdBillingSection");
       if (!container) return;
-      const title = `<h3 class="section-title text-3d-highlight">${ICONS.billing} BILLING STATUS</h3>`;
+      const title = `<h3 class="section-title text-clean-highlight">${ICONS.billing} BILLING STATUS</h3>`;
       if (!billingRows || !billingRows.length) { container.innerHTML = title + `<div class='pd-empty'><i class="fa-solid fa-folder-open"></i> No Billing Data Recorded</div>`; return; }
       
-      let html = title + "<div class='pd-table-wrapper'><table class='pd-table tbl-billing'><thead><tr><th class='text-3d-highlight pd-hide-mobile'>YEAR</th><th class='text-3d-highlight'>MONTH</th><th class='text-3d-highlight'>AMOUNT</th><th class='text-3d-highlight'>REMARKS</th><th class='text-3d-highlight'>STATUS</th></tr></thead><tbody>";
+      let html = title + "<div class='pd-table-wrapper'><table class='pd-table tbl-billing'><thead><tr><th class='text-clean-highlight pd-hide-mobile'>YEAR</th><th class='text-clean-highlight'>MONTH</th><th class='text-clean-highlight'>AMOUNT</th><th class='text-clean-highlight'>REMARKS</th><th class='text-clean-highlight'>STATUS</th></tr></thead><tbody>";
       
       let currentYear = null;
       billingRows.forEach((r) => { 
@@ -1024,7 +1239,10 @@
         let mStr = r.month ? r.month.slice(0,3).toUpperCase() : "-";
         
         let amtStr = r.amount && r.amount !== "-" ? r.amount.toString().trim() : "-";
-        if (amtStr !== "-" && !amtStr.includes("₱")) { amtStr = "₱ " + amtStr; }
+        if (amtStr !== "-" && !amtStr.includes("pesoSvgIcon")) {
+             amtStr = amtStr.replace("₱", "").trim();
+             amtStr = pesoSvgIcon + amtStr;
+        }
 
         let displayRemarks = r.remarks && r.remarks !== "-" ? r.remarks : "-";
         let displayDateHtml = "";
@@ -1037,15 +1255,17 @@
           
           if (!isNaN(d.getTime())) {
             const ms = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-            let yy = d.getFullYear().toString().slice(-2);
-            displayDateHtml = `<div class="billing-date-mobile">${ms[d.getMonth()]} ${d.getDate()}, ${yy}</div>`;
+            let dd = String(d.getDate()).padStart(2, '0');
+            let yyyy = d.getFullYear();
+            displayDateHtml = `<div class="billing-date-mobile">Date of SWA: ${ms[d.getMonth()]} ${dd}, ${yyyy}</div>`;
           } else {
-            displayDateHtml = `<div class="billing-date-mobile">${rawDate}</div>`;
+            displayDateHtml = `<div class="billing-date-mobile">Date of SWA: ${rawDate}</div>`;
           }
         }
 
         let remarkTextWrapped = displayRemarks !== "-" ? `<div style="text-align: justify; word-break: break-word;">${displayRemarks}</div>` : "-";
         let remarksContent = displayRemarks !== "-" ? remarkTextWrapped + displayDateHtml : "-";
+        let remarksClass = displayRemarks !== "-" ? "pd-remarks-cell" : "pd-remarks-cell pd-empty-remark";
 
         let statusHtml = r.status === 'PAID' ? `<span class="status-paid"><i class="fa-solid fa-check"></i> PAID</span>` : `<span class="status-process"><i class="fa-solid fa-spinner fa-spin"></i> ON-PROCESS</span>`;
         
@@ -1053,7 +1273,7 @@
             <td class='pd-hide-mobile'>${r.year || "-"}</td>
             <td class="col-month">${mStr}</td>
             <td class="col-amount">${amtStr}</td>
-            <td class='pd-remarks-cell'>${remarksContent}</td>
+            <td class='${remarksClass}'>${remarksContent}</td>
             <td class='col-status'>${statusHtml}</td>
           </tr>`; 
       });
@@ -1210,11 +1430,12 @@
 
     async function loadProjectDocsData(contractId) {
       try {
-        const [appValues, pcmaValues, voValues, wsoValues, billingSheet, descriptionValues] = await Promise.all([
-          fetchValuesSafe("APP"), fetchValuesSafe("PCMA"), fetchValuesSafe("VO"), fetchValuesSafe("WSO/WRO/CTE"), fetchBillingSheetSafe(), fetchValuesSafe("DESCRIPTION")
+        const [appValues, pcmaValues, voValues, wsoValues, billingSheet, descriptionValues, pdoValues] = await Promise.all([
+          fetchValuesSafe("APP"), fetchValuesSafe("PCMA"), fetchValuesSafe("VO"), fetchValuesSafe("WSO/WRO/CTE"), fetchBillingSheetSafe(), fetchValuesSafe("DESCRIPTION"), fetchValuesSafe("PDO")
         ]);
         
         try { applyProjectMeta(appValues, contractId); } catch(e){ console.error("Meta parse error", e); }
+        try { applyPdoMeta(pdoValues, contractId); } catch(e){ console.error("PDO parse error", e); }
 
         let descriptionInfo = null, pcmaRows = [], pcmaExtraRows = [], voRows = [], wsoRows = [], cteRows = [], billingRows = [];
 
