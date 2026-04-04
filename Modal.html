@@ -64,14 +64,20 @@
     /* Header */
     .pcma-modal-top {
       position: sticky; top: 0; z-index: 5;
-      display: flex; align-items: center; justify-content: center;
+      display: flex; align-items: center; justify-content: center; /* Center the title perfectly */
+      gap: 10px;
       background: linear-gradient(135deg, var(--pastel-purple), var(--pastel-blue));
       color: #fff;
       min-height: 60px; padding: 15px;
       border-bottom: 4px solid var(--pastel-purple-dark);
       box-shadow: 0 8px 20px rgba(192, 163, 230, 0.25);
     }
+    .pcma-modal-top > :not(.pcma-modal-top-cid) {
+      display: none !important; /* Forcefully hides injected Previous/Next arrows */
+    }
     .pcma-modal-top-cid { 
+      flex: 1; text-align: center;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; /* Allows title to truncate if screen is too small */
       font-weight: 900; color: #fff; line-height: 1; 
       font-size: 1.8rem; letter-spacing: 2px; 
       text-shadow: 0 3px 0 var(--pastel-purple-dark), 0 6px 10px rgba(0,0,0,0.2);
@@ -103,17 +109,28 @@
     }
     .pcma-primary-row { display: flex; align-items: stretch; gap: 8px; }
     .pcma-primary-label { 
-      flex: 0 0 100px; 
+      flex: 0 0 130px; /* Widened slightly to accommodate the new 3D icons */
       font-size: 0.8rem; font-weight: 900; color: #475569; 
       text-transform: uppercase; letter-spacing: 0.5px;
       display: flex; align-items: center;
+    }
+    .icon-3d-wrapper {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; border-radius: 8px;
+      background: linear-gradient(135deg, #ffffff, #e2e8f0);
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1), 0 3px 0 #cbd5e1;
+      border: 2px solid #fff;
+      margin-right: 8px;
+      font-size: 14px;
+      flex-shrink: 0;
     }
     .pcma-primary-value { 
       flex: 1; 
       background: #ffffff; 
       border-radius: 12px; 
       padding: 8px 12px; 
-      font-weight: 800; font-size: 0.95rem; color: #1e293b; 
+      font-weight: 500; /* Removed bold, set to normal/medium weight */
+      font-size: 0.95rem; color: #1e293b; 
       word-break: break-word; 
       border: 2px solid #e2e8f0;
       box-shadow: 0 2px 0 #e2e8f0;
@@ -131,9 +148,16 @@
       width: 100%; border-radius: 24px; overflow: hidden; 
       background: #e2e8f0; border: 4px solid #fff; 
       box-shadow: 0 12px 25px rgba(0,0,0,0.1), 0 6px 0 #cbd5e1; 
-      max-height: 320px; position: relative;
+      position: relative;
+      display: flex; justify-content: center; align-items: center;
     }
-    .pcma-hero img { width: 100%; height: 320px; object-fit: cover; display: block; }
+    .pcma-hero img { 
+      width: 100%; 
+      height: auto; /* Uses actual proportions of the photo */
+      max-height: 600px; /* Safety fallback to prevent absurdly tall scrolling */
+      object-fit: contain; 
+      display: block; 
+    }
 
     /* Big 3D Action Buttons - Always side by side */
     #pcmaModalButtons {
@@ -293,31 +317,31 @@
     .confirm-btn-yes {
       background: linear-gradient(135deg, var(--pastel-green), #6bd687); 
       border: 2px solid var(--pastel-green-dark); box-shadow: 0 4px 0 var(--pastel-green-dark); color: #004d1a;
-    }
-    .confirm-btn-yes:active { transform: translateY(4px); box-shadow: 0 0 0 var(--pastel-green-dark); }
-    
-    .confirm-btn-no {
-      background: linear-gradient(135deg, var(--pastel-pink), #e68c98); 
-      border: 2px solid var(--pastel-pink-dark); box-shadow: 0 4px 0 var(--pastel-pink-dark); color: #660011;
-    }
-    .confirm-btn-no:active { transform: translateY(4px); box-shadow: 0 0 0 var(--pastel-pink-dark); }
-
-    /* EXTREMELY COMPACT Mobile Adjustments for responsiveness */
+    /* FLATTENED, EXTRA-COMPACT MOBILE LAYOUT TO SAVE SPACE AND DODGE ARROWS */
     @media (max-width: 600px) { 
-      #pcmaModalContent { padding: 8px; gap: 8px; }
+      /* Restored normal side padding since arrows are now completely removed */
+      #pcmaModalContent { padding: 8px 16px; gap: 6px; }
+      #pcmaModalButtons { gap: 6px; padding: 4px 16px 10px; }
+      #pcmaModalPhotos { padding: 0 16px 60px; }
       
-      .pcma-modal-top { min-height: 35px; padding: 6px; }
-      .pcma-modal-top-cid { font-size: 1rem; letter-spacing: 1px; }
+      .pcma-modal-top { min-height: 40px; padding: 6px 16px; gap: 8px; }
+      .pcma-modal-top-cid { font-size: 1.1rem; letter-spacing: 0px; }
       
-      .pcma-primary-label { flex: 0 0 65px; font-size: 0.5rem; letter-spacing: 0px; line-height: 1; } 
-      .pcma-primary-value { font-size: 0.65rem; padding: 2px 4px; border-width: 1px; }
-      .pcma-primary-col { gap: 2px; padding: 6px; border-radius: 10px; border-width: 1px; box-shadow: none; }
-      .pcma-primary { gap: 6px; padding: 6px; border-radius: 12px; border-width: 2px; }
+      /* Radically flattened data grid to save vertical scrolling space */
+      .pcma-primary { grid-template-columns: 1fr; gap: 4px; padding: 8px; border-radius: 12px; border-width: 2px; }
+      .pcma-primary-col { gap: 0px; padding: 0; border: none; box-shadow: none; background: transparent; }
+      .pcma-primary-row { padding: 6px 0; border-bottom: 1px dashed rgba(255,255,255,0.6); align-items: center; }
+      .pcma-primary-row:last-child { border-bottom: none; }
+      
+      .pcma-primary-label { flex: 0 0 95px; font-size: 0.55rem; color: #334155; letter-spacing: 0px; line-height: 1; } 
+      .icon-3d-wrapper { width: 22px; height: 22px; font-size: 10px; margin-right: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1), 0 2px 0 #cbd5e1; border-width: 1px; }
+
+      .pcma-primary-value { font-size: 0.65rem; padding: 0; border: none; background: transparent; color: #0f172a; box-shadow: none; }
+      .pcma-primary-value.pcma-status { background: transparent; box-shadow: none; padding: 0; color: #9f1225; font-weight: 800; }
       
       .pcma-hero { border-radius: 12px; border-width: 2px;}
-      .pcma-hero img { height: 120px; }
+      .pcma-hero img { height: auto; max-height: 350px; } /* Adapts to actual size on mobile */
       
-      #pcmaModalButtons { gap: 6px; padding: 4px 8px 10px; }
       .modal-btn-3d { padding: 6px 4px; font-size: 0.55rem; gap: 4px; border-radius: 10px; }
       .modal-btn-3d svg { width: 20px; height: 20px; }
       
@@ -462,12 +486,25 @@
       return currentHeaders.findIndex(h => lowerKeys.some(k => String(h || '').toLowerCase().includes(k)));
     }
 
-    function createPrimaryRow(label, value, isStatus) {
+    function createPrimaryRow(label, value, isStatus, emoji) {
       const r = document.createElement('div');
       r.className = 'pcma-primary-row';
+      
       const l = document.createElement('div');
       l.className = 'pcma-primary-label';
-      l.textContent = `${label}`;
+      
+      // Inject the beautiful 3D icon wrapper if an emoji is provided
+      if (emoji) {
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'icon-3d-wrapper';
+        iconSpan.textContent = emoji;
+        l.appendChild(iconSpan);
+      }
+      
+      // Append label text
+      const textNode = document.createTextNode(label);
+      l.appendChild(textNode);
+      
       const v = document.createElement('div');
       v.className = 'pcma-primary-value';
       if (isStatus) v.classList.add('pcma-status');
@@ -640,27 +677,27 @@
 
       const colA = document.createElement('div');
       colA.className = 'pcma-primary-col';
-      if (projIdx > -1 && row[projIdx]) colA.appendChild(createPrimaryRow('Project', row[projIdx]));
-      if (locIdx  > -1 && row[locIdx])  colA.appendChild(createPrimaryRow('Location', row[locIdx]));
-      if (contIdx > -1 && row[contIdx]) colA.appendChild(createPrimaryRow('Contractor', row[contIdx]));
+      if (projIdx > -1 && row[projIdx]) colA.appendChild(createPrimaryRow('Project', row[projIdx], false, '🏗️'));
+      if (locIdx  > -1 && row[locIdx])  colA.appendChild(createPrimaryRow('Location', row[locIdx], false, '📍'));
+      if (contIdx > -1 && row[contIdx]) colA.appendChild(createPrimaryRow('Contractor', row[contIdx], false, '👷'));
 
       const colB = document.createElement('div');
       colB.className = 'pcma-primary-col';
-      if (amtIdx > -1 && row[amtIdx])     colB.appendChild(createPrimaryRow('Amount', toMoney(row[amtIdx]) ?? row[amtIdx]));
-      if (revAmtIdx > -1 && row[revAmtIdx]) colB.appendChild(createPrimaryRow('Rev. Amt', toMoney(row[revAmtIdx]) ?? row[revAmtIdx]));
+      if (amtIdx > -1 && row[amtIdx])     colB.appendChild(createPrimaryRow('Amount', toMoney(row[amtIdx]) ?? row[amtIdx], false, '💰'));
+      if (revAmtIdx > -1 && row[revAmtIdx]) colB.appendChild(createPrimaryRow('Rev. Amt', toMoney(row[revAmtIdx]) ?? row[revAmtIdx], false, '🪙'));
 
       const colC = document.createElement('div');
       colC.className = 'pcma-primary-col';
-      if (ntpIdx > -1 && row[ntpIdx])  colC.appendChild(createPrimaryRow('NTP', toDate(row[ntpIdx])));
-      if (expIdx > -1 && row[expIdx])  colC.appendChild(createPrimaryRow('Expiry', toDate(row[expIdx])));
-      if (revExpIdx > -1 && row[revExpIdx]) colC.appendChild(createPrimaryRow('Rev. Expiry', toDate(row[revExpIdx])));
-      if (statIdx > -1 && row[statIdx]) colC.appendChild(createPrimaryRow('Status', row[statIdx], true));
+      if (ntpIdx > -1 && row[ntpIdx])  colC.appendChild(createPrimaryRow('NTP', toDate(row[ntpIdx]), false, '🚀'));
+      if (expIdx > -1 && row[expIdx])  colC.appendChild(createPrimaryRow('Expiry', toDate(row[expIdx]), false, '⏳'));
+      if (revExpIdx > -1 && row[revExpIdx]) colC.appendChild(createPrimaryRow('Rev. Expiry', toDate(row[revExpIdx]), false, '⏱️'));
+      if (statIdx > -1 && row[statIdx]) colC.appendChild(createPrimaryRow('Status', row[statIdx], true, '📊'));
 
       const colD = document.createElement('div');
       colD.className = 'pcma-primary-col';
-      if (remIdx > -1 && row[remIdx])        colD.appendChild(createPrimaryRow('Remarks', row[remIdx]));
-      if (lastBillIdx > -1 && row[lastBillIdx]) colD.appendChild(createPrimaryRow('Last Bill', row[lastBillIdx]));
-      if (projIdIdx > -1 && row[projIdIdx])      colD.appendChild(createPrimaryRow('Proj ID', row[projIdIdx]));
+      if (remIdx > -1 && row[remIdx])        colD.appendChild(createPrimaryRow('Remarks', row[remIdx], false, '📝'));
+      if (lastBillIdx > -1 && row[lastBillIdx]) colD.appendChild(createPrimaryRow('Last Bill', row[lastBillIdx], false, '🧾'));
+      if (projIdIdx > -1 && row[projIdIdx])      colD.appendChild(createPrimaryRow('Proj ID', row[projIdIdx], false, '🏷️'));
 
       if (colA.children.length) primary.appendChild(colA);
       if (colB.children.length) primary.appendChild(colB);
