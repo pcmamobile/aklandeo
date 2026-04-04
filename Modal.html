@@ -302,20 +302,45 @@
     }
     .confirm-btn-no:active { transform: translateY(4px); box-shadow: 0 0 0 var(--pastel-pink-dark); }
 
-    /* Mobile Adjustments for responsiveness */
+    /* Mobile Adjustments for responsiveness - SIGNIFICANTLY SCALED DOWN */
     @media (max-width: 600px) { 
-      .pcma-primary-label { flex: 0 0 80px; font-size: 0.65rem; letter-spacing: 0px; } 
-      .pcma-primary-value { font-size: 0.85rem; padding: 6px 8px; }
-      .pcma-primary-col { gap: 6px; padding: 10px; }
-      .pcma-hero img { height: 220px; }
-      #pcmaModalButtons { gap: 10px; }
-      .modal-btn-3d { padding: 12px 8px; font-size: 0.8rem; gap: 8px;}
-      .modal-btn-3d svg { width: 36px; height: 36px; }
-      .pcma-team { padding: 10px; }
-      .team-member { padding: 4px 10px; gap: 6px; }
-      .team-name { font-size: 0.75rem; }
-      .team-role { font-size: 0.65rem; padding: 2px 6px; }
-      .action-btn-3d { font-size: 0.6rem; padding: 6px; flex-direction: row; gap: 4px; }
+      .pcma-modal-top { min-height: 45px; padding: 10px; }
+      .pcma-modal-top-cid { font-size: 1.2rem; letter-spacing: 1px; }
+      
+      .pcma-primary-label { flex: 0 0 75px; font-size: 0.55rem; letter-spacing: 0px; line-height: 1.1; } 
+      .pcma-primary-value { font-size: 0.75rem; padding: 4px 6px; }
+      .pcma-primary-col { gap: 4px; padding: 8px; border-radius: 14px; }
+      .pcma-primary { gap: 10px; padding: 8px; border-radius: 18px; }
+      
+      .pcma-hero { border-radius: 18px; }
+      .pcma-hero img { height: 180px; }
+      
+      #pcmaModalButtons { gap: 8px; padding: 8px 12px 16px; }
+      .modal-btn-3d { padding: 8px 6px; font-size: 0.65rem; gap: 6px; border-radius: 14px; }
+      .modal-btn-3d svg { width: 28px; height: 28px; }
+      
+      .pcma-mini-bars { padding: 10px; gap: 8px; border-radius: 18px; }
+      .pcma-mini-label { font-size: 0.6rem; width: 65px; }
+      .pcma-mini-bar { height: 20px; }
+      .pcma-mini-fill { font-size: 0.65rem; }
+      
+      .pcma-progress-label { font-size: 0.8rem; margin-bottom: 6px; }
+      .pcma-progress-bar { height: 28px; border-radius: 14px; }
+      .pcma-progress-fill { font-size: 0.8rem; line-height: 24px; border-radius: 12px; }
+      
+      .pcma-team { padding: 8px; border-radius: 18px; margin-top: 8px; }
+      .pcma-team-label { font-size: 0.8rem; margin-bottom: 8px; }
+      .team-member { padding: 4px 8px; gap: 4px; border-width: 1px; }
+      .team-name { font-size: 0.65rem; }
+      .team-role { font-size: 0.55rem; padding: 2px 4px; }
+      
+      .photo-section-title { font-size: 0.9rem; padding: 6px 0; margin: 10px 0; }
+      .pcma-photo-grid { gap: 10px; }
+      .pcma-photo-card { padding: 8px; border-radius: 18px; }
+      .pcma-photo-card img { border-radius: 10px; margin-bottom: 8px; }
+      
+      .action-btn-3d { font-size: 0.55rem; padding: 4px; border-radius: 8px; gap: 2px; }
+      .action-btn-3d svg { width: 12px; height: 12px; }
       .action-btn-3d span { white-space: nowrap; }
     }
   </style>
