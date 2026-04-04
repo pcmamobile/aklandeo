@@ -3,229 +3,342 @@
 <head>
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1" name="viewport"/>
-  <title>PCMA Mobile V8.0</title>
+  <title>PCMA Mobile V8.1</title>
 
   <link href="https://drive.google.com/thumbnail?id=1VanVX82ANGfKA8jcGZL8cVDQh4EuN8-r&sz=s800" rel="icon" sizes="32x32" type="image/png"/>
   <link href="https://drive.google.com/thumbnail?id=1VanVX82ANGfKA8jcGZL8cVDQh4EuN8-r&sz=s800" rel="apple-touch-icon" sizes="180x180"/>
   <meta content="#2563eb" name="theme-color"/>
   
-  <!-- Chart.js dependency for ProjectDocs S-Curve -->
+  <!-- Beautiful Google Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
+  
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
     /* =========================================================
-       main.css & Global UI
+       GLOBAL UI & ANIMATED ANIME BACKGROUND
        ========================================================= */
     :root{
       --footer-h:85px;
       --brand:#2563eb;
       --brand-dark:#1e40af;
-      --bg:#f4f6f8;
     }
     *{box-sizing:border-box;}
+    
     body{
       padding-bottom: var(--footer-h);
-      font-family:"Segoe UI",Arial,sans-serif;
+      font-family: 'Nunito', sans-serif;
       margin:0;
-      background:var(--bg);
-      color:#111;
+      color:#1e293b;
+      /* Stunning Pastel Anime Sky Background */
+      background-image: url('https://images.unsplash.com/photo-1500964757637-c85e8a162699?q=80&w=2560&auto=format&fit=crop');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      position: relative;
     }
+
+    /* Magic Color-Shifting Overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(45deg, rgba(255, 154, 158, 0.4), rgba(254, 207, 239, 0.4), rgba(161, 196, 253, 0.4));
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
     .hidden{display:none!important;}
     .no-scroll{overflow:hidden;}
 
     @keyframes spin { 100% { transform: rotate(360deg); } }
 
-    /* HEADER */
-    header{
-      background:linear-gradient(135deg,#2563eb,#1e40af);
-      color:#fff;
-      padding:12px 16px;
-      border-bottom:3px solid #1e3a8a;
-      position:sticky;
-      top:0;
-      z-index:200;
-    }
-    .header-container{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      max-width:1100px;
-      margin:0 auto;
-      height:25px;
-    }
-    .brand{display:flex;align-items:center;gap:12px;}
-    .header-logo{
-      height:40px;
-      width:auto;
-      border-radius:80px;
-      box-shadow:0 3px 6px rgba(0,0,0,.25);
-    }
-    .header-title{
-      margin:0;
-      font-size:1.2rem;
-      font-weight:700;
-      letter-spacing:.5px;
+    #version-tag {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-weight: 900;
+      font-size: 1.2rem;
+      background: linear-gradient(to right, #fbbf24, #f59e0b, #ea580c);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+      z-index: 1000;
+      letter-spacing: 0.5px;
     }
 
-    main { max-width:1100px; margin:6px auto 10px auto; padding:5px; }
+    main { max-width:1100px; margin:20px auto 10px auto; padding:5px; position: relative; z-index: 5;}
 
     /* =========================================================
-       Home View (3D Design)
+       HOME VIEW (GLASS & 3D CANDY)
        ========================================================= */
     .home-view {
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 20px 10px;
+      padding: 30px 10px 20px;
       min-height: calc(100vh - 150px);
-      animation: fadeIn 0.4s ease-out;
+      animation: fadeIn 0.5s ease-out;
     }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
     .home-title-area {
       text-align: center;
-      margin-bottom: 30px;
-      margin-top: 10px;
+      margin-bottom: 40px;
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      background: rgba(255, 255, 255, 0.5);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 35px 40px;
+      border-radius: 35px;
+      border: 2px solid rgba(255, 255, 255, 0.8);
+      box-shadow: 0 10px 30px rgba(31, 38, 135, 0.15);
+      overflow: hidden; /* Contains the watermark nicely */
+      max-width: 650px;
     }
+
+    /* Watermark Logo Styling */
+    .home-main-logo {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      opacity: 0.15; /* Soft watermark transparency */
+      z-index: 0;
+      pointer-events: none;
+      animation: floatWatermark 6s ease-in-out infinite;
+    }
+
+    @keyframes floatWatermark {
+      0%, 100% { transform: translate(-50%, -50%); }
+      50% { transform: translate(-50%, calc(-50% - 15px)); }
+    }
+
+    /* Elevate text above the watermark */
+    .home-title-area h2, 
+    .home-title-area p, 
+    .disclaimer {
+      position: relative;
+      z-index: 1;
+    }
+
     .home-title-area h2 {
-      color: var(--brand-dark);
-      font-size: 1.8rem;
-      margin: 0 0 5px 0;
+      background: linear-gradient(to right, #2563eb, #ff416c, #845ef7, #2563eb);
+      background-size: 300% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-size: 2.6rem;
+      margin: 0 0 10px 0;
       font-weight: 900;
+      letter-spacing: 1px;
+      animation: textAlive 4s ease-in-out infinite;
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
     }
+
+    @keyframes textAlive {
+      0% { background-position: 0% center; transform: scale(1); }
+      50% { background-position: 100% center; transform: scale(1.05); filter: drop-shadow(0 6px 12px rgba(132, 94, 247, 0.3)); }
+      100% { background-position: 0% center; transform: scale(1); }
+    }
+
     .home-title-area p {
-      color: #64748b;
+      color: #1e293b;
       margin: 0;
-      font-weight: 600;
+      font-weight: 800;
+      font-size: 1.15rem;
+      animation: floatUpDownText 3s ease-in-out infinite;
+    }
+
+    @keyframes floatUpDownText {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+
+    /* Disclaimer Inside the Title Box */
+    .disclaimer {
+      width: 100%;
+      text-align: center;
+      margin: 25px auto 0 auto;
+      padding: 12px 18px;
+      background: rgba(255,255,255,0.6);
+      border-radius: 16px;
+      font-size: 0.8rem;
+      color: #334155;
+      font-weight: 800;
+      border: 1px solid rgba(255,255,255,0.8);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      line-height: 1.5;
     }
 
     .home-btn-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 24px;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 25px;
       width: 100%;
-      max-width: 600px;
-      padding-bottom: 40px;
+      max-width: 650px;
+      padding-bottom: 10px;
     }
 
+    /* 3D Pastel Glass Buttons */
     .btn-3d {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 14px;
-      background: linear-gradient(145deg, #ffffff, #e2e8f0);
-      border: none;
-      border-radius: 20px;
-      padding: 28px 16px;
-      font-weight: 800;
+      gap: 16px;
+      border: 2px solid rgba(255,255,255,0.9);
+      border-radius: 24px;
+      padding: 30px 16px;
+      font-weight: 900;
       font-size: 1.1rem;
       text-decoration: none;
       text-align: center;
-      box-shadow: 
-        0 10px 0 #94a3b8, 
-        0 20px 25px rgba(0,0,0,0.15),
-        inset 0 2px 0 rgba(255,255,255,1);
-      transition: all 0.15s ease;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 10px 0 var(--btn-shadow), 0 15px 20px rgba(0,0,0,0.15), inset 0 3px 0 rgba(255,255,255,0.7);
     }
-    
+
+    /* Pastel Theme Colors per Button */
+    .btn-projects { background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%); --btn-shadow: #7ca1d8; color: #1e3a8a;}
+    .btn-data { background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%); --btn-shadow: #c298c8; color: #4c1d95;}
+    .btn-uploadmon { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); --btn-shadow: #d97880; color: #9f1239;}
+    .btn-tracker { background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%); --btn-shadow: #a992d1; color: #4c1d95;}
+    .btn-leaderboards { background: linear-gradient(135deg, #fccb90 0%, #d57eeb 100%); --btn-shadow: #c28fa4; color: #701a75;}
+    .btn-pcmarev { background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%); --btn-shadow: #61b896; color: #064e3b;}
+    .btn-download { background: linear-gradient(135deg, #e2e2e2 0%, #c9d6ff 100%); --btn-shadow: #a4adcc; color: #334155;}
+
+    .btn-3d:hover {
+      transform: translateY(-5px) scale(1.03);
+      box-shadow: 0 14px 0 var(--btn-shadow), 0 25px 30px rgba(0,0,0,0.2), inset 0 3px 0 rgba(255,255,255,0.8);
+    }
     .btn-3d:active {
-      transform: translateY(10px);
-      box-shadow: 
-        0 0 0 #94a3b8, 
-        0 10px 15px rgba(0,0,0,0.15),
-        inset 0 2px 0 rgba(255,255,255,1);
+      transform: translateY(6px);
+      box-shadow: 0 4px 0 var(--btn-shadow), 0 8px 10px rgba(0,0,0,0.2), inset 0 3px 0 rgba(255,255,255,0.5);
     }
 
-    .btn-3d svg {
-      width: 52px;
-      height: 52px;
-      stroke-width: 1.8;
-      fill: none;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15));
+    /* 3D Animated Colorful Icons */
+    .emoji-icon {
+      font-size: 4rem;
+      line-height: 1;
+      display: inline-block;
+      filter: drop-shadow(0 8px 12px rgba(0,0,0,0.25)) drop-shadow(0 2px 4px rgba(255,255,255,0.6));
+      animation: iconFloat 3s ease-in-out infinite;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
-    .btn-projects { color: #2563eb; }
-    .btn-projects svg { stroke: #2563eb; }
-    
-    .btn-data { color: #0891b2; } 
-    .btn-data svg { stroke: #0891b2; }
+    .btn-projects .emoji-icon { animation-delay: 0s; }
+    .btn-data .emoji-icon { animation-delay: 0.2s; }
+    .btn-uploadmon .emoji-icon { animation-delay: 0.4s; }
+    .btn-tracker .emoji-icon { animation-delay: 0.6s; }
+    .btn-leaderboards .emoji-icon { animation-delay: 0.8s; }
+    .btn-pcmarev .emoji-icon { animation-delay: 1.0s; }
+    .btn-download .emoji-icon { animation-delay: 1.2s; }
 
-    .btn-download { color: #16a34a; }
-    .btn-download svg { stroke: #16a34a; }
+    @keyframes iconFloat {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-8px) rotate(6deg); }
+    }
 
-    .btn-dashboard { color: #d97706; }
-    .btn-dashboard svg { stroke: #d97706; }
-
-    .btn-tracker { color: #7c3aed; }
-    .btn-tracker svg { stroke: #7c3aed; }
-
-    .btn-leaderboards { color: #dc2626; }
-    .btn-leaderboards svg { stroke: #dc2626; }
-
-    .btn-pcmarev { color: #0d9488; } 
-    .btn-pcmarev svg { stroke: #0d9488; }
-
-    .btn-uploadmon { color: #be185d; } 
-    .btn-uploadmon svg { stroke: #be185d; }
+    .btn-3d:hover .emoji-icon {
+      transform: scale(1.15) rotate(-6deg);
+      animation: none;
+      filter: drop-shadow(0 12px 16px rgba(0,0,0,0.3));
+    }
 
     /* =========================================================
-       App View (Grid)
+       APP VIEW (GRID) WITH GLASSMORPHISM CONTAINER
        ========================================================= */
+    #appView {
+      background: rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      border-radius: 24px;
+      padding: 20px 15px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+      border: 1px solid rgba(255,255,255,0.6);
+    }
+
     #resultInfo{
       max-width:1100px;
-      margin:4px auto 10px auto;
+      margin:10px auto 10px auto;
       padding:0 6px;
-      color:#334155;
-      font-weight:800;
+      color:#1e293b;
+      font-weight:900;
+      font-size: 1.1rem;
     }
     .grid{
       display:grid;
       grid-template-columns:repeat(auto-fill,minmax(320px,1fr));
-      gap:10px;
+      gap:12px;
     }
     .card{
-      background:#fff;
-      border-radius:12px;
-      box-shadow:0 3px 8px rgba(0,0,0,.1);
+      background: rgba(255,255,255,0.9);
+      border-radius:16px;
+      box-shadow:0 6px 15px rgba(0,0,0,.08);
       cursor:pointer;
-      transition:transform .15s,box-shadow .15s;
+      transition:transform .2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow .2s;
       overflow:hidden;
       display:flex;
       align-items:center;
       gap:12px;
-      padding:10px;
+      padding:12px;
+      border: 2px solid transparent;
     }
-    .card:hover{transform:scale(1.01);box-shadow:0 6px 12px rgba(0,0,0,.15);}
+    .card:hover{
+      transform:scale(1.02) translateY(-4px);
+      box-shadow:0 12px 20px rgba(0,0,0,.15);
+      border-color: rgba(37, 99, 235, 0.3);
+    }
     .card-thumb{
-      width:55px;
-      height:55px;
+      width:65px;
+      height:65px;
       object-fit:cover;
-      border-radius:80px;
+      border-radius:18px;
       background:#eee;
       flex:0 0 auto;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
-    .card-content{padding:4px 2px;flex:1;font-size:.75rem;line-height:1.05;}
-    .contract-id{font-size:1.2rem;font-weight:900;color:#8b0000;letter-spacing:.2px;}
-    .engineer-name{color:#2563eb;font-weight:700;}
+    .card-content{padding:4px 2px;flex:1;font-size:.8rem;line-height:1.2;}
+    .contract-id{font-size:1.3rem;font-weight:900;color:#8b0000;letter-spacing:.2px;}
+    .engineer-name{color:#2563eb;font-weight:800;}
     .status{
-      font-weight:700;
-      margin-top:4px;
-      padding:2px 10px;
+      font-weight:900;
+      margin-top:6px;
+      padding:4px 12px;
       border-radius:999px;
       display:inline-block;
       color:#fff;
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
     }
     mark{background:#fef08a;padding:0 .15em;border-radius:.2em;}
 
     @media (max-width: 768px) {
       html { font-size: 75%; }
-      header { display: block; padding: 8px 10px; }
+      #appView { padding: 15px 10px; border-radius: 16px; margin-top: 50px; }
+      .home-title-area { padding: 25px 20px; margin-bottom: 25px; }
+      .home-title-area h2 { font-size: 2.2rem; }
+      .emoji-icon { font-size: 3.5rem; }
     }
 
     /* FOOTER - TRANSPARENT FLOATING BUTTONS */
@@ -272,7 +385,7 @@
       -webkit-tap-highlight-color: transparent;
     }
     .footer-btn:active{
-      transform: translateY(4px);
+      transform: translateY(4px) scale(0.95);
       box-shadow: none !important;
     }
     .footer-btn svg {
@@ -291,9 +404,9 @@
       letter-spacing: 0.5px;
     }
 
-    #footerReloadBtn svg { stroke: #22c55e; }
-    #footerHomeBtn svg { stroke: #3b82f6; }
-    #footerBackBtn svg { stroke: #f43f5e; }
+    #footerReloadBtn svg { stroke: #22c55e; } 
+    #footerHomeBtn svg { stroke: #3b82f6; }   
+    #footerBackBtn svg { stroke: #f43f5e; }   
 
     .footer-btn.primary{
       background: transparent !important;
@@ -316,16 +429,20 @@
        filter.css
        ========================================================= */
     #filters{
+      position: sticky;
+      top: 10px;
       display:flex;
       flex-direction:column;
-      gap:6px;
-      margin:12px auto 0 auto;
-      padding:8px 12px;
-      background:#fff;
-      border:1px solid #e5e7eb;
-      border-radius:14px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.15), 0 1px 3px rgba(0,0,0,0.05);
+      gap:8px;
+      margin: 0; 
+      padding:10px 12px;
+      background: transparent;
+      border: none;
+      border-radius:0;
+      box-shadow: none;
       max-width:1100px;
+      width: 100%;
+      z-index: 180;
     }
     
     .search-filter-row { display: flex; gap: 8px; align-items: center; width: 100%; }
@@ -336,84 +453,78 @@
       font-size: .95rem;
       padding: 0 16px;
       border-radius: 80px;
-      border: 1px solid #cbd5e1;
-      background: #f8fafc;
+      border: 2px solid rgba(255,255,255,0.5);
+      background: rgba(255,255,255,0.95);
       outline: none;
-      transition: border-color .15s ease, box-shadow .15s ease;
+      transition: all .2s ease;
       width: 100%;
       height: 42px;
-      box-shadow: inset 0 3px 5px rgba(0,0,0,0.08), inset 0 -2px 4px rgba(255,255,255,1), 0 2px 4px rgba(0,0,0,0.05);
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      color: #1e293b;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
     .filter-combo input:focus {
+      background: #ffffff;
       border-color: #3b82f6;
-      box-shadow: inset 0 3px 5px rgba(0,0,0,0.08), inset 0 -2px 4px rgba(255,255,255,1), 0 0 0 3px rgba(59,130,246,0.3);
+      box-shadow: 0 4px 15px rgba(59,130,246,0.3);
     }
 
-    #toggleMoreFilters {
-      background: linear-gradient(145deg, #3b82f6, #1d4ed8);
-      color: #fff;
-      border: none;
-      border-radius: 12px;
-      padding: 0 16px;
-      font-weight: 800;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-      font-size: .9rem;
-      height: 42px;
-      box-shadow: 0 4px 0 #1e3a8a, 0 6px 10px rgba(37,99,235,0.2), inset 0 2px 0 rgba(255,255,255,0.2);
-      transition: all 0.1s ease;
-      -webkit-tap-highlight-color: transparent;
-      flex-shrink: 0;
-    }
-    #toggleMoreFilters:active {
-      transform: translateY(4px);
-      box-shadow: 0 0 0 #1e3a8a, 0 2px 4px rgba(37,99,235,0.2), inset 0 2px 0 rgba(255,255,255,0.2);
-    }
-
-    #clearFilter {
-      background: linear-gradient(145deg, #fef2f2, #fecaca);
-      color: #dc2626;
-      border: none;
+    #toggleMoreFilters, #clearFilter {
+      background: rgba(255,255,255,0.95);
+      color: #334155;
+      border: 2px solid rgba(255,255,255,0.5);
       border-radius: 12px;
       padding: 0 12px;
+      font-weight: 900;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       height: 42px;
-      box-shadow: 0 4px 0 #b91c1c, 0 6px 10px rgba(220, 38, 38, 0.2), inset 0 2px 0 rgba(255,255,255,0.5);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
       transition: all 0.1s ease;
       flex-shrink: 0;
     }
-    #clearFilter:active {
-      transform: translateY(4px);
-      box-shadow: 0 0 0 #b91c1c, 0 2px 4px rgba(220, 38, 38, 0.2), inset 0 2px 0 rgba(255,255,255,0.5);
+    #toggleMoreFilters:active, #clearFilter:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
+    #clearFilter { color: #dc2626; }
 
-    #moreFilters{ display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:6px; margin-top:2px; }
+    #moreFilters{ 
+      display:grid; 
+      grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); 
+      gap:8px; 
+      margin-top:6px; 
+      background: rgba(255,255,255,0.95);
+      padding: 12px;
+      border-radius: 16px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+      border: 2px solid rgba(255,255,255,0.6);
+    }
     #moreFilters.hidden{display:none;}
-    #moreFilters label{ display:flex; flex-direction:column; gap:4px; font-size:.8rem; color:#0f172a; font-weight:700; }
+    #moreFilters label{ display:flex; flex-direction:column; gap:4px; font-size:.8rem; color:#0f172a; font-weight:800; }
     #moreFilters select{
+      font-family: 'Nunito', sans-serif;
       font-size:.9rem;
       padding:0 12px;
       border-radius:12px;
-      border: 1px solid #cbd5e1;
+      border: 2px solid #e2e8f0;
       background:#f8fafc;
       outline:none;
+      font-weight: 700;
+      color: #334155;
       transition:border-color .15s ease,box-shadow .15s ease;
       height:38px;
-      box-shadow: inset 0 2px 4px rgba(0,0,0,0.04), inset 0 -1px 2px rgba(255,255,255,1);
     }
     #moreFilters select:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.15);}
 
     #applyFilter {
       padding: 0 16px;
-      font-size: .9rem;
+      font-size: 1rem;
       border-radius: 12px;
-      font-weight: 800;
+      font-weight: 900;
       height: 38px;
       cursor: pointer;
       border: none;
@@ -421,14 +532,15 @@
       margin-top: auto;
       background: linear-gradient(145deg, #3b82f6, #1d4ed8);
       color: #fff;
-      box-shadow: 0 4px 0 #1e3a8a, 0 6px 10px rgba(37,99,235,0.2), inset 0 2px 0 rgba(255,255,255,0.2);
+      box-shadow: 0 4px 10px rgba(37,99,235,0.3);
+      font-family: 'Nunito', sans-serif;
     }
     #applyFilter:active {
-      transform: translateY(4px);
-      box-shadow: 0 0 0 #1e3a8a, 0 2px 4px rgba(37,99,235,0.2), inset 0 2px 0 rgba(255,255,255,0.2);
+      transform: translateY(2px);
+      box-shadow: 0 2px 5px rgba(37,99,235,0.3);
     }
 
-    @media(max-width:768px){ #filters{ border-radius: 14px; } }
+    @media(max-width:768px){ #filters{ padding: 10px 0; } }
 
     /* =========================================================
        modal.css
@@ -441,7 +553,7 @@
       --pcma-ring: rgba(0,0,0,.08);
     }
 
-    #pcmaModalBg{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); justify-content:center; align-items:center; z-index:5000; }
+    #pcmaModalBg{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); backdrop-filter: blur(5px); justify-content:center; align-items:center; z-index:5000; }
     #pcmaModalBg.pcma-show{display:flex;}
 
     #pcmaModalBox{
@@ -459,14 +571,14 @@
       position:sticky; top:0; z-index:5;
       display:flex; align-items:center; justify-content:center; gap:10px;
       background:var(--pcma-accent); color:#fff;
-      min-height:30px; padding:10px 14px;
+      min-height:30px; padding:15px 14px;
       border-bottom:1px solid var(--pcma-ring);
-      box-shadow:0 2px 4px var(--pcma-ring);
+      box-shadow:0 4px 15px rgba(0,0,0,0.1);
     }
-    .pcma-modal-top-cid{ font-weight:900; color:#fff; line-height:1; font-size: 1.4rem; letter-spacing: 1px;}
+    .pcma-modal-top-cid{ font-weight:900; color:#fff; line-height:1; font-size: 1.5rem; letter-spacing: 1px; text-shadow: 0 2px 4px rgba(0,0,0,0.2);}
 
-    #pcmaModalBody{ flex:1 1 auto; overflow:auto; background:#fff; padding-bottom: calc(var(--footer-h) + 20px); }
-    #pcmaModalContent{ display:flex; flex-direction:column; gap:10px; padding:14px; max-width:1100px; margin:0 auto; }
+    #pcmaModalBody{ flex:1 1 auto; overflow:auto; background:#f8fafc; padding-bottom: calc(var(--footer-h) + 20px); }
+    #pcmaModalContent{ display:flex; flex-direction:column; gap:12px; padding:14px; max-width:1100px; margin:0 auto; }
     
     #pcmaModalButtons{
       padding:10px 14px 20px; max-width:1100px; margin:0 auto;
@@ -475,74 +587,75 @@
     }
 
     .modal-btn-3d {
-      flex: 1; padding: 12px 6px; border-radius: 14px; font-size: 0.8rem; border: none; cursor: pointer;
-      font-weight: 800; display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 6px; text-transform: uppercase; text-align: center; line-height: 1.15; transition: all 0.1s ease;
-      -webkit-tap-highlight-color: transparent;
+      flex: 1; padding: 16px 8px; border-radius: 18px; font-size: 0.85rem; border: none; cursor: pointer;
+      font-weight: 900; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 8px; text-transform: uppercase; text-align: center; line-height: 1.15; transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+      font-family: 'Nunito', sans-serif;
     }
-    .modal-btn-3d svg { width: 26px; height: 26px; stroke: currentColor; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .modal-btn-3d svg { width: 30px; height: 30px; stroke: currentColor; stroke-width: 2.2; fill: none; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));}
 
-    .btn-docs-3d { background: linear-gradient(145deg, #8b5cf6, #6d28d9); color: #fff; box-shadow: 0 6px 0 #4c1d95, 0 10px 15px rgba(109, 40, 217, 0.3), inset 0 2px 0 rgba(255,255,255,0.2); }
-    .btn-docs-3d:active { transform: translateY(6px); box-shadow: 0 0 0 #4c1d95, 0 4px 6px rgba(109, 40, 217, 0.3), inset 0 2px 0 rgba(255,255,255,0.2); }
+    .btn-docs-3d { background: linear-gradient(145deg, #a78bfa, #7c3aed); color: #fff; box-shadow: 0 8px 0 #5b21b6, 0 15px 20px rgba(124, 58, 237, 0.3); }
+    .btn-docs-3d:active { transform: translateY(8px); box-shadow: 0 0 0 #5b21b6, 0 5px 10px rgba(124, 58, 237, 0.3); }
 
-    .btn-upload-3d { background: linear-gradient(145deg, #0ea5e9, #2563eb); color: #fff; box-shadow: 0 6px 0 #1e3a8a, 0 10px 15px rgba(37, 99, 235, 0.3), inset 0 2px 0 rgba(255,255,255,0.2); }
-    .btn-upload-3d:active { transform: translateY(6px); box-shadow: 0 0 0 #1e3a8a, 0 4px 6px rgba(37, 99, 235, 0.3), inset 0 2px 0 rgba(255,255,255,0.2); }
+    .btn-upload-3d { background: linear-gradient(145deg, #38bdf8, #2563eb); color: #fff; box-shadow: 0 8px 0 #1e40af, 0 15px 20px rgba(37, 99, 235, 0.3); }
+    .btn-upload-3d:active { transform: translateY(8px); box-shadow: 0 0 0 #1e40af, 0 5px 10px rgba(37, 99, 235, 0.3); }
 
-    /* Photos Grid Layout below buttons */
+    /* Photos Grid Layout */
     #pcmaModalPhotos { padding: 0 14px 100px; max-width: 1100px; margin: 0 auto; }
-    .pcma-photo-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 10px; }
-    .pcma-photo-card { display: flex; flex-direction: column; align-items: center; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 8px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); transition: transform 0.15s; }
-    .pcma-photo-card:hover { transform: scale(1.03); }
-    .pcma-photo-card img { width: 100%; height: auto; object-fit: cover; border-radius: 8px; margin-bottom: 0; background: #e2e8f0; cursor: pointer; }
+    .pcma-photo-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 10px; }
+    .pcma-photo-card { display: flex; flex-direction: column; align-items: center; background: #ffffff; border: 2px solid #e2e8f0; border-radius: 16px; padding: 10px; box-shadow: 0 8px 15px rgba(0,0,0,0.05); transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .pcma-photo-card:hover { transform: scale(1.02) translateY(-4px); box-shadow: 0 15px 25px rgba(0,0,0,0.1); border-color: #93c5fd;}
+    .pcma-photo-card img { width: 100%; height: auto; object-fit: cover; border-radius: 10px; margin-bottom: 0; background: #f1f5f9; cursor: pointer; }
     .pcma-photo-card img:hover { opacity: 0.9; }
-    .pcma-photo-label { font-size: 0.7rem; font-weight: 800; color: #475569; text-align: center; text-transform: uppercase; margin-top: 8px; }
+    .pcma-photo-label { font-size: 0.75rem; font-weight: 900; color: #334155; text-align: center; text-transform: uppercase; margin-top: 10px; }
     
-    .pcma-photo-set-btns { display: flex; flex-direction: row; gap: 4px; width: 100%; margin-top: 8px; }
-    .pcma-photo-set-btns button { flex: 1; padding: 10px 4px; border: none; border-radius: 6px; font-size: 0.75rem; font-weight: 800; cursor: pointer; color: #fff; transition: opacity 0.2s; text-transform: uppercase; }
-    .pcma-photo-set-btns button:hover { opacity: 0.8; }
-    .set-icon-btn { background: #3b82f6; }
-    .set-main-btn { background: #8b5cf6; }
+    .pcma-photo-set-btns { display: flex; flex-direction: row; gap: 6px; width: 100%; margin-top: 10px; }
+    .pcma-photo-set-btns button { flex: 1; padding: 12px 4px; border: none; border-radius: 10px; font-size: 0.75rem; font-weight: 900; cursor: pointer; color: #fff; transition: opacity 0.2s, transform 0.1s; text-transform: uppercase; font-family: 'Nunito', sans-serif;}
+    .pcma-photo-set-btns button:hover { opacity: 0.9; transform: translateY(-2px); }
+    .pcma-photo-set-btns button:active { transform: translateY(2px); }
+    .set-icon-btn { background: linear-gradient(135deg, #3b82f6, #1d4ed8); box-shadow: 0 4px 10px rgba(37,99,235,0.3);}
+    .set-main-btn { background: linear-gradient(135deg, #8b5cf6, #6d28d9); box-shadow: 0 4px 10px rgba(139,92,246,0.3);}
 
-    @media (max-width: 600px) { .pcma-photo-grid { grid-template-columns: 1fr; } }
+    @media (min-width: 601px) { .pcma-photo-grid { grid-template-columns: repeat(2, 1fr); } }
 
     /* FLOAT ARROWS */
-    .pcma-modal-arrow{ position:fixed; top:50%; transform:translateY(-50%); background:rgba(0,0,0,.05); border:none; width:48px; height:72px; border-radius:999px; display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:5100; }
-    #pcmaModalPrev{ left:10px; }
-    #pcmaModalNext{ right:10px; }
-    .pcma-modal-arrow svg{ width:26px; height:26px; stroke:#fff; }
-    @media (max-width:768px){ .pcma-modal-arrow{ width:40px; height:60px; } }
+    .pcma-modal-arrow{ position:fixed; top:50%; transform:translateY(-50%); background:rgba(255,255,255,.2); backdrop-filter: blur(4px); border:1px solid rgba(255,255,255,0.4); width:50px; height:80px; border-radius:999px; display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:5100; box-shadow: 0 4px 15px rgba(0,0,0,0.1);}
+    #pcmaModalPrev{ left:15px; }
+    #pcmaModalNext{ right:15px; }
+    .pcma-modal-arrow svg{ width:30px; height:30px; stroke:#1e293b; }
+    @media (max-width:768px){ .pcma-modal-arrow{ width:40px; height:65px; left:8px; right: 8px;} }
 
     /* HERO IMAGE */
-    .pcma-hero{ width:100%; border-radius:16px; overflow:hidden; background:#0f172a; border:1px solid rgba(15,23,42,.35); max-height:260px; }
-    .pcma-hero img{ width:100%; height:260px; object-fit:cover; display:block; }
+    .pcma-hero{ width:100%; border-radius:20px; overflow:hidden; background:#0f172a; border:3px solid #fff; box-shadow: 0 10px 25px rgba(0,0,0,0.15); max-height:280px; }
+    .pcma-hero img{ width:100%; height:280px; object-fit:cover; display:block; }
 
     /* PRIMARY GRID */
-    .pcma-primary{ display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:10px; background:linear-gradient(135deg, #eff6ff 50%, #dbeafe 50%, var(--pcma-accent) 80%); border:2px solid rgba(148,163,184,.35); border-radius:16px; box-shadow:0 8px 25px rgba(15,23,42,.12); padding:5px; }
-    .pcma-primary-col{ background:rgba(255,255,255,.45); border:1px solid rgba(255,255,255,.25); border-radius:12px; padding:8px 8px 6px; display:flex; flex-direction:column; gap:6px; }
+    .pcma-primary{ display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:12px; background:linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%); border:2px solid #e2e8f0; border-radius:20px; box-shadow:0 10px 25px rgba(15,23,42,.05); padding:8px; }
+    .pcma-primary-col{ background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:10px 10px 8px; display:flex; flex-direction:column; gap:8px; box-shadow: 0 2px 5px rgba(0,0,0,0.02);}
     .pcma-primary-row{ display:flex; align-items:flex-start; gap:0; }
-    .pcma-primary-label{ flex:0 0 120px; max-width:120px; font-size:.8rem; font-weight:600; color:var(--pcma-ink); white-space:nowrap; }
-    .pcma-primary-value{ flex:1; background:#fff; border-radius:10px; padding:3px 9px 4px; font-weight:600; font-size:.9rem; color:var(--pcma-ink); word-break:break-word; min-height:27px; }
+    .pcma-primary-label{ flex:0 0 120px; max-width:120px; font-size:.85rem; font-weight:800; color:#64748b; white-space:nowrap; }
+    .pcma-primary-value{ flex:1; background:#f8fafc; border-radius:8px; padding:4px 10px 5px; font-weight:800; font-size:.95rem; color:#0f172a; word-break:break-word; min-height:29px; border: 1px solid #f1f5f9;}
     .pcma-primary-col.pcma-group-a .pcma-primary-label, .pcma-primary-col.pcma-group-d .pcma-primary-label{ flex:0 0 92px; max-width:92px; }
-    .pcma-primary-value.pcma-status{ background:var(--pcma-accent); color:#fff; box-shadow:0 0 0 1px rgba(255,255,255,.25); }
+    .pcma-primary-value.pcma-status{ background: linear-gradient(135deg, var(--pcma-accent), #ea580c); color:#fff; box-shadow:0 2px 6px rgba(234, 88, 12, 0.3); border:none;}
 
     @media (max-width:600px){ .pcma-primary{ grid-template-columns:1fr; } .pcma-primary-label{ flex:0 0 110px; max-width:110px; } }
 
     /* MINI BARS + PROGRESS */
-    .pcma-mini-bars{ display:flex; flex-direction:column; gap:6px; margin-top:10px; }
+    .pcma-mini-bars{ display:flex; flex-direction:column; gap:8px; margin-top:12px; }
     .pcma-mini-row{ display:flex; align-items:center; gap:10px; }
-    .pcma-mini-label{ width:82px; text-align:left; font-weight:900; color:var(--pcma-ink); letter-spacing:.2px; }
-    .pcma-mini-bar{ flex:1; height:22px; background:var(--pcma-muted); border-radius:999px; overflow:hidden; box-shadow: inset 0 3px 5px rgba(0,0,0,0.15), inset 0 -2px 3px rgba(255,255,255,0.9); border: 1px solid #cbd5e1; }
-    .pcma-mini-fill{ height:100%; width:0%; display:flex; align-items:center; justify-content:center; font-size:.8rem; font-weight:800; color:#fff; transition:width 650ms ease-out; white-space:nowrap; padding:0 6px; border-radius:999px; background-image: linear-gradient(to bottom, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 40%, rgba(0,0,0,0.1) 100%); box-shadow: inset 0 2px 3px rgba(255,255,255,0.6), inset 0 -2px 3px rgba(0,0,0,0.2); border-right: 1px solid rgba(0,0,0,0.15); text-shadow: 0 1px 2px rgba(0,0,0,0.4); }
+    .pcma-mini-label{ width:82px; text-align:left; font-weight:900; color:#475569; letter-spacing:.2px; font-size: 0.85rem;}
+    .pcma-mini-bar{ flex:1; height:24px; background:#e2e8f0; border-radius:999px; overflow:hidden; box-shadow: inset 0 3px 5px rgba(0,0,0,0.08); border: 1px solid #cbd5e1; }
+    .pcma-mini-fill{ height:100%; width:0%; display:flex; align-items:center; justify-content:center; font-size:.8rem; font-weight:900; color:#fff; transition:width 650ms ease-out; white-space:nowrap; padding:0 6px; border-radius:999px; background-image: linear-gradient(to bottom, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 50%, rgba(0,0,0,0.1) 100%); text-shadow: 0 1px 2px rgba(0,0,0,0.4); }
 
-    .pcma-progress{ margin-top:12px; }
-    .pcma-progress-label{ font-weight:800; color:var(--pcma-ink); margin-bottom:6px; font-size:1.05rem; text-align:center; text-shadow: 0 1px 1px rgba(0,0,0,0.05); }
-    .pcma-progress-bar{ width:100%; background:var(--pcma-muted); border-radius:12px; height:28px; overflow:hidden; position:relative; box-shadow: inset 0 3px 5px rgba(0,0,0,0.15), inset 0 -2px 3px rgba(255,255,255,0.9); border: 1px solid #cbd5e1; }
-    .pcma-progress-fill{ height:100%; border-radius:12px; text-align:center; line-height:26px; font-weight:800; color:#fff; font-size:1rem; width:0%; transition:width 900ms ease-out; white-space:nowrap; padding:0 8px; background-image: linear-gradient(to bottom, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 40%, rgba(0,0,0,0.1) 100%); box-shadow: inset 0 2px 3px rgba(255,255,255,0.6), inset 0 -2px 3px rgba(0,0,0,0.2); border-right: 1px solid rgba(0,0,0,0.15); text-shadow: 0 1px 2px rgba(0,0,0,0.4); }
+    .pcma-progress{ margin-top:16px; }
+    .pcma-progress-label{ font-weight:900; color:#1e293b; margin-bottom:8px; font-size:1.1rem; text-align:center; text-transform: uppercase; letter-spacing: 1px;}
+    .pcma-progress-bar{ width:100%; background:#e2e8f0; border-radius:16px; height:32px; overflow:hidden; position:relative; box-shadow: inset 0 3px 6px rgba(0,0,0,0.1); border: 2px solid #fff; }
+    .pcma-progress-fill{ height:100%; border-radius:14px; text-align:center; line-height:28px; font-weight:900; color:#fff; font-size:1.05rem; width:0%; transition:width 900ms ease-out; white-space:nowrap; padding:0 8px; background-image: linear-gradient(to bottom, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 50%, rgba(0,0,0,0.1) 100%); text-shadow: 0 1px 3px rgba(0,0,0,0.4); }
     
-    .pcma-team { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 10px 12px; margin-top: 6px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); }
-    .pcma-team-label { font-weight: 800; color: #475569; display: block; margin-bottom: 8px; text-shadow: 0 1px 0 #fff; }
-    .pcma-staff-badge { display: inline-block; background: linear-gradient(145deg, #eff6ff, #bfdbfe); color: #1e3a8a; border-radius: 999px; padding: 5px 14px; font-weight: 600; font-size: .8rem; border: 1px solid #93c5fd; box-shadow: 0 3px 0 #60a5fa, 0 5px 5px rgba(0,0,0,0.08), inset 0 2px 1px rgba(255,255,255,0.8); text-shadow: 0 1px 1px rgba(255,255,255,0.6); margin-bottom: 4px; -webkit-tap-highlight-color: transparent; }
-    .pcma-staff-badge strong { font-weight: 900; color: #1d4ed8; margin-right: 3px; }
+    .pcma-team { background: #ffffff; border: 2px solid #f1f5f9; border-radius: 16px; padding: 12px 14px; margin-top: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
+    .pcma-team-label { font-weight: 900; color: #334155; display: block; margin-bottom: 10px; font-size: 1rem; text-transform: uppercase;}
+    .pcma-staff-badge { display: inline-block; background: linear-gradient(145deg, #eff6ff, #bfdbfe); color: #1e3a8a; border-radius: 999px; padding: 6px 16px; font-weight: 800; font-size: .85rem; border: 1px solid #93c5fd; box-shadow: 0 3px 0 #60a5fa, 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 6px; margin-right: 4px; }
+    .pcma-staff-badge strong { font-weight: 900; color: #1d4ed8; margin-right: 4px; }
 
     /* =========================================================
        IFRAME OVERLAY STYLES
@@ -553,15 +666,16 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: rgba(0, 0, 0, 0.45); 
+      background: rgba(0, 0, 0, 0.6); 
+      backdrop-filter: blur(5px);
       z-index: 11000;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-family: 'Nunito', sans-serif;
     }
     #iframeOverlay[hidden], #projectDocsOverlay[hidden], #uploadPhotosOverlay[hidden] { display: none !important; }
 
-    .up-box { height: 90vh; background: #ffffff; width: 96%; max-width: 1000px; border-radius: 14px; box-shadow: 0 18px 40px rgba(0, 0, 0, 0.32); display: flex; flex-direction: column; overflow: hidden;}
+    .up-box { height: 90vh; background: #ffffff; width: 96%; max-width: 1000px; border-radius: 20px; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25); display: flex; flex-direction: column; overflow: hidden; border: 2px solid rgba(255,255,255,0.8);}
     .up-body { padding: 0 !important; background: transparent !important; display: flex; flex-direction: column; flex: 1; }
-    .up-frame { width: 100%; height: 100%; border: none; flex: 1; }
+    .up-frame { width: 100%; height: 100%; border: none; flex: 1; background: transparent;}
 
     /* Fullscreen modifiers specifically for Mobile for Upload Photos explicitly */
     @media (max-width: 768px) {
@@ -601,122 +715,53 @@
 </head>
 <body>
 
-<header>
-  <div class="header-container">
-    <div class="brand">
-      <img alt="PCMA Logo" class="header-logo" decoding="async" src="https://drive.google.com/thumbnail?id=1VanVX82ANGfKA8jcGZL8cVDQh4EuN8-r&sz=s800"/>
-      <h2 class="header-title">PCMA Mobile V8.0</h2>
-    </div>
-  </div>
-  
-  <div id="filters" class="hidden">
-    <div class="search-filter-row">
-      <label class="filter-combo">
-        <span class="input-icon-wrap">
-          <input autocomplete="off" id="filterCombo" type="text" placeholder="Search..."/>
-        </span>
-      </label>
-      <button id="clearFilter" title="Clear Filters">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-      </button>
-      <button id="toggleMoreFilters">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
-      </button>
-    </div>
-    <div class="hidden" id="moreFilters">
-      <label>
-        <span style="display:flex; align-items:center; gap:6px; color:#8b5cf6;">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg> YEAR
-        </span>
-        <select id="filterYear"><option value="">All</option></select>
-      </label>
-      <label>
-        <span style="display:flex; align-items:center; gap:6px; color:#3b82f6;">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> PROJECT ENGINEER
-        </span>
-        <select id="filterEngineer"><option value="">All</option></select>
-      </label>
-      <label>
-        <span style="display:flex; align-items:center; gap:6px; color:#f59e0b;">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><line x1="9" y1="22" x2="9" y2="22"></line><line x1="15" y1="22" x2="15" y2="22"></line><line x1="9" y1="6" x2="9" y2="6.01"></line><line x1="15" y1="6" x2="15" y2="6.01"></line><line x1="9" y1="10" x2="9" y2="10.01"></line><line x1="15" y1="10" x2="15" y2="10.01"></line><line x1="9" y1="14" x2="9" y2="14.01"></line><line x1="15" y1="14" x2="15" y2="14.01"></line><line x1="9" y1="18" x2="9" y2="18.01"></line><line x1="15" y1="18" x2="15" y2="18.01"></line></svg> CONTRACTOR
-        </span>
-        <select id="filterContractor"><option value="">All</option></select>
-      </label>
-      <label>
-        <span style="display:flex; align-items:center; gap:6px; color:#10b981;">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> STATUS
-        </span>
-        <select id="filterStatus"><option value="">All</option></select>
-      </label>
-      <button id="applyFilter">Apply</button>
-    </div>
-  </div>
-</header>
+<div id="version-tag">Version 8.1</div>
 
 <main id="homeView" class="home-view">
   <div class="home-title-area">
-    <h2>Welcome to PCMA Mobile</h2>
+    <img alt="PCMA Logo Watermark" class="home-main-logo" src="https://drive.google.com/thumbnail?id=1VanVX82ANGfKA8jcGZL8cVDQh4EuN8-r&sz=s800"/>
+    <h2>PCMA Mobile</h2>
     <p>Select a module to continue</p>
+    
+    <div class="disclaimer">
+      <strong>Disclaimer:</strong> This is an unofficial application developed exclusively for monitoring purposes within Aklan DEO R6. It is not intended, nor authorized, for any other use. By continuing, you acknowledge and agree to these terms.
+    </div>
   </div>
+  
   <div class="home-btn-grid">
     
     <button class="btn-3d btn-projects" id="btnGoProjects">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-      </svg>
+      <span class="emoji-icon">🗂️</span>
       <span>Projects</span>
     </button>
     
     <button type="button" class="btn-3d btn-data" data-src="DataBase.html">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-        <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
-        <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
-        <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
-      </svg>
+      <span class="emoji-icon">📊</span>
       <span>Dashboard</span>
     </button>
     
     <button type="button" class="btn-3d btn-uploadmon" data-src="Monitoring.html">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-        <circle cx="11" cy="11" r="8"></circle>
-        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-      </svg>
+      <span class="emoji-icon">📡</span>
       <span>Monitoring</span>
     </button>
 
     <button type="button" class="btn-3d btn-tracker" data-src="DocuTracker.html">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-        <polyline points="14 2 14 8 20 8"></polyline>
-        <line x1="16" y1="13" x2="8" y2="13"></line>
-        <line x1="16" y1="17" x2="8" y2="17"></line>
-        <polyline points="10 9 9 9 8 9"></polyline>
-      </svg>
+      <span class="emoji-icon">📑</span>
       <span>DocuTracker</span>
     </button>
 
     <button type="button" class="btn-3d btn-leaderboards" data-src="Leaderboards.html">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-        <polyline points="17 8 12 3 7 8"></polyline>
-        <line x1="12" y1="3" x2="12" y2="15"></line>
-      </svg>
+      <span class="emoji-icon">🏆</span>
       <span>Leaderboards &<br>File Uploader</span>
     </button>
 
     <button type="button" class="btn-3d btn-pcmarev" data-src="https://script.google.com/macros/s/AKfycbwIpWr1UICDBB-5SSjNZfAzINmNC7cfiGBmKt54jjH0toEDQfFsbu5QTyX36jfF03A02A/exec?fbclid=IwZXh0bgNhZW0CMTEAc3J0YwZhcHBfaWQPNDM3NjI2MzE2OTczNzg4AAEeeARYP2rIEIu-3sqJFJci6nMtpj_jWa0HwX3qVIz7b6EAMxCtTL_ZQbNjYz8_aem_9v6JVRjnUgCaTKIbxzHBTw">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-      </svg>
+      <span class="emoji-icon">🔄</span>
       <span>PCMA Revision<br>Monitoring</span>
     </button>
 
     <a href="https://drive.google.com/file/d/1CTogwlTvQxwPW0KrdHyGSVxMZ3cjH3PM/view?usp=sharing" target="_blank" class="btn-3d btn-download">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-        <polyline points="7 10 12 15 17 10"></polyline>
-        <line x1="12" y1="15" x2="12" y2="3"></line>
-      </svg>
+      <span class="emoji-icon">📱</span>
       <span>Download APK<br>for Android Only</span>
     </a>
 
@@ -724,6 +769,50 @@
 </main>
 
 <main id="appView" class="hidden">
+  
+  <div id="filters">
+    <div class="search-filter-row">
+      <label class="filter-combo">
+        <span class="input-icon-wrap">
+          <input autocomplete="off" id="filterCombo" type="text" placeholder="Search..."/>
+        </span>
+      </label>
+      <button id="clearFilter" title="Clear Filters">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+      <button id="toggleMoreFilters" title="More Filters">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+      </button>
+    </div>
+    <div class="hidden" id="moreFilters">
+      <label>
+        <span style="display:flex; align-items:center; gap:6px; color:#8b5cf6;">
+          📅 YEAR
+        </span>
+        <select id="filterYear"><option value="">All</option></select>
+      </label>
+      <label>
+        <span style="display:flex; align-items:center; gap:6px; color:#3b82f6;">
+          👷‍♂️ PROJECT ENGINEER
+        </span>
+        <select id="filterEngineer"><option value="">All</option></select>
+      </label>
+      <label>
+        <span style="display:flex; align-items:center; gap:6px; color:#f59e0b;">
+          🏗️ CONTRACTOR
+        </span>
+        <select id="filterContractor"><option value="">All</option></select>
+      </label>
+      <label>
+        <span style="display:flex; align-items:center; gap:6px; color:#10b981;">
+          📊 STATUS
+        </span>
+        <select id="filterStatus"><option value="">All</option></select>
+      </label>
+      <button id="applyFilter">Apply Filters</button>
+    </div>
+  </div>
+
   <div class="hidden" id="resultInfo"></div>
   <div class="grid hidden" id="grid"></div>
 </main>
@@ -743,7 +832,7 @@
 
   <div id="pcmaModalBox">
     <div class="pcma-modal-top" style="justify-content: center;">
-      <div id="pcmaModalCID" class="pcma-modal-top-cid" style="font-size: 1.4rem; letter-spacing: 1px;">—</div>
+      <div id="pcmaModalCID" class="pcma-modal-top-cid">—</div>
     </div>
     <div id="pcmaModalBody">
       <div id="pcmaModalContent"></div>
@@ -825,6 +914,8 @@
           homeView.classList.add("hidden");
           appView.classList.remove("hidden");
           document.getElementById("filters").classList.remove("hidden");
+          document.getElementById("grid").classList.remove("hidden"); 
+          document.getElementById("resultInfo").classList.remove("hidden");
           window.scrollTo({ top: 0, behavior: "smooth" });
         }
       });
@@ -947,7 +1038,7 @@
           const isModalOpen = modalBg && modalBg.classList.contains("pcma-show");
           
           if (isGridVisible && !isModalOpen && !isIframeOpen) {
-            grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:#777;font-weight:bold;">Reloading data...</div>';
+            grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:#fff;font-weight:bold;font-size:1.2rem;text-shadow: 0 2px 4px rgba(0,0,0,0.5);">Reloading data...</div>';
           }
           
           await window.PCMA.reload(); 
@@ -1012,7 +1103,6 @@
       grid: document.getElementById("grid"),
       resultInfo: document.getElementById("resultInfo"),
       filtersBox: document.getElementById("filters"),
-      toggleFiltersBtn: document.getElementById("toggleFilters"),
       filterCombo: document.getElementById("filterCombo"),
       filterYear: document.getElementById("filterYear"),
       filterStatus: document.getElementById("filterStatus"),
@@ -1061,10 +1151,11 @@
         for (let r of rawRecords) {
           if (!r || !r.join("").trim()) continue;
 
+          // DO NOT completely break on an empty ID anymore. Some rows may be accidentally empty due to formatting.
           if (colContractId >= 0) {
             const cid = String(r[colContractId] || "").trim();
             if (!cid) {
-              break; 
+              continue; // Just skip the empty row instead of breaking the entire loop
             }
           }
           
@@ -1089,13 +1180,20 @@
         const filtered = filterData(combo, y, pe, c, s);
 
         renderGrid(filtered);
-        el.grid.classList.remove("hidden");
-        el.resultInfo.textContent = `${filtered.length} results`;
-        el.resultInfo.classList.remove("hidden");
+        
+        if(document.getElementById("appView").classList.contains("hidden")) {
+           el.grid.classList.add("hidden");
+           el.resultInfo.classList.add("hidden");
+        } else {
+           el.grid.classList.remove("hidden");
+           el.resultInfo.textContent = `${filtered.length} results`;
+           el.resultInfo.classList.remove("hidden");
+        }
+        
       } catch (err) {
         console.error(err);
         el.grid.classList.remove("hidden");
-        el.grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:#b91c1c;">Failed to load data.</div>';
+        el.grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:#fff;font-weight:bold;text-shadow:0 2px 4px rgba(0,0,0,0.5);">Failed to load data.</div>';
       }
     }
     
@@ -1226,7 +1324,7 @@
       const q = (el.filterCombo.value || "").trim().toLowerCase();
 
       if (!rows.length) {
-        el.grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:#777;">No data found.</div>';
+        el.grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:#1e293b;font-weight:bold;">No data found.</div>';
         return;
       }
 
@@ -1360,15 +1458,6 @@
       el.moreFiltersBox.classList.toggle("hidden");
       saveFilterState();
     });
-
-    if (el.toggleFiltersBtn) {
-      el.toggleFiltersBtn.addEventListener("click", () => {
-        if (window.innerWidth <= 768) return;
-        const isHidden = el.filtersBox.style.display === "none";
-        el.filtersBox.style.display = isHidden ? "flex" : "none";
-        el.toggleFiltersBtn.textContent = isHidden ? "Hide Search" : "Show Search";
-      });
-    }
 
     loadData();
   })();
@@ -1695,7 +1784,7 @@
         });
 
         if (!hasPhotos) {
-            modalPhotos.innerHTML = '<div style="text-align:center; padding:20px; color:#64748b;">No photos uploaded for this project yet.</div>';
+            modalPhotos.innerHTML = '<div style="text-align:center; padding:20px; color:#64748b; font-weight:800;">No photos uploaded for this project yet.</div>';
         } else {
             modalPhotos.innerHTML = html;
         }
