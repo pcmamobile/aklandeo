@@ -9,7 +9,6 @@
   <link href="https://drive.google.com/thumbnail?id=1VanVX82ANGfKA8jcGZL8cVDQh4EuN8-r&sz=s800" rel="apple-touch-icon" sizes="180x180"/>
   <meta content="#2563eb" name="theme-color"/>
   
-  <!-- Beautiful Google Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
@@ -32,7 +31,6 @@
       font-family: 'Nunito', sans-serif;
       margin:0;
       color:#1e293b;
-      /* Stunning Pastel Anime Sky Background */
       background-image: url('https://images.unsplash.com/photo-1500964757637-c85e8a162699?q=80&w=2560&auto=format&fit=crop');
       background-size: cover;
       background-position: center;
@@ -40,7 +38,6 @@
       position: relative;
     }
 
-    /* Magic Color-Shifting Overlay */
     body::before {
       content: '';
       position: fixed;
@@ -107,11 +104,10 @@
       border-radius: 35px;
       border: 2px solid rgba(255, 255, 255, 0.8);
       box-shadow: 0 10px 30px rgba(31, 38, 135, 0.15);
-      overflow: hidden; /* Contains the watermark nicely */
+      overflow: hidden; 
       max-width: 650px;
     }
 
-    /* Watermark Logo Styling */
     .home-main-logo {
       position: absolute;
       top: 50%;
@@ -119,7 +115,7 @@
       width: 220px;
       height: 220px;
       border-radius: 50%;
-      opacity: 0.15; /* Soft watermark transparency */
+      opacity: 0.15; 
       z-index: 0;
       pointer-events: none;
       animation: floatWatermark 6s ease-in-out infinite;
@@ -130,7 +126,6 @@
       50% { transform: translate(-50%, calc(-50% - 15px)); }
     }
 
-    /* Elevate text above the watermark */
     .home-title-area h2, 
     .home-title-area p, 
     .disclaimer {
@@ -170,7 +165,6 @@
       50% { transform: translateY(-5px); }
     }
 
-    /* Disclaimer Inside the Title Box */
     .disclaimer {
       width: 100%;
       text-align: center;
@@ -195,7 +189,6 @@
       padding-bottom: 10px;
     }
 
-    /* 3D Pastel Glass Buttons */
     .btn-3d {
       display: flex;
       flex-direction: column;
@@ -218,7 +211,6 @@
       box-shadow: 0 10px 0 var(--btn-shadow), 0 15px 20px rgba(0,0,0,0.15), inset 0 3px 0 rgba(255,255,255,0.7);
     }
 
-    /* Pastel Theme Colors per Button */
     .btn-projects { background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%); --btn-shadow: #7ca1d8; color: #1e3a8a;}
     .btn-data { background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%); --btn-shadow: #c298c8; color: #4c1d95;}
     .btn-uploadmon { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); --btn-shadow: #d97880; color: #9f1239;}
@@ -236,7 +228,6 @@
       box-shadow: 0 4px 0 var(--btn-shadow), 0 8px 10px rgba(0,0,0,0.2), inset 0 3px 0 rgba(255,255,255,0.5);
     }
 
-    /* 3D Animated Colorful Icons */
     .emoji-icon {
       font-size: 4rem;
       line-height: 1;
@@ -408,16 +399,6 @@
     #footerHomeBtn svg { stroke: #3b82f6; }   
     #footerBackBtn svg { stroke: #f43f5e; }   
 
-    .footer-btn.primary{
-      background: transparent !important;
-      color:#fff;
-      box-shadow: none !important;
-    }
-    .footer-btn.primary:active{
-      transform: translateY(4px);
-      box-shadow: none !important;
-    }
-
     @media (max-width: 768px){
       :root{ --footer-h: 80px; }
       .footer-inner{ padding: 8px 10px 14px; gap:8px; }
@@ -543,119 +524,34 @@
     @media(max-width:768px){ #filters{ padding: 10px 0; } }
 
     /* =========================================================
-       modal.css
+       MODAL SEPARATION STYLES
        ========================================================= */
-    :root {
-      --pcma-accent: #f97316;
-      --pcma-bg: #fff;
-      --pcma-ink: #0f172a;
-      --pcma-muted: #e5e7eb;
-      --pcma-ring: rgba(0,0,0,.08);
-    }
-
     #pcmaModalBg{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); backdrop-filter: blur(5px); justify-content:center; align-items:center; z-index:5000; }
     #pcmaModalBg.pcma-show{display:flex;}
 
     #pcmaModalBox{
-      background:var(--pcma-bg);
       width:100vw; height:100vh;
-      max-width:100vw; max-height:100vh;
-      border-radius:0;
       display:flex; flex-direction:column;
-      overflow:hidden;
-      margin-top:8px;
+      justify-content:center; align-items:center;
+      padding: 20px; box-sizing: border-box;
     }
-    @media (max-width:768px){ #pcmaModalBox{ margin-top:0; } }
+    @media (max-width:768px){ #pcmaModalBox{ padding:0; } }
 
-    .pcma-modal-top{
-      position:sticky; top:0; z-index:5;
-      display:flex; align-items:center; justify-content:center; gap:10px;
-      background:var(--pcma-accent); color:#fff;
-      min-height:30px; padding:15px 14px;
-      border-bottom:1px solid var(--pcma-ring);
-      box-shadow:0 4px 15px rgba(0,0,0,0.1);
+    #pcmaModalFrame {
+      width: 100%; height: 100%; 
+      max-width: 1100px;
+      border: none; 
+      border-radius: 20px;
+      background: #f8fafc;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.3);
     }
-    .pcma-modal-top-cid{ font-weight:900; color:#fff; line-height:1; font-size: 1.5rem; letter-spacing: 1px; text-shadow: 0 2px 4px rgba(0,0,0,0.2);}
+    @media (max-width:768px) { #pcmaModalFrame { border-radius: 0; max-width: none; } }
 
-    #pcmaModalBody{ flex:1 1 auto; overflow:auto; background:#f8fafc; padding-bottom: calc(var(--footer-h) + 20px); }
-    #pcmaModalContent{ display:flex; flex-direction:column; gap:12px; padding:14px; max-width:1100px; margin:0 auto; }
-    
-    #pcmaModalButtons{
-      padding:10px 14px 20px; max-width:1100px; margin:0 auto;
-      display:flex; flex-direction:row; gap:12px;
-      justify-content: center;
-    }
-
-    .modal-btn-3d {
-      flex: 1; padding: 16px 8px; border-radius: 18px; font-size: 0.85rem; border: none; cursor: pointer;
-      font-weight: 900; display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 8px; text-transform: uppercase; text-align: center; line-height: 1.15; transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
-      font-family: 'Nunito', sans-serif;
-    }
-    .modal-btn-3d svg { width: 30px; height: 30px; stroke: currentColor; stroke-width: 2.2; fill: none; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));}
-
-    .btn-docs-3d { background: linear-gradient(145deg, #a78bfa, #7c3aed); color: #fff; box-shadow: 0 8px 0 #5b21b6, 0 15px 20px rgba(124, 58, 237, 0.3); }
-    .btn-docs-3d:active { transform: translateY(8px); box-shadow: 0 0 0 #5b21b6, 0 5px 10px rgba(124, 58, 237, 0.3); }
-
-    .btn-upload-3d { background: linear-gradient(145deg, #38bdf8, #2563eb); color: #fff; box-shadow: 0 8px 0 #1e40af, 0 15px 20px rgba(37, 99, 235, 0.3); }
-    .btn-upload-3d:active { transform: translateY(8px); box-shadow: 0 0 0 #1e40af, 0 5px 10px rgba(37, 99, 235, 0.3); }
-
-    /* Photos Grid Layout */
-    #pcmaModalPhotos { padding: 0 14px 100px; max-width: 1100px; margin: 0 auto; }
-    .pcma-photo-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 10px; }
-    .pcma-photo-card { display: flex; flex-direction: column; align-items: center; background: #ffffff; border: 2px solid #e2e8f0; border-radius: 16px; padding: 10px; box-shadow: 0 8px 15px rgba(0,0,0,0.05); transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
-    .pcma-photo-card:hover { transform: scale(1.02) translateY(-4px); box-shadow: 0 15px 25px rgba(0,0,0,0.1); border-color: #93c5fd;}
-    .pcma-photo-card img { width: 100%; height: auto; object-fit: cover; border-radius: 10px; margin-bottom: 0; background: #f1f5f9; cursor: pointer; }
-    .pcma-photo-card img:hover { opacity: 0.9; }
-    .pcma-photo-label { font-size: 0.75rem; font-weight: 900; color: #334155; text-align: center; text-transform: uppercase; margin-top: 10px; }
-    
-    .pcma-photo-set-btns { display: flex; flex-direction: row; gap: 6px; width: 100%; margin-top: 10px; }
-    .pcma-photo-set-btns button { flex: 1; padding: 12px 4px; border: none; border-radius: 10px; font-size: 0.75rem; font-weight: 900; cursor: pointer; color: #fff; transition: opacity 0.2s, transform 0.1s; text-transform: uppercase; font-family: 'Nunito', sans-serif;}
-    .pcma-photo-set-btns button:hover { opacity: 0.9; transform: translateY(-2px); }
-    .pcma-photo-set-btns button:active { transform: translateY(2px); }
-    .set-icon-btn { background: linear-gradient(135deg, #3b82f6, #1d4ed8); box-shadow: 0 4px 10px rgba(37,99,235,0.3);}
-    .set-main-btn { background: linear-gradient(135deg, #8b5cf6, #6d28d9); box-shadow: 0 4px 10px rgba(139,92,246,0.3);}
-
-    @media (min-width: 601px) { .pcma-photo-grid { grid-template-columns: repeat(2, 1fr); } }
-
-    /* FLOAT ARROWS */
     .pcma-modal-arrow{ position:fixed; top:50%; transform:translateY(-50%); background:rgba(255,255,255,.2); backdrop-filter: blur(4px); border:1px solid rgba(255,255,255,0.4); width:50px; height:80px; border-radius:999px; display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:5100; box-shadow: 0 4px 15px rgba(0,0,0,0.1);}
     #pcmaModalPrev{ left:15px; }
     #pcmaModalNext{ right:15px; }
     .pcma-modal-arrow svg{ width:30px; height:30px; stroke:#1e293b; }
     @media (max-width:768px){ .pcma-modal-arrow{ width:40px; height:65px; left:8px; right: 8px;} }
-
-    /* HERO IMAGE */
-    .pcma-hero{ width:100%; border-radius:20px; overflow:hidden; background:#0f172a; border:3px solid #fff; box-shadow: 0 10px 25px rgba(0,0,0,0.15); max-height:280px; }
-    .pcma-hero img{ width:100%; height:280px; object-fit:cover; display:block; }
-
-    /* PRIMARY GRID */
-    .pcma-primary{ display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:12px; background:linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%); border:2px solid #e2e8f0; border-radius:20px; box-shadow:0 10px 25px rgba(15,23,42,.05); padding:8px; }
-    .pcma-primary-col{ background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:10px 10px 8px; display:flex; flex-direction:column; gap:8px; box-shadow: 0 2px 5px rgba(0,0,0,0.02);}
-    .pcma-primary-row{ display:flex; align-items:flex-start; gap:0; }
-    .pcma-primary-label{ flex:0 0 120px; max-width:120px; font-size:.85rem; font-weight:800; color:#64748b; white-space:nowrap; }
-    .pcma-primary-value{ flex:1; background:#f8fafc; border-radius:8px; padding:4px 10px 5px; font-weight:800; font-size:.95rem; color:#0f172a; word-break:break-word; min-height:29px; border: 1px solid #f1f5f9;}
-    .pcma-primary-col.pcma-group-a .pcma-primary-label, .pcma-primary-col.pcma-group-d .pcma-primary-label{ flex:0 0 92px; max-width:92px; }
-    .pcma-primary-value.pcma-status{ background: linear-gradient(135deg, var(--pcma-accent), #ea580c); color:#fff; box-shadow:0 2px 6px rgba(234, 88, 12, 0.3); border:none;}
-
-    @media (max-width:600px){ .pcma-primary{ grid-template-columns:1fr; } .pcma-primary-label{ flex:0 0 110px; max-width:110px; } }
-
-    /* MINI BARS + PROGRESS */
-    .pcma-mini-bars{ display:flex; flex-direction:column; gap:8px; margin-top:12px; }
-    .pcma-mini-row{ display:flex; align-items:center; gap:10px; }
-    .pcma-mini-label{ width:82px; text-align:left; font-weight:900; color:#475569; letter-spacing:.2px; font-size: 0.85rem;}
-    .pcma-mini-bar{ flex:1; height:24px; background:#e2e8f0; border-radius:999px; overflow:hidden; box-shadow: inset 0 3px 5px rgba(0,0,0,0.08); border: 1px solid #cbd5e1; }
-    .pcma-mini-fill{ height:100%; width:0%; display:flex; align-items:center; justify-content:center; font-size:.8rem; font-weight:900; color:#fff; transition:width 650ms ease-out; white-space:nowrap; padding:0 6px; border-radius:999px; background-image: linear-gradient(to bottom, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 50%, rgba(0,0,0,0.1) 100%); text-shadow: 0 1px 2px rgba(0,0,0,0.4); }
-
-    .pcma-progress{ margin-top:16px; }
-    .pcma-progress-label{ font-weight:900; color:#1e293b; margin-bottom:8px; font-size:1.1rem; text-align:center; text-transform: uppercase; letter-spacing: 1px;}
-    .pcma-progress-bar{ width:100%; background:#e2e8f0; border-radius:16px; height:32px; overflow:hidden; position:relative; box-shadow: inset 0 3px 6px rgba(0,0,0,0.1); border: 2px solid #fff; }
-    .pcma-progress-fill{ height:100%; border-radius:14px; text-align:center; line-height:28px; font-weight:900; color:#fff; font-size:1.05rem; width:0%; transition:width 900ms ease-out; white-space:nowrap; padding:0 8px; background-image: linear-gradient(to bottom, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 50%, rgba(0,0,0,0.1) 100%); text-shadow: 0 1px 3px rgba(0,0,0,0.4); }
-    
-    .pcma-team { background: #ffffff; border: 2px solid #f1f5f9; border-radius: 16px; padding: 12px 14px; margin-top: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
-    .pcma-team-label { font-weight: 900; color: #334155; display: block; margin-bottom: 10px; font-size: 1rem; text-transform: uppercase;}
-    .pcma-staff-badge { display: inline-block; background: linear-gradient(145deg, #eff6ff, #bfdbfe); color: #1e3a8a; border-radius: 999px; padding: 6px 16px; font-weight: 800; font-size: .85rem; border: 1px solid #93c5fd; box-shadow: 0 3px 0 #60a5fa, 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 6px; margin-right: 4px; }
-    .pcma-staff-badge strong { font-weight: 900; color: #1d4ed8; margin-right: 4px; }
 
     /* =========================================================
        IFRAME OVERLAY STYLES
@@ -677,7 +573,6 @@
     .up-body { padding: 0 !important; background: transparent !important; display: flex; flex-direction: column; flex: 1; }
     .up-frame { width: 100%; height: 100%; border: none; flex: 1; background: transparent;}
 
-    /* Fullscreen modifiers specifically for Mobile for Upload Photos explicitly */
     @media (max-width: 768px) {
       #uploadPhotosOverlay .up-box {
         width: 100vw !important;
@@ -695,7 +590,6 @@
       }
     }
 
-    /* Fullscreen modifiers (Dashboard, Monitoring, etc.) - Forces 100% Transparent Background */
     .fullscreen-box { 
       width: 100vw !important; 
       max-width: none !important; 
@@ -818,7 +712,7 @@
 </main>
 
 
-<div id="pcmaModalBg" role="dialog" aria-modal="true" aria-labelledby="pcmaModalCID">
+<div id="pcmaModalBg" role="dialog" aria-modal="true">
   <button id="pcmaModalPrev" class="pcma-modal-arrow" aria-label="Previous">
     <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
       <polyline points="15 18 9 12 15 6"></polyline>
@@ -831,14 +725,7 @@
   </button>
 
   <div id="pcmaModalBox">
-    <div class="pcma-modal-top" style="justify-content: center;">
-      <div id="pcmaModalCID" class="pcma-modal-top-cid">—</div>
-    </div>
-    <div id="pcmaModalBody">
-      <div id="pcmaModalContent"></div>
-      <div id="pcmaModalButtons"></div>
-      <div id="pcmaModalPhotos"></div>
-    </div>
+    <iframe id="pcmaModalFrame" src="" title="Project Details"></iframe>
   </div>
 </div>
 
@@ -894,8 +781,39 @@
 </footer>
 
 <script>
-  // Create Global PCMA Namespace
   const PCMA = (window.PCMA = window.PCMA || {});
+
+  // =========================================================
+  // MESSAGE LISTENER FROM MODAL
+  // =========================================================
+  window.addEventListener('message', (e) => {
+      if (!e.data) return;
+      if (e.data.type === 'CLOSE_MODAL') {
+          const modalBg = document.getElementById("pcmaModalBg");
+          if (modalBg) {
+             modalBg.classList.remove('pcma-show');
+             document.documentElement.classList.remove('pcma-no-scroll');
+          }
+      } else if (e.data.type === 'OPEN_DOCS') {
+          const frame = document.getElementById('projectDocsFrame');
+          const overlay = document.getElementById('projectDocsOverlay');
+          if (frame && overlay) {
+            frame.src = `Projectdocs.html?cid=${encodeURIComponent(e.data.cid)}`;
+            overlay.hidden = false;
+            overlay.classList.remove('hidden');
+          }
+      } else if (e.data.type === 'OPEN_UPLOAD') {
+          const frame = document.getElementById('uploadPhotosFrame');
+          const overlay = document.getElementById('uploadPhotosOverlay');
+          if (frame && overlay) {
+              frame.src = `Upload Photos.html?cid=${encodeURIComponent(e.data.cid)}&link=${encodeURIComponent(e.data.link)}`;
+              overlay.hidden = false;
+              overlay.classList.remove('hidden');
+          }
+      } else if (e.data.type === 'RELOAD_APP') {
+          document.getElementById('footerReloadBtn').click();
+      }
+  });
 
   // =========================================================
   // Navigation & View Switching logic
@@ -1095,8 +1013,7 @@
       SHEET_ID: "1LSYLZ7tfSeVupQMPsCOHG4SlnzPQqOAIe03QI1qRMr8",
       RANGE: "APP!A:AZ",
       API_KEY: "AIzaSyCz6fNJr3ecn-M2HActqM1aCXbxqRLj2e8",
-      LOGO_FALLBACK: "https://lh3.googleusercontent.com/d/1VanVX82ANGfKA8jcGZL8cVDQh4EuN8-r=s800?authuser=0",
-      GAS_WEBAPP_URL: "https://script.google.com/macros/s/AKfycbwE2zVf654nTieExX174j6eTPG5-BaVINGQIszgfe5sLvDvJARL-u2k0vQk_DlYukExNg/exec"
+      LOGO_FALLBACK: "https://lh3.googleusercontent.com/d/1VanVX82ANGfKA8jcGZL8cVDQh4EuN8-r=s800?authuser=0"
     };
 
     const el = {
@@ -1151,11 +1068,10 @@
         for (let r of rawRecords) {
           if (!r || !r.join("").trim()) continue;
 
-          // DO NOT completely break on an empty ID anymore. Some rows may be accidentally empty due to formatting.
           if (colContractId >= 0) {
             const cid = String(r[colContractId] || "").trim();
             if (!cid) {
-              continue; // Just skip the empty row instead of breaking the entire loop
+              continue; 
             }
           }
           
@@ -1181,14 +1097,10 @@
 
         renderGrid(filtered);
         
-        if(document.getElementById("appView").classList.contains("hidden")) {
-           el.grid.classList.add("hidden");
-           el.resultInfo.classList.add("hidden");
-        } else {
-           el.grid.classList.remove("hidden");
-           el.resultInfo.textContent = `${filtered.length} results`;
-           el.resultInfo.classList.remove("hidden");
-        }
+        // Ensure grid unhides safely without checking appView here, appView controls its display naturally
+        el.grid.classList.remove("hidden");
+        el.resultInfo.textContent = `${filtered.length} results`;
+        el.resultInfo.classList.remove("hidden");
         
       } catch (err) {
         console.error(err);
@@ -1463,416 +1375,13 @@
   })();
 
   // =========================================================
-  // Set Image Logic (Communicates with Backend)
-  // =========================================================
-  PCMA.setImage = async function(contractId, column, fileId, event) {
-      event.stopPropagation();
-      const isConfirmed = confirm(`Are you sure you want to set this photo as ${column}?`);
-      if (!isConfirmed) return;
-
-      const gasUrl = PCMA.config.GAS_WEBAPP_URL;
-      if (!gasUrl || gasUrl.includes("YOUR_GOOGLE_APPS_SCRIPT_URL_HERE")) {
-          alert("Backend configuration missing!\n\nYou must deploy a Google Apps Script to save this file ID securely and update PCMA.config.GAS_WEBAPP_URL in your code.");
-          return;
-      }
-
-      const btn = event.target;
-      const originalText = btn.innerText;
-      btn.innerText = "Saving...";
-      btn.disabled = true;
-
-      try {
-          const res = await fetch(gasUrl, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-              body: `action=setImage&contractId=${encodeURIComponent(contractId)}&columnName=${encodeURIComponent(column)}&fileId=${encodeURIComponent(fileId)}`
-          });
-          const data = await res.json();
-          if (data.status === 'success') {
-              alert(`${column} updated successfully! Please reload the app to see changes.`);
-          } else {
-              alert(`Failed to update image: ${data.message}`);
-          }
-      } catch (err) {
-          alert(`Network error connecting to backend: ${err.message}`);
-      } finally {
-          btn.innerText = originalText;
-          btn.disabled = false;
-      }
-  };
-
-  // =========================================================
-  // modal.js logic
+  // modal.js logic (Separated)
   // =========================================================
   (function () {
-    const modalBg        = document.getElementById('pcmaModalBg');
-    const modalContent   = document.getElementById('pcmaModalContent');
-    const modalButtons   = document.getElementById('pcmaModalButtons');
-    const modalPhotos    = document.getElementById('pcmaModalPhotos');
-    const modalCID       = document.getElementById('pcmaModalCID');
-    const closeModalTop  = document.getElementById('pcmaCloseModalTop');
-    const modalPrevFloat = document.getElementById('pcmaModalPrev');
-    const modalNextFloat = document.getElementById('pcmaModalNext');
-
-    if (!modalBg || !modalContent || !modalButtons || !modalCID) return;
-
+    const modalBg = document.getElementById('pcmaModalBg');
+    
     let modalNavList = [];
     let modalNavIndex = 0;
-
-    function findCol() {
-      const headers = PCMA.state?.headers || [];
-      const keys = [...arguments].map(k => String(k).toLowerCase());
-      return headers.findIndex(h => keys.some(k => String(h || '').toLowerCase().includes(k)));
-    }
-
-    function addNoScroll()  { document.documentElement.classList.add('pcma-no-scroll'); }
-    function removeNoScroll(){ document.documentElement.classList.remove('pcma-no-scroll'); }
-    function openBg()  { 
-      modalBg.hidden = false;
-      modalBg.classList.remove('hidden');
-      modalBg.classList.add('pcma-show'); 
-      addNoScroll(); 
-    }
-    function closeBg() { modalBg.classList.remove('pcma-show'); removeNoScroll(); }
-
-    function createPrimaryRow(label, value, isStatus) {
-      const r = document.createElement('div');
-      r.className = 'pcma-primary-row';
-      const l = document.createElement('div');
-      l.className = 'pcma-primary-label';
-      l.textContent = `${label} :`;
-      const v = document.createElement('div');
-      v.className = 'pcma-primary-value';
-      if (isStatus) v.classList.add('pcma-status');
-      v.textContent = value;
-      r.append(l, v);
-      return r;
-    }
-
-    function toMoney(n) {
-      if (n == null || n === '') return null;
-      const s = String(n).replace(/[^0-9.\-]/g, '');
-      const f = parseFloat(s);
-      if (Number.isNaN(f)) return null;
-      try { return '₱ ' + f.toLocaleString('en-PH', { minimumFractionDigits: 2 }); } catch { return '₱ ' + f; }
-    }
-
-    function toDate(v) {
-      if (!v) return '';
-      const d = new Date(v);
-      return isNaN(d) ? String(v) : d.toLocaleDateString('en-PH', { year:'numeric', month:'short', day:'2-digit' });
-    }
-
-    function animateBar(fillEl, value, duration, formatter) {
-      const sign = value < 0 ? -1 : 1;
-      const endAbs = Math.min(Math.abs(value), 100);
-      const start = performance.now();
-      function step(now) {
-        const t = Math.min(1, (now - start) / duration);
-        const cur = endAbs * t;
-        fillEl.style.width = cur + '%';
-        const disp = sign * cur;
-        fillEl.textContent = formatter ? formatter(disp) : `${disp.toFixed(2)}%`
-        if (t < 1) requestAnimationFrame(step);
-        else {
-          fillEl.style.width = endAbs + '%';
-          fillEl.textContent = formatter ? formatter(sign * endAbs) : `${(sign * endAbs).toFixed(2)}%`;
-        }
-      }
-      requestAnimationFrame(step);
-    }
-
-    const slipColor = (num) => {
-      if (num > 0) return { bg: '#10b981', text: '#fff', sad: false };
-      if (num <= 0 && num > -5)  return { bg: '#fecaca', text: '#7f1d1d', sad: false };
-      if (num <= -5 && num > -10) return { bg: '#f87171', text: '#fff', sad: true };
-      if (num <= -10) return { bg: '#dc2626', text: '#fff', sad: true };
-      return { bg: '#6b7280', text: '#fff', sad: false };
-    };
-
-    function showDetail(row) {
-      openBg();
-      modalContent.innerHTML = '';
-      modalButtons.innerHTML = '';
-      if (modalPhotos) modalPhotos.innerHTML = '';
-
-      const LOGO_FALLBACK = PCMA.config?.LOGO_FALLBACK;
-      const cidIdx     = findCol('contract id');
-      const projIdx    = findCol('project name');
-      const locIdx     = findCol('location');
-      const contIdx    = findCol('contractor');
-      const amtIdx     = findCol('contract amount','amount');
-      const revAmtIdx  = findCol('rev. contract amount','revised contract amount','rev contract amount');
-      const ntpIdx     = findCol('notice to proceed','ntp');
-      const expIdx     = findCol('expiry date','original expiry date');
-      const revExpIdx  = findCol('rev. expiry date','revised expiry date','rev expiry date');
-      const statIdx    = findCol('status');
-      const remIdx     = findCol('remarks');
-      const lastBillIdx= findCol('last billing');
-      const projIdIdx  = findCol('Project ID', 'proj id', 'projectid');
-      const uploadCol  = findCol('upload pictures');
-
-      const peIdx = findCol('project engineer');
-      const piIdx = findCol('project inspector');
-      const reIdx = findCol('resident engineer');
-      const qeIdx = findCol('quantity engineer');
-      const meIdx = findCol('materials engineer');
-
-      const schedIdx = findCol('sched');
-      const actualIdx= findCol('actual');
-      const slipIdx  = findCol('slip');
-      const delayIdx = findCol('delay');
-      let    progIdx  = findCol('progress');
-      if (progIdx < 0 && (PCMA.state?.headers?.length || 0) > 18) progIdx = 18;
-
-      const currentCid = (cidIdx >= 0 ? String(row[cidIdx]).trim() : '');
-      modalCID.textContent = currentCid || '—';
-
-      const img2Idx = findCol('image 2');
-      let rawImg2 = (img2Idx > -1 && row[img2Idx]) ? String(row[img2Idx]).trim() : '';
-      
-      let heroImgUrl = rawImg2;
-      if (rawImg2 && !rawImg2.startsWith('http')) {
-          heroImgUrl = `https://drive.google.com/thumbnail?id=${rawImg2}&sz=s800`;
-      }
-
-      if (heroImgUrl) {
-        const wrap = document.createElement('div');
-        wrap.className = 'pcma-hero';
-        const im = document.createElement('img');
-        im.src = heroImgUrl;
-        if (LOGO_FALLBACK) im.onerror = () => { im.src = LOGO_FALLBACK; };
-        wrap.appendChild(im);
-        modalContent.appendChild(wrap);
-      }
-
-      const primary = document.createElement('div');
-      primary.className = 'pcma-primary';
-
-      const colA = document.createElement('div');
-      colA.className = 'pcma-primary-col pcma-group-a';
-      if (projIdx > -1 && row[projIdx]) colA.appendChild(createPrimaryRow('Project Name', row[projIdx]));
-      if (locIdx  > -1 && row[locIdx])  colA.appendChild(createPrimaryRow('Location', row[locIdx]));
-      if (contIdx > -1 && row[contIdx]) colA.appendChild(createPrimaryRow('Contractor', row[contIdx]));
-
-      const colB = document.createElement('div');
-      colB.className = 'pcma-primary-col';
-      if (amtIdx > -1 && row[amtIdx])     colB.appendChild(createPrimaryRow('Contract Amount', toMoney(row[amtIdx]) ?? row[amtIdx]));
-      if (revAmtIdx > -1 && row[revAmtIdx]) colB.appendChild(createPrimaryRow('Rev. Contract Amount', toMoney(row[revAmtIdx]) ?? row[revAmtIdx]));
-
-      const colC = document.createElement('div');
-      colC.className = 'pcma-primary-col';
-      if (ntpIdx > -1 && row[ntpIdx])  colC.appendChild(createPrimaryRow('NTP', toDate(row[ntpIdx])));
-      if (expIdx > -1 && row[expIdx])  colC.appendChild(createPrimaryRow('Expiry Date', toDate(row[expIdx])));
-      if (revExpIdx > -1 && row[revExpIdx]) colC.appendChild(createPrimaryRow('Rev. Expiry Date', toDate(row[revExpIdx])));
-      if (statIdx > -1 && row[statIdx]) colC.appendChild(createPrimaryRow('Status', row[statIdx], true));
-
-      const colD = document.createElement('div');
-      colD.className = 'pcma-primary-col pcma-group-d';
-      if (remIdx > -1 && row[remIdx])        colD.appendChild(createPrimaryRow('Remarks', row[remIdx]));
-      if (lastBillIdx > -1 && row[lastBillIdx]) colD.appendChild(createPrimaryRow('Last Billing', row[lastBillIdx]));
-      if (projIdIdx > -1 && row[projIdIdx])      colD.appendChild(createPrimaryRow('Project ID', row[projIdIdx]));
-
-      if (colA.children.length) primary.appendChild(colA);
-      if (colB.children.length) primary.appendChild(colB);
-      if (colC.children.length) primary.appendChild(colC);
-      if (colD.children.length) primary.appendChild(colD);
-      modalContent.appendChild(primary);
-
-      // Create 3D Project Docs Button
-      let docsBtn = null;
-      if (true) {
-        const cid = currentCid;
-        docsBtn = document.createElement('button');
-        docsBtn.id = 'projectDocsBtn';
-        docsBtn.type = 'button';
-        docsBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg><span>Project Docs</span>';
-        docsBtn.className = 'modal-btn-3d btn-docs-3d';
-        docsBtn.onclick = (e) => {
-          e.stopPropagation();
-          const frame = document.getElementById('projectDocsFrame');
-          const overlay = document.getElementById('projectDocsOverlay');
-          if (frame && overlay) {
-            frame.src = `Projectdocs.html?cid=${encodeURIComponent(cid)}`;
-            overlay.hidden = false;
-            overlay.classList.remove('hidden');
-          }
-        };
-      }
-
-      // Create 3D Upload/View Photos Button
-      let uploadBtn = null;
-      if (uploadCol > -1) {
-        const link = String(row[uploadCol] || '').trim();
-        if (link && PCMA.helpers?.isValidUrl?.(link)) {
-          const cid = currentCid;
-          uploadBtn = document.createElement('button');
-          uploadBtn.id = 'pcmaUploadBtn';
-          uploadBtn.type = 'button';
-          uploadBtn.innerHTML = '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg><span>Upload/View Photos</span>';
-          uploadBtn.className = 'modal-btn-3d btn-upload-3d';
-          uploadBtn.onclick = (e) => { 
-            e.stopPropagation(); 
-            const frame = document.getElementById('uploadPhotosFrame');
-            const overlay = document.getElementById('uploadPhotosOverlay');
-            if (frame && overlay) {
-              frame.src = `Upload Photos.html?cid=${encodeURIComponent(cid)}&link=${encodeURIComponent(link)}`;
-              overlay.hidden = false;
-              overlay.classList.remove('hidden');
-            }
-          };
-        }
-      }
-
-      // Append buttons side-by-side to the modal button container
-      if (docsBtn || uploadBtn) {
-        if (docsBtn) modalButtons.appendChild(docsBtn);
-        if (uploadBtn) modalButtons.appendChild(uploadBtn);
-      }
-
-      // Setup Photo Gallery directly from the row data
-      if (modalPhotos) {
-        modalPhotos.innerHTML = '';
-        
-        const compIdx = findCol('completed');
-        const onGoingIdx = findCol('on-going', 'ongoing');
-        const mobIdx = findCol('mobilization');
-
-        const photosData = [
-          { label: 'Completed', val: compIdx > -1 ? row[compIdx] : '' },
-          { label: 'On-Going', val: onGoingIdx > -1 ? row[onGoingIdx] : '' },
-          { label: 'Mobilization', val: mobIdx > -1 ? row[mobIdx] : '' }
-        ];
-
-        let hasPhotos = false;
-        let html = '';
-
-        photosData.forEach(p => {
-          if (!p.val) return;
-          const rawString = String(p.val).trim();
-          if (!rawString) return;
-          
-          const parts = rawString.split('|');
-          let ids = [];
-          parts.forEach(part => {
-             const match = part.match(/[-\w]{25,}/);
-             if (match) {
-                 ids.push(match[0]);
-             }
-          });
-
-          if (ids.length > 0) {
-              hasPhotos = true;
-              html += `<div style="margin-top: 15px;">`;
-              html += `<div style="font-weight:900; font-size:14px; color:#1e293b; padding-bottom:5px; border-bottom:2px solid #e2e8f0; margin-bottom:10px; text-transform: uppercase;">${p.label}</div>`;
-              html += `<div class="pcma-photo-grid">`;
-              ids.forEach(id => {
-                  const thumbUrl = `https://drive.google.com/thumbnail?id=${id}&sz=s800`;
-                  const fullUrl = `https://drive.google.com/file/d/${id}/view`;
-                  html += `
-                    <div class="pcma-photo-card">
-                      <img src="${thumbUrl}" loading="lazy" onerror="this.src='${PCMA.config.LOGO_FALLBACK}'" onclick="window.open('${fullUrl}', '_blank', 'noopener')" />
-                      <div class="pcma-photo-set-btns">
-                        <button class="set-icon-btn" onclick="PCMA.setImage('${currentCid}', 'Image 1', '${id}', event)">Set Mini Icon</button>
-                        <button class="set-main-btn" onclick="PCMA.setImage('${currentCid}', 'Image 2', '${id}', event)">Set Main Photo</button>
-                      </div>
-                    </div>
-                  `;
-              });
-              html += `</div></div>`;
-          }
-        });
-
-        if (!hasPhotos) {
-            modalPhotos.innerHTML = '<div style="text-align:center; padding:20px; color:#64748b; font-weight:800;">No photos uploaded for this project yet.</div>';
-        } else {
-            modalPhotos.innerHTML = html;
-        }
-      }
-
-      // MINI bars
-      const hasSched = schedIdx > -1 && row[schedIdx];
-      const hasActual= actualIdx > -1 && row[actualIdx];
-      const hasSlip  = slipIdx > -1 && row[slipIdx];
-
-      if (hasSched || hasActual || hasSlip) {
-        const mini = document.createElement('div');
-        mini.className = 'pcma-mini-bars';
-
-        function pct(val){ return PCMA.helpers?.toPct ? PCMA.helpers.toPct(val, 0) : Number(val) || 0; }
-        function addMini(label, val, baseColor, isSlippage){
-          const r = document.createElement('div'); r.className = 'pcma-mini-row';
-          const lab = document.createElement('div'); lab.className = 'pcma-mini-label'; lab.textContent = label;
-          const bar = document.createElement('div'); bar.className = 'pcma-mini-bar';
-          const fill= document.createElement('div'); fill.className = 'pcma-mini-fill';
-          bar.appendChild(fill); r.append(lab, bar); mini.appendChild(r);
-
-          const num = pct(val);
-          if (isSlippage){
-            const cfg = slipColor(num);
-            fill.style.backgroundColor = cfg.bg;
-            fill.style.color = cfg.text;
-            animateBar(fill, num, 800, v => `${v.toFixed(2)}%${cfg.sad && v <= -10 ? ' ☹️' : ''}`);
-          } else {
-            fill.style.backgroundColor = baseColor;
-            animateBar(fill, num, 800, v => `${v.toFixed(2)}%`);
-          }
-        }
-
-        if (hasSched)  addMini('SCHED',    row[schedIdx],  '#3b82f6', false);
-        if (hasActual) addMini('ACTUAL',   row[actualIdx], '#10b981', false);
-        if (hasSlip)   addMini('SLIPPAGE', row[slipIdx],   null,      true);
-
-        const progRaw  = (progIdx > -1 && row[progIdx]) ? String(row[progIdx]).trim() : '';
-        const delayRaw = (delayIdx > -1 && row[delayIdx]) ? String(row[delayIdx]).trim() : '';
-
-        if (progRaw) {
-          const wrap  = document.createElement('div'); wrap.className = 'pcma-progress';
-          const label = document.createElement('div'); label.className = 'pcma-progress-label'; label.textContent = 'Time Lapsed';
-          const bar   = document.createElement('div'); bar.className   = 'pcma-progress-bar';
-          const fill  = document.createElement('div'); fill.className  = 'pcma-progress-fill'; fill.textContent = '0%';
-          bar.appendChild(fill); wrap.append(label, bar); mini.appendChild(wrap);
-
-          const pctNum = Math.max(0, pct(progRaw));
-          const colorFor = (v) => (v > 100 ? '#dc2626' : v >= 100 ? '#16a34a' : v > 80 ? '#f97316' : '#60a5fa');
-          fill.style.backgroundColor = colorFor(pctNum);
-
-          requestAnimationFrame(() => {
-            const start = performance.now(); const duration = 900;
-            (function step(now){
-              const t = Math.min(1, (now - start) / duration);
-              const curr = pctNum * t;
-              const width = Math.min(curr, 100);
-              fill.style.width = width + '%';
-              fill.textContent = `${Math.round(curr)}%${delayRaw ? ' ('+delayRaw+')' : ''}`;
-              if (t < 1) requestAnimationFrame(step);
-              else {
-                fill.style.width = Math.min(pctNum, 100) + '%';
-                fill.style.backgroundColor = colorFor(pctNum);
-                fill.textContent = `${Math.round(pctNum)}%${delayRaw ? ' ('+delayRaw+')' : ''}`;
-              }
-            })(start);
-          });
-        }
-        modalContent.appendChild(mini);
-      }
-
-      // TEAM badges
-      const roles = [
-        ['PE', peIdx], ['PI', piIdx], ['RE', reIdx], ['QE', qeIdx], ['ME', meIdx],
-      ].map(([label, idx]) => (idx > -1 && row[idx])
-        ? `<span class="pcma-staff-badge"><strong>${label}:</strong> ${row[idx]}</span>`
-        : ''
-      ).join('');
-
-      if (roles.trim()) {
-        const team = document.createElement('div');
-        team.className = 'pcma-team';
-        team.innerHTML = `<span class="pcma-team-label">TEAM</span>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;padding-bottom:4px;">${roles}</div>`;
-        modalContent.appendChild(team);
-      }
-    }
 
     function goModal(delta) {
       if (!modalNavList.length) return;
@@ -1880,7 +1389,14 @@
       next = Math.max(0, Math.min(next, modalNavList.length - 1));
       if (next === modalNavIndex) return;
       modalNavIndex = next;
-      showDetail(modalNavList[modalNavIndex]);
+      
+      const row = modalNavList[modalNavIndex];
+      localStorage.setItem('pcma_modal_row', JSON.stringify(row));
+      
+      const frame = document.getElementById('pcmaModalFrame');
+      if(frame && frame.contentWindow) {
+          frame.contentWindow.postMessage({ type: 'RENDER', row: row, headers: PCMA.state.headers }, '*');
+      }
     }
 
     PCMA.openDetailFromList = function (idx) {
@@ -1888,12 +1404,29 @@
       if (!Array.isArray(list) || !list.length) return;
       modalNavList = list.slice();
       modalNavIndex = Math.max(0, Math.min(idx, modalNavList.length - 1));
-      showDetail(modalNavList[modalNavIndex]);
+      
+      const row = modalNavList[modalNavIndex];
+      const headers = PCMA.state.headers;
+      
+      localStorage.setItem('pcma_modal_row', JSON.stringify(row));
+      localStorage.setItem('pcma_modal_headers', JSON.stringify(headers));
+      
+      const frame = document.getElementById('pcmaModalFrame');
+      if (!frame.src || frame.src === 'about:blank' || !frame.src.includes('Modal.html')) {
+          frame.src = 'Modal.html';
+      } else {
+          frame.contentWindow.postMessage({ type: 'RENDER', row: row, headers: headers }, '*');
+      }
+      
+      modalBg.hidden = false;
+      modalBg.classList.remove('hidden');
+      modalBg.classList.add('pcma-show'); 
+      document.documentElement.classList.add('pcma-no-scroll');
     };
 
     PCMA.refreshCurrentModal = function() {
         if (!modalNavList || modalNavList.length === 0) return;
-        const cidIdx = findCol('contract id');
+        const cidIdx = PCMA.state.headers.findIndex(h => String(h).includes('contract id'));
         if (cidIdx < 0) return;
         
         const oldRow = modalNavList[modalNavIndex];
@@ -1906,19 +1439,27 @@
         if (newRowIndex >= 0) {
             modalNavList = newRows.slice();
             modalNavIndex = newRowIndex;
-            showDetail(modalNavList[modalNavIndex]);
+            const newRow = modalNavList[modalNavIndex];
+            localStorage.setItem('pcma_modal_row', JSON.stringify(newRow));
+            const frame = document.getElementById('pcmaModalFrame');
+            if (frame && frame.contentWindow) {
+                frame.contentWindow.postMessage({ type: 'RENDER', row: newRow, headers: PCMA.state.headers }, '*');
+            }
         }
     };
 
-    if (closeModalTop)  closeModalTop.addEventListener('click', closeBg);
-    modalBg.addEventListener('click', (e) => { if (e.target === modalBg) closeBg(); });
     window.addEventListener('keydown', (e) => {
       if (!modalBg.classList.contains('pcma-show')) return;
-      if (e.key === 'Escape')      closeBg();
+      if (e.key === 'Escape') {
+          modalBg.classList.remove('pcma-show');
+          document.documentElement.classList.remove('pcma-no-scroll');
+      }
       else if (e.key === 'ArrowRight') goModal(1);
       else if (e.key === 'ArrowLeft')  goModal(-1);
     });
 
+    const modalPrevFloat = document.getElementById('pcmaModalPrev');
+    const modalNextFloat = document.getElementById('pcmaModalNext');
     if (modalPrevFloat) modalPrevFloat.addEventListener('click', (e) => { e.stopPropagation(); goModal(-1); });
     if (modalNextFloat) modalNextFloat.addEventListener('click', (e) => { e.stopPropagation(); goModal(1); });
   })();

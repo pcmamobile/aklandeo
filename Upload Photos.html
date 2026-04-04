@@ -9,9 +9,9 @@
     <style>
       :root {
         --bg-gradient: linear-gradient(135deg, #74ebd5 0%, #9face6 100%);
-        --card-bg: #ffffff;
+        --card-bg: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
         --text-main: #2d3436;
-        --text-muted: #636e72;
+        --text-muted: #4b5254;
         
         --color-grey: #b2bec3;
         --shadow-grey: #636e72;
@@ -63,6 +63,21 @@
       }
 
       /* ==========================================
+         3D COLORFUL ICON UTILITIES
+         ========================================== */
+      .icon-3d-blue { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(1px 2px 0px rgba(0, 132, 227, 0.4)); display: inline-block; }
+      .icon-3d-green { background: linear-gradient(135deg, #00b894 0%, #55efc4 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(1px 2px 0px rgba(0, 184, 148, 0.4)); display: inline-block; }
+      .icon-3d-purple { background: linear-gradient(135deg, #b224ef 0%, #7579ff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(1px 2px 0px rgba(117, 121, 255, 0.4)); display: inline-block; }
+      .icon-3d-orange { background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(1px 2px 0px rgba(253, 160, 133, 0.5)); display: inline-block; }
+      .icon-3d-red { background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(1px 2px 0px rgba(193, 18, 31, 0.4)); display: inline-block; }
+      .icon-3d-pastel { background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(2px 3px 0px rgba(142, 197, 252, 0.6)); display: inline-block; }
+
+      /* Spacing fixes for small icons */
+      .gallery-header i, .category h3 i, #history-container h3 i { margin-right: 8px; }
+      .file-name i, .history-name i { margin-right: 5px; }
+      .history-time i { margin-right: 4px; }
+
+      /* ==========================================
          UPLOAD VIEW STYLES
          ========================================== */
       .app-container {
@@ -72,7 +87,8 @@
         padding: 30px 25px;
         border-radius: 24px;
         box-shadow: 0 20px 40px rgba(0,0,0,0.2), inset 0 5px 10px rgba(255,255,255,0.7);
-        border: 4px solid #fff;
+        border: 4px solid rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(10px);
         position: relative;
         margin-top: 20px;
         margin-bottom: 20px;
@@ -82,34 +98,53 @@
       .app-title { 
         text-align: center; 
         color: var(--text-main); 
-        font-size: 26px; 
+        font-size: 28px; 
         margin-top: 0;
         margin-bottom: 25px;
         font-weight: 800;
         text-transform: uppercase;
         letter-spacing: 1px;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        text-shadow: 2px 2px 4px rgba(255,255,255,0.6);
       }
-      .app-title i { color: var(--color-blue); margin-right: 8px; }
+
+      /* Main 3D Colorful App Icon */
+      .app-title i { 
+        background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        display: inline-block;
+        filter: drop-shadow(3px 4px 0px rgba(193, 18, 31, 0.7)) drop-shadow(3px 8px 10px rgba(0,0,0,0.25));
+        margin-right: 12px; 
+        font-size: 38px;
+        transform: translateY(-2px);
+        vertical-align: middle;
+      }
 
       .input-group { margin-bottom: 20px; position: relative; }
       label { 
         display: block; 
-        font-weight: 700; 
+        font-weight: 800; 
         margin-bottom: 8px; 
         color: var(--text-main); 
         font-size: 14px;
+        text-shadow: 1px 1px 2px rgba(255,255,255,0.5);
       }
       
       .input-wrapper { position: relative; }
+      
+      /* Input field 3D Icons */
       .input-wrapper i {
         position: absolute;
         left: 16px;
         top: 50%;
         transform: translateY(-50%);
-        color: var(--color-grey);
+        background: linear-gradient(135deg, #b2bec3 0%, #dfe6e9 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        filter: drop-shadow(1px 2px 0px rgba(178, 190, 195, 0.6));
         font-size: 18px;
         transition: 0.3s;
+        display: inline-block;
       }
 
       input[type="text"] { 
@@ -119,20 +154,26 @@
         border: 2px solid #dfe6e9; 
         border-radius: 16px; 
         font-size: 16px; 
-        background: #f8f9fa;
+        background: rgba(255, 255, 255, 0.85);
         color: var(--text-main);
         font-weight: 600;
         transition: all 0.3s ease;
         box-shadow: inset 0 3px 6px rgba(0,0,0,0.04);
       }
       
+      /* 3D Colorful Highlight on Input Focus */
       input[type="text"]:focus {
         outline: none;
         border-color: var(--color-blue);
         background: #fff;
         box-shadow: inset 0 3px 6px rgba(0,0,0,0.02), 0 0 0 4px rgba(9, 132, 227, 0.2);
       }
-      input[type="text"]:focus + i, .input-wrapper input:focus ~ i { color: var(--color-blue); }
+      input[type="text"]:focus + i, .input-wrapper input:focus ~ i { 
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        filter: drop-shadow(2px 2px 0px rgba(0, 132, 227, 0.4));
+      }
 
       /* 3D Button Styles */
       .btn-3d { 
@@ -155,6 +196,11 @@
         letter-spacing: 0.5px;
       }
       .btn-3d:active { transform: translateY(6px); }
+
+      /* White icons pop subtly on colored buttons */
+      .btn-3d i, .actions a i {
+        filter: drop-shadow(1px 2px 1px rgba(0,0,0,0.4));
+      }
 
       .btn-grey { background-color: var(--color-grey); color: white; box-shadow: 0 6px var(--shadow-grey), 0 10px 15px rgba(0,0,0,0.1); }
       .btn-grey:active { box-shadow: 0 0 var(--shadow-grey), 0 2px 5px rgba(0,0,0,0.1); }
@@ -183,30 +229,106 @@
       #file-input { display: none; }
       
       /* Progress Bar Styles */
-      #progress-container { display: none; margin-bottom: 25px; padding: 20px 15px; background: #f8f9fa; border-radius: 16px; border: 2px solid #dfe6e9;}
+      #progress-container { display: none; margin-bottom: 25px; padding: 20px 15px; background: rgba(255, 255, 255, 0.85); border-radius: 16px; border: 2px solid rgba(255,255,255,0.5); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
       .progress-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; font-weight: 800; color: var(--text-main); }
       .progress-track { background: #dfe6e9; border-radius: 20px; overflow: hidden; height: 18px; width: 100%; box-shadow: inset 0 3px 6px rgba(0,0,0,0.1); position: relative; }
       #network-bar { background: repeating-linear-gradient(45deg, var(--color-blue), var(--color-blue) 10px, #0873c4 10px, #0873c4 20px); width: 0%; height: 100%; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: inset 0 -3px 6px rgba(0,0,0,0.15), inset 0 3px 6px rgba(255,255,255,0.3); }
       #processing-bar { background: repeating-linear-gradient(45deg, var(--color-green), var(--color-green) 10px, #00896f 10px, #00896f 20px); width: 0%; height: 100%; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: inset 0 -3px 6px rgba(0,0,0,0.15), inset 0 3px 6px rgba(255,255,255,0.3); }
       .progress-details { display: flex; justify-content: space-between; margin-top: 6px; font-size: 13px; font-weight: 700; color: var(--text-muted); }
 
+      /* Upload Log Box */
+      #upload-log { 
+        margin-top: 20px; 
+        background: #f1f2f6; 
+        border: 1px solid #dfe6e9; 
+        border-radius: 12px; 
+        padding: 10px; 
+        height: 120px; 
+        overflow-y: auto; 
+        font-size: 12px; 
+        font-family: monospace; 
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+      }
+      .log-entry { margin-bottom: 5px; padding-bottom: 5px; border-bottom: 1px dashed #dfe6e9; line-height: 1.4; }
+      .log-entry:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+      /* -------------------------------------------
+         NEW GOOGLE DRIVE STYLE QUEUE LIST
+         ------------------------------------------- */
+      #queue-list {
+        margin-top: 20px;
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        max-height: 250px;
+        overflow-y: auto;
+        border: 1px solid #dfe6e9;
+      }
+      #queue-list::-webkit-scrollbar { width: 6px; }
+      #queue-list::-webkit-scrollbar-thumb { background: #b2bec3; border-radius: 10px; }
+      
+      .queue-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 16px;
+        border-bottom: 1px solid #f1f2f6;
+      }
+      .queue-item:last-child { border-bottom: none; }
+      
+      .queue-item-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-main);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      /* Red mountain image icon typical of Google Drive */
+      .queue-item-left i { color: #e74c3c; font-size: 18px; } 
+      
+      .queue-item-right {
+        display: flex;
+        align-items: center;
+        font-size: 20px;
+      }
+
+      /* Status Icon States */
+      .status-pending { color: #dfe6e9; }
+      .status-uploading { color: var(--color-blue); }
+      .status-success { color: #2ecc71; filter: drop-shadow(0 2px 4px rgba(46, 204, 113, 0.3)); }
+      .status-error { color: #e74c3c; }
+      
       /* Modals */
       #modal-overlay, #custom-alert { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); align-items: center; justify-content: center; z-index: 1000; }
       #modal-content, .alert-content { background: #fff; padding: 30px; border-radius: 24px; width: 85%; max-width: 380px; text-align: center; box-shadow: 0 15px 0 #d1d8e0, 0 25px 40px rgba(0,0,0,0.3); border: 4px solid #fff; transform: translateY(-20px); animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
       @keyframes popIn { to { transform: translateY(0); } }
       
       #modal-content h3, .alert-content h3 { margin-top: 0; color: var(--text-main); font-size: 22px; font-weight: 800; margin-bottom: 20px;}
-      .modal-icon { display: inline-flex; align-items: center; justify-content: center; width: 60px; height: 60px; background-color: var(--color-green); color: white; border-radius: 50%; font-size: 32px; margin-bottom: 15px; box-shadow: 0 6px 15px rgba(0,184,148,0.3); }
-      .modal-icon.warning { background-color: var(--color-orange); box-shadow: 0 6px 15px rgba(225,112,85,0.3); }
+      
+      .modal-icon { 
+         display: inline-flex; align-items: center; justify-content: center; width: 60px; height: 60px; 
+         background: linear-gradient(135deg, #00b894 0%, #55efc4 100%); color: white; border-radius: 50%; font-size: 32px; margin-bottom: 15px; 
+         box-shadow: 0 8px 15px rgba(0,184,148,0.5), inset 0 -4px 0 rgba(0,0,0,0.15); 
+      }
+      .modal-icon.warning { 
+         background: linear-gradient(135deg, #e17055 0%, #fab1a0 100%);
+         box-shadow: 0 8px 15px rgba(225,112,85,0.5), inset 0 -4px 0 rgba(0,0,0,0.15); 
+      }
+      .modal-icon i { filter: drop-shadow(2px 3px 0px rgba(0,0,0,0.25)); }
+
       .modal-stat { font-size: 16px; margin: 12px 0; font-weight: 800; background: #f8f9fa; padding: 14px; border-radius: 12px; border: 2px solid #dfe6e9; display: flex; align-items: center; justify-content: center; gap: 8px; }
       .success-text { color: var(--color-green); }
       .fail-text { color: var(--color-red); }
 
-      hr.divider { border: 0; height: 2px; background: #dfe6e9; margin: 30px 0; position: relative; overflow: visible; }
-      hr.divider::before { content: '\f03e'; font-family: 'FontAwesome'; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--card-bg); padding: 0 15px; color: #b2bec3; font-size: 18px; }
+      hr.divider { border: 0; height: 2px; background: rgba(255, 255, 255, 0.5); margin: 30px 0; position: relative; overflow: visible; box-shadow: 0 1px 0 rgba(0,0,0,0.05); }
+      hr.divider::before { content: '\f03e'; font-family: 'FontAwesome'; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--card-bg); padding: 0 15px; color: #8ec5fc; font-size: 18px; border-radius: 50%; }
 
       /* History List */
-      #history-container { margin-top: 35px; background: #f8f9fa; padding: 20px; border-radius: 20px; border: 2px solid #dfe6e9;}
+      #history-container { margin-top: 35px; background: rgba(255, 255, 255, 0.85); padding: 20px; border-radius: 20px; border: 2px solid rgba(255,255,255,0.5); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
       #history-container h3 { font-size: 18px; color: var(--text-main); margin-top: 0; margin-bottom: 15px; text-align: center; font-weight: 800;}
       #history-container h3 i { color: var(--color-purple); margin-right: 8px;}
       #history-list { padding: 0; margin: 0; max-height: 250px; overflow-y: auto; padding-right: 5px;}
@@ -239,7 +361,6 @@
         margin-bottom: 30px;
         font-weight: 800;
       }
-      .gallery-header i { color: var(--color-blue); margin-right: 8px; }
 
       .category { 
         margin-top: 25px; 
@@ -378,14 +499,14 @@
           </div>
         </div>
 
-        <div id="loader"><i class="fa-solid fa-arrows-rotate fa-spin"></i> <span id="loader-text">Syncing folders...</span></div>
+        <div id="loader"><i class="fa-solid fa-arrows-rotate fa-spin icon-3d-blue"></i> <span id="loader-text">Syncing folders...</span></div>
 
         <!-- NEW SEPARATED PROGRESS LAYOUT (DUAL BARS) -->
         <div id="progress-container">
           
           <!-- Bar 1: Network Upload (Bytes) -->
           <div class="progress-header">
-            <span id="progress-status"><i class="fa-solid fa-network-wired"></i> Uploading to Server...</span>
+            <span id="progress-status"><i class="fa-solid fa-network-wired icon-3d-blue"></i> Uploading to Server...</span>
             <span id="network-percent">0%</span>
           </div>
           <div class="progress-track">
@@ -397,7 +518,7 @@
 
           <!-- Bar 2: Backend Processing (Files Saved) -->
           <div class="progress-header">
-            <span id="processing-status"><i class="fa-solid fa-hard-drive"></i> Waiting to Save...</span>
+            <span id="processing-status"><i class="fa-solid fa-hard-drive icon-3d-purple"></i> Waiting to Save...</span>
             <span id="processing-percent">0%</span>
           </div>
           <div class="progress-track">
@@ -406,6 +527,12 @@
           <div class="progress-details" style="justify-content: flex-end;">
             <span id="progress-stats">0/0 Photos Saved</span>
           </div>
+
+          <!-- DETAILED SERVER LOG (Shows Which Server is Uploading What + Timer) -->
+          <div id="upload-log"></div>
+
+          <!-- GOOGLE DRIVE STYLE QUEUE LIST -->
+          <div id="queue-list"></div>
 
           <!-- RESET / CANCEL BUTTON -->
           <button class="btn-3d btn-red" style="margin-top: 25px; padding: 12px; font-size: 14px;" onclick="cancelUpload()">
@@ -434,10 +561,10 @@
         </button>
 
         <div id="history-container">
-          <h3><i class="fa-solid fa-clock-rotate-left"></i> Upload History</h3>
+          <h3><i class="fa-solid fa-clock-rotate-left icon-3d-purple"></i> Upload History</h3>
           <div id="history-list">
             <div style="text-align:center; color:#a4b0be; font-size:14px; padding: 20px 0; font-weight: 600;">
-              <i class="fa-solid fa-folder-open" style="font-size: 24px; display:block; margin-bottom: 10px; color: #dfe6e9;"></i>
+              <i class="fa-solid fa-folder-open icon-3d-pastel" style="font-size: 32px; display:block; margin-bottom: 10px;"></i>
               Enter a Contract ID to view history
             </div>
           </div>
@@ -457,9 +584,9 @@
         <i class="fa-solid fa-arrow-left"></i> Back to Upload
       </button>
 
-      <div class="gallery-header"><i class="fa-solid fa-folder-open"></i> Contract Photos: <span id="cid-display">...</span></div>
+      <div class="gallery-header"><i class="fa-solid fa-folder-open icon-3d-orange"></i> Contract Photos: <span id="cid-display">...</span></div>
       
-      <div id="gallery-loader"><i class="fa-solid fa-circle-notch"></i> Loading Contract details...</div>
+      <div id="gallery-loader"><i class="fa-solid fa-circle-notch fa-spin icon-3d-blue"></i> Loading Contract details...</div>
       <div id="gallery-content"></div>
     </div>
 
@@ -475,11 +602,11 @@
         <h3>Upload Complete</h3>
         
         <div class="modal-stat success-text">
-          <i class="fa-solid fa-file-circle-check"></i> Successfully Uploaded: <span id="success-count">0</span>
+          <i class="fa-solid fa-file-circle-check icon-3d-green"></i> Successfully Uploaded: <span id="success-count">0</span>
         </div>
         
         <div class="modal-stat fail-text" id="fail-container">
-          <i class="fa-solid fa-file-circle-xmark"></i> Failed to Upload: <span id="fail-count">0</span>
+          <i class="fa-solid fa-file-circle-xmark icon-3d-red"></i> Failed to Upload: <span id="fail-count">0</span>
         </div>
         
         <button class="btn-3d btn-blue" style="margin-top: 15px;" onclick="closeModal()">
@@ -507,17 +634,26 @@
       // ==========================================
       // CONFIGURATION & API
       // ==========================================
-      const API_URL = "https://script.google.com/macros/s/AKfycbwJURL_2exE3PZ05gaStHlLz9iITcTdXKSmmm25y2482r4VjhQHB1mZJPss0E-wT01n/exec"; 
       
-      // Maximum number of files actively transmitting at the exact same time
-      const MAX_SIMULTANEOUS_UPLOADS = 5; 
+      // MULTI-SERVER LOAD BALANCING
+      const API_URLS = [
+        "https://script.google.com/macros/s/AKfycbwJURL_2exE3PZ05gaStHlLz9iITcTdXKSmmm25y2482r4VjhQHB1mZJPss0E-wT01n/exec", 
+        "https://script.google.com/macros/s/AKfycbwr7qqGcaeZA9qSjxyqGOlOU6v-PqGDVUX5mzTWPVir2O-UzAUso-Jng8gD5ovu2ycP/exec", 
+        "https://script.google.com/macros/s/AKfycbyiuaDODet3Ty6kPasdlNmqo2UTcnthza2IMvNb_zp0DisMHvueTDcnyvCrfoT59icE/exec", 
+        "https://script.google.com/macros/s/AKfycbzpZJ9zWubaotEe7f39H4MOe3AVFm_7OvE-MXvX35FOr4adNlegwvcAT8ZsLmHGBi5i9Q/exec", 
+        "https://script.google.com/macros/s/AKfycbzo5_MGPT3bdHY6rx4nIUiKzxcrdREYD93xMu4T_uBuf42P4PZbWygFcx9A6yDQwNveVA/exec"  
+      ];
+      
+      const PRIMARY_API_URL = API_URLS[0]; // Used for reading gallery/stats
+      
+      const MAX_SIMULTANEOUS_UPLOADS = 10; 
       
       // Maximum number of files a user is allowed to select at once (prevents memory crashes)
       const MAX_FILES_PER_BATCH = 100;
 
-      let isUploading = false;     // Lock to prevent multiple simultaneous batch triggers
-      let currentBatchId = 0;      // Unique ID to kill background ghost processes if restarted
-      let activeIntervals = [];    // Tracks simulated progress bars to clear them on reset
+      let isUploading = false;     
+      let currentBatchId = 0;      
+      let activeIntervals = [];    
       let currentCategory = '';
       let totalBytes = 0;
       let totalPhotos = 0;
@@ -546,19 +682,19 @@
           
           document.getElementById('upload-view').style.display = 'none';
           document.getElementById('gallery-view').style.display = 'block';
-          window.scrollTo(0, 0); // Scroll to top when switching
+          window.scrollTo(0, 0); 
           loadGallery(cid);
         } else {
           document.getElementById('gallery-view').style.display = 'none';
           document.getElementById('upload-view').style.display = 'flex';
           window.scrollTo(0, 0);
-          loadStats(); // refresh stats in case edits were made externally
+          loadStats(); 
         }
       }
 
-      // --- Highly Reliable API Wrappers (Restored to stable Fetch to fix 8/8 failures) ---
+      // --- Highly Reliable API Wrappers ---
       async function apiGet(action, params = {}) {
-        let url = new URL(API_URL);
+        let url = new URL(PRIMARY_API_URL);
         url.searchParams.append('action', action);
         for (let k in params) url.searchParams.append(k, params[k]);
         
@@ -568,10 +704,10 @@
         return json.data;
       }
 
-      // Used pure Fetch which inherently handles Google Apps Script 302 redirects flawlessly 
-      async function apiPost(action, payload) {
+      // Updated to accept a specific endpoint URL for Load Balancing
+      async function apiPost(action, payload, customEndpointUrl = PRIMARY_API_URL) {
         payload.action = action;
-        let response = await fetch(API_URL, {
+        let response = await fetch(customEndpointUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify(payload)
@@ -597,6 +733,67 @@
       }
       function hideLoader() { document.getElementById('loader').style.display = 'none'; }
       function showError(err) { hideLoader(); showMessage("Error: " + err.message); }
+
+      // Adds messages directly to the UI box below the progress bars
+      function addUploadLog(htmlString) {
+        let logDiv = document.getElementById('upload-log');
+        if (!logDiv) return;
+        let entry = document.createElement('div');
+        entry.className = 'log-entry';
+        entry.innerHTML = htmlString;
+        logDiv.appendChild(entry);
+        logDiv.scrollTop = logDiv.scrollHeight; // Auto-scroll to latest
+      }
+
+      // ==========================================
+      // QUEUE UI LOGIC (Google Drive Style)
+      // ==========================================
+      function initializeQueueUI() {
+        let queueList = document.getElementById('queue-list');
+        queueList.innerHTML = ''; // Clear previous
+        
+        pendingFiles.forEach((file, index) => {
+          let item = document.createElement('div');
+          item.className = 'queue-item';
+          item.id = `queue-item-${index}`;
+          
+          item.innerHTML = `
+            <div class="queue-item-left">
+              <i class="fa-solid fa-image"></i>
+              <span>${file.name}</span>
+            </div>
+            <div class="queue-item-right status-pending" id="queue-status-${index}">
+              <i class="fa-regular fa-circle"></i>
+            </div>
+          `;
+          queueList.appendChild(item);
+        });
+      }
+
+      function updateQueueStatus(index, status) {
+        let statusDiv = document.getElementById(`queue-status-${index}`);
+        if (!statusDiv) return;
+        
+        // Remove existing classes
+        statusDiv.classList.remove('status-pending', 'status-uploading', 'status-success', 'status-error');
+        
+        if (status === 'uploading') {
+          statusDiv.classList.add('status-uploading');
+          statusDiv.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i>`;
+        } else if (status === 'success') {
+          statusDiv.classList.add('status-success');
+          statusDiv.innerHTML = `<i class="fa-solid fa-circle-check"></i>`;
+        } else if (status === 'error') {
+          statusDiv.classList.add('status-error');
+          statusDiv.innerHTML = `<i class="fa-solid fa-circle-xmark"></i>`;
+        }
+        
+        // Auto scroll to the active item
+        let itemDiv = document.getElementById(`queue-item-${index}`);
+        if (itemDiv) {
+            itemDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      }
 
       // ==========================================
       // UPLOAD LOGIC
@@ -631,7 +828,7 @@
         if (historyData.length === 0) {
           list.innerHTML = `
             <div style='text-align:center; color:#a4b0be; font-size:14px; padding: 20px 0; font-weight: 600;'>
-              <i class="fa-solid fa-folder-open" style="font-size: 24px; display:block; margin-bottom: 10px; color: #dfe6e9;"></i>
+              <i class="fa-solid fa-folder-open icon-3d-pastel" style="font-size: 32px; display:block; margin-bottom: 10px;"></i>
               No upload history yet.
             </div>`;
           return;
@@ -662,11 +859,11 @@
           
           div.innerHTML = `
             <div class="history-header">
-              <span class="history-name"><i class="fa-solid fa-user-circle"></i> ${item.uploader}</span> 
-              <span class="history-time"><i class="fa-regular fa-clock"></i> ${formattedDate}</span>
+              <span class="history-name"><i class="fa-solid fa-user-circle icon-3d-blue"></i> ${item.uploader}</span> 
+              <span class="history-time"><i class="fa-regular fa-clock icon-3d-orange"></i> ${formattedDate}</span>
             </div>
             <div class="history-action">
-              <i class="fa-solid fa-image"></i> Uploaded ${item.count} Photos
+              <i class="fa-solid fa-image icon-3d-green"></i> Uploaded ${item.count} Photos
             </div>
           `;
           list.appendChild(div);
@@ -770,6 +967,8 @@
         
         document.getElementById('progress-container').style.display = 'none';
         document.getElementById('file-input').value = "";
+        document.getElementById('upload-log').innerHTML = ""; // Clear logs
+        document.getElementById('queue-list').innerHTML = ""; // Clear UI list
         
         pendingFiles = [];
         failedFiles = [];
@@ -788,9 +987,10 @@
         isUploading = true;
         currentBatchId = Date.now(); // Unique ID for this specific upload session
 
-        document.getElementById('progress-status').innerHTML = '<i class="fa-solid fa-network-wired"></i> Uploading to Server...';
-        document.getElementById('processing-status').innerHTML = '<i class="fa-solid fa-hard-drive"></i> Waiting...';
+        document.getElementById('progress-status').innerHTML = '<i class="fa-solid fa-network-wired icon-3d-blue"></i> Uploading to Server...';
+        document.getElementById('processing-status').innerHTML = '<i class="fa-solid fa-hard-drive icon-3d-purple"></i> Waiting...';
         
+        document.getElementById('upload-log').innerHTML = ""; // Clear old logs
         failedFiles = [];
         totalBytes = pendingFiles.reduce((acc, file) => acc + file.size, 0);
         totalPhotos = pendingFiles.length;
@@ -801,9 +1001,10 @@
         activeIntervals = [];
 
         document.getElementById('progress-container').style.display = 'block';
+        initializeQueueUI(); // Setup the visual list
         updateOverallProgress();
 
-        // Dynamically apply the concurrency limit set at the top
+        // Apply concurrency limit perfectly balanced with Server count
         const CONCURRENCY_LIMIT = MAX_SIMULTANEOUS_UPLOADS; 
         let activeUploads = 0;
         let currentIndex = 0;
@@ -839,6 +1040,9 @@
         return new Promise((resolve) => {
           loadedBytesMap[fileIndex] = 0;
           let myBatchId = currentBatchId; // Store the ID of THIS upload session
+          let cid = document.getElementById('cid').value.trim();
+          
+          updateQueueStatus(fileIndex, 'uploading'); // Set UI to Blue Spinner
           
           let reader = new FileReader();
           reader.onload = async function(e) {
@@ -847,7 +1051,6 @@
               mimeType: file.type,
               base64: e.target.result.split(',')[1] // Untouched original base64
             };
-            let cid = document.getElementById('cid').value.trim();
             let uploader = document.getElementById('uploader').value.trim();
 
             let payload = {
@@ -856,6 +1059,16 @@
               fileData: fileData,
               uploaderName: uploader
             };
+
+            // MULTI-SERVER LOAD BALANCING (Distributes file among available servers!)
+            let serverIndex = fileIndex % API_URLS.length;
+            let targetServerUrl = API_URLS[serverIndex];
+            let serverName = `Server ${serverIndex + 1}`; // Visually display which server it hit
+            
+            // Add initial log to UI
+            addUploadLog(`<span style="color:var(--color-blue)"><i class="fa-solid fa-spinner fa-spin"></i> [${serverName}] Processing: <strong style="color:var(--text-main)">${file.name}</strong></span>`);
+
+            let startTime = Date.now(); // TIMER START
 
             // Calculated progress tracker to ensure UI indicates "Saving to Drive..." gracefully 
             let simulatedSpeed = 1.5 * 1024 * 1024; // Base estimate 1.5MB/s
@@ -881,7 +1094,7 @@
             activeIntervals.push(simInterval);
 
             try {
-              let fileId = await apiPost('uploadAndRecordPhoto', payload);
+              let fileId = await apiPost('uploadAndRecordPhoto', payload, targetServerUrl);
               
               if (myBatchId !== currentBatchId) return resolve(); // GHOST PREVENTION
 
@@ -889,13 +1102,66 @@
               loadedBytesMap[fileIndex] = file.size; 
               completedPhotos++;
               uploadedFileIds.push(fileId);
+              
+              updateQueueStatus(fileIndex, 'success'); // Set UI to Green Checkmark
+              
+              let endTime = Date.now(); // TIMER END
+              let timeTaken = ((endTime - startTime) / 1000).toFixed(1);
+
+              // Success Log with Time
+              addUploadLog(`<span style="color:var(--color-green)"><i class="fa-solid fa-check"></i> [${serverName}] Saved: <strong style="color:var(--text-main)">${file.name}</strong> (${timeTaken}s)</span>`);
+              
             } catch (err) {
               if (myBatchId !== currentBatchId) return resolve(); // GHOST PREVENTION
               
-              console.error("Upload Error:", err);
-              clearInterval(simInterval);
-              loadedBytesMap[fileIndex] = 0; 
-              failedFiles.push(file);
+              console.warn(`[${serverName}] Upload Error for ${file.name}:`, err);
+              
+              // VERIFICATION RECOVERY SYSTEM
+              addUploadLog(`<span style="color:var(--color-orange)"><i class="fa-solid fa-magnifying-glass fa-beat-fade"></i> [${serverName}] Verifying Drive for: <strong style="color:var(--text-main)">${file.name}</strong>...</span>`);
+              
+              let isSaved = false;
+              // Poll up to 3 times (wait 5s each) to give the backend time to finish saving
+              for (let i = 0; i < 3; i++) {
+                await new Promise(r => setTimeout(r, 5000));
+                if (myBatchId !== currentBatchId) return resolve();
+                
+                try {
+                  let existingFiles = await apiGet('getExistingFiles', { contractId: cid, category: currentCategory });
+                  if (existingFiles.some(ex => ex.name === file.name)) {
+                    isSaved = true;
+                    break;
+                  }
+                } catch(verErr) {
+                  // Ignore errors during verification, just try again
+                }
+              }
+
+              if (isSaved) {
+                clearInterval(simInterval);
+                loadedBytesMap[fileIndex] = file.size; 
+                completedPhotos++;
+                uploadedFileIds.push(`recovered_file_${fileIndex}`);
+                
+                updateQueueStatus(fileIndex, 'success'); 
+                
+                let endTime = Date.now(); 
+                let timeTaken = ((endTime - startTime) / 1000).toFixed(1);
+
+                // Verified Log
+                addUploadLog(`<span style="color:var(--color-green)"><i class="fa-solid fa-check-double"></i> [${serverName}] Verified Saved: <strong style="color:var(--text-main)">${file.name}</strong> (${timeTaken}s)</span>`);
+              } else {
+                clearInterval(simInterval);
+                loadedBytesMap[fileIndex] = 0; 
+                failedFiles.push(file);
+                
+                updateQueueStatus(fileIndex, 'error'); // Set UI to Red X
+                
+                let endTime = Date.now(); 
+                let timeTaken = ((endTime - startTime) / 1000).toFixed(1);
+
+                // Failed Log with Time
+                addUploadLog(`<span style="color:var(--color-red)"><i class="fa-solid fa-xmark"></i> [${serverName}] Failed: <strong style="color:var(--text-main)">${file.name}</strong> after ${timeTaken}s</span>`);
+              }
             }
             
             if (myBatchId === currentBatchId) {
@@ -921,9 +1187,9 @@
         document.getElementById('progress-size').innerText = `${loadedMb} / ${totalMb} MB`;
         
         if (networkPercent >= 99) {
-          document.getElementById('progress-status').innerHTML = `<i class='fa-solid fa-circle-check' style='color:var(--color-green);'></i> Uploaded to Server`;
+          document.getElementById('progress-status').innerHTML = `<i class='fa-solid fa-circle-check icon-3d-green'></i> Uploaded to Server`;
         } else {
-          document.getElementById('progress-status').innerHTML = `<i class="fa-solid fa-network-wired"></i> Uploading to Server...`;
+          document.getElementById('progress-status').innerHTML = `<i class="fa-solid fa-network-wired icon-3d-blue"></i> Uploading to Server...`;
         }
 
         // --- 2. PROCESSING/SAVING PROGRESS UPDATE (Files Completed) ---
@@ -942,11 +1208,11 @@
         }).length;
 
         if (completedPhotos === totalPhotos && totalPhotos > 0) {
-          document.getElementById('processing-status').innerHTML = `<i class='fa-solid fa-circle-check' style='color:var(--color-green);'></i> Saved to Drive`;
+          document.getElementById('processing-status').innerHTML = `<i class='fa-solid fa-circle-check icon-3d-green'></i> Saved to Drive`;
         } else if (filesPendingServerResponse > 0) {
-          document.getElementById('processing-status').innerHTML = `<i class='fa-solid fa-spinner fa-spin' style='color:var(--color-blue);'></i> Saving to Drive...`;
+          document.getElementById('processing-status').innerHTML = `<i class='fa-solid fa-spinner fa-spin icon-3d-blue'></i> Saving to Drive...`;
         } else if (completedPhotos === 0 && networkPercent < 10) {
-           document.getElementById('processing-status').innerHTML = `<i class="fa-solid fa-hard-drive"></i> Waiting to Save...`;
+           document.getElementById('processing-status').innerHTML = `<i class="fa-solid fa-hard-drive icon-3d-purple"></i> Waiting to Save...`;
         }
       }
 
@@ -955,7 +1221,7 @@
         let uploader = document.getElementById('uploader').value.trim();
 
         if (uploadedFileIds.length > 0) {
-          document.getElementById('processing-status').innerHTML = "<i class='fa-solid fa-spinner fa-spin'></i> Logging history...";
+          document.getElementById('processing-status').innerHTML = "<i class='fa-solid fa-spinner fa-spin icon-3d-orange'></i> Logging history...";
           
           try {
             await apiPost('recordBatchHistory', {
@@ -964,13 +1230,16 @@
               numPhotos: uploadedFileIds.length
             });
             
-            document.getElementById('processing-status').innerHTML = "<i class='fa-solid fa-spinner fa-spin'></i> Refreshing stats...";
+            document.getElementById('processing-status').innerHTML = "<i class='fa-solid fa-spinner fa-spin icon-3d-blue'></i> Refreshing stats...";
             loadStats(); 
             
             document.getElementById('file-input').value = ""; 
-            document.getElementById('progress-container').style.display = 'none';
-            isUploading = false;
-            showSummaryModal();
+            // Give user a moment to see the completed checkmarks before closing
+            setTimeout(() => {
+                document.getElementById('progress-container').style.display = 'none';
+                isUploading = false;
+                showSummaryModal();
+            }, 1000);
           } catch (err) {
             showError(err);
             isUploading = false;
@@ -1008,7 +1277,7 @@
         document.getElementById('cid-display').innerText = cid;
         document.getElementById('gallery-content').innerHTML = ""; // Clear old gallery
         document.getElementById('gallery-loader').style.display = 'block';
-        document.getElementById('gallery-loader').innerHTML = '<i class="fa-solid fa-circle-notch"></i> Fetching photos from Google Drive...';
+        document.getElementById('gallery-loader').innerHTML = '<i class="fa-solid fa-circle-notch fa-spin icon-3d-blue"></i> Fetching photos from Google Drive...';
         
         try {
           let data = await apiGet('getPhotosList', { contractId: cid });
@@ -1020,7 +1289,7 @@
 
       function showGalleryError(error) {
         document.getElementById('gallery-loader').innerHTML = `
-          <div class="gallery-error-msg"><i class="fa-solid fa-circle-xmark"></i> Error loading photos: ${error.message}</div>
+          <div class="gallery-error-msg"><i class="fa-solid fa-circle-xmark icon-3d-red"></i> Error loading photos: ${error.message}</div>
           <p style="font-size:13px; color:#64748b; margin-top: 8px;">Make sure the API URL is correct and the Contract ID exists.</p>
         `;
         console.error("Gallery API Error:", error);
@@ -1030,16 +1299,16 @@
         document.getElementById('gallery-loader').style.display = 'none';
         let html = '';
         
-        html += buildSection('<i class="fa-solid fa-truck-fast"></i> Mobilization (PRE-CON)', data?.preCon);
-        html += buildSection('<i class="fa-solid fa-person-digging"></i> On-Going', data?.onGoing);
-        html += buildSection('<i class="fa-solid fa-check-double"></i> Completed', data?.completed);
+        html += buildSection('<i class="fa-solid fa-truck-fast icon-3d-orange"></i> Mobilization (PRE-CON)', data?.preCon);
+        html += buildSection('<i class="fa-solid fa-person-digging icon-3d-blue"></i> On-Going', data?.onGoing);
+        html += buildSection('<i class="fa-solid fa-check-double icon-3d-green"></i> Completed', data?.completed);
         
         document.getElementById('gallery-content').innerHTML = html;
       }
 
       function buildSection(title, files) {
         if (!files || files.length === 0) {
-          return `<div class="category"><h3>${title}</h3><p class="empty-msg"><i class="fa-regular fa-image" style="font-size: 24px; display:block; margin-bottom: 10px; color:#cbd5e1;"></i> No photos uploaded yet.</p></div>`;
+          return `<div class="category"><h3>${title}</h3><p class="empty-msg"><i class="fa-regular fa-image icon-3d-pastel" style="font-size: 32px; display:block; margin-bottom: 10px;"></i> No photos uploaded yet.</p></div>`;
         }
         
         let gridHtml = files.map(f => {
@@ -1052,7 +1321,7 @@
                 <img src="${thumbUrl}" alt="${f.name}" class="photo-img" loading="lazy" onerror="this.src='https://via.placeholder.com/300?text=No+Preview'">
               </a>
               <div class="photo-details">
-                <div class="file-name" title="${f.name}"><i class="fa-regular fa-image"></i> ${f.name}</div>
+                <div class="file-name" title="${f.name}"><i class="fa-regular fa-image icon-3d-purple"></i> ${f.name}</div>
                 <div class="actions">
                   <a href="${f.url}" target="_blank" class="btn-view"><i class="fa-solid fa-eye"></i> View</a>
                   <a href="${f.downloadUrl}" class="btn-dl" download><i class="fa-solid fa-cloud-arrow-down"></i> Download</a>

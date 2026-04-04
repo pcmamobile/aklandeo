@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>Project Details</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      /* Lively Pastel Palette */
+      --pastel-pink: #ffb3ba;
+      --pastel-pink-dark: #e68c98;
+      --pastel-orange: #ffdfba;
+      --pastel-orange-dark: #e6bd8c;
+      --pastel-yellow: #fff3ba;
+      --pastel-yellow-dark: #e6d88c;
+      --pastel-green: #baffc9;
+      --pastel-green-dark: #8ce6a3;
+      --pastel-blue: #bae1ff;
+      --pastel-blue-dark: #8abce6;
+      --pastel-purple: #e2cbff;
+      --pastel-purple-dark: #c0a3e6;
+      
+      /* DPWH Pastel Colors for Containers */
+      --dpwh-pastel-orange: rgba(255, 231, 204, 0.95);
+      --dpwh-pastel-blue: rgba(204, 228, 255, 0.95);
+      
+      --pcma-ink: #334155;
+      --pcma-ring: rgba(0,0,0,.08);
+      --footer-h: 85px;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body { 
+      font-family: 'Nunito', sans-serif; 
+      margin: 0; 
+      /* Alive and Colorful Background Gradient */
+      background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 50%, #8ec5fc 100%); 
+      background-attachment: fixed;
+      color: var(--pcma-ink); 
+      overflow-x: hidden;
+    }
+    
+    /* Animations */
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+    @keyframes pulse-glow {
+      0%, 100% { transform: scale(1); filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
+      50% { transform: scale(1.08); filter: drop-shadow(0 8px 12px rgba(255, 215, 0, 0.4)); }
+    }
+    @keyframes candy-stripe {
+      from { background-position: 0 0; }
+      to { background-position: 40px 0; }
+    }
+    @keyframes popIn {
+      0% { transform: scale(0.8) translateY(20px); opacity: 0; }
+      100% { transform: scale(1) translateY(0); opacity: 1; }
+    }
+
+    /* Header */
+    .pcma-modal-top {
+      position: sticky; top: 0; z-index: 5;
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, var(--pastel-purple), var(--pastel-blue));
+      color: #fff;
+      min-height: 60px; padding: 15px;
+      border-bottom: 4px solid var(--pastel-purple-dark);
+      box-shadow: 0 8px 20px rgba(192, 163, 230, 0.25);
+    }
+    .pcma-modal-top-cid { 
+      font-weight: 900; color: #fff; line-height: 1; 
+      font-size: 1.8rem; letter-spacing: 2px; 
+      text-shadow: 0 3px 0 var(--pastel-purple-dark), 0 6px 10px rgba(0,0,0,0.2);
+    }
+
+    /* Layout */
+    #pcmaModalBody { flex: 1 1 auto; overflow: auto; padding-bottom: calc(var(--footer-h) + 20px); }
+    #pcmaModalContent { display: flex; flex-direction: column; gap: 16px; padding: 16px; max-width: 1100px; margin: 0 auto; }
+    
+    /* 3D Primary Data Grid with DPWH Pastel Theme */
+    .pcma-primary { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+      gap: 16px; 
+      background: linear-gradient(135deg, var(--dpwh-pastel-orange), var(--dpwh-pastel-blue)); 
+      backdrop-filter: blur(5px);
+      border: 3px solid #ffffff; 
+      border-radius: 24px; 
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15), 0 4px 0 #cbd5e1; 
+      padding: 12px; 
+    }
+    .pcma-primary-col { 
+      background: rgba(255, 255, 255, 0.6); 
+      border: 2px solid #ffffff; 
+      border-radius: 18px; 
+      padding: 12px; 
+      display: flex; flex-direction: column; gap: 10px; 
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.02);
+    }
+    .pcma-primary-row { display: flex; align-items: stretch; gap: 8px; }
+    .pcma-primary-label { 
+      flex: 0 0 100px; 
+      font-size: 0.8rem; font-weight: 900; color: #475569; 
+      text-transform: uppercase; letter-spacing: 0.5px;
+      display: flex; align-items: center;
+    }
+    .pcma-primary-value { 
+      flex: 1; 
+      background: #ffffff; 
+      border-radius: 12px; 
+      padding: 8px 12px; 
+      font-weight: 800; font-size: 0.95rem; color: #1e293b; 
+      word-break: break-word; 
+      border: 2px solid #e2e8f0;
+      box-shadow: 0 2px 0 #e2e8f0;
+    }
+    .pcma-primary-value.pcma-status { 
+      background: linear-gradient(135deg, var(--pastel-orange), var(--pastel-pink)); 
+      color: #9f1225; 
+      border-color: var(--pastel-pink-dark);
+      box-shadow: 0 3px 0 var(--pastel-pink-dark);
+      text-transform: uppercase;
+    }
+
+    /* Hero Image */
+    .pcma-hero { 
+      width: 100%; border-radius: 24px; overflow: hidden; 
+      background: #e2e8f0; border: 4px solid #fff; 
+      box-shadow: 0 12px 25px rgba(0,0,0,0.1), 0 6px 0 #cbd5e1; 
+      max-height: 320px; position: relative;
+    }
+    .pcma-hero img { width: 100%; height: 320px; object-fit: cover; display: block; }
+
+    /* Big 3D Action Buttons - Always side by side */
+    #pcmaModalButtons {
+      padding: 10px 16px 20px; max-width: 1100px; margin: 0 auto;
+      display: grid; 
+      grid-template-columns: repeat(2, 1fr); 
+      gap: 16px;
+    }
+    .modal-btn-3d {
+      padding: 16px 12px; border-radius: 20px; font-size: 1rem; border: none; cursor: pointer;
+      font-weight: 900; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 12px; text-transform: uppercase; text-align: center; letter-spacing: 1px;
+      font-family: 'Nunito', sans-serif;
+      transition: all 0.1s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+    }
+    .modal-btn-3d span { z-index: 2; text-shadow: 0 2px 2px rgba(255,255,255,0.4); }
+    .modal-btn-3d svg { 
+      width: 50px; height: 50px; z-index: 2;
+      filter: drop-shadow(0 6px 6px rgba(0,0,0,0.15));
+    }
+    
+    .btn-docs-3d { 
+      background: linear-gradient(145deg, var(--pastel-yellow), #ffeb85); color: #8a7300; 
+      border: 2px solid #e6d88c; box-shadow: 0 8px 0 #d4c570, 0 15px 20px rgba(212, 197, 112, 0.4); 
+    }
+    .btn-docs-3d:active { transform: translateY(8px); box-shadow: 0 0 0 #d4c570, 0 5px 10px rgba(212, 197, 112, 0.4); }
+    .btn-docs-3d svg { animation: float 3s ease-in-out infinite; }
+
+    .btn-upload-3d { 
+      background: linear-gradient(145deg, var(--pastel-blue), #9ecef5); color: #00569f; 
+      border: 2px solid #8abce6; box-shadow: 0 8px 0 #73aada, 0 15px 20px rgba(115, 170, 218, 0.4); 
+    }
+    .btn-upload-3d:active { transform: translateY(8px); box-shadow: 0 0 0 #73aada, 0 5px 10px rgba(115, 170, 218, 0.4); }
+    .btn-upload-3d svg { animation: float 3.5s ease-in-out infinite 0.5s; }
+
+    /* Progress & Mini Bars */
+    .pcma-mini-bars { display: flex; flex-direction: column; gap: 12px; margin-top: 10px; background: linear-gradient(135deg, var(--dpwh-pastel-orange), var(--dpwh-pastel-blue)); padding: 16px; border-radius: 24px; box-shadow: 0 8px 20px rgba(0,0,0,0.1), 0 4px 0 #cbd5e1; border: 3px solid #ffffff; backdrop-filter: blur(5px);}
+    .pcma-mini-row { display: flex; align-items: center; gap: 12px; }
+    .pcma-mini-label { width: 90px; text-align: left; font-weight: 900; color: #475569; font-size: 0.85rem; text-transform: uppercase; }
+    .pcma-mini-bar { 
+      flex: 1; height: 28px; background: #ffffff; border-radius: 999px; overflow: hidden; 
+      box-shadow: inset 0 4px 6px rgba(0,0,0,0.05); border: 2px solid #ffffff; 
+    }
+    .pcma-mini-fill { 
+      height: 100%; width: 0%; display: flex; align-items: center; justify-content: center; 
+      font-size: 0.85rem; font-weight: 900; color: #fff; transition: width 1s cubic-bezier(0.34, 1.56, 0.64, 1); 
+      white-space: nowrap; padding: 0 10px; border-radius: 999px; 
+      background-image: linear-gradient(45deg, rgba(255,255,255,0.2) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.2) 75%, transparent 75%, transparent);
+      background-size: 40px 40px;
+      animation: candy-stripe 2s linear infinite;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.3); 
+    }
+
+    .pcma-progress { margin-top: 10px; }
+    .pcma-progress-label { font-weight: 900; color: #1e293b; margin-bottom: 10px; font-size: 1.1rem; text-align: center; text-transform: uppercase; letter-spacing: 1px;}
+    .pcma-progress-bar { 
+      width: 100%; background: #ffffff; border-radius: 20px; height: 38px; overflow: hidden; 
+      box-shadow: inset 0 4px 8px rgba(0,0,0,0.05); border: 3px solid #fff; 
+    }
+    .pcma-progress-fill { 
+      height: 100%; border-radius: 16px; text-align: center; line-height: 32px; font-weight: 900; color: #fff; 
+      font-size: 1.1rem; width: 0%; transition: width 1.2s cubic-bezier(0.34, 1.56, 0.64, 1); white-space: nowrap; 
+      background-image: linear-gradient(45deg, rgba(255,255,255,0.2) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.2) 75%, transparent 75%, transparent);
+      background-size: 40px 40px;
+      animation: candy-stripe 2s linear infinite;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3); 
+    }
+
+    /* Creative 3D Team Section - Compact Mode */
+    .pcma-team { 
+      background: linear-gradient(135deg, var(--dpwh-pastel-orange), var(--dpwh-pastel-blue)); border: 3px solid #ffffff; border-radius: 24px; 
+      padding: 12px; margin-top: 10px; box-shadow: 0 8px 20px rgba(0,0,0,0.1), 0 4px 0 #cbd5e1; 
+      backdrop-filter: blur(5px);
+    }
+    .pcma-team-label { font-weight: 900; color: #334155; display: block; margin-bottom: 10px; font-size: 1rem; text-transform: uppercase; text-align: center; letter-spacing: 1px;}
+    .team-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+    .team-member {
+      display: flex; flex-direction: row; align-items: center; justify-content: center; 
+      padding: 6px 12px; border-radius: 50px; border: 2px solid; background: #fff;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      cursor: default; gap: 8px;
+    }
+    .team-member:hover { transform: translateY(-3px); }
+    .team-role { font-size: 0.7rem; font-weight: 900; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+    .team-name { font-size: 0.85rem; font-weight: 800; color: #1e293b; white-space: nowrap;}
+
+    /* Photos Grid Layout */
+    #pcmaModalPhotos { padding: 0 16px 100px; max-width: 1100px; margin: 0 auto; }
+    .photo-section-title {
+      font-weight: 900; font-size: 1.2rem; color: #1e293b; padding: 10px 0; 
+      border-bottom: 4px solid rgba(255,255,255,0.5); margin: 20px 0 15px; text-transform: uppercase; letter-spacing: 1px; text-align: center;
+    }
+    .pcma-photo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+    .pcma-photo-card { 
+      display: flex; flex-direction: column; background: linear-gradient(135deg, var(--dpwh-pastel-orange), var(--dpwh-pastel-blue)); border: 3px solid #ffffff; 
+      border-radius: 24px; padding: 12px; box-shadow: 0 10px 20px rgba(0,0,0,0.1), 0 6px 0 #cbd5e1; 
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); backdrop-filter: blur(5px);
+    }
+    .pcma-photo-card:hover { transform: translateY(-6px); border-color: var(--pastel-blue-dark); box-shadow: 0 15px 30px rgba(0,0,0,0.15), 0 6px 0 var(--pastel-blue-dark); }
+    
+    /* Auto Size Photos */
+    .pcma-photo-card img { 
+      width: 100%; 
+      height: auto; 
+      object-fit: contain; 
+      border-radius: 14px; margin-bottom: 12px; background: rgba(255,255,255,0.5); cursor: pointer; border: 2px solid #ffffff;
+    }
+    .pcma-photo-card img:hover { opacity: 0.9; }
+    
+    /* Compact Action Buttons inside Photo Cards */
+    .pcma-photo-set-btns { display: flex; flex-direction: row; gap: 8px; width: 100%; justify-content: center; }
+    
+    /* Adjusting photo buttons to be much smaller and compact */
+    .action-btn-3d { 
+      flex: 1; padding: 6px 8px; border: 2px solid; border-radius: 10px; 
+      font-size: 0.65rem; font-weight: 900; cursor: pointer; color: #fff; 
+      display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 4px;
+      text-transform: uppercase; transition: all 0.1s;
+      font-family: 'Nunito', sans-serif;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+    .action-btn-3d svg { width: 14px; height: 14px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2)); }
+    .action-btn-3d:active { transform: translateY(4px); box-shadow: 0 0 0 !important; }
+    
+    .btn-mini-icon { 
+      background: linear-gradient(135deg, var(--pastel-purple), #b388ff); border-color: var(--pastel-purple-dark);
+      box-shadow: 0 4px 0 var(--pastel-purple-dark); color: #4a148c; text-shadow: 0 1px 1px rgba(255,255,255,0.5);
+    }
+    .btn-mini-icon svg { animation: float 2.5s ease-in-out infinite; }
+
+    .btn-main-photo { 
+      background: linear-gradient(135deg, var(--pastel-orange), #ffb74d); border-color: var(--pastel-orange-dark);
+      box-shadow: 0 4px 0 var(--pastel-orange-dark); color: #995c00; text-shadow: 0 1px 1px rgba(255,255,255,0.5);
+    }
+    .btn-main-photo svg { animation: pulse-glow 2s infinite; }
+
+    /* Custom 3D Confirm Modal Styles */
+    .confirm-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px);
+      display: none; align-items: center; justify-content: center; z-index: 100;
+    }
+    .confirm-modal-3d {
+      background: #fff; border: 3px solid #e2e8f0; border-radius: 24px;
+      padding: 24px; max-width: 320px; width: 90%; text-align: center;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.2), 0 8px 0 #cbd5e1;
+      animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .confirm-msg { font-size: 1.1rem; font-weight: 900; color: #1e293b; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.5px;}
+    .confirm-btns { display: flex; gap: 12px; justify-content: center; }
+    .confirm-btn-yes, .confirm-btn-no {
+      flex: 1; padding: 10px; border-radius: 14px; font-weight: 900; border: none; cursor: pointer;
+      font-family: 'Nunito', sans-serif; text-transform: uppercase; font-size: 0.8rem;
+      transition: all 0.1s; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+    .confirm-btn-yes {
+      background: linear-gradient(135deg, var(--pastel-green), #6bd687); 
+      border: 2px solid var(--pastel-green-dark); box-shadow: 0 4px 0 var(--pastel-green-dark); color: #004d1a;
+    }
+    .confirm-btn-yes:active { transform: translateY(4px); box-shadow: 0 0 0 var(--pastel-green-dark); }
+    
+    .confirm-btn-no {
+      background: linear-gradient(135deg, var(--pastel-pink), #e68c98); 
+      border: 2px solid var(--pastel-pink-dark); box-shadow: 0 4px 0 var(--pastel-pink-dark); color: #660011;
+    }
+    .confirm-btn-no:active { transform: translateY(4px); box-shadow: 0 0 0 var(--pastel-pink-dark); }
+
+    /* Mobile Adjustments for responsiveness */
+    @media (max-width: 600px) { 
+      .pcma-primary-label { flex: 0 0 100px; font-size: 0.75rem; } 
+      .pcma-hero img { height: 220px; }
+      #pcmaModalButtons { gap: 10px; }
+      .modal-btn-3d { padding: 12px 8px; font-size: 0.8rem; gap: 8px;}
+      .modal-btn-3d svg { width: 36px; height: 36px; }
+      .pcma-team { padding: 10px; }
+      .team-member { padding: 4px 10px; gap: 6px; }
+      .team-name { font-size: 0.75rem; }
+      .team-role { font-size: 0.65rem; padding: 2px 6px; }
+      .action-btn-3d { font-size: 0.6rem; padding: 6px; flex-direction: row; gap: 4px; }
+      .action-btn-3d span { white-space: nowrap; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="pcma-modal-top">
+    <div id="pcmaModalCID" class="pcma-modal-top-cid">—</div>
+  </div>
+  
+  <div id="pcmaModalBody">
+    <div id="pcmaModalContent"></div>
+    <div id="pcmaModalButtons"></div>
+    <div id="pcmaModalPhotos"></div>
+  </div>
+
+  <!-- Custom 3D Confirm Modal -->
+  <div id="customConfirmOverlay" class="confirm-overlay">
+    <div class="confirm-modal-3d">
+      <div id="customConfirmMessage" class="confirm-msg"></div>
+      <div class="confirm-btns">
+        <button id="customConfirmNo" class="confirm-btn-no">Cancel</button>
+        <button id="customConfirmYes" class="confirm-btn-yes">Yes, Set It!</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden SVGs for injection to keep JS clean -->
+  <template id="svg-docs">
+    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="folderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#FFD166" />
+          <stop offset="100%" stop-color="#FF9F1C" />
+        </linearGradient>
+        <linearGradient id="folderBack" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#FF9F1C" />
+          <stop offset="100%" stop-color="#E76F51" />
+        </linearGradient>
+      </defs>
+      <path d="M10 30 C10 25, 15 20, 20 20 L40 20 L50 30 L80 30 C85 30, 90 35, 90 40 L90 80 C90 85, 85 90, 80 90 L20 90 C15 90, 10 85, 10 80 Z" fill="url(#folderBack)"/>
+      <path d="M10 40 C10 35, 15 30, 20 30 L80 30 C85 30, 90 35, 90 40 L90 80 C90 85, 85 90, 80 90 L20 90 C15 90, 10 85, 10 80 Z" fill="url(#folderGrad)"/>
+      <rect x="30" y="50" width="40" height="8" rx="4" fill="#ffffff" opacity="0.8"/>
+      <rect x="30" y="65" width="25" height="8" rx="4" fill="#ffffff" opacity="0.8"/>
+    </svg>
+  </template>
+
+  <template id="svg-upload">
+    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="cloudGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#FFFFFF" />
+          <stop offset="100%" stop-color="#bae1ff" />
+        </linearGradient>
+      </defs>
+      <path d="M75 65 A 15 15 0 0 0 75 35 A 25 25 0 0 0 35 30 A 20 20 0 0 0 25 65 Z" fill="url(#cloudGrad)"/>
+      <path d="M50 70 L50 40 M40 50 L50 40 L60 50" stroke="#00569f" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </template>
+
+  <template id="svg-wand">
+    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="wandGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#F48FB1" />
+          <stop offset="100%" stop-color="#BA68C8" />
+        </linearGradient>
+      </defs>
+      <path d="M30 70 L70 30" stroke="url(#wandGrad)" stroke-width="12" stroke-linecap="round"/>
+      <circle cx="75" cy="25" r="8" fill="#FFF59D"/>
+      <path d="M80 15 L85 10 M85 30 L90 35 M65 15 L60 10 M65 35 L60 40" stroke="#FFF59D" stroke-width="4" stroke-linecap="round"/>
+    </svg>
+  </template>
+
+  <template id="svg-star">
+    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="starGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#FFE082" />
+          <stop offset="100%" stop-color="#FF8F00" />
+        </linearGradient>
+      </defs>
+      <path d="M50 15 L60 40 L85 40 L65 55 L75 80 L50 65 L25 80 L35 55 L15 40 L40 40 Z" fill="url(#starGrad)"/>
+    </svg>
+  </template>
+
+  <script>
+    const LOGO_FALLBACK = "https://drive.google.com/thumbnail?id=1VanVX82ANGfKA8jcGZL8cVDQh4EuN8-r&sz=s800";
+    const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwE2zVf654nTieExX174j6eTPG5-BaVINGQIszgfe5sLvDvJARL-u2k0vQk_DlYukExNg/exec";
+
+    let currentHeaders = [];
+
+    function init() {
+      const rowStr = localStorage.getItem('pcma_modal_row');
+      const headersStr = localStorage.getItem('pcma_modal_headers');
+      if (rowStr && headersStr) {
+          const row = JSON.parse(rowStr);
+          currentHeaders = JSON.parse(headersStr);
+          renderModal(row);
+      }
+    }
+
+    window.addEventListener('message', (e) => {
+      if (e.data && e.data.type === 'RENDER') {
+          currentHeaders = e.data.headers || [];
+          renderModal(e.data.row);
+          window.scrollTo(0, 0);
+      }
+    });
+
+    window.onload = init;
+
+    function findCol(...keys) {
+      const lowerKeys = keys.map(k => String(k).toLowerCase());
+      return currentHeaders.findIndex(h => lowerKeys.some(k => String(h || '').toLowerCase().includes(k)));
+    }
+
+    function createPrimaryRow(label, value, isStatus) {
+      const r = document.createElement('div');
+      r.className = 'pcma-primary-row';
+      const l = document.createElement('div');
+      l.className = 'pcma-primary-label';
+      l.textContent = `${label}`;
+      const v = document.createElement('div');
+      v.className = 'pcma-primary-value';
+      if (isStatus) v.classList.add('pcma-status');
+      v.textContent = value;
+      r.append(l, v);
+      return r;
+    }
+
+    function toMoney(n) {
+      if (n == null || n === '') return null;
+      const s = String(n).replace(/[^0-9.\-]/g, '');
+      const f = parseFloat(s);
+      if (Number.isNaN(f)) return null;
+      try { return '₱ ' + f.toLocaleString('en-PH', { minimumFractionDigits: 2 }); } catch { return '₱ ' + f; }
+    }
+
+    function toDate(v) {
+      if (!v) return '';
+      const d = new Date(v);
+      return isNaN(d) ? String(v) : d.toLocaleDateString('en-PH', { year:'numeric', month:'short', day:'2-digit' });
+    }
+
+    function animateBar(fillEl, value, duration, formatter) {
+      const sign = value < 0 ? -1 : 1;
+      const endAbs = Math.min(Math.abs(value), 100);
+      const start = performance.now();
+      function step(now) {
+        const t = Math.min(1, (now - start) / duration);
+        const cur = endAbs * t;
+        fillEl.style.width = cur + '%';
+        const disp = sign * cur;
+        fillEl.textContent = formatter ? formatter(disp) : `${disp.toFixed(2)}%`
+        if (t < 1) requestAnimationFrame(step);
+        else {
+          fillEl.style.width = endAbs + '%';
+          fillEl.textContent = formatter ? formatter(sign * endAbs) : `${(sign * endAbs).toFixed(2)}%`;
+        }
+      }
+      requestAnimationFrame(step);
+    }
+
+    // Pastel configured slippage colors
+    const slipColor = (num) => {
+      if (num > 0) return { bg: 'linear-gradient(135deg, var(--pastel-green), var(--pastel-green-dark))', text: '#004d1a', sad: false };
+      if (num <= 0 && num > -5)  return { bg: 'linear-gradient(135deg, var(--pastel-orange), var(--pastel-orange-dark))', text: '#8a5000', sad: false };
+      if (num <= -5 && num > -10) return { bg: 'linear-gradient(135deg, var(--pastel-pink), var(--pastel-pink-dark))', text: '#660011', sad: true };
+      if (num <= -10) return { bg: 'linear-gradient(135deg, #ff8c99, #e65c6d)', text: '#fff', sad: true };
+      return { bg: 'linear-gradient(135deg, #e2e8f0, #cbd5e1)', text: '#334155', sad: false };
+    };
+
+    function isValidUrl(u) { try { const x = new URL(u); return x.protocol === "http:" || x.protocol === "https:"; } catch { return false; } }
+
+    function toPct(val, fallback = 0) { 
+        if (val == null) return fallback; 
+        const m = String(val).replace(",", ".").match(/-?\d+(\.\d+)?/); 
+        return m ? parseFloat(m[0]) : fallback; 
+    }
+
+    // Custom 3D Confirm function replacing standard browser alert
+    function show3DConfirm(message) {
+      return new Promise((resolve) => {
+        const overlay = document.getElementById('customConfirmOverlay');
+        const msgEl = document.getElementById('customConfirmMessage');
+        const btnYes = document.getElementById('customConfirmYes');
+        const btnNo = document.getElementById('customConfirmNo');
+
+        msgEl.textContent = message;
+        overlay.style.display = 'flex';
+
+        btnYes.onclick = () => { overlay.style.display = 'none'; resolve(true); };
+        btnNo.onclick = () => { overlay.style.display = 'none'; resolve(false); };
+      });
+    }
+
+    async function setPhotoToSheet(contractId, column, fileId, btn) {
+        let msg = column === 'Image 1' ? "Set as Mini Icon?" : "Set as Top Main Photo?";
+        const isConfirmed = await show3DConfirm(msg);
+        
+        if (!isConfirmed) return;
+
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = "<span>Saving...</span>";
+        btn.disabled = true;
+
+        try {
+            const res = await fetch(GAS_WEBAPP_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `action=setImage&contractId=${encodeURIComponent(contractId)}&columnName=${encodeURIComponent(column)}&fileId=${encodeURIComponent(fileId)}`
+            });
+            const data = await res.json();
+            if (data.status === 'success') {
+                // Let user know it succeeded and trigger reload (using smaller native alert here or you can make a success modal later)
+                alert(`${column} updated successfully! Reloading data...`);
+                window.parent.postMessage({ type: 'RELOAD_APP' }, '*');
+            } else {
+                alert(`Failed to update image: ${data.message}`);
+            }
+        } catch (err) {
+            alert(`Network error: ${err.message}`);
+        } finally {
+            btn.innerHTML = originalHTML;
+            btn.disabled = false;
+        }
+    }
+
+    function renderModal(row) {
+      if (!row) return;
+
+      const modalContent   = document.getElementById('pcmaModalContent');
+      const modalButtons   = document.getElementById('pcmaModalButtons');
+      const modalPhotos    = document.getElementById('pcmaModalPhotos');
+      const modalCID       = document.getElementById('pcmaModalCID');
+
+      modalContent.innerHTML = '';
+      modalButtons.innerHTML = '';
+      modalPhotos.innerHTML = '';
+
+      const cidIdx     = findCol('contract id');
+      const projIdx    = findCol('project name');
+      const locIdx     = findCol('location');
+      const contIdx    = findCol('contractor');
+      const amtIdx     = findCol('contract amount','amount');
+      const revAmtIdx  = findCol('rev. contract amount','revised contract amount','rev contract amount');
+      const ntpIdx     = findCol('notice to proceed','ntp');
+      const expIdx     = findCol('expiry date','original expiry date');
+      const revExpIdx  = findCol('rev. expiry date','revised expiry date','rev expiry date');
+      const statIdx    = findCol('status');
+      const remIdx     = findCol('remarks');
+      const lastBillIdx= findCol('last billing');
+      const projIdIdx  = findCol('Project ID', 'proj id', 'projectid');
+      const uploadCol  = findCol('upload pictures');
+
+      const peIdx = findCol('project engineer');
+      const piIdx = findCol('project inspector');
+      const reIdx = findCol('resident engineer');
+      const qeIdx = findCol('quantity engineer');
+      const meIdx = findCol('materials engineer');
+
+      const schedIdx = findCol('sched');
+      const actualIdx= findCol('actual');
+      const slipIdx  = findCol('slip');
+      const delayIdx = findCol('delay');
+      let   progIdx  = findCol('progress');
+      if (progIdx < 0 && currentHeaders.length > 18) progIdx = 18;
+
+      const currentCid = (cidIdx >= 0 ? String(row[cidIdx]).trim() : '');
+      modalCID.textContent = currentCid || '—';
+
+      const img2Idx = findCol('image 2');
+      let rawImg2 = (img2Idx > -1 && row[img2Idx]) ? String(row[img2Idx]).trim() : '';
+      
+      let heroImgUrl = rawImg2;
+      if (rawImg2 && !rawImg2.startsWith('http')) {
+          heroImgUrl = `https://drive.google.com/thumbnail?id=${rawImg2}&sz=s800`;
+      }
+
+      if (heroImgUrl) {
+        const wrap = document.createElement('div');
+        wrap.className = 'pcma-hero';
+        const im = document.createElement('img');
+        im.src = heroImgUrl;
+        im.onerror = () => { im.src = LOGO_FALLBACK; };
+        wrap.appendChild(im);
+        modalContent.appendChild(wrap);
+      }
+
+      const primary = document.createElement('div');
+      primary.className = 'pcma-primary';
+
+      const colA = document.createElement('div');
+      colA.className = 'pcma-primary-col';
+      if (projIdx > -1 && row[projIdx]) colA.appendChild(createPrimaryRow('Project', row[projIdx]));
+      if (locIdx  > -1 && row[locIdx])  colA.appendChild(createPrimaryRow('Location', row[locIdx]));
+      if (contIdx > -1 && row[contIdx]) colA.appendChild(createPrimaryRow('Contractor', row[contIdx]));
+
+      const colB = document.createElement('div');
+      colB.className = 'pcma-primary-col';
+      if (amtIdx > -1 && row[amtIdx])     colB.appendChild(createPrimaryRow('Amount', toMoney(row[amtIdx]) ?? row[amtIdx]));
+      if (revAmtIdx > -1 && row[revAmtIdx]) colB.appendChild(createPrimaryRow('Rev. Amt', toMoney(row[revAmtIdx]) ?? row[revAmtIdx]));
+
+      const colC = document.createElement('div');
+      colC.className = 'pcma-primary-col';
+      if (ntpIdx > -1 && row[ntpIdx])  colC.appendChild(createPrimaryRow('NTP', toDate(row[ntpIdx])));
+      if (expIdx > -1 && row[expIdx])  colC.appendChild(createPrimaryRow('Expiry', toDate(row[expIdx])));
+      if (revExpIdx > -1 && row[revExpIdx]) colC.appendChild(createPrimaryRow('Rev. Expiry', toDate(row[revExpIdx])));
+      if (statIdx > -1 && row[statIdx]) colC.appendChild(createPrimaryRow('Status', row[statIdx], true));
+
+      const colD = document.createElement('div');
+      colD.className = 'pcma-primary-col';
+      if (remIdx > -1 && row[remIdx])        colD.appendChild(createPrimaryRow('Remarks', row[remIdx]));
+      if (lastBillIdx > -1 && row[lastBillIdx]) colD.appendChild(createPrimaryRow('Last Bill', row[lastBillIdx]));
+      if (projIdIdx > -1 && row[projIdIdx])      colD.appendChild(createPrimaryRow('Proj ID', row[projIdIdx]));
+
+      if (colA.children.length) primary.appendChild(colA);
+      if (colB.children.length) primary.appendChild(colB);
+      if (colC.children.length) primary.appendChild(colC);
+      if (colD.children.length) primary.appendChild(colD);
+      modalContent.appendChild(primary);
+
+      // Buttons
+      let docsBtn = document.createElement('button');
+      docsBtn.id = 'projectDocsBtn';
+      docsBtn.type = 'button';
+      docsBtn.innerHTML = document.getElementById('svg-docs').innerHTML + '<span>Project Docs</span>';
+      docsBtn.className = 'modal-btn-3d btn-docs-3d';
+      docsBtn.onclick = () => {
+        window.parent.postMessage({ type: 'OPEN_DOCS', cid: currentCid }, '*');
+      };
+      
+      let uploadBtn = null;
+      if (uploadCol > -1) {
+        const link = String(row[uploadCol] || '').trim();
+        if (link && isValidUrl(link)) {
+          uploadBtn = document.createElement('button');
+          uploadBtn.id = 'pcmaUploadBtn';
+          uploadBtn.type = 'button';
+          uploadBtn.innerHTML = document.getElementById('svg-upload').innerHTML + '<span>Upload / View</span>';
+          uploadBtn.className = 'modal-btn-3d btn-upload-3d';
+          uploadBtn.onclick = () => { 
+            window.parent.postMessage({ type: 'OPEN_UPLOAD', cid: currentCid, link: link }, '*');
+          };
+        }
+      }
+
+      modalButtons.appendChild(docsBtn);
+      if (uploadBtn) modalButtons.appendChild(uploadBtn);
+
+      // Photos Gallery
+      const compIdx = findCol('completed');
+      const onGoingIdx = findCol('on-going', 'ongoing');
+      const mobIdx = findCol('mobilization');
+
+      const photosData = [
+        { label: 'Completed', val: compIdx > -1 ? row[compIdx] : '' },
+        { label: 'On-Going', val: onGoingIdx > -1 ? row[onGoingIdx] : '' },
+        { label: 'Mobilization', val: mobIdx > -1 ? row[mobIdx] : '' }
+      ];
+
+      let hasPhotos = false;
+      let html = '';
+
+      const wandSvg = document.getElementById('svg-wand').innerHTML;
+      const starSvg = document.getElementById('svg-star').innerHTML;
+
+      photosData.forEach(p => {
+        if (!p.val) return;
+        const rawString = String(p.val).trim();
+        if (!rawString) return;
+        
+        const parts = rawString.split('|');
+        let ids = [];
+        parts.forEach(part => {
+           const match = part.match(/[-\w]{25,}/);
+           if (match) ids.push(match[0]);
+        });
+
+        if (ids.length > 0) {
+            hasPhotos = true;
+            html += `<div style="margin-top: 10px;">`;
+            html += `<div class="photo-section-title">${p.label}</div>`;
+            html += `<div class="pcma-photo-grid">`;
+            ids.forEach(id => {
+                const thumbUrl = `https://drive.google.com/thumbnail?id=${id}&sz=s800`;
+                const fullUrl = `https://drive.google.com/file/d/${id}/view`;
+                html += `
+                  <div class="pcma-photo-card">
+                    <img src="${thumbUrl}" loading="lazy" onerror="this.src='${LOGO_FALLBACK}'" onclick="window.open('${fullUrl}', '_blank', 'noopener')" />
+                    <div class="pcma-photo-set-btns">
+                      <button class="action-btn-3d btn-mini-icon" onclick="setPhotoToSheet('${currentCid}', 'Image 1', '${id}', this)">
+                        ${wandSvg}
+                        <span>Mini Icon</span>
+                      </button>
+                      <button class="action-btn-3d btn-main-photo" onclick="setPhotoToSheet('${currentCid}', 'Image 2', '${id}', this)">
+                        ${starSvg}
+                        <span>Main Photo</span>
+                      </button>
+                    </div>
+                  </div>
+                `;
+            });
+            html += `</div></div>`;
+        }
+      });
+
+      if (!hasPhotos) {
+          modalPhotos.innerHTML = '<div style="text-align:center; padding:30px; color:#94a3b8; font-weight:800; font-size:1.1rem; border:3px dashed #ffffff; border-radius:20px; background:linear-gradient(135deg, var(--dpwh-pastel-orange), var(--dpwh-pastel-blue)); backdrop-filter:blur(5px);">No photos uploaded yet.</div>';
+      } else {
+          modalPhotos.innerHTML = html;
+      }
+
+      // Progress Bars
+      const hasSched = schedIdx > -1 && row[schedIdx];
+      const hasActual= actualIdx > -1 && row[actualIdx];
+      const hasSlip  = slipIdx > -1 && row[slipIdx];
+
+      if (hasSched || hasActual || hasSlip) {
+        const mini = document.createElement('div');
+        mini.className = 'pcma-mini-bars';
+
+        function addMini(label, val, bgStr, isSlippage){
+          const r = document.createElement('div'); r.className = 'pcma-mini-row';
+          const lab = document.createElement('div'); lab.className = 'pcma-mini-label'; lab.textContent = label;
+          const bar = document.createElement('div'); bar.className = 'pcma-mini-bar';
+          const fill= document.createElement('div'); fill.className = 'pcma-mini-fill';
+          bar.appendChild(fill); r.append(lab, bar); mini.appendChild(r);
+
+          const num = toPct(val);
+          if (isSlippage){
+            const cfg = slipColor(num);
+            fill.style.background = cfg.bg;
+            fill.style.color = cfg.text;
+            animateBar(fill, num, 800, v => `${v.toFixed(2)}%${cfg.sad && v <= -10 ? ' ☹️' : ''}`);
+          } else {
+            fill.style.background = bgStr;
+            animateBar(fill, num, 800, v => `${v.toFixed(2)}%`);
+          }
+        }
+
+        if (hasSched)  addMini('SCHED',    row[schedIdx],  'linear-gradient(135deg, var(--pastel-blue), var(--pastel-blue-dark))', false);
+        if (hasActual) addMini('ACTUAL',   row[actualIdx], 'linear-gradient(135deg, var(--pastel-green), var(--pastel-green-dark))', false);
+        if (hasSlip)   addMini('SLIPPAGE', row[slipIdx],   null,      true);
+
+        const progRaw  = (progIdx > -1 && row[progIdx]) ? String(row[progIdx]).trim() : '';
+        const delayRaw = (delayIdx > -1 && row[delayIdx]) ? String(row[delayIdx]).trim() : '';
+
+        if (progRaw) {
+          const wrap  = document.createElement('div'); wrap.className = 'pcma-progress';
+          const label = document.createElement('div'); label.className = 'pcma-progress-label'; label.textContent = 'Time Lapsed';
+          const bar   = document.createElement('div'); bar.className   = 'pcma-progress-bar';
+          const fill  = document.createElement('div'); fill.className  = 'pcma-progress-fill'; fill.textContent = '0%';
+          bar.appendChild(fill); wrap.append(label, bar); mini.appendChild(wrap);
+
+          const pctNum = Math.max(0, toPct(progRaw));
+          const colorFor = (v) => {
+            if(v > 100) return 'linear-gradient(135deg, #ff8c99, #e65c6d)';
+            if(v >= 100) return 'linear-gradient(135deg, var(--pastel-green), var(--pastel-green-dark))';
+            if(v > 80) return 'linear-gradient(135deg, var(--pastel-orange), var(--pastel-orange-dark))';
+            return 'linear-gradient(135deg, var(--pastel-purple), var(--pastel-purple-dark))';
+          };
+          fill.style.background = colorFor(pctNum);
+
+          requestAnimationFrame(() => {
+            const start = performance.now(); const duration = 1200;
+            (function step(now){
+              const t = Math.min(1, (now - start) / duration);
+              const curr = pctNum * t;
+              const width = Math.min(curr, 100);
+              fill.style.width = width + '%';
+              fill.textContent = `${Math.round(curr)}%${delayRaw ? ' ('+delayRaw+')' : ''}`;
+              if (t < 1) requestAnimationFrame(step);
+              else {
+                fill.style.width = Math.min(pctNum, 100) + '%';
+                fill.style.background = colorFor(pctNum);
+                fill.textContent = `${Math.round(pctNum)}%${delayRaw ? ' ('+delayRaw+')' : ''}`;
+              }
+            })(start);
+          });
+        }
+        modalContent.appendChild(mini);
+      }
+
+      // 3D TEAM Cards - Redesigned to save space
+      const teamData = [
+        { key: 'PE', val: peIdx > -1 ? row[peIdx] : '', bg: 'var(--pastel-blue)', border: 'var(--pastel-blue-dark)' },
+        { key: 'PI', val: piIdx > -1 ? row[piIdx] : '', bg: 'var(--pastel-green)', border: 'var(--pastel-green-dark)' },
+        { key: 'RE', val: reIdx > -1 ? row[reIdx] : '', bg: 'var(--pastel-purple)', border: 'var(--pastel-purple-dark)' },
+        { key: 'QE', val: qeIdx > -1 ? row[qeIdx] : '', bg: 'var(--pastel-pink)', border: 'var(--pastel-pink-dark)' },
+        { key: 'ME', val: meIdx > -1 ? row[meIdx] : '', bg: 'var(--pastel-orange)', border: 'var(--pastel-orange-dark)' },
+      ];
+
+      const activeMembers = teamData.filter(m => m.val && String(m.val).trim() !== '');
+
+      if (activeMembers.length > 0) {
+        const team = document.createElement('div');
+        team.className = 'pcma-team';
+        
+        let gridHtml = `<span class="pcma-team-label">The Team</span><div class="team-grid">`;
+        
+        activeMembers.forEach(m => {
+          gridHtml += `
+            <div class="team-member" style="border-color: ${m.border}; box-shadow: 0 4px 0 ${m.border};">
+              <div class="team-role" style="background: ${m.bg}; border: 1px solid ${m.border}; box-shadow: inset 0 2px 4px rgba(255,255,255,0.8), 0 2px 0 ${m.border}; color: #334155;">${m.key}</div>
+              <div class="team-name">${m.val}</div>
+            </div>
+          `;
+        });
+        
+        gridHtml += `</div>`;
+        team.innerHTML = gridHtml;
+        modalContent.appendChild(team);
+      }
+    }
+  </script>
+</body>
+</html>
