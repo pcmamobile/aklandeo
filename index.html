@@ -19,7 +19,7 @@
        GLOBAL UI & ANIMATED ANIME BACKGROUND
        ========================================================= */
     :root{
-      --footer-h:85px;
+      --footer-h:70px;
       --brand:#2563eb;
       --brand-dark:#1e40af;
     }
@@ -63,8 +63,8 @@
 
     #version-tag {
       position: absolute;
-      top: 15px;
-      right: 20px;
+      top: 5px;
+      right: 15px;
       font-weight: 900;
       font-size: 1.2rem;
       background: linear-gradient(to right, #fbbf24, #f59e0b, #ea580c);
@@ -264,13 +264,13 @@
        APP VIEW (GRID) WITH GLASSMORPHISM CONTAINER
        ========================================================= */
     #appView {
-      background: rgba(255, 255, 255, 0.6);
+      background: rgba(165, 180, 252, 0.45); /* Darker pastel blue glass */
       backdrop-filter: blur(15px);
       -webkit-backdrop-filter: blur(15px);
       border-radius: 24px;
       padding: 20px 15px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-      border: 1px solid rgba(255,255,255,0.6);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+      border: 1px solid rgba(255,255,255,0.4);
     }
 
     #resultInfo{
@@ -287,9 +287,9 @@
       gap:12px;
     }
     .card{
-      background: rgba(255,255,255,0.9);
+      background: linear-gradient(135deg, #e0e7ff 0%, #fae8ff 100%); /* Light pastel blue to pastel pink/purple */
       border-radius:16px;
-      box-shadow:0 6px 15px rgba(0,0,0,.08);
+      box-shadow:0 6px 15px rgba(0,0,0,.1);
       cursor:pointer;
       transition:transform .2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow .2s;
       overflow:hidden;
@@ -297,7 +297,7 @@
       align-items:center;
       gap:12px;
       padding:12px;
-      border: 2px solid transparent;
+      border: 2px solid rgba(255, 255, 255, 0.6);
     }
     .card:hover{
       transform:scale(1.02) translateY(-4px);
@@ -353,7 +353,7 @@
     .footer-inner{
       max-width:1100px;
       margin:0 auto;
-      padding:10px 12px 16px; 
+      padding:5px 12px 8px; 
       display:flex;
       gap:12px;
       justify-content: center;
@@ -414,9 +414,9 @@
     }
 
     @media (max-width: 768px){
-      :root{ --footer-h: 80px; }
-      .footer-inner{ padding: 8px 10px 14px; gap:8px; }
-      .footer-btn { padding: 6px 2px; font-size: 0.75rem; }
+      :root{ --footer-h: 60px; }
+      .footer-inner{ padding: 5px 10px 4px; gap:8px; }
+      .footer-btn { padding: 4px 2px; font-size: 0.75rem; }
       .footer-btn svg { width: 28px; height: 28px; }
     }
 
@@ -561,7 +561,7 @@
     }
     @media (max-width:768px) { #pcmaModalFrame { border-radius: 0; max-width: none; } }
 
-    .pcma-modal-arrow{ position:fixed; top:50%; transform:translateY(-50%); background:rgba(255,255,255,.2); backdrop-filter: blur(4px); border:1px solid rgba(255,255,255,0.4); width:50px; height:80px; border-radius:999px; display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:5100; box-shadow: 0 4px 15px rgba(0,0,0,0.1);}
+    .pcma-modal-arrow{ position:fixed; top:50%; transform:translateY(-50%); background:rgba(255,255,255,.05); backdrop-filter: blur(2px); border:1px solid rgba(255,255,255,0.15); width:50px; height:80px; border-radius:999px; display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:5100; box-shadow: 0 4px 15px rgba(0,0,0,0.05);}
     #pcmaModalPrev{ left:15px; }
     #pcmaModalNext{ right:15px; }
     .pcma-modal-arrow svg{ width:30px; height:30px; stroke:#1e293b; }
@@ -674,7 +674,7 @@
       <span>PCMA Revision<br>Monitoring</span>
     </button>
 
-    <a href="https://drive.google.com/file/d/1CTogwlTvQxwPW0KrdHyGSVxMZ3cjH3PM/view?usp=sharing" target="_blank" class="btn-3d btn-download">
+    <a href="https://drive.google.com/file/d/1cTD6ye5Ta12r0tYVQDRsjoKRvQQlYlw6/view?usp=sharing" target="_blank" class="btn-3d btn-download">
       <span class="emoji-icon">📱</span>
       <span>Download APK<br>for Android Only</span>
     </a>
@@ -1251,7 +1251,6 @@
       const colProjectName = headers.findIndex((h) => h.includes("project name"));
       const colStatus = headers.findIndex((h) => h.includes("status"));
       const colEngineer = headers.findIndex((h) => h.includes("project engineer"));
-      const colLocation = headers.findIndex((h) => h.includes("location"));
       const colImage1 = headers.findIndex((h) => h.includes("image 1"));
       const q = (el.filterCombo.value || "").trim().toLowerCase();
 
@@ -1305,16 +1304,6 @@
         projDiv.innerHTML = projHtml;
         projDiv.style.marginTop = "2px";
         content.appendChild(projDiv);
-
-        if (colLocation >= 0 && r[colLocation]) {
-          const locVal = String(r[colLocation]);
-          let locHtml = locVal;
-          if (q && locVal.toLowerCase().includes(q)) locHtml = locVal.replace(new RegExp(q, "ig"), (m) => `<mark>${m}</mark>`);
-          const locDiv = document.createElement("div");
-          locDiv.innerHTML = locHtml;
-          locDiv.style.opacity = 0.85;
-          content.appendChild(locDiv);
-        }
 
         const statusDiv = document.createElement("div");
         const statusText = (colStatus >= 0 && r[colStatus] ? String(r[colStatus]) : "").trim();
