@@ -302,45 +302,49 @@
     }
     .confirm-btn-no:active { transform: translateY(4px); box-shadow: 0 0 0 var(--pastel-pink-dark); }
 
-    /* Mobile Adjustments for responsiveness - SIGNIFICANTLY SCALED DOWN */
+    /* EXTREMELY COMPACT Mobile Adjustments for responsiveness */
     @media (max-width: 600px) { 
-      .pcma-modal-top { min-height: 45px; padding: 10px; }
-      .pcma-modal-top-cid { font-size: 1.2rem; letter-spacing: 1px; }
+      #pcmaModalContent { padding: 8px; gap: 8px; }
       
-      .pcma-primary-label { flex: 0 0 75px; font-size: 0.55rem; letter-spacing: 0px; line-height: 1.1; } 
-      .pcma-primary-value { font-size: 0.75rem; padding: 4px 6px; }
-      .pcma-primary-col { gap: 4px; padding: 8px; border-radius: 14px; }
-      .pcma-primary { gap: 10px; padding: 8px; border-radius: 18px; }
+      .pcma-modal-top { min-height: 35px; padding: 6px; }
+      .pcma-modal-top-cid { font-size: 1rem; letter-spacing: 1px; }
       
-      .pcma-hero { border-radius: 18px; }
-      .pcma-hero img { height: 180px; }
+      .pcma-primary-label { flex: 0 0 65px; font-size: 0.5rem; letter-spacing: 0px; line-height: 1; } 
+      .pcma-primary-value { font-size: 0.65rem; padding: 2px 4px; border-width: 1px; }
+      .pcma-primary-col { gap: 2px; padding: 6px; border-radius: 10px; border-width: 1px; box-shadow: none; }
+      .pcma-primary { gap: 6px; padding: 6px; border-radius: 12px; border-width: 2px; }
       
-      #pcmaModalButtons { gap: 8px; padding: 8px 12px 16px; }
-      .modal-btn-3d { padding: 8px 6px; font-size: 0.65rem; gap: 6px; border-radius: 14px; }
-      .modal-btn-3d svg { width: 28px; height: 28px; }
+      .pcma-hero { border-radius: 12px; border-width: 2px;}
+      .pcma-hero img { height: 120px; }
       
-      .pcma-mini-bars { padding: 10px; gap: 8px; border-radius: 18px; }
-      .pcma-mini-label { font-size: 0.6rem; width: 65px; }
-      .pcma-mini-bar { height: 20px; }
-      .pcma-mini-fill { font-size: 0.65rem; }
+      #pcmaModalButtons { gap: 6px; padding: 4px 8px 10px; }
+      .modal-btn-3d { padding: 6px 4px; font-size: 0.55rem; gap: 4px; border-radius: 10px; }
+      .modal-btn-3d svg { width: 20px; height: 20px; }
       
-      .pcma-progress-label { font-size: 0.8rem; margin-bottom: 6px; }
-      .pcma-progress-bar { height: 28px; border-radius: 14px; }
-      .pcma-progress-fill { font-size: 0.8rem; line-height: 24px; border-radius: 12px; }
+      .pcma-mini-bars { padding: 8px; gap: 6px; border-radius: 12px; border-width: 2px; margin-top: 4px; }
+      .pcma-mini-label { font-size: 0.5rem; width: 50px; }
+      .pcma-mini-bar { height: 14px; border-width: 1px; }
+      .pcma-mini-fill { font-size: 0.55rem; padding: 0 6px; }
       
-      .pcma-team { padding: 8px; border-radius: 18px; margin-top: 8px; }
-      .pcma-team-label { font-size: 0.8rem; margin-bottom: 8px; }
-      .team-member { padding: 4px 8px; gap: 4px; border-width: 1px; }
-      .team-name { font-size: 0.65rem; }
-      .team-role { font-size: 0.55rem; padding: 2px 4px; }
+      .pcma-progress-label { font-size: 0.65rem; margin-bottom: 4px; }
+      .pcma-progress-bar { height: 20px; border-radius: 10px; border-width: 2px; }
+      .pcma-progress-fill { font-size: 0.65rem; line-height: 16px; border-radius: 8px; }
       
-      .photo-section-title { font-size: 0.9rem; padding: 6px 0; margin: 10px 0; }
-      .pcma-photo-grid { gap: 10px; }
-      .pcma-photo-card { padding: 8px; border-radius: 18px; }
-      .pcma-photo-card img { border-radius: 10px; margin-bottom: 8px; }
+      .pcma-team { padding: 6px; border-radius: 12px; margin-top: 4px; border-width: 2px; }
+      .pcma-team-label { font-size: 0.65rem; margin-bottom: 6px; }
+      .team-grid { gap: 4px; }
+      .team-member { padding: 2px 6px; gap: 3px; border-width: 1px; }
+      .team-name { font-size: 0.55rem; }
+      .team-role { font-size: 0.45rem; padding: 1px 3px; border-width: 1px; }
       
-      .action-btn-3d { font-size: 0.55rem; padding: 4px; border-radius: 8px; gap: 2px; }
-      .action-btn-3d svg { width: 12px; height: 12px; }
+      #pcmaModalPhotos { padding: 0 8px 60px; }
+      .photo-section-title { font-size: 0.75rem; padding: 4px 0; margin: 6px 0; border-width: 2px; }
+      .pcma-photo-grid { gap: 6px; }
+      .pcma-photo-card { padding: 6px; border-radius: 12px; border-width: 2px; }
+      .pcma-photo-card img { border-radius: 8px; margin-bottom: 6px; }
+      
+      .action-btn-3d { font-size: 0.5rem; padding: 4px 2px; border-radius: 6px; gap: 2px; border-width: 1px; }
+      .action-btn-3d svg { width: 10px; height: 10px; }
       .action-btn-3d span { white-space: nowrap; }
     }
   </style>
