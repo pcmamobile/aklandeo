@@ -72,7 +72,6 @@
       .icon-3d-red { background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(1px 2px 0px rgba(193, 18, 31, 0.4)); display: inline-block; }
       .icon-3d-pastel { background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(2px 3px 0px rgba(142, 197, 252, 0.6)); display: inline-block; }
 
-      /* Spacing fixes for small icons */
       .gallery-header i, .category h3 i, #history-container h3 i { margin-right: 8px; }
       .file-name i, .history-name i { margin-right: 5px; }
       .history-time i { margin-right: 4px; }
@@ -107,7 +106,6 @@
         text-shadow: 2px 2px 4px rgba(255,255,255,0.6);
       }
 
-      /* Main 3D Colorful App Icon */
       .app-title i { 
         background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%);
         -webkit-background-clip: text;
@@ -132,7 +130,6 @@
       
       .input-wrapper { position: relative; }
       
-      /* Input field 3D Icons */
       .input-wrapper i {
         position: absolute;
         left: 16px;
@@ -161,7 +158,6 @@
         box-shadow: inset 0 3px 6px rgba(0,0,0,0.04);
       }
       
-      /* 3D Colorful Highlight on Input Focus */
       input[type="text"]:focus {
         outline: none;
         border-color: var(--color-blue);
@@ -175,7 +171,6 @@
         filter: drop-shadow(2px 2px 0px rgba(0, 132, 227, 0.4));
       }
 
-      /* 3D Button Styles */
       .btn-3d { 
         display: flex;
         align-items: center;
@@ -197,7 +192,6 @@
       }
       .btn-3d:active { transform: translateY(6px); }
 
-      /* White icons pop subtly on colored buttons */
       .btn-3d i, .actions a i {
         filter: drop-shadow(1px 2px 1px rgba(0,0,0,0.4));
       }
@@ -252,9 +246,7 @@
       .log-entry { margin-bottom: 5px; padding-bottom: 5px; border-bottom: 1px dashed #dfe6e9; line-height: 1.4; }
       .log-entry:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
 
-      /* -------------------------------------------
-         NEW GOOGLE DRIVE STYLE QUEUE LIST
-         ------------------------------------------- */
+      /* NEW GOOGLE DRIVE STYLE QUEUE LIST */
       #queue-list {
         margin-top: 20px;
         background: #ffffff;
@@ -267,36 +259,12 @@
       #queue-list::-webkit-scrollbar { width: 6px; }
       #queue-list::-webkit-scrollbar-thumb { background: #b2bec3; border-radius: 10px; }
       
-      .queue-item {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 12px 16px;
-        border-bottom: 1px solid #f1f2f6;
-      }
+      .queue-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid #f1f2f6; }
       .queue-item:last-child { border-bottom: none; }
-      
-      .queue-item-left {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        font-size: 14px;
-        font-weight: 600;
-        color: var(--text-main);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-      /* Red mountain image icon typical of Google Drive */
+      .queue-item-left { display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 600; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
       .queue-item-left i { color: #e74c3c; font-size: 18px; } 
-      
-      .queue-item-right {
-        display: flex;
-        align-items: center;
-        font-size: 20px;
-      }
+      .queue-item-right { display: flex; align-items: center; font-size: 20px; }
 
-      /* Status Icon States */
       .status-pending { color: #dfe6e9; }
       .status-uploading { color: var(--color-blue); }
       .status-success { color: #2ecc71; filter: drop-shadow(0 2px 4px rgba(46, 204, 113, 0.3)); }
@@ -344,87 +312,17 @@
       .history-action { color: var(--text-main); font-weight: 600; display: flex; align-items: center; gap: 8px;}
       .history-action i { color: var(--color-green); }
 
-
       /* ==========================================
          GALLERY VIEW STYLES
          ========================================== */
-      .gallery-header { 
-        text-align: center; 
-        color: var(--text-main); 
-        font-size: 24px;
-        background: white;
-        padding: 15px;
-        border-radius: 16px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        border-top: 2px solid #fff;
-        margin-top: 20px;
-        margin-bottom: 30px;
-        font-weight: 800;
-      }
-
-      .category { 
-        margin-top: 25px; 
-        background: #f8fafc; 
-        padding: 25px; 
-        border-radius: 16px; 
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05), inset 0 2px 4px rgba(255, 255, 255, 0.8);
-        border: 1px solid #e2e8f0;
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-        box-sizing: border-box;
-        height: max-content; 
-      }
-      .category h3 { 
-        margin-top: 0; 
-        color: #334155; 
-        border-bottom: 3px solid #cbd5e1; 
-        padding-bottom: 12px; 
-        font-size: 18px; 
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        gap: 10px;
-        width: 100%;
-      }
+      .gallery-header { text-align: center; color: var(--text-main); font-size: 24px; background: white; padding: 15px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); border-top: 2px solid #fff; margin-top: 20px; margin-bottom: 30px; font-weight: 800; }
+      .category { margin-top: 25px; background: #f8fafc; padding: 25px; border-radius: 16px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05), inset 0 2px 4px rgba(255, 255, 255, 0.8); border: 1px solid #e2e8f0; display: flex; flex-direction: column; width: 100%; box-sizing: border-box; height: max-content; }
+      .category h3 { margin-top: 0; color: #334155; border-bottom: 3px solid #cbd5e1; padding-bottom: 12px; font-size: 18px; display: flex; align-items: center; justify-content: center; text-align: center; gap: 10px; width: 100%; }
       .category h3 i { color: #6366f1; }
-      
-      .photo-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 350px));
-        justify-content: center;
-        align-items: start;
-        gap: 30px;
-        margin-top: 20px;
-        width: 100%;
-      }
-
-      .photo-card {
-        background: #ffffff;
-        border-radius: 12px;
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.08), 0 6px 6px rgba(0,0,0,0.04);
-        border: 1px solid #f1f5f9;
-        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
-      }
-      .photo-card:hover {
-        transform: translateY(-8px) scale(1.02);
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-      }
-
-      .photo-img {
-        width: 100%;
-        height: 300px;
-        object-fit: contain;
-        display: block;
-        background: #f1f5f9; 
-        border-bottom: 2px solid #e2e8f0;
-      }
-
+      .photo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 350px)); justify-content: center; align-items: start; gap: 30px; margin-top: 20px; width: 100%; }
+      .photo-card { background: #ffffff; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; width: 100%; box-shadow: 0 10px 20px rgba(0,0,0,0.08), 0 6px 6px rgba(0,0,0,0.04); border: 1px solid #f1f5f9; transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease; }
+      .photo-card:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
+      .photo-img { width: 100%; height: 300px; object-fit: contain; display: block; background: #f1f5f9; border-bottom: 2px solid #e2e8f0; }
       .photo-details { padding: 15px; display: flex; flex-direction: column; gap: 12px; }
       .file-name { font-size: 14px; color: #475569; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: center; font-weight: 600; }
       .file-name i { color: #94a3b8; margin-right: 5px; }
@@ -443,16 +341,8 @@
       
       .gallery-error-msg { color: #ef4444; font-weight: bold; margin-top: 10px; }
       .empty-msg { font-size: 14px; color: #64748b; font-style: italic; text-align: center; padding: 20px; width: 100%;}
-      
 
-      /* Hide detailed logs on mobile to prevent lag on older devices */
-      @media (max-width: 768px) {
-        #upload-log, #queue-list {
-          display: none !important;
-        }
-      }
-
-      /* Mobile Responsive Adjustments */
+      @media (max-width: 768px) { #upload-log, #queue-list { display: none !important; } }
       @media (max-width: 480px) {
         body { padding: 10px; }
         .app-container { padding: 20px 15px; border-radius: 20px; margin-top: 10px; margin-bottom: 10px; }
@@ -509,10 +399,10 @@
 
         <div id="loader"><i class="fa-solid fa-arrows-rotate fa-spin icon-3d-blue"></i> <span id="loader-text">Syncing folders...</span></div>
 
-        <!-- NEW SEPARATED PROGRESS LAYOUT (DUAL BARS) -->
+        <!-- NEW SEPARATED PROGRESS LAYOUT -->
         <div id="progress-container">
           
-          <!-- Bar 1: Network Upload (Bytes) -->
+          <!-- Bar 1: Network Upload (REAL Bytes!) -->
           <div class="progress-header">
             <span id="progress-status"><i class="fa-solid fa-network-wired icon-3d-blue"></i> Uploading to Server...</span>
             <span id="network-percent">0%</span>
@@ -524,9 +414,9 @@
             <span id="progress-size">0.00 / 0.00 MB</span>
           </div>
 
-          <!-- Bar 2: Backend Processing (Files Saved) -->
+          <!-- Bar 2: Backend Processing -->
           <div class="progress-header">
-            <span id="processing-status"><i class="fa-solid fa-hard-drive icon-3d-purple"></i> Waiting to Save...</span>
+            <span id="processing-status"><i class="fa-solid fa-hard-drive icon-3d-purple"></i> Saving...</span>
             <span id="processing-percent">0%</span>
           </div>
           <div class="progress-track">
@@ -536,13 +426,9 @@
             <span id="progress-stats">0/0 Photos Saved</span>
           </div>
 
-          <!-- DETAILED SERVER LOG (Shows Which Server is Uploading What + Timer) -->
           <div id="upload-log"></div>
-
-          <!-- GOOGLE DRIVE STYLE QUEUE LIST -->
           <div id="queue-list"></div>
 
-          <!-- RESET / CANCEL BUTTON -->
           <button class="btn-3d btn-red" style="margin-top: 25px; padding: 12px; font-size: 14px;" onclick="cancelUpload()">
             <i class="fa-solid fa-rotate-left"></i> Reset / Cancel Upload
           </button>
@@ -553,11 +439,9 @@
         <button id="btn-precon" class="btn-3d btn-grey" onclick="triggerUpload('PRE-CON')">
           <i class="fa-solid fa-clipboard-list"></i> PRE-CON (Empty)
         </button>
-        
         <button id="btn-ongoing" class="btn-3d btn-grey" onclick="triggerUpload('ON-GOING')">
           <i class="fa-solid fa-person-digging"></i> ON-GOING (Empty)
         </button>
-        
         <button id="btn-completed" class="btn-3d btn-grey" onclick="triggerUpload('COMPLETED')">
           <i class="fa-solid fa-check-double"></i> COMPLETED (Empty)
         </button>
@@ -582,59 +466,38 @@
       </div>
     </div>
 
-
     <!-- ========================================== -->
     <!--                GALLERY VIEW                -->
     <!-- ========================================== -->
     <div id="gallery-view">
-      <!-- Back Button to return to Upload View -->
       <button class="btn-3d btn-grey" style="max-width: 250px; margin: 20px auto 10px auto;" onclick="switchView('upload')">
         <i class="fa-solid fa-arrow-left"></i> Back to Upload
       </button>
-
       <div class="gallery-header"><i class="fa-solid fa-folder-open icon-3d-orange"></i> Contract Photos: <span id="cid-display">...</span></div>
-      
       <div id="gallery-loader"><i class="fa-solid fa-circle-notch fa-spin icon-3d-blue"></i> Loading Contract details...</div>
       <div id="gallery-content"></div>
     </div>
 
-
     <!-- ========================================== -->
     <!--                   MODALS                   -->
     <!-- ========================================== -->
-
-    <!-- Upload Summary Modal -->
     <div id="modal-overlay">
       <div id="modal-content">
         <div class="modal-icon"><i class="fa-solid fa-check"></i></div>
         <h3>Upload Complete</h3>
-        
-        <div class="modal-stat success-text">
-          <i class="fa-solid fa-file-circle-check icon-3d-green"></i> Successfully Uploaded: <span id="success-count">0</span>
-        </div>
-        
-        <div class="modal-stat fail-text" id="fail-container">
-          <i class="fa-solid fa-file-circle-xmark icon-3d-red"></i> Failed to Upload: <span id="fail-count">0</span>
-        </div>
-        
-        <button class="btn-3d btn-blue" style="margin-top: 15px;" onclick="closeModal()">
-          <i class="fa-solid fa-thumbs-up"></i> Awesome
-        </button>
-        <button id="retry-btn" class="btn-3d btn-red" style="display:none;" onclick="retryFailed()">
-          <i class="fa-solid fa-rotate-right"></i> Retry Failed
-        </button>
+        <div class="modal-stat success-text"><i class="fa-solid fa-file-circle-check icon-3d-green"></i> Successfully Uploaded: <span id="success-count">0</span></div>
+        <div class="modal-stat fail-text" id="fail-container"><i class="fa-solid fa-file-circle-xmark icon-3d-red"></i> Failed to Upload: <span id="fail-count">0</span></div>
+        <button class="btn-3d btn-blue" style="margin-top: 15px;" onclick="closeModal()"><i class="fa-solid fa-thumbs-up"></i> Awesome</button>
+        <button id="retry-btn" class="btn-3d btn-red" style="display:none;" onclick="retryFailed()"><i class="fa-solid fa-rotate-right"></i> Retry Failed</button>
       </div>
     </div>
 
-    <!-- Custom Alert Modal -->
     <div id="custom-alert" style="z-index: 2000;">
       <div class="alert-content">
         <div class="modal-icon warning"><i class="fa-solid fa-exclamation"></i></div>
         <h3>Notice</h3>
         <p id="custom-alert-msg" style="color:var(--text-main); font-size:15px; font-weight:600; margin-bottom:25px; white-space: pre-wrap;"></p>
-        <button id="custom-alert-btn" class="btn-3d btn-blue" style="margin-top:0;">
-          <i class="fa-solid fa-check"></i> Got it
-        </button>
+        <button id="custom-alert-btn" class="btn-3d btn-blue" style="margin-top:0;"><i class="fa-solid fa-check"></i> Got it</button>
       </div>
     </div>
 
@@ -643,25 +506,15 @@
       // CONFIGURATION & API
       // ==========================================
       
-      // MULTI-SERVER LOAD BALANCING
-      const API_URLS = [
-        "https://script.google.com/macros/s/AKfycbwJURL_2exE3PZ05gaStHlLz9iITcTdXKSmmm25y2482r4VjhQHB1mZJPss0E-wT01n/exec", 
-        "https://script.google.com/macros/s/AKfycbwr7qqGcaeZA9qSjxyqGOlOU6v-PqGDVUX5mzTWPVir2O-UzAUso-Jng8gD5ovu2ycP/exec", 
-        "https://script.google.com/macros/s/AKfycbyiuaDODet3Ty6kPasdlNmqo2UTcnthza2IMvNb_zp0DisMHvueTDcnyvCrfoT59icE/exec", 
-        "https://script.google.com/macros/s/AKfycbzpZJ9zWubaotEe7f39H4MOe3AVFm_7OvE-MXvX35FOr4adNlegwvcAT8ZsLmHGBi5i9Q/exec", 
-        "https://script.google.com/macros/s/AKfycbzo5_MGPT3bdHY6rx4nIUiKzxcrdREYD93xMu4T_uBuf42P4PZbWygFcx9A6yDQwNveVA/exec"  
-      ];
-      
-      const PRIMARY_API_URL = API_URLS[0]; // Used for reading gallery/stats
+      // ONLY ONE SCRIPT URL NEEDED! 
+      // The massive Google Drive API directly handles infinite load balancing automatically.
+      const API_URL = "https://script.google.com/macros/s/AKfycbxf_saXC_yEc9TgIeoUsUhLsNW7mPSGjxGzkB1qSiyXstpKXeNldxcUlvCwZpJmz5HaXg/exec"; 
       
       const MAX_SIMULTANEOUS_UPLOADS = 5; 
-      
-      // Maximum number of files a user is allowed to select at once (prevents memory crashes)
       const MAX_FILES_PER_BATCH = 100;
 
       let isUploading = false;     
       let currentBatchId = 0;      
-      let activeIntervals = [];    
       let currentCategory = '';
       let totalBytes = 0;
       let totalPhotos = 0;
@@ -682,12 +535,10 @@
         }
       };
 
-      // --- Navigation / View Switching ---
       function switchView(viewName) {
         if (viewName === 'gallery') {
           let cid = document.getElementById('cid').value.trim();
           if (!cid) { showMessage("Please enter a Contract ID first to view its gallery."); return; }
-          
           document.getElementById('upload-view').style.display = 'none';
           document.getElementById('gallery-view').style.display = 'block';
           window.scrollTo(0, 0); 
@@ -700,22 +551,19 @@
         }
       }
 
-      // --- Highly Reliable API Wrappers ---
       async function apiGet(action, params = {}) {
-        let url = new URL(PRIMARY_API_URL);
+        let url = new URL(API_URL);
         url.searchParams.append('action', action);
         for (let k in params) url.searchParams.append(k, params[k]);
-        
         let response = await fetch(url);
         let json = await response.json();
         if (json.status !== 'success') throw new Error(json.message);
         return json.data;
       }
 
-      // Updated to accept a specific endpoint URL for Load Balancing
-      async function apiPost(action, payload, customEndpointUrl = PRIMARY_API_URL) {
+      async function apiPost(action, payload) {
         payload.action = action;
-        let response = await fetch(customEndpointUrl, {
+        let response = await fetch(API_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify(payload)
@@ -725,7 +573,6 @@
         return json.data;
       }
 
-      // --- UI Utilities ---
       function showMessage(msg, callback = null) {
         document.getElementById('custom-alert-msg').innerText = msg;
         document.getElementById('custom-alert').style.display = 'flex';
@@ -735,14 +582,10 @@
         };
       }
 
-      function showLoader(msg) { 
-        document.getElementById('loader-text').innerText = msg; 
-        document.getElementById('loader').style.display = 'block'; 
-      }
+      function showLoader(msg) { document.getElementById('loader-text').innerText = msg; document.getElementById('loader').style.display = 'block'; }
       function hideLoader() { document.getElementById('loader').style.display = 'none'; }
       function showError(err) { hideLoader(); showMessage("Error: " + err.message); }
 
-      // Adds messages directly to the UI box below the progress bars
       function addUploadLog(htmlString) {
         let logDiv = document.getElementById('upload-log');
         if (!logDiv) return;
@@ -750,30 +593,17 @@
         entry.className = 'log-entry';
         entry.innerHTML = htmlString;
         logDiv.appendChild(entry);
-        logDiv.scrollTop = logDiv.scrollHeight; // Auto-scroll to latest
+        logDiv.scrollTop = logDiv.scrollHeight;
       }
 
-      // ==========================================
-      // QUEUE UI LOGIC (Google Drive Style)
-      // ==========================================
       function initializeQueueUI() {
         let queueList = document.getElementById('queue-list');
-        queueList.innerHTML = ''; // Clear previous
-        
+        queueList.innerHTML = '';
         pendingFiles.forEach((file, index) => {
           let item = document.createElement('div');
           item.className = 'queue-item';
           item.id = `queue-item-${index}`;
-          
-          item.innerHTML = `
-            <div class="queue-item-left">
-              <i class="fa-solid fa-image"></i>
-              <span>${file.name}</span>
-            </div>
-            <div class="queue-item-right status-pending" id="queue-status-${index}">
-              <i class="fa-regular fa-circle"></i>
-            </div>
-          `;
+          item.innerHTML = `<div class="queue-item-left"><i class="fa-solid fa-image"></i><span>${file.name}</span></div><div class="queue-item-right status-pending" id="queue-status-${index}"><i class="fa-regular fa-circle"></i></div>`;
           queueList.appendChild(item);
         });
       }
@@ -781,10 +611,7 @@
       function updateQueueStatus(index, status) {
         let statusDiv = document.getElementById(`queue-status-${index}`);
         if (!statusDiv) return;
-        
-        // Remove existing classes
         statusDiv.classList.remove('status-pending', 'status-uploading', 'status-success', 'status-error');
-        
         if (status === 'uploading') {
           statusDiv.classList.add('status-uploading');
           statusDiv.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i>`;
@@ -795,85 +622,49 @@
           statusDiv.classList.add('status-error');
           statusDiv.innerHTML = `<i class="fa-solid fa-circle-xmark"></i>`;
         }
-        
-        // Auto scroll to the active item
         let itemDiv = document.getElementById(`queue-item-${index}`);
-        if (itemDiv) {
-            itemDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
+        if (itemDiv) itemDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
 
-      // ==========================================
-      // UPLOAD LOGIC
-      // ==========================================
       async function loadStats() {
         let cid = document.getElementById('cid').value.trim();
         if (!cid) return;
         showLoader("Checking records...");
-        
         try {
           let stats = await apiGet('getFolderStats', { contractId: cid });
           updateButtons(stats);
           loadHistory(cid);
-        } catch (err) {
-          showError(err);
-        }
+        } catch (err) { showError(err); }
       }
 
       async function loadHistory(cid) {
         try {
           let historyData = await apiGet('getUploadHistory', { contractId: cid });
           displayHistory(historyData);
-        } catch (err) {
-          console.error("Failed to load history", err);
-        }
+        } catch (err) { console.error("Failed to load history", err); }
       }
 
       function displayHistory(historyData) {
         let list = document.getElementById('history-list');
         list.innerHTML = "";
-        
         if (historyData.length === 0) {
-          list.innerHTML = `
-            <div style='text-align:center; color:#a4b0be; font-size:14px; padding: 20px 0; font-weight: 600;'>
-              <i class="fa-solid fa-folder-open icon-3d-pastel" style="font-size: 32px; display:block; margin-bottom: 10px;"></i>
-              No upload history yet.
-            </div>`;
+          list.innerHTML = `<div style='text-align:center; color:#a4b0be; font-size:14px; padding: 20px 0; font-weight: 600;'><i class="fa-solid fa-folder-open icon-3d-pastel" style="font-size: 32px; display:block; margin-bottom: 10px;"></i>No upload history yet.</div>`;
           return;
         }
-
         historyData.forEach(item => {
           let div = document.createElement('div');
           div.className = "history-item";
-          
           let d = new Date(item.timestamp);
           let formattedDate = item.timestamp; 
-          
           if (!isNaN(d.getTime())) {
              let months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-             let month = months[d.getMonth()];
-             let day = d.getDate();
-             let year = d.getFullYear();
-             
              let hours = d.getHours();
              let minutes = d.getMinutes().toString().padStart(2, '0');
              let ampm = hours >= 12 ? 'PM' : 'AM';
-             
-             hours = hours % 12;
-             hours = hours ? hours : 12; 
-             
-             formattedDate = `${month} ${day}, ${year} : ${hours}:${minutes} ${ampm}`;
+             hours = hours % 12; hours = hours ? hours : 12; 
+             formattedDate = `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()} : ${hours}:${minutes} ${ampm}`;
           }
-          
-          div.innerHTML = `
-            <div class="history-header">
-              <span class="history-name"><i class="fa-solid fa-user-circle icon-3d-blue"></i> ${item.uploader}</span> 
-              <span class="history-time"><i class="fa-regular fa-clock icon-3d-orange"></i> ${formattedDate}</span>
-            </div>
-            <div class="history-action">
-              <i class="fa-solid fa-image icon-3d-green"></i> Uploaded ${item.count} Photos
-            </div>
-          `;
+          div.innerHTML = `<div class="history-header"><span class="history-name"><i class="fa-solid fa-user-circle icon-3d-blue"></i> ${item.uploader}</span><span class="history-time"><i class="fa-regular fa-clock icon-3d-orange"></i> ${formattedDate}</span></div><div class="history-action"><i class="fa-solid fa-image icon-3d-green"></i> Uploaded ${item.count} Photos</div>`;
           list.appendChild(div);
         });
       }
@@ -897,11 +688,7 @@
       }
 
       function triggerUpload(category) {
-        if (isUploading) {
-          showMessage("An upload is already in progress. Please wait for it to finish or click 'Reset / Cancel Upload' before starting a new one.");
-          return;
-        }
-
+        if (isUploading) { showMessage("An upload is already in progress."); return; }
         let cid = document.getElementById('cid').value.trim();
         if (!cid) { showMessage("Please enter a Contract ID first."); return; }
         let uploader = document.getElementById('uploader').value.trim();
@@ -913,19 +700,16 @@
 
       document.getElementById('file-input').addEventListener('change', async function(e) {
         if (e.target.files.length === 0) return;
-        
         let cid = document.getElementById('cid').value.trim();
         let filesToUpload = Array.from(e.target.files);
 
-        // Enforce the MAXIMUM BATCH SIZE limit
         if (filesToUpload.length > MAX_FILES_PER_BATCH) {
-          showMessage(`You can only upload a maximum of ${MAX_FILES_PER_BATCH} photos at a time. Please select fewer files to ensure a stable upload.`);
+          showMessage(`You can only upload a maximum of ${MAX_FILES_PER_BATCH} photos at a time.`);
           document.getElementById('file-input').value = ""; 
           return;
         }
         
         showLoader("Checking for duplicates...");
-
         try {
           let existingFiles = await apiGet('getExistingFiles', { contractId: cid, category: currentCategory });
           hideLoader();
@@ -934,8 +718,7 @@
           pendingFiles = [];
 
           filesToUpload.forEach(file => {
-            let isDuplicate = existingFiles.some(ex => ex.name === file.name && ex.size === file.size); // Strict check
-            if (isDuplicate) {
+            if (existingFiles.some(ex => ex.name === file.name && ex.size === file.size)) {
               duplicateCount++;
             } else {
               pendingFiles.push(file);
@@ -955,9 +738,7 @@
           } else {
             startBatchUpload();
           }
-        } catch (err) {
-          showError(err);
-        }
+        } catch (err) { showError(err); }
       });
 
       function retryFailed() {
@@ -966,235 +747,179 @@
         startBatchUpload();
       }
 
-      // COMPLETELY RESETS THE UPLOAD STATE
-      function cancelUpload() {
+      function cancelUpload(silent = false) {
         isUploading = false;
-        currentBatchId = 0; // Changing this instantly invalidates all background 'ghost' uploads
-        activeIntervals.forEach(clearInterval); // Stop progress bars
-        activeIntervals = [];
+        currentBatchId = 0; 
         
         document.getElementById('progress-container').style.display = 'none';
         document.getElementById('file-input').value = "";
-        document.getElementById('upload-log').innerHTML = ""; // Clear logs
-        document.getElementById('queue-list').innerHTML = ""; // Clear UI list
+        document.getElementById('upload-log').innerHTML = ""; 
+        document.getElementById('queue-list').innerHTML = ""; 
         
-        pendingFiles = [];
-        failedFiles = [];
-        uploadedFileIds = [];
-        loadedBytesMap = {};
-        completedPhotos = 0;
-        totalPhotos = 0;
-        totalBytes = 0;
-
-        showMessage("Upload cancelled and history cleaned. You can safely start a new upload.");
-      }
-
-      // HELPER: Extract File Reading into a Promise
-      function readFileAsBase64(file) {
-        return new Promise((resolve) => {
-          let reader = new FileReader();
-          reader.onload = e => resolve(e.target.result.split(',')[1]);
-          reader.readAsDataURL(file);
-        });
+        pendingFiles = []; failedFiles = []; uploadedFileIds = []; loadedBytesMap = {};
+        completedPhotos = 0; totalPhotos = 0; totalBytes = 0;
+        
+        if (!silent) {
+          showMessage("Upload cancelled and history cleaned. You can safely start a new upload.");
+        }
       }
 
       async function startBatchUpload() {
         if (pendingFiles.length === 0) return;
-
         isUploading = true;
-        currentBatchId = Date.now(); // Unique ID for this specific upload session
+        currentBatchId = Date.now(); 
 
-        document.getElementById('progress-status').innerHTML = '<i class="fa-solid fa-network-wired icon-3d-blue"></i> Uploading to Server...';
+        document.getElementById('progress-container').style.display = 'block';
+        document.getElementById('progress-status').innerHTML = '<i class="fa-solid fa-spinner fa-spin icon-3d-blue"></i> Getting secure connection...';
         document.getElementById('processing-status').innerHTML = '<i class="fa-solid fa-hard-drive icon-3d-purple"></i> Waiting...';
+        document.getElementById('upload-log').innerHTML = ""; 
         
-        document.getElementById('upload-log').innerHTML = ""; // Clear old logs
         failedFiles = [];
         totalBytes = pendingFiles.reduce((acc, file) => acc + file.size, 0);
         totalPhotos = pendingFiles.length;
         completedPhotos = 0;
         uploadedFileIds = [];
         loadedBytesMap = {}; 
-        activeIntervals.forEach(clearInterval);
-        activeIntervals = [];
-
-        document.getElementById('progress-container').style.display = 'block';
-        initializeQueueUI(); // Setup the visual list
+        
+        initializeQueueUI(); 
         updateOverallProgress();
+
+        // 1. GET SERVICE ACCOUNT PERMISSIONS FOR DIRECT UPLOAD
+        let uploadCreds;
+        try {
+            uploadCreds = await apiGet('getUploadCredentials', { contractId: document.getElementById('cid').value.trim(), category: currentCategory });
+        } catch(err) {
+            cancelUpload(true); // Clean up the UI silently
+            showError(err);     // Show the ACTUAL error message
+            return;
+        }
+
+        let targetFolderId = uploadCreds.folderId;
+        let accessToken = uploadCreds.token;
 
         const CONCURRENCY_LIMIT = MAX_SIMULTANEOUS_UPLOADS; 
         let activeUploads = 0;
         let currentIndex = 0;
         let myBatchId = currentBatchId;
 
-        // NEW STAGGERED QUEUE LOGIC
+        // 2. STAGGERED QUEUE LOGIC (Direct to Google Drive REST API)
         await new Promise((resolve) => {
-          
           async function processNext() {
-            // Stop processing if user cancelled
             if (myBatchId !== currentBatchId) return;
-
-            // Resolve if all files have been assigned and finished
             if (currentIndex >= pendingFiles.length) {
               if (activeUploads === 0) resolve();
               return;
             }
-
-            // Keep within the 5 simultaneous server limit
             if (activeUploads >= CONCURRENCY_LIMIT) return;
 
-            // Grab the next photo
-            let fileIndex = currentIndex;
-            currentIndex++;
+            let fileIndex = currentIndex++;
             activeUploads++;
-
             let file = pendingFiles[fileIndex];
             loadedBytesMap[fileIndex] = 0;
+            
             updateQueueStatus(fileIndex, 'uploading');
+            processNext(); // Stagger trigger
 
-            // --- STEP 1: CPU PHASE (Read Photo to Memory) ---
-            // This waits for the heavy reading part to finish before doing anything else
-            let base64 = await readFileAsBase64(file);
+            // 3. EXECUTE TRUE NETWORK UPLOAD TO GOOGLE API
+            await executeNetworkUpload(file, fileIndex, targetFolderId, accessToken, myBatchId);
 
-            if (myBatchId !== currentBatchId) {
-                activeUploads--;
-                return;
-            }
-
-            // --- STEP 2: STAGGER EFFECT ---
-            // "when it detects that it is starting to save upload the 2nd Photos"
-            // At this precise moment, we trigger the next photo in line to start reading
-            // while the current one begins its network upload.
-            processNext(); 
-
-            // --- STEP 3: NETWORK PHASE (Save to Apps Script) ---
-            await executeNetworkUpload(file, fileIndex, base64, myBatchId);
-
-            // Mark slot as free and try to process more
             activeUploads--;
             if (myBatchId === currentBatchId) {
                processNext(); 
-               if (activeUploads === 0 && currentIndex >= pendingFiles.length) {
-                   resolve();
-               }
+               if (activeUploads === 0 && currentIndex >= pendingFiles.length) resolve();
             }
           }
-
-          // Kick off the very first photo
           processNext();
         });
 
-        // After all promises resolve, verify and finalize
         if (isUploading && myBatchId === currentBatchId) { 
           updateOverallProgress();
           finalizeUpload();
         }
       }
 
-      // Network Upload Logic (Isolated for cleaner staggering)
-      async function executeNetworkUpload(file, fileIndex, base64, myBatchId) {
-        let cid = document.getElementById('cid').value.trim();
-        let uploader = document.getElementById('uploader').value.trim();
-
-        let payload = {
-          contractId: cid,
-          category: currentCategory,
-          fileData: { fileName: file.name, mimeType: file.type, base64: base64 },
-          uploaderName: uploader
-        };
-
-        let serverIndex = fileIndex % API_URLS.length;
-        let targetServerUrl = API_URLS[serverIndex];
-        let serverName = `Server ${serverIndex + 1}`; 
-        
-        addUploadLog(`<span style="color:var(--color-blue)"><i class="fa-solid fa-spinner fa-spin"></i> [${serverName}] Processing: <strong style="color:var(--text-main)">${file.name}</strong></span>`);
-
+      // DIRECT GOOGLE DRIVE RESUMABLE UPLOAD (Bulletproof for large files)
+      async function executeNetworkUpload(file, fileIndex, folderId, accessToken, myBatchId) {
+        let serverName = `Drive API`; 
+        addUploadLog(`<span style="color:var(--color-blue)"><i class="fa-solid fa-spinner fa-spin"></i> [${serverName}] Uploading: <strong style="color:var(--text-main)">${file.name}</strong></span>`);
         let startTime = Date.now();
-        let simulatedSpeed = 1.5 * 1024 * 1024; 
-        let intervalTime = 150; 
-        let bytesPerInterval = simulatedSpeed * (intervalTime / 1000);
-        
-        let simInterval = setInterval(() => {
-          if (myBatchId !== currentBatchId) { 
-            clearInterval(simInterval);
-            return;
-          }
-
-          let currentLoaded = loadedBytesMap[fileIndex] || 0;
-          if (currentLoaded + bytesPerInterval < file.size) {
-            loadedBytesMap[fileIndex] = currentLoaded + bytesPerInterval;
-          } else {
-            loadedBytesMap[fileIndex] = file.size * 0.99; 
-          }
-          updateOverallProgress();
-        }, intervalTime);
-        
-        activeIntervals.push(simInterval);
 
         try {
-          // Action: uploadPhotoOnly (Does not lock Google Sheets)
-          let fileId = await apiPost('uploadPhotoOnly', payload, targetServerUrl);
+          // STEP 1: Initiate Resumable Upload
+          let metadata = { name: file.name, parents: [folderId] };
+          let contentType = file.type || 'application/octet-stream';
           
+          // ADDED supportsAllDrives=true to enable Shared Drive compatibility
+          let initRes = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable&supportsAllDrives=true', {
+            method: 'POST',
+            headers: {
+              'Authorization': 'Bearer ' + accessToken,
+              'Content-Type': 'application/json',
+              'X-Upload-Content-Type': contentType,
+              'X-Upload-Content-Length': file.size.toString()
+            },
+            body: JSON.stringify(metadata)
+          });
+
+          if (!initRes.ok) {
+            let errTxt = await initRes.text();
+            throw new Error(`Init Status ${initRes.status}: ${errTxt}`);
+          }
+
+          let uploadUrl = initRes.headers.get('Location');
+          if (!uploadUrl) throw new Error("No upload URL returned from Google.");
+
+          // STEP 2: Stream Raw File
+          let fileId = await new Promise((resolve, reject) => {
+              let xhr = new XMLHttpRequest();
+              xhr.open('PUT', uploadUrl, true);
+              xhr.setRequestHeader('Content-Type', contentType);
+              
+              xhr.upload.onprogress = function(e) {
+                  if (e.lengthComputable && myBatchId === currentBatchId) {
+                      loadedBytesMap[fileIndex] = e.loaded;
+                      updateOverallProgress();
+                  }
+              };
+              
+              xhr.onload = function() {
+                  if (xhr.status >= 200 && xhr.status < 300) {
+                      let response = JSON.parse(xhr.responseText);
+                      resolve(response.id);
+                  } else {
+                      reject(new Error(`PUT Status ${xhr.status}: ${xhr.responseText}`));
+                  }
+              };
+              
+              xhr.onerror = function() { reject(new Error("Network Error / CORS block during PUT.")); };
+              xhr.send(file);
+          });
+
           if (myBatchId !== currentBatchId) return;
 
-          clearInterval(simInterval);
           loadedBytesMap[fileIndex] = file.size; 
           completedPhotos++;
           uploadedFileIds.push(fileId);
           
           updateQueueStatus(fileIndex, 'success'); 
-          
           let timeTaken = ((Date.now() - startTime) / 1000).toFixed(1);
           addUploadLog(`<span style="color:var(--color-green)"><i class="fa-solid fa-check"></i> [${serverName}] Saved: <strong style="color:var(--text-main)">${file.name}</strong> (${timeTaken}s)</span>`);
-          
+
         } catch (err) {
           if (myBatchId !== currentBatchId) return; 
+          console.error(`Upload Error for ${file.name}:`, err);
+          loadedBytesMap[fileIndex] = 0; 
+          failedFiles.push(file);
           
-          console.warn(`[${serverName}] Upload Error for ${file.name}:`, err);
+          updateQueueStatus(fileIndex, 'error'); 
+          let timeTaken = ((Date.now() - startTime) / 1000).toFixed(1);
           
-          addUploadLog(`<span style="color:var(--color-orange)"><i class="fa-solid fa-magnifying-glass fa-beat-fade"></i> [${serverName}] Verifying Drive for: <strong style="color:var(--text-main)">${file.name}</strong>...</span>`);
-          
-          let isSaved = false;
-          // Poll up to 3 times
-          for (let i = 0; i < 3; i++) {
-            await new Promise(r => setTimeout(r, 5000));
-            if (myBatchId !== currentBatchId) return;
-            
-            try {
-              let existingFiles = await apiGet('getExistingFiles', { contractId: cid, category: currentCategory });
-              if (existingFiles.some(ex => ex.name === file.name)) {
-                isSaved = true;
-                break;
-              }
-            } catch(verErr) {}
-          }
-
-          if (isSaved) {
-            clearInterval(simInterval);
-            loadedBytesMap[fileIndex] = file.size; 
-            completedPhotos++;
-            uploadedFileIds.push(`recovered_file_${fileIndex}`);
-            
-            updateQueueStatus(fileIndex, 'success'); 
-            let timeTaken = ((Date.now() - startTime) / 1000).toFixed(1);
-            addUploadLog(`<span style="color:var(--color-green)"><i class="fa-solid fa-check-double"></i> [${serverName}] Verified Saved: <strong style="color:var(--text-main)">${file.name}</strong> (${timeTaken}s)</span>`);
-          } else {
-            clearInterval(simInterval);
-            loadedBytesMap[fileIndex] = 0; 
-            failedFiles.push(file);
-            
-            updateQueueStatus(fileIndex, 'error'); 
-            let timeTaken = ((Date.now() - startTime) / 1000).toFixed(1);
-            addUploadLog(`<span style="color:var(--color-red)"><i class="fa-solid fa-xmark"></i> [${serverName}] Failed: <strong style="color:var(--text-main)">${file.name}</strong> after ${timeTaken}s</span>`);
-          }
-        }
-        
-        if (myBatchId === currentBatchId) {
-           updateOverallProgress();
+          // Print exact error message right into the log box!
+          addUploadLog(`<span style="color:var(--color-red)"><i class="fa-solid fa-xmark"></i> [${serverName}] Failed: <strong style="color:var(--text-main)">${file.name}</strong><br><span style="font-size:10.5px; color:#c0392b; line-height: 1.2; display:block; margin-top:4px;">Error: ${err.message}</span></span>`);
         }
       }
 
       function updateOverallProgress() {
-        // --- 1. NETWORK PROGRESS UPDATE (Bytes) ---
         let totalLoadedBytes = Object.values(loadedBytesMap).reduce((acc, bytes) => acc + bytes, 0);
         let networkPercent = totalBytes === 0 ? 0 : Math.round((totalLoadedBytes / totalBytes) * 100);
         if (networkPercent > 100) networkPercent = 100; 
@@ -1212,7 +937,6 @@
           document.getElementById('progress-status').innerHTML = `<i class="fa-solid fa-network-wired icon-3d-blue"></i> Uploading to Server...`;
         }
 
-        // --- 2. PROCESSING/SAVING PROGRESS UPDATE (Files Completed) ---
         let processingPercent = totalPhotos === 0 ? 0 : Math.round((completedPhotos / totalPhotos) * 100);
         if (processingPercent > 100) processingPercent = 100;
 
@@ -1220,7 +944,6 @@
         document.getElementById('processing-percent').innerText = processingPercent + '%';
         document.getElementById('progress-stats').innerText = `${completedPhotos}/${totalPhotos} Photos Saved`;
 
-        // Added safeguard (pFile) to ensure old arrays don't crash when calculating
         let filesPendingServerResponse = Object.keys(loadedBytesMap).filter(k => {
           let pFile = pendingFiles[k];
           if (!pFile) return false;
@@ -1241,31 +964,20 @@
         let uploader = document.getElementById('uploader').value.trim();
 
         if (uploadedFileIds.length > 0) {
-          document.getElementById('processing-status').innerHTML = "<i class='fa-solid fa-spinner fa-spin icon-3d-orange'></i> Checking folder & recording IDs...";
-          
+          document.getElementById('processing-status').innerHTML = "<i class='fa-solid fa-spinner fa-spin icon-3d-orange'></i> Writing to Sheets...";
           try {
-            // New logic: Trigger backend to check the specific folder and write all File IDs to Sheets in a single batch
-            await apiPost('checkFolderAndWriteIds', {
-              contractId: cid,
-              category: currentCategory,
-              uploaderName: uploader,
-              numPhotos: uploadedFileIds.length // Passed correctly for the history log!
-            });
+            await apiPost('checkFolderAndWriteIds', { contractId: cid, category: currentCategory, uploaderName: uploader, numPhotos: uploadedFileIds.length });
             
             document.getElementById('processing-status').innerHTML = "<i class='fa-solid fa-spinner fa-spin icon-3d-blue'></i> Refreshing stats...";
             loadStats(); 
-            
             document.getElementById('file-input').value = ""; 
-            // Give user a moment to see the completed checkmarks before closing
+            
             setTimeout(() => {
                 document.getElementById('progress-container').style.display = 'none';
                 isUploading = false;
                 showSummaryModal();
             }, 1000);
-          } catch (err) {
-            showError(err);
-            isUploading = false;
-          }
+          } catch (err) { showError(err); isUploading = false; }
         } else {
           document.getElementById('progress-container').style.display = 'none';
           isUploading = false;
@@ -1276,7 +988,6 @@
       function showSummaryModal() {
         document.getElementById('success-count').innerText = uploadedFileIds.length;
         document.getElementById('fail-count').innerText = failedFiles.length;
-        
         if (failedFiles.length > 0) {
           document.getElementById('fail-container').style.display = 'flex';
           document.getElementById('retry-btn').style.display = 'inline-flex';
@@ -1284,20 +995,17 @@
           document.getElementById('fail-container').style.display = 'none';
           document.getElementById('retry-btn').style.display = 'none';
         }
-        
         document.getElementById('modal-overlay').style.display = 'flex';
       }
 
-      function closeModal() {
-        document.getElementById('modal-overlay').style.display = 'none';
-      }
+      function closeModal() { document.getElementById('modal-overlay').style.display = 'none'; }
 
       // ==========================================
       // GALLERY LOGIC
       // ==========================================
       async function loadGallery(cid) {
         document.getElementById('cid-display').innerText = cid;
-        document.getElementById('gallery-content').innerHTML = ""; // Clear old gallery
+        document.getElementById('gallery-content').innerHTML = ""; 
         document.getElementById('gallery-loader').style.display = 'block';
         document.getElementById('gallery-loader').innerHTML = '<i class="fa-solid fa-circle-notch fa-spin icon-3d-blue"></i> Fetching photos from Google Drive...';
         
@@ -1305,54 +1013,25 @@
           let data = await apiGet('getPhotosList', { contractId: cid });
           renderPhotos(data);
         } catch (error) {
-          showGalleryError(error);
+          document.getElementById('gallery-loader').innerHTML = `<div class="gallery-error-msg"><i class="fa-solid fa-circle-xmark icon-3d-red"></i> Error loading photos: ${error.message}</div>`;
         }
-      }
-
-      function showGalleryError(error) {
-        document.getElementById('gallery-loader').innerHTML = `
-          <div class="gallery-error-msg"><i class="fa-solid fa-circle-xmark icon-3d-red"></i> Error loading photos: ${error.message}</div>
-          <p style="font-size:13px; color:#64748b; margin-top: 8px;">Make sure the API URL is correct and the Contract ID exists.</p>
-        `;
-        console.error("Gallery API Error:", error);
       }
 
       function renderPhotos(data) {
         document.getElementById('gallery-loader').style.display = 'none';
-        let html = '';
-        
-        html += buildSection('<i class="fa-solid fa-truck-fast icon-3d-orange"></i> Mobilization (PRE-CON)', data?.preCon);
-        html += buildSection('<i class="fa-solid fa-person-digging icon-3d-blue"></i> On-Going', data?.onGoing);
-        html += buildSection('<i class="fa-solid fa-check-double icon-3d-green"></i> Completed', data?.completed);
-        
+        let html = buildSection('<i class="fa-solid fa-truck-fast icon-3d-orange"></i> Mobilization (PRE-CON)', data?.preCon) +
+                   buildSection('<i class="fa-solid fa-person-digging icon-3d-blue"></i> On-Going', data?.onGoing) +
+                   buildSection('<i class="fa-solid fa-check-double icon-3d-green"></i> Completed', data?.completed);
         document.getElementById('gallery-content').innerHTML = html;
       }
 
       function buildSection(title, files) {
-        if (!files || files.length === 0) {
-          return `<div class="category"><h3>${title}</h3><p class="empty-msg"><i class="fa-regular fa-image icon-3d-pastel" style="font-size: 32px; display:block; margin-bottom: 10px;"></i> No photos uploaded yet.</p></div>`;
-        }
-        
+        if (!files || files.length === 0) return `<div class="category"><h3>${title}</h3><p class="empty-msg"><i class="fa-regular fa-image icon-3d-pastel" style="font-size: 32px; display:block; margin-bottom: 10px;"></i> No photos uploaded yet.</p></div>`;
         let gridHtml = files.map(f => {
           let fileId = f.id || (f.downloadUrl ? f.downloadUrl.split('id=')[1] : '');
           let thumbUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=s800`;
-          
-          return `
-            <div class="photo-card">
-              <a href="${f.url}" target="_blank" title="Click to view full size">
-                <img src="${thumbUrl}" alt="${f.name}" class="photo-img" loading="lazy" onerror="this.src='https://via.placeholder.com/300?text=No+Preview'">
-              </a>
-              <div class="photo-details">
-                <div class="file-name" title="${f.name}"><i class="fa-regular fa-image icon-3d-purple"></i> ${f.name}</div>
-                <div class="actions">
-                  <a href="${f.url}" target="_blank" class="btn-view"><i class="fa-solid fa-eye"></i> View</a>
-                  <a href="${f.downloadUrl}" class="btn-dl" download><i class="fa-solid fa-cloud-arrow-down"></i> Download</a>
-                </div>
-              </div>
-            </div>
-          `;
+          return `<div class="photo-card"><a href="${f.url}" target="_blank" title="Click to view full size"><img src="${thumbUrl}" alt="${f.name}" class="photo-img" loading="lazy" onerror="this.src='https://via.placeholder.com/300?text=No+Preview'"></a><div class="photo-details"><div class="file-name" title="${f.name}"><i class="fa-regular fa-image icon-3d-purple"></i> ${f.name}</div><div class="actions"><a href="${f.url}" target="_blank" class="btn-view"><i class="fa-solid fa-eye"></i> View</a><a href="${f.downloadUrl}" class="btn-dl" download><i class="fa-solid fa-cloud-arrow-down"></i> Download</a></div></div></div>`;
         }).join('');
-        
         return `<div class="category"><h3>${title}</h3><div class="photo-grid">${gridHtml}</div></div>`;
       }
     </script>
