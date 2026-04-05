@@ -343,14 +343,28 @@
       .empty-msg { font-size: 14px; color: #64748b; font-style: italic; text-align: center; padding: 20px; width: 100%;}
 
       @media (max-width: 768px) { #upload-log, #queue-list { display: none !important; } }
+      
+      /* Mobile Responsive Adjustments - OPTIMIZED FOR LOW SPEC PHONES */
       @media (max-width: 480px) {
         body { padding: 10px; }
-        .app-container { padding: 20px 15px; border-radius: 20px; margin-top: 10px; margin-bottom: 10px; }
+        
+        /* 1. Remove backdrop-filter (blur) on mobile to save massive GPU rendering power */
+        .app-container { 
+          padding: 20px 15px; 
+          border-radius: 20px; 
+          margin-top: 10px; 
+          margin-bottom: 10px; 
+          backdrop-filter: none !important; 
+          background: rgba(255,255,255, 0.95); 
+          border: 1px solid #dfe6e9;
+        }
+        
         .app-title { font-size: 20px; margin-bottom: 15px; }
         label { font-size: 13px; }
         input[type="text"] { padding: 12px 12px 12px 35px; font-size: 14px; }
         .input-wrapper i { font-size: 15px; left: 12px; }
-        .btn-3d { padding: 12px; font-size: 14px; margin-bottom: 12px; border-radius: 12px; }
+        .btn-3d { padding: 12px; font-size: 14px; margin-bottom: 12px; border-radius: 12px; box-shadow: 0 4px 0 rgba(0,0,0,0.1); }
+        .btn-3d:active { transform: translateY(4px); box-shadow: 0 0 0 rgba(0,0,0,0.1); }
         #progress-container { padding: 12px; margin-bottom: 15px; }
         .progress-header { font-size: 13px; }
         .progress-track { height: 16px; }
@@ -506,11 +520,8 @@
       // CONFIGURATION & API
       // ==========================================
       
-      // ONLY ONE SCRIPT URL NEEDED! 
-      // The massive Google Drive API directly handles infinite load balancing automatically.
       const API_URL = "https://script.google.com/macros/s/AKfycbxf_saXC_yEc9TgIeoUsUhLsNW7mPSGjxGzkB1qSiyXstpKXeNldxcUlvCwZpJmz5HaXg/exec"; 
       
-      const MAX_SIMULTANEOUS_UPLOADS = 5; 
       const MAX_FILES_PER_BATCH = 100;
 
       let isUploading = false;     
@@ -523,6 +534,12 @@
       let pendingFiles = [];
       let failedFiles = [];
       let loadedBytesMap = {}; 
+      
+      // OPTIMIZATION 1: Global interval variable for UI throttling
+      let uiUpdateInterval = null;
+
+      // Helper function to check if device is mobile
+      const isMobile = () => window.innerWidth <= 768;
 
       window.onload = function() {
         const urlParams = new URLSearchParams(window.location.search);
@@ -587,6 +604,9 @@
       function showError(err) { hideLoader(); showMessage("Error: " + err.message); }
 
       function addUploadLog(htmlString) {
+        // OPTIMIZATION 2: Completely bypass DOM manipulation on hidden elements for low spec phones
+        if (isMobile()) return; 
+        
         let logDiv = document.getElementById('upload-log');
         if (!logDiv) return;
         let entry = document.createElement('div');
@@ -597,6 +617,9 @@
       }
 
       function initializeQueueUI() {
+        // OPTIMIZATION 2: Bypass queue rendering on mobile to save massive amounts of RAM
+        if (isMobile()) return; 
+
         let queueList = document.getElementById('queue-list');
         queueList.innerHTML = '';
         pendingFiles.forEach((file, index) => {
@@ -609,6 +632,8 @@
       }
 
       function updateQueueStatus(index, status) {
+        if (isMobile()) return; // Optimization
+
         let statusDiv = document.getElementById(`queue-status-${index}`);
         if (!statusDiv) return;
         statusDiv.classList.remove('status-pending', 'status-uploading', 'status-success', 'status-error');
@@ -751,6 +776,9 @@
         isUploading = false;
         currentBatchId = 0; 
         
+        // Stop UI updates immediately
+        if (uiUpdateInterval) clearInterval(uiUpdateInterval);
+        
         document.getElementById('progress-container').style.display = 'none';
         document.getElementById('file-input').value = "";
         document.getElementById('upload-log').innerHTML = ""; 
@@ -782,27 +810,29 @@
         loadedBytesMap = {}; 
         
         initializeQueueUI(); 
-        updateOverallProgress();
+        
+        // OPTIMIZATION 3: Start Throttled UI Updates (Updates the heavy progress DOM only 4 times a second instead of 500)
+        updateOverallProgress(); // initial draw
+        uiUpdateInterval = setInterval(updateOverallProgress, 250);
 
-        // 1. GET SERVICE ACCOUNT PERMISSIONS FOR DIRECT UPLOAD
         let uploadCreds;
         try {
             uploadCreds = await apiGet('getUploadCredentials', { contractId: document.getElementById('cid').value.trim(), category: currentCategory });
         } catch(err) {
-            cancelUpload(true); // Clean up the UI silently
-            showError(err);     // Show the ACTUAL error message
+            cancelUpload(true); 
+            showError(err);     
             return;
         }
 
         let targetFolderId = uploadCreds.folderId;
         let accessToken = uploadCreds.token;
 
-        const CONCURRENCY_LIMIT = MAX_SIMULTANEOUS_UPLOADS; 
+        // OPTIMIZATION 4: Dynamic Concurrency - Limits intense network/CPU strain on Mobile
+        const CONCURRENCY_LIMIT = isMobile() ? 100 : 100; 
         let activeUploads = 0;
         let currentIndex = 0;
         let myBatchId = currentBatchId;
 
-        // 2. STAGGERED QUEUE LOGIC (Direct to Google Drive REST API)
         await new Promise((resolve) => {
           async function processNext() {
             if (myBatchId !== currentBatchId) return;
@@ -820,7 +850,6 @@
             updateQueueStatus(fileIndex, 'uploading');
             processNext(); // Stagger trigger
 
-            // 3. EXECUTE TRUE NETWORK UPLOAD TO GOOGLE API
             await executeNetworkUpload(file, fileIndex, targetFolderId, accessToken, myBatchId);
 
             activeUploads--;
@@ -833,23 +862,21 @@
         });
 
         if (isUploading && myBatchId === currentBatchId) { 
-          updateOverallProgress();
+          if (uiUpdateInterval) clearInterval(uiUpdateInterval);
+          updateOverallProgress(); // Force final 100% draw
           finalizeUpload();
         }
       }
 
-      // DIRECT GOOGLE DRIVE RESUMABLE UPLOAD (Bulletproof for large files)
       async function executeNetworkUpload(file, fileIndex, folderId, accessToken, myBatchId) {
         let serverName = `Drive API`; 
         addUploadLog(`<span style="color:var(--color-blue)"><i class="fa-solid fa-spinner fa-spin"></i> [${serverName}] Uploading: <strong style="color:var(--text-main)">${file.name}</strong></span>`);
         let startTime = Date.now();
 
         try {
-          // STEP 1: Initiate Resumable Upload
           let metadata = { name: file.name, parents: [folderId] };
           let contentType = file.type || 'application/octet-stream';
           
-          // ADDED supportsAllDrives=true to enable Shared Drive compatibility
           let initRes = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable&supportsAllDrives=true', {
             method: 'POST',
             headers: {
@@ -869,16 +896,16 @@
           let uploadUrl = initRes.headers.get('Location');
           if (!uploadUrl) throw new Error("No upload URL returned from Google.");
 
-          // STEP 2: Stream Raw File
           let fileId = await new Promise((resolve, reject) => {
               let xhr = new XMLHttpRequest();
               xhr.open('PUT', uploadUrl, true);
               xhr.setRequestHeader('Content-Type', contentType);
               
               xhr.upload.onprogress = function(e) {
+                  // OPTIMIZATION 1: Just store the bytes. DO NOT call DOM updates here. 
+                  // The uiUpdateInterval handles rendering this data every 250ms safely.
                   if (e.lengthComputable && myBatchId === currentBatchId) {
                       loadedBytesMap[fileIndex] = e.loaded;
-                      updateOverallProgress();
                   }
               };
               
@@ -913,8 +940,6 @@
           
           updateQueueStatus(fileIndex, 'error'); 
           let timeTaken = ((Date.now() - startTime) / 1000).toFixed(1);
-          
-          // Print exact error message right into the log box!
           addUploadLog(`<span style="color:var(--color-red)"><i class="fa-solid fa-xmark"></i> [${serverName}] Failed: <strong style="color:var(--text-main)">${file.name}</strong><br><span style="font-size:10.5px; color:#c0392b; line-height: 1.2; display:block; margin-top:4px;">Error: ${err.message}</span></span>`);
         }
       }
@@ -960,6 +985,8 @@
       }
 
       async function finalizeUpload() {
+        if (uiUpdateInterval) clearInterval(uiUpdateInterval);
+
         let cid = document.getElementById('cid').value.trim();
         let uploader = document.getElementById('uploader').value.trim();
 

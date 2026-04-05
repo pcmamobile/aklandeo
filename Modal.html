@@ -171,9 +171,8 @@
     }
 
     /* Action Buttons - Horizonally Aligned */
-    #pcmaModalButtons {
-      padding: 0 8px 16px; max-width: 1100px; margin: 0 auto;
-      display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
+    .pcma-action-buttons {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; width: 100%;
     }
     .modal-btn-3d {
       padding: 10px 14px; border-radius: 16px; font-size: 0.9rem; border: none; cursor: pointer;
@@ -328,9 +327,12 @@
     .confirm-btn-yes:active { transform: translateY(3px); box-shadow: 0 0 0 !important; }
     .confirm-btn-no:active { transform: translateY(3px); box-shadow: 0 0 0 !important; }
 
-    /* MOBILE LAYOUT */
+    /* --- MOBILE LAYOUT & LOW-SPEC PERFORMANCE OPTIMIZATIONS --- */
     body.is-mobile-view .pcma-photo-grid { 
       grid-template-columns: 1fr; 
+    }
+    body.is-mobile-view .pcma-action-buttons {
+      gap: 8px;
     }
     body.is-mobile-view .modal-btn-3d { 
       padding: 8px 10px; font-size: 0.75rem; gap: 8px; border-radius: 12px; 
@@ -340,6 +342,27 @@
     }
     body.is-mobile-view .pcma-mini-label { 
       width: 80px; font-size: 0.65rem; 
+    }
+
+    /* Disable heavy GPU tasks on mobile devices to prevent lag */
+    body.is-mobile-view * {
+      backdrop-filter: none !important; /* Disables heavy glass blur recalculations */
+    }
+    body.is-mobile-view .pcma-mini-fill,
+    body.is-mobile-view .pcma-progress-fill {
+      animation: none !important; /* Stops the constant background repaints */
+      box-shadow: none !important; /* Removes the glowing shadow which eats GPU */
+    }
+    body.is-mobile-view .pcma-mini-bar,
+    body.is-mobile-view .pcma-progress-bar {
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.5) !important; /* Lighter inset shadow for mobile */
+      background: #1e293b !important; /* Solid dark background */
+    }
+    body.is-mobile-view .btn-docs-3d svg,
+    body.is-mobile-view .btn-upload-3d svg,
+    body.is-mobile-view .btn-mini-icon svg,
+    body.is-mobile-view .btn-main-photo svg {
+      animation: none !important; /* Stops SVGs from continuously floating/pulsing */
     }
   </style>
 </head>
@@ -354,7 +377,6 @@
   
   <div id="pcmaModalBody">
     <div id="pcmaModalContent"></div>
-    <div id="pcmaModalButtons"></div>
     <div id="pcmaModalPhotos"></div>
   </div>
 
@@ -629,12 +651,10 @@
       if (!row) return;
 
       const modalContent   = document.getElementById('pcmaModalContent');
-      const modalButtons   = document.getElementById('pcmaModalButtons');
       const modalPhotos    = document.getElementById('pcmaModalPhotos');
       const modalCID       = document.getElementById('pcmaModalCID');
 
       modalContent.innerHTML = '';
-      modalButtons.innerHTML = '';
       modalPhotos.innerHTML = '';
 
       const cidIdx     = findCol('contract id');
@@ -686,6 +706,37 @@
         modalContent.appendChild(wrap);
       }
 
+      // --- Buttons (More Details & Upload Photos) placed AFTER hero image ---
+      const actionBtns = document.createElement('div');
+      actionBtns.className = 'pcma-action-buttons';
+
+      let docsBtn = document.createElement('button');
+      docsBtn.id = 'projectDocsBtn';
+      docsBtn.type = 'button';
+      docsBtn.innerHTML = document.getElementById('svg-details').innerHTML + '<span>More Details</span>';
+      docsBtn.className = 'modal-btn-3d btn-docs-3d';
+      docsBtn.onclick = () => {
+        window.parent.postMessage({ type: 'OPEN_DOCS', cid: currentCid }, '*');
+      };
+      actionBtns.appendChild(docsBtn);
+      
+      if (uploadCol > -1) {
+        const link = String(row[uploadCol] || '').trim();
+        if (link && isValidUrl(link)) {
+          let uploadBtn = document.createElement('button');
+          uploadBtn.id = 'pcmaUploadBtn';
+          uploadBtn.type = 'button';
+          uploadBtn.innerHTML = document.getElementById('svg-upload').innerHTML + '<span>Upload Photos</span>';
+          uploadBtn.className = 'modal-btn-3d btn-upload-3d';
+          uploadBtn.onclick = () => { 
+            window.parent.postMessage({ type: 'OPEN_UPLOAD', cid: currentCid, link: link }, '*');
+          };
+          actionBtns.appendChild(uploadBtn);
+        }
+      }
+      modalContent.appendChild(actionBtns);
+
+      // --- Primary Data Container placed AFTER action buttons ---
       const primary = document.createElement('div');
       primary.className = 'pcma-primary';
 
@@ -718,34 +769,6 @@
       if (colC.children.length) primary.appendChild(colC);
       if (colD.children.length) primary.appendChild(colD);
       modalContent.appendChild(primary);
-
-      // Buttons (More Details & Upload Photos)
-      let docsBtn = document.createElement('button');
-      docsBtn.id = 'projectDocsBtn';
-      docsBtn.type = 'button';
-      docsBtn.innerHTML = document.getElementById('svg-details').innerHTML + '<span>More Details</span>';
-      docsBtn.className = 'modal-btn-3d btn-docs-3d';
-      docsBtn.onclick = () => {
-        window.parent.postMessage({ type: 'OPEN_DOCS', cid: currentCid }, '*');
-      };
-      
-      let uploadBtn = null;
-      if (uploadCol > -1) {
-        const link = String(row[uploadCol] || '').trim();
-        if (link && isValidUrl(link)) {
-          uploadBtn = document.createElement('button');
-          uploadBtn.id = 'pcmaUploadBtn';
-          uploadBtn.type = 'button';
-          uploadBtn.innerHTML = document.getElementById('svg-upload').innerHTML + '<span>Upload Photos</span>';
-          uploadBtn.className = 'modal-btn-3d btn-upload-3d';
-          uploadBtn.onclick = () => { 
-            window.parent.postMessage({ type: 'OPEN_UPLOAD', cid: currentCid, link: link }, '*');
-          };
-        }
-      }
-
-      modalButtons.appendChild(docsBtn);
-      if (uploadBtn) modalButtons.appendChild(uploadBtn);
 
       // Photos Gallery
       const compIdx = findCol('completed');

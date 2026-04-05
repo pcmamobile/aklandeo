@@ -9,7 +9,6 @@
   <link href="https://drive.google.com/thumbnail?id=1VanVX82ANGfKA8jcGZL8cVDQh4EuN8-r&sz=s800" rel="apple-touch-icon" sizes="180x180"/>
   <meta content="#2563eb" name="theme-color"/>
   
-  <!-- Beautiful Google Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
@@ -57,7 +56,6 @@
     }
 
     .hidden{display:none!important;}
-    .no-scroll{overflow:hidden;}
 
     @keyframes spin { 100% { transform: rotate(360deg); } }
 
@@ -264,7 +262,7 @@
        APP VIEW (GRID) WITH GLASSMORPHISM CONTAINER
        ========================================================= */
     #appView {
-      background: rgba(165, 180, 252, 0.45); /* Darker pastel blue glass */
+      background: rgba(165, 180, 252, 0.45);
       backdrop-filter: blur(15px);
       -webkit-backdrop-filter: blur(15px);
       border-radius: 24px;
@@ -287,7 +285,7 @@
       gap:12px;
     }
     .card{
-      background: linear-gradient(135deg, #e0e7ff 0%, #fae8ff 100%); /* Light pastel blue to pastel pink/purple */
+      background: linear-gradient(135deg, #e0e7ff 0%, #fae8ff 100%);
       border-radius:16px;
       box-shadow:0 6px 15px rgba(0,0,0,.1);
       cursor:pointer;
@@ -538,91 +536,43 @@
     @media(max-width:768px){ #filters{ padding: 10px 0; } }
 
     /* =========================================================
-       MODAL SEPARATION STYLES
+       SINGLE WINDOW SPA STYLES (NO MORE OVERLAYS)
        ========================================================= */
-    #pcmaModalBg{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); backdrop-filter: blur(5px); justify-content:center; align-items:center; z-index:5000; }
-    #pcmaModalBg.pcma-show{display:flex;}
-
-    #pcmaModalBox{
-      width:100vw; height:100vh;
-      display:flex; flex-direction:column;
-      justify-content:center; align-items:center;
-      padding: 20px; box-sizing: border-box;
+    .fullscreen-view {
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      display: flex;
+      flex-direction: column;
+      background: transparent;
+      max-width: none !important;
+      z-index: 11000; /* Stays below the footer (12000) */
     }
-    @media (max-width:768px){ #pcmaModalBox{ padding:0; } }
-
-    #pcmaModalFrame {
-      width: 100%; height: 100%; 
-      max-width: 1100px;
-      border: none; 
-      border-radius: 20px;
-      background: #f8fafc;
-      box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+    .fullscreen-view.hidden {
+      display: none !important;
     }
-    @media (max-width:768px) { #pcmaModalFrame { border-radius: 0; max-width: none; } }
+    .full-iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: transparent;
+      flex: 1;
+      border-radius: 0;
+    }
 
-    .pcma-modal-arrow{ position:fixed; top:50%; transform:translateY(-50%); background:rgba(255,255,255,.05); backdrop-filter: blur(2px); border:1px solid rgba(255,255,255,0.15); width:50px; height:80px; border-radius:999px; display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:5100; box-shadow: 0 4px 15px rgba(0,0,0,0.05);}
+    .pcma-modal-arrow{ position:fixed; top:50%; transform:translateY(-50%); background:rgba(255,255,255,.05); backdrop-filter: blur(2px); border:1px solid rgba(255,255,255,0.15); width:50px; height:80px; border-radius:999px; display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:11500; box-shadow: 0 4px 15px rgba(0,0,0,0.05);}
     #pcmaModalPrev{ left:15px; }
     #pcmaModalNext{ right:15px; }
     .pcma-modal-arrow svg{ width:30px; height:30px; stroke:#1e293b; }
     
-    /* FIX FOR MOBILE OVERLAPPING ARROWS */
     @media (max-width:768px){ 
       .pcma-modal-arrow{ width:40px; height:65px; }
       #pcmaModalPrev{ left:8px; }
       #pcmaModalNext{ right:8px; left:auto; } 
-    }
-
-    /* =========================================================
-       IFRAME OVERLAY STYLES
-       ========================================================= */
-    #iframeOverlay, #projectDocsOverlay, #uploadPhotosOverlay {
-      position: fixed;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(0, 0, 0, 0.6); 
-      backdrop-filter: blur(5px);
-      z-index: 11000;
-      font-family: 'Nunito', sans-serif;
-    }
-    #iframeOverlay[hidden], #projectDocsOverlay[hidden], #uploadPhotosOverlay[hidden] { display: none !important; }
-
-    .up-box { height: 90vh; background: #ffffff; width: 96%; max-width: 1000px; border-radius: 20px; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25); display: flex; flex-direction: column; overflow: hidden; border: 2px solid rgba(255,255,255,0.8);}
-    .up-body { padding: 0 !important; background: transparent !important; display: flex; flex-direction: column; flex: 1; }
-    .up-frame { width: 100%; height: 100%; border: none; flex: 1; background: transparent;}
-
-    @media (max-width: 768px) {
-      #uploadPhotosOverlay .up-box {
-        width: 100vw !important;
-        height: 100vh !important;
-        max-width: none !important;
-        max-height: none !important;
-        border-radius: 0 !important;
-        background: transparent !important;
-        box-shadow: none !important;
-        border: none !important;
-      }
-      #uploadPhotosOverlay .up-body {
-        padding-bottom: 0 !important;
-        background: transparent !important;
-      }
-    }
-
-    .fullscreen-box { 
-      width: 100vw !important; 
-      max-width: none !important; 
-      height: 100vh !important; 
-      max-height: none !important; 
-      border-radius: 0 !important; 
-      border: none !important; 
-      background: transparent !important; 
-      box-shadow: none !important; 
-    }
-    .fullscreen-body { 
-      padding: 0 !important; 
-      background: transparent !important; 
     }
 
   </style>
@@ -631,6 +581,7 @@
 
 <div id="version-tag">Version 8.1</div>
 
+<!-- 1. HOME VIEW -->
 <main id="homeView" class="home-view">
   <div class="home-title-area">
     <img alt="PCMA Logo Watermark" class="home-main-logo" src="https://drive.google.com/thumbnail?id=1VanVX82ANGfKA8jcGZL8cVDQh4EuN8-r&sz=s800"/>
@@ -643,47 +594,39 @@
   </div>
   
   <div class="home-btn-grid">
-    
     <button class="btn-3d btn-projects" id="btnGoProjects">
       <span class="emoji-icon">🗂️</span>
       <span>Projects</span>
     </button>
-    
     <button type="button" class="btn-3d btn-data" data-src="DataBase.html">
       <span class="emoji-icon">📊</span>
       <span>Dashboard</span>
     </button>
-    
     <button type="button" class="btn-3d btn-uploadmon" data-src="Monitoring.html">
       <span class="emoji-icon">📡</span>
       <span>Monitoring</span>
     </button>
-
     <button type="button" class="btn-3d btn-tracker" data-src="DocuTracker.html">
       <span class="emoji-icon">📑</span>
       <span>DocuTracker</span>
     </button>
-
     <button type="button" class="btn-3d btn-leaderboards" data-src="Leaderboards.html">
       <span class="emoji-icon">🏆</span>
       <span>Leaderboards &<br>File Uploader</span>
     </button>
-
     <button type="button" class="btn-3d btn-pcmarev" data-src="https://script.google.com/macros/s/AKfycbwIpWr1UICDBB-5SSjNZfAzINmNC7cfiGBmKt54jjH0toEDQfFsbu5QTyX36jfF03A02A/exec?fbclid=IwZXh0bgNhZW0CMTEAc3J0YwZhcHBfaWQPNDM3NjI2MzE2OTczNzg4AAEeeARYP2rIEIu-3sqJFJci6nMtpj_jWa0HwX3qVIz7b6EAMxCtTL_ZQbNjYz8_aem_9v6JVRjnUgCaTKIbxzHBTw">
       <span class="emoji-icon">🔄</span>
       <span>PCMA Revision<br>Monitoring</span>
     </button>
-
     <a href="https://drive.google.com/file/d/1cTD6ye5Ta12r0tYVQDRsjoKRvQQlYlw6/view?usp=sharing" target="_blank" class="btn-3d btn-download">
       <span class="emoji-icon">📱</span>
       <span>Download APK<br>for Android Only</span>
     </a>
-
   </div>
 </main>
 
+<!-- 2. APP VIEW (GRID) -->
 <main id="appView" class="hidden">
-  
   <div id="filters">
     <div class="search-filter-row">
       <label class="filter-combo">
@@ -726,13 +669,12 @@
       <button id="applyFilter">Apply Filters</button>
     </div>
   </div>
-
   <div class="hidden" id="resultInfo"></div>
   <div class="grid hidden" id="grid"></div>
 </main>
 
-
-<div id="pcmaModalBg" role="dialog" aria-modal="true">
+<!-- 3. MODAL VIEW (Single Window) -->
+<main id="modalView" class="hidden fullscreen-view">
   <button id="pcmaModalPrev" class="pcma-modal-arrow" aria-label="Previous">
     <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
       <polyline points="15 18 9 12 15 6"></polyline>
@@ -743,35 +685,23 @@
       <polyline points="9 18 15 12 9 6"></polyline>
     </svg>
   </button>
+  <iframe id="pcmaModalFrame" class="full-iframe" src="" title="Project Details"></iframe>
+</main>
 
-  <div id="pcmaModalBox">
-    <iframe id="pcmaModalFrame" src="" title="Project Details"></iframe>
-  </div>
-</div>
+<!-- 4. DOCS VIEW (Single Window) -->
+<main id="docsView" class="hidden fullscreen-view">
+  <iframe id="projectDocsFrame" class="full-iframe" src=""></iframe>
+</main>
 
-<div class="pd-overlay" id="projectDocsOverlay" aria-modal="true" role="dialog" hidden>
-  <div class="pd-box up-box fullscreen-box">
-    <div class="pd-body up-body fullscreen-body">
-      <iframe id="projectDocsFrame" class="up-frame" src=""></iframe>
-    </div>
-  </div>
-</div>
+<!-- 5. UPLOAD VIEW (Single Window) -->
+<main id="uploadView" class="hidden fullscreen-view">
+  <iframe id="uploadPhotosFrame" class="full-iframe" src=""></iframe>
+</main>
 
-<div class="pd-overlay" id="uploadPhotosOverlay" aria-modal="true" role="dialog" hidden>
-  <div class="pd-box up-box">
-    <div class="pd-body up-body" id="uploadPhotosBody">
-      <iframe id="uploadPhotosFrame" class="up-frame" src=""></iframe>
-    </div>
-  </div>
-</div>
-
-<div class="pd-overlay" id="iframeOverlay" aria-modal="true" role="dialog" hidden>
-  <div class="pd-box up-box fullscreen-box" id="iframeBox">
-    <div class="pd-body up-body fullscreen-body" id="iframeBody">
-      <iframe id="iframeFrame" class="up-frame" src=""></iframe>
-    </div>
-  </div>
-</div>
+<!-- 6. MODULE VIEW (Dashboard/Monitors/etc Single Window) -->
+<main id="moduleView" class="hidden fullscreen-view">
+  <iframe id="moduleFrame" class="full-iframe" src=""></iframe>
+</main>
 
 <footer class="app-footer">
   <div class="footer-inner">
@@ -802,60 +732,93 @@
 
 <script>
   const PCMA = (window.PCMA = window.PCMA || {});
+  
+  // =========================================================
+  // SPA ARCHITECTURE - SINGLE WINDOW NAVIGATION ENGINE
+  // =========================================================
+  PCMA.viewStack = ['homeView'];
+
+  PCMA.showView = function(viewId) {
+      const views = ['homeView', 'appView', 'modalView', 'docsView', 'uploadView', 'moduleView'];
+      views.forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.classList.add('hidden');
+      });
+      const target = document.getElementById(viewId);
+      if (target) target.classList.remove('hidden');
+
+      if (PCMA.viewStack[PCMA.viewStack.length - 1] !== viewId) {
+          PCMA.viewStack.push(viewId);
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  PCMA.goBack = function() {
+      if (PCMA.viewStack.length > 1) {
+          const currentView = PCMA.viewStack.pop();
+          
+          // FREE MEMORY ON LOW SPEC PHONES
+          if(currentView === 'moduleView') document.getElementById('moduleFrame').src = 'about:blank';
+          if(currentView === 'docsView') document.getElementById('projectDocsFrame').src = 'about:blank';
+          if(currentView === 'uploadView') document.getElementById('uploadPhotosFrame').src = 'about:blank';
+          
+          const prevView = PCMA.viewStack[PCMA.viewStack.length - 1];
+          
+          const views = ['homeView', 'appView', 'modalView', 'docsView', 'uploadView', 'moduleView'];
+          views.forEach(id => {
+              const el = document.getElementById(id);
+              if (el) el.classList.add('hidden');
+          });
+          
+          const target = document.getElementById(prevView);
+          if (target) target.classList.remove('hidden');
+          
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+  };
+
+  PCMA.goHome = function() {
+      PCMA.viewStack = ['homeView'];
+      PCMA.showView('homeView');
+      // MASSIVE MEMORY CLEANUP
+      ['moduleFrame', 'projectDocsFrame', 'uploadPhotosFrame', 'pcmaModalFrame'].forEach(id => {
+          const frame = document.getElementById(id);
+          if (frame) frame.src = 'about:blank';
+      });
+  };
 
   // =========================================================
-  // MESSAGE LISTENER FROM MODAL
+  // MESSAGE LISTENER FROM MODALS
   // =========================================================
   window.addEventListener('message', (e) => {
       if (!e.data) return;
       if (e.data.type === 'CLOSE_MODAL') {
-          const modalBg = document.getElementById("pcmaModalBg");
-          if (modalBg) {
-             modalBg.classList.remove('pcma-show');
-             document.documentElement.classList.remove('pcma-no-scroll');
-          }
+          PCMA.goBack();
       } else if (e.data.type === 'OPEN_DOCS') {
-          const frame = document.getElementById('projectDocsFrame');
-          const overlay = document.getElementById('projectDocsOverlay');
-          if (frame && overlay) {
-            frame.src = `Projectdocs.html?cid=${encodeURIComponent(e.data.cid)}`;
-            overlay.hidden = false;
-            overlay.classList.remove('hidden');
-          }
+          document.getElementById('projectDocsFrame').src = `Projectdocs.html?cid=${encodeURIComponent(e.data.cid)}`;
+          PCMA.showView('docsView');
       } else if (e.data.type === 'OPEN_UPLOAD') {
-          const frame = document.getElementById('uploadPhotosFrame');
-          const overlay = document.getElementById('uploadPhotosOverlay');
-          if (frame && overlay) {
-              frame.src = `Upload Photos.html?cid=${encodeURIComponent(e.data.cid)}&link=${encodeURIComponent(e.data.link)}`;
-              overlay.hidden = false;
-              overlay.classList.remove('hidden');
-          }
+          document.getElementById('uploadPhotosFrame').src = `Upload Photos.html?cid=${encodeURIComponent(e.data.cid)}&link=${encodeURIComponent(e.data.link)}`;
+          PCMA.showView('uploadView');
       } else if (e.data.type === 'RELOAD_APP') {
           document.getElementById('footerReloadBtn').click();
       }
   });
 
   // =========================================================
-  // Navigation & View Switching logic
+  // BUTTON LISTENERS
   // =========================================================
   document.addEventListener("DOMContentLoaded", () => {
     const backBtn = document.getElementById("footerBackBtn");
     const homeBtn = document.getElementById("footerHomeBtn");
     const reloadBtn = document.getElementById("footerReloadBtn");
     const btnGoProjects = document.getElementById("btnGoProjects");
-    const homeView = document.getElementById("homeView");
-    const appView = document.getElementById("appView");
 
     if (btnGoProjects) {
       btnGoProjects.addEventListener("click", () => {
-        if (homeView && appView) {
-          homeView.classList.add("hidden");
-          appView.classList.remove("hidden");
-          document.getElementById("filters").classList.remove("hidden");
+          PCMA.showView('appView');
           document.getElementById("grid").classList.remove("hidden"); 
           document.getElementById("resultInfo").classList.remove("hidden");
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        }
       });
     }
 
@@ -867,13 +830,8 @@
           e.preventDefault();
           const src = btn.getAttribute('data-src');
           if (src) {
-            const frame = document.getElementById('iframeFrame');
-            const overlay = document.getElementById('iframeOverlay');
-            if (frame && overlay) {
-              frame.src = src;
-              overlay.hidden = false;
-              overlay.classList.remove('hidden');
-            }
+              document.getElementById('moduleFrame').src = src;
+              PCMA.showView('moduleView');
           }
         });
       });
@@ -881,148 +839,52 @@
 
     if (backBtn) {
       backBtn.addEventListener("click", () => {
-        const uploadOverlay = document.getElementById("uploadPhotosOverlay");
-        const iframeOverlay = document.getElementById("iframeOverlay");
-        const docsOverlay = document.getElementById("projectDocsOverlay");
-        const modalBg = document.getElementById("pcmaModalBg");
-
-        if (uploadOverlay && !uploadOverlay.hidden) {
-          if (typeof window.closeUploadOverlay === "function") window.closeUploadOverlay();
-          return;
-        }
-
-        if (iframeOverlay && !iframeOverlay.hidden) {
-          if (typeof window.closeIframeOverlay === "function") window.closeIframeOverlay();
-          return;
-        }
-        
-        if (docsOverlay && !docsOverlay.hidden) {
-          if (typeof window.closeProjectDocsOverlay === "function") window.closeProjectDocsOverlay();
-          return;
-        }
-
-        if (modalBg && modalBg.classList.contains("pcma-show")) {
-          modalBg.classList.remove("pcma-show");
-          document.documentElement.classList.remove('pcma-no-scroll');
-          return;
-        }
-
-        if (appView && !appView.classList.contains("hidden")) {
-          appView.classList.add("hidden");
-          document.getElementById("filters").classList.add("hidden");
-          if (homeView) homeView.classList.remove("hidden");
-          window.scrollTo({ top: 0, behavior: "smooth" });
-          return;
-        }
-
-        window.history.back();
+         PCMA.goBack();
       });
     }
 
     if (homeBtn) {
       homeBtn.addEventListener("click", () => {
-        const knownOverlayIds = ["uploadPhotosOverlay", "iframeOverlay", "projectDocsOverlay", "pcmaModalBg"];
-        knownOverlayIds.forEach((id) => {
-          const el = document.getElementById(id);
-          if (el) {
-            el.hidden = true;
-            el.classList.remove("pcma-show");
-            el.classList.remove("hidden");
-          }
-        });
-
-        if (typeof window.closeUploadOverlay === "function") window.closeUploadOverlay();
-        if (typeof window.closeIframeOverlay === "function") window.closeIframeOverlay();
-        if (typeof window.closeProjectDocsOverlay === "function") window.closeProjectDocsOverlay();
-
-        document.documentElement.classList.remove("pcma-no-scroll");
-        document.body.classList.remove("no-scroll");
-        window.scrollTo({ top: 0, behavior: "smooth" });
-
-        if (homeView && appView) {
-          appView.classList.add("hidden");
-          document.getElementById("filters").classList.add("hidden");
-          homeView.classList.remove("hidden");
-        }
+         PCMA.goHome();
       });
     }
 
     if (reloadBtn) {
       reloadBtn.addEventListener("click", async () => { 
         const iconSvg = reloadBtn.querySelector('svg');
-        if (iconSvg) {
-          iconSvg.style.animation = "spin 1s linear infinite";
-        }
+        if (iconSvg) iconSvg.style.animation = "spin 1s linear infinite";
 
-        let isIframeOpen = false;
-        const overlays = ['iframeOverlay', 'projectDocsOverlay', 'uploadPhotosOverlay'];
-        overlays.forEach(id => {
-            const overlay = document.getElementById(id);
-            if (overlay && !overlay.hidden) {
-                isIframeOpen = true;
-                const frame = overlay.querySelector('iframe');
-                if (frame && frame.src && frame.src !== window.location.href) {
-                    const currentSrc = frame.src;
-                    frame.src = 'about:blank';
-                    setTimeout(() => { frame.src = currentSrc; }, 50);
-                }
+        const currentView = PCMA.viewStack[PCMA.viewStack.length - 1];
+
+        // If viewing an iframe module, silently refresh just the iframe content!
+        if (['moduleView', 'docsView', 'uploadView'].includes(currentView)) {
+            let frameId = currentView === 'moduleView' ? 'moduleFrame' : (currentView === 'docsView' ? 'projectDocsFrame' : 'uploadPhotosFrame');
+            const frame = document.getElementById(frameId);
+            if (frame && frame.src && frame.src !== 'about:blank') {
+                const currentSrc = frame.src;
+                frame.src = 'about:blank';
+                setTimeout(() => { frame.src = currentSrc; }, 50);
             }
-        });
-
-        if (typeof window.PCMA.reload === "function") {
-          const grid = document.getElementById("grid");
-          const isGridVisible = grid && !grid.classList.contains("hidden");
-          const modalBg = document.getElementById("pcmaModalBg");
-          const isModalOpen = modalBg && modalBg.classList.contains("pcma-show");
-          
-          if (isGridVisible && !isModalOpen && !isIframeOpen) {
-            grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:#fff;font-weight:bold;font-size:1.2rem;text-shadow: 0 2px 4px rgba(0,0,0,0.5);">Reloading data...</div>';
-          }
-          
-          await window.PCMA.reload(); 
-
-          if (isModalOpen && typeof window.PCMA.refreshCurrentModal === "function") {
-              window.PCMA.refreshCurrentModal();
-          }
         } else {
-          location.reload(); 
+            // Re-fetch sheet data
+            if (typeof window.PCMA.reload === "function") {
+                const grid = document.getElementById("grid");
+                if (currentView === 'appView' && grid) {
+                    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:#fff;font-weight:bold;font-size:1.2rem;text-shadow: 0 2px 4px rgba(255,255,255,0.5);">Reloading data...</div>';
+                }
+                await window.PCMA.reload(); 
+                if (currentView === 'modalView' && typeof window.PCMA.refreshCurrentModal === "function") {
+                    window.PCMA.refreshCurrentModal();
+                }
+            } else {
+                location.reload(); 
+            }
         }
 
-        setTimeout(() => {
-           if (iconSvg) iconSvg.style.animation = "";
-        }, 500);
+        setTimeout(() => { if (iconSvg) iconSvg.style.animation = ""; }, 500);
       });
     }
   });
-
-  // =========================================================
-  // Iframe/Upload Overlay logic
-  // =========================================================
-  (function () {
-    function closeProjectDocsOverlay() {
-      const overlay = document.getElementById("projectDocsOverlay");
-      const frame = document.getElementById('projectDocsFrame');
-      if (overlay) overlay.hidden = true;
-      if (frame) frame.src = ""; 
-    }
-    window.closeProjectDocsOverlay = closeProjectDocsOverlay;
-
-    function closeUploadOverlay() {
-      const overlay = document.getElementById("uploadPhotosOverlay");
-      const frame = document.getElementById('uploadPhotosFrame');
-      if (overlay) overlay.hidden = true;
-      if (frame) frame.src = ""; 
-    }
-    window.closeUploadOverlay = closeUploadOverlay;
-
-    function closeIframeOverlay() {
-      const overlay = document.getElementById("iframeOverlay");
-      const frame = document.getElementById('iframeFrame');
-      if (overlay) overlay.hidden = true;
-      if (frame) frame.src = ""; 
-    }
-    window.closeIframeOverlay = closeIframeOverlay;
-  })();
 
   // =========================================================
   // filter.js logic
@@ -1032,8 +894,7 @@
       SHEET_ID: "1LSYLZ7tfSeVupQMPsCOHG4SlnzPQqOAIe03QI1qRMr8",
       RANGE: "APP!A:AZ",
       API_KEY: "AIzaSyCz6fNJr3ecn-M2HActqM1aCXbxqRLj2e8",
-      LOGO_FALLBACK: "https://lh3.googleusercontent.com/d/1VanVX82ANGfKA8jcGZL8cVDQh4EuN8-r=s800?authuser=0",
-      GAS_WEBAPP_URL: "https://script.google.com/macros/s/AKfycbwE2zVf654nTieExX174j6eTPG5-BaVINGQIszgfe5sLvDvJARL-u2k0vQk_DlYukExNg/exec"
+      LOGO_FALLBACK: "https://lh3.googleusercontent.com/d/1VanVX82ANGfKA8jcGZL8cVDQh4EuN8-r=s800?authuser=0"
     };
 
     const el = {
@@ -1055,9 +916,6 @@
 
     PCMA.helpers = {
       isValidUrl(u) { try { const x = new URL(u); return x.protocol === "http:" || x.protocol === "https:"; } catch { return false; } },
-      toPct(val, fallback = 0) { if (val == null) return fallback; const m = String(val).replace(",", ".").match(/-?\d+(\.\d+)?/); return m ? parseFloat(m[0]) : fallback; },
-      parseMoney(v) { if (v == null) return null; const s = String(v).replace(/[^0-9.\-]/g, ""); const n = parseFloat(s); return Number.isFinite(n) ? n : null; },
-      fmtPHP(n) { try { return "₱ " + Number(n).toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); } catch { return "₱ " + n; } },
     };
 
     PCMA.el = el;
@@ -1070,7 +928,7 @@
         const data = await res.json();
         if (!data.values || !data.values.length) throw new Error("No data");
 
-        const keyHints = ["contract id", "project name", "location", "status"];
+        const keyHints = ["contract id", "project name", "status"];
         let headerRowIndex = 0;
         for (let i = 0; i < data.values.length; i++) {
           const row = (data.values[i] || []).map((c) => String(c || "").trim().toLowerCase());
@@ -1125,7 +983,7 @@
       } catch (err) {
         console.error(err);
         el.grid.classList.remove("hidden");
-        el.grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:#fff;font-weight:bold;text-shadow:0 2px 4px rgba(0,0,0,0.5);">Failed to load data.</div>';
+        el.grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:#fff;font-weight:bold;text-shadow:0 2px 4px rgba(255,255,255,0.5);">Failed to load data.</div>';
       }
     }
     
@@ -1183,12 +1041,7 @@
       const idx = {
         cid: headers.findIndex((h) => h.includes("contract id")),
         project: headers.findIndex((h) => h.includes("project name")),
-        location: headers.findIndex((h) => h.includes("location")),
         pe: headers.findIndex((h) => h.includes("project engineer")),
-        pi: headers.findIndex((h) => h.includes("project inspector")),
-        re: headers.findIndex((h) => h.includes("resident engineer")),
-        qe: headers.findIndex((h) => h.includes("quantity engineer")),
-        me: headers.findIndex((h) => h.includes("materials engineer")),
         contractor: headers.findIndex((h) => h.includes("contractor")),
         status: headers.findIndex((h) => h.includes("status")),
         year: headers.findIndex((h) => h.includes("year")),
@@ -1387,8 +1240,6 @@
   // modal.js logic (Separated)
   // =========================================================
   (function () {
-    const modalBg = document.getElementById('pcmaModalBg');
-    
     let modalNavList = [];
     let modalNavIndex = 0;
 
@@ -1427,10 +1278,7 @@
           frame.contentWindow.postMessage({ type: 'RENDER', row: row, headers: headers }, '*');
       }
       
-      modalBg.hidden = false;
-      modalBg.classList.remove('hidden');
-      modalBg.classList.add('pcma-show'); 
-      document.documentElement.classList.add('pcma-no-scroll');
+      PCMA.showView('modalView');
     };
 
     PCMA.refreshCurrentModal = function() {
@@ -1456,16 +1304,6 @@
             }
         }
     };
-
-    window.addEventListener('keydown', (e) => {
-      if (!modalBg.classList.contains('pcma-show')) return;
-      if (e.key === 'Escape') {
-          modalBg.classList.remove('pcma-show');
-          document.documentElement.classList.remove('pcma-no-scroll');
-      }
-      else if (e.key === 'ArrowRight') goModal(1);
-      else if (e.key === 'ArrowLeft')  goModal(-1);
-    });
 
     const modalPrevFloat = document.getElementById('pcmaModalPrev');
     const modalNextFloat = document.getElementById('pcmaModalNext');
