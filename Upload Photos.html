@@ -989,6 +989,15 @@
         showMessage("Upload cancelled and history cleaned. You can safely start a new upload.");
       }
 
+      // HELPER: Extract File Reading into a Promise
+      function readFileAsBase64(file) {
+        return new Promise((resolve) => {
+          let reader = new FileReader();
+          reader.onload = e => resolve(e.target.result.split(',')[1]);
+          reader.readAsDataURL(file);
+        });
+      }
+
       async function startBatchUpload() {
         if (pendingFiles.length === 0) return;
 
@@ -1012,174 +1021,176 @@
         initializeQueueUI(); // Setup the visual list
         updateOverallProgress();
 
-        // Apply concurrency limit perfectly balanced with Server count
         const CONCURRENCY_LIMIT = MAX_SIMULTANEOUS_UPLOADS; 
         let activeUploads = 0;
         let currentIndex = 0;
+        let myBatchId = currentBatchId;
 
+        // NEW STAGGERED QUEUE LOGIC
         await new Promise((resolve) => {
-          function next() {
-            if (currentIndex >= pendingFiles.length && activeUploads === 0) {
-              resolve(); 
+          
+          async function processNext() {
+            // Stop processing if user cancelled
+            if (myBatchId !== currentBatchId) return;
+
+            // Resolve if all files have been assigned and finished
+            if (currentIndex >= pendingFiles.length) {
+              if (activeUploads === 0) resolve();
               return;
             }
-            while (activeUploads < CONCURRENCY_LIMIT && currentIndex < pendingFiles.length) {
-              let file = pendingFiles[currentIndex];
-              let fileIndex = currentIndex; 
-              currentIndex++;
-              activeUploads++;
-              
-              processSingleFile(file, fileIndex).then(() => {
+
+            // Keep within the 5 simultaneous server limit
+            if (activeUploads >= CONCURRENCY_LIMIT) return;
+
+            // Grab the next photo
+            let fileIndex = currentIndex;
+            currentIndex++;
+            activeUploads++;
+
+            let file = pendingFiles[fileIndex];
+            loadedBytesMap[fileIndex] = 0;
+            updateQueueStatus(fileIndex, 'uploading');
+
+            // --- STEP 1: CPU PHASE (Read Photo to Memory) ---
+            // This waits for the heavy reading part to finish before doing anything else
+            let base64 = await readFileAsBase64(file);
+
+            if (myBatchId !== currentBatchId) {
                 activeUploads--;
-                next(); 
-              });
+                return;
+            }
+
+            // --- STEP 2: STAGGER EFFECT ---
+            // "when it detects that it is starting to save upload the 2nd Photos"
+            // At this precise moment, we trigger the next photo in line to start reading
+            // while the current one begins its network upload.
+            processNext(); 
+
+            // --- STEP 3: NETWORK PHASE (Save to Apps Script) ---
+            await executeNetworkUpload(file, fileIndex, base64, myBatchId);
+
+            // Mark slot as free and try to process more
+            activeUploads--;
+            if (myBatchId === currentBatchId) {
+               processNext(); 
+               if (activeUploads === 0 && currentIndex >= pendingFiles.length) {
+                   resolve();
+               }
             }
           }
-          next(); 
+
+          // Kick off the very first photo
+          processNext();
         });
 
-        if (isUploading) { // Only finalize if the user didn't hit cancel
+        // After all promises resolve, verify and finalize
+        if (isUploading && myBatchId === currentBatchId) { 
           updateOverallProgress();
           finalizeUpload();
         }
       }
 
-      function processSingleFile(file, fileIndex) {
-        return new Promise((resolve) => {
-          loadedBytesMap[fileIndex] = 0;
-          let myBatchId = currentBatchId; // Store the ID of THIS upload session
-          let cid = document.getElementById('cid').value.trim();
+      // Network Upload Logic (Isolated for cleaner staggering)
+      async function executeNetworkUpload(file, fileIndex, base64, myBatchId) {
+        let cid = document.getElementById('cid').value.trim();
+        let uploader = document.getElementById('uploader').value.trim();
+
+        let payload = {
+          contractId: cid,
+          category: currentCategory,
+          fileData: { fileName: file.name, mimeType: file.type, base64: base64 },
+          uploaderName: uploader
+        };
+
+        let serverIndex = fileIndex % API_URLS.length;
+        let targetServerUrl = API_URLS[serverIndex];
+        let serverName = `Server ${serverIndex + 1}`; 
+        
+        addUploadLog(`<span style="color:var(--color-blue)"><i class="fa-solid fa-spinner fa-spin"></i> [${serverName}] Processing: <strong style="color:var(--text-main)">${file.name}</strong></span>`);
+
+        let startTime = Date.now();
+        let simulatedSpeed = 1.5 * 1024 * 1024; 
+        let intervalTime = 150; 
+        let bytesPerInterval = simulatedSpeed * (intervalTime / 1000);
+        
+        let simInterval = setInterval(() => {
+          if (myBatchId !== currentBatchId) { 
+            clearInterval(simInterval);
+            return;
+          }
+
+          let currentLoaded = loadedBytesMap[fileIndex] || 0;
+          if (currentLoaded + bytesPerInterval < file.size) {
+            loadedBytesMap[fileIndex] = currentLoaded + bytesPerInterval;
+          } else {
+            loadedBytesMap[fileIndex] = file.size * 0.99; 
+          }
+          updateOverallProgress();
+        }, intervalTime);
+        
+        activeIntervals.push(simInterval);
+
+        try {
+          // Action: uploadPhotoOnly (Does not lock Google Sheets)
+          let fileId = await apiPost('uploadPhotoOnly', payload, targetServerUrl);
           
-          updateQueueStatus(fileIndex, 'uploading'); // Set UI to Blue Spinner
+          if (myBatchId !== currentBatchId) return;
+
+          clearInterval(simInterval);
+          loadedBytesMap[fileIndex] = file.size; 
+          completedPhotos++;
+          uploadedFileIds.push(fileId);
           
-          let reader = new FileReader();
-          reader.onload = async function(e) {
-            let fileData = {
-              fileName: file.name,
-              mimeType: file.type,
-              base64: e.target.result.split(',')[1] // Untouched original base64
-            };
-            let uploader = document.getElementById('uploader').value.trim();
-
-            let payload = {
-              contractId: cid,
-              category: currentCategory,
-              fileData: fileData,
-              uploaderName: uploader
-            };
-
-            // MULTI-SERVER LOAD BALANCING (Distributes file among available servers!)
-            let serverIndex = fileIndex % API_URLS.length;
-            let targetServerUrl = API_URLS[serverIndex];
-            let serverName = `Server ${serverIndex + 1}`; // Visually display which server it hit
+          updateQueueStatus(fileIndex, 'success'); 
+          
+          let timeTaken = ((Date.now() - startTime) / 1000).toFixed(1);
+          addUploadLog(`<span style="color:var(--color-green)"><i class="fa-solid fa-check"></i> [${serverName}] Saved: <strong style="color:var(--text-main)">${file.name}</strong> (${timeTaken}s)</span>`);
+          
+        } catch (err) {
+          if (myBatchId !== currentBatchId) return; 
+          
+          console.warn(`[${serverName}] Upload Error for ${file.name}:`, err);
+          
+          addUploadLog(`<span style="color:var(--color-orange)"><i class="fa-solid fa-magnifying-glass fa-beat-fade"></i> [${serverName}] Verifying Drive for: <strong style="color:var(--text-main)">${file.name}</strong>...</span>`);
+          
+          let isSaved = false;
+          // Poll up to 3 times
+          for (let i = 0; i < 3; i++) {
+            await new Promise(r => setTimeout(r, 5000));
+            if (myBatchId !== currentBatchId) return;
             
-            // Add initial log to UI
-            addUploadLog(`<span style="color:var(--color-blue)"><i class="fa-solid fa-spinner fa-spin"></i> [${serverName}] Processing: <strong style="color:var(--text-main)">${file.name}</strong></span>`);
-
-            let startTime = Date.now(); // TIMER START
-
-            // Calculated progress tracker to ensure UI indicates "Saving to Drive..." gracefully 
-            let simulatedSpeed = 1.5 * 1024 * 1024; // Base estimate 1.5MB/s
-            let intervalTime = 150; 
-            let bytesPerInterval = simulatedSpeed * (intervalTime / 1000);
-            
-            let simInterval = setInterval(() => {
-              if (myBatchId !== currentBatchId) { // GHOST PREVENTION
-                clearInterval(simInterval);
-                return;
-              }
-
-              let currentLoaded = loadedBytesMap[fileIndex] || 0;
-              // Caps at 99% until Apps Script confirms it has successfully saved
-              if (currentLoaded + bytesPerInterval < file.size) {
-                loadedBytesMap[fileIndex] = currentLoaded + bytesPerInterval;
-              } else {
-                loadedBytesMap[fileIndex] = file.size * 0.99; 
-              }
-              updateOverallProgress();
-            }, intervalTime);
-            
-            activeIntervals.push(simInterval);
-
             try {
-              // Changed Action: Now only uploads the photo without writing the Google Sheets record individually
-              let fileId = await apiPost('uploadPhotoOnly', payload, targetServerUrl);
-              
-              if (myBatchId !== currentBatchId) return resolve(); // GHOST PREVENTION
-
-              clearInterval(simInterval);
-              loadedBytesMap[fileIndex] = file.size; 
-              completedPhotos++;
-              uploadedFileIds.push(fileId);
-              
-              updateQueueStatus(fileIndex, 'success'); // Set UI to Green Checkmark
-              
-              let endTime = Date.now(); // TIMER END
-              let timeTaken = ((endTime - startTime) / 1000).toFixed(1);
-
-              // Success Log with Time
-              addUploadLog(`<span style="color:var(--color-green)"><i class="fa-solid fa-check"></i> [${serverName}] Saved: <strong style="color:var(--text-main)">${file.name}</strong> (${timeTaken}s)</span>`);
-              
-            } catch (err) {
-              if (myBatchId !== currentBatchId) return resolve(); // GHOST PREVENTION
-              
-              console.warn(`[${serverName}] Upload Error for ${file.name}:`, err);
-              
-              // VERIFICATION RECOVERY SYSTEM
-              addUploadLog(`<span style="color:var(--color-orange)"><i class="fa-solid fa-magnifying-glass fa-beat-fade"></i> [${serverName}] Verifying Drive for: <strong style="color:var(--text-main)">${file.name}</strong>...</span>`);
-              
-              let isSaved = false;
-              // Poll up to 3 times (wait 5s each) to give the backend time to finish saving
-              for (let i = 0; i < 3; i++) {
-                await new Promise(r => setTimeout(r, 5000));
-                if (myBatchId !== currentBatchId) return resolve();
-                
-                try {
-                  let existingFiles = await apiGet('getExistingFiles', { contractId: cid, category: currentCategory });
-                  if (existingFiles.some(ex => ex.name === file.name)) {
-                    isSaved = true;
-                    break;
-                  }
-                } catch(verErr) {
-                  // Ignore errors during verification, just try again
-                }
+              let existingFiles = await apiGet('getExistingFiles', { contractId: cid, category: currentCategory });
+              if (existingFiles.some(ex => ex.name === file.name)) {
+                isSaved = true;
+                break;
               }
+            } catch(verErr) {}
+          }
 
-              if (isSaved) {
-                clearInterval(simInterval);
-                loadedBytesMap[fileIndex] = file.size; 
-                completedPhotos++;
-                uploadedFileIds.push(`recovered_file_${fileIndex}`);
-                
-                updateQueueStatus(fileIndex, 'success'); 
-                
-                let endTime = Date.now(); 
-                let timeTaken = ((endTime - startTime) / 1000).toFixed(1);
-
-                // Verified Log
-                addUploadLog(`<span style="color:var(--color-green)"><i class="fa-solid fa-check-double"></i> [${serverName}] Verified Saved: <strong style="color:var(--text-main)">${file.name}</strong> (${timeTaken}s)</span>`);
-              } else {
-                clearInterval(simInterval);
-                loadedBytesMap[fileIndex] = 0; 
-                failedFiles.push(file);
-                
-                updateQueueStatus(fileIndex, 'error'); // Set UI to Red X
-                
-                let endTime = Date.now(); 
-                let timeTaken = ((endTime - startTime) / 1000).toFixed(1);
-
-                // Failed Log with Time
-                addUploadLog(`<span style="color:var(--color-red)"><i class="fa-solid fa-xmark"></i> [${serverName}] Failed: <strong style="color:var(--text-main)">${file.name}</strong> after ${timeTaken}s</span>`);
-              }
-            }
+          if (isSaved) {
+            clearInterval(simInterval);
+            loadedBytesMap[fileIndex] = file.size; 
+            completedPhotos++;
+            uploadedFileIds.push(`recovered_file_${fileIndex}`);
             
-            if (myBatchId === currentBatchId) {
-               updateOverallProgress();
-            }
-            resolve();
-          };
-          reader.readAsDataURL(file); // No compression
-        });
+            updateQueueStatus(fileIndex, 'success'); 
+            let timeTaken = ((Date.now() - startTime) / 1000).toFixed(1);
+            addUploadLog(`<span style="color:var(--color-green)"><i class="fa-solid fa-check-double"></i> [${serverName}] Verified Saved: <strong style="color:var(--text-main)">${file.name}</strong> (${timeTaken}s)</span>`);
+          } else {
+            clearInterval(simInterval);
+            loadedBytesMap[fileIndex] = 0; 
+            failedFiles.push(file);
+            
+            updateQueueStatus(fileIndex, 'error'); 
+            let timeTaken = ((Date.now() - startTime) / 1000).toFixed(1);
+            addUploadLog(`<span style="color:var(--color-red)"><i class="fa-solid fa-xmark"></i> [${serverName}] Failed: <strong style="color:var(--text-main)">${file.name}</strong> after ${timeTaken}s</span>`);
+          }
+        }
+        
+        if (myBatchId === currentBatchId) {
+           updateOverallProgress();
+        }
       }
 
       function updateOverallProgress() {
@@ -1237,7 +1248,8 @@
             await apiPost('checkFolderAndWriteIds', {
               contractId: cid,
               category: currentCategory,
-              uploaderName: uploader
+              uploaderName: uploader,
+              numPhotos: uploadedFileIds.length // Passed correctly for the history log!
             });
             
             document.getElementById('processing-status').innerHTML = "<i class='fa-solid fa-spinner fa-spin icon-3d-blue'></i> Refreshing stats...";
