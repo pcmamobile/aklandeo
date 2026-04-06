@@ -15,6 +15,10 @@
     <!-- Tailwind CSS & FontAwesome -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Flatpickr Custom Date Picker -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
@@ -92,6 +96,48 @@
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
         }
         .input-3d:focus { border-color: #a78bfa; box-shadow: 0 0 0 4px rgba(167, 139, 250, 0.15); background: #ffffff; }
+
+        /* Flatpickr Styling Overrides for Pastel Theme */
+        .flatpickr-calendar { border-radius: 16px; box-shadow: 0 10px 40px -10px rgba(167, 139, 250, 0.25); border: none; font-family: 'Poppins', sans-serif; padding: 10px; }
+        .flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange, .flatpickr-day.selected.inRange, .flatpickr-day.startRange.inRange, .flatpickr-day.endRange.inRange, .flatpickr-day.selected:focus, .flatpickr-day.startRange:focus, .flatpickr-day.endRange:focus, .flatpickr-day.selected:hover, .flatpickr-day.startRange:hover, .flatpickr-day.endRange:hover, .flatpickr-day.selected.prevMonthDay, .flatpickr-day.startRange.prevMonthDay, .flatpickr-day.endRange.prevMonthDay, .flatpickr-day.selected.nextMonthDay, .flatpickr-day.startRange.nextMonthDay, .flatpickr-day.endRange.nextMonthDay {
+            background: #8b5cf6 !important; border-color: #8b5cf6 !important; border-radius: 8px;
+        }
+        .flatpickr-day { border-radius: 8px; }
+
+        /* 3D Custom Checkbox */
+        .checkbox-3d {
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            background: #f8fafc;
+            border: 2px solid #cbd5e1;
+            border-radius: 6px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1), 0 2px 0 #cbd5e1;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .checkbox-3d:checked {
+            background: linear-gradient(135deg, #a78bfa, #8b5cf6);
+            border-color: #7c3aed;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2), 0 2px 0 #6d28d9;
+        }
+        .checkbox-3d:checked::after {
+            content: '\f00c';
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            color: white;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 12px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+        .checkbox-3d:active {
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1), 0 0 0 #cbd5e1;
+            transform: translateY(2px);
+        }
 
         /* Soft Tabs */
         .tab-btn { 
@@ -217,17 +263,22 @@
                 <div id="receiving-form-container" class="hidden max-w-2xl mx-auto bg-white/90 backdrop-blur-md p-6 md:p-8 rounded-2xl border border-white shadow-xl mt-2 md:mt-0">
                     <h3 class="text-xl md:text-2xl font-bold mb-6 text-indigo-700 flex items-center"><span class="bg-indigo-100 text-indigo-500 p-2 rounded-lg mr-3"><i class="fa-solid fa-cloud-arrow-up"></i></span> Upload New Document</h3>
                     <form id="upload-form" onsubmit="event.preventDefault(); submitNewDocument();">
-                        <div class="mb-5"><label class="block text-sm font-bold mb-1.5 text-slate-600">Title / Subject</label><input type="text" id="doc-title" class="input-3d" required></div>
+                        <div class="mb-5">
+                            <label class="block text-sm font-bold mb-1.5 text-slate-600">Title / Subject</label>
+                            <textarea id="doc-title" class="input-3d resize-none overflow-hidden" rows="1" style="min-height: 48px;" required oninput="this.style.height = 'auto'; this.style.height = this.scrollHeight + 'px'"></textarea>
+                        </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
-                            <div><label class="block text-sm font-bold mb-1.5 text-slate-600">Date Received</label><input type="date" id="doc-date-received" class="input-3d" required onchange="updateDefaultDeadline()"></div>
+                            <div><label class="block text-sm font-bold mb-1.5 text-slate-600">Date Received</label>
+                                <input type="text" id="doc-date-received" class="input-3d date-picker" placeholder="Select Date" required>
+                            </div>
                             <div>
                                 <div class="flex justify-between items-center mb-1.5">
                                     <label class="block text-sm font-bold text-slate-600">Deadline</label>
                                     <label class="text-xs flex items-center cursor-pointer text-slate-500 hover:text-indigo-500 transition-colors font-medium">
-                                        <input type="checkbox" id="no-deadline-cb" class="mr-1.5 accent-indigo-500" onchange="toggleDeadline()"> No Deadline
+                                        <input type="checkbox" id="no-deadline-cb" class="mr-2 checkbox-3d" onchange="toggleDeadline()"> Auto +15 Days
                                     </label>
                                 </div>
-                                <input type="date" id="doc-deadline" class="input-3d" required>
+                                <input type="text" id="doc-deadline" class="input-3d date-picker" placeholder="Select Deadline Date" required>
                             </div>
                         </div>
                         
@@ -266,8 +317,8 @@
         <div class="box-3d p-8 w-full max-w-md mx-auto border border-white/50">
             <h3 class="text-xl font-bold mb-6 text-indigo-700"><i class="fa-regular fa-calendar-plus mr-2"></i> Update Dates</h3>
             <input type="hidden" id="dates-rowidx">
-            <div class="mb-5"><label class="block text-sm font-bold mb-1.5 text-slate-600">Date of Letter</label><input type="date" id="modal-date-letter" class="input-3d" required></div>
-            <div class="mb-8"><label class="block text-sm font-bold mb-1.5 text-slate-600">Date for Signature</label><input type="date" id="modal-date-signature" class="input-3d" required></div>
+            <div class="mb-5"><label class="block text-sm font-bold mb-1.5 text-slate-600">Date of Letter</label><input type="text" id="modal-date-letter" class="input-3d date-picker" placeholder="Select Date" required></div>
+            <div class="mb-8"><label class="block text-sm font-bold mb-1.5 text-slate-600">Date for Signature</label><input type="text" id="modal-date-signature" class="input-3d date-picker" placeholder="Select Date" required></div>
             <div class="flex flex-col sm:flex-row gap-3 sm:gap-4"><button onclick="closeModal('modal-dates')" class="w-full sm:flex-1 py-3 bg-slate-100 rounded-xl font-bold text-slate-500 hover:bg-slate-200 transition">Cancel</button><button onclick="submitDates()" class="w-full sm:flex-1 btn-3d shadow-[0_5px_0_#6366f1] py-3">Save Dates</button></div>
         </div>
     </div>
@@ -276,7 +327,7 @@
         <div class="box-3d p-8 w-full max-w-md mx-auto border border-white/50">
             <h3 class="text-xl font-bold mb-6 text-fuchsia-600"><i class="fa-solid fa-file-arrow-up mr-2"></i> Upload Reply</h3>
             <input type="hidden" id="reply-rowidx"><input type="hidden" id="reply-title">
-            <div class="mb-5"><label class="block text-sm font-bold mb-1.5 text-slate-600">Date Approved</label><input type="date" id="modal-date-approved" class="input-3d" required></div>
+            <div class="mb-5"><label class="block text-sm font-bold mb-1.5 text-slate-600">Date Approved</label><input type="text" id="modal-date-approved" class="input-3d date-picker" placeholder="Select Date" required></div>
             <div class="mb-8"><label class="block text-sm font-bold mb-1.5 text-slate-600">Reply Document</label><input type="file" id="modal-reply-file" class="input-3d bg-white text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-fuchsia-50 file:text-fuchsia-700 hover:file:bg-fuchsia-100 cursor-pointer" required></div>
             <div class="flex flex-col sm:flex-row gap-3 sm:gap-4"><button onclick="closeModal('modal-reply')" class="w-full sm:flex-1 py-3 bg-slate-100 rounded-xl font-bold text-slate-500 hover:bg-slate-200 transition">Cancel</button><button onclick="submitReply()" class="w-full sm:flex-1 btn-3d btn-3d-purple py-3 text-white shadow-[0_5px_0_#a21caf]">Upload File</button></div>
         </div>
@@ -286,7 +337,7 @@
         <div class="box-3d p-8 w-full max-w-md mx-auto border border-white/50">
             <h3 class="text-xl font-bold mb-6 text-emerald-600"><i class="fa-solid fa-flag-checkered mr-2"></i> Finalize Document</h3>
             <input type="hidden" id="release-rowidx">
-            <div class="mb-8"><label class="block text-sm font-bold mb-1.5 text-slate-600">Date Completed / Released</label><input type="date" id="modal-date-released" class="input-3d" required></div>
+            <div class="mb-8"><label class="block text-sm font-bold mb-1.5 text-slate-600">Date Completed / Released</label><input type="text" id="modal-date-released" class="input-3d date-picker" placeholder="Select Date" required></div>
             <div class="flex flex-col sm:flex-row gap-3 sm:gap-4"><button onclick="closeModal('modal-release')" class="w-full sm:flex-1 py-3 bg-slate-100 rounded-xl font-bold text-slate-500 hover:bg-slate-200 transition">Cancel</button><button onclick="submitRelease()" class="w-full sm:flex-1 btn-3d btn-3d-green py-3 shadow-[0_5px_0_#059669]">Complete</button></div>
         </div>
     </div>
@@ -317,10 +368,10 @@
     
     <div id="modal-reassign" class="modal p-4">
         <div class="box-3d p-8 w-full max-w-md mx-auto overflow-visible border border-white/50">
-            <h3 class="text-xl font-bold mb-6 text-sky-600"><i class="fa-solid fa-user-pen mr-2"></i> Reassign Document</h3>
+            <h3 class="text-xl font-bold mb-6 text-sky-600"><i class="fa-solid fa-users mr-2"></i> Assign User(s)</h3>
             <input type="hidden" id="reassign-rowidx">
             <div class="mb-8 relative">
-                <label class="block text-sm font-bold mb-1.5 text-slate-600">Assign to New User(s)</label>
+                <label class="block text-sm font-bold mb-1.5 text-slate-600">Select User(s)</label>
                 <div id="reassign-user-display" onclick="toggleDropdown('reassign-user-dropdown')" class="input-3d bg-white cursor-pointer flex justify-between items-center min-h-[48px]">
                     <span id="reassign-user-text" class="text-slate-400 truncate">Select User(s)...</span>
                     <i class="fa-solid fa-chevron-down text-sky-300"></i>
@@ -331,7 +382,7 @@
             </div>
             <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-8">
                 <button onclick="closeModal('modal-reassign')" class="w-full sm:flex-1 py-3 bg-slate-100 rounded-xl font-bold text-slate-500 hover:bg-slate-200 transition">Cancel</button>
-                <button onclick="submitReassign()" class="w-full sm:flex-1 btn-3d bg-gradient-to-r from-sky-400 to-blue-500 shadow-[0_5px_0_#0284c7] py-3">Reassign</button>
+                <button onclick="submitReassign()" class="w-full sm:flex-1 btn-3d bg-gradient-to-r from-sky-400 to-blue-500 shadow-[0_5px_0_#0284c7] py-3">Save Assignments</button>
             </div>
         </div>
     </div>
@@ -340,18 +391,19 @@
         <div class="box-3d p-8 w-full max-w-md mx-auto border border-white/50">
             <h3 class="text-xl font-bold mb-6 text-indigo-700"><i class="fa-solid fa-pen-to-square mr-2"></i> Edit Document</h3>
             <input type="hidden" id="edit-rowidx">
+            <input type="hidden" id="edit-date-received">
             <div class="mb-5">
                 <label class="block text-sm font-bold mb-1.5 text-slate-600">Title / Subject</label>
-                <input type="text" id="edit-title" class="input-3d" required>
+                <textarea id="edit-title" class="input-3d resize-none overflow-hidden" rows="1" style="min-height: 48px;" required oninput="this.style.height = 'auto'; this.style.height = this.scrollHeight + 'px'"></textarea>
             </div>
             <div class="mb-8">
                 <div class="flex justify-between items-center mb-1.5">
                     <label class="block text-sm font-bold text-slate-600">Deadline</label>
                     <label class="text-xs flex items-center cursor-pointer text-slate-500 hover:text-indigo-500 transition-colors font-medium">
-                        <input type="checkbox" id="edit-no-deadline-cb" class="mr-1.5 accent-indigo-500" onchange="toggleEditDeadline()"> No Deadline
+                        <input type="checkbox" id="edit-no-deadline-cb" class="mr-2 checkbox-3d" onchange="toggleEditDeadline()"> Auto +15 Days
                     </label>
                 </div>
-                <input type="date" id="edit-deadline" class="input-3d" required>
+                <input type="text" id="edit-deadline" class="input-3d date-picker" placeholder="Select Deadline Date" required>
             </div>
             <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <button onclick="closeModal('modal-edit')" class="w-full sm:flex-1 py-3 bg-slate-100 rounded-xl font-bold text-slate-500 hover:bg-slate-200 transition">Cancel</button>
@@ -387,9 +439,6 @@
         let autoRefreshTimer = null; 
         let globalTrackerData = []; 
         let globalUsersData = [];
-
-        const ADMIN_TABS = ["Receiving", "For Evaluation", "In Progress", "For Signature", "Approved", "Completed", "Archive"];
-        const USER_TABS = ["Incoming", "Processing", "Completed"];
 
         // --- AUTHENTICATION & API WRAPPER ---
         async function apiCall(payload) {
@@ -445,7 +494,25 @@
 
         // --- CORE APPLICATION LOGIC ---
 
+        const ADMIN_TABS = ["Receiving", "For Evaluation", "In Progress", "For Signature", "Approved", "Completed", "Archive"];
+        const USER_TABS = ["Incoming", "Processing", "Completed"];
+
         document.addEventListener('DOMContentLoaded', function() {
+            
+            // Initialize Flatpickr Custom Date Pickers Globally
+            flatpickr(".date-picker", {
+                dateFormat: "F d, Y", // Internally formats to "Month DD, YYYY"
+                disableMobile: "true",
+            });
+
+            // Special listener for auto +15 days logic
+            const dateRecInput = document.getElementById('doc-date-received');
+            if (dateRecInput && dateRecInput._flatpickr) {
+                dateRecInput._flatpickr.config.onChange.push(function(selectedDates, dateStr, instance) {
+                    updateDefaultDeadline();
+                });
+            }
+
             try {
                 const savedSession = localStorage.getItem('docuTrackerSession');
                 if (savedSession) {
@@ -487,46 +554,53 @@
 
         function updateDefaultDeadline() {
             const dateRecStr = document.getElementById('doc-date-received').value;
-            const deadlineInput = document.getElementById('doc-deadline');
-            const noDeadlineCb = document.getElementById('no-deadline-cb');
+            const deadlinePicker = document.getElementById('doc-deadline')._flatpickr;
+            const cb = document.getElementById('no-deadline-cb');
 
-            if (dateRecStr && !noDeadlineCb.checked) {
-                const d = new Date(dateRecStr);
-                d.setDate(d.getDate() + 15); // Automatically set 15 days
-                const month = String(d.getMonth() + 1).padStart(2, '0');
-                const day = String(d.getDate()).padStart(2, '0');
-                deadlineInput.value = `${d.getFullYear()}-${month}-${day}`;
+            // If a receive date is set, always update the deadline picker to +15 days automatically.
+            if (dateRecStr) {
+                let d = new Date(dateRecStr);
+                d.setDate(d.getDate() + 15);
+                deadlinePicker.setDate(d);
             }
         }
 
         function toggleDeadline() {
             const cb = document.getElementById('no-deadline-cb');
             const deadlineInput = document.getElementById('doc-deadline');
+            const deadlinePicker = deadlineInput._flatpickr;
+
             if(cb.checked) {
-                deadlineInput.value = '';
-                deadlineInput.disabled = true;
-                deadlineInput.required = false;
+                updateDefaultDeadline(); // Recalculates from Date Received just to be safe
+                deadlineInput.readOnly = true;
                 deadlineInput.classList.add('opacity-40', 'cursor-not-allowed', 'bg-slate-50');
+                deadlinePicker.set('clickOpens', false);
             } else {
-                deadlineInput.disabled = false;
-                deadlineInput.required = true;
+                deadlineInput.readOnly = false;
                 deadlineInput.classList.remove('opacity-40', 'cursor-not-allowed', 'bg-slate-50');
-                updateDefaultDeadline();
+                deadlinePicker.set('clickOpens', true);
             }
         }
 
         function toggleEditDeadline() {
             const cb = document.getElementById('edit-no-deadline-cb');
             const deadlineInput = document.getElementById('edit-deadline');
+            const deadlinePicker = deadlineInput._flatpickr;
+            const dateRecStr = document.getElementById('edit-date-received').value;
+
             if(cb.checked) {
-                deadlineInput.value = '';
-                deadlineInput.disabled = true;
-                deadlineInput.required = false;
+                let d = new Date();
+                if(dateRecStr) { d = new Date(dateRecStr); }
+                d.setDate(d.getDate() + 15);
+                deadlinePicker.setDate(d);
+                
+                deadlineInput.readOnly = true;
                 deadlineInput.classList.add('opacity-40', 'cursor-not-allowed', 'bg-slate-50');
+                deadlinePicker.set('clickOpens', false);
             } else {
-                deadlineInput.disabled = false;
-                deadlineInput.required = true;
+                deadlineInput.readOnly = false;
                 deadlineInput.classList.remove('opacity-40', 'cursor-not-allowed', 'bg-slate-50');
+                deadlinePicker.set('clickOpens', true);
             }
         }
 
@@ -644,7 +718,7 @@
                     globalTrackerData = res.trackerData || [];
                     globalUsersData = res.usersData || [];
                     
-                    if(initUsers && currentUser.role === 'Admin') populateUsersDropdown();
+                    if(initUsers) populateUsersDropdown(); 
                     
                     refreshStatsUI();
                     if(currentTab !== "Receiving" && currentTab !== "") loadTableData(currentTab, true);
@@ -659,15 +733,15 @@
             
             options1.innerHTML = ''; options2.innerHTML = '';
             
-            const allHtml1 = `<label class="flex items-center p-2.5 hover:bg-indigo-50 rounded-lg cursor-pointer border-b border-indigo-50/50 transition-colors"><input type="checkbox" value="All Users" data-label="All Users" class="mr-3 w-4 h-4 text-indigo-500 rounded border-indigo-200 accent-indigo-500" onchange="updateSelectedText('doc')"><span class="font-bold text-indigo-600">All Users</span></label>`;
-            const allHtml2 = `<label class="flex items-center p-2.5 hover:bg-sky-50 rounded-lg cursor-pointer border-b border-sky-50/50 transition-colors"><input type="checkbox" value="All Users" data-label="All Users" class="mr-3 w-4 h-4 text-sky-500 rounded border-sky-200 accent-sky-500" onchange="updateSelectedText('reassign')"><span class="font-bold text-sky-600">All Users</span></label>`;
+            const allHtml1 = `<label class="flex items-center p-2.5 hover:bg-indigo-50 rounded-lg cursor-pointer border-b border-indigo-50/50 transition-colors"><input type="checkbox" value="All Users" data-label="All Users" class="mr-3 w-4 h-4 text-indigo-500 rounded border-indigo-200 accent-indigo-500 checkbox-3d" onchange="updateSelectedText('doc')"><span class="font-bold text-indigo-600">All Users</span></label>`;
+            const allHtml2 = `<label class="flex items-center p-2.5 hover:bg-sky-50 rounded-lg cursor-pointer border-b border-sky-50/50 transition-colors"><input type="checkbox" value="All Users" data-label="All Users" class="mr-3 w-4 h-4 text-sky-500 rounded border-sky-200 accent-sky-500 checkbox-3d" onchange="updateSelectedText('reassign')"><span class="font-bold text-sky-600">All Users</span></label>`;
             
             options1.innerHTML += allHtml1; options2.innerHTML += allHtml2;
             
             globalUsersData.forEach(u => {
                 const text = u.designation ? `${u.account} - ${u.designation}` : u.account;
-                options1.innerHTML += `<label class="flex items-center p-2.5 hover:bg-indigo-50/70 rounded-lg cursor-pointer transition-colors"><input type="checkbox" value="${u.account}" data-label="${text}" class="mr-3 w-4 h-4 rounded border-indigo-200 accent-indigo-500" onchange="updateSelectedText('doc')"><span class="text-slate-600 font-medium">${text}</span></label>`;
-                options2.innerHTML += `<label class="flex items-center p-2.5 hover:bg-sky-50/70 rounded-lg cursor-pointer transition-colors"><input type="checkbox" value="${u.account}" data-label="${text}" class="mr-3 w-4 h-4 rounded border-sky-200 accent-sky-500" onchange="updateSelectedText('reassign')"><span class="text-slate-600 font-medium">${text}</span></label>`;
+                options1.innerHTML += `<label class="flex items-center p-2.5 hover:bg-indigo-50/70 rounded-lg cursor-pointer transition-colors"><input type="checkbox" value="${u.account}" data-label="${text}" class="mr-3 w-4 h-4 rounded border-indigo-200 accent-indigo-500 checkbox-3d" onchange="updateSelectedText('doc')"><span class="text-slate-600 font-medium">${text}</span></label>`;
+                options2.innerHTML += `<label class="flex items-center p-2.5 hover:bg-sky-50/70 rounded-lg cursor-pointer transition-colors"><input type="checkbox" value="${u.account}" data-label="${text}" class="mr-3 w-4 h-4 rounded border-sky-200 accent-sky-500 checkbox-3d" onchange="updateSelectedText('reassign')"><span class="text-slate-600 font-medium">${text}</span></label>`;
             });
             
             updateSelectedText('doc'); updateSelectedText('reassign');
@@ -783,7 +857,7 @@
             }
             emptyState.classList.add('hidden'); tableCont.classList.remove('hidden');
 
-            let cols = [{ key: 'action', label: 'Action' }, { key: 'Title/Description', label: 'Title' }, { key: 'Date Received', label: 'Received' }, { key: 'Deadline', label: 'Deadline' }];
+            let cols = [{ key: 'action', label: 'Action' }, { key: 'Title/Description', label: 'Title' }, { key: 'Date Received', label: 'Received' }, { key: 'Deadline', label: 'DEADLINE' }];
             if(currentUser.role === 'Admin') {
                 cols.push({ key: 'User', label: 'User(s)' });
                 if(tabName !== 'For Evaluation' && tabName !== 'Archive') cols.push({ key: 'Date Viewed by User', label: 'Viewed' });
@@ -792,6 +866,7 @@
                 if(tabName === 'Completed') cols.push({ key: 'Date Released/Completed', label: 'Completed' });
                 if(tabName === 'Archive') cols.push({ key: 'Remarks', label: 'Remarks' });
             } else {
+                cols.push({ key: 'User', label: 'User(s)' });
                 if(['Processing', 'Completed'].includes(tabName)) { cols.push({ key: 'Date of Letter', label: 'Letter Date' }); cols.push({ key: 'Date for Signature', label: 'Sign Date' }); }
                 if(tabName === 'Completed') cols.push({ key: 'Date Approved', label: 'Approved' });
             }
@@ -818,14 +893,30 @@
                                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                                 const fDate = formatCustomDate(v);
                                 
+                                let badgeClass = "";
+                                let icon = "";
+                                let daysText = "";
+                                
                                 if (diffDays < 0) {
                                     const absDays = Math.abs(diffDays);
-                                    cellContent = `<span class="bg-rose-100 text-rose-700 px-2.5 py-1 rounded-md text-[11px] font-bold border border-rose-200 shadow-sm inline-block mt-1 md:mt-0 whitespace-normal tracking-wide"><i class="fa-solid fa-triangle-exclamation mr-1"></i>${fDate} (${absDays} day${absDays!==1?'s':''} overdue)</span>`;
+                                    badgeClass = "bg-rose-100 text-rose-700 border-rose-300 shadow-md";
+                                    icon = "fa-triangle-exclamation";
+                                    daysText = `Overdue by ${absDays} day${absDays!==1?'s':''}`;
                                 } else if (diffDays <= 3) {
-                                    cellContent = `<span class="bg-amber-100 text-amber-700 px-2.5 py-1 rounded-md text-[11px] font-bold border border-amber-200 shadow-sm inline-block mt-1 md:mt-0 whitespace-normal tracking-wide"><i class="fa-solid fa-clock mr-1"></i>${fDate} (${diffDays} day${diffDays!==1?'s':''} left)</span>`;
+                                    badgeClass = "bg-orange-100 text-orange-700 border-orange-300 shadow-md animate-pulse";
+                                    icon = "fa-fire";
+                                    daysText = `${diffDays} day${diffDays!==1?'s':''} left`;
+                                } else if (diffDays <= 7) {
+                                    badgeClass = "bg-amber-100 text-amber-700 border-amber-300 shadow-sm";
+                                    icon = "fa-clock";
+                                    daysText = `${diffDays} days left`;
                                 } else {
-                                    cellContent = fDate;
+                                    badgeClass = "bg-emerald-100 text-emerald-700 border-emerald-300 shadow-sm";
+                                    icon = "fa-calendar-check";
+                                    daysText = `${diffDays} days`;
                                 }
+                                
+                                cellContent = `<span class="${badgeClass} px-3 py-1.5 rounded-lg text-xs md:text-[13px] font-bold border inline-flex items-center gap-1.5 mt-1 md:mt-0 whitespace-nowrap tracking-wide"><i class="fa-solid ${icon}"></i>${fDate} (${daysText})</span>`;
                             } else { cellContent = v; }
                         } 
                         else if (c.key.includes('Date') || v instanceof Date || (typeof v === 'string' && v.includes('T00:00'))) {
@@ -842,22 +933,26 @@
 
         function getActions(tabName, doc) {
             let html = `<button onclick="viewFile('${doc['Received File ID']}', ${doc.rowIndex}, '${tabName}')" class="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-eye"></i> View</button>`;
+            
+            const safeTitle = (doc['Title/Description'] || '').replace(/'/g, "\\'").replace(/"/g, "&quot;");
+            const safeUsers = (doc['User'] || '').replace(/'/g, "\\'").replace(/"/g, "&quot;");
+            const safeDateRec = (doc['Date Received'] || '').replace(/'/g, "\\'").replace(/"/g, "&quot;");
+
             if(currentUser.role === 'Admin') {
-                const safeTitle = (doc['Title/Description'] || '').replace(/'/g, "\\'").replace(/"/g, "&quot;");
-                html += `<button onclick="openEditModal(${doc.rowIndex}, '${safeTitle}', '${doc['Deadline']||''}')" class="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-pen"></i> Edit</button>`;
+                html += `<button onclick="openEditModal(${doc.rowIndex}, '${safeTitle}', '${doc['Deadline']||''}', '${safeDateRec}')" class="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-pen"></i> Edit</button>`;
                 
                 if(tabName === 'For Evaluation') {
-                    html += `<button onclick="openReassignModal(${doc.rowIndex})" class="bg-sky-100 text-sky-700 hover:bg-sky-200 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-user-pen"></i> Reassign</button>`;
+                    html += `<button onclick="openReassignModal(${doc.rowIndex}, '${safeUsers}')" class="bg-sky-100 text-sky-700 hover:bg-sky-200 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-user-pen"></i> Reassign</button>`;
                     html += `<button onclick="openArchiveModal(${doc.rowIndex})" class="bg-slate-200 text-slate-600 hover:bg-slate-300 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-box-archive"></i> Archive</button>`;
                 }
                 if(tabName === 'In Progress') {
-                    html += `<button onclick="openReassignModal(${doc.rowIndex})" class="bg-sky-100 text-sky-700 hover:bg-sky-200 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-user-pen"></i> Reassign</button>`;
+                    html += `<button onclick="openReassignModal(${doc.rowIndex}, '${safeUsers}')" class="bg-sky-100 text-sky-700 hover:bg-sky-200 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-user-pen"></i> Reassign</button>`;
                     html += `<button onclick="openDatesModal(${doc.rowIndex})" class="bg-amber-100 text-amber-700 hover:bg-amber-200 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-calendar-plus"></i> Dates</button>`;
                     html += `<button onclick="openArchiveModal(${doc.rowIndex})" class="bg-slate-200 text-slate-600 hover:bg-slate-300 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-box-archive"></i> Archive</button>`;
                 }
                 if(tabName === 'For Signature') {
-                    html += `<button onclick="openReassignModal(${doc.rowIndex})" class="bg-sky-100 text-sky-700 hover:bg-sky-200 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-user-pen"></i> Reassign</button>`;
-                    html += `<button onclick="openReplyModal(${doc.rowIndex}, '${(doc['Title/Description']||'').replace(/'/g, "\\'")}')" class="bg-fuchsia-100 text-fuchsia-700 hover:bg-fuchsia-200 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-upload"></i> Reply</button>`;
+                    html += `<button onclick="openReassignModal(${doc.rowIndex}, '${safeUsers}')" class="bg-sky-100 text-sky-700 hover:bg-sky-200 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-user-pen"></i> Reassign</button>`;
+                    html += `<button onclick="openReplyModal(${doc.rowIndex}, '${safeTitle}')" class="bg-fuchsia-100 text-fuchsia-700 hover:bg-fuchsia-200 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-upload"></i> Reply</button>`;
                     html += `<button onclick="openArchiveModal(${doc.rowIndex})" class="bg-slate-200 text-slate-600 hover:bg-slate-300 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-box-archive"></i> Archive</button>`;
                 }
                 if(tabName === 'Approved') {
@@ -866,8 +961,13 @@
                 if(['Approved', 'Completed', 'Archive'].includes(tabName) && doc['Reply File ID']) {
                     html += `<button onclick="viewFile('${doc['Reply File ID']}', null, 'Reply')" class="bg-slate-200 text-slate-700 hover:bg-slate-300 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-envelope-open-text"></i> Reply File</button>`;
                 }
-            } else if(['Processing', 'Completed'].includes(tabName) && doc['Reply File ID']) {
-                html += `<button onclick="viewFile('${doc['Reply File ID']}', null, 'Reply')" class="bg-fuchsia-100 text-fuchsia-700 hover:bg-fuchsia-200 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-envelope-open-text"></i> Reply</button>`;
+            } else if(currentUser.role === 'User') {
+                if (tabName !== 'Completed') {
+                    html += `<button onclick="openReassignModal(${doc.rowIndex}, '${safeUsers}')" class="bg-sky-100 text-sky-700 hover:bg-sky-200 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-user-plus"></i> Assign</button>`;
+                }
+                if(['Processing', 'Completed'].includes(tabName) && doc['Reply File ID']) {
+                    html += `<button onclick="viewFile('${doc['Reply File ID']}', null, 'Reply')" class="bg-fuchsia-100 text-fuchsia-700 hover:bg-fuchsia-200 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-envelope-open-text"></i> Reply</button>`;
+                }
             }
             return html;
         }
@@ -876,7 +976,7 @@
             if(!fileId) return alert("File ID not found!");
             window.open(`https://drive.google.com/file/d/${fileId}/view`, '_blank');
             if(currentUser.role === 'User' && tabName === 'Incoming' && rowIndex) {
-                const today = new Date().toISOString().split('T')[0];
+                const today = flatpickr.formatDate(new Date(), "F d, Y");
                 try {
                     await apiCall({ action: 'updateRow', rowIndex: rowIndex, updateFields: { "Date Viewed by User": today } });
                     await manualRefresh(true);
@@ -903,6 +1003,14 @@
 
             // --- SILENT UI RESET (Instantly clear form so user can start the next one) ---
             document.getElementById('upload-form').reset(); 
+            const docTitleArea = document.getElementById('doc-title');
+            if(docTitleArea) docTitleArea.style.height = 'auto';
+
+            const recPicker = document.getElementById('doc-date-received')._flatpickr;
+            if(recPicker) recPicker.clear();
+            const dlPicker = document.getElementById('doc-deadline')._flatpickr;
+            if(dlPicker) dlPicker.clear();
+
             container.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
             updateSelectedText('doc');
 
@@ -933,10 +1041,19 @@
             }
         }
 
-        function openReassignModal(rowIdx) {
+        function openReassignModal(rowIdx, currentUsers) {
             document.getElementById('reassign-rowidx').value = rowIdx;
             const container = document.getElementById('reassign-user-options');
-            if(container) container.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            if(container) {
+                const userArray = (currentUsers || '').split(',').map(u => u.trim().toLowerCase());
+                container.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                    if (userArray.includes(cb.value.toLowerCase())) {
+                        cb.checked = true;
+                    } else {
+                        cb.checked = false;
+                    }
+                });
+            }
             updateSelectedText('reassign');
             document.getElementById('modal-reassign').style.display = 'flex';
         }
@@ -947,18 +1064,18 @@
             const newUsers = checkedBoxes.map(cb => cb.value).join(', ');
             const rowIdx = document.getElementById('reassign-rowidx').value;
             
-            if(!newUsers) return alert("Please select at least one user.");
+            if(!newUsers) return showToast("Please select at least one user.", "error");
             
             // --- SILENT MODE: Close Modal & Notify ---
             closeModal('modal-reassign'); 
-            showToast("Reassigning user in background...", "success");
+            showToast("Updating assignments in background...", "success");
 
             try {
-                await apiCall({ action: 'updateRow', rowIndex: rowIdx, updateFields: { "User": newUsers, "Date Viewed by User": "" } });
-                showToast("Document successfully reassigned!", "success");
+                await apiCall({ action: 'updateRow', rowIndex: rowIdx, updateFields: { "User": newUsers } });
+                showToast("Document successfully assigned!", "success");
                 manualRefresh(true); 
             } catch(e) { 
-                showToast("Reassign Failed: " + e.message, "error"); 
+                showToast("Assignment Failed: " + e.message, "error"); 
             }
         }
 
@@ -985,28 +1102,39 @@
             }
         }
 
-        function openEditModal(rowIdx, title, deadline) {
+        function openEditModal(rowIdx, title, deadline, dateReceived) {
             document.getElementById('edit-rowidx').value = rowIdx;
-            document.getElementById('edit-title').value = title;
+            
+            const editTitleArea = document.getElementById('edit-title');
+            editTitleArea.value = title;
+            setTimeout(() => {
+                editTitleArea.style.height = 'auto';
+                editTitleArea.style.height = editTitleArea.scrollHeight + 'px';
+            }, 10);
+
+            document.getElementById('edit-date-received').value = dateReceived || '';
             
             const deadlineInput = document.getElementById('edit-deadline');
+            const deadlinePicker = deadlineInput._flatpickr;
             const noDeadlineCb = document.getElementById('edit-no-deadline-cb');
             
             if (deadline) {
                 const d = new Date(deadline);
                 if (!isNaN(d)) {
-                    const month = String(d.getMonth() + 1).padStart(2, '0');
-                    const day = String(d.getDate()).padStart(2, '0');
-                    deadlineInput.value = `${d.getFullYear()}-${month}-${day}`;
+                    deadlinePicker.setDate(d);
                 } else {
-                    deadlineInput.value = '';
+                    deadlinePicker.clear();
                 }
                 noDeadlineCb.checked = false;
             } else {
-                deadlineInput.value = '';
-                noDeadlineCb.checked = true;
+                deadlinePicker.clear();
+                noDeadlineCb.checked = false; 
             }
-            toggleEditDeadline();
+            
+            // Just reset the classes in case it was checked previously
+            deadlineInput.readOnly = false;
+            deadlineInput.classList.remove('bg-slate-100', 'text-slate-500', 'opacity-40', 'cursor-not-allowed', 'bg-slate-50');
+            deadlinePicker.set('clickOpens', true);
             
             document.getElementById('modal-edit').style.display = 'flex';
         }
@@ -1015,14 +1143,9 @@
             const rowIdx = document.getElementById('edit-rowidx').value;
             const title = document.getElementById('edit-title').value;
             const deadline = document.getElementById('edit-deadline').value;
-            const noDeadline = document.getElementById('edit-no-deadline-cb').checked;
             
             if(!title) {
                 showToast("Title is required.", "error");
-                return;
-            }
-            if(!noDeadline && !deadline) {
-                showToast("Deadline is required.", "error");
                 return;
             }
 
@@ -1038,7 +1161,15 @@
             }
         }
 
-        function openDatesModal(rowIdx) { document.getElementById('dates-rowidx').value = rowIdx; document.getElementById('modal-dates').style.display = 'flex'; }
+        function openDatesModal(rowIdx) { 
+            document.getElementById('dates-rowidx').value = rowIdx; 
+            const letterInput = document.getElementById('modal-date-letter');
+            if(letterInput._flatpickr) letterInput._flatpickr.clear();
+            const signInput = document.getElementById('modal-date-signature');
+            if(signInput._flatpickr) signInput._flatpickr.clear();
+            document.getElementById('modal-dates').style.display = 'flex'; 
+        }
+        
         async function submitDates() {
             const dl = document.getElementById('modal-date-letter').value, ds = document.getElementById('modal-date-signature').value;
             if(!dl || !ds) return alert("Fill both dates");
@@ -1052,7 +1183,15 @@
             } catch(e) { showToast("Failed: " + e.message, "error"); }
         }
 
-        function openReplyModal(rowIdx, title) { document.getElementById('reply-rowidx').value = rowIdx; document.getElementById('reply-title').value = title; document.getElementById('modal-reply').style.display = 'flex'; }
+        function openReplyModal(rowIdx, title) { 
+            document.getElementById('reply-rowidx').value = rowIdx; 
+            document.getElementById('reply-title').value = title; 
+            const approvedInput = document.getElementById('modal-date-approved');
+            if(approvedInput._flatpickr) approvedInput._flatpickr.clear();
+            document.getElementById('modal-reply-file').value = '';
+            document.getElementById('modal-reply').style.display = 'flex'; 
+        }
+        
         async function submitReply() {
             const da = document.getElementById('modal-date-approved').value, f = document.getElementById('modal-reply-file').files[0];
             if(!da || !f) return alert("Provide date & file");
@@ -1075,7 +1214,13 @@
             } catch(e) { showToast("Failed: " + e.message, "error"); }
         }
 
-        function openReleaseModal(rowIdx) { document.getElementById('release-rowidx').value = rowIdx; document.getElementById('modal-release').style.display = 'flex'; }
+        function openReleaseModal(rowIdx) { 
+            document.getElementById('release-rowidx').value = rowIdx; 
+            const releaseInput = document.getElementById('modal-date-released');
+            if(releaseInput._flatpickr) releaseInput._flatpickr.clear();
+            document.getElementById('modal-release').style.display = 'flex'; 
+        }
+        
         async function submitRelease() {
             const dr = document.getElementById('modal-date-released').value;
             if(!dr) return alert("Select a date");
