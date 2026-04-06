@@ -17,6 +17,10 @@
     <!-- JWT Generation Library (Required for Client-Side Google Service Account Auth) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.5.27/jsrsasign-all-min.js"></script>
 
+    <!-- Flatpickr (Beautiful Custom Date Picker) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
     <!-- SAFE TAILWIND CUSTOM CLASSES -->
     <style type="text/tailwindcss">
         .glass-panel {
@@ -36,7 +40,7 @@
         }
     </style>
 
-    <!-- STANDARD CSS (Crash-Proof) -->
+    <!-- STANDARD CSS & FLATPICKR 3D GLASS THEME -->
     <style>
         :root { --brightness: 100%; }
         body { 
@@ -75,9 +79,77 @@
                 inset 1px 1px 2px rgba(255, 255, 255, 0.1);
         }
 
-        input[type="date"], input.date-input { cursor: pointer; }
+        /* -------------------------------------------
+           FLATPICKR CUSTOM 3D GLASS THEME
+           ------------------------------------------- */
+        .flatpickr-calendar {
+            background: rgba(255, 255, 255, 0.85) !important;
+            backdrop-filter: blur(16px) !important;
+            -webkit-backdrop-filter: blur(16px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.4) !important;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), inset 0 0 0 1px rgba(255,255,255,0.5) !important;
+            border-radius: 1.25rem !important;
+            padding: 0.5rem !important;
+            font-family: inherit !important;
+        }
+        .dark .flatpickr-calendar {
+            background: rgba(15, 23, 42, 0.85) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255,255,255,0.05) !important;
+        }
+        .flatpickr-day.selected {
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%) !important;
+            border: none !important;
+            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.4) !important;
+            font-weight: bold !important;
+        }
+        .flatpickr-months .flatpickr-month,
+        .flatpickr-current-month .flatpickr-monthDropdown-months,
+        .flatpickr-current-month input.cur-year {
+            color: #4f46e5 !important;
+            font-weight: 800 !important;
+        }
+        .dark .flatpickr-months .flatpickr-month,
+        .dark .flatpickr-current-month .flatpickr-monthDropdown-months,
+        .dark .flatpickr-current-month input.cur-year {
+            color: #818cf8 !important;
+        }
+        .flatpickr-day {
+            color: #334155 !important;
+            border-radius: 0.5rem !important;
+            font-weight: 600 !important;
+            transition: all 0.2s ease !important;
+        }
+        .dark .flatpickr-day {
+            color: #cbd5e1 !important;
+        }
+        .flatpickr-day:hover {
+            background: rgba(99, 102, 241, 0.1) !important;
+            color: #4f46e5 !important;
+        }
+        .dark .flatpickr-day:hover {
+            background: rgba(99, 102, 241, 0.2) !important;
+            color: #818cf8 !important;
+        }
+        .flatpickr-day.flatpickr-disabled, .flatpickr-day.prevMonthDay, .flatpickr-day.nextMonthDay {
+            color: #94a3b8 !important;
+        }
+        .dark .flatpickr-day.flatpickr-disabled, .dark .flatpickr-day.prevMonthDay, .dark .flatpickr-day.nextMonthDay {
+            color: #475569 !important;
+        }
+        span.flatpickr-weekday {
+            color: #64748b !important;
+            font-weight: 800 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 1px !important;
+            font-size: 0.7rem !important;
+        }
+        .flatpickr-calendar.arrowTop:before, .flatpickr-calendar.arrowTop:after,
+        .flatpickr-calendar.arrowBottom:before, .flatpickr-calendar.arrowBottom:after {
+            display: none !important; /* Hide arrows for a cleaner floating look */
+        }
 
-        /* Robust Standard CSS Animations */
+        /* Standard CSS Animations */
         @keyframes blob {
             0% { transform: translate(0px, 0px) scale(1); }
             33% { transform: translate(30px, -50px) scale(1.1); }
@@ -246,13 +318,9 @@
                             </div>
                         </div>
 
-                        <!-- Year -->
-                        <div class="relative filter-container w-full">
-                            <button type="button" onclick="toggleDropdown('yearDropdown')" class="input-field w-full h-10 flex justify-between items-center text-xs text-slate-700 dark:text-slate-200 cursor-pointer">
-                                <span class="flex items-center gap-2 truncate"><i data-lucide="calendar-days" class="w-3.5 h-3.5 text-indigo-500"></i> <span id="yearLabel">Select Years...</span></span>
-                                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
-                            </button>
-                            <div id="yearDropdown" class="dropdown-content glass-panel mt-2"></div>
+                        <!-- Year Checkboxes Container -->
+                        <div class="relative w-full flex items-end pb-1" id="yearFilterContainer">
+                            <!-- Populated dynamically via JS -->
                         </div>
 
                         <!-- Contractor -->
@@ -473,11 +541,11 @@
                             </div>
                             <div class="flex flex-col gap-1.5">
                                 <label class="input-label text-indigo-600 dark:text-indigo-400"><i data-lucide="flag" class="w-3.5 h-3.5"></i> Notice to Proceed (NTP)</label>
-                                <input type="text" id="f_ntp" placeholder="Select date..." class="input-field w-full date-input">
+                                <input type="text" placeholder="MMMM DD, YYYY" id="f_ntp" class="input-field w-full date-input bg-white/50">
                             </div>
                             <div class="flex flex-col gap-1.5">
                                 <label class="input-label text-indigo-600 dark:text-indigo-400"><i data-lucide="calendar-off" class="w-3.5 h-3.5"></i> Target Expiry Date</label>
-                                <input type="text" id="f_expiry" placeholder="Select date..." class="input-field w-full date-input">
+                                <input type="text" placeholder="MMMM DD, YYYY" id="f_expiry" class="input-field w-full date-input bg-white/50">
                             </div>
                         </div>
 
@@ -520,10 +588,10 @@
                             <div class="absolute -right-10 -top-10 text-red-500/5 rotate-12 pointer-events-none"><i data-lucide="gavel" class="w-48 h-48"></i></div>
                             <span class="text-sm font-black text-red-600 dark:text-red-400 uppercase tracking-widest block border-b border-red-200 dark:border-red-900/50 pb-3 mb-6 flex items-center gap-2 relative z-10"><i data-lucide="gavel" class="w-5 h-5"></i> Bidding Timeline</span>
                             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 relative z-10">
-                                <div class="flex flex-col gap-1.5"><label class="input-label text-red-600 dark:text-red-400"><i data-lucide="megaphone" class="w-3 h-3"></i> Date of Posting</label><input type="text" id="d_posting" placeholder="Select date..." class="input-field w-full date-input border-red-200 dark:border-red-900/50 focus:ring-red-500"></div>
-                                <div class="flex flex-col gap-1.5"><label class="input-label text-red-600 dark:text-green-400"><i data-lucide="folder-open" class="w-3 h-3"></i> Date of Bid opening</label><input type="text" id="d_opening" placeholder="Select date..." class="input-field w-full date-input border-red-200 dark:border-red-900/50 focus:ring-red-500"></div>
-                                <div class="flex flex-col gap-1.5"><label class="input-label text-red-600 dark:text-red-400"><i data-lucide="award" class="w-3 h-3"></i> Date of Award</label><input type="text" id="d_award" placeholder="Select date..." class="input-field w-full date-input border-red-200 dark:border-red-900/50 focus:ring-red-500"></div>
-                                <div class="flex flex-col gap-1.5"><label class="input-label text-red-600 dark:text-red-400"><i data-lucide="file-signature" class="w-3 h-3"></i> Date of Contract</label><input type="text" id="d_contract" placeholder="Select date..." class="input-field w-full date-input border-red-200 dark:border-red-900/50 focus:ring-red-500"></div>
+                                <div class="flex flex-col gap-1.5"><label class="input-label text-red-600 dark:text-red-400"><i data-lucide="megaphone" class="w-3 h-3"></i> Date of Posting</label><input type="text" placeholder="MMMM DD, YYYY" id="d_posting" class="input-field w-full date-input border-red-200 dark:border-red-900/50 focus:ring-red-500 bg-white/50"></div>
+                                <div class="flex flex-col gap-1.5"><label class="input-label text-red-600 dark:text-green-400"><i data-lucide="folder-open" class="w-3 h-3"></i> Date of Bid opening</label><input type="text" placeholder="MMMM DD, YYYY" id="d_opening" class="input-field w-full date-input border-red-200 dark:border-red-900/50 focus:ring-red-500 bg-white/50"></div>
+                                <div class="flex flex-col gap-1.5"><label class="input-label text-red-600 dark:text-red-400"><i data-lucide="award" class="w-3 h-3"></i> Date of Award</label><input type="text" placeholder="MMMM DD, YYYY" id="d_award" class="input-field w-full date-input border-red-200 dark:border-red-900/50 focus:ring-red-500 bg-white/50"></div>
+                                <div class="flex flex-col gap-1.5"><label class="input-label text-red-600 dark:text-red-400"><i data-lucide="file-signature" class="w-3 h-3"></i> Date of Contract</label><input type="text" placeholder="MMMM DD, YYYY" id="d_contract" class="input-field w-full date-input border-red-200 dark:border-red-900/50 focus:ring-red-500 bg-white/50"></div>
                             </div>
                         </div>
 
@@ -531,13 +599,13 @@
                             <div class="absolute -right-10 -top-10 text-emerald-500/5 rotate-12 pointer-events-none"><i data-lucide="check-circle-2" class="w-48 h-48"></i></div>
                             <span class="text-sm font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest block border-b border-emerald-200 dark:border-emerald-900/50 pb-3 mb-6 flex items-center gap-2 relative z-10"><i data-lucide="check-circle-2" class="w-5 h-5"></i> Completion Milestones</span>
                             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 relative z-10">
-                                <div class="flex flex-col gap-1.5"><label class="input-label text-emerald-700 dark:text-emerald-500"><i data-lucide="list-checks" class="w-3 h-3"></i> Punchlist (95%)</label><input type="text" id="d_p95" placeholder="Select date..." class="input-field w-full date-input border-emerald-200 dark:border-emerald-900/50 focus:ring-emerald-500"></div>
-                                <div class="flex flex-col gap-1.5"><label class="input-label text-emerald-700 dark:text-emerald-500"><i data-lucide="file-check" class="w-3 h-3"></i> Cert Correction (95%)</label><input type="text" id="d_c95" placeholder="Select date..." class="input-field w-full date-input border-emerald-200 dark:border-emerald-900/50 focus:ring-emerald-500"></div>
-                                <div class="flex flex-col gap-1.5"><label class="input-label text-emerald-700 dark:text-emerald-500"><i data-lucide="list-todo" class="w-3 h-3"></i> Punchlist (Comp)</label><input type="text" id="d_pcomp" placeholder="Select date..." class="input-field w-full date-input border-emerald-200 dark:border-emerald-900/50 focus:ring-emerald-500"></div>
-                                <div class="flex flex-col gap-1.5"><label class="input-label text-emerald-700 dark:text-emerald-500"><i data-lucide="shield-check" class="w-3 h-3"></i> Cert Correction (Comp)</label><input type="text" id="d_ccomp" placeholder="Select date..." class="input-field w-full date-input border-emerald-200 dark:border-emerald-900/50 focus:ring-emerald-500"></div>
-                                <div class="flex flex-col gap-1.5"><label class="input-label text-emerald-700 dark:text-emerald-500"><i data-lucide="file-search" class="w-3 h-3"></i> Date of FCIR</label><input type="text" id="d_fcir" placeholder="Select date..." class="input-field w-full date-input border-emerald-200 dark:border-emerald-900/50 focus:ring-emerald-500"></div>
-                                <div class="flex flex-col gap-1.5"><label class="input-label text-emerald-700 dark:text-emerald-500"><i data-lucide="flag-triangle-right" class="w-3 h-3"></i> Date of Completion</label><input type="text" id="d_comp" placeholder="Select date..." class="input-field w-full date-input border-emerald-200 dark:border-emerald-900/50 focus:ring-emerald-500"></div>
-                                <div class="flex flex-col gap-1.5"><label class="input-label text-emerald-700 dark:text-emerald-500"><i data-lucide="scroll-text" class="w-3 h-3"></i> Date of COC</label><input type="text" id="d_coc" placeholder="Select date..." class="input-field w-full date-input border-emerald-200 dark:border-emerald-900/50 focus:ring-emerald-500"></div>
+                                <div class="flex flex-col gap-1.5"><label class="input-label text-emerald-700 dark:text-emerald-500"><i data-lucide="list-checks" class="w-3 h-3"></i> Punchlist (95%)</label><input type="text" placeholder="MMMM DD, YYYY" id="d_p95" class="input-field w-full date-input border-emerald-200 dark:border-emerald-900/50 focus:ring-emerald-500 bg-white/50"></div>
+                                <div class="flex flex-col gap-1.5"><label class="input-label text-emerald-700 dark:text-emerald-500"><i data-lucide="file-check" class="w-3 h-3"></i> Cert Correction (95%)</label><input type="text" placeholder="MMMM DD, YYYY" id="d_c95" class="input-field w-full date-input border-emerald-200 dark:border-emerald-900/50 focus:ring-emerald-500 bg-white/50"></div>
+                                <div class="flex flex-col gap-1.5"><label class="input-label text-emerald-700 dark:text-emerald-500"><i data-lucide="list-todo" class="w-3 h-3"></i> Punchlist (Comp)</label><input type="text" placeholder="MMMM DD, YYYY" id="d_pcomp" class="input-field w-full date-input border-emerald-200 dark:border-emerald-900/50 focus:ring-emerald-500 bg-white/50"></div>
+                                <div class="flex flex-col gap-1.5"><label class="input-label text-emerald-700 dark:text-emerald-500"><i data-lucide="shield-check" class="w-3 h-3"></i> Cert Correction (Comp)</label><input type="text" placeholder="MMMM DD, YYYY" id="d_ccomp" class="input-field w-full date-input border-emerald-200 dark:border-emerald-900/50 focus:ring-emerald-500 bg-white/50"></div>
+                                <div class="flex flex-col gap-1.5"><label class="input-label text-emerald-700 dark:text-emerald-500"><i data-lucide="file-search" class="w-3 h-3"></i> Date of FCIR</label><input type="text" placeholder="MMMM DD, YYYY" id="d_fcir" class="input-field w-full date-input border-emerald-200 dark:border-emerald-900/50 focus:ring-emerald-500 bg-white/50"></div>
+                                <div class="flex flex-col gap-1.5"><label class="input-label text-emerald-700 dark:text-emerald-500"><i data-lucide="flag-triangle-right" class="w-3 h-3"></i> Date of Completion</label><input type="text" placeholder="MMMM DD, YYYY" id="d_comp" class="input-field w-full date-input border-emerald-200 dark:border-emerald-900/50 focus:ring-emerald-500 bg-white/50"></div>
+                                <div class="flex flex-col gap-1.5"><label class="input-label text-emerald-700 dark:text-emerald-500"><i data-lucide="scroll-text" class="w-3 h-3"></i> Date of COC</label><input type="text" placeholder="MMMM DD, YYYY" id="d_coc" class="input-field w-full date-input border-emerald-200 dark:border-emerald-900/50 focus:ring-emerald-500 bg-white/50"></div>
                             </div>
                         </div>
 
@@ -547,7 +615,7 @@
                             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 relative z-10">
                                 <div class="flex flex-col gap-1.5">
                                     <label class="input-label text-blue-500"><i data-lucide="bell-ring" class="w-3 h-3"></i> Notification Letter</label>
-                                    <input type="text" id="d_notif" placeholder="Select date..." class="input-field w-full date-input border-blue-200 dark:border-blue-900/50 focus:ring-blue-500">
+                                    <input type="text" placeholder="MMMM DD, YYYY" id="d_notif" onchange="toggleFollowUpVisibility(this.value)" class="input-field w-full date-input border-blue-200 dark:border-blue-900/50 focus:ring-blue-500 bg-white/50">
                                 </div>
                                 <div id="followUpWrapper" class="col-span-3 hidden bg-white/30 dark:bg-black/20 p-4 rounded-xl border border-blue-200/60 dark:border-blue-800/60 shadow-inner">
                                     <div class="flex items-center justify-between mb-3 border-b border-blue-100 dark:border-blue-900/30 pb-2">
@@ -556,7 +624,7 @@
                                     </div>
                                     <div id="followUpList" class="flex flex-wrap gap-3"></div>
                                 </div>
-                                <div class="flex flex-col gap-1.5"><label class="input-label text-blue-500"><i data-lucide="clipboard-list" class="w-3 h-3"></i> Punchlist (1Y DLP)</label><input type="text" id="d_p1y" placeholder="Select date..." class="input-field w-full date-input border-blue-200 dark:border-blue-900/50 focus:ring-blue-500"></div>
+                                <div class="flex flex-col gap-1.5"><label class="input-label text-blue-500"><i data-lucide="clipboard-list" class="w-3 h-3"></i> Punchlist (1Y DLP)</label><input type="text" placeholder="MMMM DD, YYYY" id="d_p1y" class="input-field w-full date-input border-blue-200 dark:border-blue-900/50 focus:ring-blue-500 bg-white/50"></div>
                                 <div class="flex flex-col gap-1.5 col-span-2">
                                     <label class="input-label text-blue-500"><i data-lucide="message-square-dashed" class="w-3 h-3"></i> Remarks (With/Without Defects)</label>
                                     <div class="flex items-center gap-3">
@@ -567,9 +635,9 @@
                                     </div>
                                     <div id="remarksList" class="space-y-2 mt-3"></div>
                                 </div>
-                                <div id="cert1yWrapper" class="hidden flex flex-col gap-1.5"><label class="input-label text-blue-500"><i data-lucide="shield-check" class="w-3 h-3"></i> Cert Correction (1Y)</label><input type="text" id="d_c1y" placeholder="Select date..." class="input-field w-full date-input border-blue-200 dark:border-blue-900/50 focus:ring-blue-500"></div>
-                                <div class="flex flex-col gap-1.5"><label class="input-label text-blue-500"><i data-lucide="file-check-2" class="w-3 h-3"></i> Date of FAIR</label><input type="text" id="d_fair" placeholder="Select date..." class="input-field w-full date-input border-blue-200 dark:border-blue-900/50 focus:ring-blue-500"></div>
-                                <div class="flex flex-col gap-1.5"><label class="input-label text-blue-500"><i data-lucide="award" class="w-3 h-3"></i> Date of CA</label><input type="text" id="d_ca" placeholder="Select date..." class="input-field w-full date-input border-blue-200 dark:border-blue-900/50 focus:ring-blue-500"></div>
+                                <div id="cert1yWrapper" class="hidden flex flex-col gap-1.5"><label class="input-label text-blue-500"><i data-lucide="shield-check" class="w-3 h-3"></i> Cert Correction (1Y)</label><input type="text" placeholder="MMMM DD, YYYY" id="d_c1y" class="input-field w-full date-input border-blue-200 dark:border-blue-900/50 focus:ring-blue-500 bg-white/50"></div>
+                                <div class="flex flex-col gap-1.5"><label class="input-label text-blue-500"><i data-lucide="file-check-2" class="w-3 h-3"></i> Date of FAIR</label><input type="text" placeholder="MMMM DD, YYYY" id="d_fair" class="input-field w-full date-input border-blue-200 dark:border-blue-900/50 focus:ring-blue-500 bg-white/50"></div>
+                                <div class="flex flex-col gap-1.5"><label class="input-label text-blue-500"><i data-lucide="award" class="w-3 h-3"></i> Date of CA</label><input type="text" placeholder="MMMM DD, YYYY" id="d_ca" class="input-field w-full date-input border-blue-200 dark:border-blue-900/50 focus:ring-blue-500 bg-white/50"></div>
                             </div>
                         </div>
                     </div>
@@ -848,50 +916,9 @@
         const CLS_INPUT = "input-field w-full";
         const CLS_LABEL = "input-label text-indigo-600 dark:text-indigo-400";
 
-        // === Date Input Attachment Helper ===
-        function attachDateInputEvents(el) {
-            if(el.dataset.hasDateEvents === "true") return;
-            el.dataset.hasDateEvents = "true";
-
-            if (!el.dataset.rawDate) {
-                el.value = '';
-                el.classList.add('text-slate-400', 'dark:text-slate-500');
-            } else {
-                el.value = formatDateDisplay(el.dataset.rawDate);
-                el.classList.remove('text-slate-400', 'dark:text-slate-500');
-            }
-
-            el.addEventListener('focus', function() {
-                this.type = 'date';
-                this.value = this.dataset.rawDate || '';
-                this.classList.remove('text-slate-400', 'dark:text-slate-500');
-                try { if(this.showPicker) this.showPicker(); } catch(e) {}
-            });
-            
-            el.addEventListener('blur', function() {
-                this.dataset.rawDate = this.value;
-                this.type = 'text';
-                const formatted = formatDateDisplay(this.dataset.rawDate);
-                this.value = formatted;
-                
-                if (!formatted) {
-                    this.classList.add('text-slate-400', 'dark:text-slate-500');
-                } else {
-                    this.classList.remove('text-slate-400', 'dark:text-slate-500');
-                }
-
-                if (this.id === 'd_notif') {
-                    toggleFollowUpVisibility(this.dataset.rawDate);
-                }
-            });
-        }
-
         function getFieldValue(id) {
             const el = document.getElementById(id);
             if (!el) return '';
-            if (el.classList.contains('date-input')) {
-                return el.dataset.rawDate || '';
-            }
             return el.value;
         }
 
@@ -1011,11 +1038,38 @@
             renderGridErr("System Error: " + msg);
         };
 
+        // === Flatpickr Initialization Setup ===
+        window.initDatePickers = function() {
+            flatpickr(".date-input", {
+                dateFormat: "F d, Y", // Changed to MMMM DD, YYYY format equivalent
+                allowInput: true,
+                disableMobile: "true", // Uses Flatpickr UI on mobile
+                onChange: function(selectedDates, dateStr, instance) {
+                    // Trigger manual change for inline listeners
+                    instance.element.dispatchEvent(new Event('change', { bubbles: true }));
+                    // Mark form dirty
+                    isFormDirty = true;
+                    const section = instance.element.closest('div[id$="Section"]');
+                    if (section) {
+                        const id = section.id;
+                        if (id === 'pdoSection') dirtyTabs.add('PDO');
+                        else if (id === 'dateSection') dirtyTabs.add('DATE');
+                        else if (id === 'voSection') dirtyTabs.add('VO');
+                        else if (id === 'wsoSection') dirtyTabs.add('WSO_WRO_CTE');
+                        else if (id === 'pcmaSection') dirtyTabs.add('PCMA');
+                        else if (id === 'billingSection') dirtyTabs.add('BILLING');
+                    }
+                }
+            });
+        };
+
         // === Init & Setup ===
         document.addEventListener('DOMContentLoaded', () => {
             try {
                 buildStaticFormHTML(); 
-                document.querySelectorAll('.date-input').forEach(attachDateInputEvents);
+                renderYearCheckboxes(); // Add Quick Year Filters
+
+                initDatePickers(); // Initialize customized Flatpickr
 
                 const form = document.getElementById('projectForm');
                 if(form) {
@@ -1237,7 +1291,7 @@
                 for(let i=1; i<=5; i++) {
                     voHTML += `<div id="vo_block_${i}" class="grid grid-cols-1 md:grid-cols-12 gap-6 p-5 bg-slate-50/50 dark:bg-black/20 rounded-xl border border-slate-100 dark:border-white/5 shadow-[inset_0_2px_4px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_2px_6px_rgba(0,0,0,0.3)] ${i>1 ? 'hidden' : ''}">
                         <div class="flex flex-col gap-1.5 md:col-span-2"><label class="${CLS_LABEL}"><i data-lucide="hash" class="w-3 h-3"></i> VO${i}</label><input type="text" id="f_vo${i}" onblur="this.value = toCurrencyFormat(this.value)" class="${CLS_INPUT}"></div>
-                        <div class="flex flex-col gap-1.5 md:col-span-2"><label class="${CLS_LABEL}"><i data-lucide="calendar" class="w-3 h-3"></i> VO${i} Date</label><input type="text" placeholder="Select date..." id="f_vo${i}_date" class="${CLS_INPUT} date-input"></div>
+                        <div class="flex flex-col gap-1.5 md:col-span-2"><label class="${CLS_LABEL}"><i data-lucide="calendar" class="w-3 h-3"></i> VO${i} Date</label><input type="text" placeholder="MMMM DD, YYYY" id="f_vo${i}_date" class="${CLS_INPUT} date-input bg-white/50"></div>
                         <div class="flex flex-col gap-1.5 md:col-span-2"><label class="${CLS_LABEL}"><i data-lucide="clock-9" class="w-3 h-3"></i> VO${i} Add. Days</label><input type="number" id="f_vo${i}_days" class="${CLS_INPUT}"></div>
                         <div class="flex flex-col gap-1.5 md:col-span-6"><label class="${CLS_LABEL}"><i data-lucide="message-square" class="w-3 h-3"></i> VO${i} Remarks</label><textarea id="f_vo${i}_rem" class="${CLS_INPUT} resize-y" rows="2"></textarea></div>
                     </div>`;
@@ -1256,10 +1310,10 @@
                     <div class="space-y-8">`;
                 for(let i=1; i<=4; i++) {
                     wsoHTML += `<div id="wso_block_${i}" class="grid grid-cols-1 md:grid-cols-12 gap-6 p-5 bg-amber-50/30 dark:bg-black/20 rounded-xl border border-amber-100 dark:border-white/5 shadow-[inset_0_2px_4px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_2px_6px_rgba(0,0,0,0.3)] ${i>1 ? 'hidden' : ''}">
-                        <div class="flex flex-col gap-1.5 md:col-span-2"><label class="${CLS_LABEL.replace('text-indigo-600', 'text-amber-600').replace('dark:text-indigo-400', 'dark:text-amber-500')}"><i data-lucide="calendar-off" class="w-3 h-3"></i> WSO${i} Date</label><input type="text" placeholder="Select date..." id="f_wso${i}_date" class="${CLS_INPUT} date-input focus:ring-amber-500"></div>
+                        <div class="flex flex-col gap-1.5 md:col-span-2"><label class="${CLS_LABEL.replace('text-indigo-600', 'text-amber-600').replace('dark:text-indigo-400', 'dark:text-amber-500')}"><i data-lucide="calendar-off" class="w-3 h-3"></i> WSO${i} Date</label><input type="text" placeholder="MMMM DD, YYYY" id="f_wso${i}_date" class="${CLS_INPUT} date-input bg-white/50 focus:ring-amber-500"></div>
                         <div class="flex flex-col gap-1.5 md:col-span-6"><label class="${CLS_LABEL.replace('text-indigo-600', 'text-amber-600').replace('dark:text-indigo-400', 'dark:text-amber-500')}"><i data-lucide="help-circle" class="w-3 h-3"></i> WSO${i} Reason</label><textarea id="f_wso${i}_rsn" class="${CLS_INPUT} focus:ring-amber-500 resize-y" rows="2"></textarea></div>
-                        <div class="flex flex-col gap-1.5 md:col-span-2"><label class="${CLS_LABEL.replace('text-indigo-600', 'text-emerald-600').replace('dark:text-indigo-400', 'dark:text-emerald-500')}"><i data-lucide="calendar-check" class="w-3 h-3"></i> CWSO${i}a Date</label><input type="text" placeholder="Select date..." id="f_cwso${i}a_date" class="${CLS_INPUT} date-input focus:ring-emerald-500"></div>
-                        <div class="flex flex-col gap-1.5 md:col-span-2"><label class="${CLS_LABEL.replace('text-indigo-600', 'text-emerald-600').replace('dark:text-indigo-400', 'dark:text-emerald-500')}"><i data-lucide="play-circle" class="w-3 h-3"></i> WRO${i} Date</label><input type="text" placeholder="Select date..." id="f_wro${i}_date" class="${CLS_INPUT} date-input focus:ring-emerald-500"></div>
+                        <div class="flex flex-col gap-1.5 md:col-span-2"><label class="${CLS_LABEL.replace('text-indigo-600', 'text-emerald-600').replace('dark:text-indigo-400', 'dark:text-emerald-500')}"><i data-lucide="calendar-check" class="w-3 h-3"></i> CWSO${i}a Date</label><input type="text" placeholder="MMMM DD, YYYY" id="f_cwso${i}a_date" class="${CLS_INPUT} date-input bg-white/50 focus:ring-emerald-500"></div>
+                        <div class="flex flex-col gap-1.5 md:col-span-2"><label class="${CLS_LABEL.replace('text-indigo-600', 'text-emerald-600').replace('dark:text-indigo-400', 'dark:text-emerald-500')}"><i data-lucide="play-circle" class="w-3 h-3"></i> WRO${i} Date</label><input type="text" placeholder="MMMM DD, YYYY" id="f_wro${i}_date" class="${CLS_INPUT} date-input bg-white/50 focus:ring-emerald-500"></div>
                     </div>`;
                 }
                 wsoHTML += `</div><div class="pt-5 mt-2 border-t border-slate-200 dark:border-slate-700"><button type="button" id="btn_add_wso" onclick="unhideNextWSO()" class="btn-3d text-[10px] font-bold text-white bg-amber-500 hover:bg-amber-600 px-4 py-2 rounded-lg flex items-center gap-1.5"><i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> ADD WSO</button></div></div>`;
@@ -1279,6 +1333,46 @@
                 cteHTML += `</div><div class="pt-5 mt-2 border-t border-slate-200 dark:border-slate-700"><button type="button" id="btn_add_cte" onclick="unhideNextCTE()" class="btn-3d text-[10px] font-bold text-white bg-indigo-500 hover:bg-indigo-600 px-4 py-2 rounded-lg flex items-center gap-1.5"><i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> ADD CTE</button></div></div></div>`;
                 wsoSec.innerHTML = wsoHTML + cteHTML;
             }
+        }
+
+        function renderYearCheckboxes() {
+            const container = document.getElementById('yearFilterContainer');
+            const currentYear = new Date().getFullYear();
+            let html = `<div class="flex items-center gap-3 w-full flex-wrap h-10 px-1">`;
+
+            html += `
+                <label class="flex items-center gap-1.5 cursor-pointer group">
+                    <input type="checkbox" value="ALL" checked onchange="handleYearCheckboxChange(this)" class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-700 cursor-pointer shadow-sm">
+                    <span class="text-xs font-black text-indigo-600 dark:text-indigo-400 group-hover:text-indigo-500 uppercase tracking-widest transition-colors">ALL</span>
+                </label>
+            `;
+
+            for(let i=0; i<=4; i++) {
+                let y = currentYear - i;
+                html += `
+                    <label class="flex items-center gap-1.5 cursor-pointer group">
+                        <input type="checkbox" value="${y}" onchange="handleYearCheckboxChange(this)" class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-700 cursor-pointer shadow-sm">
+                        <span class="text-xs font-bold text-slate-700 dark:text-slate-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">${y}</span>
+                    </label>
+                `;
+            }
+            html += `</div>`;
+            if(container) container.innerHTML = html;
+        }
+
+        function handleYearCheckboxChange(clickedCb) {
+            const allCbs = document.querySelectorAll('#yearFilterContainer input[type="checkbox"]');
+            if (clickedCb.checked) {
+                allCbs.forEach(cb => {
+                    if (cb !== clickedCb) cb.checked = false;
+                });
+            } else {
+                let anyChecked = Array.from(allCbs).some(cb => cb.checked);
+                if (!anyChecked) {
+                    allCbs[0].checked = true; // Set "ALL" back to true
+                }
+            }
+            updateFilters();
         }
 
         function unhideNextVO() {
@@ -1399,7 +1493,7 @@
                   yrCol = h.indexOf('YEAR'), ctCol = h.indexOf('CONTRACTOR'), 
                   csCol = h.indexOf('CONTRACT COST'), peCol = h.indexOf('PROJECT ENGINEER (PE)');
 
-            const ys = new Set(), cs = new Set(), ps = new Set();
+            const cs = new Set(), ps = new Set();
 
             pdoRecords = (pdoTab.rows || []).filter(r => {
                 if(!r.values) return false;
@@ -1407,7 +1501,7 @@
                 return nm && String(nm).trim() !== ''; 
             }).map(r => {
                 const yr = String(r.values[yrCol] || ''), ctr = String(r.values[ctCol] || ''), pe = String(r.values[peCol] || '');
-                if(yr) ys.add(yr); if(ctr) cs.add(ctr); 
+                if(ctr) cs.add(ctr); 
                 
                 ['PROJECT ENGINEER (PE)', 'PROJECT INSPECTOR (PI)', 'RESIDENT ENGINEER (RE)', 'QUANTITY ENGINEER (QE)', 'MATERIALS ENGINEER (ME)', 'LIAISON OFFICER (LO)'].forEach(title => {
                     let idx = h.indexOf(title);
@@ -1420,9 +1514,6 @@
                 };
             });
 
-            filters.years = Array.from(ys);
-
-            renderFilterList('year', Array.from(ys).sort().reverse(), filters.years);
             renderFilterList('contractor', Array.from(cs).sort(), []);
             renderFilterList('pe', Array.from(ps).sort(), []);
 
@@ -1596,7 +1687,12 @@
         }
 
         function updateFilters() {
-            filters.years = Array.from(document.querySelectorAll('.cb-year:checked')).map(c => c.value);
+            const checkedYearCb = document.querySelector('#yearFilterContainer input[type="checkbox"]:checked');
+            if (checkedYearCb && checkedYearCb.value !== 'ALL') {
+                filters.years = [checkedYearCb.value];
+            } else {
+                filters.years = []; // Empty implies ALL
+            }
             filters.contractors = Array.from(document.querySelectorAll('.cb-contractor:checked')).map(c => c.value);
             filters.pes = Array.from(document.querySelectorAll('.cb-pe:checked')).map(c => c.value);
             syncFilterLabels(); 
@@ -1604,8 +1700,7 @@
         }
 
         function syncFilterLabels() {
-            const yl = document.getElementById('yearLabel'), cl = document.getElementById('contractorLabel'), pl = document.getElementById('peLabel');
-            if(yl) yl.textContent = filters.years.length ? `${filters.years.length} Selected` : 'Select Years...';
+            const cl = document.getElementById('contractorLabel'), pl = document.getElementById('peLabel');
             if(cl) cl.textContent = filters.contractors.length ? `${filters.contractors.length} Selected` : 'Select Contractors...';
             if(pl) pl.textContent = filters.pes.length ? `${filters.pes.length} Selected` : 'Select PEs...';
         }
@@ -1802,10 +1897,10 @@
                         if (r) {
                             const parts = r.split('|');
                             const firstPart = parts[0].trim();
-                            if (/^\d{4}-\d{2}-\d{2}$/.test(firstPart)) {
+                            if (/(^\d{4}-\d{2}-\d{2}$)|(^[A-Za-z]+ \d{2}, \d{4}$)/.test(firstPart)) {
                                 parts[0] = formatDateDisplay(firstPart) + ' ';
                                 r = parts.join('|').trim();
-                            } else if (/^\d{4}-\d{2}-\d{2}$/.test(r.trim())) {
+                            } else if (/(^\d{4}-\d{2}-\d{2}$)|(^[A-Za-z]+ \d{2}, \d{4}$)/.test(r.trim())) {
                                 r = formatDateDisplay(r.trim());
                             }
                         }
@@ -2028,10 +2123,10 @@
                         if (rawVal2) {
                             const parts = rawVal2.split('|');
                             const firstPart = parts[0].trim();
-                            if (/^\d{4}-\d{2}-\d{2}$/.test(firstPart)) {
+                            if (/(^\d{4}-\d{2}-\d{2}$)|(^[A-Za-z]+ \d{2}, \d{4}$)/.test(firstPart)) {
                                 swaDate = firstPart;
                                 remText = parts.slice(1).join('|').trim();
-                            } else if (/^\d{4}-\d{2}-\d{2}$/.test(rawVal2.trim())) {
+                            } else if (/(^\d{4}-\d{2}-\d{2}$)|(^[A-Za-z]+ \d{2}, \d{4}$)/.test(rawVal2.trim())) {
                                 swaDate = rawVal2.trim();
                                 remText = '';
                             }
@@ -2050,7 +2145,7 @@
                                     ${h2 ? `
                                     <div class="flex flex-col gap-1.5 md:col-span-3">
                                         <label class="${CLS_LABEL.replace('text-indigo-600', 'text-teal-600').replace('dark:text-indigo-400', 'dark:text-teal-500')}"><i data-lucide="calendar-check" class="w-3 h-3"></i> Date of SWA/Billing</label>
-                                        <input type="text" placeholder="Select date..." data-header="${h2}" data-tab="billing-swa" data-raw-date="${swaDate}" value="${formatDateDisplay(swaDate)}" class="dyn-bill-swa date-input ${CLS_INPUT} focus:ring-teal-500 text-sm">
+                                        <input type="text" placeholder="MMMM DD, YYYY" data-header="${h2}" data-tab="billing-swa" value="${formatDt(swaDate)}" class="dyn-bill-swa date-input ${CLS_INPUT} focus:ring-teal-500 text-sm bg-white/50">
                                     </div>
                                     <div class="flex flex-col gap-1.5 md:col-span-6">
                                         <label class="${CLS_LABEL.replace('text-indigo-600', 'text-teal-600').replace('dark:text-indigo-400', 'dark:text-teal-500')}" title="${h2}"><i data-lucide="message-square" class="w-3 h-3"></i> ${h2}</label>
@@ -2064,8 +2159,12 @@
                     billContainer.innerHTML = billHTML;
                 }
             }
+            
+            // Re-initialize Flatpickr for the dynamically added date inputs
+            if (typeof window.initDatePickers === 'function') {
+                window.initDatePickers();
+            }
             lucide.createIcons();
-            document.querySelectorAll('.dyn-bill-swa.date-input').forEach(attachDateInputEvents);
         }
 
         function openModal(mode, cid = '') {
@@ -2082,8 +2181,8 @@
             dirtyTabs.clear();
 
             document.querySelectorAll('.date-input').forEach(el => {
-                el.dataset.rawDate = '';
-                el.value = '';
+                if (el._flatpickr) el._flatpickr.clear();
+                else el.value = '';
                 el.classList.add('text-slate-400', 'dark:text-slate-500');
             });
 
@@ -2173,8 +2272,11 @@
                 
                 if (el.classList.contains('date-input')) {
                     const formattedYmd = formatDt(rawVal);
-                    el.dataset.rawDate = formattedYmd;
-                    el.value = formatDateDisplay(formattedYmd);
+                    if (el._flatpickr) {
+                        el._flatpickr.setDate(formattedYmd);
+                    } else {
+                        el.value = formattedYmd;
+                    }
                     if (!el.value) {
                         el.classList.add('text-slate-400', 'dark:text-slate-500');
                     } else {
@@ -2213,8 +2315,11 @@
                 const el = document.getElementById(id); 
                 if(el) {
                     const ymd = formatDt(dMap[key]);
-                    el.dataset.rawDate = ymd;
-                    el.value = formatDateDisplay(ymd);
+                    if (el._flatpickr) {
+                        el._flatpickr.setDate(ymd);
+                    } else {
+                        el.value = ymd;
+                    }
                     if (!el.value) {
                         el.classList.add('text-slate-400', 'dark:text-slate-500');
                     } else {
@@ -2293,8 +2398,9 @@
                 if(el4) el4.value = voMap[`VO${i} Remarks`] || '';
                 if(el2) {
                     const ymd = formatDt(voMap[`VO${i} Date`]);
-                    el2.dataset.rawDate = ymd;
-                    el2.value = formatDateDisplay(ymd);
+                    if (el2._flatpickr) el2._flatpickr.setDate(ymd);
+                    else el2.value = ymd;
+                    
                     if (!el2.value) el2.classList.add('text-slate-400', 'dark:text-slate-500');
                     else el2.classList.remove('text-slate-400', 'dark:text-slate-500');
                 }
@@ -2327,8 +2433,9 @@
                     const el = document.getElementById(id);
                     if(el) {
                         const ymd = formatDt(wsoMap[key]);
-                        el.dataset.rawDate = ymd;
-                        el.value = formatDateDisplay(ymd);
+                        if (el._flatpickr) el._flatpickr.setDate(ymd);
+                        else el.value = ymd;
+                        
                         if (!el.value) el.classList.add('text-slate-400', 'dark:text-slate-500');
                         else el.classList.remove('text-slate-400', 'dark:text-slate-500');
                     }
@@ -2350,10 +2457,11 @@
             if(!v) return ''; 
             const d = new Date(v); 
             if (isNaN(d.getTime())) return '';
+            const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
             const year = d.getFullYear();
-            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const month = months[d.getMonth()];
             const day = String(d.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`; 
+            return `${month} ${day}, ${year}`; 
         }
 
         function toggleFollowUpVisibility(v) { 
@@ -2363,9 +2471,25 @@
 
         function addFollowUpRow(v='') {
             const div = document.createElement('div'); div.className="flex items-center gap-1";
-            div.innerHTML = `<input type="text" placeholder="Select date..." data-raw-date="${v}" value="${formatDateDisplay(v)}" class="in-fu date-input ${CLS_INPUT} flex-1 !py-1"><button type="button" onclick="this.parentElement.remove(); isFormDirty = true; dirtyTabs.add('DATE');" class="text-rose-500 hover:text-rose-700 focus:outline-none"><i data-lucide="minus-circle" class="w-4 h-4"></i></button>`;
+            const val = v ? formatDt(v) : '';
+            div.innerHTML = `<input type="text" placeholder="MMMM DD, YYYY" value="${val}" class="in-fu date-input ${CLS_INPUT} flex-1 !py-1 bg-white/50"><button type="button" onclick="this.parentElement.remove(); isFormDirty = true; dirtyTabs.add('DATE');" class="text-rose-500 hover:text-rose-700 focus:outline-none"><i data-lucide="minus-circle" class="w-4 h-4"></i></button>`;
             const parent = document.getElementById('followUpList'); if(parent) parent.appendChild(div); 
-            attachDateInputEvents(div.querySelector('.date-input'));
+            
+            // Initialize Flatpickr specifically on the newly created input
+            const inputEl = div.querySelector('.date-input');
+            if (inputEl && typeof flatpickr === 'function') {
+                flatpickr(inputEl, {
+                    dateFormat: "F d, Y",
+                    allowInput: true,
+                    disableMobile: "true",
+                    onChange: function(selectedDates, dateStr, instance) {
+                        instance.element.dispatchEvent(new Event('change', { bubbles: true }));
+                        isFormDirty = true;
+                        dirtyTabs.add('DATE');
+                    }
+                });
+            }
+
             lucide.createIcons();
             isFormDirty = true;
             dirtyTabs.add('DATE');
@@ -2431,7 +2555,7 @@
                         const rawVal = String(valInput.value).replace(/[^\d.-]/g, '');
                         if (rawVal !== '') {
                             const numVal = parseFloat(rawVal);
-                            if (!isNaN(numVal) && numVal !== 0 && !dateInput.dataset.rawDate) {
+                            if (!isNaN(numVal) && numVal !== 0 && !dateInput.value) {
                                 missingBillingDate = true;
                                 // Highlight the missing field briefly with warning color
                                 dateInput.classList.add('border-amber-500', 'ring-2', 'ring-amber-500');
@@ -2444,7 +2568,6 @@
 
             if (missingBillingDate) {
                 showToast("Warning: A Billing amount was saved without a corresponding Date.", 'info');
-                // The 'return' has been removed so the saving process continues normally
             }
             // --- END BILLING DATE WARNING ---
 
@@ -2463,7 +2586,7 @@
             const addPdo = (fieldId, headerName, isDate=false, isMoney=false) => {
                 const el = document.getElementById(fieldId); if (!el) return;
                 const idx = pdoHeaders.indexOf(headerName.toUpperCase().trim());
-                let val = el.classList.contains('date-input') ? (el.dataset.rawDate || '') : el.value;
+                let val = el.value;
                 if(idx >= 0) pdoChanges.push({ idx, value: val, isDate, isMoney });
             };
 
@@ -2480,7 +2603,7 @@
                 if(idx >= 0) dateChanges.push({ idx, value: val, isDate, isMoney: false });
             };
 
-            const fus = Array.from(document.querySelectorAll('.in-fu')).map(e => e.dataset.rawDate || '').filter(Boolean).join(' | ');
+            const fus = Array.from(document.querySelectorAll('.in-fu')).map(e => e.value).filter(Boolean).join(' | ');
             const rms = Array.from(document.querySelectorAll('.in-rem')).map(e => e.value).filter(Boolean);
             const rOptEl = document.getElementById('d_rem_opt');
             const rOpt = rOptEl ? rOptEl.value : 'No';
@@ -2568,7 +2691,7 @@
                 const remEl = remInputs.find(el => el.getAttribute('data-header') === header);
                 
                 let combined = [];
-                if (swaEl.dataset.rawDate) combined.push(swaEl.dataset.rawDate);
+                if (swaEl.value) combined.push(swaEl.value);
                 if (remEl && remEl.value) combined.push(remEl.value);
                 
                 addBill(combined.join(' | '), header);
