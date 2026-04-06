@@ -2421,36 +2421,32 @@
                 return;
             }
             
-            // --- BILLING DATE VALIDATION ---
+            // --- BILLING DATE WARNING ---
             let missingBillingDate = false;
             document.querySelectorAll('#billingDynamicFields .dyn-bill').forEach(valInput => {
                 const block = valInput.closest('.grid');
                 if (block) {
                     const dateInput = block.querySelector('.dyn-bill-swa');
                     if (dateInput) {
-                        const rawVal = valInput.value.replace(/[^\d.-]/g, '');
-                        const numVal = parseFloat(rawVal);
-                        if (!isNaN(numVal) && numVal !== 0 && !dateInput.dataset.rawDate) {
-                            missingBillingDate = true;
-                            // Highlight the missing field briefly
-                            dateInput.classList.add('border-rose-500', 'ring-2', 'ring-rose-500');
-                            setTimeout(() => dateInput.classList.remove('border-rose-500', 'ring-2', 'ring-rose-500'), 4000);
+                        const rawVal = String(valInput.value).replace(/[^\d.-]/g, '');
+                        if (rawVal !== '') {
+                            const numVal = parseFloat(rawVal);
+                            if (!isNaN(numVal) && numVal !== 0 && !dateInput.dataset.rawDate) {
+                                missingBillingDate = true;
+                                // Highlight the missing field briefly with warning color
+                                dateInput.classList.add('border-amber-500', 'ring-2', 'ring-amber-500');
+                                setTimeout(() => dateInput.classList.remove('border-amber-500', 'ring-2', 'ring-amber-500'), 4000);
+                            }
                         }
                     }
                 }
             });
 
             if (missingBillingDate) {
-                if(err) { 
-                    err.innerHTML = `<i data-lucide="alert-octagon" class="w-4 h-4"></i> Date of SWA/Billing is required for entered billing amounts.`; 
-                    err.classList.remove('hidden'); 
-                    lucide.createIcons(); 
-                }
-                showToast("Date of SWA/Billing is required when a billing amount is provided.", 'error');
-                switchModalTab('billing');
-                return;
+                showToast("Warning: A Billing amount was saved without a corresponding Date.", 'info');
+                // The 'return' has been removed so the saving process continues normally
             }
-            // --- END BILLING DATE VALIDATION ---
+            // --- END BILLING DATE WARNING ---
 
             if (md === 'EDIT' && dirtyTabs.size === 0) {
                 closeModal();
