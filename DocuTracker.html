@@ -264,6 +264,10 @@
                     <h3 class="text-xl md:text-2xl font-bold mb-6 text-indigo-700 flex items-center"><span class="bg-indigo-100 text-indigo-500 p-2 rounded-lg mr-3"><i class="fa-solid fa-cloud-arrow-up"></i></span> Upload New Document</h3>
                     <form id="upload-form" onsubmit="event.preventDefault(); submitNewDocument();">
                         <div class="mb-5">
+                            <label class="block text-sm font-bold mb-1.5 text-slate-600">Reference No.</label>
+                            <input type="text" id="doc-ref-no" class="input-3d" placeholder="e.g., REF-2026-001" required>
+                        </div>
+                        <div class="mb-5">
                             <label class="block text-sm font-bold mb-1.5 text-slate-600">Title / Subject</label>
                             <textarea id="doc-title" class="input-3d resize-none overflow-hidden" rows="1" style="min-height: 48px;" required oninput="this.style.height = 'auto'; this.style.height = this.scrollHeight + 'px'"></textarea>
                         </div>
@@ -997,7 +1001,9 @@
             if (!selectedUsers) return alert("Please assign to at least one user.");
 
             // Capture data BEFORE resetting the form
-            const desc = document.getElementById('doc-title').value;
+            const refNo = document.getElementById('doc-ref-no').value.trim();
+            const rawTitle = document.getElementById('doc-title').value.trim();
+            const desc = `${refNo} | ${rawTitle}`;
             const dateRec = document.getElementById('doc-date-received').value;
             const deadline = document.getElementById('doc-deadline').value;
 
