@@ -395,11 +395,22 @@
         <div class="box-3d p-8 w-full max-w-md mx-auto border border-white/50">
             <h3 class="text-xl font-bold mb-6 text-indigo-700"><i class="fa-solid fa-pen-to-square mr-2"></i> Edit Document</h3>
             <input type="hidden" id="edit-rowidx">
-            <input type="hidden" id="edit-date-received">
+            
+            <div class="mb-5">
+                <label class="block text-sm font-bold mb-1.5 text-slate-600">Reference No.</label>
+                <input type="text" id="edit-ref-no" class="input-3d" placeholder="e.g., REF-2026-001" required>
+            </div>
+            
             <div class="mb-5">
                 <label class="block text-sm font-bold mb-1.5 text-slate-600">Title / Subject</label>
                 <textarea id="edit-title" class="input-3d resize-none overflow-hidden" rows="1" style="min-height: 48px;" required oninput="this.style.height = 'auto'; this.style.height = this.scrollHeight + 'px'"></textarea>
             </div>
+
+            <div class="mb-5">
+                <label class="block text-sm font-bold mb-1.5 text-slate-600">Date Received</label>
+                <input type="text" id="edit-date-received" class="input-3d date-picker" placeholder="Select Date" required>
+            </div>
+            
             <div class="mb-8">
                 <div class="flex justify-between items-center mb-1.5">
                     <label class="block text-sm font-bold text-slate-600">Deadline</label>
@@ -498,7 +509,7 @@
 
         // --- CORE APPLICATION LOGIC ---
 
-        const ADMIN_TABS = ["Receiving", "For Evaluation", "In Progress", "For Signature", "Approved", "Completed", "Archive"];
+        const ADMIN_TABS = ["Receiving", "In Progress", "For Signature", "Approved", "Completed", "Archive"];
         const USER_TABS = ["Incoming", "Processing", "Completed"];
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -514,6 +525,14 @@
             if (dateRecInput && dateRecInput._flatpickr) {
                 dateRecInput._flatpickr.config.onChange.push(function(selectedDates, dateStr, instance) {
                     updateDefaultDeadline();
+                });
+            }
+
+            const editDateRecInput = document.getElementById('edit-date-received');
+            if (editDateRecInput && editDateRecInput._flatpickr) {
+                editDateRecInput._flatpickr.config.onChange.push(function(selectedDates, dateStr, instance) {
+                    const cb = document.getElementById('edit-no-deadline-cb');
+                    if (cb.checked) { toggleEditDeadline(); }
                 });
             }
 
@@ -826,8 +845,7 @@
                 if (currentUser.role === "Admin") {
                     if (tabName === "Archive" && isArchived) isMatch = true;
                     else if (!isArchived) {
-                        if (tabName === "For Evaluation" && doc["User"] && !doc["Date Viewed by User"]) isMatch = true;
-                        if (tabName === "In Progress" && doc["Date Viewed by User"] && !doc["Date for Signature"]) isMatch = true;
+                        if (tabName === "In Progress" && doc["User"] && !doc["Date for Signature"]) isMatch = true;
                         if (tabName === "For Signature" && doc["Date for Signature"] && !doc["Reply File ID"]) isMatch = true;
                         if (tabName === "Approved" && doc["Reply File ID"] && !doc["Date Released/Completed"]) isMatch = true;
                         if (tabName === "Completed" && doc["Date Released/Completed"]) isMatch = true;
@@ -861,10 +879,10 @@
             }
             emptyState.classList.add('hidden'); tableCont.classList.remove('hidden');
 
-            let cols = [{ key: 'action', label: 'Action' }, { key: 'Title/Description', label: 'Title' }, { key: 'Date Received', label: 'Received' }, { key: 'Deadline', label: 'DEADLINE' }];
+            let cols = [{ key: 'action', label: 'Action' }, { key: 'Title/Description', label: 'Title' }, { key: 'Date Received', label: 'Received' }, { key: 'Deadline', label: 'Deadline' }];
             if(currentUser.role === 'Admin') {
                 cols.push({ key: 'User', label: 'User(s)' });
-                if(tabName !== 'For Evaluation' && tabName !== 'Archive') cols.push({ key: 'Date Viewed by User', label: 'Viewed' });
+                if(tabName !== 'Archive') cols.push({ key: 'Date Viewed by User', label: 'Viewed' });
                 if(['For Signature', 'Approved', 'Completed'].includes(tabName)) { cols.push({ key: 'Date of Letter', label: 'Letter Date' }); cols.push({ key: 'Date for Signature', label: 'Sign Date' }); }
                 if(['Approved', 'Completed'].includes(tabName)) cols.push({ key: 'Date Approved', label: 'Approved' });
                 if(tabName === 'Completed') cols.push({ key: 'Date Released/Completed', label: 'Completed' });
@@ -883,6 +901,25 @@
                     let cellContent = '';
                     if (c.key === 'action') {
                         cellContent = `<div class="flex flex-wrap gap-2">${getActions(tabName, doc)}</div>`;
+                    } else if (c.key === 'Title/Description') {
+                        let v = doc[c.key] || '';
+                        if (v.includes(' | ')) {
+                            const parts = v.split(' | ');
+                            const refNo = parts[0];
+                            const titleText = parts.slice(1).join(' | ');
+                            cellContent = `<div class="flex flex-col items-start gap-1">
+                                <span class="bg-indigo-100 text-indigo-700 text-[10px] md:text-[11px] font-bold px-2 py-0.5 rounded border border-indigo-200 shadow-sm tracking-wide"><i class="fa-solid fa-hashtag mr-1 opacity-70"></i>${refNo}</span>
+                                <span class="font-semibold text-slate-800">${titleText}</span>
+                            </div>`;
+                        } else {
+                            cellContent = `<span class="font-semibold text-slate-800">${v}</span>`;
+                        }
+                    } else if (c.key === 'Date Viewed by User') {
+                        let v = doc[c.key] || '';
+                        if (v) {
+                            const fDate = formatCustomDate(v);
+                            cellContent = `<span class="bg-sky-100 text-sky-700 px-2.5 py-1 rounded-md text-[11px] md:text-[12px] font-bold border border-sky-200 shadow-sm inline-flex items-center gap-1.5 mt-1 md:mt-0 whitespace-nowrap tracking-wide"><i class="fa-solid fa-eye opacity-80"></i>${fDate}</span>`;
+                        }
                     } else {
                         let v = doc[c.key] || '';
                         
@@ -945,10 +982,6 @@
             if(currentUser.role === 'Admin') {
                 html += `<button onclick="openEditModal(${doc.rowIndex}, '${safeTitle}', '${doc['Deadline']||''}', '${safeDateRec}')" class="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-pen"></i> Edit</button>`;
                 
-                if(tabName === 'For Evaluation') {
-                    html += `<button onclick="openReassignModal(${doc.rowIndex}, '${safeUsers}')" class="bg-sky-100 text-sky-700 hover:bg-sky-200 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-user-pen"></i> Reassign</button>`;
-                    html += `<button onclick="openArchiveModal(${doc.rowIndex})" class="bg-slate-200 text-slate-600 hover:bg-slate-300 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-box-archive"></i> Archive</button>`;
-                }
                 if(tabName === 'In Progress') {
                     html += `<button onclick="openReassignModal(${doc.rowIndex}, '${safeUsers}')" class="bg-sky-100 text-sky-700 hover:bg-sky-200 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-user-pen"></i> Reassign</button>`;
                     html += `<button onclick="openDatesModal(${doc.rowIndex})" class="bg-amber-100 text-amber-700 hover:bg-amber-200 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-calendar-plus"></i> Dates</button>`;
@@ -1111,14 +1144,34 @@
         function openEditModal(rowIdx, title, deadline, dateReceived) {
             document.getElementById('edit-rowidx').value = rowIdx;
             
+            const refInput = document.getElementById('edit-ref-no');
             const editTitleArea = document.getElementById('edit-title');
-            editTitleArea.value = title;
+            
+            if (title.includes(' | ')) {
+                const parts = title.split(' | ');
+                refInput.value = parts[0];
+                editTitleArea.value = parts.slice(1).join(' | ');
+            } else {
+                refInput.value = '';
+                editTitleArea.value = title;
+            }
+
             setTimeout(() => {
                 editTitleArea.style.height = 'auto';
                 editTitleArea.style.height = editTitleArea.scrollHeight + 'px';
             }, 10);
 
-            document.getElementById('edit-date-received').value = dateReceived || '';
+            const dateRecInput = document.getElementById('edit-date-received');
+            if (dateReceived) {
+                const dRec = new Date(dateReceived);
+                if (!isNaN(dRec)) {
+                    dateRecInput._flatpickr.setDate(dRec);
+                } else {
+                    dateRecInput._flatpickr.clear();
+                }
+            } else {
+                dateRecInput._flatpickr.clear();
+            }
             
             const deadlineInput = document.getElementById('edit-deadline');
             const deadlinePicker = deadlineInput._flatpickr;
@@ -1147,19 +1200,31 @@
 
         async function submitEdit() {
             const rowIdx = document.getElementById('edit-rowidx').value;
-            const title = document.getElementById('edit-title').value;
+            const refNo = document.getElementById('edit-ref-no').value.trim();
+            const rawTitle = document.getElementById('edit-title').value.trim();
+            const dateReceived = document.getElementById('edit-date-received').value;
             const deadline = document.getElementById('edit-deadline').value;
             
-            if(!title) {
+            if(!rawTitle) {
                 showToast("Title is required.", "error");
                 return;
             }
+
+            const fullTitle = refNo ? `${refNo} | ${rawTitle}` : rawTitle;
 
             closeModal('modal-edit');
             showToast("Saving changes...", "success");
 
             try {
-                await apiCall({ action: 'updateRow', rowIndex: rowIdx, updateFields: { "Title/Description": title, "Deadline": deadline } });
+                await apiCall({ 
+                    action: 'updateRow', 
+                    rowIndex: rowIdx, 
+                    updateFields: { 
+                        "Title/Description": fullTitle, 
+                        "Date Received": dateReceived,
+                        "Deadline": deadline 
+                    } 
+                });
                 showToast("Document successfully updated!", "success");
                 manualRefresh(true);
             } catch(e) {

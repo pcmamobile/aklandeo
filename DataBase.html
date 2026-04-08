@@ -1770,9 +1770,15 @@
                 const actualIndex = startIndex + i;
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 cursor-pointer transition-all border-b border-slate-200/50 dark:border-slate-700/50 group transform hover:scale-[1.002]";
+                tr.title = "Double-click row to edit";
                 
                 tr.onclick = (e) => { 
-                    if(!e.target.closest('.btn-edit')) toggleRowExp(actualIndex); 
+                    if(!e.target.closest('button')) toggleRowExp(actualIndex); 
+                };
+
+                tr.ondblclick = () => {
+                    window.getSelection().removeAllRanges(); // Clears text highlight from double-click
+                    openModal('EDIT', p.id);
                 };
 
                 const cst = p.cost ? p.cost.toLocaleString('en-PH', {style:'currency', currency:'PHP'}) : '';
