@@ -60,8 +60,8 @@
         <!-- A. LIVE CAMERA FULL SCREEN                 -->
         <!-- ========================================== -->
         <div id="cameraView" class="absolute inset-0 hidden">
-            <!-- Full Bleed Video -->
-            <video id="videoElement" autoplay playsinline class="absolute inset-0 w-full h-full object-cover"></video>
+            <!-- Full Bleed Video with muted and webkit-playsinline required for iOS/Mobile live feed -->
+            <video id="videoElement" autoplay playsinline webkit-playsinline muted class="absolute inset-0 w-full h-full object-cover"></video>
             <!-- Canvas for Yellow Crop Lines -->
             <canvas id="overlayCanvas" class="absolute inset-0 w-full h-full pointer-events-none z-0"></canvas>
             
@@ -280,9 +280,10 @@
                 }
 
                 try {
-                    // Safe 1080p constraint prevents the browser from crashing and forcing the fallback camera
+                    // Extremely relaxed constraints: This ensures mobile browsers (like iOS Safari) 
+                    // won't throw an OverconstrainedError and block the live view.
                     videoStream = await navigator.mediaDevices.getUserMedia({ 
-                        video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } },
+                        video: { facingMode: { ideal: 'environment' } },
                         audio: false 
                     });
                     
