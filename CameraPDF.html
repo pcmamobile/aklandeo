@@ -63,11 +63,11 @@
             <!-- Full Bleed Video -->
             <video id="videoElement" autoplay playsinline class="absolute inset-0 w-full h-full object-cover"></video>
             <!-- Canvas for Yellow Crop Lines -->
-            <canvas id="overlayCanvas" class="absolute inset-0 w-full h-full pointer-events-none"></canvas>
+            <canvas id="overlayCanvas" class="absolute inset-0 w-full h-full pointer-events-none z-0"></canvas>
             
             <!-- Top Gradient & Floating Badges -->
-            <div class="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-black/60 to-transparent pointer-events-none"></div>
-            <div class="absolute top-0 left-0 w-full p-6 pt-10 flex justify-between items-center z-10">
+            <div class="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-black/60 to-transparent pointer-events-none z-10"></div>
+            <div class="absolute top-0 left-0 w-full p-6 pt-10 flex justify-between items-center z-20">
                 <button id="cancelCameraBtn" class="text-white bg-black/40 backdrop-blur-md px-4 py-2 rounded-full font-medium active:bg-black/60 transition-colors shadow-sm">
                     Cancel
                 </button>
@@ -78,8 +78,8 @@
             </div>
 
             <!-- Bottom Gradient & Floating Camera Controls -->
-            <div class="absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-black/80 via-black/40 to-transparent pointer-events-none"></div>
-            <div id="cameraControls" class="absolute bottom-10 left-0 w-full flex justify-center items-center z-10 hidden">
+            <div class="absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-black/80 via-black/40 to-transparent pointer-events-none z-10"></div>
+            <div id="cameraControls" class="absolute bottom-10 left-0 w-full flex justify-center items-center z-20 hidden">
                 <!-- Native-style Shutter Button -->
                 <button id="captureBtn" class="w-20 h-20 rounded-full border-[5px] border-white/60 flex items-center justify-center active:scale-90 transition-transform focus:outline-none">
                     <div class="w-[60px] h-[60px] bg-white rounded-full"></div>
@@ -168,8 +168,22 @@
             </div>
         </div>
 
-        <!-- Bottom Action Bar -->
-        <div class="w-full p-6 bg-white border-t border-slate-200 shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.05)] pb-10 shrink-0">
+        <!-- Bottom Action Bar (Now with Add Page) -->
+        <div class="w-full p-6 bg-white border-t border-slate-200 shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.05)] pb-10 shrink-0 flex flex-col space-y-3">
+            
+            <!-- Add Page Row -->
+            <div class="flex w-full">
+                <button id="addMoreFromSaveBtn" class="flex-[1] bg-slate-100 text-slate-700 hover:bg-slate-200 font-bold py-4 rounded-2xl active:scale-95 transition-transform text-lg flex justify-center items-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+                    <span>Add Another Page</span>
+                </button>
+                <label for="fallbackCameraInput" id="fallbackAddMoreFromSaveBtn" class="hidden flex-[1] bg-slate-100 text-slate-700 hover:bg-slate-200 font-bold py-4 rounded-2xl active:scale-95 transition-transform text-lg text-center cursor-pointer flex justify-center items-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+                    <span>Add Another Page</span>
+                </label>
+            </div>
+
+            <!-- Save PDF Row -->
             <button id="downloadPdfBtn" class="w-full bg-blue-600 text-white font-bold py-4 rounded-2xl shadow-lg shadow-blue-600/30 active:scale-95 transition-transform text-lg flex justify-center items-center space-x-2">
                 <span id="downloadBtnText">Save to PDF</span>
             </button>
@@ -236,6 +250,8 @@
         const downloadPdfBtn = document.getElementById('downloadPdfBtn');
         const downloadBtnText = document.getElementById('downloadBtnText');
         const discardAllBtn = document.getElementById('discardAllBtn');
+        const addMoreFromSaveBtn = document.getElementById('addMoreFromSaveBtn');
+        const fallbackAddMoreFromSaveBtn = document.getElementById('fallbackAddMoreFromSaveBtn');
         
         const cameraPageBadge = document.getElementById('cameraPageBadge');
         const pageBadgeCount = document.getElementById('pageBadgeCount');
@@ -264,8 +280,9 @@
                 }
 
                 try {
+                    // Safe 1080p constraint prevents the browser from crashing and forcing the fallback camera
                     videoStream = await navigator.mediaDevices.getUserMedia({ 
-                        video: { facingMode: 'environment', width: { ideal: 3840 }, height: { ideal: 2160 } },
+                        video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } },
                         audio: false 
                     });
                     
@@ -284,13 +301,14 @@
                         requestAnimationFrame(processLiveVideoFrame);
                     };
                 } catch (err) {
-                    console.log("Live view blocked. Enabling fallback mode.");
+                    console.log("Live view blocked. Enabling fallback mode.", err);
                     enableFallbackUI();
                     fallbackCameraInput.click();
                 }
             }
 
             startBtn.addEventListener('click', startScanner);
+            addMoreFromSaveBtn.addEventListener('click', startScanner);
 
             // --- View Manager ---
             function showView(viewName) {
@@ -325,6 +343,7 @@
                 startBtn.classList.add('hidden');
                 retakeCropBtn.classList.add('hidden');
                 addPageBtn.classList.add('hidden');
+                addMoreFromSaveBtn.classList.add('hidden');
                 
                 fallbackStartBtn.classList.remove('hidden');
                 fallbackStartBtn.classList.add('flex');
@@ -332,6 +351,9 @@
                 fallbackRetakeCropBtn.classList.remove('hidden');
                 fallbackAddPageBtn.classList.remove('hidden');
                 fallbackAddPageBtn.classList.add('flex');
+                
+                fallbackAddMoreFromSaveBtn.classList.remove('hidden');
+                fallbackAddMoreFromSaveBtn.classList.add('flex');
             }
 
             function handleFallbackFileChoice() {
@@ -339,6 +361,7 @@
             }
             fallbackRetakeCropBtn.addEventListener('click', handleFallbackFileChoice);
             fallbackAddPageBtn.addEventListener('click', handleFallbackFileChoice);
+            fallbackAddMoreFromSaveBtn.addEventListener('click', handleFallbackFileChoice);
 
             // --- 2. Live Video Frame Processing ---
             function processLiveVideoFrame() {
@@ -351,7 +374,8 @@
                     return;
                 }
                 
-                const procMaxWidth = 400;
+                // Using a smaller processing canvas (256px) for highly responsive, fast live detection
+                const procMaxWidth = 256;
                 let procW = vW, procH = vH;
                 if (vW > procMaxWidth) {
                     procW = procMaxWidth;
@@ -385,7 +409,8 @@
                     for (let i = 0; i < contours.size(); ++i) {
                         let cnt = contours.get(i);
                         let area = cv.contourArea(cnt);
-                        if (area > (procW * procH * 0.05)) { 
+                        // Minimum size to count as a document
+                        if (area > (procW * procH * 0.03)) { 
                             let hull = new cv.Mat();
                             cv.convexHull(cnt, hull, false, true);
                             let approx = new cv.Mat();
@@ -404,6 +429,7 @@
                         cnt.delete();
                     }
 
+                    // Draw the live yellow box on top of the camera
                     const overlayCtx = overlayCanvas.getContext('2d');
                     overlayCtx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
 
@@ -437,7 +463,7 @@
                             else overlayCtx.lineTo(screenX, screenY);
                         }
                         overlayCtx.closePath();
-                        overlayCtx.fillStyle = 'rgba(234, 179, 8, 0.2)';
+                        overlayCtx.fillStyle = 'rgba(234, 179, 8, 0.25)'; // Slightly visible fill
                         overlayCtx.fill();
                         overlayCtx.stroke();
                         bestApprox.delete();
@@ -447,7 +473,7 @@
                     src.delete(); gray.delete(); contours.delete(); hierarchy.delete();
                 } catch (err) { }
 
-                setTimeout(() => requestAnimationFrame(processLiveVideoFrame), 100); 
+                setTimeout(() => requestAnimationFrame(processLiveVideoFrame), 80); 
             }
 
             // --- 3. Shutter / File Input Logic ---
@@ -471,6 +497,8 @@
                 }
                 
                 startScreen.classList.add('hidden');
+                saveScreen.classList.add('hidden');
+                saveScreen.classList.remove('flex');
                 
                 const reader = new FileReader();
                 reader.onload = function(event) {
@@ -769,6 +797,10 @@
                 saveScreen.classList.remove('flex');
                 startScreen.classList.remove('hidden');
                 fallbackCameraInput.value = ''; 
+                
+                if (isFallbackMode) {
+                    enableFallbackUI(); // Keeps fallback UI correct if returning to start
+                }
             }
 
             function stopCamera() {
