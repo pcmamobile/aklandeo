@@ -80,6 +80,12 @@
                     </svg>
                     <span id="startBtnText">Loading AI...</span>
                 </button>
+
+                <!-- Fallback Start Label (Hidden initially) -->
+                <label for="fallbackCameraInput" id="fallbackStartBtn" class="hidden w-full bg-slate-600 text-white font-semibold py-4 px-6 rounded-2xl shadow-md transition-all flex items-center justify-center space-x-2 cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                    <span>Open Native Camera</span>
+                </label>
             </div>
 
             <!-- Live Camera Screen -->
@@ -113,11 +119,20 @@
                     <button id="retakeBtn" class="bg-slate-700 hover:bg-slate-600 active:bg-slate-500 text-white font-semibold py-3 px-2 rounded-xl shadow-md transition-all text-sm">
                         Retake
                     </button>
+                    <!-- Fallback Retake Label -->
+                    <label for="fallbackCameraInput" id="fallbackRetakeBtn" class="hidden bg-slate-700 hover:bg-slate-600 active:bg-slate-500 text-white font-semibold py-3 px-2 rounded-xl shadow-md transition-all text-sm text-center cursor-pointer flex items-center justify-center">
+                        Retake
+                    </label>
                     
                     <button id="addPageBtn" class="bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-semibold py-3 px-2 rounded-xl shadow-md transition-all flex items-center justify-center space-x-1 text-sm">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                         <span>Add Page</span>
                     </button>
+                    <!-- Fallback Add Page Label -->
+                    <label for="fallbackCameraInput" id="fallbackAddPageBtn" class="hidden bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-semibold py-3 px-2 rounded-xl shadow-md transition-all flex items-center justify-center space-x-1 text-sm cursor-pointer">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        <span>Add Page</span>
+                    </label>
 
                     <button id="reviewSaveBtn" class="col-span-2 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-semibold py-4 px-4 rounded-xl shadow-md transition-all flex items-center justify-center space-x-2">
                         <span>Review & Save PDF</span>
@@ -155,6 +170,10 @@
                             <button id="addMoreFromSaveBtn" class="bg-slate-700 text-white hover:bg-slate-600 py-3 rounded-xl transition-all text-sm font-medium">
                                 Add Page
                             </button>
+                            <!-- Fallback Add Page from Save Label -->
+                            <label for="fallbackCameraInput" id="fallbackAddMoreFromSaveBtn" class="hidden bg-slate-700 text-white hover:bg-slate-600 py-3 rounded-xl transition-all text-sm font-medium text-center cursor-pointer flex items-center justify-center">
+                                Add Page
+                            </label>
                             <button id="discardAllBtn" class="bg-transparent text-red-400 border border-red-400/30 hover:bg-red-400/10 py-3 rounded-xl transition-all text-sm font-medium">
                                 Discard All
                             </button>
@@ -179,6 +198,7 @@
         // Multi-page State
         let capturedPages = [];
         let currentScannedPage = null; // Holds { dataUrl, width, height } temporarily
+        let isFallbackMode = false; // Tracks if we should use native camera
 
         // --- DOM Elements ---
         const startScreen = document.getElementById('startScreen');
@@ -193,11 +213,14 @@
         
         const fallbackCameraInput = document.getElementById('fallbackCameraInput');
         const startBtn = document.getElementById('startBtn');
+        const fallbackStartBtn = document.getElementById('fallbackStartBtn');
         const captureBtn = document.getElementById('captureBtn');
         const cancelCameraBtn = document.getElementById('cancelCameraBtn');
         
         const retakeBtn = document.getElementById('retakeBtn');
+        const fallbackRetakeBtn = document.getElementById('fallbackRetakeBtn');
         const addPageBtn = document.getElementById('addPageBtn');
+        const fallbackAddPageBtn = document.getElementById('fallbackAddPageBtn');
         const reviewSaveBtn = document.getElementById('reviewSaveBtn');
         
         const thumbnailsContainer = document.getElementById('thumbnailsContainer');
@@ -205,6 +228,7 @@
         const downloadPdfBtn = document.getElementById('downloadPdfBtn');
         const discardAllBtn = document.getElementById('discardAllBtn');
         const addMoreFromSaveBtn = document.getElementById('addMoreFromSaveBtn');
+        const fallbackAddMoreFromSaveBtn = document.getElementById('fallbackAddMoreFromSaveBtn');
         
         const statusText = document.getElementById('statusText');
         const cameraPageBadge = document.getElementById('cameraPageBadge');
@@ -220,6 +244,10 @@
             startBtn.classList.remove('bg-slate-600');
             startBtn.classList.add('bg-blue-600', 'hover:bg-blue-500');
             startBtn.disabled = false;
+
+            fallbackStartBtn.classList.remove('bg-slate-600');
+            fallbackStartBtn.classList.add('bg-blue-600', 'hover:bg-blue-500');
+            
             statusText.textContent = 'Ready. Press Open Scanner.';
         }
 
@@ -263,8 +291,8 @@
                     };
                 } catch (err) {
                     console.error("Camera blocked. Triggering fallback:", err);
-                    statusText.textContent = `Live view blocked. Opening native camera for Page ${capturedPages.length + 1}...`;
-                    fallbackCameraInput.click();
+                    statusText.textContent = "Live view blocked. Please tap 'Open Native Camera' below.";
+                    enableFallbackUI();
                 }
             }
 
@@ -272,6 +300,41 @@
             addMoreFromSaveBtn.addEventListener('click', () => {
                 fallbackCameraInput.value = '';
                 startScanner();
+            });
+
+            // --- Fallback UI Logic ---
+            function enableFallbackUI() {
+                isFallbackMode = true;
+                
+                // Hide programmatic buttons
+                startBtn.classList.add('hidden');
+                retakeBtn.classList.add('hidden');
+                addPageBtn.classList.add('hidden');
+                addMoreFromSaveBtn.classList.add('hidden');
+
+                // Show physical HTML labels to trick mobile OS into allowing camera
+                fallbackStartBtn.classList.remove('hidden');
+                fallbackRetakeBtn.classList.remove('hidden');
+                fallbackAddPageBtn.classList.remove('hidden');
+                fallbackAddMoreFromSaveBtn.classList.remove('hidden');
+            }
+
+            // Handles clearing states just before the native camera opens via the Labels
+            fallbackRetakeBtn.addEventListener('click', () => {
+                currentScannedPage = null; 
+                fallbackCameraInput.value = ''; 
+            });
+
+            fallbackAddPageBtn.addEventListener('click', () => {
+                if(currentScannedPage) {
+                    capturedPages.push(currentScannedPage);
+                    currentScannedPage = null;
+                }
+                fallbackCameraInput.value = ''; 
+            });
+
+            fallbackAddMoreFromSaveBtn.addEventListener('click', () => {
+                fallbackCameraInput.value = '';
             });
 
             // --- 2. Live Frame Processing (OpenCV) ---
@@ -726,7 +789,11 @@
                 saveScreen.classList.add('hidden');
                 startScreen.classList.remove('hidden');
                 
-                statusText.textContent = "Ready. Press Open Scanner.";
+                if (isFallbackMode) {
+                    statusText.textContent = "Ready. Tap Open Native Camera.";
+                } else {
+                    statusText.textContent = "Ready. Press Open Scanner.";
+                }
                 fallbackCameraInput.value = ''; 
             }
 
