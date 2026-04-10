@@ -218,6 +218,7 @@
     .btn-tracker { background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%); --btn-shadow: #a992d1; color: #4c1d95;}
     .btn-leaderboards { background: linear-gradient(135deg, #fccb90 0%, #d57eeb 100%); --btn-shadow: #c28fa4; color: #701a75;}
     .btn-pcmarev { background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%); --btn-shadow: #61b896; color: #064e3b;}
+    .btn-camera { background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); --btn-shadow: #d68f63; color: #9a3412;}
     .btn-download { background: linear-gradient(135deg, #e2e2e2 0%, #c9d6ff 100%); --btn-shadow: #a4adcc; color: #334155;}
 
     .btn-3d:hover {
@@ -245,7 +246,8 @@
     .btn-tracker .emoji-icon { animation-delay: 0.6s; }
     .btn-leaderboards .emoji-icon { animation-delay: 0.8s; }
     .btn-pcmarev .emoji-icon { animation-delay: 1.0s; }
-    .btn-download .emoji-icon { animation-delay: 1.2s; }
+    .btn-camera .emoji-icon { animation-delay: 1.2s; }
+    .btn-download .emoji-icon { animation-delay: 1.4s; }
 
     @keyframes iconFloat {
       0%, 100% { transform: translateY(0) rotate(0deg); }
@@ -618,7 +620,11 @@
       <span class="emoji-icon">🔄</span>
       <span>PCMA Revision<br>Monitoring</span>
     </button>
-    <a href="https://drive.google.com/file/d/18MRorIBNySGijoJS9bEWE8fShsj2Ra3W/view?usp=sharing" target="_blank" class="btn-3d btn-download">
+    <button type="button" class="btn-3d btn-camera" data-src="CameraPDF.html">
+      <span class="emoji-icon">📸</span>
+      <span>PDF Camera</span>
+    </button>
+    <a href="https://drive.google.com/file/d/1cTD6ye5Ta12r0tYVQDRsjoKRvQQlYlw6/view?usp=sharing" target="_blank" class="btn-3d btn-download">
       <span class="emoji-icon">📱</span>
       <span>Download APK<br>for Android Only</span>
     </a>

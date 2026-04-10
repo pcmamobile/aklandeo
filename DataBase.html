@@ -294,11 +294,6 @@
                             <i data-lucide="sun" class="w-5 h-5 text-amber-400"></i>
                         </button>
 
-                        <!-- Upload Docs Button (MOCKED for Pure HTML) -->
-                        <button id="btnUploadDocs" onclick="showToast('Upload functionality requires backend Google Drive integration.', 'info')" class="btn-3d flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-xl text-sm font-bold focus:outline-none">
-                            <i data-lucide="cloud-upload" class="w-5 h-5"></i> <span class="hidden md:inline">Docs</span>
-                        </button>
-
                         <!-- Add Contract ID Button -->
                         <button onclick="openModal('ADD')" class="btn-3d flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-indigo-600 to-purple-600 text-white rounded-xl text-sm font-bold focus:outline-none">
                             <i data-lucide="folder-plus" class="w-5 h-5"></i> <span class="hidden md:inline">New Project</span>
@@ -670,6 +665,23 @@
             </div>
         </div>
     </div>
+
+    <!-- WARNING MODAL (Appears on top of other modals) -->
+    <div id="warningModal" class="modal-overlay !z-[400]">
+        <div class="box-3d bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl w-full max-w-sm rounded-3xl flex flex-col border border-white/50 dark:border-rose-500/30 relative overflow-hidden transform scale-95 transition-transform duration-300" id="warningModalInner">
+            <div class="absolute -top-10 -right-10 w-32 h-32 bg-rose-500/10 rounded-bl-full pointer-events-none"></div>
+            <div class="p-6 sm:p-8 flex flex-col items-center text-center relative z-10">
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-rose-500 to-red-600 flex items-center justify-center shadow-lg shadow-rose-500/30 mb-4 animate-bounce">
+                    <i data-lucide="alert-triangle" class="w-8 h-8 text-white"></i>
+                </div>
+                <h2 class="font-black text-xl text-slate-800 dark:text-white tracking-tight mb-2">Attention Required</h2>
+                <p id="warningModalText" class="text-sm font-semibold text-slate-600 dark:text-slate-300 mb-6"></p>
+                <button type="button" onclick="closeWarningModal()" class="btn-3d w-full px-5 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-white rounded-xl text-sm font-bold flex justify-center items-center gap-2 transition-colors focus:outline-none">
+                    <i data-lucide="x" class="w-4 h-4"></i> Close
+                </button>
+            </div>
+        </div>
+    </div>
     
     <!-- Toast Notification Wrapper -->
     <div id="toastWrapper" class="fixed bottom-6 right-6 z-[300] flex flex-col items-end gap-3 pointer-events-none">
@@ -971,6 +983,63 @@
             lucide.createIcons();
         }
 
+        // === WARNING MODAL LOGIC ===
+        function showWarningModal(message) {
+            document.getElementById('warningModalText').textContent = message;
+            const modal = document.getElementById('warningModal');
+            modal.classList.add('show');
+            const inner = document.getElementById('warningModalInner');
+            if(inner) {
+                inner.classList.remove('scale-95');
+                inner.classList.add('scale-100');
+            }
+            lucide.createIcons();
+        }
+
+        function closeWarningModal() {
+            const inner = document.getElementById('warningModalInner');
+            if(inner) {
+                inner.classList.remove('scale-100');
+                inner.classList.add('scale-95');
+            }
+            setTimeout(() => {
+                document.getElementById('warningModal').classList.remove('show');
+            }, 200);
+        }
+
+        // === CA DATE VALIDATION LOGIC ===
+        function validateCaDate() {
+            const compVal = document.getElementById('d_comp').value;
+            const caVal = document.getElementById('d_ca').value;
+            
+            if (compVal && caVal) {
+                const compDate = new Date(compVal);
+                const caDate = new Date(caVal);
+                
+                if (!isNaN(compDate.getTime()) && !isNaN(caDate.getTime())) {
+                    // Set the minimum acceptable CA Date (Completion + 1 Year)
+                    const minCaDate = new Date(compDate);
+                    minCaDate.setFullYear(minCaDate.getFullYear() + 1);
+                    
+                    if (caDate < minCaDate) {
+                        // Display the Warning Modal Popup
+                        showWarningModal("Date of CA is less than 1 year from Completion Date. Please verify the 1-Year Defects Liability Period.");
+                        
+                        // Visually highlight the Date of CA Input Field with Red Border
+                        const caInput = document.getElementById('d_ca');
+                        caInput.classList.remove('border-blue-200', 'dark:border-blue-900/50', 'focus:ring-blue-500');
+                        caInput.classList.add('border-rose-500', 'dark:border-rose-500', 'ring-2', 'ring-rose-500');
+                        
+                        // Reset the border color back to normal after 5 seconds
+                        setTimeout(() => {
+                            caInput.classList.add('border-blue-200', 'dark:border-blue-900/50', 'focus:ring-blue-500');
+                            caInput.classList.remove('border-rose-500', 'dark:border-rose-500', 'ring-2', 'ring-rose-500');
+                        }, 5000);
+                    }
+                }
+            }
+        }
+
         // === App State ===
         let serverData = null;
         let pdoRecords = [];
@@ -1058,6 +1127,11 @@
                         else if (id === 'wsoSection') dirtyTabs.add('WSO_WRO_CTE');
                         else if (id === 'pcmaSection') dirtyTabs.add('PCMA');
                         else if (id === 'billingSection') dirtyTabs.add('BILLING');
+                    }
+
+                    // Trigger Warning Logic for Date of CA
+                    if (instance.element.id === 'd_ca' || instance.element.id === 'd_comp') {
+                        validateCaDate();
                     }
                 }
             });
@@ -2573,7 +2647,7 @@
             });
 
             if (missingBillingDate) {
-                showToast("Warning: A Billing amount was saved without a corresponding Date.", 'info');
+                showWarningModal("A Billing amount was saved without a corresponding Date. Please double-check your billing entries.");
             }
             // --- END BILLING DATE WARNING ---
 
@@ -2599,7 +2673,7 @@
             addPdo('f_contract_id', 'CONTRACT ID'); addPdo('f_fund', 'FUND'); addPdo('f_name', 'PROJECT NAME');
             addPdo('f_location', 'LOCATION'); addPdo('f_contractor', 'CONTRACTOR'); addPdo('f_cost', 'CONTRACT COST', false, true);
             addPdo('f_abc', 'ABC', false, true); addPdo('f_ntp', 'NTP', true); addPdo('f_expiry', 'EXPIRY DATE', true);
-            addPdo('f_pe', 'PROJECT ENGINEER (PE)'); addPdo('f_pi', 'PROJECT INSPECTOR (PI)'); addPdo('f_re', 'RESIDENT ENGINEER (RE)');
+            addPdo('f_pe', 'PROJECT ENGINEER (PE)'); addPdo('f_pi', 'PROJECT Inspector (PI)'); addPdo('f_re', 'RESIDENT ENGINEER (RE)');
             addPdo('f_qe', 'QUANTITY ENGINEER (QE)'); addPdo('f_me', 'MATERIALS ENGINEER (ME)'); addPdo('f_lo', 'LIAISON OFFICER (LO)');
 
             const dateHeaders = (serverData.DATE.headers || []).map(h => String(h||'').toUpperCase().trim());

@@ -510,7 +510,7 @@
         // --- CORE APPLICATION LOGIC ---
 
         const ADMIN_TABS = ["Receiving", "In Progress", "For Signature", "Approved", "Completed", "Archive"];
-        const USER_TABS = ["Incoming", "Processing", "Completed"];
+        const USER_TABS = ["Incoming", "Processing", "Completed", "Archive"];
 
         document.addEventListener('DOMContentLoaded', function() {
             
@@ -704,21 +704,12 @@
             const tabContainer = document.getElementById('tabs-container');
             tabContainer.innerHTML = '';
             
-            // Dynamic TABS layout based on user role (Grid for 3 user tabs, flex for many admin tabs)
-            if (currentUser.role === 'User') {
-                tabContainer.className = "grid grid-cols-3 gap-1 px-1 pt-2 bg-transparent border-b border-indigo-100 w-full"; 
-            } else {
-                tabContainer.className = "flex overflow-x-auto hide-scrollbar pt-4 px-4 gap-2 bg-transparent border-b border-indigo-100 w-full";
-            }
+            // Flex layout is used for both so it easily scrolls horizontally on mobile for any number of tabs
+            tabContainer.className = "flex overflow-x-auto hide-scrollbar pt-4 px-4 gap-2 bg-transparent border-b border-indigo-100 w-full";
             
             tabs.forEach((tab, index) => {
                 const btn = document.createElement('div');
-                
-                if (currentUser.role === 'User') {
-                    btn.className = `tab-btn relative flex justify-center items-center text-center text-xs md:text-sm py-3.5 rounded-t-2xl tracking-wide ${index === 0 ? 'active' : ''}`;
-                } else {
-                    btn.className = `tab-btn relative flex-shrink-0 whitespace-nowrap text-sm md:text-base py-3 tracking-wide ${index === 0 ? 'active' : ''}`;
-                }
+                btn.className = `tab-btn relative flex-shrink-0 whitespace-nowrap text-sm md:text-base py-3 tracking-wide ${index === 0 ? 'active' : ''}`;
                 
                 const badgeId = `badge-${tab.replace(/\s+/g, '-')}`;
                 btn.innerHTML = `<span>${tab}</span><span id="${badgeId}" class="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-rose-400 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold shadow-md z-10 border border-white" style="display:none;">0</span>`;
@@ -796,10 +787,14 @@
                 } else if (currentUser.role === "User") {
                     const docUsers = String(doc["User"]).toLowerCase().split(',').map(u => u.trim());
                     const isAssigned = docUsers.includes(currentUser.account.toLowerCase()) || docUsers.includes("all users");
-                    if (!isArchived && isAssigned) {
-                        if (!doc["Date for Signature"]) counts["Incoming"] = (counts["Incoming"] || 0) + 1;
-                        else if (doc["Date for Signature"] && !doc["Reply File ID"]) counts["Processing"] = (counts["Processing"] || 0) + 1;
-                        else if (doc["Reply File ID"]) counts["Completed"] = (counts["Completed"] || 0) + 1;
+                    if (isAssigned) {
+                        if (isArchived) {
+                            counts["Archive"] = (counts["Archive"] || 0) + 1;
+                        } else {
+                            if (!doc["Date for Signature"]) counts["Incoming"] = (counts["Incoming"] || 0) + 1;
+                            else if (doc["Date for Signature"] && !doc["Reply File ID"]) counts["Processing"] = (counts["Processing"] || 0) + 1;
+                            else if (doc["Reply File ID"]) counts["Completed"] = (counts["Completed"] || 0) + 1;
+                        }
                     }
                 }
             });
@@ -855,10 +850,13 @@
                     const docUsers = String(doc["User"]).toLowerCase().split(',').map(u => u.trim());
                     const isAssigned = docUsers.includes(currentUser.account.toLowerCase()) || docUsers.includes("all users");
 
-                    if (!isArchived && isAssigned) {
-                        if (tabName === "Incoming" && !doc["Date for Signature"]) isMatch = true;
-                        if (tabName === "Processing" && doc["Date for Signature"] && !doc["Reply File ID"]) isMatch = true;
-                        if (tabName === "Completed" && doc["Reply File ID"]) isMatch = true;
+                    if (isAssigned) {
+                        if (tabName === "Archive" && isArchived) isMatch = true;
+                        else if (!isArchived) {
+                            if (tabName === "Incoming" && !doc["Date for Signature"]) isMatch = true;
+                            if (tabName === "Processing" && doc["Date for Signature"] && !doc["Reply File ID"]) isMatch = true;
+                            if (tabName === "Completed" && doc["Reply File ID"]) isMatch = true;
+                        }
                     }
                 }
                 if (isMatch) filteredDocs.push(doc);
@@ -890,7 +888,8 @@
             } else {
                 cols.push({ key: 'User', label: 'User(s)' });
                 if(['Processing', 'Completed'].includes(tabName)) { cols.push({ key: 'Date of Letter', label: 'Letter Date' }); cols.push({ key: 'Date for Signature', label: 'Sign Date' }); }
-                if(tabName === 'Completed') cols.push({ key: 'Date Approved', label: 'Approved' });
+                if(['Completed', 'Archive'].includes(tabName)) cols.push({ key: 'Date Approved', label: 'Approved' });
+                if(tabName === 'Archive') cols.push({ key: 'Remarks', label: 'Remarks' });
             }
 
             let trH = '<tr>'; cols.forEach(c => trH += `<th class="p-3 md:p-4">${c.label}</th>`); head.innerHTML = trH + '</tr>';
@@ -999,10 +998,10 @@
                     html += `<button onclick="viewFile('${doc['Reply File ID']}', null, 'Reply')" class="bg-slate-200 text-slate-700 hover:bg-slate-300 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-envelope-open-text"></i> Reply File</button>`;
                 }
             } else if(currentUser.role === 'User') {
-                if (tabName !== 'Completed') {
+                if (tabName !== 'Completed' && tabName !== 'Archive') {
                     html += `<button onclick="openReassignModal(${doc.rowIndex}, '${safeUsers}')" class="bg-sky-100 text-sky-700 hover:bg-sky-200 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-user-plus"></i> Assign</button>`;
                 }
-                if(['Processing', 'Completed'].includes(tabName) && doc['Reply File ID']) {
+                if(['Processing', 'Completed', 'Archive'].includes(tabName) && doc['Reply File ID']) {
                     html += `<button onclick="viewFile('${doc['Reply File ID']}', null, 'Reply')" class="bg-fuchsia-100 text-fuchsia-700 hover:bg-fuchsia-200 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-envelope-open-text"></i> Reply</button>`;
                 }
             }
@@ -1040,6 +1039,13 @@
             const dateRec = document.getElementById('doc-date-received').value;
             const deadline = document.getElementById('doc-deadline').value;
 
+            // Preserve file extension
+            let fileExt = '';
+            if (f.name.includes('.')) {
+                fileExt = f.name.substring(f.name.lastIndexOf('.'));
+            }
+            const customFileName = `${desc}${fileExt}`;
+
             // --- SILENT UI RESET (Instantly clear form so user can start the next one) ---
             document.getElementById('upload-form').reset(); 
             const docTitleArea = document.getElementById('doc-title');
@@ -1066,7 +1072,7 @@
                     action: 'uploadNewDoc',
                     fileData: b64.split(',')[1], 
                     mimeType: f.type,
-                    fileName: f.name,
+                    fileName: customFileName,
                     description: desc,
                     dateReceived: dateRec,
                     deadline: deadline,
@@ -1271,13 +1277,21 @@
             showToast("Uploading reply document...", "success");
             try {
                 const b64 = await getBase64(f);
+                
+                let fileExt = '';
+                if (f.name.includes('.')) {
+                    fileExt = f.name.substring(f.name.lastIndexOf('.'));
+                }
+                const replyTitle = document.getElementById('reply-title').value + " Reply";
+                const customFileName = `${replyTitle}${fileExt}`;
+
                 await apiCall({
                     action: 'uploadReply',
                     rowIndex: document.getElementById('reply-rowidx').value,
-                    replyTitle: document.getElementById('reply-title').value + " Reply",
+                    replyTitle: replyTitle,
                     fileData: b64.split(',')[1],
                     mimeType: f.type,
-                    fileName: f.name,
+                    fileName: customFileName,
                     dateApproved: da
                 });
                 showToast("Reply document attached successfully!", "success");

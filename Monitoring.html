@@ -36,7 +36,6 @@
             overflow-x: hidden;
         }
 
-        /* 3D Neumorphism & Glassmorphism Utilities */
         .card-3d {
             background: #20202d;
             box-shadow: 12px 12px 24px #121219, -12px -12px 24px #2e2e41;
@@ -63,7 +62,6 @@
             border-bottom: 3px solid #00f3ff;
         }
 
-        /* 3D Clickable Badge for Totals */
         .td-clickable {
             background: linear-gradient(145deg, #ff0055, #c20042);
             box-shadow: 0 5px 0 #8a002f, 0 10px 15px rgba(0,0,0,0.5);
@@ -86,7 +84,6 @@
             box-shadow: 0 0px 0 #8a002f, 0 3px 5px rgba(0,0,0,0.5);
         }
 
-        /* Table sticky column for mobile */
         .sticky-col {
             position: sticky;
             left: 0;
@@ -95,14 +92,12 @@
             box-shadow: 4px 0 8px rgba(0,0,0,0.3);
         }
 
-        /* Modal 3D Effect */
         .modal-content-3d {
             background: #252535;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255,255,255,0.1);
             border: 1px solid #3d3d52;
         }
         
-        /* Smooth Scrollbar */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: #1a1a24; }
         ::-webkit-scrollbar-thumb { background: #3d3d52; border-radius: 4px; }
@@ -113,6 +108,17 @@
             0%, 100% { opacity: 1; transform: scale(1); }
             50% { opacity: 0.5; transform: scale(1.05); }
         }
+
+        /* Missing Doc Chip Hover */
+        .doc-chip {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .doc-chip:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 0, 85, 0.4);
+            border-color: rgba(255, 0, 85, 0.8);
+        }
     </style>
 </head>
 <body class="p-4 md:p-8 min-h-screen flex flex-col items-center">
@@ -120,12 +126,8 @@
     <!-- Header -->
     <header class="w-full max-w-6xl text-center mb-4 md:mb-8 mt-4">
         <h1 class="text-3xl md:text-6xl font-black mb-1 drop-shadow-lg text-transparent bg-clip-text bg-gradient-to-r from-neon-blue via-neon-purple to-neon-pink" style="filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));">
-            <i class="fa-solid fa-layer-group text-neon-blue mr-3"></i><span class="md:hidden">Monitoring</span><span class="hidden md:inline">File Tracker</span>
+            <i class="fa-solid fa-layer-group text-neon-blue mr-3"></i><span class="md:hidden">Monitoring</span><span class="hidden md:inline">Files to Upload</span>
         </h1>
-        <h2 class="hidden md:block text-lg md:text-2xl font-bold text-gray-300 mb-3 tracking-wide">
-            Upload your Project Documents
-        </h2>
-        <p class="hidden md:block text-gray-400 font-medium text-sm md:text-base"><i class="fa-solid fa-server mr-2 text-neon-green"></i>Live Sync from Google Sheets API</p>
     </header>
 
     <!-- Main Dashboard Container -->
@@ -134,20 +136,22 @@
         <!-- Loading Overlay -->
         <div id="loader" class="absolute inset-0 z-50 bg-[#20202d]/90 rounded-2xl flex flex-col items-center justify-center backdrop-blur-sm">
             <i class="fa-solid fa-cube text-6xl text-neon-blue loading-pulse mb-4"></i>
-            <h2 class="text-xl font-bold text-neon-blue">Fetching Live Data...</h2>
-            <p id="loader-text" class="text-gray-400 mt-2 text-sm text-center px-4">Connecting to Google Sheets via API...</p>
+            <h2 class="text-xl font-bold text-neon-blue" id="loader-title">Fetching Live Data...</h2>
+            <p id="loader-text" class="text-gray-400 mt-2 text-sm text-center px-4">Connecting securely to API Backend...</p>
         </div>
 
         <!-- Document Type Toggle -->
-        <div class="sticky top-0 md:static z-50 grid grid-cols-4 md:flex md:flex-wrap justify-center mb-6 bg-[#181822]/95 backdrop-blur-md rounded-xl md:rounded-2xl p-2 w-full md:w-fit mx-auto border border-gray-700/50 shadow-[0_10px_30px_rgba(0,0,0,0.6)] md:shadow-inner gap-1 md:gap-2">
-            <button onclick="switchDocType('VO')" id="type-VO" class="px-1 md:px-6 py-2 rounded-lg md:rounded-xl font-black text-xs md:text-sm transition-all bg-[#2a2a3a] text-neon-blue shadow-md border border-gray-600/50 text-center"><span class="md:hidden">VO</span><span class="hidden md:inline">Variation Orders</span></button>
-            <button onclick="switchDocType('SO')" id="type-SO" class="px-1 md:px-6 py-2 rounded-lg md:rounded-xl font-black text-xs md:text-sm transition-all text-gray-400 hover:text-white border-transparent text-center"><span class="md:hidden">SO</span><span class="hidden md:inline">Suspension Orders</span></button>
-            <button onclick="switchDocType('COMP')" id="type-COMP" class="px-1 md:px-6 py-2 rounded-lg md:rounded-xl font-black text-xs md:text-sm transition-all text-gray-400 hover:text-white border-transparent text-center"><span class="md:hidden">COC</span><span class="hidden md:inline">Completion</span></button>
-            <button onclick="switchDocType('ACC')" id="type-ACC" class="px-1 md:px-6 py-2 rounded-lg md:rounded-xl font-black text-xs md:text-sm transition-all text-gray-400 hover:text-white border-transparent text-center"><span class="md:hidden">CA</span><span class="hidden md:inline">Acceptance</span></button>
+        <div class="sticky top-0 md:static z-40 grid grid-cols-3 md:flex md:flex-wrap justify-center mb-6 bg-[#181822]/95 backdrop-blur-md rounded-xl md:rounded-2xl p-2 w-full md:w-fit mx-auto border border-gray-700/50 shadow-[0_10px_30px_rgba(0,0,0,0.6)] md:shadow-inner gap-1 md:gap-2">
+            <button onclick="switchDocType('MOBILIZATION')" id="type-MOBILIZATION" class="px-1 md:px-4 py-2 rounded-lg font-black text-[10px] md:text-sm transition-all bg-[#2a2a3a] text-neon-blue shadow-md border border-gray-600/50 text-center">MOBILIZATION</button>
+            <button onclick="switchDocType('ON-GOING')" id="type-ON-GOING" class="px-1 md:px-4 py-2 rounded-lg font-black text-[10px] md:text-sm transition-all text-gray-400 hover:text-white border-transparent text-center">ON-GOING</button>
+            <button onclick="switchDocType('COMPLETION')" id="type-COMPLETION" class="px-1 md:px-4 py-2 rounded-lg font-black text-[10px] md:text-sm transition-all text-gray-400 hover:text-white border-transparent text-center">COMPLETION</button>
+            <button onclick="switchDocType('ACCEPTANCE')" id="type-ACCEPTANCE" class="px-1 md:px-4 py-2 rounded-lg font-black text-[10px] md:text-sm transition-all text-gray-400 hover:text-white border-transparent text-center">ACCEPTANCE</button>
+            <button onclick="switchDocType('GEOTAGGING')" id="type-GEOTAGGING" class="px-1 md:px-4 py-2 rounded-lg font-black text-[10px] md:text-sm transition-all text-gray-400 hover:text-white border-transparent text-center">GEOTAGGING</button>
+            <button onclick="switchDocType('PCMA')" id="type-PCMA" class="px-1 md:px-4 py-2 rounded-lg font-black text-[10px] md:text-sm transition-all text-gray-400 hover:text-white border-transparent text-center">PCMA</button>
         </div>
 
         <!-- Role Tabs -->
-        <div class="grid grid-cols-4 md:flex md:flex-wrap justify-center gap-2 md:gap-4 mb-8 w-full max-w-3xl mx-auto">
+        <div class="grid grid-cols-4 md:flex md:flex-wrap justify-center gap-2 md:gap-4 mb-6 w-full max-w-3xl mx-auto">
             <button onclick="switchTab('PE')" id="tab-PE" class="btn-3d active-tab py-2 md:py-4 px-2 md:px-6 font-black text-xs md:text-lg flex flex-col md:flex-row items-center gap-1 md:gap-3 w-full sm:w-auto justify-center">
                 <i class="fa-solid fa-helmet-safety text-neon-orange md:text-2xl"></i> <span class="md:hidden">PE</span><span class="hidden md:inline">Project Engineer</span>
             </button>
@@ -159,6 +163,14 @@
             </button>
             <button onclick="switchTab('QE')" id="tab-QE" class="btn-3d py-2 md:py-4 px-2 md:px-6 font-black text-xs md:text-lg flex flex-col md:flex-row items-center gap-1 md:gap-3 w-full sm:w-auto justify-center text-gray-400">
                 <i class="fa-solid fa-clipboard-check text-neon-pink md:text-2xl"></i> <span class="md:hidden">QE</span><span class="hidden md:inline">Quantity Engineer</span>
+            </button>
+        </div>
+
+        <!-- Global Search Button -->
+        <div class="w-full max-w-md mx-auto mb-8 relative">
+            <button onclick="openSearchModal()" class="w-full bg-[#121219] hover:bg-[#1a1a24] border border-gray-700 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-neon-blue transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)] flex items-center justify-center gap-3">
+                <i class="fa-solid fa-magnifying-glass text-neon-blue text-lg"></i>
+                <span class="font-bold text-gray-300">Global Search Contract ID</span>
             </button>
         </div>
 
@@ -187,90 +199,151 @@
         </div>
     </main>
 
-    <!-- Details Modal -->
+    <!-- Global Search Modal -->
+    <div id="search-modal" class="fixed inset-0 z-[120] hidden items-start justify-center bg-black/90 backdrop-blur-md p-4 pt-10 transition-all">
+        <div class="modal-content-3d rounded-2xl w-full max-w-4xl flex flex-col h-[85vh] transform scale-95 transition-transform duration-300" id="search-modal-box">
+            <div class="p-5 border-b border-gray-700 flex justify-between items-center bg-gradient-to-r from-gray-800 to-gray-900 rounded-t-2xl">
+                <div class="relative w-full max-w-2xl mr-4">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 transform -translate-y-1/2 text-neon-blue"></i>
+                    <input type="text" id="global-search-input" oninput="performGlobalSearch()" placeholder="Type Contract ID..." class="w-full bg-[#121219] border border-gray-700 rounded-xl py-3 pl-12 pr-4 text-white focus:outline-none focus:border-neon-blue focus:ring-1 focus:ring-neon-blue transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)] text-lg font-bold">
+                </div>
+                <button onclick="closeSearchModal()" class="text-gray-400 hover:text-neon-pink transition-colors text-2xl shrink-0">
+                    <i class="fa-solid fa-circle-xmark"></i>
+                </button>
+            </div>
+            <div class="p-6 flex-1 overflow-y-auto bg-[#1a1a24] rounded-b-2xl custom-scrollbar" id="search-results">
+                <!-- Results injected here -->
+                <div class="text-center text-gray-500 mt-10">
+                    <i class="fa-solid fa-keyboard text-5xl mb-3 opacity-20"></i>
+                    <p class="font-bold">Type to search across all tabs</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Details Modal (Pending Files) -->
     <div id="modal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/80 backdrop-blur-md p-4 transition-all">
         <div class="modal-content-3d rounded-2xl w-full max-w-4xl overflow-hidden transform scale-95 transition-transform duration-300 flex flex-col" id="modal-box">
-            <!-- Modal Header -->
             <div class="bg-gradient-to-r from-gray-800 to-gray-900 p-5 border-b border-gray-700 flex justify-between items-center">
                 <h3 id="modal-title" class="text-xl font-bold text-white flex items-center gap-3">
-                    <i class="fa-solid fa-folder-open text-neon-orange"></i> Pending Documents
+                    <!-- Title injected here -->
                 </h3>
                 <button onclick="closeModal()" class="text-gray-400 hover:text-neon-pink transition-colors text-2xl">
                     <i class="fa-solid fa-circle-xmark"></i>
                 </button>
             </div>
-            <!-- Modal Body -->
             <div class="p-6 max-h-[75vh] overflow-y-auto" id="modal-body">
                 <!-- Contract items generated here -->
             </div>
-            <!-- Modal Footer -->
             <div class="p-4 bg-gray-900 border-t border-gray-800 text-center">
                 <button onclick="closeModal()" class="btn-3d px-8 py-2 text-white font-bold text-sm mx-auto">Close Panel</button>
             </div>
         </div>
     </div>
 
+    <!-- Upload/Action Modal (Dynamic Content Injection) -->
+    <div id="upload-modal" class="fixed inset-0 z-[130] hidden items-center justify-center bg-black/90 backdrop-blur-md p-4 transition-all">
+        <div class="modal-content-3d rounded-2xl w-full max-w-lg overflow-hidden transform scale-95 transition-transform duration-300 flex flex-col" id="upload-modal-box">
+            <div class="bg-gradient-to-r from-gray-800 to-gray-900 p-5 border-b border-gray-700 flex justify-between items-center">
+                <h3 class="text-xl font-bold text-white flex items-center gap-3" id="upload-modal-title">
+                    <!-- Injected dynamically -->
+                </h3>
+                <button onclick="closeUploadModal()" class="text-gray-400 hover:text-neon-pink transition-colors text-2xl" id="btn-close-upload">
+                    <i class="fa-solid fa-circle-xmark"></i>
+                </button>
+            </div>
+            <div class="p-6 bg-[#1a1a24] flex flex-col gap-4" id="upload-modal-body">
+                <!-- Injected dynamically -->
+            </div>
+            <div class="p-4 bg-gray-900 border-t border-gray-800 flex gap-3" id="upload-modal-footer">
+                <!-- Injected dynamically -->
+            </div>
+        </div>
+    </div>
+
     <script>
-        // Global State (Segmented by DocType and Role)
+        // =========================================================================
+        // FAST API CONFIGURATION (via Google Apps Script Web App)
+        // No Private Keys Exposed.
+        // =========================================================================
+        const API_URL = 'https://script.google.com/macros/s/AKfycbyEzusTIK4YXUYYy-_AiebjRF7Ecd4pQ8xmFN_X6L3eaKBRlicHC0VNP1VvRHD6L1K-ZA/exec';
+
+        // Global State
         window.appData = {
-            VO:   { PE: {}, PI: {}, RE: {}, QE: {} },
-            SO:   { PE: {}, PI: {}, RE: {}, QE: {} },
-            COMP: { PE: {}, PI: {}, RE: {}, QE: {} },
-            ACC:  { PE: {}, PI: {}, RE: {}, QE: {} }
+            'MOBILIZATION': { PE: {}, PI: {}, RE: {}, QE: {} },
+            'ON-GOING':   { PE: {}, PI: {}, RE: {}, QE: {} },
+            'COMPLETION': { PE: {}, PI: {}, RE: {}, QE: {} },
+            'ACCEPTANCE': { PE: {}, PI: {}, RE: {}, QE: {} },
+            'GEOTAGGING': { PE: {}, PI: {}, RE: {}, QE: {} },
+            'PCMA':       { PE: {}, PI: {}, RE: {}, QE: {} }
         };
         let currentRole = 'PE';
-        let currentDocType = 'VO'; // Default to VO 
+        let currentDocType = 'MOBILIZATION'; 
+        window.globalHeaders = [];
+        window.globalContractSearch = [];
 
-        // Initialization
+        // -------------------------------------------------------------
+        // API HELPER FUNCTIONS (Fast text/plain CORS bypass)
+        // -------------------------------------------------------------
+        async function apiCall(payload) {
+            try {
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(payload),
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' } 
+                });
+                const data = await res.json();
+                if (!data.ok && data.error) throw new Error(data.error);
+                return data;
+            } catch (e) {
+                throw new Error("API Error: " + e.message);
+            }
+        }
+
+        function getBase64(file) { 
+            return new Promise((resolve, reject) => { 
+                const reader = new FileReader(); 
+                reader.readAsDataURL(file); 
+                reader.onload = () => resolve(reader.result); 
+                reader.onerror = error => reject(error); 
+            }); 
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             fetchData();
         });
 
         // -------------------------------------------------------------
-        // NEW PURE HTML DATA FETCHING (Google Sheets REST API)
+        // DATA FETCHING
         // -------------------------------------------------------------
         async function fetchData() {
-            // Configuration derived from the provided prompt
-            const SPREADSHEET_ID = '1LSYLZ7tfSeVupQMPsCOHG4SlnzPQqOAIe03QI1qRMr8';
-            const API_KEY = 'AIzaSyCz6fNJr3ecn-M2HActqM1aCXbxqRLj2e8'; 
-            const SHEET_NAME = 'UPLOAD';
-            const RANGE = `${SHEET_NAME}!A3:ZZ`; 
-
-            const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${RANGE}?key=${API_KEY}`;
-
             try {
-                const response = await fetch(url);
+                document.getElementById('loader-text').innerText = "Downloading Sheet Data from Backend...";
                 
-                if (!response.ok) {
-                    const errData = await response.json();
-                    throw new Error(errData.error?.message || `HTTP error! status: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                
-                if (!data.values || data.values.length === 0) {
-                    showError("No data found in the spreadsheet.");
+                const resData = await apiCall({ action: 'fetchData' });
+                const rawData = resData.data;
+
+                if (!rawData || rawData.length < 3) {
+                    showError("Not enough data found in the spreadsheet (requires at least a header on Row 3).");
                     return;
                 }
 
-                // First row of the range is the header (Row 3)
-                const headersArray = data.values[0];
+                // Row 3 is Index 2 in the array
+                const headersArray = rawData[2]; 
+                window.globalHeaders = headersArray; 
                 const rowsArray = [];
 
-                // Subsequent rows are data
-                for (let i = 1; i < data.values.length; i++) {
-                    const rowVals = data.values[i];
-                    
-                    // Google Sheets API omits trailing empty cells. We pad them to match headers.
+                // Data starts from Row 4 (Index 3)
+                for (let i = 3; i < rawData.length; i++) {
+                    const rowVals = rawData[i];
                     while (rowVals.length < headersArray.length) {
                         rowVals.push('');
                     }
-
                     const isBlank = rowVals.every(v => String(v || "").trim() === "");
                     if (isBlank) continue;
 
                     rowsArray.push({
-                        rowNumber: 3 + i, 
+                        rowNumber: i + 1, // Real row number in sheets
                         values: rowVals
                     });
                 }
@@ -278,7 +351,7 @@
                 processData(headersArray, rowsArray);
                 
             } catch (error) {
-                showError("Failed to communicate with server. Error: " + error.message);
+                showError(error.message);
                 console.error(error);
             }
         }
@@ -290,14 +363,14 @@
             document.querySelector('.fa-skull-crossbones')?.classList.add('text-red-500');
         }
 
+        // -------------------------------------------------------------
+        // DATA PROCESSING (MAPPING TABS TO COLUMNS)
+        // -------------------------------------------------------------
         function processData(headersArray, rowsArray) {
-            // Normalize headers for flexible, exact matching
             const headers = headersArray.map(h => (h || '').toString().trim().toUpperCase());
-            
-            // Helper to find column index based on possible names
             const findCol = (aliases) => headers.findIndex(h => aliases.some(a => h === a || h.startsWith(a + ' ')));
 
-            // Identify column indices
+            // Fixed Columns
             const cols = {
                 PE: findCol(['PE', 'PROJECT ENGINEER']),
                 PI: findCol(['PI', 'PROJECT INSPECTOR']),
@@ -308,85 +381,182 @@
                 CONTRACT: findCol(['CONTRACT ID', 'CONTRACT_ID', 'CONTRACT'])
             };
 
-            // Identify all required Document Columns (categorized by type: VO, SO, COMP, ACC)
+            // Dynamic finding of ALL Months for PCMA tracking
+            window.rowCache = {}; 
+            window.globalContractSearch = []; 
+            const monthHeaders = [];
+            const monthNames = ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE', 'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER', 'JAN', 'FEB', 'MAR', 'APR', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+            const monthRegex = new RegExp(`^20(\\d{2})\\s+(${monthNames.join('|')})$`, 'i');
+
+            headers.forEach((h, i) => {
+                const match = h.match(monthRegex);
+                if (match && !h.includes('PCMA') && !h.includes('REMARKS')) {
+                    const year = match[1]; 
+                    const monthFull = match[2].toUpperCase(); 
+                    const monthShort = monthFull.substring(0, 3); 
+
+                    const actualCol = i;
+                    const pcmaCol = headers.findIndex(x => x === `${h} PCMA`);
+                    const remarksCol = headers.findIndex(x => x === `${year} ${monthShort} REMARKS`);
+
+                    // Generate a sortable integer
+                    const d = new Date(Date.parse(monthFull + " 1, 2012"));
+                    const monthIndex = !isNaN(d.getMonth()) ? d.getMonth() : 0;
+                    const sortKey = parseInt(`20${year}${String(monthIndex).padStart(2, '0')}`);
+
+                    monthHeaders.push({
+                        label: h,
+                        sortKey: sortKey,
+                        actualCol: actualCol,
+                        pcmaCol: pcmaCol,
+                        remarksCol: remarksCol,
+                        actualHeader: h,
+                        pcmaHeader: pcmaCol !== -1 ? headersArray[pcmaCol] : null,
+                        remarksHeader: remarksCol !== -1 ? headersArray[remarksCol] : null
+                    });
+                }
+            });
+
+            // Sort months from latest to oldest
+            monthHeaders.sort((a, b) => b.sortKey - a.sortKey);
+
+            // Mapping requested categories
+            const docCategories = {
+                'MOBILIZATION': ['MOBILIZATION', 'SI', 'MINUTES', 'AS-STAKED PLAN'],
+                'ON-GOING': [
+                    'ON-GOING', 
+                    ...Array.from({length: 5}, (_, i) => `VO${i+1}`),
+                    ...Array.from({length: 4}, (_, i) => `WSO${i+1}`),
+                    ...Array.from({length: 4}, (_, i) => `CWSO${i+1}`),
+                    ...Array.from({length: 4}, (_, i) => `WRO${i+1}`),
+                    ...Array.from({length: 20}, (_, i) => `CTE${i+1}`),
+                    'REVISED PLAN'
+                ],
+                'COMPLETION': ['COMPLETED', 'TURN-OVER', 'FCIR', 'COC', '95% PUNCHLIST', 'AS-BUILT PLAN'],
+                'ACCEPTANCE': ['CFA PUNCHLIST', 'FAIR', 'CFA'],
+                'GEOTAGGING': ['GEOTAGGED MOB', 'GEOTAGGED ON-GOING', 'GEOTAGGED COMPLETED'],
+                'PCMA': ['ACTUAL', 'PCMA']
+            };
+
             const docsToTrack = [];
             
-            for(let i=1; i<=5; i++) docsToTrack.push({ type: 'VO', name: `VO${i}`, doc: findCol([`VO${i}`, `V.O.${i}`, `VO ${i}`]), up: findCol([`VO${i} UPLOADED`, `VO ${i} UPLOADED`, `VO${i} UP`]) });
-            for(let i=1; i<=4; i++) docsToTrack.push({ type: 'SO', name: `WSO${i}`, doc: findCol([`WSO${i}`, `W.S.O.${i}`, `WSO ${i}`]), up: findCol([`WSO${i} UPLOADED`, `WSO ${i} UPLOADED`, `WSO${i} UP`]) });
-            for(let i=1; i<=4; i++) docsToTrack.push({ type: 'SO', name: `CWSO${i}`, doc: findCol([`CWSO${i}`, `C.W.S.O.${i}`, `CWSO ${i}`]), up: findCol([`CWSO${i} UPLOADED`, `CWSO ${i} UPLOADED`, `CWSO${i} UP`]) });
-            for(let i=1; i<=4; i++) docsToTrack.push({ type: 'SO', name: `WRO${i}`, doc: findCol([`WRO${i}`, `W.R.O.${i}`, `WRO ${i}`]), up: findCol([`WRO${i} UPLOADED`, `WRO ${i} UPLOADED`, `WRO${i} UP`]) });
-            for(let i=1; i<=20; i++) docsToTrack.push({ type: 'SO', name: `CTE${i}`, doc: findCol([`CTE${i}`, `C.T.E.${i}`, `CTE ${i}`]), up: findCol([`CTE${i} UPLOADED`, `CTE ${i} UPLOADED`, `CTE${i} UP`]) });
-
-            docsToTrack.push({ type: 'COMP', name: 'FCIR', doc: findCol(['FCIR']), up: findCol(['FCIR UPLOADED', 'FCIR UP']) });
-            docsToTrack.push({ type: 'COMP', name: 'COC', doc: findCol(['COC']), up: findCol(['COC UPLOADED', 'COC UP']) });
-
-            docsToTrack.push({ type: 'ACC', name: 'FAIR', doc: findCol(['FAIR']), up: findCol(['FAIR UPLOADED', 'FAIR UP']) });
-            docsToTrack.push({ type: 'ACC', name: 'CFA', doc: findCol(['CFA']), up: findCol(['CFA UPLOADED', 'CFA UP']) });
+            Object.keys(docCategories).forEach(cat => {
+                docCategories[cat].forEach(docName => {
+                    const variants = [docName, `${docName} `, docName.replace(/-/g, '')];
+                    const upVariants = [`${docName} UPLOADED`, `${docName} UP`, `${docName}UPLOADED`];
+                    
+                    docsToTrack.push({
+                        type: cat,
+                        name: docName,
+                        doc: findCol(variants),
+                        up: findCol(upVariants)
+                    });
+                });
+            });
 
             const yearsTracked = ['2023', '2024', '2025', '2026'];
 
             for(let i = 0; i < rowsArray.length; i++) {
-                const row = rowsArray[i].values;
+                const rowObj = rowsArray[i];
+                const row = rowObj.values;
+                const rowNumber = rowObj.rowNumber;
+
                 if(cols.YEAR === -1 || !row[cols.YEAR]) continue;
 
                 let rowYear = (row[cols.YEAR] || '').toString().trim();
                 if(!yearsTracked.includes(rowYear)) continue;
 
-                let missingVO = [], missingSO = [], missingCOMP = [], missingACC = [];
-                let stats = {
-                    VO:   { total: 0, uploaded: 0 },
-                    SO:   { total: 0, uploaded: 0 },
-                    COMP: { total: 0, uploaded: 0 },
-                    ACC:  { total: 0, uploaded: 0 }
+                let missingDocsMap = {
+                    'MOBILIZATION': [], 'ON-GOING': [], 'COMPLETION': [], 
+                    'ACCEPTANCE': [], 'GEOTAGGING': [], 'PCMA': []
+                };
+                let statsMap = {
+                    'MOBILIZATION': { total: 0, uploaded: 0 },
+                    'ON-GOING':     { total: 0, uploaded: 0 },
+                    'COMPLETION':   { total: 0, uploaded: 0 },
+                    'ACCEPTANCE':   { total: 0, uploaded: 0 },
+                    'GEOTAGGING':   { total: 0, uploaded: 0 },
+                    'PCMA':         { total: 0, uploaded: 0 }
                 };
                 
                 docsToTrack.forEach(v => {
                     if(v.doc !== -1) {
                         let hasDoc = row[v.doc] && row[v.doc].toString().trim() !== '';
                         let isUploaded = v.up !== -1 && row[v.up] && row[v.up].toString().trim() !== '';
-                        
                         if(hasDoc) {
-                            stats[v.type].total++;
+                            statsMap[v.type].total++;
                             if(isUploaded) {
-                                stats[v.type].uploaded++;
+                                statsMap[v.type].uploaded++;
                             } else {
-                                if(v.type === 'VO') missingVO.push(v.name);
-                                else if(v.type === 'SO') missingSO.push(v.name);
-                                else if(v.type === 'COMP') missingCOMP.push(v.name);
-                                else if(v.type === 'ACC') missingACC.push(v.name);
+                                missingDocsMap[v.type].push(v.name);
                             }
                         }
                     }
                 });
 
-                const contractId = cols.CONTRACT !== -1 && row[cols.CONTRACT] ? row[cols.CONTRACT] : 'Unknown Contract ID';
+                const contractId = cols.CONTRACT !== -1 && row[cols.CONTRACT] ? row[cols.CONTRACT].toString().trim() : 'Unknown';
+
+                // PCMA Tracking logic
+                window.rowCache[rowNumber] = {
+                    contractId: contractId,
+                    pcmaData: monthHeaders.map(mh => ({
+                        label: mh.label,
+                        actual: mh.actualCol !== -1 ? String(row[mh.actualCol] || '').trim() : '',
+                        pcma: mh.pcmaCol !== -1 ? String(row[mh.pcmaCol] || '').trim() : '',
+                        remarks: mh.remarksCol !== -1 ? String(row[mh.remarksCol] || '').trim() : '',
+                        actualHeader: mh.actualHeader,
+                        pcmaHeader: mh.pcmaHeader,
+                        remarksHeader: mh.remarksHeader
+                    }))
+                };
+
+                if (monthHeaders.length > 0) {
+                    const latest = monthHeaders[0];
+                    const hasActual = latest.actualCol !== -1 && String(row[latest.actualCol]).trim() !== '';
+                    const hasPcmaVal = latest.pcmaCol !== -1 && String(row[latest.pcmaCol]).trim() !== '';
+                    
+                    statsMap['PCMA'].total++;
+                    if (hasActual && hasPcmaVal) {
+                        statsMap['PCMA'].uploaded++;
+                    } else {
+                        missingDocsMap['PCMA'].push('PCMA Updates');
+                    }
+                }
+
+                // Register for Global Search
+                const totalMissing = Object.values(missingDocsMap).reduce((sum, arr) => sum + arr.length, 0);
+                if (totalMissing > 0 && contractId !== 'Unknown') {
+                    window.globalContractSearch.push({
+                        contractId: contractId,
+                        rowNumber: rowNumber,
+                        year: rowYear,
+                        missing: missingDocsMap
+                    });
+                }
 
                 const assignToRole = (roleKey, rawNames) => {
                     if(!rawNames || typeof rawNames !== 'string' || rawNames.trim() === '') return;
-                    
                     const names = rawNames.split(/\s+and\s+|[\/&,]/i).map(n => n.trim()).filter(n => n !== '');
                     const uniqueNames = [...new Set(names)];
                     
                     uniqueNames.forEach(name => {
-                        ['VO', 'SO', 'COMP', 'ACC'].forEach(docTypeKey => {
-                            if(!window.appData[docTypeKey][roleKey][name]) {
-                                window.appData[docTypeKey][roleKey][name] = { 
+                        Object.keys(statsMap).forEach(catType => {
+                            if(!window.appData[catType][roleKey][name]) {
+                                window.appData[catType][roleKey][name] = { 
                                     '2023':[], '2024':[], '2025':[], '2026':[], 
                                     totalDocs: 0, uploadedDocs: 0 
                                 };
                             }
                             
-                            window.appData[docTypeKey][roleKey][name].totalDocs += stats[docTypeKey].total;
-                            window.appData[docTypeKey][roleKey][name].uploadedDocs += stats[docTypeKey].uploaded;
+                            window.appData[catType][roleKey][name].totalDocs += statsMap[catType].total;
+                            window.appData[catType][roleKey][name].uploadedDocs += statsMap[catType].uploaded;
                             
-                            let targetMissingList;
-                            if (docTypeKey === 'VO') targetMissingList = missingVO;
-                            else if (docTypeKey === 'SO') targetMissingList = missingSO;
-                            else if (docTypeKey === 'COMP') targetMissingList = missingCOMP;
-                            else if (docTypeKey === 'ACC') targetMissingList = missingACC;
-                            
-                            if(targetMissingList.length > 0) {
-                                window.appData[docTypeKey][roleKey][name][rowYear].push({ contractId, missingDocs: targetMissingList });
+                            if(missingDocsMap[catType].length > 0) {
+                                window.appData[catType][roleKey][name][rowYear].push({ 
+                                    contractId: contractId, 
+                                    rowNumber: rowNumber,
+                                    missingDocs: missingDocsMap[catType] 
+                                });
                             }
                         });
                     });
@@ -407,10 +577,121 @@
             renderTable();
         }
 
+        // -------------------------------------------------------------
+        // GLOBAL SEARCH MODAL LOGIC
+        // -------------------------------------------------------------
+        function openSearchModal() {
+            document.getElementById('global-search-input').value = '';
+            document.getElementById('search-results').innerHTML = `
+                <div class="text-center text-gray-500 mt-10">
+                    <i class="fa-solid fa-keyboard text-5xl mb-3 opacity-20"></i>
+                    <p class="font-bold">Type to search across all tabs</p>
+                </div>
+            `;
+            
+            const modal = document.getElementById('search-modal');
+            const box = document.getElementById('search-modal-box');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => { 
+                box.classList.remove('scale-95'); 
+                box.classList.add('scale-100'); 
+                document.getElementById('global-search-input').focus();
+            }, 10);
+        }
+
+        function closeSearchModal() {
+            const modal = document.getElementById('search-modal');
+            const box = document.getElementById('search-modal-box');
+            box.classList.remove('scale-100');
+            box.classList.add('scale-95');
+            setTimeout(() => { 
+                modal.classList.add('hidden'); 
+                modal.classList.remove('flex'); 
+            }, 200);
+        }
+
+        function performGlobalSearch() {
+            const query = document.getElementById('global-search-input').value.toLowerCase().trim();
+            const resultsContainer = document.getElementById('search-results');
+            
+            if (!query) {
+                resultsContainer.innerHTML = `
+                    <div class="text-center text-gray-500 mt-10">
+                        <i class="fa-solid fa-keyboard text-5xl mb-3 opacity-20"></i>
+                        <p class="font-bold">Type to search across all tabs</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const matches = window.globalContractSearch.filter(c => c.contractId.toLowerCase().includes(query));
+
+            if (matches.length === 0) {
+                resultsContainer.innerHTML = `
+                    <div class="text-center text-gray-500 mt-10">
+                        <i class="fa-solid fa-folder-open text-5xl mb-3 opacity-20 text-neon-pink"></i>
+                        <p class="font-bold text-neon-pink">No contracts found or all files complete.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '<div class="flex flex-col gap-6">';
+            
+            matches.forEach(m => {
+                let missingChipsHtml = '';
+                
+                ['MOBILIZATION', 'ON-GOING', 'COMPLETION', 'ACCEPTANCE', 'GEOTAGGING', 'PCMA'].forEach(cat => {
+                    if (m.missing[cat] && m.missing[cat].length > 0) {
+                        missingChipsHtml += `
+                            <div class="mb-3 border border-gray-700/50 bg-[#121219] rounded-lg p-3">
+                                <h4 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+                                    <i class="fa-solid fa-folder text-indigo-500"></i> ${cat}
+                                </h4>
+                                <div class="flex flex-wrap gap-2">
+                                    ${m.missing[cat].map(doc => {
+                                        const icon = (doc === 'ACTUAL' || doc === 'PCMA' || doc === 'PCMA Updates') ? 'fa-pen-to-square' : 'fa-arrow-up-right-from-square';
+                                        return `<span onclick="closeSearchModal(); openUploadModal('${m.contractId.replace(/'/g, "\\'")}', '${doc.replace(/'/g, "\\'")}', ${m.rowNumber});" class="doc-chip bg-red-500/10 text-red-400 px-3 py-1.5 rounded-md text-sm font-bold border border-red-500/30 shadow-sm flex items-center gap-2">
+                                            <i class="fa-solid ${icon}"></i>${doc}
+                                        </span>`;
+                                    }).join('')}
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+
+                html += `
+                    <div class="bg-[#20202d] rounded-xl border border-gray-700 shadow-lg p-5">
+                        <div class="flex items-center justify-between mb-4 border-b border-gray-700 pb-3">
+                            <div class="flex items-center gap-3">
+                                <i class="fa-solid fa-file-contract text-neon-blue text-2xl"></i>
+                                <div>
+                                    <h3 class="text-xl font-black text-white leading-none">${m.contractId}</h3>
+                                    <span class="text-xs font-bold text-neon-green bg-neon-green/10 px-2 py-0.5 rounded mt-1 inline-block">${m.year}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            ${missingChipsHtml}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            resultsContainer.innerHTML = html;
+        }
+
+
+        // -------------------------------------------------------------
+        // UI INTERACTIONS
+        // -------------------------------------------------------------
         function switchDocType(type) {
             currentDocType = type;
             
-            ['VO', 'SO', 'COMP', 'ACC'].forEach(t => {
+            ['MOBILIZATION', 'ON-GOING', 'COMPLETION', 'ACCEPTANCE', 'GEOTAGGING', 'PCMA'].forEach(t => {
                 const btn = document.getElementById(`type-${t}`);
                 if(t === type) {
                     btn.classList.add('bg-[#2a2a3a]', 'text-neon-blue', 'shadow-md', 'border-gray-600/50');
@@ -438,13 +719,7 @@
                 }
             });
 
-            // Update Header Title dynamically based on Role
-            const roleNamesPC = { 
-                'PE': 'Project Engineer', 
-                'PI': 'Project Inspector', 
-                'RE': 'Resident Engineer', 
-                'QE': 'Quantity Engineer' 
-            };
+            const roleNamesPC = { 'PE': 'Project Engineer', 'PI': 'Project Inspector', 'RE': 'Resident Engineer', 'QE': 'Quantity Engineer' };
             const roleNamesMobile = { 'PE': 'PE', 'PI': 'PI', 'RE': 'RE', 'QE': 'QE' };
             document.getElementById('table-role-header').innerHTML = `<i class="fa-solid fa-user-tie mr-2"></i><span class="md:hidden">${roleNamesMobile[role]}</span><span class="hidden md:inline">${roleNamesPC[role]}</span>`;
 
@@ -461,18 +736,9 @@
                                   .sort();
 
             if(persons.length === 0) {
-                let categoryName = 'documents';
-                if(currentDocType === 'VO') categoryName = 'Variation Orders';
-                else if(currentDocType === 'SO') categoryName = 'Suspension Orders';
-                else if(currentDocType === 'COMP') categoryName = 'Completion Documents';
-                else if(currentDocType === 'ACC') categoryName = 'Acceptance Documents';
-
-                let shortCatName = categoryName;
-                if(currentDocType === 'COMP') shortCatName = 'COC Documents';
-                if(currentDocType === 'ACC') shortCatName = 'CA Documents';
-
-                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-gray-400"><i class="fa-solid fa-check-circle text-4xl text-neon-green mb-3 block"></i>No personnel with registered ${categoryName} found for this role!</td></tr>`;
-                mobileContainer.innerHTML = `<div class="p-8 bg-[#1c1c28] rounded-xl border border-gray-700/50 text-center text-gray-400 w-full"><i class="fa-solid fa-check-circle text-4xl text-neon-green mb-3 block"></i>No personnel with registered ${shortCatName} found!</div>`;
+                const htmlStr = `<div class="p-8 bg-[#1c1c28] rounded-xl border border-gray-700/50 text-center text-gray-400 w-full"><i class="fa-solid fa-check-circle text-4xl text-neon-green mb-3 block"></i>No pending documents found!</div>`;
+                tbody.innerHTML = `<tr><td colspan="6">${htmlStr}</td></tr>`;
+                mobileContainer.innerHTML = htmlStr;
                 return;
             }
 
@@ -481,22 +747,13 @@
             
             persons.forEach(person => {
                 const stats = dataMap[person];
-                
-                // Calculate Upload Percentage
-                let percent = 0;
-                if (stats.totalDocs > 0) {
-                    percent = Math.round((stats.uploadedDocs / stats.totalDocs) * 100);
-                } else {
-                    percent = 100;
-                }
-
+                let percent = stats.totalDocs > 0 ? Math.round((stats.uploadedDocs / stats.totalDocs) * 100) : 100;
                 let percentColor = percent === 100 ? 'text-neon-green' : (percent >= 50 ? 'text-neon-orange' : 'text-neon-pink');
                 let progressColor = percent === 100 ? 'bg-neon-green' : (percent >= 50 ? 'bg-neon-orange' : 'bg-neon-pink');
                 let displayPercent = stats.totalDocs === 0 ? '-' : `${percent}%`;
 
-                // --- PC HTML ---
-                pcHtml += `
-                <tr class="border-b border-gray-800 hover:bg-[#252536] transition-colors group">
+                // --- PC ROW ---
+                pcHtml += `<tr class="border-b border-gray-800 hover:bg-[#252536] transition-colors group">
                     <td class="p-4 sticky-col font-semibold flex items-center gap-3">
                         <div class="bg-gray-800 p-2 rounded-lg border border-gray-700 group-hover:border-neon-blue transition-colors">
                             <i class="fa-solid fa-user text-neon-blue"></i>
@@ -504,22 +761,17 @@
                         <span class="truncate max-w-[150px] sm:max-w-xs block" title="${person}">${person}</span>
                     </td>`;
 
-                // Years Loop (PC & Mobile values calculation)
                 let mobileButtonsHtml = '';
                 ['2023', '2024', '2025', '2026'].forEach(year => {
-                    const projects = stats[year];
+                    let projects = stats[year];
+
                     if(projects.length > 0) {
-                        pcHtml += `
-                        <td class="p-4 text-center">
-                            <button onclick="openModal('${currentDocType}', '${currentRole}', '${person.replace(/'/g, "\\'")}', '${year}')" class="td-clickable" title="Click to view ${projects.length} pending projects">
-                                ${projects.length}
-                            </button>
+                        let totalMissingDocs = projects.reduce((sum, p) => sum + p.missingDocs.length, 0);
+                        pcHtml += `<td class="p-4 text-center">
+                            <button onclick="openModal('${currentDocType}', '${currentRole}', '${person.replace(/'/g, "\\'")}', '${year}')" class="td-clickable" title="Click to view ${totalMissingDocs} pending items across ${projects.length} projects">${totalMissingDocs}</button>
                         </td>`;
-                        mobileButtonsHtml += `
-                        <div class="flex justify-center">
-                            <button onclick="openModal('${currentDocType}', '${currentRole}', '${person.replace(/'/g, "\\'")}', '${year}')" class="td-clickable" style="width:30px; height:30px; font-size:0.9rem;" title="Click to view ${projects.length} pending projects">
-                                ${projects.length}
-                            </button>
+                        mobileButtonsHtml += `<div class="flex justify-center">
+                            <button onclick="openModal('${currentDocType}', '${currentRole}', '${person.replace(/'/g, "\\'")}', '${year}')" class="td-clickable" style="width:30px; height:30px; font-size:0.9rem;" title="Click to view ${totalMissingDocs} pending items across ${projects.length} projects">${totalMissingDocs}</button>
                         </div>`;
                     } else {
                         pcHtml += `<td class="p-4 text-center text-gray-600 font-bold">-</td>`;
@@ -527,9 +779,7 @@
                     }
                 });
 
-                // Upload % Column (PC)
-                pcHtml += `
-                    <td class="p-4">
+                pcHtml += `<td class="p-4">
                         <div class="flex flex-col items-center justify-center w-full min-w-[120px]">
                             <div class="flex justify-between w-full px-1 mb-1 items-end">
                                 <span class="font-black text-lg ${percentColor}">${displayPercent}</span>
@@ -539,12 +789,10 @@
                                 <div class="${progressColor} h-2.5 rounded-full shadow-[0_0_8px_currentColor]" style="width: ${stats.totalDocs === 0 ? 0 : percent}%; transition: width 0.5s ease;"></div>
                             </div>
                         </div>
-                    </td>
-                </tr>`;
+                    </td></tr>`;
 
-                // --- MOBILE HTML ---
-                mobileHtml += `
-                <div class="bg-[#1c1c28] rounded-xl border border-gray-700/50 p-4 hover:border-neon-blue transition-colors group shadow-md w-full">
+                // --- MOBILE CARD ---
+                mobileHtml += `<div class="bg-[#1c1c28] rounded-xl border border-gray-700/50 p-4 hover:border-neon-blue transition-colors group shadow-md w-full">
                     <div class="flex items-center gap-3 mb-3">
                         <div class="bg-gray-800 p-2 rounded-lg border border-gray-700 group-hover:border-neon-blue transition-colors shadow-inner flex-shrink-0">
                             <i class="fa-solid fa-user text-neon-blue text-lg"></i>
@@ -576,29 +824,22 @@
             mobileContainer.innerHTML = mobileHtml;
         }
 
+        // -------------------------------------------------------------
+        // PENDING MODAL
+        // -------------------------------------------------------------
         function openModal(docType, role, person, year) {
-            const projects = window.appData[docType][role][person][year];
+            let projects = window.appData[docType][role][person][year];
+            
             const modal = document.getElementById('modal');
             const modalBox = document.getElementById('modal-box');
             
-            const roleIcons = { 
-                'PE': 'fa-helmet-safety text-neon-orange', 
-                'PI': 'fa-magnifying-glass-chart text-neon-green', 
-                'RE': 'fa-user-gear text-neon-purple',
-                'QE': 'fa-clipboard-check text-neon-pink'
-            };
-            
-            let docTypeName = 'Documents';
-            if(docType === 'VO') docTypeName = 'Variation Orders';
-            else if(docType === 'SO') docTypeName = 'Suspension Orders';
-            else if(docType === 'COMP') docTypeName = 'Completion Documents';
-            else if(docType === 'ACC') docTypeName = 'Acceptance Documents';
+            const roleIcons = { 'PE': 'fa-helmet-safety', 'PI': 'fa-magnifying-glass-chart', 'RE': 'fa-user-gear', 'QE': 'fa-clipboard-check' };
             
             document.getElementById('modal-title').innerHTML = `
                 <div class="flex items-center gap-3">
                     <i class="fa-solid fa-folder-open text-neon-orange"></i> 
                     <div>
-                        <div class="leading-tight hidden md:block">Pending ${docTypeName}</div>
+                        <div class="leading-tight hidden md:block">Pending ${docType}</div>
                         <div class="text-base md:text-sm text-white md:text-gray-400 font-bold md:font-normal mt-0 md:mt-1"><i class="fa-solid ${roleIcons[role]} hidden md:inline-block"></i> ${person} | ${year}</div>
                     </div>
                 </div>
@@ -614,9 +855,13 @@
                         <span class="font-bold text-gray-100 text-lg leading-tight">${p.contractId}</span>
                     </div>
                     <div class="bg-[#20202d] rounded-lg p-3 border border-red-500/20 mt-auto">
-                        <span class="text-xs text-gray-400 uppercase tracking-wider block mb-2 hidden md:block">Missing Files</span>
+                        <span class="text-xs text-gray-400 uppercase tracking-wider block mb-2 hidden md:block">Missing Files / Pending Updates</span>
                         <div class="flex flex-wrap gap-2">
-                            ${p.missingDocs.map(doc => `<span class="bg-red-500/10 text-red-400 px-2 py-1 rounded-md text-sm font-bold border border-red-500/30 shadow-sm"><i class="fa-solid fa-cloud-arrow-up mr-1"></i>${doc}</span>`).join('')}
+                            ${p.missingDocs.map(doc => `
+                                <span onclick="openUploadModal('${p.contractId.replace(/'/g, "\\'")}', '${doc.replace(/'/g, "\\'")}', ${p.rowNumber})" class="doc-chip bg-red-500/10 text-red-400 px-3 py-1.5 rounded-md text-sm font-bold border border-red-500/30 shadow-sm flex items-center gap-2">
+                                    <i class="fa-solid ${doc === 'ACTUAL' || doc === 'PCMA' || doc === 'PCMA Updates' ? 'fa-pen-to-square' : 'fa-arrow-up-right-from-square'}"></i>${doc}
+                                </span>
+                            `).join('')}
                         </div>
                     </div>
                 </div>`;
@@ -627,30 +872,192 @@
 
             modal.classList.remove('hidden');
             modal.classList.add('flex');
-            setTimeout(() => {
-                modalBox.classList.remove('scale-95');
-                modalBox.classList.add('scale-100');
-            }, 10);
+            setTimeout(() => { modalBox.classList.remove('scale-95'); modalBox.classList.add('scale-100'); }, 10);
         }
 
         function closeModal() {
             const modal = document.getElementById('modal');
             const modalBox = document.getElementById('modal-box');
-            
             modalBox.classList.remove('scale-100');
             modalBox.classList.add('scale-95');
+            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 200);
+        }
+
+        // -------------------------------------------------------------
+        // DYNAMIC UPLOAD MODAL & ACTIONS
+        // -------------------------------------------------------------
+        let currentUploadContext = null;
+
+        function openUploadModal(contractId, docName, rowNumber) {
+            currentUploadContext = { contractId, docName, rowNumber };
+            const docUp = docName.toUpperCase();
             
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
+            const modalBox = document.getElementById('upload-modal-box');
+            const modalTitle = document.getElementById('upload-modal-title');
+            const modalBody = document.getElementById('upload-modal-body');
+            const modalFooter = document.getElementById('upload-modal-footer');
+
+            // 1. PCMA MOBILE APP SCENARIO
+            if (['MOBILIZATION', 'ON-GOING', 'COMPLETED'].includes(docUp)) {
+                modalTitle.innerHTML = `<i class="fa-solid fa-mobile-screen-button text-neon-blue"></i> PCMA Mobile Upload`;
+                modalBody.innerHTML = `
+                    <div class="text-center text-gray-300 py-6">
+                        <i class="fa-solid fa-arrow-up-right-from-square text-5xl text-neon-pink mb-4 block"></i>
+                        <p class="text-xl font-bold mb-2 text-white">Upload your Photos in the PCMA Mobile</p>
+                        <p class="text-sm text-gray-500 mb-8">pcmamobile.github.io/aklandeo</p>
+                        <a href="https://pcmamobile.github.io/aklandeo" target="_blank" onclick="closeUploadModal()" class="inline-block w-full py-4 rounded-xl font-black bg-neon-blue text-black hover:bg-[#00d0e0] shadow-[0_0_15px_rgba(0,243,255,0.4)] transition-colors">
+                            Open PCMA Mobile
+                        </a>
+                    </div>
+                `;
+                modalFooter.innerHTML = `<button onclick="closeUploadModal()" class="w-full py-3 rounded-xl font-bold text-gray-400 hover:text-white transition-colors border border-gray-700">Close Panel</button>`;
+            }
+            // 2. SURVEY123 SCENARIO
+            else if (['GEOTAGGED MOB', 'GEOTAGGED ON-GOING', 'GEOTAGGED COMPLETED'].includes(docUp)) {
+                modalTitle.innerHTML = `<i class="fa-solid fa-map-location-dot text-neon-green"></i> Survey123 Upload`;
+                modalBody.innerHTML = `
+                    <div class="text-center text-gray-300 py-6">
+                        <i class="fa-solid fa-satellite-dish text-5xl text-neon-green mb-4 block"></i>
+                        <p class="text-xl font-bold mb-4 text-white">Upload your Photos in Survey123 App</p>
+                        <div class="bg-[#20202d] p-4 rounded-xl border border-gray-700 text-sm text-gray-400 mt-4 leading-relaxed">
+                            Update <strong class="text-neon-orange font-black">Engr. Carl Joseph Oquendo</strong> to record your uploaded Geotagged Photos.
+                        </div>
+                    </div>
+                `;
+                modalFooter.innerHTML = `<button onclick="closeUploadModal()" class="w-full py-3 rounded-xl font-bold text-gray-400 hover:text-white transition-colors border border-gray-700">Acknowledge</button>`;
+            }
+            // 3. PCMA SCENARIO
+            else if (['ACTUAL', 'PCMA', 'PCMA UPDATES'].includes(docUp)) {
+                modalTitle.innerHTML = `<i class="fa-solid fa-chart-line text-neon-orange"></i> Update PCMA`;
+                modalBody.innerHTML = `
+                    <div class="text-center text-gray-300 py-6">
+                        <i class="fa-solid fa-chart-pie text-5xl text-neon-orange mb-4 block"></i>
+                        <p class="text-xl font-bold mb-4 text-white">Update PCMA Accomplishment</p>
+                        <div class="bg-[#20202d] p-4 rounded-xl border border-gray-700 text-sm text-gray-400 mt-4 leading-relaxed">
+                            Update your Actual and PCMA Accomplishment and Give it to <strong class="text-neon-orange font-black">Roxanne or Jade</strong> to encode in the Dashboard.
+                        </div>
+                    </div>
+                `;
+                modalFooter.innerHTML = `<button onclick="closeUploadModal()" class="w-full py-3 rounded-xl font-bold text-gray-400 hover:text-white transition-colors border border-gray-700">Acknowledge</button>`;
+            }
+            // 4. STANDARD FILE UPLOAD SCENARIO
+            else {
+                modalTitle.innerHTML = `<i class="fa-solid fa-cloud-arrow-up text-neon-blue"></i> Upload Document`;
+                modalBody.innerHTML = `
+                    <div class="bg-[#20202d] p-4 rounded-xl border border-gray-700 mb-4">
+                        <div class="text-xs text-gray-400 uppercase tracking-wide mb-1">Contract ID</div>
+                        <div class="text-xl font-black text-neon-blue" id="up-contract">${contractId}</div>
+                    </div>
+                    <div class="bg-[#20202d] p-4 rounded-xl border border-gray-700 mb-4">
+                        <div class="text-xs text-gray-400 uppercase tracking-wide mb-1">File Required</div>
+                        <div class="text-xl font-black text-neon-orange" id="up-doc">${docName}</div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="text-xs text-gray-400 uppercase tracking-wide mb-1 block">Uploader Name</label>
+                        <input type="text" id="up-name" placeholder="Enter your name" class="w-full bg-[#121219] border border-gray-700 rounded-lg p-3 text-white focus:outline-none focus:border-neon-blue transition-colors">
+                    </div>
+                    
+                    <div>
+                        <label class="text-xs text-gray-400 uppercase tracking-wide mb-1 block">Select File (PDF, Image, etc)</label>
+                        <input type="file" id="up-file" class="w-full bg-[#121219] border border-gray-700 rounded-lg p-3 text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-neon-blue file:text-black hover:file:bg-[#00d0e0] transition-colors cursor-pointer">
+                    </div>
+
+                    <div id="up-status" class="hidden mt-4 rounded-lg p-3 text-sm font-bold border"></div>
+                `;
+                modalFooter.innerHTML = `
+                    <button onclick="closeUploadModal()" class="flex-1 py-3 rounded-xl font-bold text-gray-400 hover:text-white transition-colors border border-gray-700" id="btn-cancel-upload">Cancel</button>
+                    <button onclick="executeUpload()" class="flex-1 py-3 rounded-xl font-bold bg-neon-blue text-black hover:bg-[#00d0e0] shadow-[0_0_15px_rgba(0,243,255,0.4)] transition-colors flex items-center justify-center gap-2" id="btn-execute-upload">
+                        <i class="fa-solid fa-upload"></i> Upload to Drive
+                    </button>
+                `;
+            }
+
+            document.getElementById('upload-modal').classList.remove('hidden');
+            document.getElementById('upload-modal').classList.add('flex');
+            setTimeout(() => { 
+                document.getElementById('upload-modal-box').classList.remove('scale-95'); 
+                document.getElementById('upload-modal-box').classList.add('scale-100'); 
+            }, 10);
+        }
+
+        function closeUploadModal() {
+            document.getElementById('upload-modal-box').classList.remove('scale-100');
+            document.getElementById('upload-modal-box').classList.add('scale-95');
+            setTimeout(() => { 
+                document.getElementById('upload-modal').classList.add('hidden'); 
+                document.getElementById('upload-modal').classList.remove('flex'); 
             }, 200);
         }
 
-        document.getElementById('modal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeModal();
+        function setUploadStatus(msg, type) {
+            const el = document.getElementById('up-status');
+            el.classList.remove('hidden', 'text-neon-blue', 'border-neon-blue', 'text-neon-green', 'border-neon-green', 'text-neon-pink', 'border-neon-pink', 'bg-[#00f3ff]/10', 'bg-[#00ff88]/10', 'bg-[#ff0055]/10');
+            if(type === 'loading') el.classList.add('text-neon-blue', 'border-neon-blue', 'bg-[#00f3ff]/10');
+            else if(type === 'success') el.classList.add('text-neon-green', 'border-neon-green', 'bg-[#00ff88]/10');
+            else if(type === 'error') el.classList.add('text-neon-pink', 'border-neon-pink', 'bg-[#ff0055]/10');
+            el.innerHTML = msg;
+        }
+
+        async function executeUpload() {
+            if(!currentUploadContext) return;
+
+            const { contractId, docName, rowNumber } = currentUploadContext;
+            const uploaderName = document.getElementById('up-name').value.trim();
+            const fileInput = document.getElementById('up-file');
+            
+            if(!uploaderName) {
+                setUploadStatus('<i class="fa-solid fa-triangle-exclamation"></i> Please enter uploader name.', 'error');
+                return;
             }
-        });
+            if(!fileInput.files || fileInput.files.length === 0) {
+                setUploadStatus('<i class="fa-solid fa-triangle-exclamation"></i> Please select a file.', 'error');
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const newFilename = `${contractId} - ${docName}`;
+
+            document.getElementById('btn-execute-upload').disabled = true;
+            document.getElementById('btn-cancel-upload').disabled = true;
+            document.getElementById('btn-close-upload').disabled = true;
+
+            setUploadStatus('<i class="fa-solid fa-spinner fa-spin"></i> Reading file...', 'loading');
+
+            try {
+                const b64 = await getBase64(file);
+                
+                setUploadStatus('<i class="fa-solid fa-spinner fa-spin"></i> Sending securely to backend...', 'loading');
+                
+                await apiCall({
+                    action: 'uploadFile',
+                    contractId: contractId,
+                    docName: docName,
+                    uploaderName: uploaderName,
+                    rowNumber: rowNumber,
+                    filename: newFilename,
+                    mimeType: file.type,
+                    base64Data: b64.split(',')[1]
+                });
+
+                setUploadStatus('<i class="fa-solid fa-circle-check"></i> Upload Successful! Refreshing Data...', 'success');
+                
+                setTimeout(() => {
+                    closeUploadModal();
+                    closeModal();
+                    document.getElementById('loader').classList.remove('hidden');
+                    fetchData(); 
+                }, 1500);
+
+            } catch (err) {
+                setUploadStatus(`<i class="fa-solid fa-circle-xmark"></i> Error: ${err.message}`, 'error');
+            } finally {
+                document.getElementById('btn-execute-upload').disabled = false;
+                document.getElementById('btn-cancel-upload').disabled = false;
+                document.getElementById('btn-close-upload').disabled = false;
+            }
+        }
+
     </script>
 </body>
 </html>
