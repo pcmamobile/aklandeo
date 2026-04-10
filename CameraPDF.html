@@ -39,13 +39,14 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><rect width="10" height="14" x="7" y="5" rx="2"/></svg>
             </div>
             <h1 class="text-3xl font-extrabold text-slate-900 mb-2">Scanner Pro</h1>
-            <p class="text-slate-500 text-center mb-10 leading-relaxed">Auto-crop documents, receipts, and notes into perfect PDFs.</p>
+            <p id="statusText" class="text-slate-500 text-center mb-10 leading-relaxed">Auto-crop documents, receipts, and notes into perfect PDFs.</p>
             
             <button id="startBtn" class="w-full bg-blue-600 text-white font-bold py-4 rounded-2xl shadow-lg shadow-blue-600/30 active:scale-95 transition-all text-lg flex items-center justify-center space-x-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
                 <span>New Scan</span>
             </button>
             
+            <!-- This label is shown when fallback mode is active. It must be physically tapped by the user. -->
             <label for="fallbackCameraInput" id="fallbackStartBtn" class="hidden w-full bg-blue-600 text-white font-bold py-4 rounded-2xl shadow-lg shadow-blue-600/30 active:scale-95 transition-all text-lg flex items-center justify-center space-x-2 cursor-pointer">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
                 <span>New Scan</span>
@@ -168,7 +169,7 @@
             </div>
         </div>
 
-        <!-- Bottom Action Bar (Now with Add Page) -->
+        <!-- Bottom Action Bar -->
         <div class="w-full p-6 bg-white border-t border-slate-200 shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.05)] pb-10 shrink-0 flex flex-col space-y-3">
             
             <!-- Add Page Row -->
@@ -200,20 +201,17 @@
         let isStreaming = false;
         let isFallbackMode = false;
         
-        let liveDetectedCorners = null; // Corners detected in real-time video
-        
-        // Crop Confirmation State
-        let fullUncroppedCanvas = null; // Holds the high-res original capture
-        let currentDetectedCorners = null; // The corners locked in for the crop
-        
-        // Multi-page State
-        let capturedPages = []; // Array of cropped final dataUrls
-        let currentScannedPage = null; // Holds latest cropped image
+        let liveDetectedCorners = null; 
+        let fullUncroppedCanvas = null; 
+        let currentDetectedCorners = null; 
+        let capturedPages = []; 
+        let currentScannedPage = null; 
 
         // --- DOM Elements ---
         const startScreen = document.getElementById('startScreen');
         const loadingSpinner = document.getElementById('loadingSpinner');
         const startUi = document.getElementById('startUi');
+        const statusText = document.getElementById('statusText');
         
         const mainAppContainer = document.getElementById('mainAppContainer');
         const saveScreen = document.getElementById('saveScreen');
@@ -280,14 +278,22 @@
                 }
 
                 try {
-                    // Extremely relaxed constraints: This ensures mobile browsers (like iOS Safari) 
-                    // won't throw an OverconstrainedError and block the live view.
-                    videoStream = await navigator.mediaDevices.getUserMedia({ 
-                        video: { facingMode: { ideal: 'environment' } },
-                        audio: false 
-                    });
+                    // Try to get the back camera explicitly first
+                    try {
+                        videoStream = await navigator.mediaDevices.getUserMedia({ 
+                            video: { facingMode: 'environment' }, audio: false 
+                        });
+                    } catch (e1) {
+                        // If 'environment' fails (some devices don't properly report cameras), ask for ANY camera
+                        videoStream = await navigator.mediaDevices.getUserMedia({ 
+                            video: true, audio: false 
+                        });
+                    }
                     
                     videoElement.srcObject = videoStream;
+                    
+                    // Explicitly call play() - REQUIRED by iOS Safari to start the video stream
+                    videoElement.play().catch(e => console.error("Play error:", e));
                     
                     videoElement.onplaying = () => {
                         isStreaming = true;
@@ -304,7 +310,16 @@
                 } catch (err) {
                     console.log("Live view blocked. Enabling fallback mode.", err);
                     enableFallbackUI();
-                    fallbackCameraInput.click();
+                    
+                    let errorReason = err.name === 'NotAllowedError' ? 'Camera permission denied.' : 'Camera not supported.';
+                    statusText.textContent = `${errorReason} Tap "New Scan" below to use native camera.`;
+                    statusText.classList.remove('text-slate-500');
+                    statusText.classList.add('text-red-500', 'font-bold');
+                    
+                    // We DO NOT automatically call fallbackCameraInput.click() here.
+                    // Mobile browsers block automated clicks that happen inside an asynchronous catch block,
+                    // which is why it was forcing you to the "Gallery". 
+                    // Instead, the user must physically tap the fallback UI buttons.
                 }
             }
 
@@ -341,11 +356,14 @@
 
             function enableFallbackUI() {
                 isFallbackMode = true;
+                // Hide automated JS buttons
                 startBtn.classList.add('hidden');
                 retakeCropBtn.classList.add('hidden');
                 addPageBtn.classList.add('hidden');
                 addMoreFromSaveBtn.classList.add('hidden');
                 
+                // Show `<label>` elements linked directly to the file input. 
+                // Tapping these proves to the OS it was a human action, opening the Camera, not Gallery.
                 fallbackStartBtn.classList.remove('hidden');
                 fallbackStartBtn.classList.add('flex');
                 
@@ -358,6 +376,7 @@
             }
 
             function handleFallbackFileChoice() {
+                // Clear out the value so selecting the same file/taking a new photo triggers 'change'
                 fallbackCameraInput.value = ''; 
             }
             fallbackRetakeCropBtn.addEventListener('click', handleFallbackFileChoice);
@@ -375,7 +394,6 @@
                     return;
                 }
                 
-                // Using a smaller processing canvas (256px) for highly responsive, fast live detection
                 const procMaxWidth = 256;
                 let procW = vW, procH = vH;
                 if (vW > procMaxWidth) {
@@ -410,7 +428,6 @@
                     for (let i = 0; i < contours.size(); ++i) {
                         let cnt = contours.get(i);
                         let area = cv.contourArea(cnt);
-                        // Minimum size to count as a document
                         if (area > (procW * procH * 0.03)) { 
                             let hull = new cv.Mat();
                             cv.convexHull(cnt, hull, false, true);
@@ -430,7 +447,6 @@
                         cnt.delete();
                     }
 
-                    // Draw the live yellow box on top of the camera
                     const overlayCtx = overlayCanvas.getContext('2d');
                     overlayCtx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
 
@@ -445,7 +461,7 @@
                         const offsetY = (rect.height - renderH) / 2;
 
                         overlayCtx.beginPath();
-                        overlayCtx.strokeStyle = '#eab308'; // Tailwind Yellow 500
+                        overlayCtx.strokeStyle = '#eab308';
                         overlayCtx.lineWidth = 4;
                         overlayCtx.lineJoin = 'round';
 
@@ -464,7 +480,7 @@
                             else overlayCtx.lineTo(screenX, screenY);
                         }
                         overlayCtx.closePath();
-                        overlayCtx.fillStyle = 'rgba(234, 179, 8, 0.25)'; // Slightly visible fill
+                        overlayCtx.fillStyle = 'rgba(234, 179, 8, 0.25)';
                         overlayCtx.fill();
                         overlayCtx.stroke();
                         bestApprox.delete();
@@ -719,7 +735,6 @@
 
                 capturedPages.forEach((page, index) => {
                     const wrapper = document.createElement('div');
-                    // Light mode card styling for thumbnails
                     wrapper.className = 'relative shrink-0 w-28 aspect-[3/4] snap-center rounded-xl border border-slate-200 overflow-hidden bg-white shadow-sm flex items-center justify-center';
                     
                     const img = document.createElement('img');
@@ -800,7 +815,10 @@
                 fallbackCameraInput.value = ''; 
                 
                 if (isFallbackMode) {
-                    enableFallbackUI(); // Keeps fallback UI correct if returning to start
+                    enableFallbackUI(); 
+                    statusText.textContent = "Auto-crop documents, receipts, and notes into perfect PDFs.";
+                    statusText.classList.remove('text-red-500', 'font-bold');
+                    statusText.classList.add('text-slate-500');
                 }
             }
 
