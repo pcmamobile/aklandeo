@@ -8,6 +8,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- jsPDF library for creating PDF files -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- OpenCV.js loaded via standard script tag -->
+    <script async src="https://docs.opencv.org/4.8.0/opencv.js"></script>
     <style>
         /* Hide scrollbar for a cleaner look but allow scrolling */
         .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -257,21 +259,24 @@
         window.addEventListener('DOMContentLoaded', () => {
             const { jsPDF } = window.jspdf;
 
-            // Dynamically load OpenCV to prevent DOM race condition crashes
-            const cvScript = document.createElement('script');
-            cvScript.src = "https://docs.opencv.org/4.8.0/opencv.js";
-            cvScript.async = true;
-            cvScript.onload = () => {
-                isOpenCvLoaded = true;
-                loadingSpinner.classList.add('hidden');
-                startUi.classList.remove('hidden');
-                startUi.classList.add('flex');
-            };
-            cvScript.onerror = () => {
-                loadingSpinner.innerHTML = '<p class="text-red-500 font-bold text-center mt-4">Network Error: Failed to download AI engine.<br>Please check your connection and refresh.</p>';
-            };
-            document.body.appendChild(cvScript);
-
+            // Robust polling to ensure OpenCV WASM is fully initialized before unlocking UI
+            let cvCheckCount = 0;
+            function checkOpenCVReady() {
+                if (typeof cv !== 'undefined' && typeof cv.Mat !== 'undefined') {
+                    isOpenCvLoaded = true;
+                    loadingSpinner.classList.add('hidden');
+                    startUi.classList.remove('hidden');
+                    startUi.classList.add('flex');
+                } else {
+                    cvCheckCount++;
+                    if (cvCheckCount > 300) { // 30 seconds max timeout
+                        loadingSpinner.innerHTML = '<p class="text-red-500 font-bold text-center mt-4">Network Error: Failed to load AI engine.<br>Please check your connection, disable ad-blockers, and refresh.</p>';
+                        return;
+                    }
+                    setTimeout(checkOpenCVReady, 100);
+                }
+            }
+            checkOpenCVReady();
 
             // --- 1. Start Scanner Function ---
             async function startScanner() {
