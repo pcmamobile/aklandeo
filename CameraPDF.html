@@ -94,12 +94,20 @@
         <!-- ========================================== -->
         <div id="previewView" class="absolute inset-0 hidden flex flex-col bg-black">
             
+            <!-- Toggle Filter Button (Shown only in reviewActions) -->
+            <div id="toggleFilterContainer" class="absolute top-10 right-6 z-30 hidden">
+                <button id="toggleFilterBtn" class="bg-blue-600 text-white px-4 py-2 rounded-full font-bold shadow-lg flex items-center space-x-2 active:scale-95 transition-colors text-sm border border-white/10">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+                    <span id="filterLabel">Filter: ON</span>
+                </button>
+            </div>
+
             <!-- Image Area (takes up remaining space above controls) -->
             <div class="flex-1 relative w-full overflow-hidden flex items-center justify-center p-4">
                 <!-- Canvas shows uncropped image with Yellow Lines -->
                 <canvas id="cropPreviewCanvas" class="max-w-full max-h-full object-contain hidden"></canvas>
                 <!-- Image shows the final cropped result -->
-                <img id="previewImage" src="" class="max-w-full max-h-full object-contain hidden rounded-md shadow-2xl" />
+                <img id="previewImage" src="" class="max-w-full max-h-full object-contain hidden rounded-md shadow-[0_10px_50px_rgba(255,255,255,0.1)]" />
             </div>
 
             <!-- Bottom Controls Sheet -->
@@ -112,7 +120,9 @@
                 <div id="cropControls" class="w-full flex space-x-4 hidden">
                     <button id="retakeCropBtn" class="flex-[1] bg-neutral-800 text-white font-medium py-4 rounded-2xl active:bg-neutral-700 transition-colors">Retake</button>
                     <label for="fallbackCameraInput" id="fallbackRetakeCropBtn" class="hidden flex-[1] bg-neutral-800 text-white font-medium py-4 rounded-2xl text-center active:bg-neutral-700 transition-colors cursor-pointer">Retake</label>
-                    <button id="applyCropBtn" class="flex-[2] bg-white text-black font-bold py-4 rounded-2xl active:bg-neutral-200 transition-colors shadow-lg">Crop Document</button>
+                    <button id="applyCropBtn" class="flex-[2] bg-white text-black font-bold py-4 rounded-2xl active:bg-neutral-200 transition-colors shadow-lg flex items-center justify-center space-x-2">
+                        <span>Crop Document</span>
+                    </button>
                 </div>
 
                 <!-- Review Actions (Shown after cropping is applied) -->
@@ -126,7 +136,7 @@
                         <span>Add</span>
                     </label>
                     
-                    <button id="finishSaveBtn" class="flex-[2] bg-blue-600 text-white font-bold py-4 rounded-2xl active:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20 flex items-center justify-center space-x-2">
+                    <button id="finishSaveBtn" class="flex-[2] bg-emerald-500 text-white font-bold py-4 rounded-2xl active:bg-emerald-600 transition-colors shadow-lg shadow-emerald-500/20 flex items-center justify-center space-x-2">
                         <span>Done</span>
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5l10 -10"/></svg>
                     </button>
@@ -205,8 +215,14 @@
         let liveDetectedCorners = null; 
         let fullUncroppedCanvas = null; 
         let currentDetectedCorners = null; 
+        
         let capturedPages = []; 
         let currentScannedPage = null; 
+
+        // Shadow Filter State
+        let scannedDataUrlOriginal = null;
+        let scannedDataUrlFiltered = null;
+        let isFilterActive = true;
 
         // --- DOM Elements ---
         const startScreen = document.getElementById('startScreen');
@@ -236,6 +252,9 @@
         const cameraControls = document.getElementById('cameraControls');
         const cropControls = document.getElementById('cropControls');
         const reviewControls = document.getElementById('reviewControls');
+        const toggleFilterContainer = document.getElementById('toggleFilterContainer');
+        const toggleFilterBtn = document.getElementById('toggleFilterBtn');
+        const filterLabel = document.getElementById('filterLabel');
         
         const retakeCropBtn = document.getElementById('retakeCropBtn');
         const fallbackRetakeCropBtn = document.getElementById('fallbackRetakeCropBtn');
@@ -291,16 +310,13 @@
                 }
 
                 try {
-                    // Check if browser supports mediaDevices
                     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
                         throw new Error("Camera API is not supported. Please ensure you are using HTTPS.");
                     }
 
-                    // Bulletproof fallback logic for requesting the camera
                     let stream = null;
                     let lastErr = null;
                     
-                    // Try to get best camera possible, falling back to simpler requests if the device complains
                     const constraintsToTry = [
                         { video: { facingMode: { ideal: "environment" }, width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: false },
                         { video: { facingMode: "environment" }, audio: false },
@@ -310,21 +326,18 @@
                     for (const constraints of constraintsToTry) {
                         try {
                             stream = await navigator.mediaDevices.getUserMedia(constraints);
-                            if (stream) break; // Success! Break out of the loop
+                            if (stream) break; 
                         } catch (e) {
                             lastErr = e;
                             console.warn("Camera constraint failed, trying next fallback:", constraints, e);
                         }
                     }
 
-                    if (!stream) {
-                        throw lastErr || new Error("Could not access any camera on this device.");
-                    }
+                    if (!stream) throw lastErr || new Error("Could not access any camera on this device.");
 
                     videoStream = stream;
                     videoElement.srcObject = videoStream;
                     
-                    // Explicitly set attributes required by iOS
                     videoElement.setAttribute('autoplay', 'true');
                     videoElement.setAttribute('playsinline', 'true');
                     videoElement.setAttribute('webkit-playsinline', 'true');
@@ -333,11 +346,8 @@
                     
                     videoElement.play().catch(e => console.error("Play error:", e));
                     
-                    // Use loadedmetadata instead of onplaying for rock-solid mobile support
                     videoElement.addEventListener('loadedmetadata', () => {
                         isStreaming = true;
-                        
-                        // Slight delay ensures the video element has completely painted to the DOM
                         setTimeout(() => {
                             overlayCanvas.width = videoElement.clientWidth;
                             overlayCanvas.height = videoElement.clientHeight;
@@ -365,7 +375,6 @@
                         errorReason = 'Camera is already in use by another app.';
                     }
                     
-                    // Detect in-app browsers (Facebook, Instagram, Messenger, Line, etc.) which strictly block camera
                     const isWebView = /FBAN|FBAV|Instagram|Line|Snapchat|MicroMessenger|Discord/i.test(navigator.userAgent);
                     
                     if (isWebView) {
@@ -390,6 +399,7 @@
                 cameraControls.classList.add('hidden');
                 cropControls.classList.add('hidden');
                 reviewControls.classList.add('hidden');
+                toggleFilterContainer.classList.add('hidden');
 
                 if (viewName === 'camera') {
                     cameraView.classList.remove('hidden');
@@ -404,19 +414,17 @@
                     previewView.classList.add('flex');
                     previewImage.classList.remove('hidden');
                     reviewControls.classList.remove('hidden');
+                    toggleFilterContainer.classList.remove('hidden');
                 }
             }
 
             function enableFallbackUI() {
                 isFallbackMode = true;
-                // Hide automated JS buttons
                 startBtn.classList.add('hidden');
                 retakeCropBtn.classList.add('hidden');
                 addPageBtn.classList.add('hidden');
                 addMoreFromSaveBtn.classList.add('hidden');
                 
-                // Show `<label>` elements linked directly to the file input. 
-                // Tapping these proves to the OS it was a human action, opening the Camera, not Gallery.
                 fallbackStartBtn.classList.remove('hidden');
                 fallbackStartBtn.classList.add('flex');
                 
@@ -429,7 +437,6 @@
             }
 
             function handleFallbackFileChoice() {
-                // Clear out the value so selecting the same file/taking a new photo triggers 'change'
                 fallbackCameraInput.value = ''; 
             }
             fallbackRetakeCropBtn.addEventListener('click', handleFallbackFileChoice);
@@ -443,19 +450,17 @@
                 const vW = videoElement.videoWidth;
                 const vH = videoElement.videoHeight;
                 
-                // Wait for video to actually start drawing
                 if (!vW || !vH) {
                     setTimeout(() => requestAnimationFrame(processLiveVideoFrame), 100);
                     return;
                 }
 
-                // Dynamically update overlay size if URL bar causes screen resize on mobile
                 if (overlayCanvas.width !== videoElement.clientWidth || overlayCanvas.height !== videoElement.clientHeight) {
                     overlayCanvas.width = videoElement.clientWidth;
                     overlayCanvas.height = videoElement.clientHeight;
                 }
                 
-                const procMaxWidth = 320; // Increased slightly for higher accuracy edge detection
+                const procMaxWidth = 320; 
                 let procW = vW, procH = vH;
                 if (vW > procMaxWidth) {
                     procW = procMaxWidth;
@@ -472,7 +477,6 @@
                 const ctx = processingCanvas.getContext('2d', { willReadFrequently: true });
                 ctx.drawImage(videoElement, 0, 0, procW, procH);
 
-                // Safely declare variables outside so we can guarantee deletion in 'finally' block
                 let src = null, gray = null, contours = null, hierarchy = null, kernel = null;
 
                 try {
@@ -481,7 +485,7 @@
                     cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
                     
                     cv.GaussianBlur(gray, gray, new cv.Size(3, 3), 0, 0, cv.BORDER_DEFAULT);
-                    cv.Canny(gray, gray, 50, 150, 3, false); // Relaxed edge thresholds to find more corners
+                    cv.Canny(gray, gray, 50, 150, 3, false); 
 
                     kernel = cv.Mat.ones(3, 3, cv.CV_8U);
                     cv.dilate(gray, gray, kernel, new cv.Point(-1, -1), 1, cv.BORDER_CONSTANT, cv.morphologyDefaultBorderValue());
@@ -564,7 +568,6 @@
                 } catch (err) { 
                     console.error("OpenCV processing error in live frame:", err);
                 } finally {
-                    // MUST safely delete all OpenCV memory regardless of crashes, otherwise the browser freezes instantly
                     if (src) src.delete();
                     if (gray) gray.delete();
                     if (contours) contours.delete();
@@ -694,7 +697,7 @@
                 currentDetectedCorners = corners;
                 
                 showView('cropConfirm');
-                applyCropBtn.textContent = corners ? "Crop & Keep" : "Keep Original";
+                applyCropBtn.innerHTML = corners ? "<span>Crop Document</span>" : "<span>Keep Original</span>";
 
                 cropPreviewCanvas.width = sourceCanvas.width;
                 cropPreviewCanvas.height = sourceCanvas.height;
@@ -728,13 +731,65 @@
                 executeWarpAndProceed(fullUncroppedCanvas, currentDetectedCorners);
             });
 
-            // --- 5. Execute OpenCV Warp (Flattening) ---
+            // --- 5. Shadow Removal / Document Enhancement Logic ---
+            function applyShadowRemoval(srcMat) {
+                let finalCleaned = new cv.Mat();
+                let rgb = new cv.Mat();
+                let hsv = new cv.Mat();
+                let channels = new cv.MatVector();
+                let V = null;
+                let bg = new cv.Mat();
+                let enhancedV = new cv.Mat();
+
+                try {
+                    // Convert to RGB, then HSV to isolate the Brightness (Value) channel
+                    cv.cvtColor(srcMat, rgb, cv.COLOR_RGBA2RGB, 0);
+                    cv.cvtColor(rgb, hsv, cv.COLOR_RGB2HSV, 0);
+
+                    cv.split(hsv, channels);
+                    V = channels.get(2);
+
+                    // Dynamically calculate a large blur kernel based on image width
+                    let ksize = Math.floor(srcMat.cols / 15); 
+                    if (ksize % 2 === 0) ksize++; 
+                    if (ksize < 31) ksize = 31;
+                    
+                    // Estimate the background (the shadows and uneven lighting)
+                    cv.GaussianBlur(V, bg, new cv.Size(ksize, ksize), 0, 0, cv.BORDER_DEFAULT);
+
+                    // Divide the original brightness by the background shadow map to flatten the lighting
+                    cv.divide(V, bg, enhancedV, 255);
+
+                    // Boost the contrast slightly to make the text pop
+                    enhancedV.convertTo(enhancedV, -1, 1.15, -15);
+
+                    // Merge the cleaned brightness back with the original colors
+                    channels.set(2, enhancedV);
+                    cv.merge(channels, hsv);
+                    
+                    // Convert back to displayable RGBA
+                    cv.cvtColor(hsv, rgb, cv.COLOR_HSV2RGB, 0);
+                    cv.cvtColor(rgb, finalCleaned, cv.COLOR_RGB2RGBA, 0);
+                    
+                    return finalCleaned;
+                } catch (e) {
+                    console.error("Shadow removal failed:", e);
+                    return srcMat.clone(); 
+                } finally {
+                    rgb.delete(); hsv.delete(); channels.delete(); 
+                    if (V) V.delete(); 
+                    bg.delete(); enhancedV.delete();
+                }
+            }
+
+            // --- 6. Execute OpenCV Warp (Flattening) ---
             function executeWarpAndProceed(sourceCanvas, cornersToUse) {
-                let src = null, dst = null, srcTri = null, dstTri = null, M = null;
+                let src = null, dst = null, srcTri = null, dstTri = null, M = null, enhancedMat = null;
                 try {
                     src = cv.imread(sourceCanvas);
                     dst = new cv.Mat();
 
+                    // Perform the Perspective Crop
                     if (cornersToUse && cornersToUse.length === 4) {
                         let ordered = orderCorners(cornersToUse);
 
@@ -762,16 +817,30 @@
                         dst = src.clone();
                     }
 
-                    let outCanvas = document.createElement('canvas');
-                    cv.imshow(outCanvas, dst);
+                    // 1. Generate the Original Image Data (Without Shadow Filter)
+                    let outCanvasOriginal = document.createElement('canvas');
+                    cv.imshow(outCanvasOriginal, dst);
+                    scannedDataUrlOriginal = outCanvasOriginal.toDataURL('image/jpeg', 0.95);
+
+                    // 2. Apply Magic Shadow Removal Filter
+                    enhancedMat = applyShadowRemoval(dst);
+                    let outCanvasFiltered = document.createElement('canvas');
+                    cv.imshow(outCanvasFiltered, enhancedMat);
+                    scannedDataUrlFiltered = outCanvasFiltered.toDataURL('image/jpeg', 0.95);
                     
+                    // Set UI State to Filtered by default
+                    isFilterActive = true;
+                    previewImage.src = scannedDataUrlFiltered;
+                    filterLabel.textContent = "Filter: ON";
+                    toggleFilterBtn.classList.replace('bg-neutral-800', 'bg-blue-600');
+                    toggleFilterBtn.classList.replace('text-neutral-400', 'text-white');
+
                     currentScannedPage = {
-                        dataUrl: outCanvas.toDataURL('image/jpeg', 0.95),
-                        width: outCanvas.width,
-                        height: outCanvas.height
+                        dataUrl: previewImage.src,
+                        width: outCanvasFiltered.width,
+                        height: outCanvasFiltered.height
                     };
                     
-                    previewImage.src = currentScannedPage.dataUrl;
                     showView('reviewActions');
                     
                 } catch (err) { 
@@ -782,10 +851,31 @@
                     if(srcTri) srcTri.delete();
                     if(dstTri) dstTri.delete();
                     if(M) M.delete();
+                    if(enhancedMat) enhancedMat.delete();
                 }
             }
 
-            // --- 6. Post-Crop Review Actions ---
+            // --- Toggle Shadow Filter ---
+            toggleFilterBtn.addEventListener('click', () => {
+                isFilterActive = !isFilterActive;
+                if (isFilterActive) {
+                    previewImage.src = scannedDataUrlFiltered;
+                    filterLabel.textContent = "Filter: ON";
+                    toggleFilterBtn.classList.replace('bg-neutral-800', 'bg-blue-600');
+                    toggleFilterBtn.classList.replace('text-neutral-400', 'text-white');
+                } else {
+                    previewImage.src = scannedDataUrlOriginal;
+                    filterLabel.textContent = "Filter: OFF";
+                    toggleFilterBtn.classList.replace('bg-blue-600', 'bg-neutral-800');
+                    toggleFilterBtn.classList.replace('text-white', 'text-neutral-400');
+                }
+                
+                if (currentScannedPage) {
+                    currentScannedPage.dataUrl = previewImage.src;
+                }
+            });
+
+            // --- 7. Post-Crop Review Actions ---
             addPageBtn.addEventListener('click', () => {
                 if(currentScannedPage) {
                     capturedPages.push(currentScannedPage);
@@ -802,7 +892,7 @@
                 showSaveScreen();
             });
 
-            // --- 7. Save Gallery & PDF Generation ---
+            // --- 8. Save Gallery & PDF Generation ---
             function showSaveScreen() {
                 mainAppContainer.classList.add('hidden');
                 saveScreen.classList.remove('hidden');
