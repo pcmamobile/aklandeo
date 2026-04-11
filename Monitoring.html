@@ -10,6 +10,9 @@
     
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- JWT Generation Library (Required for Ultra-Fast Client-Side Data Fetching) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.5.27/jsrsasign-all-min.js"></script>
 
     <!-- Configuration & Custom CSS -->
     <script>
@@ -137,7 +140,7 @@
         <div id="loader" class="absolute inset-0 z-50 bg-[#20202d]/90 rounded-2xl flex flex-col items-center justify-center backdrop-blur-sm">
             <i class="fa-solid fa-cube text-6xl text-neon-blue loading-pulse mb-4"></i>
             <h2 class="text-xl font-bold text-neon-blue" id="loader-title">Fetching Live Data...</h2>
-            <p id="loader-text" class="text-gray-400 mt-2 text-sm text-center px-4">Connecting securely to API Backend...</p>
+            <p id="loader-text" class="text-gray-400 mt-2 text-sm text-center px-4">Authenticating with Google Services...</p>
         </div>
 
         <!-- Document Type Toggle -->
@@ -263,10 +266,59 @@
 
     <script>
         // =========================================================================
-        // FAST API CONFIGURATION (via Google Apps Script Web App)
-        // No Private Keys Exposed.
+        // HYBRID API CONFIGURATION
+        // - Fetching: Direct Google Sheets REST API (Extremely Fast, uses JWT)
+        // - Uploading/Saving: Google Apps Script Web App (Avoids CORS upload errors)
         // =========================================================================
+        
+        // 1. Google Apps Script Backend (For Saving/Uploading)
         const API_URL = 'https://script.google.com/macros/s/AKfycbyEzusTIK4YXUYYy-_AiebjRF7Ecd4pQ8xmFN_X6L3eaKBRlicHC0VNP1VvRHD6L1K-ZA/exec';
+
+        // 2. Direct REST API Config (For Lightning Fast Fetching)
+        const API_CONFIG = {
+            SPREADSHEET_ID: "1LSYLZ7tfSeVupQMPsCOHG4SlnzPQqOAIe03QI1qRMr8",
+            SERVICE_ACCOUNT: {
+                "client_email": "pcma-mobile@gold-mode-473811-c6.iam.gserviceaccount.com",
+                "private_key": `-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQC1sEJI1CN6V8mj\nAhBvpiLC7JOEbrFFxsvqbzJjitbDRbyRhbk7prF1NQqAz0OV8l+9/v69UJ3ddGmE\n3Oq4EEqgOmeEpfdSeJeMa+alsc0H+1E2EmWLnhGNv/ot91osgokv7tUG7p/WnGSf\n0IP2bmbbEmQfhganvTCTmhTASHUSK32O+ZmYklYwqs9qptWCFjS3lj+uhaQ2nAFQ\nGCloj6go1aRbQTGxDygwwxtK08v68EuApslm5qs/x08gnj1UEV/FfHDUvUbCswm2\nIRTULJqNoGTYNs4DxbUJClUwcf72xmddbiE/CbOWs1g626obziGNe6/Dq74Ws5IR\nj39h8S57AgMBAAECggEAPUZdDH/TGUM7Iykijuz6Yz/zPmIwkiZKBl4LIewkowXF\nY1S0lGwTBELnsGp2Uj9ET+kMU5+5JgNJRQBWfs4rxN79o4xvnVZDUh3f0zjkO5Fk\nIbbRnWUpaWN6Bf+aX1GE3/AN00EuEex7uTRTFQzFzpNkxgbm/rI9DEKWRgUJyp7j\nwrbzhTp2cRRrQaPtONZej68dUtkkAsd2rlt3Reht3/NCdmNRTjpRHqiICZvuZuHe\njebcK/ewVZWqW9XpwVMfjhZeyBnfzNqRElNxF4BtodjmSpw+TkWyPK9obVFEBDG5\nFeRxBk6aTdutNkIN2uXOPFBP7UV4evsD3fiuYMRFvQKBgQDbiMwo80cLbnV7fuq/\nSr1y2i/mj8XDVX6xOJWDXOhrHNEDcTpYHp5Ey5qQwQhkGOiK/aUJWfWHJGMLM7DY\n7l6nvRe+oX/1inocjKMkiq5TGDvptBv2T9rz0K3LFueFNcxAv7445GgCsFADgYBM\n67reu9QcmT6Uis2nUffzcleGNQKBgQDT3ibtkMmkeDi3sl1uY9PudlZqnCcP11Pi\nQJF4+thJYjN/bYBKA3F4GhRZzEKxW6jjF/mQ/kZDLHJeGI4Y0ETpz76kB4gSO1zc\nlsKZnGBvfug2Oz7/fnPfdpMdSsaFS9AHOHTm7TAiyMuSXciJ1Sy5LxVeELP91cbJ\nBsJtKX+37wKBgQDFKUSB+orxn1Bvivp0tkESpxWh8blgxqWzr+fHRGeP2x90Afqu\nLUFi86BrJJHOo/gk68uObHZv2qQA6XmIOfxUlSSAFjb/ZFBq13ulU89f3UHhj9oV\nCn7Pvbh3zqg7IKfB9vJ10dv/ni0eGO4LJyJ66yGCVba4XTh5bspKn4QviQKBgQCi\nud3sWWiGilAFx1k7kDEW1o1JFOZrpFcpT65r3T6CHoqvNMt0DXD5bg5zag9Pabct\ntRxZ4PLWZSzyWKnLJSvI6WbjVWWNm0qXorOUiCcJe8+e16JrWhRlbg1QUj5n4vLE\nmPgw5bwy+0ZgBOgh9TmEgkVHGk0kiS1E+Ywbi+QswQKBgQDOI10/zjkwXOmqHlX7\n7nkuSIG9Kojrt2XWIsecZ9xP4lnIq6oyBUxDLaj3MaSnGeuvJZjDHa7YxqyAZvOO\nPxJ2F55gm4PME6obOldAw8rWdTWmlpG5rm679Q01nupwlC5+rJPqSzW/GpibKjZa\ni2e4E1vAOiqCrUlBSDcvD1r+/g==\n-----END PRIVATE KEY-----\n`
+            }
+        };
+
+        class GoogleSheetsAPI {
+            static _oauthToken = null;
+            static _tokenExp = 0;
+
+            static async getAuthToken() {
+                if (this._oauthToken && this._tokenExp > Date.now()) return this._oauthToken;
+                const header = { alg: "RS256", typ: "JWT" };
+                const now = Math.floor(Date.now() / 1000);
+                const claim = {
+                    iss: API_CONFIG.SERVICE_ACCOUNT.client_email,
+                    scope: "https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive",
+                    aud: "https://oauth2.googleapis.com/token",
+                    exp: now + 3600,
+                    iat: now
+                };
+
+                const sHeader = JSON.stringify(header);
+                const sClaim = JSON.stringify(claim);
+                const sJWS = KJUR.jws.JWS.sign("RS256", sHeader, sClaim, API_CONFIG.SERVICE_ACCOUNT.private_key);
+
+                const res = await fetch("https://oauth2.googleapis.com/token", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${sJWS}`
+                });
+                
+                const data = await res.json();
+                if (data.access_token) {
+                    this._oauthToken = data.access_token;
+                    this._tokenExp = Date.now() + (data.expires_in * 1000) - 60000; // Refreshes 1m before expiry
+                    return data.access_token;
+                } else {
+                    throw new Error("Failed to get Google Token");
+                }
+            }
+        }
 
         // Global State
         window.appData = {
@@ -282,11 +334,16 @@
         window.globalHeaders = [];
         window.globalContractSearch = [];
 
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchData();
+        });
+
         // -------------------------------------------------------------
-        // API HELPER FUNCTIONS (Fast text/plain CORS bypass)
+        // API HELPER FUNCTIONS (For Uploads/Writes via Apps Script Backend)
         // -------------------------------------------------------------
         async function apiCall(payload) {
             try {
+                // Using text/plain ensures no preflight CORS issues block the upload
                 const res = await fetch(API_URL, {
                     method: 'POST',
                     body: JSON.stringify(payload),
@@ -309,33 +366,38 @@
             }); 
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            fetchData();
-        });
-
         // -------------------------------------------------------------
-        // DATA FETCHING
+        // ULTRA-FAST DATA FETCHING (Via Direct Sheets API & JWT)
         // -------------------------------------------------------------
         async function fetchData() {
             try {
-                document.getElementById('loader-text').innerText = "Downloading Sheet Data from Backend...";
+                document.getElementById('loader-text').innerText = "Authenticating & Downloading Sheet Data...";
                 
-                const resData = await apiCall({ action: 'fetchData' });
-                const rawData = resData.data;
-
-                if (!rawData || rawData.length < 3) {
+                // Request a JWT access token natively in the client
+                const token = await GoogleSheetsAPI.getAuthToken();
+                
+                // Direct GET request to Google Sheets REST API bypasses Apps Script completely
+                const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values/UPLOAD!A3:ZZ`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                
+                if (!response.ok) throw new Error("Failed to fetch data directly from Google Sheets API.");
+                
+                const data = await response.json();
+                
+                if (!data.values || data.values.length === 0) {
                     showError("Not enough data found in the spreadsheet (requires at least a header on Row 3).");
                     return;
                 }
 
-                // Row 3 is Index 2 in the array
-                const headersArray = rawData[2]; 
+                // First row of the fetched range (A3:ZZ) is index 0 -> Row 3
+                const headersArray = data.values[0]; 
                 window.globalHeaders = headersArray; 
                 const rowsArray = [];
 
-                // Data starts from Row 4 (Index 3)
-                for (let i = 3; i < rawData.length; i++) {
-                    const rowVals = rawData[i];
+                // Data rows start from index 1 -> Row 4
+                for (let i = 1; i < data.values.length; i++) {
+                    const rowVals = data.values[i];
                     while (rowVals.length < headersArray.length) {
                         rowVals.push('');
                     }
@@ -343,7 +405,7 @@
                     if (isBlank) continue;
 
                     rowsArray.push({
-                        rowNumber: i + 1, // Real row number in sheets
+                        rowNumber: i + 3, // Compute the exact row number in Google Sheets (1+3=4)
                         values: rowVals
                     });
                 }
