@@ -206,6 +206,22 @@
         </div>
     </div>
 
+    <!-- 4. EXIT WARNING MODAL -->
+    <div id="exitWarningModal" class="absolute inset-0 bg-black/60 z-[100] hidden flex-col items-center justify-center px-6 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl flex flex-col">
+            <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mb-4 mx-auto">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <h3 class="text-xl font-bold text-slate-900 text-center mb-2">Unsaved Changes</h3>
+            <p class="text-slate-500 text-center mb-6 leading-snug">Do you want to close the app without saving your scanned pages?</p>
+            <div class="flex flex-col space-y-3">
+                <button id="exitSaveFirstBtn" class="w-full bg-blue-600 text-white font-bold py-3.5 rounded-xl active:scale-95 transition-transform text-lg shadow-md shadow-blue-600/20">Save First</button>
+                <button id="exitCloseAppBtn" class="w-full bg-red-50 text-red-600 font-bold py-3.5 rounded-xl active:scale-95 transition-transform text-lg">Yes, Close the App</button>
+                <button id="exitCancelBtn" class="w-full text-slate-400 font-medium py-2 active:text-slate-600 transition-colors">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Hidden canvas used for OpenCV processing in the background -->
     <canvas id="processingCanvas" class="hidden"></canvas>
 
@@ -282,8 +298,67 @@
         const pageBadgeCount = document.getElementById('pageBadgeCount');
         const pageCountText = document.getElementById('pageCountText');
 
+        // Modal Elements
+        const exitWarningModal = document.getElementById('exitWarningModal');
+        const exitSaveFirstBtn = document.getElementById('exitSaveFirstBtn');
+        const exitCloseAppBtn = document.getElementById('exitCloseAppBtn');
+        const exitCancelBtn = document.getElementById('exitCancelBtn');
+
         window.addEventListener('DOMContentLoaded', () => {
             const { jsPDF } = window.jspdf;
+
+            // --- Unsaved Changes Protection (Browser Close/Refresh) ---
+            window.addEventListener('beforeunload', (e) => {
+                if (capturedPages.length > 0 || fullUncroppedCanvas) {
+                    e.preventDefault();
+                    e.returnValue = ''; // Required to trigger browser warning
+                }
+            });
+
+            // --- Mobile Back Button Trapping ---
+            history.pushState({ app: "scanner" }, document.title, window.location.href);
+            
+            window.addEventListener('popstate', (e) => {
+                if (capturedPages.length > 0 || fullUncroppedCanvas) {
+                    // Trap the user so they don't actually leave
+                    history.pushState({ app: "scanner" }, document.title, window.location.href);
+                    // Show our custom warning modal
+                    exitWarningModal.classList.remove('hidden');
+                    exitWarningModal.classList.add('flex');
+                }
+            });
+
+            // --- Modal Button Logic ---
+            exitSaveFirstBtn.addEventListener('click', () => {
+                exitWarningModal.classList.add('hidden');
+                exitWarningModal.classList.remove('flex');
+                
+                // If they hit back while cropping, process the crop first
+                if (fullUncroppedCanvas && editableCorners) {
+                    executeWarpAndProceed(fullUncroppedCanvas, editableCorners);
+                } 
+                // If they hit back from anywhere else, go straight to save screen
+                else if (capturedPages.length > 0) {
+                    if (currentScannedPage) {
+                        capturedPages.push(currentScannedPage);
+                        currentScannedPage = null;
+                    }
+                    showSaveScreen();
+                }
+            });
+
+            exitCloseAppBtn.addEventListener('click', () => {
+                exitWarningModal.classList.add('hidden');
+                exitWarningModal.classList.remove('flex');
+                resetToStart();
+                // Because they confirmed, if they hit back again, let them leave the app naturally
+            });
+
+            exitCancelBtn.addEventListener('click', () => {
+                exitWarningModal.classList.add('hidden');
+                exitWarningModal.classList.remove('flex');
+            });
+
 
             // Robust polling to ensure OpenCV WASM is fully initialized before unlocking UI
             let cvCheckCount = 0;
