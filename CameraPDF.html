@@ -19,7 +19,7 @@
 <body class="bg-black text-slate-800 font-sans antialiased fixed inset-0 overflow-hidden selection:bg-blue-200">
 
     <!-- Visually hidden Input for Native Camera Fallback (avoiding display:none for iOS Safari support) -->
-    <input type="file" id="fallbackCameraInput" accept="image/*" capture="environment" class="w-0 h-0 absolute opacity-0 -z-50" tabindex="-1">
+    <input type="file" id="fallbackCameraInput" accept="image/*" capture="environment" class="w-0 h-0 absolute opacity-0 -z-50 pointer-events-none" tabindex="-1">
 
     <!-- 1. START SCREEN (Clean Light Mode) -->
     <div id="startScreen" class="absolute inset-0 flex flex-col items-center justify-center z-50 bg-slate-50 px-6 transition-opacity duration-300">
@@ -61,14 +61,15 @@
         <!-- A. LIVE CAMERA FULL SCREEN                 -->
         <!-- ========================================== -->
         <div id="cameraView" class="absolute inset-0 hidden">
-            <!-- Full Bleed Video with muted and webkit-playsinline required for iOS/Mobile live feed -->
-            <video id="videoElement" autoplay playsinline webkit-playsinline muted class="absolute inset-0 w-full h-full object-cover"></video>
+            <!-- Ensure explicit Z-indexes so the yellow lines (z-10) are absolutely above the video (z-0) -->
+            <video id="videoElement" autoplay playsinline webkit-playsinline muted class="absolute inset-0 w-full h-full object-cover z-0"></video>
+            
             <!-- Canvas for Yellow Crop Lines -->
-            <canvas id="overlayCanvas" class="absolute inset-0 w-full h-full pointer-events-none z-0"></canvas>
+            <canvas id="overlayCanvas" class="absolute inset-0 w-full h-full pointer-events-none z-10"></canvas>
             
             <!-- Top Gradient & Floating Badges -->
-            <div class="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-black/60 to-transparent pointer-events-none z-10"></div>
-            <div class="absolute top-0 left-0 w-full p-6 pt-10 flex justify-between items-center z-20">
+            <div class="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-black/60 to-transparent pointer-events-none z-20"></div>
+            <div class="absolute top-0 left-0 w-full p-6 pt-10 flex justify-between items-center z-30">
                 <button id="cancelCameraBtn" class="text-white bg-black/40 backdrop-blur-md px-4 py-2 rounded-full font-medium active:bg-black/60 transition-colors shadow-sm">
                     Cancel
                 </button>
@@ -79,11 +80,11 @@
             </div>
 
             <!-- Bottom Gradient & Floating Camera Controls -->
-            <div class="absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-black/80 via-black/40 to-transparent pointer-events-none z-10"></div>
-            <div id="cameraControls" class="absolute bottom-10 left-0 w-full flex justify-center items-center z-20 hidden">
+            <div class="absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-black/80 via-black/40 to-transparent pointer-events-none z-20"></div>
+            <div id="cameraControls" class="absolute bottom-10 left-0 w-full flex justify-center items-center z-30 hidden">
                 <!-- Native-style Shutter Button -->
                 <button id="captureBtn" class="w-20 h-20 rounded-full border-[5px] border-white/60 flex items-center justify-center active:scale-90 transition-transform focus:outline-none">
-                    <div class="w-[60px] h-[60px] bg-white rounded-full"></div>
+                    <div class="w-[60px] h-[60px] bg-white rounded-full pointer-events-none"></div>
                 </button>
             </div>
         </div>
@@ -441,16 +442,29 @@
 
                 const vW = videoElement.videoWidth;
                 const vH = videoElement.videoHeight;
+                
+                // Wait for video to actually start drawing
                 if (!vW || !vH) {
                     setTimeout(() => requestAnimationFrame(processLiveVideoFrame), 100);
                     return;
                 }
+
+                // Dynamically update overlay size if URL bar causes screen resize on mobile
+                if (overlayCanvas.width !== videoElement.clientWidth || overlayCanvas.height !== videoElement.clientHeight) {
+                    overlayCanvas.width = videoElement.clientWidth;
+                    overlayCanvas.height = videoElement.clientHeight;
+                }
                 
-                const procMaxWidth = 256;
+                const procMaxWidth = 320; // Increased slightly for higher accuracy edge detection
                 let procW = vW, procH = vH;
                 if (vW > procMaxWidth) {
                     procW = procMaxWidth;
                     procH = Math.round(vH * (procMaxWidth / vW));
+                }
+
+                if (procW === 0 || procH === 0) {
+                    setTimeout(() => requestAnimationFrame(processLiveVideoFrame), 100);
+                    return;
                 }
 
                 processingCanvas.width = procW;
@@ -458,20 +472,23 @@
                 const ctx = processingCanvas.getContext('2d', { willReadFrequently: true });
                 ctx.drawImage(videoElement, 0, 0, procW, procH);
 
-                try {
-                    let src = cv.imread(processingCanvas);
-                    let gray = new cv.Mat();
-                    cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
-                    cv.GaussianBlur(gray, gray, new cv.Size(5, 5), 0, 0, cv.BORDER_DEFAULT);
-                    cv.Canny(gray, gray, 75, 200, 3, false);
+                // Safely declare variables outside so we can guarantee deletion in 'finally' block
+                let src = null, gray = null, contours = null, hierarchy = null, kernel = null;
 
-                    let kernel = cv.Mat.ones(3, 3, cv.CV_8U);
+                try {
+                    src = cv.imread(processingCanvas);
+                    gray = new cv.Mat();
+                    cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
+                    
+                    cv.GaussianBlur(gray, gray, new cv.Size(3, 3), 0, 0, cv.BORDER_DEFAULT);
+                    cv.Canny(gray, gray, 50, 150, 3, false); // Relaxed edge thresholds to find more corners
+
+                    kernel = cv.Mat.ones(3, 3, cv.CV_8U);
                     cv.dilate(gray, gray, kernel, new cv.Point(-1, -1), 1, cv.BORDER_CONSTANT, cv.morphologyDefaultBorderValue());
                     cv.erode(gray, gray, kernel, new cv.Point(-1, -1), 1, cv.BORDER_CONSTANT, cv.morphologyDefaultBorderValue());
-                    kernel.delete();
 
-                    let contours = new cv.MatVector();
-                    let hierarchy = new cv.Mat();
+                    contours = new cv.MatVector();
+                    hierarchy = new cv.Mat();
                     cv.findContours(gray, contours, hierarchy, cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE);
 
                     let maxArea = 0;
@@ -480,21 +497,26 @@
                     for (let i = 0; i < contours.size(); ++i) {
                         let cnt = contours.get(i);
                         let area = cv.contourArea(cnt);
-                        if (area > (procW * procH * 0.03)) { 
+                        if (area > (procW * procH * 0.05)) { 
                             let hull = new cv.Mat();
-                            cv.convexHull(cnt, hull, false, true);
                             let approx = new cv.Mat();
-                            let perimeter = cv.arcLength(hull, true);
-                            for (let eps = 0.02; eps <= 0.08; eps += 0.02) {
-                                cv.approxPolyDP(hull, approx, eps * perimeter, true);
-                                if (approx.rows === 4) break;
+                            try {
+                                cv.convexHull(cnt, hull, false, true);
+                                let perimeter = cv.arcLength(hull, true);
+                                
+                                for (let eps = 0.02; eps <= 0.1; eps += 0.01) {
+                                    cv.approxPolyDP(hull, approx, eps * perimeter, true);
+                                    if (approx.rows === 4) break;
+                                }
+                                if (approx.rows === 4 && area > maxArea) {
+                                    maxArea = area;
+                                    if (bestApprox) bestApprox.delete();
+                                    bestApprox = approx.clone();
+                                }
+                            } finally {
+                                hull.delete();
+                                approx.delete();
                             }
-                            if (approx.rows === 4 && area > maxArea) {
-                                maxArea = area;
-                                if (bestApprox) bestApprox.delete();
-                                bestApprox = approx.clone();
-                            }
-                            hull.delete(); approx.delete();
                         }
                         cnt.delete();
                     }
@@ -513,7 +535,7 @@
                         const offsetY = (rect.height - renderH) / 2;
 
                         overlayCtx.beginPath();
-                        overlayCtx.strokeStyle = '#eab308';
+                        overlayCtx.strokeStyle = '#eab308'; // Tailwind Yellow 500
                         overlayCtx.lineWidth = 4;
                         overlayCtx.lineJoin = 'round';
 
@@ -532,15 +554,23 @@
                             else overlayCtx.lineTo(screenX, screenY);
                         }
                         overlayCtx.closePath();
-                        overlayCtx.fillStyle = 'rgba(234, 179, 8, 0.25)';
+                        overlayCtx.fillStyle = 'rgba(234, 179, 8, 0.25)'; // Visible yellow highlight
                         overlayCtx.fill();
                         overlayCtx.stroke();
                         bestApprox.delete();
                     } else {
                         liveDetectedCorners = null;
                     }
-                    src.delete(); gray.delete(); contours.delete(); hierarchy.delete();
-                } catch (err) { }
+                } catch (err) { 
+                    console.error("OpenCV processing error in live frame:", err);
+                } finally {
+                    // MUST safely delete all OpenCV memory regardless of crashes, otherwise the browser freezes instantly
+                    if (src) src.delete();
+                    if (gray) gray.delete();
+                    if (contours) contours.delete();
+                    if (hierarchy) hierarchy.delete();
+                    if (kernel) kernel.delete();
+                }
 
                 setTimeout(() => requestAnimationFrame(processLiveVideoFrame), 80); 
             }
@@ -592,20 +622,20 @@
 
             function detectCornersStatic(canvas) {
                 let finalCorners = null;
+                let src = null, gray = null, contours = null, hierarchy = null, kernel = null;
                 try {
-                    let src = cv.imread(canvas);
-                    let gray = new cv.Mat();
+                    src = cv.imread(canvas);
+                    gray = new cv.Mat();
                     cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
                     cv.GaussianBlur(gray, gray, new cv.Size(5, 5), 0, 0, cv.BORDER_DEFAULT);
-                    cv.Canny(gray, gray, 75, 200, 3, false);
+                    cv.Canny(gray, gray, 50, 150, 3, false);
 
-                    let kernel = cv.Mat.ones(5, 5, cv.CV_8U);
+                    kernel = cv.Mat.ones(5, 5, cv.CV_8U);
                     cv.dilate(gray, gray, kernel, new cv.Point(-1, -1), 1, cv.BORDER_CONSTANT, cv.morphologyDefaultBorderValue());
                     cv.erode(gray, gray, kernel, new cv.Point(-1, -1), 1, cv.BORDER_CONSTANT, cv.morphologyDefaultBorderValue());
-                    kernel.delete();
 
-                    let contours = new cv.MatVector();
-                    let hierarchy = new cv.Mat();
+                    contours = new cv.MatVector();
+                    hierarchy = new cv.Mat();
                     cv.findContours(gray, contours, hierarchy, cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE);
 
                     let maxArea = 0;
@@ -617,20 +647,24 @@
                         let area = cv.contourArea(cnt);
                         if (area > minArea) { 
                             let hull = new cv.Mat();
-                            cv.convexHull(cnt, hull, false, true);
                             let approx = new cv.Mat();
-                            let perimeter = cv.arcLength(hull, true);
-                            
-                            for (let eps = 0.02; eps <= 0.08; eps += 0.02) {
-                                cv.approxPolyDP(hull, approx, eps * perimeter, true);
-                                if (approx.rows === 4) break;
+                            try {
+                                cv.convexHull(cnt, hull, false, true);
+                                let perimeter = cv.arcLength(hull, true);
+                                
+                                for (let eps = 0.02; eps <= 0.1; eps += 0.01) {
+                                    cv.approxPolyDP(hull, approx, eps * perimeter, true);
+                                    if (approx.rows === 4) break;
+                                }
+                                if (approx.rows === 4 && area > maxArea) {
+                                    maxArea = area;
+                                    if(bestApprox) bestApprox.delete();
+                                    bestApprox = approx.clone();
+                                }
+                            } finally {
+                                hull.delete();
+                                approx.delete();
                             }
-                            if (approx.rows === 4 && area > maxArea) {
-                                maxArea = area;
-                                if(bestApprox) bestApprox.delete();
-                                bestApprox = approx.clone();
-                            }
-                            hull.delete(); approx.delete();
                         }
                         cnt.delete();
                     }
@@ -642,8 +676,15 @@
                         }
                         bestApprox.delete();
                     }
-                    src.delete(); gray.delete(); contours.delete(); hierarchy.delete();
-                } catch(err) { }
+                } catch(err) { 
+                    console.error("Static image analysis error:", err);
+                } finally {
+                    if (src) src.delete();
+                    if (gray) gray.delete();
+                    if (contours) contours.delete();
+                    if (hierarchy) hierarchy.delete();
+                    if (kernel) kernel.delete();
+                }
                 return finalCorners;
             }
 
@@ -689,9 +730,10 @@
 
             // --- 5. Execute OpenCV Warp (Flattening) ---
             function executeWarpAndProceed(sourceCanvas, cornersToUse) {
+                let src = null, dst = null, srcTri = null, dstTri = null, M = null;
                 try {
-                    let src = cv.imread(sourceCanvas);
-                    let dst = new cv.Mat();
+                    src = cv.imread(sourceCanvas);
+                    dst = new cv.Mat();
 
                     if (cornersToUse && cornersToUse.length === 4) {
                         let ordered = orderCorners(cornersToUse);
@@ -704,19 +746,18 @@
                         let h2 = Math.hypot(ordered[0].x - ordered[3].x, ordered[0].y - ordered[3].y);
                         let maxHeight = Math.max(h1, h2);
 
-                        let srcTri = cv.matFromArray(4, 1, cv.CV_32FC2, [
+                        srcTri = cv.matFromArray(4, 1, cv.CV_32FC2, [
                             ordered[0].x, ordered[0].y, ordered[1].x, ordered[1].y,
                             ordered[2].x, ordered[2].y, ordered[3].x, ordered[3].y
                         ]);
-                        let dstTri = cv.matFromArray(4, 1, cv.CV_32FC2, [
+                        dstTri = cv.matFromArray(4, 1, cv.CV_32FC2, [
                             0, 0, maxWidth, 0, maxWidth, maxHeight, 0, maxHeight
                         ]);
 
-                        let M = cv.getPerspectiveTransform(srcTri, dstTri);
+                        M = cv.getPerspectiveTransform(srcTri, dstTri);
                         let dsize = new cv.Size(maxWidth, maxHeight);
                         
                         cv.warpPerspective(src, dst, M, dsize, cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar());
-                        srcTri.delete(); dstTri.delete(); M.delete();
                     } else {
                         dst = src.clone();
                     }
@@ -733,8 +774,15 @@
                     previewImage.src = currentScannedPage.dataUrl;
                     showView('reviewActions');
                     
-                    src.delete(); dst.delete();
-                } catch (err) { }
+                } catch (err) { 
+                    console.error("Error cropping image:", err);
+                } finally {
+                    if(src) src.delete();
+                    if(dst) dst.delete();
+                    if(srcTri) srcTri.delete();
+                    if(dstTri) dstTri.delete();
+                    if(M) M.delete();
+                }
             }
 
             // --- 6. Post-Crop Review Actions ---
