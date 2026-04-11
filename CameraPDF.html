@@ -96,16 +96,16 @@
             
             <!-- Toggle Filter Button (Shown only in reviewActions) -->
             <div id="toggleFilterContainer" class="absolute top-10 right-6 z-30 hidden">
-                <button id="toggleFilterBtn" class="bg-blue-600 text-white px-4 py-2 rounded-full font-bold shadow-lg flex items-center space-x-2 active:scale-95 transition-colors text-sm border border-white/10">
+                <button id="toggleFilterBtn" class="bg-neutral-800 text-neutral-400 px-4 py-2 rounded-full font-bold shadow-lg flex items-center space-x-2 active:scale-95 transition-colors text-sm border border-white/10">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
-                    <span id="filterLabel">Filter: ON</span>
+                    <span id="filterLabel">Filter: OFF</span>
                 </button>
             </div>
 
             <!-- Image Area (takes up remaining space above controls) -->
             <div class="flex-1 relative w-full overflow-hidden flex items-center justify-center p-4">
-                <!-- Canvas shows uncropped image with Yellow Lines -->
-                <canvas id="cropPreviewCanvas" class="max-w-full max-h-full object-contain hidden"></canvas>
+                <!-- Canvas shows uncropped image with editable Yellow Lines (touch-none prevents scrolling while dragging) -->
+                <canvas id="cropPreviewCanvas" class="max-w-full max-h-full object-contain hidden touch-none cursor-crosshair"></canvas>
                 <!-- Image shows the final cropped result -->
                 <img id="previewImage" src="" class="max-w-full max-h-full object-contain hidden rounded-md shadow-[0_10px_50px_rgba(255,255,255,0.1)]" />
             </div>
@@ -215,7 +215,7 @@
         let liveDetectedCorners = null; 
         let cornerHistory = []; // Tracks corners over multiple frames for buttery smooth stabilization
         let fullUncroppedCanvas = null; 
-        let currentDetectedCorners = null; 
+        let editableCorners = null; // The corners being actively dragged by the user
         
         let capturedPages = []; 
         let currentScannedPage = null; 
@@ -223,7 +223,7 @@
         // Shadow Filter State
         let scannedDataUrlOriginal = null;
         let scannedDataUrlFiltered = null;
-        let isFilterActive = true;
+        let isFilterActive = false; // Set to off by default
 
         // --- DOM Elements ---
         const startScreen = document.getElementById('startScreen');
@@ -693,7 +693,6 @@
                 reader.readAsDataURL(file);
             });
 
-            // Same advanced shape/brightness logic replicated for Fallback Image uploads
             function detectCornersStatic(canvas) {
                 let finalCorners = null;
                 let src = null, blurred = null, gray = null, contours = null, hierarchy = null, kernel = null;
@@ -799,44 +798,138 @@
                 return finalCorners;
             }
 
-            // --- 4. Crop Confirmation Phase ---
+            // --- 4. Crop Confirmation Phase (Manual Adjustment) ---
             function presentCropConfirmation(sourceCanvas, corners) {
                 fullUncroppedCanvas = sourceCanvas;
-                currentDetectedCorners = corners;
+                
+                // Deep copy corners or provide a default fallback box
+                if (corners && corners.length === 4) {
+                    editableCorners = corners.map(c => ({x: c.x, y: c.y}));
+                } else {
+                    const w = sourceCanvas.width;
+                    const h = sourceCanvas.height;
+                    editableCorners = [
+                        {x: w * 0.1, y: h * 0.1},
+                        {x: w * 0.9, y: h * 0.1},
+                        {x: w * 0.9, y: h * 0.9},
+                        {x: w * 0.1, y: h * 0.9}
+                    ];
+                }
                 
                 showView('cropConfirm');
-                applyCropBtn.innerHTML = corners ? "<span>Crop Document</span>" : "<span>Keep Original</span>";
 
                 cropPreviewCanvas.width = sourceCanvas.width;
                 cropPreviewCanvas.height = sourceCanvas.height;
-                const ctx = cropPreviewCanvas.getContext('2d');
-                ctx.drawImage(sourceCanvas, 0, 0);
+                drawEditableCropBox();
+            }
 
-                if (corners && corners.length === 4) {
+            function drawEditableCropBox() {
+                if (!fullUncroppedCanvas || !editableCorners) return;
+                const ctx = cropPreviewCanvas.getContext('2d');
+                ctx.clearRect(0, 0, cropPreviewCanvas.width, cropPreviewCanvas.height);
+                ctx.drawImage(fullUncroppedCanvas, 0, 0);
+
+                // Darken the outside of the crop area
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+                ctx.fillRect(0, 0, cropPreviewCanvas.width, cropPreviewCanvas.height);
+
+                // Cut out the selected area to show it clearly
+                ctx.save();
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.beginPath();
+                ctx.moveTo(editableCorners[0].x, editableCorners[0].y);
+                for (let i = 1; i < 4; i++) ctx.lineTo(editableCorners[i].x, editableCorners[i].y);
+                ctx.closePath();
+                ctx.fill();
+                ctx.restore();
+
+                // Draw the boundary lines
+                ctx.beginPath();
+                ctx.strokeStyle = '#eab308'; // Tailwind Yellow 500
+                ctx.lineWidth = Math.max(cropPreviewCanvas.width * 0.006, 4);
+                ctx.lineJoin = 'round';
+                ctx.moveTo(editableCorners[0].x, editableCorners[0].y);
+                for (let i = 1; i < 4; i++) ctx.lineTo(editableCorners[i].x, editableCorners[i].y);
+                ctx.closePath();
+                ctx.stroke();
+
+                // Draw interactive handles (circles) at each corner
+                const handleRadius = Math.max(cropPreviewCanvas.width * 0.025, 15);
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+                ctx.lineWidth = Math.max(cropPreviewCanvas.width * 0.005, 3);
+                for (let i = 0; i < 4; i++) {
                     ctx.beginPath();
-                    ctx.strokeStyle = '#eab308';
-                    ctx.lineWidth = Math.max(sourceCanvas.width * 0.015, 8); 
-                    ctx.lineJoin = 'round';
-                    
-                    for (let i = 0; i < 4; i++) {
-                        if (i === 0) ctx.moveTo(corners[i].x, corners[i].y);
-                        else ctx.lineTo(corners[i].x, corners[i].y);
-                    }
-                    ctx.closePath();
-                    ctx.stroke();
-                    ctx.fillStyle = 'rgba(234, 179, 8, 0.2)';
+                    ctx.arc(editableCorners[i].x, editableCorners[i].y, handleRadius, 0, 2 * Math.PI);
                     ctx.fill();
+                    ctx.stroke();
                 }
             }
 
+            // Interactive Drag Logic for Manual Cropping
+            let activeHandleIndex = -1;
+
+            function getCanvasPointerPosition(e) {
+                const rect = cropPreviewCanvas.getBoundingClientRect();
+                let clientX = e.clientX;
+                let clientY = e.clientY;
+                if (e.touches && e.touches.length > 0) {
+                    clientX = e.touches[0].clientX;
+                    clientY = e.touches[0].clientY;
+                } else if (e.changedTouches && e.changedTouches.length > 0) {
+                    clientX = e.changedTouches[0].clientX;
+                    clientY = e.changedTouches[0].clientY;
+                }
+                return {
+                    x: (clientX - rect.left) * (cropPreviewCanvas.width / rect.width),
+                    y: (clientY - rect.top) * (cropPreviewCanvas.height / rect.height)
+                };
+            }
+
+            function onPointerDown(e) {
+                if (cropPreviewCanvas.classList.contains('hidden') || !editableCorners) return;
+                e.preventDefault(); // Stop scrolling while dragging
+                const pos = getCanvasPointerPosition(e);
+                // Generous hit area for mobile fingers
+                const hitRadiusSq = Math.pow(Math.max(cropPreviewCanvas.width * 0.08, 60), 2); 
+
+                for (let i = 0; i < 4; i++) {
+                    const distSq = Math.pow(pos.x - editableCorners[i].x, 2) + Math.pow(pos.y - editableCorners[i].y, 2);
+                    if (distSq <= hitRadiusSq) {
+                        activeHandleIndex = i;
+                        break;
+                    }
+                }
+            }
+
+            function onPointerMove(e) {
+                if (activeHandleIndex === -1 || !editableCorners) return;
+                e.preventDefault();
+                const pos = getCanvasPointerPosition(e);
+                editableCorners[activeHandleIndex].x = Math.max(0, Math.min(pos.x, cropPreviewCanvas.width));
+                editableCorners[activeHandleIndex].y = Math.max(0, Math.min(pos.y, cropPreviewCanvas.height));
+                drawEditableCropBox();
+            }
+
+            function onPointerUp() {
+                activeHandleIndex = -1;
+            }
+
+            // Register touch and mouse events for interactive canvas
+            cropPreviewCanvas.addEventListener('touchstart', onPointerDown, {passive: false});
+            cropPreviewCanvas.addEventListener('mousedown', onPointerDown);
+            cropPreviewCanvas.addEventListener('touchmove', onPointerMove, {passive: false});
+            window.addEventListener('mousemove', onPointerMove); 
+            window.addEventListener('touchend', onPointerUp);
+            window.addEventListener('mouseup', onPointerUp);
+
             retakeCropBtn.addEventListener('click', () => {
                 fullUncroppedCanvas = null;
-                currentDetectedCorners = null;
+                editableCorners = null;
                 startScanner();
             });
 
             applyCropBtn.addEventListener('click', () => {
-                executeWarpAndProceed(fullUncroppedCanvas, currentDetectedCorners);
+                executeWarpAndProceed(fullUncroppedCanvas, editableCorners);
             });
 
             // --- 5. Shadow Removal / Document Enhancement Logic ---
@@ -936,12 +1029,11 @@
                     cv.imshow(outCanvasFiltered, enhancedMat);
                     scannedDataUrlFiltered = outCanvasFiltered.toDataURL('image/jpeg', 0.95);
                     
-                    // Set UI State to Filtered by default
-                    isFilterActive = true;
-                    previewImage.src = scannedDataUrlFiltered;
-                    filterLabel.textContent = "Filter: ON";
-                    toggleFilterBtn.classList.replace('bg-neutral-800', 'bg-blue-600');
-                    toggleFilterBtn.classList.replace('text-neutral-400', 'text-white');
+                    // Set UI State to Default OFF
+                    isFilterActive = false;
+                    previewImage.src = scannedDataUrlOriginal;
+                    filterLabel.textContent = "Filter: OFF";
+                    toggleFilterBtn.className = "bg-neutral-800 text-neutral-400 px-4 py-2 rounded-full font-bold shadow-lg flex items-center space-x-2 active:scale-95 transition-colors text-sm border border-white/10";
 
                     currentScannedPage = {
                         dataUrl: previewImage.src,
@@ -969,13 +1061,11 @@
                 if (isFilterActive) {
                     previewImage.src = scannedDataUrlFiltered;
                     filterLabel.textContent = "Filter: ON";
-                    toggleFilterBtn.classList.replace('bg-neutral-800', 'bg-blue-600');
-                    toggleFilterBtn.classList.replace('text-neutral-400', 'text-white');
+                    toggleFilterBtn.className = "bg-blue-600 text-white px-4 py-2 rounded-full font-bold shadow-lg flex items-center space-x-2 active:scale-95 transition-colors text-sm border border-white/10";
                 } else {
                     previewImage.src = scannedDataUrlOriginal;
                     filterLabel.textContent = "Filter: OFF";
-                    toggleFilterBtn.classList.replace('bg-blue-600', 'bg-neutral-800');
-                    toggleFilterBtn.classList.replace('text-white', 'text-neutral-400');
+                    toggleFilterBtn.className = "bg-neutral-800 text-neutral-400 px-4 py-2 rounded-full font-bold shadow-lg flex items-center space-x-2 active:scale-95 transition-colors text-sm border border-white/10";
                 }
                 
                 if (currentScannedPage) {
@@ -1104,6 +1194,7 @@
                 capturedPages = [];
                 currentScannedPage = null;
                 fullUncroppedCanvas = null;
+                editableCorners = null;
                 filenameInput.value = "Scanned_Document";
                 
                 mainAppContainer.classList.add('hidden');
