@@ -292,13 +292,16 @@
                 try {
                     // Check if browser supports mediaDevices
                     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                        throw new Error("Camera API is not supported in this browser.");
+                        throw new Error("Camera API is not supported. Please ensure you are using HTTPS.");
                     }
 
                     // Bulletproof fallback logic for requesting the camera
                     let stream = null;
+                    let lastErr = null;
+                    
+                    // Try to get best camera possible, falling back to simpler requests if the device complains
                     const constraintsToTry = [
-                        { video: { facingMode: { ideal: "environment" }, width: { ideal: 1920 } }, audio: false },
+                        { video: { facingMode: { ideal: "environment" }, width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: false },
                         { video: { facingMode: "environment" }, audio: false },
                         { video: true, audio: false }
                     ];
@@ -308,12 +311,13 @@
                             stream = await navigator.mediaDevices.getUserMedia(constraints);
                             if (stream) break; // Success! Break out of the loop
                         } catch (e) {
-                            console.warn("Camera constraint failed:", constraints, e);
+                            lastErr = e;
+                            console.warn("Camera constraint failed, trying next fallback:", constraints, e);
                         }
                     }
 
                     if (!stream) {
-                        throw new Error("Could not access any camera on this device.");
+                        throw lastErr || new Error("Could not access any camera on this device.");
                     }
 
                     videoStream = stream;
@@ -350,26 +354,24 @@
                     console.error("Live view blocked:", err);
                     enableFallbackUI();
                     
-                    let errorReason = err.message || 'Camera blocked.';
+                    let errorReason = `Camera Error: ${err.name || 'Blocked'} - ${err.message}`;
+                    
                     if (err.name === 'NotAllowedError' || err.name === 'SecurityError') {
-                        errorReason = 'Camera permission denied.';
+                        errorReason = 'Camera permission denied. Please allow access in your browser settings.';
                     } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
-                        errorReason = 'No camera found.';
+                        errorReason = 'No compatible camera hardware found.';
                     } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
-                        errorReason = 'Camera is already in use.';
+                        errorReason = 'Camera is already in use by another app.';
                     }
                     
                     // Detect in-app browsers (Facebook, Instagram, Messenger, Line, etc.) which strictly block camera
                     const isWebView = /FBAN|FBAV|Instagram|Line|Snapchat|MicroMessenger|Discord/i.test(navigator.userAgent);
                     
                     if (isWebView) {
-                        statusText.innerHTML = `<strong>Camera blocked by this app.</strong><br>Please tap the menu (...) and select <strong>"Open in Browser"</strong> (Safari/Chrome).`;
+                        statusText.innerHTML = `<span class="text-red-500 font-bold">Camera blocked by this App.</span><br>Please tap the menu (...) and select <strong>"Open in Browser"</strong> (Safari/Chrome).`;
                     } else {
-                        statusText.innerHTML = `${errorReason}<br>Tap "New Scan" below to use native camera.`;
+                        statusText.innerHTML = `<span class="text-red-500 font-bold">${errorReason}</span><br><br>Tap "New Scan" below to use the native camera instead.`;
                     }
-                    
-                    statusText.classList.remove('text-slate-500');
-                    statusText.classList.add('text-red-500');
                 }
             }
 
@@ -866,7 +868,7 @@
                 
                 if (isFallbackMode) {
                     enableFallbackUI(); 
-                    statusText.textContent = "Auto-crop documents, receipts, and notes into perfect PDFs.";
+                    statusText.innerHTML = "Auto-crop documents, receipts, and notes into perfect PDFs.";
                     statusText.classList.remove('text-red-500', 'font-bold');
                     statusText.classList.add('text-slate-500');
                 }
