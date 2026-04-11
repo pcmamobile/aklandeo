@@ -444,7 +444,7 @@
             fallbackAddPageBtn.addEventListener('click', handleFallbackFileChoice);
             fallbackAddMoreFromSaveBtn.addEventListener('click', handleFallbackFileChoice);
 
-            // --- 2. ADVANCED LIVE VIDEO FRAME PROCESSING ---
+            // --- 2. ADVANCED LIVE VIDEO FRAME PROCESSING (White Paper Focus) ---
             function processLiveVideoFrame() {
                 if (!isStreaming) return;
 
@@ -478,17 +478,24 @@
                 const ctx = processingCanvas.getContext('2d', { willReadFrequently: true });
                 ctx.drawImage(videoElement, 0, 0, procW, procH);
 
-                let src = null, gray = null, contours = null, hierarchy = null, kernel = null;
+                let src = null, blurred = null, gray = null, contours = null, hierarchy = null, kernel = null;
 
                 try {
                     src = cv.imread(processingCanvas);
+                    blurred = new cv.Mat();
                     gray = new cv.Mat();
-                    cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
                     
-                    cv.GaussianBlur(gray, gray, new cv.Size(5, 5), 0, 0, cv.BORDER_DEFAULT);
-                    cv.Canny(gray, gray, 50, 150, 3, false); 
+                    cv.cvtColor(src, blurred, cv.COLOR_RGBA2GRAY, 0);
+                    
+                    // Boost contrast to make the bright white paper stand out vividly from dark surfaces
+                    blurred.convertTo(blurred, -1, 1.2, 10); 
+                    
+                    cv.GaussianBlur(blurred, blurred, new cv.Size(5, 5), 0, 0, cv.BORDER_DEFAULT);
+                    
+                    // Edge detection targeting contrasting elements
+                    cv.Canny(blurred, gray, 40, 120, 3, false); 
 
-                    // Stronger dilation to connect broken lines on textured paper
+                    // Dilate to connect broken edge lines common in textured or shadowy paper
                     kernel = cv.Mat.ones(5, 5, cv.CV_8U);
                     cv.dilate(gray, gray, kernel, new cv.Point(-1, -1), 1, cv.BORDER_CONSTANT, cv.morphologyDefaultBorderValue());
                     cv.erode(gray, gray, kernel, new cv.Point(-1, -1), 1, cv.BORDER_CONSTANT, cv.morphologyDefaultBorderValue());
@@ -497,12 +504,12 @@
                     hierarchy = new cv.Mat();
                     cv.findContours(gray, contours, hierarchy, cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE);
 
-                    // Sort contours by area to aggressively find the MAIN document
+                    // Grab only large shapes
                     let contourData = [];
                     for (let i = 0; i < contours.size(); ++i) {
                         let cnt = contours.get(i);
                         let area = cv.contourArea(cnt);
-                        if (area > (procW * procH * 0.05)) { 
+                        if (area > (procW * procH * 0.1)) { // Must take up at least 10% of screen to be the main document
                             contourData.push({ area: area, cnt: cnt });
                         } else {
                             cnt.delete();
@@ -512,7 +519,7 @@
                     contourData.sort((a, b) => b.area - a.area);
 
                     let bestApprox = null;
-                    // Only analyze the 5 largest objects to find a clean 4-point paper shape
+                    // Analyze only the 5 largest objects
                     for (let i = 0; i < Math.min(5, contourData.length); i++) {
                         let cnt = contourData[i].cnt;
                         let hull = new cv.Mat();
@@ -523,10 +530,36 @@
                             
                             for (let eps = 0.02; eps <= 0.08; eps += 0.02) {
                                 cv.approxPolyDP(hull, approx, eps * perimeter, true);
-                                // Must have exactly 4 corners AND be a properly formed convex shape
+                                
                                 if (approx.rows === 4 && cv.isContourConvex(approx)) {
-                                    bestApprox = approx.clone();
-                                    break;
+                                    
+                                    // CHECK 1: Ensure it's a true rectangle/square, not a weird warped shape or triangle
+                                    let maxCosine = 0;
+                                    let pts = [];
+                                    for (let j = 0; j < 4; j++) {
+                                        pts.push({ x: approx.data32S[j * 2], y: approx.data32S[j * 2 + 1] });
+                                    }
+                                    for (let j = 0; j < 4; j++) {
+                                        let pt0 = pts[j];
+                                        let pt1 = pts[(j + 3) % 4];
+                                        let pt2 = pts[(j + 1) % 4];
+                                        let dx1 = pt1.x - pt0.x; let dy1 = pt1.y - pt0.y;
+                                        let dx2 = pt2.x - pt0.x; let dy2 = pt2.y - pt0.y;
+                                        let cosine = Math.abs((dx1*dx2 + dy1*dy2) / Math.sqrt((dx1*dx1 + dy1*dy1) * (dx2*dx2 + dy2*dy2) + 1e-10));
+                                        if (cosine > maxCosine) maxCosine = cosine;
+                                    }
+
+                                    // CHECK 2: Ensure the color inside the shape is mostly bright/white
+                                    let rect = cv.boundingRect(approx);
+                                    let roi = blurred.roi(rect);
+                                    let meanBright = cv.mean(roi)[0];
+                                    roi.delete();
+
+                                    // If it's a valid rectangle shape AND it is bright (white paper vs dark desk)
+                                    if (maxCosine < 0.65 && meanBright > 80) {
+                                        bestApprox = approx.clone();
+                                        break;
+                                    }
                                 }
                             }
                         } finally {
@@ -536,7 +569,6 @@
                         if (bestApprox) break;
                     }
 
-                    // Clean up remaining contour memory
                     for (let i = 0; i < contourData.length; i++) {
                         contourData[i].cnt.delete();
                     }
@@ -553,14 +585,12 @@
                             newCornersRaw.push({ x: x * (vW / procW), y: y * (vH / procH) });
                         }
                         
-                        // Order them Top-Left, Top-Right, Bottom-Right, Bottom-Left before averaging
                         let orderedNew = orderCorners(newCornersRaw);
                         cornerHistory.push(orderedNew);
-                        if (cornerHistory.length > 5) cornerHistory.shift(); // Keep last 5 frames
+                        if (cornerHistory.length > 5) cornerHistory.shift(); 
                         
                         bestApprox.delete();
                     } else {
-                        // Gently clear history if we lose tracking for too long
                         if (cornerHistory.length > 0) cornerHistory.shift();
                     }
 
@@ -568,7 +598,6 @@
                     if (cornerHistory.length > 0) {
                         liveDetectedCorners = [{x:0,y:0}, {x:0,y:0}, {x:0,y:0}, {x:0,y:0}];
                         
-                        // Average the history
                         for (let h of cornerHistory) {
                             for (let j = 0; j < 4; j++) {
                                 liveDetectedCorners[j].x += h[j].x;
@@ -609,6 +638,7 @@
                     console.error("OpenCV processing error in live frame:", err);
                 } finally {
                     if (src) src.delete();
+                    if (blurred) blurred.delete();
                     if (gray) gray.delete();
                     if (contours) contours.delete();
                     if (hierarchy) hierarchy.delete();
@@ -663,15 +693,20 @@
                 reader.readAsDataURL(file);
             });
 
+            // Same advanced shape/brightness logic replicated for Fallback Image uploads
             function detectCornersStatic(canvas) {
                 let finalCorners = null;
-                let src = null, gray = null, contours = null, hierarchy = null, kernel = null;
+                let src = null, blurred = null, gray = null, contours = null, hierarchy = null, kernel = null;
                 try {
                     src = cv.imread(canvas);
+                    blurred = new cv.Mat();
                     gray = new cv.Mat();
-                    cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
-                    cv.GaussianBlur(gray, gray, new cv.Size(5, 5), 0, 0, cv.BORDER_DEFAULT);
-                    cv.Canny(gray, gray, 50, 150, 3, false);
+                    
+                    cv.cvtColor(src, blurred, cv.COLOR_RGBA2GRAY, 0);
+                    blurred.convertTo(blurred, -1, 1.2, 10);
+                    cv.GaussianBlur(blurred, blurred, new cv.Size(5, 5), 0, 0, cv.BORDER_DEFAULT);
+                    
+                    cv.Canny(blurred, gray, 40, 120, 3, false);
 
                     kernel = cv.Mat.ones(5, 5, cv.CV_8U);
                     cv.dilate(gray, gray, kernel, new cv.Point(-1, -1), 1, cv.BORDER_CONSTANT, cv.morphologyDefaultBorderValue());
@@ -706,8 +741,31 @@
                             for (let eps = 0.02; eps <= 0.08; eps += 0.02) {
                                 cv.approxPolyDP(hull, approx, eps * perimeter, true);
                                 if (approx.rows === 4 && cv.isContourConvex(approx)) {
-                                    bestApprox = approx.clone();
-                                    break;
+                                    
+                                    let maxCosine = 0;
+                                    let pts = [];
+                                    for (let j = 0; j < 4; j++) {
+                                        pts.push({ x: approx.data32S[j * 2], y: approx.data32S[j * 2 + 1] });
+                                    }
+                                    for (let j = 0; j < 4; j++) {
+                                        let pt0 = pts[j];
+                                        let pt1 = pts[(j + 3) % 4];
+                                        let pt2 = pts[(j + 1) % 4];
+                                        let dx1 = pt1.x - pt0.x; let dy1 = pt1.y - pt0.y;
+                                        let dx2 = pt2.x - pt0.x; let dy2 = pt2.y - pt0.y;
+                                        let cosine = Math.abs((dx1*dx2 + dy1*dy2) / Math.sqrt((dx1*dx1 + dy1*dy1) * (dx2*dx2 + dy2*dy2) + 1e-10));
+                                        if (cosine > maxCosine) maxCosine = cosine;
+                                    }
+
+                                    let rect = cv.boundingRect(approx);
+                                    let roi = blurred.roi(rect);
+                                    let meanBright = cv.mean(roi)[0];
+                                    roi.delete();
+
+                                    if (maxCosine < 0.65 && meanBright > 80) {
+                                        bestApprox = approx.clone();
+                                        break;
+                                    }
                                 }
                             }
                         } finally {
@@ -732,6 +790,7 @@
                     console.error("Static image analysis error:", err);
                 } finally {
                     if (src) src.delete();
+                    if (blurred) blurred.delete();
                     if (gray) gray.delete();
                     if (contours) contours.delete();
                     if (hierarchy) hierarchy.delete();
