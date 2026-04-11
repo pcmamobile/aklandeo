@@ -17,7 +17,7 @@
 <body class="bg-black text-slate-800 font-sans antialiased fixed inset-0 overflow-hidden selection:bg-blue-200">
 
     <!-- Visually hidden Input for Native Camera Fallback (avoiding display:none for iOS Safari support) -->
-    <input type="file" id="fallbackCameraInput" accept="image/*" capture="environment" class="w-0 h-0 absolute opacity-0 -z-50 pointer-events-none" tabindex="-1">
+    <input type="file" id="fallbackCameraInput" accept="image/*" capture="environment" class="w-0 h-0 absolute opacity-0 -z-50" tabindex="-1">
 
     <!-- 1. START SCREEN (Clean Light Mode) -->
     <div id="startScreen" class="absolute inset-0 flex flex-col items-center justify-center z-50 bg-slate-50 px-6 transition-opacity duration-300">
@@ -293,7 +293,7 @@
                     // Bulletproof fallback logic for requesting the camera
                     let stream = null;
                     const constraintsToTry = [
-                        { video: { facingMode: { exact: "environment" }, width: { ideal: 1920 } }, audio: false },
+                        { video: { facingMode: { ideal: "environment" }, width: { ideal: 1920 } }, audio: false },
                         { video: { facingMode: "environment" }, audio: false },
                         { video: true, audio: false }
                     ];
@@ -315,8 +315,12 @@
                     videoElement.srcObject = videoStream;
                     
                     // Explicitly set attributes required by iOS
-                    videoElement.setAttribute('playsinline', '');
-                    videoElement.setAttribute('muted', '');
+                    videoElement.setAttribute('autoplay', 'true');
+                    videoElement.setAttribute('playsinline', 'true');
+                    videoElement.setAttribute('webkit-playsinline', 'true');
+                    videoElement.setAttribute('muted', 'true');
+                    videoElement.muted = true;
+                    
                     videoElement.play().catch(e => console.error("Play error:", e));
                     
                     // Use loadedmetadata instead of onplaying for rock-solid mobile support
@@ -344,11 +348,23 @@
                     let errorReason = err.message || 'Camera blocked.';
                     if (err.name === 'NotAllowedError' || err.name === 'SecurityError') {
                         errorReason = 'Camera permission denied.';
+                    } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+                        errorReason = 'No camera found.';
+                    } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
+                        errorReason = 'Camera is already in use.';
                     }
                     
-                    statusText.textContent = `${errorReason} Tap "New Scan" below to use native camera.`;
+                    // Detect in-app browsers (Facebook, Instagram, Messenger, Line, etc.) which strictly block camera
+                    const isWebView = /FBAN|FBAV|Instagram|Line|Snapchat|MicroMessenger|Discord/i.test(navigator.userAgent);
+                    
+                    if (isWebView) {
+                        statusText.innerHTML = `<strong>Camera blocked by this app.</strong><br>Please tap the menu (...) and select <strong>"Open in Browser"</strong> (Safari/Chrome).`;
+                    } else {
+                        statusText.innerHTML = `${errorReason}<br>Tap "New Scan" below to use native camera.`;
+                    }
+                    
                     statusText.classList.remove('text-slate-500');
-                    statusText.classList.add('text-red-500', 'font-bold');
+                    statusText.classList.add('text-red-500');
                 }
             }
 
