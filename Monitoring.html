@@ -145,7 +145,8 @@
 
         <!-- Document Type Toggle -->
         <div class="sticky top-0 md:static z-40 grid grid-cols-3 md:flex md:flex-wrap justify-center mb-6 bg-[#181822]/95 backdrop-blur-md rounded-xl md:rounded-2xl p-2 w-full md:w-fit mx-auto border border-gray-700/50 shadow-[0_10px_30px_rgba(0,0,0,0.6)] md:shadow-inner gap-1 md:gap-2">
-            <button onclick="switchDocType('MOBILIZATION')" id="type-MOBILIZATION" class="px-1 md:px-4 py-2 rounded-lg font-black text-[10px] md:text-sm transition-all bg-[#2a2a3a] text-neon-blue shadow-md border border-gray-600/50 text-center">MOBILIZATION</button>
+            <button onclick="switchDocType('ALL')" id="type-ALL" class="col-span-3 md:col-span-1 px-1 md:px-4 py-2 rounded-lg font-black text-[10px] md:text-sm transition-all bg-[#2a2a3a] text-neon-blue shadow-md border border-gray-600/50 text-center">ALL TABS</button>
+            <button onclick="switchDocType('MOBILIZATION')" id="type-MOBILIZATION" class="px-1 md:px-4 py-2 rounded-lg font-black text-[10px] md:text-sm transition-all text-gray-400 hover:text-white border-transparent text-center">MOBILIZATION</button>
             <button onclick="switchDocType('ON-GOING')" id="type-ON-GOING" class="px-1 md:px-4 py-2 rounded-lg font-black text-[10px] md:text-sm transition-all text-gray-400 hover:text-white border-transparent text-center">ON-GOING</button>
             <button onclick="switchDocType('COMPLETION')" id="type-COMPLETION" class="px-1 md:px-4 py-2 rounded-lg font-black text-[10px] md:text-sm transition-all text-gray-400 hover:text-white border-transparent text-center">COMPLETION</button>
             <button onclick="switchDocType('ACCEPTANCE')" id="type-ACCEPTANCE" class="px-1 md:px-4 py-2 rounded-lg font-black text-[10px] md:text-sm transition-all text-gray-400 hover:text-white border-transparent text-center">ACCEPTANCE</button>
@@ -322,6 +323,7 @@
 
         // Global State
         window.appData = {
+            'ALL': { PE: {}, PI: {}, RE: {}, QE: {} },
             'MOBILIZATION': { PE: {}, PI: {}, RE: {}, QE: {} },
             'ON-GOING':   { PE: {}, PI: {}, RE: {}, QE: {} },
             'COMPLETION': { PE: {}, PI: {}, RE: {}, QE: {} },
@@ -330,7 +332,7 @@
             'PCMA':       { PE: {}, PI: {}, RE: {}, QE: {} }
         };
         let currentRole = 'PE';
-        let currentDocType = 'MOBILIZATION'; 
+        let currentDocType = 'ALL'; 
         window.globalHeaders = [];
         window.globalContractSearch = [];
 
@@ -529,10 +531,12 @@
                 if(!yearsTracked.includes(rowYear)) continue;
 
                 let missingDocsMap = {
+                    'ALL': [],
                     'MOBILIZATION': [], 'ON-GOING': [], 'COMPLETION': [], 
                     'ACCEPTANCE': [], 'GEOTAGGING': [], 'PCMA': []
                 };
                 let statsMap = {
+                    'ALL':          { total: 0, uploaded: 0 },
                     'MOBILIZATION': { total: 0, uploaded: 0 },
                     'ON-GOING':     { total: 0, uploaded: 0 },
                     'COMPLETION':   { total: 0, uploaded: 0 },
@@ -545,12 +549,28 @@
                     if(v.doc !== -1) {
                         let hasDoc = row[v.doc] && row[v.doc].toString().trim() !== '';
                         let isUploaded = v.up !== -1 && row[v.up] && row[v.up].toString().trim() !== '';
-                        if(hasDoc) {
+                        
+                        if (v.isDirectDataEntry) {
                             statsMap[v.type].total++;
-                            if(isUploaded) {
+                            statsMap['ALL'].total++;
+                            if (hasDoc) {
                                 statsMap[v.type].uploaded++;
+                                statsMap['ALL'].uploaded++;
                             } else {
                                 missingDocsMap[v.type].push(v.name);
+                                missingDocsMap['ALL'].push(v.name);
+                            }
+                        } else {
+                            if(hasDoc) {
+                                statsMap[v.type].total++;
+                                statsMap['ALL'].total++;
+                                if(isUploaded) {
+                                    statsMap[v.type].uploaded++;
+                                    statsMap['ALL'].uploaded++;
+                                } else {
+                                    missingDocsMap[v.type].push(v.name);
+                                    missingDocsMap['ALL'].push(v.name);
+                                }
                             }
                         }
                     }
@@ -578,16 +598,23 @@
                     const hasPcmaVal = latest.pcmaCol !== -1 && String(row[latest.pcmaCol]).trim() !== '';
                     
                     statsMap['PCMA'].total++;
+                    statsMap['ALL'].total++;
                     if (hasActual && hasPcmaVal) {
                         statsMap['PCMA'].uploaded++;
+                        statsMap['ALL'].uploaded++;
                     } else {
                         missingDocsMap['PCMA'].push('PCMA Updates');
+                        missingDocsMap['ALL'].push('PCMA Updates');
                     }
                 }
 
                 // Register for Global Search
-                const totalMissing = Object.values(missingDocsMap).reduce((sum, arr) => sum + arr.length, 0);
-                if (totalMissing > 0 && contractId !== 'Unknown') {
+                let missingSum = 0;
+                Object.keys(missingDocsMap).forEach(k => {
+                    if(k !== 'ALL') missingSum += missingDocsMap[k].length;
+                });
+                
+                if (missingSum > 0 && contractId !== 'Unknown') {
                     window.globalContractSearch.push({
                         contractId: contractId,
                         rowNumber: rowNumber,
@@ -753,7 +780,7 @@
         function switchDocType(type) {
             currentDocType = type;
             
-            ['MOBILIZATION', 'ON-GOING', 'COMPLETION', 'ACCEPTANCE', 'GEOTAGGING', 'PCMA'].forEach(t => {
+            ['ALL', 'MOBILIZATION', 'ON-GOING', 'COMPLETION', 'ACCEPTANCE', 'GEOTAGGING', 'PCMA'].forEach(t => {
                 const btn = document.getElementById(`type-${t}`);
                 if(t === type) {
                     btn.classList.add('bg-[#2a2a3a]', 'text-neon-blue', 'shadow-md', 'border-gray-600/50');
@@ -896,12 +923,13 @@
             const modalBox = document.getElementById('modal-box');
             
             const roleIcons = { 'PE': 'fa-helmet-safety', 'PI': 'fa-magnifying-glass-chart', 'RE': 'fa-user-gear', 'QE': 'fa-clipboard-check' };
+            const displayDocType = docType === 'ALL' ? 'ALL TABS' : docType;
             
             document.getElementById('modal-title').innerHTML = `
                 <div class="flex items-center gap-3">
                     <i class="fa-solid fa-folder-open text-neon-orange"></i> 
                     <div>
-                        <div class="leading-tight hidden md:block">Pending ${docType}</div>
+                        <div class="leading-tight hidden md:block">Pending ${displayDocType}</div>
                         <div class="text-base md:text-sm text-white md:text-gray-400 font-bold md:font-normal mt-0 md:mt-1"><i class="fa-solid ${roleIcons[role]} hidden md:inline-block"></i> ${person} | ${year}</div>
                     </div>
                 </div>

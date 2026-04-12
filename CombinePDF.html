@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Toolkit.jps</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- PDF-lib for PDF manipulation -->
+    <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+    <!-- PDF.js for Thumbnail Rendering -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .drag-active {
+            border-color: #60a5fa !important; /* blue-400 */
+            background-color: #eff6ff !important; /* blue-50 */
+        }
+        .loader {
+            border-top-color: #3b82f6;
+            -webkit-animation: spinner 1.5s linear infinite;
+            animation: spinner 1.5s linear infinite;
+        }
+        @keyframes spinner {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* Custom 3D Button Press Effects */
+        .btn-3d {
+            transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .btn-3d:active {
+            transform: translateY(6px);
+            box-shadow: 0 0px 0 0 transparent !important;
+        }
+        .btn-3d-sm {
+            transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .btn-3d-sm:active {
+            transform: translateY(4px);
+            box-shadow: 0 0px 0 0 transparent !important;
+        }
+        /* Grid Drag & Drop specific styles */
+        .grid-item-dragging {
+            opacity: 0.5;
+            transform: scale(0.95) rotate(-2deg);
+        }
+        .grid-item-drop-target {
+            border-color: #34d399 !important; /* emerald-400 */
+            background-color: #ecfdf5 !important; /* emerald-50 */
+            transform: scale(1.03);
+        }
+        
+        /* Fun scrolling bar for grids */
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; border: 2px solid #f1f5f9; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-green-100 via-blue-100 to-orange-100 text-slate-800 font-sans min-h-screen flex flex-col selection:bg-blue-300 selection:text-white">
+
+    <!-- Header -->
+    <header class="bg-white/80 backdrop-blur-md border-b-4 border-white shadow-sm sticky top-0 z-40">
+        <div class="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-3 text-blue-600">
+                <div class="bg-gradient-to-br from-blue-400 to-indigo-500 p-2.5 rounded-xl shadow-[0_3px_0_#3730a3] border border-blue-200">
+                    <i data-lucide="boxes" class="w-6 h-6 text-white drop-shadow-sm"></i>
+                </div>
+                <h1 class="text-2xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 drop-shadow-sm">PDF Toolkit.jps</h1>
+            </div>
+            <div class="flex items-center space-x-2 bg-white px-4 py-2 rounded-2xl border-4 border-green-100 shadow-[0_3px_0_#dcfce7] hidden sm:flex">
+                <i data-lucide="shield-check" class="w-5 h-5 text-green-500"></i>
+                <p class="text-xs font-extrabold text-green-700 uppercase tracking-wider">Local & Secure</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-5xl mx-auto w-full px-4 py-8">
+        
+        <!-- Tabs -->
+        <div class="flex space-x-3 bg-white/60 backdrop-blur-sm p-2 rounded-[2rem] mb-8 border-4 border-white shadow-lg max-w-md mx-auto">
+            <button id="tab-merge" class="flex-1 py-3 text-sm font-black rounded-[1.5rem] btn-3d-sm bg-gradient-to-b from-green-300 to-green-500 text-white shadow-[0_4px_0_#15803d] border-2 border-green-200 flex items-center justify-center space-x-2" onclick="switchTab('merge')">
+                <i data-lucide="puzzle" class="w-5 h-5 drop-shadow-sm"></i>
+                <span class="drop-shadow-sm">Merge PDFs</span>
+            </button>
+            <button id="tab-split" class="flex-1 py-3 text-sm font-bold rounded-[1.5rem] btn-3d-sm bg-white text-slate-500 hover:text-orange-500 shadow-[0_4px_0_#e2e8f0] border-2 border-slate-100 hover:bg-orange-50 flex items-center justify-center space-x-2" onclick="switchTab('split')">
+                <i data-lucide="scissors" class="w-5 h-5"></i>
+                <span>Split PDF</span>
+            </button>
+        </div>
+
+        <!-- ==================== MERGE SECTION (Green & Blue Theme) ==================== -->
+        <section id="section-merge" class="bg-white/90 backdrop-blur-xl p-6 md:p-8 rounded-[2.5rem] shadow-[0_15px_40px_rgba(0,0,0,0.05)] border-4 border-white relative overflow-hidden">
+            <!-- Decorative BG Icon -->
+            <div class="absolute -top-10 -right-10 text-green-50 opacity-50 pointer-events-none"><i data-lucide="blocks" class="w-64 h-64"></i></div>
+
+            <div class="text-center mb-8 relative z-10">
+                <div class="inline-flex items-center justify-center p-3.5 bg-gradient-to-br from-green-100 to-blue-100 rounded-2xl mb-4 shadow-inner border-2 border-white">
+                    <i data-lucide="layers" class="w-8 h-8 text-green-500"></i>
+                </div>
+                <h2 class="text-2xl font-black text-slate-800 tracking-tight">Combine Documents</h2>
+                <p class="text-slate-500 text-sm mt-2 font-bold">Mix and match your PDF files into a single master document.</p>
+            </div>
+
+            <!-- Drag & Drop Area -->
+            <div id="merge-dropzone" class="relative z-10 border-4 border-dashed border-blue-200 bg-blue-50/50 rounded-[2rem] p-12 text-center cursor-pointer hover:bg-blue-100 hover:border-blue-400 btn-3d shadow-[0_8px_0_#dbeafe] transition-all" onclick="document.getElementById('merge-input').click()">
+                <div class="bg-white w-20 h-20 mx-auto rounded-full shadow-[0_4px_0_#bfdbfe] flex items-center justify-center mb-5 border-4 border-blue-100">
+                    <i data-lucide="cloud-upload" class="w-10 h-10 text-blue-500"></i>
+                </div>
+                <p class="text-blue-900 font-black text-xl mb-2">Click or drop files here!</p>
+                <div class="inline-flex items-center space-x-1.5 bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+                    <i data-lucide="file-check-2" class="w-4 h-4"></i>
+                    <span>PDF format only</span>
+                </div>
+            </div>
+            <input type="file" id="merge-input" class="hidden" multiple accept="application/pdf" onchange="handleMergeFiles(event)">
+
+            <!-- Selected Files Grid Area -->
+            <div id="merge-file-list" class="mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5 hidden relative z-10">
+                <!-- Grid items injected dynamically -->
+            </div>
+
+            <!-- Action Area w/ Naming feature -->
+            <div id="merge-actions" class="mt-10 pt-8 border-t-4 border-green-50 hidden relative z-10">
+                
+                <div class="max-w-md mx-auto mb-6 bg-white border-4 border-green-100 p-5 rounded-3xl shadow-[0_6px_0_#dcfce7]">
+                    <label class="block text-sm font-black text-green-700 mb-3 flex items-center space-x-2">
+                        <i data-lucide="pen-tool" class="w-5 h-5 text-green-500"></i>
+                        <span>Name your new file:</span>
+                    </label>
+                    <div class="flex items-center bg-slate-50 border-4 border-slate-200 rounded-2xl overflow-hidden focus-within:border-green-400 focus-within:ring-2 focus-within:ring-green-100 transition-all">
+                        <input type="text" id="merge-filename" value="Merged_Document" class="w-full px-4 py-3 bg-transparent outline-none font-bold text-slate-700 text-lg">
+                        <span class="px-4 text-slate-400 font-bold bg-slate-100 h-full flex items-center border-l-4 border-slate-200">.pdf</span>
+                    </div>
+                </div>
+
+                <button id="btn-merge" class="w-full max-w-md mx-auto bg-gradient-to-b from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 text-white font-black py-4 px-6 rounded-[1.5rem] flex items-center justify-center space-x-3 text-xl btn-3d shadow-[0_8px_0_#166534] border-2 border-green-300" onclick="processMerge()">
+                    <i data-lucide="wand-2" class="w-7 h-7 drop-shadow-sm"></i>
+                    <span class="drop-shadow-sm tracking-wide">Merge Files Now!</span>
+                </button>
+            </div>
+            
+            <!-- Result Area -->
+            <div id="merge-result" class="mt-8 hidden text-center p-10 bg-gradient-to-b from-blue-50 to-green-50 border-4 border-white rounded-[2.5rem] shadow-xl relative overflow-hidden z-10">
+                <div class="absolute top-5 left-5 text-green-200 opacity-50 animate-bounce"><i data-lucide="party-popper" class="w-20 h-20"></i></div>
+                <div class="absolute bottom-5 right-5 text-blue-200 opacity-50 animate-pulse"><i data-lucide="sparkles" class="w-20 h-20"></i></div>
+                
+                <div class="relative z-10">
+                    <div class="bg-white w-24 h-24 mx-auto rounded-full shadow-[0_6px_0_#bbf7d0] flex items-center justify-center mb-6 border-4 border-green-200">
+                        <i data-lucide="check-circle" class="w-12 h-12 text-green-500"></i>
+                    </div>
+                    <h3 class="text-3xl font-black text-green-800 tracking-tight">Success!</h3>
+                    <p class="text-green-600 font-bold mt-2">Your beautifully merged PDF is ready.</p>
+                    
+                    <a id="merge-download-link" href="#" download="Merged_Document.pdf" class="inline-flex mt-8 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-black py-4 px-10 rounded-2xl btn-3d-sm shadow-[0_6px_0_#1d4ed8] border border-blue-400 items-center space-x-3 text-lg">
+                        <i data-lucide="download-cloud" class="w-6 h-6 drop-shadow-sm"></i>
+                        <span class="drop-shadow-sm">Download PDF</span>
+                    </a>
+                    <button onclick="resetMerge()" class="block w-full mt-8 text-sm font-bold text-slate-400 hover:text-blue-600 transition-colors flex items-center justify-center space-x-1">
+                        <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                        <span>Create another merge</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ==================== SPLIT SECTION (Orange & Red Theme) ==================== -->
+        <section id="section-split" class="bg-white/90 backdrop-blur-xl p-6 md:p-8 rounded-[2.5rem] shadow-[0_15px_40px_rgba(0,0,0,0.05)] border-4 border-white relative overflow-hidden hidden">
+            <!-- Decorative BG Icon -->
+            <div class="absolute -bottom-10 -left-10 text-orange-50 opacity-50 pointer-events-none"><i data-lucide="scissors" class="w-64 h-64"></i></div>
+
+            <div class="text-center mb-8 relative z-10">
+                <div class="inline-flex items-center justify-center p-3.5 bg-gradient-to-br from-orange-100 to-red-100 rounded-2xl mb-4 shadow-inner border-2 border-white">
+                    <i data-lucide="file-dashed" class="w-8 h-8 text-orange-500"></i>
+                </div>
+                <h2 class="text-2xl font-black text-slate-800 tracking-tight">Split & Extract Pages</h2>
+                <p class="text-slate-500 text-sm mt-2 font-bold">Pluck out exactly the pages you need to create a new file.</p>
+            </div>
+
+            <!-- Single File Drop Area -->
+            <div id="split-dropzone" class="relative z-10 border-4 border-dashed border-orange-200 bg-orange-50/50 rounded-[2rem] p-12 text-center cursor-pointer hover:bg-orange-100 hover:border-orange-400 btn-3d shadow-[0_8px_0_#ffedd5] transition-all" onclick="document.getElementById('split-input').click()">
+                <div class="bg-white w-20 h-20 mx-auto rounded-full shadow-[0_4px_0_#fed7aa] flex items-center justify-center mb-5 border-4 border-orange-100">
+                    <i data-lucide="file-up" class="w-10 h-10 text-orange-500"></i>
+                </div>
+                <p class="text-orange-900 font-black text-xl mb-2" id="split-dropzone-text">Drop a PDF here to split</p>
+                <div class="inline-flex items-center space-x-1.5 bg-orange-100 text-orange-600 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+                    <i data-lucide="mouse-pointer-click" class="w-4 h-4"></i>
+                    <span>Or click to browse</span>
+                </div>
+            </div>
+            <input type="file" id="split-input" class="hidden" accept="application/pdf" onchange="handleSplitFile(event)">
+
+            <!-- Page Selection Area -->
+            <div id="split-options" class="mt-8 hidden relative z-10">
+                <!-- File Info Pill -->
+                <div class="bg-white border-4 border-orange-100 p-4 rounded-[2rem] shadow-[0_5px_0_#ffedd5] flex items-center space-x-4 mb-8">
+                    <div class="bg-gradient-to-b from-orange-100 to-red-100 p-3 rounded-2xl shadow-inner border border-white">
+                        <i data-lucide="file-text" class="w-8 h-8 text-orange-500 flex-shrink-0"></i>
+                    </div>
+                    <div class="overflow-hidden flex-grow">
+                        <p id="split-filename" class="font-black text-slate-800 truncate text-lg">document.pdf</p>
+                        <div class="flex items-center space-x-2 mt-1">
+                            <i data-lucide="layers" class="w-4 h-4 text-orange-400"></i>
+                            <p id="split-pagecount" class="text-xs font-bold text-orange-500 uppercase tracking-wider">Total pages: 0</p>
+                        </div>
+                    </div>
+                    <button onclick="resetSplit()" class="bg-slate-50 text-slate-400 hover:text-red-500 hover:bg-red-50 p-3.5 rounded-2xl btn-3d-sm shadow-[0_4px_0_#e2e8f0] border-2 border-slate-200 hover:border-red-200">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
+                </div>
+
+                <!-- Range Input -->
+                <div class="mb-8 bg-orange-50/50 p-6 rounded-3xl border-4 border-white shadow-inner">
+                    <label class="block text-sm font-black text-orange-900 mb-3 flex items-center space-x-2">
+                        <i data-lucide="list-ordered" class="w-5 h-5 text-orange-500"></i>
+                        <span>Pages to Extract:</span>
+                    </label>
+                    <input type="text" id="split-range" oninput="handleSplitRangeInput()" placeholder="e.g. 1, 3-5, 8" class="w-full px-5 py-4 border-4 border-orange-200 rounded-2xl shadow-[0_4px_0_#fed7aa] focus:ring-0 focus:border-orange-400 focus:shadow-[0_4px_0_#fb923c] outline-none transition-all font-mono font-bold text-orange-800 text-lg bg-white">
+                    <p class="text-xs font-bold text-orange-500/80 mt-3 flex items-center space-x-1.5">
+                        <i data-lucide="mouse-pointer-2" class="w-4 h-4"></i>
+                        <span>Type numbers manually, or click the visual previews below to toggle!</span>
+                    </p>
+                </div>
+
+                <!-- Visual Grid for Split Pages -->
+                <div id="split-page-grid" class="mb-10 grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-5 max-h-[450px] overflow-y-auto p-5 bg-white/50 border-4 border-white rounded-[2rem] shadow-inner empty:hidden">
+                    <!-- Cards injected dynamically here -->
+                </div>
+
+                <!-- Action Area w/ Naming feature -->
+                <div class="pt-8 border-t-4 border-orange-50">
+                    <div class="max-w-md mx-auto mb-6 bg-white border-4 border-orange-100 p-5 rounded-3xl shadow-[0_6px_0_#ffedd5]">
+                        <label class="block text-sm font-black text-orange-700 mb-3 flex items-center space-x-2">
+                            <i data-lucide="pen-tool" class="w-5 h-5 text-orange-500"></i>
+                            <span>Name your new file:</span>
+                        </label>
+                        <div class="flex items-center bg-slate-50 border-4 border-slate-200 rounded-2xl overflow-hidden focus-within:border-orange-400 focus-within:ring-2 focus-within:ring-orange-100 transition-all">
+                            <input type="text" id="split-filename-input" value="Extracted_Pages" class="w-full px-4 py-3 bg-transparent outline-none font-bold text-slate-700 text-lg">
+                            <span class="px-4 text-slate-400 font-bold bg-slate-100 h-full flex items-center border-l-4 border-slate-200">.pdf</span>
+                        </div>
+                    </div>
+
+                    <button id="btn-split" class="w-full max-w-md mx-auto bg-gradient-to-b from-orange-400 to-red-500 hover:from-orange-500 hover:to-red-600 text-white font-black py-4 px-6 rounded-[1.5rem] flex items-center justify-center space-x-3 text-xl btn-3d shadow-[0_8px_0_#991b1b] border-2 border-orange-300" onclick="processSplit()">
+                        <i data-lucide="scissors" class="w-7 h-7 drop-shadow-sm"></i>
+                        <span class="drop-shadow-sm tracking-wide">Extract Pages Now!</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Result Area -->
+            <div id="split-result" class="mt-8 hidden text-center p-10 bg-gradient-to-b from-orange-50 to-red-50 border-4 border-white rounded-[2.5rem] shadow-xl relative overflow-hidden z-10">
+                <div class="absolute top-5 left-5 text-orange-200 opacity-50 animate-bounce"><i data-lucide="star" class="w-20 h-20 fill-current"></i></div>
+                <div class="absolute bottom-5 right-5 text-red-200 opacity-50"><i data-lucide="award" class="w-20 h-20"></i></div>
+                
+                <div class="relative z-10">
+                    <div class="bg-white w-24 h-24 mx-auto rounded-full shadow-[0_6px_0_#fed7aa] flex items-center justify-center mb-6 border-4 border-orange-200">
+                        <i data-lucide="check-circle" class="w-12 h-12 text-orange-500"></i>
+                    </div>
+                    <h3 class="text-3xl font-black text-orange-800 tracking-tight">Extracted!</h3>
+                    <p class="text-orange-600 font-bold mt-2">Your targeted pages have been separated.</p>
+                    
+                    <a id="split-download-link" href="#" download="Extracted_Pages.pdf" class="inline-flex mt-8 bg-gradient-to-r from-red-400 to-red-500 hover:from-red-500 hover:to-red-600 text-white font-black py-4 px-10 rounded-2xl btn-3d-sm shadow-[0_6px_0_#991b1b] border border-red-300 items-center space-x-3 text-lg">
+                        <i data-lucide="download-cloud" class="w-6 h-6 drop-shadow-sm"></i>
+                        <span class="drop-shadow-sm">Download PDF</span>
+                    </a>
+                    <button onclick="resetSplit()" class="block w-full mt-8 text-sm font-bold text-slate-400 hover:text-orange-500 transition-colors flex items-center justify-center space-x-1">
+                        <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                        <span>Create another extraction</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Overlay Loader -->
+    <div id="loading-overlay" class="fixed inset-0 bg-slate-900/40 backdrop-blur-md z-50 flex flex-col items-center justify-center hidden">
+        <div class="bg-white p-10 rounded-[2.5rem] shadow-2xl border-8 border-white flex flex-col items-center min-w-[300px]">
+            <div class="bg-blue-50 p-4 rounded-full mb-6 shadow-inner border-4 border-blue-100">
+                <div class="loader ease-linear rounded-full border-4 border-t-4 border-blue-200 h-12 w-12 !border-t-blue-500"></div>
+            </div>
+            <h2 id="loading-text" class="text-center text-slate-800 font-black text-2xl tracking-tight">Working...</h2>
+            <p class="text-sm font-bold text-slate-400 uppercase tracking-widest mt-2">Please wait</p>
+        </div>
+    </div>
+
+    <!-- Message Box (Error/Info) -->
+    <div id="message-box" class="fixed bottom-6 right-6 bg-slate-800 text-white px-6 py-4 rounded-2xl shadow-2xl border-4 border-slate-700 transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center space-x-4 pointer-events-none">
+        <i id="message-icon" data-lucide="info" class="w-6 h-6"></i>
+        <span id="message-text" class="text-base font-bold">Message</span>
+    </div>
+
+    <!-- Hover Preview Overlay (Reduced by 50%) -->
+    <div id="hover-preview" class="fixed z-50 hidden pointer-events-none bg-white rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.3)] border-8 border-slate-100 overflow-hidden flex items-center justify-center transition-opacity" style="width: 300px; height: 400px; max-width: 90vw; max-height: 90vh;">
+        <img id="hover-preview-img" src="" class="w-full h-full object-contain p-3 bg-slate-50" />
+    </div>
+
+    <script>
+        // Set up PDF.js worker for rendering thumbnails
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        // Initialize Icons
+        lucide.createIcons();
+
+        // --- GLOBAL STATE ---
+        let mergeFilesArray = []; 
+        let draggedItemIndex = null;
+        let splitFileObj = null;
+        let splitMaxPages = 0;
+        let splitSelectedPages = new Set();
+        const { PDFDocument } = PDFLib;
+
+        // --- TAB LOGIC ---
+        function switchTab(tab) {
+            const btnMerge = document.getElementById('tab-merge');
+            const btnSplit = document.getElementById('tab-split');
+            const secMerge = document.getElementById('section-merge');
+            const secSplit = document.getElementById('section-split');
+
+            // Merge Tab Active Colors (Green)
+            const activeMerge = "flex-1 py-3 text-sm font-black rounded-[1.5rem] btn-3d-sm bg-gradient-to-b from-green-300 to-green-500 text-white shadow-[0_4px_0_#15803d] border-2 border-green-200 flex items-center justify-center space-x-2";
+            const inactiveMerge = "flex-1 py-3 text-sm font-bold rounded-[1.5rem] btn-3d-sm bg-white text-slate-500 hover:text-green-500 shadow-[0_4px_0_#e2e8f0] border-2 border-slate-100 hover:bg-green-50 flex items-center justify-center space-x-2";
+
+            // Split Tab Active Colors (Orange)
+            const activeSplit = "flex-1 py-3 text-sm font-black rounded-[1.5rem] btn-3d-sm bg-gradient-to-b from-orange-300 to-orange-500 text-white shadow-[0_4px_0_#c2410c] border-2 border-orange-200 flex items-center justify-center space-x-2";
+            const inactiveSplit = "flex-1 py-3 text-sm font-bold rounded-[1.5rem] btn-3d-sm bg-white text-slate-500 hover:text-orange-500 shadow-[0_4px_0_#e2e8f0] border-2 border-slate-100 hover:bg-orange-50 flex items-center justify-center space-x-2";
+
+            if (tab === 'merge') {
+                btnMerge.className = activeMerge;
+                btnSplit.className = inactiveSplit;
+                secMerge.classList.remove('hidden');
+                secSplit.classList.add('hidden');
+            } else {
+                btnSplit.className = activeSplit;
+                btnMerge.className = inactiveMerge;
+                secSplit.classList.remove('hidden');
+                secMerge.classList.add('hidden');
+            }
+            lucide.createIcons();
+        }
+
+        // --- UI HELPERS ---
+        function showMessage(msg, isError = false) {
+            const box = document.getElementById('message-box');
+            const text = document.getElementById('message-text');
+            const icon = document.getElementById('message-icon');
+            
+            text.textContent = msg;
+            
+            if(isError) {
+                box.className = `fixed bottom-6 right-6 bg-red-500 text-white px-6 py-4 rounded-2xl shadow-2xl border-4 border-red-700 transform transition-all duration-300 z-50 flex items-center space-x-4 pointer-events-none`;
+                icon.setAttribute('data-lucide', 'alert-octagon');
+            } else {
+                box.className = `fixed bottom-6 right-6 bg-slate-800 text-white px-6 py-4 rounded-2xl shadow-2xl border-4 border-slate-700 transform transition-all duration-300 z-50 flex items-center space-x-4 pointer-events-none`;
+                icon.setAttribute('data-lucide', 'info');
+            }
+            lucide.createIcons();
+
+            setTimeout(() => { box.classList.remove('translate-y-20', 'opacity-0'); }, 10);
+            setTimeout(() => { box.classList.add('translate-y-20', 'opacity-0'); }, 3000);
+        }
+
+        function toggleLoading(show, text = "Processing...") {
+            const overlay = document.getElementById('loading-overlay');
+            const textEl = document.getElementById('loading-text');
+            textEl.textContent = text;
+            if (show) overlay.classList.remove('hidden');
+            else overlay.classList.add('hidden');
+        }
+
+        // --- HOVER PREVIEW LOGIC ---
+        const hoverPreview = document.getElementById('hover-preview');
+        const hoverPreviewImg = document.getElementById('hover-preview-img');
+
+        function handleImageHover(e, src) {
+            hoverPreviewImg.src = src;
+            hoverPreview.classList.remove('hidden');
+            handleImageMove(e);
+        }
+
+        function handleImageMove(e) {
+            let x = e.clientX + 20; 
+            let y = e.clientY + 20;
+            
+            const previewWidth = Math.min(300, window.innerWidth * 0.9);
+            const previewHeight = Math.min(400, window.innerHeight * 0.9);
+
+            if (x + previewWidth > window.innerWidth) {
+                x = e.clientX - previewWidth - 20;
+            }
+            
+            if (y + previewHeight > window.innerHeight) {
+                y = window.innerHeight - previewHeight - 20; 
+            }
+
+            if (x < 10) x = 10;
+            if (y < 10) y = 10;
+
+            hoverPreview.style.left = x + 'px';
+            hoverPreview.style.top = y + 'px';
+        }
+
+        function handleImageLeave() {
+            hoverPreview.classList.add('hidden');
+            hoverPreviewImg.src = '';
+        }
+
+        // --- DRAG AND DROP FILE IMPORT SETUP ---
+        function setupDragAndDrop(dropzoneId, inputId, callback) {
+            const dropzone = document.getElementById(dropzoneId);
+            
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropzone.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) { e.preventDefault(); e.stopPropagation(); }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropzone.addEventListener(eventName, () => dropzone.classList.add('drag-active'), false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropzone.addEventListener(eventName, () => dropzone.classList.remove('drag-active'), false);
+            });
+
+            dropzone.addEventListener('drop', (e) => {
+                const files = e.dataTransfer.files;
+                callback({ target: { files: files } }); 
+            }, false);
+        }
+
+        setupDragAndDrop('merge-dropzone', 'merge-input', handleMergeFiles);
+        setupDragAndDrop('split-dropzone', 'split-input', handleSplitFile);
+
+
+        // ==========================================
+        //             MERGE LOGIC & GRID
+        // ==========================================
+
+        async function generatePdfThumbnail(file) {
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+                const pdf = await loadingTask.promise;
+                const page = await pdf.getPage(1);
+                
+                // Scale 4.0 + PNG format for perfect lossless text clarity
+                const viewport = page.getViewport({ scale: 4.0 }); 
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+
+                await page.render({ canvasContext: context, viewport: viewport }).promise;
+                return canvas.toDataURL('image/png'); 
+            } catch (error) {
+                console.error("Could not generate thumbnail", error);
+                return null;
+            }
+        }
+
+        async function handleMergeFiles(event) {
+            const files = Array.from(event.target.files).filter(f => f.type === 'application/pdf');
+            if (files.length === 0) {
+                showMessage("Please select valid PDF files.", true);
+                return;
+            }
+
+            toggleLoading(true, "Creating Previews...");
+            
+            for (let file of files) {
+                const thumbnail = await generatePdfThumbnail(file);
+                mergeFilesArray.push({
+                    id: Math.random().toString(36).substr(2, 9),
+                    file: file,
+                    thumbnail: thumbnail
+                });
+            }
+
+            updateMergeUI();
+            event.target.value = ''; 
+            toggleLoading(false);
+        }
+
+        function removeMergeFile(index) {
+            mergeFilesArray.splice(index, 1);
+            updateMergeUI();
+        }
+
+        function handleGridDragStart(e) {
+            draggedItemIndex = parseInt(this.dataset.index);
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', draggedItemIndex);
+            this.classList.add('grid-item-dragging');
+        }
+
+        function handleGridDragOver(e) {
+            e.preventDefault(); 
+            e.dataTransfer.dropEffect = 'move';
+            this.classList.add('grid-item-drop-target');
+        }
+
+        function handleGridDragLeave(e) {
+            this.classList.remove('grid-item-drop-target');
+        }
+
+        function handleGridDrop(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.classList.remove('grid-item-drop-target');
+            
+            const targetIndex = this.dataset.index !== undefined ? parseInt(this.dataset.index) : 'end';
+            
+            if (draggedItemIndex === null || draggedItemIndex === targetIndex) return;
+
+            const draggedItem = mergeFilesArray.splice(draggedItemIndex, 1)[0];
+            
+            if (targetIndex === 'end') {
+                mergeFilesArray.push(draggedItem);
+            } else {
+                mergeFilesArray.splice(targetIndex, 0, draggedItem);
+            }
+
+            updateMergeUI();
+        }
+
+        function handleGridDragEnd(e) {
+            this.classList.remove('grid-item-dragging');
+            draggedItemIndex = null;
+            document.querySelectorAll('#merge-file-list > div').forEach(el => {
+                el.classList.remove('grid-item-drop-target');
+            });
+        }
+
+        function updateMergeUI() {
+            const listEl = document.getElementById('merge-file-list');
+            const actionsEl = document.getElementById('merge-actions');
+            const dropzoneEl = document.getElementById('merge-dropzone');
+            
+            listEl.innerHTML = '';
+            
+            if (mergeFilesArray.length === 0) {
+                listEl.classList.add('hidden');
+                actionsEl.classList.add('hidden');
+                dropzoneEl.classList.remove('hidden');
+                return;
+            }
+
+            dropzoneEl.classList.add('hidden');
+            listEl.classList.remove('hidden');
+            actionsEl.classList.remove('hidden');
+
+            mergeFilesArray.forEach((item, index) => {
+                const sizeStr = (item.file.size / 1024 / 1024).toFixed(2) + ' MB';
+                
+                const card = document.createElement('div');
+                card.className = "group relative flex flex-col items-center bg-white border-4 border-slate-100 rounded-3xl shadow-[0_6px_0_#e2e8f0] cursor-move hover:border-green-300 hover:shadow-[0_6px_0_#bbf7d0] transition-all select-none overflow-hidden h-64";
+                card.draggable = true;
+                card.dataset.index = index;
+
+                card.addEventListener('dragstart', handleGridDragStart);
+                card.addEventListener('dragover', handleGridDragOver);
+                card.addEventListener('dragleave', handleGridDragLeave);
+                card.addEventListener('drop', handleGridDrop);
+                card.addEventListener('dragend', handleGridDragEnd);
+
+                const thumbnailHTML = item.thumbnail 
+                    ? `<div class="w-full h-44 bg-slate-50 flex items-center justify-center border-b-4 border-slate-100 relative"><img src="${item.thumbnail}" draggable="false" class="absolute w-full h-full object-contain p-3 drop-shadow-md pointer-events-auto" onmouseenter="handleImageHover(event, this.src)" onmousemove="handleImageMove(event)" onmouseleave="handleImageLeave()" /></div>` 
+                    : `<div class="w-full h-44 bg-slate-50 flex items-center justify-center border-b-4 border-slate-100"><i data-lucide="file-text" class="w-12 h-12 text-slate-300"></i></div>`;
+
+                card.innerHTML = `
+                    ${thumbnailHTML}
+                    <div class="w-full p-3 text-center bg-white flex-grow flex flex-col justify-center">
+                        <p class="text-sm font-black text-slate-700 truncate px-1" title="${item.file.name}">${item.file.name}</p>
+                        <p class="text-[11px] font-bold text-slate-400 mt-1 uppercase tracking-wider">${sizeStr}</p>
+                    </div>
+
+                    <!-- Delete Button -->
+                    <button onclick="removeMergeFile(${index}); event.stopPropagation();" class="absolute top-2 right-2 bg-white/90 border-2 border-red-100 text-red-400 hover:text-white hover:bg-red-500 rounded-xl p-2 opacity-0 group-hover:opacity-100 transition-all z-10 btn-3d-sm shadow-[0_3px_0_#fee2e2] hover:shadow-[0_3px_0_#ef4444]" title="Remove File">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+
+                    <!-- Order Badge -->
+                    <div class="absolute top-2 left-2 bg-gradient-to-br from-green-400 to-emerald-500 text-white text-xs font-black px-2.5 py-1 rounded-xl shadow-md z-10 border border-white/50 flex items-center space-x-1">
+                        <i data-lucide="hash" class="w-3 h-3"></i>
+                        <span>${index + 1}</span>
+                    </div>
+                `;
+                listEl.appendChild(card);
+            });
+
+            const addMoreCard = document.createElement('div');
+            addMoreCard.className = "flex flex-col items-center justify-center bg-slate-50 border-4 border-dashed border-slate-200 rounded-3xl cursor-pointer hover:bg-green-50 hover:border-green-300 transition-all h-64 btn-3d shadow-[0_6px_0_#e2e8f0]";
+            addMoreCard.onclick = () => document.getElementById('merge-input').click();
+            
+            addMoreCard.addEventListener('dragover', handleGridDragOver);
+            addMoreCard.addEventListener('dragleave', handleGridDragLeave);
+            addMoreCard.addEventListener('drop', handleGridDrop);
+
+            addMoreCard.innerHTML = `
+                <div class="p-4 bg-white rounded-full shadow-sm mb-3 border-2 border-slate-100 group-hover:border-green-200 transition-colors">
+                    <i data-lucide="plus" class="w-8 h-8 text-slate-400 group-hover:text-green-500 transition-colors"></i>
+                </div>
+                <p class="text-sm font-black text-slate-500 group-hover:text-green-600 transition-colors flex items-center space-x-1"><i data-lucide="file-plus-2" class="w-4 h-4"></i><span>Add Files</span></p>
+            `;
+            listEl.appendChild(addMoreCard);
+
+            lucide.createIcons();
+        }
+
+        async function processMerge() {
+            if (mergeFilesArray.length < 2) {
+                showMessage("Please select at least 2 files to merge.", true);
+                return;
+            }
+
+            toggleLoading(true, "Stitching PDFs...");
+            
+            try {
+                const mergedPdf = await PDFDocument.create();
+
+                for (let item of mergeFilesArray) {
+                    const arrayBuffer = await item.file.arrayBuffer();
+                    const pdf = await PDFDocument.load(arrayBuffer);
+                    const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
+                    copiedPages.forEach((page) => mergedPdf.addPage(page));
+                }
+
+                const pdfBytes = await mergedPdf.save();
+                const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+                const url = URL.createObjectURL(blob);
+
+                // Get Custom Filename
+                let customName = document.getElementById('merge-filename').value.trim();
+                if (!customName) customName = "Merged_Document";
+                if (!customName.toLowerCase().endsWith('.pdf')) customName += ".pdf";
+
+                document.getElementById('merge-file-list').classList.add('hidden');
+                document.getElementById('merge-actions').classList.add('hidden');
+                
+                const resultDiv = document.getElementById('merge-result');
+                const downloadLink = document.getElementById('merge-download-link');
+                
+                downloadLink.href = url;
+                downloadLink.download = customName;
+                resultDiv.classList.remove('hidden');
+
+            } catch (error) {
+                console.error("Merge error:", error);
+                showMessage("Failed to merge. A file might be encrypted.", true);
+            } finally {
+                toggleLoading(false);
+            }
+        }
+
+        function resetMerge() {
+            mergeFilesArray = [];
+            document.getElementById('merge-result').classList.add('hidden');
+            document.getElementById('merge-filename').value = "Merged_Document";
+            updateMergeUI();
+        }
+
+
+        // ==========================================
+        //             SPLIT LOGIC
+        // ==========================================
+
+        async function handleSplitFile(event) {
+            const file = event.target.files[0] || (event.target.files.length > 0 ? event.target.files[0] : null);
+            if (!file) return;
+
+            if (file.type !== 'application/pdf') {
+                showMessage("Please select a valid PDF file.", true);
+                return;
+            }
+
+            toggleLoading(true, "Reading Document...");
+            
+            try {
+                splitFileObj = file;
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await PDFDocument.load(arrayBuffer);
+                splitMaxPages = pdf.getPageCount();
+
+                document.getElementById('split-filename').textContent = file.name;
+                document.getElementById('split-pagecount').textContent = `Total pages: ${splitMaxPages}`;
+                
+                // Pre-fill the custom name input based on the original file
+                const baseName = file.name.replace('.pdf', '');
+                document.getElementById('split-filename-input').value = `${baseName}_Extracted`;
+
+                document.getElementById('split-dropzone').classList.add('hidden');
+                document.getElementById('split-options').classList.remove('hidden');
+                
+                await renderSplitPages(file, splitMaxPages);
+                
+            } catch (error) {
+                console.error("Split read error:", error);
+                showMessage("Cannot read PDF. It might be encrypted.", true);
+                resetSplit();
+            } finally {
+                toggleLoading(false);
+            }
+        }
+
+        async function renderSplitPages(file, numPages) {
+            const grid = document.getElementById('split-page-grid');
+            grid.innerHTML = ''; 
+            
+            splitSelectedPages = new Set(Array.from({length: numPages}, (_, i) => i + 1));
+            document.getElementById('split-range').value = generateRangeString(splitSelectedPages);
+
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+                const pdf = await loadingTask.promise;
+
+                const pagesToRender = Math.min(numPages, 100); 
+                
+                if (numPages > 100) {
+                    showMessage(`PDF has ${numPages} pages. Showing visual previews for the first 100.`, false);
+                }
+
+                for (let i = 1; i <= pagesToRender; i++) {
+                    toggleLoading(true, `Drawing Previews (${i}/${pagesToRender})...`);
+                    
+                    const page = await pdf.getPage(i);
+                    // Scale 4.0 + PNG format for perfect lossless text clarity
+                    const viewport = page.getViewport({ scale: 4.0 }); 
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+                    canvas.height = viewport.height;
+                    canvas.width = viewport.width;
+                    await page.render({ canvasContext: context, viewport: viewport }).promise;
+                    
+                    const thumb = canvas.toDataURL('image/png');
+
+                    const isSelected = splitSelectedPages.has(i);
+                    const trashSvg = `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 drop-shadow-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>`;
+                    const plusSvg = `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 drop-shadow-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>`;
+                    
+                    const cardHTML = `
+                        <div id="split-card-${i}" class="group relative flex flex-col items-center bg-white border-4 rounded-3xl cursor-pointer transition-all select-none overflow-hidden h-56 ${isSelected ? 'border-orange-300 shadow-[0_6px_0_#fdba74] hover:border-red-300 hover:shadow-[0_6px_0_#fca5a5] -translate-y-1' : 'border-slate-100 opacity-70 grayscale-[50%] hover:grayscale-0 hover:opacity-100 hover:border-orange-200 shadow-[0_4px_0_#f1f5f9]'}" onclick="toggleSplitPage(${i})">
+                            <div class="w-full h-40 bg-slate-50 flex items-center justify-center border-b-4 ${isSelected ? 'border-orange-100' : 'border-slate-100'} relative transition-colors">
+                                <img src="${thumb}" class="absolute w-full h-full object-contain p-2 drop-shadow-sm pointer-events-auto" draggable="false" onmouseenter="handleImageHover(event, this.src)" onmousemove="handleImageMove(event)" onmouseleave="handleImageLeave()" />
+                            </div>
+                            <div class="w-full p-2 text-center pointer-events-none flex justify-between items-center bg-white flex-grow">
+                                <span class="text-xs font-black text-slate-700 bg-slate-100 px-2.5 py-1 rounded-xl">Pg ${i}</span>
+                                <span id="split-status-${i}" class="text-[10px] ${isSelected ? 'text-orange-600 bg-orange-50 border border-orange-200' : 'text-slate-500 bg-slate-50 border border-slate-200'} font-bold px-2 py-1 rounded-xl uppercase tracking-widest flex items-center space-x-1 shadow-sm"><i data-lucide="${isSelected ? 'check' : 'x'}" class="w-3 h-3"></i><span>${isSelected ? 'Keep' : 'Skip'}</span></span>
+                            </div>
+                            
+                            <!-- Delete Button -->
+                            <button id="split-btn-del-${i}" class="absolute top-2 right-2 bg-white border-2 border-red-100 text-red-500 hover:text-white hover:bg-red-500 rounded-xl p-1.5 opacity-0 group-hover:opacity-100 transition-all z-10 btn-3d-sm shadow-[0_3px_0_#fee2e2] hover:shadow-[0_3px_0_#ef4444] ${isSelected ? '' : 'hidden'}" title="Exclude Page">
+                                ${trashSvg}
+                            </button>
+
+                            <!-- Add Button -->
+                            <button id="split-btn-add-${i}" class="absolute top-2 right-2 bg-white border-2 border-orange-100 text-orange-500 hover:text-white hover:bg-orange-500 rounded-xl p-1.5 opacity-0 group-hover:opacity-100 transition-all z-10 btn-3d-sm shadow-[0_3px_0_#ffedd5] hover:shadow-[0_3px_0_#f97316] ${isSelected ? 'hidden' : ''}" title="Include Page">
+                                ${plusSvg}
+                            </button>
+                        </div>
+                    `;
+                    grid.insertAdjacentHTML('beforeend', cardHTML);
+                }
+                lucide.createIcons();
+            } catch (error) {
+                console.error("Preview rendering error:", error);
+                showMessage("Could not generate page previews. You can still type ranges manually.", true);
+            }
+        }
+
+        function toggleSplitPage(pageNum) {
+            if (splitSelectedPages.has(pageNum)) {
+                splitSelectedPages.delete(pageNum);
+            } else {
+                splitSelectedPages.add(pageNum);
+            }
+            
+            updateSplitCardVisuals(pageNum);
+            document.getElementById('split-range').value = generateRangeString(splitSelectedPages);
+        }
+
+        function updateSplitCardVisuals(pageNum) {
+            const card = document.getElementById(`split-card-${pageNum}`);
+            const status = document.getElementById(`split-status-${pageNum}`);
+            const btnDel = document.getElementById(`split-btn-del-${pageNum}`);
+            const btnAdd = document.getElementById(`split-btn-add-${pageNum}`);
+            
+            if (card && status && btnDel && btnAdd) {
+                if (splitSelectedPages.has(pageNum)) {
+                    card.className = "group relative flex flex-col items-center bg-white border-4 rounded-3xl cursor-pointer transition-all select-none overflow-hidden h-56 border-orange-300 shadow-[0_6px_0_#fdba74] hover:border-red-300 hover:shadow-[0_6px_0_#fca5a5] -translate-y-1";
+                    status.innerHTML = `<i data-lucide="check" class="w-3 h-3"></i><span>Keep</span>`;
+                    status.className = "text-[10px] text-orange-600 bg-orange-50 border border-orange-200 font-bold px-2 py-1 rounded-xl uppercase tracking-widest flex items-center space-x-1 shadow-sm";
+                    card.querySelector('.border-b-4').classList.remove('border-slate-100');
+                    card.querySelector('.border-b-4').classList.add('border-orange-100');
+                    btnDel.classList.remove('hidden');
+                    btnAdd.classList.add('hidden');
+                } else {
+                    card.className = "group relative flex flex-col items-center bg-white border-4 rounded-3xl cursor-pointer transition-all select-none overflow-hidden h-56 border-slate-100 opacity-70 grayscale-[50%] hover:grayscale-0 hover:opacity-100 hover:border-orange-200 shadow-[0_4px_0_#f1f5f9]";
+                    status.innerHTML = `<i data-lucide="x" class="w-3 h-3"></i><span>Skip</span>`;
+                    status.className = "text-[10px] text-slate-500 bg-slate-50 border border-slate-200 font-bold px-2 py-1 rounded-xl uppercase tracking-widest flex items-center space-x-1 shadow-sm";
+                    card.querySelector('.border-b-4').classList.add('border-slate-100');
+                    card.querySelector('.border-b-4').classList.remove('border-orange-100');
+                    btnDel.classList.add('hidden');
+                    btnAdd.classList.remove('hidden');
+                }
+                lucide.createIcons();
+            }
+        }
+
+        function generateRangeString(pageSet) {
+            const pages = Array.from(pageSet).sort((a, b) => a - b);
+            if (pages.length === 0) return "";
+            
+            let ranges = [];
+            let start = pages[0];
+            let prev = pages[0];
+            
+            for (let i = 1; i < pages.length; i++) {
+                if (pages[i] === prev + 1) {
+                    prev = pages[i];
+                } else {
+                    ranges.push(start === prev ? `${start}` : `${start}-${prev}`);
+                    start = pages[i];
+                    prev = pages[i];
+                }
+            }
+            ranges.push(start === prev ? `${start}` : `${start}-${prev}`);
+            return ranges.join(', ');
+        }
+
+        function handleSplitRangeInput() {
+            const rangeStr = document.getElementById('split-range').value;
+            const extracted0Indexed = parsePageRangeString(rangeStr, splitMaxPages);
+            
+            splitSelectedPages.clear();
+            extracted0Indexed.forEach(p => splitSelectedPages.add(p + 1));
+
+            for (let i = 1; i <= Math.min(splitMaxPages, 100); i++) {
+                updateSplitCardVisuals(i);
+            }
+        }
+
+        function parsePageRangeString(rangeStr, maxPages) {
+            const pages = new Set();
+            const parts = rangeStr.split(',');
+            
+            for (let part of parts) {
+                part = part.trim();
+                if (!part) continue;
+
+                if (part.includes('-')) {
+                    let [start, end] = part.split('-');
+                    start = parseInt(start);
+                    end = parseInt(end);
+                    
+                    if (isNaN(start) || isNaN(end) || start > end || start < 1) continue;
+                    
+                    end = Math.min(end, maxPages);
+                    
+                    for (let i = start; i <= end; i++) {
+                        pages.add(i);
+                    }
+                } else {
+                    let page = parseInt(part);
+                    if (!isNaN(page) && page >= 1 && page <= maxPages) {
+                        pages.add(page);
+                    }
+                }
+            }
+            return Array.from(pages).sort((a, b) => a - b).map(p => p - 1);
+        }
+
+        async function processSplit() {
+            if (!splitFileObj) return;
+
+            const rangeInput = document.getElementById('split-range').value;
+            const pagesToExtract = parsePageRangeString(rangeInput, splitMaxPages);
+
+            if (pagesToExtract.length === 0) {
+                showMessage(`Invalid page range. Please enter values between 1 and ${splitMaxPages}.`, true);
+                return;
+            }
+
+            toggleLoading(true, "Extracting Magic...");
+
+            try {
+                const arrayBuffer = await splitFileObj.arrayBuffer();
+                const originalPdf = await PDFDocument.load(arrayBuffer);
+                const newPdf = await PDFDocument.create();
+
+                const copiedPages = await newPdf.copyPages(originalPdf, pagesToExtract);
+                copiedPages.forEach((page) => newPdf.addPage(page));
+
+                const pdfBytes = await newPdf.save();
+                const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+                const url = URL.createObjectURL(blob);
+
+                // Get custom filename
+                let customName = document.getElementById('split-filename-input').value.trim();
+                if (!customName) customName = "Extracted_Pages";
+                if (!customName.toLowerCase().endsWith('.pdf')) customName += ".pdf";
+
+                document.getElementById('split-options').classList.add('hidden');
+                
+                const resultDiv = document.getElementById('split-result');
+                const downloadLink = document.getElementById('split-download-link');
+                
+                downloadLink.href = url;
+                downloadLink.download = customName;
+                
+                resultDiv.classList.remove('hidden');
+
+            } catch (error) {
+                console.error("Split processing error:", error);
+                showMessage("An error occurred while extracting pages.", true);
+            } finally {
+                toggleLoading(false);
+            }
+        }
+
+        function resetSplit() {
+            splitFileObj = null;
+            splitMaxPages = 0;
+            splitSelectedPages.clear();
+            document.getElementById('split-input').value = '';
+            document.getElementById('split-range').value = '';
+            document.getElementById('split-filename-input').value = 'Extracted_Pages';
+            document.getElementById('split-page-grid').innerHTML = '';
+            document.getElementById('split-options').classList.add('hidden');
+            document.getElementById('split-result').classList.add('hidden');
+            document.getElementById('split-dropzone').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
