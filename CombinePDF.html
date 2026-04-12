@@ -81,14 +81,21 @@
     <main class="flex-grow max-w-5xl mx-auto w-full px-4 py-8">
         
         <!-- Tabs -->
-        <div class="flex space-x-3 bg-white/60 backdrop-blur-sm p-2 rounded-[2rem] mb-8 border-4 border-white shadow-lg max-w-md mx-auto">
+        <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 bg-white/60 backdrop-blur-sm p-2 rounded-[2rem] mb-8 border-4 border-white shadow-lg max-w-2xl mx-auto">
+            <!-- Merge Tab -->
             <button id="tab-merge" class="flex-1 py-3 text-sm font-black rounded-[1.5rem] btn-3d-sm bg-gradient-to-b from-green-300 to-green-500 text-white shadow-[0_4px_0_#15803d] border-2 border-green-200 flex items-center justify-center space-x-2" onclick="switchTab('merge')">
                 <i data-lucide="puzzle" class="w-5 h-5 drop-shadow-sm"></i>
                 <span class="drop-shadow-sm">Merge PDFs</span>
             </button>
+            <!-- Split Tab -->
             <button id="tab-split" class="flex-1 py-3 text-sm font-bold rounded-[1.5rem] btn-3d-sm bg-white text-slate-500 hover:text-orange-500 shadow-[0_4px_0_#e2e8f0] border-2 border-slate-100 hover:bg-orange-50 flex items-center justify-center space-x-2" onclick="switchTab('split')">
                 <i data-lucide="scissors" class="w-5 h-5"></i>
                 <span>Split PDF</span>
+            </button>
+            <!-- Rotate Tab (NEW) -->
+            <button id="tab-rotate" class="flex-1 py-3 text-sm font-bold rounded-[1.5rem] btn-3d-sm bg-white text-slate-500 hover:text-purple-500 shadow-[0_4px_0_#e2e8f0] border-2 border-slate-100 hover:bg-purple-50 flex items-center justify-center space-x-2" onclick="switchTab('rotate')">
+                <i data-lucide="rotate-cw" class="w-5 h-5"></i>
+                <span>Rotate PDF</span>
             </button>
         </div>
 
@@ -275,6 +282,114 @@
             </div>
         </section>
 
+
+        <!-- ==================== ROTATE SECTION (Purple & Pink Theme) ==================== -->
+        <section id="section-rotate" class="bg-white/90 backdrop-blur-xl p-6 md:p-8 rounded-[2.5rem] shadow-[0_15px_40px_rgba(0,0,0,0.05)] border-4 border-white relative overflow-hidden hidden">
+            <!-- Decorative BG Icon -->
+            <div class="absolute -bottom-10 -right-10 text-purple-50 opacity-50 pointer-events-none"><i data-lucide="refresh-cw" class="w-64 h-64"></i></div>
+
+            <div class="text-center mb-8 relative z-10">
+                <div class="inline-flex items-center justify-center p-3.5 bg-gradient-to-br from-purple-100 to-pink-100 rounded-2xl mb-4 shadow-inner border-2 border-white">
+                    <i data-lucide="rotate-cw" class="w-8 h-8 text-purple-500"></i>
+                </div>
+                <h2 class="text-2xl font-black text-slate-800 tracking-tight">Rotate Pages</h2>
+                <p class="text-slate-500 text-sm mt-2 font-bold">Fix upside-down or sideways pages in your PDF.</p>
+            </div>
+
+            <!-- Single File Drop Area -->
+            <div id="rotate-dropzone" class="relative z-10 border-4 border-dashed border-purple-200 bg-purple-50/50 rounded-[2rem] p-12 text-center cursor-pointer hover:bg-purple-100 hover:border-purple-400 btn-3d shadow-[0_8px_0_#f3e8ff] transition-all" onclick="document.getElementById('rotate-input').click()">
+                <div class="bg-white w-20 h-20 mx-auto rounded-full shadow-[0_4px_0_#e9d5ff] flex items-center justify-center mb-5 border-4 border-purple-100">
+                    <i data-lucide="file-up" class="w-10 h-10 text-purple-500"></i>
+                </div>
+                <p class="text-purple-900 font-black text-xl mb-2" id="rotate-dropzone-text">Drop a PDF here to rotate</p>
+                <div class="inline-flex items-center space-x-1.5 bg-purple-100 text-purple-600 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+                    <i data-lucide="mouse-pointer-click" class="w-4 h-4"></i>
+                    <span>Or click to browse</span>
+                </div>
+            </div>
+            <input type="file" id="rotate-input" class="hidden" accept="application/pdf" onchange="handleRotateFile(event)">
+
+            <!-- Page Selection Area -->
+            <div id="rotate-options" class="mt-8 hidden relative z-10">
+                <!-- File Info Pill -->
+                <div class="bg-white border-4 border-purple-100 p-4 rounded-[2rem] shadow-[0_5px_0_#f3e8ff] flex items-center space-x-4 mb-8">
+                    <div class="bg-gradient-to-b from-purple-100 to-pink-100 p-3 rounded-2xl shadow-inner border border-white">
+                        <i data-lucide="file-text" class="w-8 h-8 text-purple-500 flex-shrink-0"></i>
+                    </div>
+                    <div class="overflow-hidden flex-grow">
+                        <p id="rotate-filename" class="font-black text-slate-800 truncate text-lg">document.pdf</p>
+                        <div class="flex items-center space-x-2 mt-1">
+                            <i data-lucide="layers" class="w-4 h-4 text-purple-400"></i>
+                            <p id="rotate-pagecount" class="text-xs font-bold text-purple-500 uppercase tracking-wider">Total pages: 0</p>
+                        </div>
+                    </div>
+                    <button onclick="resetRotate()" class="bg-slate-50 text-slate-400 hover:text-red-500 hover:bg-red-50 p-3.5 rounded-2xl btn-3d-sm shadow-[0_4px_0_#e2e8f0] border-2 border-slate-200 hover:border-red-200">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
+                </div>
+
+                <!-- Global Rotate Controls -->
+                <div class="mb-6 flex justify-between items-center bg-purple-50/80 p-4 rounded-3xl border-4 border-white shadow-inner">
+                    <p class="text-sm font-black text-purple-900 ml-2">Rotate All Pages:</p>
+                    <div class="flex space-x-3">
+                        <button onclick="rotateAllPages(-90)" class="bg-white text-purple-600 hover:bg-purple-100 border-2 border-purple-200 px-4 py-2 rounded-xl font-bold flex items-center space-x-2 btn-3d-sm shadow-[0_3px_0_#d8b4fe]">
+                            <i data-lucide="rotate-ccw" class="w-4 h-4"></i> <span>Left</span>
+                        </button>
+                        <button onclick="rotateAllPages(90)" class="bg-white text-purple-600 hover:bg-purple-100 border-2 border-purple-200 px-4 py-2 rounded-xl font-bold flex items-center space-x-2 btn-3d-sm shadow-[0_3px_0_#d8b4fe]">
+                            <span>Right</span> <i data-lucide="rotate-cw" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Visual Grid for Rotate Pages -->
+                <div id="rotate-page-grid" class="mb-10 grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-5 max-h-[450px] overflow-y-auto p-5 bg-white/50 border-4 border-white rounded-[2rem] shadow-inner empty:hidden">
+                    <!-- Cards injected dynamically here -->
+                </div>
+
+                <!-- Action Area w/ Naming feature -->
+                <div class="pt-8 border-t-4 border-purple-50">
+                    <div class="max-w-md mx-auto mb-6 bg-white border-4 border-purple-100 p-5 rounded-3xl shadow-[0_6px_0_#f3e8ff]">
+                        <label class="block text-sm font-black text-purple-700 mb-3 flex items-center space-x-2">
+                            <i data-lucide="pen-tool" class="w-5 h-5 text-purple-500"></i>
+                            <span>Name your new file:</span>
+                        </label>
+                        <div class="flex items-center bg-slate-50 border-4 border-slate-200 rounded-2xl overflow-hidden focus-within:border-purple-400 focus-within:ring-2 focus-within:ring-purple-100 transition-all">
+                            <input type="text" id="rotate-filename-input" value="Rotated_Pages" class="w-full px-4 py-3 bg-transparent outline-none font-bold text-slate-700 text-lg">
+                            <span class="px-4 text-slate-400 font-bold bg-slate-100 h-full flex items-center border-l-4 border-slate-200">.pdf</span>
+                        </div>
+                    </div>
+
+                    <button id="btn-rotate" class="w-full max-w-md mx-auto bg-gradient-to-b from-purple-400 to-pink-500 hover:from-purple-500 hover:to-pink-600 text-white font-black py-4 px-6 rounded-[1.5rem] flex items-center justify-center space-x-3 text-xl btn-3d shadow-[0_8px_0_#9d174d] border-2 border-purple-300" onclick="processRotate()">
+                        <i data-lucide="refresh-cw" class="w-7 h-7 drop-shadow-sm"></i>
+                        <span class="drop-shadow-sm tracking-wide">Save Rotated PDF!</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Result Area -->
+            <div id="rotate-result" class="mt-8 hidden text-center p-10 bg-gradient-to-b from-purple-50 to-pink-50 border-4 border-white rounded-[2.5rem] shadow-xl relative overflow-hidden z-10">
+                <div class="absolute top-5 left-5 text-purple-200 opacity-50 animate-bounce"><i data-lucide="sparkles" class="w-20 h-20 fill-current"></i></div>
+                <div class="absolute bottom-5 right-5 text-pink-200 opacity-50"><i data-lucide="check-circle-2" class="w-20 h-20"></i></div>
+                
+                <div class="relative z-10">
+                    <div class="bg-white w-24 h-24 mx-auto rounded-full shadow-[0_6px_0_#e9d5ff] flex items-center justify-center mb-6 border-4 border-purple-200">
+                        <i data-lucide="check-circle" class="w-12 h-12 text-purple-500"></i>
+                    </div>
+                    <h3 class="text-3xl font-black text-purple-800 tracking-tight">Perfectly Spun!</h3>
+                    <p class="text-purple-600 font-bold mt-2">Your document has been correctly oriented and saved.</p>
+                    
+                    <a id="rotate-download-link" href="#" download="Rotated_Pages.pdf" class="inline-flex mt-8 bg-gradient-to-r from-purple-400 to-pink-500 hover:from-purple-500 hover:to-pink-600 text-white font-black py-4 px-10 rounded-2xl btn-3d-sm shadow-[0_6px_0_#831843] border border-pink-300 items-center space-x-3 text-lg">
+                        <i data-lucide="download-cloud" class="w-6 h-6 drop-shadow-sm"></i>
+                        <span class="drop-shadow-sm">Download PDF</span>
+                    </a>
+                    <button onclick="resetRotate()" class="block w-full mt-8 text-sm font-bold text-slate-400 hover:text-purple-500 transition-colors flex items-center justify-center space-x-1">
+                        <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                        <span>Rotate another file</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
     </main>
 
     <!-- Overlay Loader -->
@@ -296,7 +411,10 @@
 
     <!-- Hover Preview Overlay (Reduced by 50%) -->
     <div id="hover-preview" class="fixed z-50 hidden pointer-events-none bg-white rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.3)] border-8 border-slate-100 overflow-hidden flex items-center justify-center transition-opacity" style="width: 300px; height: 400px; max-width: 90vw; max-height: 90vh;">
-        <img id="hover-preview-img" src="" class="w-full h-full object-contain p-3 bg-slate-50" />
+        <!-- Container added to support rotation tracking in the hover as well -->
+        <div id="hover-preview-container" class="w-full h-full p-3 bg-slate-50 flex items-center justify-center transition-transform duration-300">
+            <img id="hover-preview-img" src="" class="max-w-full max-h-full object-contain" />
+        </div>
     </div>
 
     <script>
@@ -312,33 +430,48 @@
         let splitFileObj = null;
         let splitMaxPages = 0;
         let splitSelectedPages = new Set();
+        let rotateFileObj = null;
+        let rotateMaxPages = 0;
+        let rotatePageAngles = {}; // Track rotations { pageNum: angle }
         const { PDFDocument } = PDFLib;
 
         // --- TAB LOGIC ---
         function switchTab(tab) {
             const btnMerge = document.getElementById('tab-merge');
             const btnSplit = document.getElementById('tab-split');
+            const btnRotate = document.getElementById('tab-rotate');
+            
             const secMerge = document.getElementById('section-merge');
             const secSplit = document.getElementById('section-split');
+            const secRotate = document.getElementById('section-rotate');
 
-            // Merge Tab Active Colors (Green)
-            const activeMerge = "flex-1 py-3 text-sm font-black rounded-[1.5rem] btn-3d-sm bg-gradient-to-b from-green-300 to-green-500 text-white shadow-[0_4px_0_#15803d] border-2 border-green-200 flex items-center justify-center space-x-2";
-            const inactiveMerge = "flex-1 py-3 text-sm font-bold rounded-[1.5rem] btn-3d-sm bg-white text-slate-500 hover:text-green-500 shadow-[0_4px_0_#e2e8f0] border-2 border-slate-100 hover:bg-green-50 flex items-center justify-center space-x-2";
+            // Generic Base Styles
+            const activeBase = "flex-1 py-3 text-sm font-black rounded-[1.5rem] btn-3d-sm text-white border-2 flex items-center justify-center space-x-2";
+            const inactiveBase = "flex-1 py-3 text-sm font-bold rounded-[1.5rem] btn-3d-sm bg-white shadow-[0_4px_0_#e2e8f0] border-2 border-slate-100 flex items-center justify-center space-x-2";
 
-            // Split Tab Active Colors (Orange)
-            const activeSplit = "flex-1 py-3 text-sm font-black rounded-[1.5rem] btn-3d-sm bg-gradient-to-b from-orange-300 to-orange-500 text-white shadow-[0_4px_0_#c2410c] border-2 border-orange-200 flex items-center justify-center space-x-2";
-            const inactiveSplit = "flex-1 py-3 text-sm font-bold rounded-[1.5rem] btn-3d-sm bg-white text-slate-500 hover:text-orange-500 shadow-[0_4px_0_#e2e8f0] border-2 border-slate-100 hover:bg-orange-50 flex items-center justify-center space-x-2";
+            // Specific Theme Colors
+            const themeMerge = "bg-gradient-to-b from-green-300 to-green-500 shadow-[0_4px_0_#15803d] border-green-200";
+            const themeSplit = "bg-gradient-to-b from-orange-300 to-orange-500 shadow-[0_4px_0_#c2410c] border-orange-200";
+            const themeRotate = "bg-gradient-to-b from-purple-300 to-purple-500 shadow-[0_4px_0_#7e22ce] border-purple-200";
+
+            // Reset all to inactive
+            btnMerge.className = `${inactiveBase} text-slate-500 hover:text-green-500 hover:bg-green-50`;
+            btnSplit.className = `${inactiveBase} text-slate-500 hover:text-orange-500 hover:bg-orange-50`;
+            btnRotate.className = `${inactiveBase} text-slate-500 hover:text-purple-500 hover:bg-purple-50`;
+            
+            secMerge.classList.add('hidden');
+            secSplit.classList.add('hidden');
+            secRotate.classList.add('hidden');
 
             if (tab === 'merge') {
-                btnMerge.className = activeMerge;
-                btnSplit.className = inactiveSplit;
+                btnMerge.className = `${activeBase} ${themeMerge}`;
                 secMerge.classList.remove('hidden');
-                secSplit.classList.add('hidden');
-            } else {
-                btnSplit.className = activeSplit;
-                btnMerge.className = inactiveMerge;
+            } else if (tab === 'split') {
+                btnSplit.className = `${activeBase} ${themeSplit}`;
                 secSplit.classList.remove('hidden');
-                secMerge.classList.add('hidden');
+            } else if (tab === 'rotate') {
+                btnRotate.className = `${activeBase} ${themeRotate}`;
+                secRotate.classList.remove('hidden');
             }
             lucide.createIcons();
         }
@@ -375,9 +508,12 @@
         // --- HOVER PREVIEW LOGIC ---
         const hoverPreview = document.getElementById('hover-preview');
         const hoverPreviewImg = document.getElementById('hover-preview-img');
+        const hoverPreviewContainer = document.getElementById('hover-preview-container');
 
-        function handleImageHover(e, src) {
+        // Added rotation angle parameter to sync the preview rotation
+        function handleImageHover(e, src, rotationAngle = 0) {
             hoverPreviewImg.src = src;
+            hoverPreviewContainer.style.transform = `rotate(${rotationAngle}deg)`;
             hoverPreview.classList.remove('hidden');
             handleImageMove(e);
         }
@@ -407,6 +543,7 @@
         function handleImageLeave() {
             hoverPreview.classList.add('hidden');
             hoverPreviewImg.src = '';
+            hoverPreviewContainer.style.transform = `rotate(0deg)`;
         }
 
         // --- DRAG AND DROP FILE IMPORT SETUP ---
@@ -435,6 +572,7 @@
 
         setupDragAndDrop('merge-dropzone', 'merge-input', handleMergeFiles);
         setupDragAndDrop('split-dropzone', 'split-input', handleSplitFile);
+        setupDragAndDrop('rotate-dropzone', 'rotate-input', handleRotateFile);
 
 
         // ==========================================
@@ -934,6 +1072,202 @@
             document.getElementById('split-options').classList.add('hidden');
             document.getElementById('split-result').classList.add('hidden');
             document.getElementById('split-dropzone').classList.remove('hidden');
+        }
+
+
+        // ==========================================
+        //             ROTATE LOGIC (NEW)
+        // ==========================================
+
+        async function handleRotateFile(event) {
+            const file = event.target.files[0] || (event.target.files.length > 0 ? event.target.files[0] : null);
+            if (!file) return;
+
+            if (file.type !== 'application/pdf') {
+                showMessage("Please select a valid PDF file.", true);
+                return;
+            }
+
+            toggleLoading(true, "Reading Document...");
+            
+            try {
+                rotateFileObj = file;
+                rotatePageAngles = {}; // Reset angles
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await PDFDocument.load(arrayBuffer);
+                rotateMaxPages = pdf.getPageCount();
+
+                document.getElementById('rotate-filename').textContent = file.name;
+                document.getElementById('rotate-pagecount').textContent = `Total pages: ${rotateMaxPages}`;
+                
+                const baseName = file.name.replace('.pdf', '');
+                document.getElementById('rotate-filename-input').value = `${baseName}_Rotated`;
+
+                document.getElementById('rotate-dropzone').classList.add('hidden');
+                document.getElementById('rotate-options').classList.remove('hidden');
+                
+                await renderRotatePages(file, rotateMaxPages);
+                
+            } catch (error) {
+                console.error("Rotate read error:", error);
+                showMessage("Cannot read PDF. It might be encrypted.", true);
+                resetRotate();
+            } finally {
+                toggleLoading(false);
+            }
+        }
+
+        async function renderRotatePages(file, numPages) {
+            const grid = document.getElementById('rotate-page-grid');
+            grid.innerHTML = ''; 
+
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+                const pdf = await loadingTask.promise;
+
+                const pagesToRender = Math.min(numPages, 100); 
+                
+                if (numPages > 100) {
+                    showMessage(`Showing visual previews for the first 100 pages out of ${numPages}.`, false);
+                }
+
+                for (let i = 1; i <= pagesToRender; i++) {
+                    rotatePageAngles[i] = 0; // Initialize angles to 0
+                    toggleLoading(true, `Drawing Previews (${i}/${pagesToRender})...`);
+                    
+                    const page = await pdf.getPage(i);
+                    const viewport = page.getViewport({ scale: 4.0 }); 
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+                    canvas.height = viewport.height;
+                    canvas.width = viewport.width;
+                    await page.render({ canvasContext: context, viewport: viewport }).promise;
+                    
+                    const thumb = canvas.toDataURL('image/png');
+
+                    const ccwSvg = `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 drop-shadow-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>`;
+                    const cwSvg = `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 drop-shadow-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path></svg>`;
+                    
+                    const cardHTML = `
+                        <div id="rotate-card-${i}" class="group relative flex flex-col items-center bg-white border-4 border-slate-100 rounded-3xl shadow-[0_6px_0_#f1f5f9] hover:border-purple-300 hover:shadow-[0_6px_0_#e9d5ff] transition-all select-none overflow-hidden h-56">
+                            <div class="w-full h-40 bg-slate-50 flex items-center justify-center border-b-4 border-slate-100 relative transition-colors overflow-hidden p-2">
+                                <img id="rotate-img-${i}" src="${thumb}" class="w-full h-full object-contain drop-shadow-md pointer-events-auto transition-transform duration-300" draggable="false" onmouseenter="handleImageHover(event, this.src, rotatePageAngles[${i}])" onmousemove="handleImageMove(event)" onmouseleave="handleImageLeave()" style="transform: rotate(0deg)" />
+                            </div>
+                            <div class="w-full p-2 text-center flex justify-between items-center bg-white flex-grow">
+                                <span class="text-xs font-black text-slate-700 bg-slate-100 px-2 py-1 rounded-xl">Pg ${i}</span>
+                                <div class="flex space-x-1">
+                                    <button onclick="rotatePage(${i}, -90)" class="bg-purple-100 text-purple-600 hover:bg-purple-500 hover:text-white p-1.5 rounded-lg btn-3d-sm transition-colors shadow-sm" title="Rotate Left">
+                                        ${ccwSvg}
+                                    </button>
+                                    <button onclick="rotatePage(${i}, 90)" class="bg-purple-100 text-purple-600 hover:bg-purple-500 hover:text-white p-1.5 rounded-lg btn-3d-sm transition-colors shadow-sm" title="Rotate Right">
+                                        ${cwSvg}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    grid.insertAdjacentHTML('beforeend', cardHTML);
+                }
+                lucide.createIcons();
+            } catch (error) {
+                console.error("Preview rendering error:", error);
+                showMessage("Could not generate page previews.", true);
+            }
+        }
+
+        function rotatePage(pageNum, direction) {
+            // Update logical angle mapping
+            if (!rotatePageAngles[pageNum]) rotatePageAngles[pageNum] = 0;
+            rotatePageAngles[pageNum] = (rotatePageAngles[pageNum] + direction) % 360;
+            
+            // Handle negative modulus in JS to keep angles strictly positive for simplicity later
+            if (rotatePageAngles[pageNum] < 0) rotatePageAngles[pageNum] += 360;
+
+            // Update visual CSS rotation
+            const img = document.getElementById(`rotate-img-${pageNum}`);
+            if (img) {
+                img.style.transform = `rotate(${rotatePageAngles[pageNum]}deg)`;
+            }
+
+            // Also update hover preview if it's currently showing this image
+            if (!hoverPreview.classList.contains('hidden') && hoverPreviewImg.src === img.src) {
+                hoverPreviewContainer.style.transform = `rotate(${rotatePageAngles[pageNum]}deg)`;
+            }
+        }
+
+        function rotateAllPages(direction) {
+            for (let i = 1; i <= Math.min(rotateMaxPages, 100); i++) {
+                rotatePage(i, direction);
+            }
+            
+            // For pages beyond 100 (not visually rendered), update logical mapping anyway
+            if (rotateMaxPages > 100) {
+                for (let i = 101; i <= rotateMaxPages; i++) {
+                     if (!rotatePageAngles[i]) rotatePageAngles[i] = 0;
+                     rotatePageAngles[i] = (rotatePageAngles[i] + direction) % 360;
+                     if (rotatePageAngles[i] < 0) rotatePageAngles[i] += 360;
+                }
+            }
+        }
+
+        async function processRotate() {
+            if (!rotateFileObj) return;
+
+            toggleLoading(true, "Spinning Pages...");
+
+            try {
+                const arrayBuffer = await rotateFileObj.arrayBuffer();
+                const pdf = await PDFDocument.load(arrayBuffer);
+                const pages = pdf.getPages();
+
+                // Apply rotations
+                for (let i = 0; i < pages.length; i++) {
+                    const angle = rotatePageAngles[i + 1] || 0;
+                    if (angle !== 0) {
+                        const currentRotation = pages[i].getRotation().angle;
+                        // pdf-lib setRotation sets absolute angle. We add the requested rotation to existing.
+                        pages[i].setRotation(PDFLib.degrees(currentRotation + angle));
+                    }
+                }
+
+                const pdfBytes = await pdf.save();
+                const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+                const url = URL.createObjectURL(blob);
+
+                // Get custom filename
+                let customName = document.getElementById('rotate-filename-input').value.trim();
+                if (!customName) customName = "Rotated_Pages";
+                if (!customName.toLowerCase().endsWith('.pdf')) customName += ".pdf";
+
+                document.getElementById('rotate-options').classList.add('hidden');
+                
+                const resultDiv = document.getElementById('rotate-result');
+                const downloadLink = document.getElementById('rotate-download-link');
+                
+                downloadLink.href = url;
+                downloadLink.download = customName;
+                
+                resultDiv.classList.remove('hidden');
+
+            } catch (error) {
+                console.error("Rotate processing error:", error);
+                showMessage("An error occurred while rotating pages.", true);
+            } finally {
+                toggleLoading(false);
+            }
+        }
+
+        function resetRotate() {
+            rotateFileObj = null;
+            rotateMaxPages = 0;
+            rotatePageAngles = {};
+            document.getElementById('rotate-input').value = '';
+            document.getElementById('rotate-filename-input').value = 'Rotated_Pages';
+            document.getElementById('rotate-page-grid').innerHTML = '';
+            document.getElementById('rotate-options').classList.add('hidden');
+            document.getElementById('rotate-result').classList.add('hidden');
+            document.getElementById('rotate-dropzone').classList.remove('hidden');
         }
     </script>
 </body>

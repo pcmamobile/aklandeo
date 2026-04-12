@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DPWH Document Uploader</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
+
+    :root {
+      --bg-gradient: linear-gradient(-45deg, #0f172a, #1e1b4b, #312e81, #0f172a);
+      --glass-bg: rgba(255, 255, 255, 0.05);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      
+      --primary: #3b82f6;
+      --primary-depth: #1d4ed8;
+      --accent: #ec4899;
+      --accent-depth: #be185d;
+      --success: #10b981;
+      --success-depth: #047857;
+      --warning: #f59e0b;
+      --warning-depth: #b45309;
+      --danger: #ef4444;
+      --danger-depth: #b91c1c;
+
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Nunito', sans-serif;
+      background: var(--bg-gradient);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
+
+    /* 3D Button Utility */
+    .btn-3d {
+      border: none;
+      border-radius: 12px;
+      font-weight: 900;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.15s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: white;
+    }
+    .btn-3d:active {
+      transform: translateY(4px) !important;
+      box-shadow: 0 0 0 transparent !important;
+    }
+
+    /* Glassmorphism Containers */
+    .glass-panel {
+      background: var(--glass-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--glass-shadow);
+      border-radius: 16px;
+    }
+
+    /* Navigation */
+    .sticky-nav {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 2px solid rgba(255,255,255,0.05);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    .header {
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .header img {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.1);
+      padding: 4px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+      transform: perspective(500px) rotateY(15deg);
+      transition: 0.3s;
+    }
+    .header img:hover { transform: perspective(500px) rotateY(0deg) scale(1.1); }
+    .header-text h1 { margin: 0; font-size: 24px; font-weight: 900; background: linear-gradient(to right, #60a5fa, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+    .header-text p { margin: 4px 0 0; font-size: 13px; color: var(--text-muted); font-weight: 700;}
+    
+    .toolbarWrap { padding: 0 24px 12px; display: flex; flex-direction: column; gap: 12px; }
+    .toolbarTop { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px;}
+    
+    .upTabs { 
+      display: flex; gap: 10px; overflow-x: auto; flex-wrap: nowrap; 
+      -webkit-overflow-scrolling: touch; padding-bottom: 6px; 
+      scrollbar-width: none; 
+    }
+    .upTabs::-webkit-scrollbar { display: none; }
+    .upTabBtn {
+      flex-shrink: 0;
+      background: rgba(255,255,255,0.05);
+      box-shadow: 0 4px 0 rgba(0,0,0,0.3);
+      padding: 12px 20px;
+      font-size: 13px;
+      border: 1px solid rgba(255,255,255,0.1);
+      color: var(--text-muted);
+    }
+    .upTabBtn:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
+    .upTabBtn.active {
+      background: linear-gradient(135deg, var(--primary), #6366f1);
+      box-shadow: 0 4px 0 var(--primary-depth), 0 10px 20px rgba(59, 130, 246, 0.4);
+      color: white;
+      border-color: transparent;
+      transform: translateY(-2px);
+    }
+
+    .reloadBtnWrap { position: relative; }
+    .reloadBtn {
+      background: linear-gradient(135deg, var(--accent), #f43f5e);
+      box-shadow: 0 4px 0 var(--accent-depth);
+      padding: 12px 24px;
+      font-size: 13px;
+    }
+    .reloadBtn:hover { transform: translateY(-2px); box-shadow: 0 6px 0 var(--accent-depth); filter: brightness(1.1);}
+    
+    .reloadBadge {
+      position: absolute; top: -10px; right: -10px; background: #fbbf24; color: #000; font-size: 10px; font-weight: 900; padding: 4px 10px; border-radius: 12px; display: none; box-shadow: 0 4px 10px rgba(0,0,0,0.4); animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; z-index: 10;
+    }
+    .reloadBadge.show { display: block; }
+    @keyframes pop { 0% { transform: scale(0) rotate(-10deg); } 100% { transform: scale(1) rotate(0deg); } }
+
+    .mobile-filter-toggle { display: none; }
+
+    .filterBar { display: flex; gap: 12px; padding: 12px 24px; background: rgba(0,0,0,0.2); border-top: 1px solid rgba(255,255,255,0.05); align-items: center; flex-wrap: wrap; }
+    
+    .searchBox { display: flex; align-items: center; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 10px 16px; flex: 1; min-width: 250px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5); }
+    .searchBox input { border: none; background: transparent; outline: none; width: 100%; font-size: 14px; color: white; font-weight: bold;}
+    .searchBox input::placeholder { color: #64748b; }
+
+    .dropdown { position: relative; display: inline-block; }
+    .dropdownBtn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 10px 16px; border-radius: 12px; font-size: 13px; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: space-between; min-width: 140px; color: white; box-shadow: 0 4px 0 rgba(0,0,0,0.2); transition: 0.2s;}
+    .dropdownBtn:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px);}
+    .dropdownBtn:active { transform: translateY(2px); box-shadow: 0 0 0 transparent; }
+    
+    .dropdownContent { display: none; position: absolute; background: rgba(30, 41, 59, 0.95); backdrop-filter: blur(10px); min-width: 220px; max-height: 300px; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; z-index: 200; margin-top: 8px; padding: 8px; }
+    .dropdownContent.show { display: block; animation: slideDown 0.2s ease-out; }
+    @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    .dropdownItem { padding: 8px 12px; display: flex; align-items: center; gap: 10px; font-size: 13px; cursor: pointer; border-radius: 8px; color: #cbd5e1; font-weight: bold; transition: 0.2s; }
+    .dropdownItem:hover { background: rgba(255,255,255,0.1); color: white;}
+    .dropdownItem input { cursor: pointer; transform: scale(1.2); }
+
+    .container { max-width: 1500px; margin: 24px auto; padding: 0 24px; }
+    .upTabContent { display: none; animation: fadeIn 0.4s ease; }
+    .upTabContent.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+
+    /* List Layout Styles */
+    .listHeader { display: flex; padding: 16px; background: rgba(0,0,0,0.4); border-radius: 16px 16px 0 0; font-weight: 900; font-size: 12px; color: #94a3b8; text-transform: uppercase; gap: 12px; margin-bottom: 8px; align-items: center; letter-spacing: 1px; border: 1px solid rgba(255,255,255,0.05); border-bottom: none;}
+    .col-id { width: 120px; flex-shrink: 0; }
+    .col-name { flex: 2; min-width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: white;}
+    .col-contr { flex: 1.5; min-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+    .col-amt { width: 130px; flex-shrink: 0; text-align: right; color: #fbbf24; font-family: monospace; font-size: 14px;}
+    .col-pe { width: 140px; flex-shrink: 0; text-align: center; }
+    .col-prog { width: 80px; flex-shrink: 0; text-align: center; color: #38bdf8; font-weight: 900; }
+
+    .upAccordionItem { background: var(--glass-bg); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; margin-bottom: 12px; overflow: hidden; box-shadow: 0 8px 16px rgba(0,0,0,0.2); transition: 0.3s; }
+    .upAccordionItem:hover { border-color: rgba(255,255,255,0.15); transform: translateY(-2px); box-shadow: 0 12px 24px rgba(0,0,0,0.3); }
+    
+    .upAccordionHead { display: flex; padding: 16px; cursor: pointer; font-size: 13px; gap: 12px; align-items: center; transition: background 0.2s; font-weight: bold; background: rgba(0,0,0,0.1);}
+    .upAccordionHead:hover { background: rgba(0,0,0,0.2); }
+    
+    .upBadge { background: linear-gradient(135deg, #1e293b, #0f172a); color: #fff; padding: 6px 10px; border-radius: 8px; font-weight: 900; letter-spacing: 1px; display: inline-block; text-align: center; font-size: 11px; box-shadow: inset 0 2px 4px rgba(255,255,255,0.1), 0 4px 8px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1);}
+    
+    .upAccordionBody { display: none; padding: 16px; background: rgba(0,0,0,0.3); border-top: 1px solid rgba(255,255,255,0.05); }
+    .upAccordionBody.open { display: block; animation: expandIn 0.3s ease; }
+    @keyframes expandIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    
+    .upDocRow { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; margin-bottom: 8px; font-size: 13px; flex-wrap: wrap; gap: 12px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);}
+    .upDocRow:hover { background: rgba(255,255,255,0.06); }
+    
+    /* 3D Action Buttons */
+    .upFileBtn { background: linear-gradient(135deg, var(--success), #34d399); box-shadow: 0 4px 0 var(--success-depth); }
+    .upFileBtn:hover { filter: brightness(1.1); }
+    .upFileBtn:disabled { background: #64748b; box-shadow: 0 4px 0 #334155; cursor: not-allowed; }
+    
+    .upDownloadBtn { background: linear-gradient(135deg, var(--primary), #60a5fa); box-shadow: 0 4px 0 var(--primary-depth); padding: 8px 16px; text-decoration: none;}
+    .upDownloadBtn:hover { filter: brightness(1.1); }
+
+    .approveBtn { background: linear-gradient(135deg, var(--warning), #fbbf24); box-shadow: 0 4px 0 var(--warning-depth); padding: 8px 16px;}
+    .approveBtn:hover { filter: brightness(1.1); }
+
+    .denyBtn { background: linear-gradient(135deg, var(--danger), #f87171); box-shadow: 0 4px 0 var(--danger-depth); padding: 8px 16px;}
+    .denyBtn:hover { filter: brightness(1.1); }
+
+    .empty-state { text-align: center; padding: 60px; color: #64748b; font-size: 20px; font-weight: 900; background: rgba(0,0,0,0.2); border-radius: 16px; border: 2px dashed rgba(255,255,255,0.1); display: flex; flex-direction: column; align-items: center; gap: 16px;}
+
+    /* Progress Loading Overlay */
+    .progOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; z-index: 9999; }
+    .progBox { background: rgba(30, 41, 59, 0.9); border: 1px solid rgba(255,255,255,0.1); padding: 32px; border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 2px 10px rgba(255,255,255,0.1); text-align: center; width: 320px; transform: perspective(1000px) translateZ(50px); animation: floatBox 3s ease-in-out infinite alternate;}
+    @keyframes floatBox { from { transform: translateY(-10px); } to { transform: translateY(10px); } }
+    
+    .progBox h3 { margin: 0 0 16px; color: white; font-size: 20px; font-weight: 900; }
+    .progText { font-size: 14px; color: #38bdf8; margin-bottom: 20px; font-weight: 900; letter-spacing: 1px;}
+    .progBarBg { width: 100%; height: 16px; background: rgba(0,0,0,0.5); border-radius: 16px; overflow: hidden; box-shadow: inset 0 4px 8px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.1); padding: 2px;}
+    .progBarFill { height: 100%; background: linear-gradient(90deg, #10b981, #34d399, #10b981); background-size: 200% 100%; border-radius: 12px; width: 0%; transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1); animation: loadingBar 2s infinite linear; box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);}
+    @keyframes loadingBar { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
+
+    /* Custom Password Modal Overlay */
+    .auth-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 10000; backdrop-filter: blur(8px); }
+    .auth-box { background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(255,255,255,0.1); padding: 32px; border-radius: 20px; width: 360px; box-shadow: 0 25px 50px rgba(0,0,0,0.5), inset 0 2px 10px rgba(255,255,255,0.05); display: flex; flex-direction: column; gap: 20px; transform: scale(0.9); animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+    @keyframes modalPop { to { transform: scale(1); } }
+    .auth-box h3 { margin: 0; color: white; font-size: 22px; display: flex; align-items: center; gap: 10px; font-weight: 900;}
+    .auth-box p { margin: 0; font-size: 14px; color: #94a3b8; font-weight: bold;}
+    .auth-input-group { display: flex; flex-direction: column; gap: 8px; }
+    .auth-input-group label { font-size: 12px; font-weight: 900; color: #cbd5e1; text-transform: uppercase; letter-spacing: 1px;}
+    .auth-box input { padding: 12px 16px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; font-size: 15px; outline: none; transition: 0.3s; width: 100%; box-sizing: border-box; color: white; font-weight: bold;}
+    .auth-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2); }
+    .auth-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 12px; }
+    
+    .auth-cancel-btn { background: rgba(255,255,255,0.1); box-shadow: 0 4px 0 rgba(0,0,0,0.3); padding: 10px 20px; color: white;}
+    .auth-submit-btn { background: linear-gradient(135deg, var(--primary), #6366f1); box-shadow: 0 4px 0 var(--primary-depth); padding: 10px 24px;}
+
+    /* RESPONSIVE DESIGN FOR MOBILE */
+    @media (max-width: 768px) {
+        .hide-mobile { display: none !important; }
+        
+        /* Hide Desktop Headers */
+        .listHeader { display: none; } 
+        
+        /* Container Padding */
+        .container { padding: 0 12px; margin: 16px auto; }
+        
+        /* Header & Nav */
+        .header { padding: 12px; justify-content: center; text-align: center; }
+        .header img { display: none; }
+        .header-text { width: 100%; }
+        .header-text h1 { font-size: 18px; justify-content: center; }
+        .header-text p { font-size: 12px; }
+        
+        .toolbarWrap { padding: 0 12px 12px; }
+        .toolbarTop { flex-direction: column; align-items: stretch; gap: 12px; }
+        .reloadBtnWrap { width: 100%; }
+        .reloadBtn { width: 100%; justify-content: center; }
+        
+        /* Tabs Grid */
+        .upTabs { 
+            display: grid !important; 
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 6px; 
+            width: 100%; 
+            overflow: hidden; 
+            padding-bottom: 0;
+        }
+        .upTabBtn { 
+            width: 100%; 
+            padding: 12px 0; 
+            font-size: 20px; 
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        /* Filter Bar Grid */
+        .mobile-filter-toggle { display: flex; width: 100%; padding: 12px; margin-bottom: 8px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); font-size: 14px; }
+        .filterBar { display: none !important; grid-template-columns: 1fr 1fr; gap: 8px; padding: 12px; border-radius: 12px; }
+        .filterBar.open { display: grid !important; animation: fadeIn 0.3s ease; }
+        .searchBox { grid-column: 1 / -1; width: 100%; box-sizing: border-box; }
+        .dropdown { width: 100%; }
+        .dropdownBtn { width: 100%; justify-content: space-between; box-sizing: border-box; }
+        
+        /* Accordion Head (Card Layout) */
+        .upAccordionItem { border-radius: 16px; }
+        .upAccordionHead { 
+          display: grid; 
+          grid-template-columns: 1fr auto; 
+          grid-template-areas: 
+            "id prog"
+            "name name"
+            "contr contr"
+            "pe amt";
+          gap: 8px; 
+          padding: 16px 12px;
+        }
+        .col-id { grid-area: id; width: 100%; }
+        .col-prog { grid-area: prog; width: 100%; text-align: right; }
+        .col-name { grid-area: name; width: 100%; white-space: normal; font-size: 15px; margin: 2px 0;}
+        .col-contr { grid-area: contr; width: 100%; white-space: normal; font-size: 12px; color: var(--text-muted); }
+        .col-pe { grid-area: pe; width: 100%; text-align: left; font-size: 12px; }
+        .col-amt { grid-area: amt; width: 100%; text-align: right; font-size: 13px; }
+        
+        /* Inner Document Rows */
+        .upAccordionBody { padding: 12px; }
+        .upDocRow { flex-direction: column; align-items: stretch; gap: 12px; padding: 16px 12px; }
+        
+        /* Full Width Action Buttons */
+        .upDocRow > div[style*="flex"] { flex-direction: column; width: 100%; gap: 8px !important; }
+        .upDocRow a.btn-3d, 
+        .upDocRow button.btn-3d, 
+        .upDocRow label.btn-3d { 
+            width: 100%; 
+            box-sizing: border-box; 
+            text-align: center; 
+            justify-content: center; 
+        }
+        
+        /* Modals */
+        .auth-box { width: 90%; padding: 24px; box-sizing: border-box; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="progOverlay" class="progOverlay">
+    <div class="progBox">
+      <h3>🚀 Booting Matrix...</h3>
+      <div id="progText" class="progText">0 / 0 Data Nodes Synced</div>
+      <div class="progBarBg"><div id="progBarFill" class="progBarFill"></div></div>
+    </div>
+  </div>
+
+  <!-- CUSTOM MODAL FOR PASSWORD AND REMARKS -->
+  <div id="authModal" class="auth-overlay">
+    <div class="auth-box">
+      <h3>🔐 Security Override</h3>
+      <p id="authMessage">Authentication required for this protocol.</p>
+      
+      <div class="auth-input-group">
+        <label for="authPassword">🔑 Passcode</label>
+        <input type="password" id="authPassword" placeholder="Enter secure passcode">
+      </div>
+
+      <div class="auth-input-group" id="authRemarksGroup" style="display: none;">
+        <label for="authRemarks">📝 Reason for Rejection</label>
+        <input type="text" id="authRemarks" placeholder="State reason...">
+      </div>
+
+      <div class="auth-actions">
+        <button class="btn-3d auth-cancel-btn" onclick="closeAuthModal()">✖ Cancel</button>
+        <button class="btn-3d auth-submit-btn" onclick="submitAuthModal()">✔ Authorize</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FROZEN TOP NAVIGATION -->
+  <div class="sticky-nav">
+    <div class="header">
+      <img src="https://drive.google.com/thumbnail?id=1yMWBN28rT9vKGmMGxHNrexXVoYfayRTC&sz=s800" alt="Logo" class="hide-mobile">
+      <div class="header-text">
+        <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap; justify-content: inherit;">
+          <h1>✨ Document Uploader</h1>
+          <span id="global-doc-stats" class="hide-mobile" style="background: rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 12px; font-size: 12px; font-weight: 900; letter-spacing: 1px; border: 1px solid rgba(255,255,255,0.2); box-shadow: inset 0 2px 4px rgba(0,0,0,0.5); color: #38bdf8;">📊 0 / 0 Uploaded</span>
+        </div>
+        <p class="hide-mobile">Advanced Project File Matrix & Live Tracking</p>
+      </div>
+    </div>
+
+    <div class="toolbarWrap">
+      <div class="toolbarTop">
+        <div class="upTabs">
+          <button class="btn-3d upTabBtn active" onclick="switchUpTab('pending')">⏳<span class="hide-mobile">&nbsp;Pending</span></button>
+          <button class="btn-3d upTabBtn" onclick="switchUpTab('approval')">🛡️<span class="hide-mobile">&nbsp;Approval</span></button>
+          <button class="btn-3d upTabBtn" onclick="switchUpTab('denied')">❌<span class="hide-mobile">&nbsp;Denied</span></button>
+          <button class="btn-3d upTabBtn" onclick="switchUpTab('uploaded')">✅<span class="hide-mobile">&nbsp;Uploaded</span></button>
+        </div>
+        
+        <div class="reloadBtnWrap hide-mobile">
+          <button class="btn-3d reloadBtn" onclick="forceReload()">🔄 Sync Matrix</button>
+          <span id="reloadBadge" class="reloadBadge">⚡ NEW UPDATES</span>
+        </div>
+      </div>
+
+      <div id="filterWrapper" style="width: 100%; margin-top: 12px;">
+        <button class="btn-3d mobile-filter-toggle" onclick="toggleMobileFilter()">⚙️ Show Filters</button>
+        <div class="filterBar glass-panel" id="filterBar" style="border-radius: 16px;">
+          <div class="searchBox">
+            <span style="font-size: 18px; margin-right: 10px;">🔍</span>
+            <input type="text" id="searchInput" placeholder="Search ID, Project, Contractor..." oninput="applyFilters()">
+          </div>
+
+          <div class="dropdown">
+            <button class="btn-3d dropdownBtn" onclick="toggleDropdown('yearDropdown')">📅 Year ▼</button>
+            <div class="dropdownContent" id="yearDropdown"></div>
+          </div>
+
+          <div class="dropdown">
+            <button class="btn-3d dropdownBtn" onclick="toggleDropdown('peDropdown')">👷 PE ▼</button>
+            <div class="dropdownContent" id="peDropdown"></div>
+          </div>
+          
+          <div class="dropdown">
+            <button class="btn-3d dropdownBtn" onclick="toggleDropdown('reDropdown')">📐 RE ▼</button>
+            <div class="dropdownContent" id="reDropdown"></div>
+          </div>
+          
+          <div class="dropdown">
+            <button class="btn-3d dropdownBtn" onclick="toggleDropdown('qeDropdown')">🔬 QE ▼</button>
+            <div class="dropdownContent" id="qeDropdown"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- END FROZEN TOP NAVIGATION -->
+
+  <div class="container">
+    
+    <!-- PENDING TAB -->
+    <div id="upTab-pending" class="upTabContent active">
+      <div class="listHeader glass-panel">
+        <div class="col-id">Contract ID</div>
+        <div class="col-name">Project Name</div>
+        <div class="col-contr">Contractor</div>
+        <div class="col-amt">Contract Cost</div>
+        <div class="col-pe">PE</div>
+        <div class="col-prog">Docs</div>
+      </div>
+      <div id="pendingList"></div>
+    </div>
+
+    <!-- FOR APPROVAL TAB -->
+    <div id="upTab-approval" class="upTabContent">
+      <div class="listHeader glass-panel">
+        <div class="col-id">Contract ID</div>
+        <div class="col-name">Project Name</div>
+        <div class="col-contr">Contractor</div>
+        <div class="col-amt">Contract Cost</div>
+        <div class="col-pe">PE</div>
+        <div class="col-prog">Docs</div>
+      </div>
+      <div id="approvalList"></div>
+    </div>
+
+    <!-- DENIED TAB -->
+    <div id="upTab-denied" class="upTabContent">
+      <div class="listHeader glass-panel">
+        <div class="col-id">Contract ID</div>
+        <div class="col-name">Project Name</div>
+        <div class="col-contr">Contractor</div>
+        <div class="col-amt">Contract Cost</div>
+        <div class="col-pe">PE</div>
+        <div class="col-prog">Docs</div>
+      </div>
+      <div id="deniedList"></div>
+    </div>
+
+    <!-- UPLOADED TAB -->
+    <div id="upTab-uploaded" class="upTabContent">
+      <div class="listHeader glass-panel">
+        <div class="col-id">Contract ID</div>
+        <div class="col-name">Project Name</div>
+        <div class="col-contr">Contractor</div>
+        <div class="col-amt">Contract Cost</div>
+        <div class="col-pe">PE</div>
+        <div class="col-prog">Docs</div>
+      </div>
+      <div id="uploadedList"></div>
+    </div>
+
+  </div>
+
+  <script>
+    /* ========================================================================= 
+     * CONFIGURATION AND SECURITY CREDENTIALS
+     * 100% Client-Side API interactions using JWT Service Account Signing
+     * ========================================================================= */
+    const SPREADSHEET_ID = "1LSYLZ7tfSeVupQMPsCOHG4SlnzPQqOAIe03QI1qRMr8";
+    const API_KEY = "AIzaSyCz6fNJr3ecn-M2HActqM1aCXbxqRLj2e8";
+    
+    // The Apps Script Web App URL provided for document uploads
+    const UPLOAD_API_URL = "https://script.google.com/macros/s/AKfycbxhb3G0bcXXlPQQ7-jeRxoNdOcxHWfa3pKMmQc5nLnvZxwltI7RVxuw7pWs5r_7vP1FgQ/exec";
+    
+    // Service Account used to dynamically generate a Google OAuth Access Token
+    const SERVICE_ACCOUNT = {
+      "client_email": "pcma-mobile@gold-mode-473811-c6.iam.gserviceaccount.com",
+      "private_key": `-----BEGIN PRIVATE KEY-----
+MIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQC1sEJI1CN6V8mj
+AhBvpiLC7JOEbrFFxsvqbzJjitbDRbyRhbk7prF1NQqAz0OV8l+9/v69UJ3ddGmE
+3Oq4EEqgOmeEpfdSeJeMa+alsc0H+1E2EmWLnhGNv/ot91osgokv7tUG7p/WnGSf
+0IP2bmbbEmQfhganvTCTmhTASHUSK32O+ZmYklYwqs9qptWCFjS3lj+uhaQ2nAFQ
+GCloj6go1aRbQTGxDygwwxtK08v68EuApslm5qs/x08gnj1UEV/FfHDUvUbCswm2
+IRTULJqNoGTYNs4DxbUJClUwcf72xmddbiE/CbOWs1g626obziGNe6/Dq74Ws5IR
+j39h8S57AgMBAAECggEAPUZdDH/TGUM7Iykijuz6Yz/zPmIwkiZKBl4LIewkowXF
+Y1S0lGwTBELnsGp2Uj9ET+kMU5+5JgNJRQBWfs4rxN79o4xvnVZDUh3f0zjkO5Fk
+IbbRnWUpaWN6Bf+aX1GE3/AN00EuEex7uTRTFQzFzpNkxgbm/rI9DEKWRgUJyp7j
+wrbzhTp2cRRrQaPtONZej68dUtkkAsd2rlt3Reht3/NCdmNRTjpRHqiICZvuZuHe
+jebcK/ewVZWqW9XpwVMfjhZeyBnfzNqRElNxF4BtodjmSpw+TkWyPK9obVFEBDG5
+FeRxBk6aTdutNkIN2uXOPFBP7UV4evsD3fiuYMRFvQKBgQDbiMwo80cLbnV7fuq/
+Sr1y2i/mj8XDVX6xOJWDXOhrHNEDcTpYHp5Ey5qQwQhkGOiK/aUJWfWHJGMLM7DY
+7l6nvRe+oX/1inocjKMkiq5TGDvptBv2T9rz0K3LFueFNcxAv7445GgCsFADgYBM
+67reu9QcmT6Uis2nUffzcleGNQKBgQDT3ibtkMmkeDi3sl1uY9PudlZqnCcP11Pi
+QJF4+thJYjN/bYBKA3F4GhRZzEKxW6jjF/mQ/kZDLHJeGI4Y0ETpz76kB4gSO1zc
+lsKZnGBvfug2Oz7/fnPfdpMdSsaFS9AHOHTm7TAiyMuSXciJ1Sy5LxVeELP91cbJ
+BsJtKX+37wKBgQDFKUSB+orxn1Bvivp0tkESpxWh8blgxqWzr+fHRGeP2x90Afqu
+LUFi86BrJJHOo/gk68uObHZv2qQA6XmIOfxUlSSAFjb/ZFBq13ulU89f3UHhj9oV
+Cn7Pvbh3zqg7IKfB9vJ10dv/ni0eGO4LJyJ66yGCVba4XTh5bspKn4QviQKBgQCi
+ud3sWWiGilAFx1k7kDEW1o1JFOZrpFcpT65r3T6CHoqvNMt0DXD5bg5zag9Pabct
+tRxZ4PLWZSzyWKnLJSvI6WbjVWWNm0qXorOUiCcJe8+e16JrWhRlbg1QUj5n4vLE
+mPgw5bwy+0ZgBOgh9TmEgkVHGk0kiS1E+Ywbi+QswQKBgQDOI10/zjkwXOmqHlX7
+7nkuSIG9Kojrt2XWIsecZ9xP4lnIq6oyBUxDLaj3MaSnGeuvJZjDHa7YxqyAZvOO
+PxJ2F55gm4PME6obOldAw8rWdTWmlpG5rm679Q01nupwlC5+rJPqSzW/GpibKjZa
+i2e4E1vAOiqCrUlBSDcvD1r+/g==
+-----END PRIVATE KEY-----`
+    };
+
+    const DOC_TYPES = ["VO1", "VO2", "VO3", "VO4", "VO5", "WSO1", "WRO1", "CWSO1", "WSO2", "WRO2", "CWSO2", "WSO3", "WRO3", "CWSO3", "WSO4", "WRO4", "CWSO4", "CTE1", "CTE2", "CTE3", "CTE4", "CTE5", "CTE6", "CTE7", "CTE8", "CTE9", "CTE10", "CTE11", "CTE12", "CTE13", "CTE14", "CTE15", "CTE16", "CTE17", "CTE18", "CTE19", "CTE20", "FCIR", "COC", "FAIR", "CFA", "PHOTO"];
+    let allProjects = []; 
+    let globalHeaders = [];
+
+    /* ========================================================================= 
+     * JWT SERVICE ACCOUNT SIGNER (Replaces App Script backend needs)
+     * ========================================================================= */
+    async function getAccessToken() {
+      if (window._cachedToken && window._tokenExpiry > Date.now()) {
+        return window._cachedToken;
+      }
+
+      const header = { alg: "RS256", typ: "JWT" };
+      const now = Math.floor(Date.now() / 1000);
+      const claim = {
+        iss: SERVICE_ACCOUNT.client_email,
+        scope: "https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive",
+        aud: "https://oauth2.googleapis.com/token",
+        exp: now + 3600,
+        iat: now
+      };
+
+      const b64url = (str) => btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+      const encHeader = b64url(JSON.stringify(header));
+      const encClaim = b64url(JSON.stringify(claim));
+      const unsignedToken = `${encHeader}.${encClaim}`;
+
+      const pemHeader = "-----BEGIN PRIVATE KEY-----";
+      const pemFooter = "-----END PRIVATE KEY-----";
+      
+      let pemContents = SERVICE_ACCOUNT.private_key.substring(
+        SERVICE_ACCOUNT.private_key.indexOf(pemHeader) + pemHeader.length,
+        SERVICE_ACCOUNT.private_key.indexOf(pemFooter)
+      );
+
+      // Strip literal \n sequences if user pasted raw string, and strip ALL normal whitespace
+      pemContents = pemContents.replace(/\\n/g, '').replace(/\\r/g, '').replace(/[^A-Za-z0-9+/=]/g, '');
+
+      // Padding to nearest multiple of 4 to guarantee 100% stable atob decoding
+      while (pemContents.length % 4 !== 0) {
+        pemContents += '=';
+      }
+
+      const binaryDerString = window.atob(pemContents);
+      const binaryDer = new Uint8Array(binaryDerString.length);
+      for (let i = 0; i < binaryDerString.length; i++) {
+        binaryDer[i] = binaryDerString.charCodeAt(i);
+      }
+
+      const key = await window.crypto.subtle.importKey(
+        "pkcs8",
+        binaryDer.buffer,
+        { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" },
+        false,
+        ["sign"]
+      );
+
+      const signature = await window.crypto.subtle.sign("RSASSA-PKCS1-v1_5", key, new TextEncoder().encode(unsignedToken));
+      const encSignature = b64url(String.fromCharCode(...new Uint8Array(signature)));
+      const jwt = `${unsignedToken}.${encSignature}`;
+
+      const res = await fetch("https://oauth2.googleapis.com/token", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=${jwt}`
+      });
+      const data = await res.json();
+      
+      if (data.access_token) {
+        window._cachedToken = data.access_token;
+        window._tokenExpiry = Date.now() + (data.expires_in * 1000) - 60000;
+        return data.access_token;
+      } else {
+        throw new Error("Failed to authenticate: " + JSON.stringify(data));
+      }
+    }
+
+    /* ========================================================================= 
+     * DIRECT GOOGLE API MANIPULATORS
+     * ========================================================================= */
+    function columnToLetter(column) {
+      let temp, letter = '';
+      while (column > 0) {
+        temp = (column - 1) % 26;
+        letter = String.fromCharCode(temp + 65) + letter;
+        column = (column - temp - 1) / 26;
+      }
+      return letter;
+    }
+
+    async function updateSheetCell(rowNum, colName, newVal) {
+      const token = await getAccessToken();
+      const colIndex = globalHeaders.indexOf(colName.toUpperCase());
+      if (colIndex < 0) throw new Error(`Column "${colName}" not found in sheet headers.`);
+      
+      const colLetter = columnToLetter(colIndex + 1);
+      const range = `UPLOAD!${colLetter}${rowNum}`;
+
+      const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${range}?valueInputOption=USER_ENTERED`, {
+        method: "PUT",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ range: range, majorDimension: "ROWS", values: [[newVal]] })
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error.message);
+      }
+      return true;
+    }
+
+    async function uploadToDrive(base64Data, fileName, contractId) {
+      const res = await fetch(UPLOAD_API_URL, {
+        method: 'POST',
+        body: JSON.stringify({ base64Data, fileName, contractId })
+      });
+      
+      const data = await res.json();
+      if (!data.success) {
+        throw new Error(data.error);
+      }
+      return data.fileId;
+    }
+
+    /* ========================================================================= 
+     * CORE UI LOGIC
+     * ========================================================================= */
+
+    function formatPhp(val) {
+      if (!val) return "-";
+      let s = String(val).replace(/[^0-9.\-]/g, "");
+      let n = Number(s);
+      if (isNaN(n) || n === 0) return "-";
+      return "₱ " + n.toLocaleString("en-US", {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    }
+
+    function toggleMobileFilter() {
+      const fb = document.getElementById('filterBar');
+      const btn = document.querySelector('.mobile-filter-toggle');
+      fb.classList.toggle('open');
+      if (fb.classList.contains('open')) {
+        btn.innerHTML = '✖ Hide Filters';
+      } else {
+        btn.innerHTML = '⚙️ Show Filters';
+      }
+    }
+
+    function switchUpTab(tabId) {
+      document.querySelectorAll('.upTabBtn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.upTabContent').forEach(c => c.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+      document.getElementById("upTab-" + tabId).classList.add('active');
+    }
+
+    function toggleUpAccordion(el) { el.nextElementSibling.classList.toggle('open'); }
+    function toggleDropdown(id) {
+      const el = document.getElementById(id);
+      const isShowing = el.classList.contains('show');
+      document.querySelectorAll('.dropdownContent').forEach(d => d.classList.remove('show'));
+      if (!isShowing) el.classList.add('show');
+    }
+
+    window.onclick = function(event) {
+      if (!event.target.matches('.dropdownBtn')) {
+        document.querySelectorAll('.dropdownContent').forEach(d => d.classList.remove('show'));
+      }
+    }
+
+    document.querySelectorAll('.dropdownContent').forEach(d => {
+      d.addEventListener('click', e => e.stopPropagation());
+    });
+
+    function setProgress(current, total) {
+      document.getElementById('progText').innerText = `${current} / ${total} Data Nodes Synced`;
+      const pct = total === 0 ? 0 : Math.round((current / total) * 100);
+      document.getElementById('progBarFill').style.width = pct + "%";
+    }
+
+    async function loadUploadData() {
+      document.getElementById('progOverlay').style.display = 'flex';
+      setProgress(0, 0);
+
+      try {
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/UPLOAD!A3:ZZ?key=${API_KEY}`;
+        const response = await fetch(url);
+        const json = await response.json();
+        
+        if (!json.values || json.values.length === 0) {
+            throw new Error("No data found in sheet.");
+        }
+
+        globalHeaders = json.values[0].map(h => String(h).trim().toUpperCase());
+        
+        const rows = [];
+        for(let i=1; i<json.values.length; i++) {
+          rows.push({
+            rowNumber: i + 3, // Header is row 3 in sheets
+            values: json.values[i]
+          });
+        }
+        
+        processDataStaggered({ headers: json.values[0], rows: rows });
+
+      } catch (error) {
+        document.getElementById('progOverlay').style.display = 'none';
+        alert("Error loading data matrix via API: " + error.message);
+      }
+    }
+
+    function processDataStaggered(data) {
+      const headers = data.headers.map(h => String(h).trim().toUpperCase());
+      const idxId = headers.indexOf("CONTRACT ID");
+      const idxName = headers.indexOf("PROJECT NAME");
+      const idxContr = headers.indexOf("CONTRACTOR");
+      const idxAmt = headers.indexOf("CONTRACT COST");
+      const idxYear = headers.indexOf("YEAR");
+      
+      const idxPE = headers.findIndex(h => h.includes("PROJECT ENGINEER") || h === "PE");
+      const idxPI = headers.findIndex(h => h.includes("PROJECT INSPECTOR") || h === "PI");
+      const idxRE = headers.findIndex(h => h.includes("RESIDENT ENGINEER") || h === "RE");
+      const idxQE = headers.findIndex(h => h.includes("QUALITY ENGINEER") || h === "QE" || h.includes("MATERIALS ENGINEER"));
+
+      const total = data.rows.length;
+      allProjects = [];
+      let currentIndex = 0;
+      const chunkSize = 25; 
+
+      function processChunk() {
+        const end = Math.min(currentIndex + chunkSize, total);
+        
+        for (; currentIndex < end; currentIndex++) {
+          const row = data.rows[currentIndex];
+          const rVals = row.values;
+          
+          const cid = rVals[idxId] || "Unknown";
+          const pname = rVals[idxName] || "Unknown";
+          const contr = rVals[idxContr] || "Unknown";
+          const amt = formatPhp(rVals[idxAmt]);
+          const year = idxYear >= 0 ? String(rVals[idxYear]).trim() : "Unknown";
+          
+          const pe = idxPE >= 0 ? (rVals[idxPE] || "Unassigned") : "Unassigned";
+          const pi = idxPI >= 0 ? (rVals[idxPI] || "Unassigned") : "Unassigned";
+          const re = idxRE >= 0 ? (rVals[idxRE] || "Unassigned") : "Unassigned";
+          const qe = idxQE >= 0 ? (rVals[idxQE] || "Unassigned") : "Unassigned";
+
+          const pDocs = []; // Pending
+          const aDocs = []; // For Approval
+          const dDocs = []; // Denied
+          const uDocs = []; // Approved/Uploaded
+
+          DOC_TYPES.forEach(doc => {
+            const docIdx = headers.indexOf(doc);
+            const upIdx = headers.indexOf(doc + " UPLOADED");
+
+            if (docIdx >= 0 && String(rVals[docIdx] || "").trim() !== "") {
+              let rawVal = upIdx >= 0 ? String(rVals[upIdx] || "").trim() : "";
+              
+              if (rawVal !== "") {
+                let parts = rawVal.split("|");
+                let fileIdOrUrl = parts[0].trim();
+                let finalUrl = fileIdOrUrl.startsWith("http") ? fileIdOrUrl : "https://drive.google.com/file/d/" + fileIdOrUrl + "/view";
+                
+                if (rawVal.includes("|OK")) {
+                  uDocs.push({ docType: doc, url: finalUrl });
+                } else if (rawVal.includes("|DENIED|")) {
+                  let remarks = rawVal.split("|DENIED|")[1] || "No remarks provided";
+                  dDocs.push({ docType: doc, rowNum: row.rowNumber, remarks: remarks });
+                } else {
+                  aDocs.push({ docType: doc, url: finalUrl, rowNum: row.rowNumber, rawVal: rawVal });
+                }
+              } else {
+                pDocs.push({ docType: doc, rowNum: row.rowNumber });
+              }
+            }
+          });
+
+          if (pDocs.length > 0 || aDocs.length > 0 || dDocs.length > 0 || uDocs.length > 0) {
+            allProjects.push({ cid, pname, contr, amt, year, pe, pi, re, qe, pDocs, aDocs, dDocs, uDocs });
+          }
+        }
+
+        setProgress(currentIndex, total);
+
+        if (currentIndex < total) {
+          requestAnimationFrame(processChunk);
+        } else {
+          setTimeout(() => {
+            document.getElementById('progOverlay').style.display = 'none';
+            buildFilters();
+            applyFilters();
+          }, 300);
+        }
+      }
+      processChunk();
+    }
+
+    // --- FILTERS AND RENDERING LISTS ---
+
+    function buildFilters() {
+      const yearSet = new Set();
+      const peSet = new Set();
+      const reSet = new Set();
+      const qeSet = new Set();
+
+      allProjects.forEach(p => {
+        if(p.year && p.year !== "Unknown") yearSet.add(p.year);
+        if(p.pe && p.pe !== "Unassigned") peSet.add(p.pe);
+        if(p.re && p.re !== "Unassigned") reSet.add(p.re);
+        if(p.qe && p.qe !== "Unassigned") qeSet.add(p.qe);
+      });
+
+      const years = Array.from(yearSet).sort((a, b) => b - a);
+      const yearDropdown = document.getElementById("yearDropdown");
+      yearDropdown.innerHTML = "";
+      
+      years.forEach((yr, i) => {
+        const isChecked = i < 2 ? "checked" : "";
+        yearDropdown.innerHTML += `
+          <label class="dropdownItem">
+            <input type="checkbox" class="year-chk" value="${yr}" ${isChecked} onchange="applyFilters()"> ${yr}
+          </label>`;
+      });
+
+      const pes = Array.from(peSet).sort();
+      const peDropdown = document.getElementById("peDropdown");
+      peDropdown.innerHTML = "";
+      
+      pes.forEach(pe => {
+        peDropdown.innerHTML += `
+          <label class="dropdownItem">
+            <input type="checkbox" class="pe-chk" value="${pe}" onchange="applyFilters()"> ${pe}
+          </label>`;
+      });
+
+      const res = Array.from(reSet).sort();
+      const reDropdown = document.getElementById("reDropdown");
+      reDropdown.innerHTML = "";
+      
+      res.forEach(re => {
+        reDropdown.innerHTML += `
+          <label class="dropdownItem">
+            <input type="checkbox" class="re-chk" value="${re}" onchange="applyFilters()"> ${re}
+          </label>`;
+      });
+
+      const qes = Array.from(qeSet).sort();
+      const qeDropdown = document.getElementById("qeDropdown");
+      qeDropdown.innerHTML = "";
+      
+      qes.forEach(qe => {
+        qeDropdown.innerHTML += `
+          <label class="dropdownItem">
+            <input type="checkbox" class="qe-chk" value="${qe}" onchange="applyFilters()"> ${qe}
+          </label>`;
+      });
+    }
+
+    function applyFilters() {
+      const searchQ = document.getElementById("searchInput").value.toLowerCase();
+      const selectedYears = Array.from(document.querySelectorAll(".year-chk:checked")).map(c => c.value);
+      const selectedPEs = Array.from(document.querySelectorAll(".pe-chk:checked")).map(c => c.value);
+      const selectedREs = Array.from(document.querySelectorAll(".re-chk:checked")).map(c => c.value);
+      const selectedQEs = Array.from(document.querySelectorAll(".qe-chk:checked")).map(c => c.value);
+
+      const filtered = allProjects.filter(p => {
+        const matchSearch = searchQ === "" || 
+                            p.cid.toLowerCase().includes(searchQ) || 
+                            p.pname.toLowerCase().includes(searchQ) || 
+                            p.contr.toLowerCase().includes(searchQ);
+        const matchYear = selectedYears.length === 0 || selectedYears.includes(p.year);
+        const matchPE = selectedPEs.length === 0 || selectedPEs.includes(p.pe);
+        const matchRE = selectedREs.length === 0 || selectedREs.includes(p.re);
+        const matchQE = selectedQEs.length === 0 || selectedQEs.includes(p.qe);
+        return matchSearch && matchYear && matchPE && matchRE && matchQE;
+      });
+
+      renderUI(filtered);
+    }
+
+    function renderUI(projects) {
+      const pList = document.getElementById("pendingList");
+      const aList = document.getElementById("approvalList");
+      const dList = document.getElementById("deniedList");
+      const uList = document.getElementById("uploadedList");
+      
+      let pendingHTML = "";
+      let approvalHTML = "";
+      let deniedHTML = "";
+      let uploadedHTML = "";
+      
+      let yearStats = {};
+
+      projects.forEach(p => {
+        const totalDocs = p.pDocs.length + p.aDocs.length + (p.dDocs ? p.dDocs.length : 0) + p.uDocs.length;
+        const upDocs = p.uDocs.length + p.aDocs.length;
+
+        let y = p.year || "Unknown";
+        if (!yearStats[y]) yearStats[y] = { up: 0, tot: 0 };
+        yearStats[y].up += upDocs;
+        yearStats[y].tot += totalDocs;
+
+        const headHTML = `
+          <div class="col-id"><span class="upBadge">🔑 ${p.cid}</span></div>
+          <div class="col-name" title="${p.pname}">🏗️ ${p.pname}</div>
+          <div class="col-contr" title="${p.contr}">🏢 ${p.contr}</div>
+          <div class="col-amt">💰 ${p.amt}</div>
+          <div class="col-pe">👷 ${p.pe}</div>
+          <div class="col-prog" title="Uploaded / Total Documents">📈 ${upDocs}/${totalDocs}</div>
+        `;
+
+        // Pending
+        if (p.pDocs.length > 0) {
+          const docHtml = p.pDocs.map(d => {
+            if (d.docType === "PHOTO") {
+              return `
+                <div class="upDocRow">
+                  <div style="display:flex; flex-direction:column; gap:4px;">
+                    <span style="font-size: 14px; font-weight: 900;">📸 Upload requirement: <span style="color:#38bdf8;">${d.docType}</span></span>
+                  </div>
+                  <div style="font-size: 12px; font-weight: 900; color: #f87171; background: rgba(239, 68, 68, 0.1); padding: 10px 16px; border-radius: 12px; border: 1px solid rgba(239, 68, 68, 0.2);">
+                    ⚠️ Note: Upload Project Photos in PCMA Mobile App or <a href="https://pcmamobile.github.io/aklandeo" target="_blank" style="color: #60a5fa; text-decoration: none;">pcmamobile.github.io/aklandeo</a>
+                  </div>
+                </div>
+              `;
+            }
+            return `
+              <div class="upDocRow">
+                <div style="display:flex; flex-direction:column; gap:4px;">
+                  <span style="font-size: 14px; font-weight: 900;">📄 Upload requirement: <span style="color:#38bdf8;">${d.docType}</span> <small style="color:#f43f5e">(PDF Only)</small></span>
+                </div>
+                <label class="btn-3d upFileBtn" style="padding: 10px 20px;">
+                  📁 Select PDF
+                  <input type="file" accept=".pdf,application/pdf" style="display:none;" onchange="handleFileUpload(this, '${p.cid}', '${d.docType}', ${d.rowNum})">
+                </label>
+              </div>
+            `;
+          }).join("");
+
+          pendingHTML += `
+            <div class="upAccordionItem">
+              <div class="upAccordionHead" onclick="toggleUpAccordion(this)">${headHTML}</div>
+              <div class="upAccordionBody">${docHtml}</div>
+            </div>`;
+        }
+
+        // For Approval
+        if (p.aDocs.length > 0) {
+          const docHtml = p.aDocs.map(d => `
+            <div class="upDocRow">
+              <span style="font-size: 14px; font-weight: 900;">🛡️ Status: <span style="color:#fbbf24;">${d.docType}</span> is waiting for Admin Approval</span>
+              <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                <a href="${d.url}" target="_blank" class="btn-3d upDownloadBtn">👀 View File</a>
+                <button class="btn-3d approveBtn" onclick="promptApprove(this, ${d.rowNum}, '${d.docType}', '${d.rawVal}')">✔ Approve</button>
+                <button class="btn-3d denyBtn" onclick="promptDeny(this, ${d.rowNum}, '${d.docType}', '${d.rawVal}')">✖ Deny</button>
+              </div>
+            </div>
+          `).join("");
+
+          approvalHTML += `
+            <div class="upAccordionItem">
+              <div class="upAccordionHead" onclick="toggleUpAccordion(this)">${headHTML}</div>
+              <div class="upAccordionBody">${docHtml}</div>
+            </div>`;
+        }
+
+        // Denied 
+        if (p.dDocs && p.dDocs.length > 0) {
+          const docHtml = p.dDocs.map(d => {
+            if (d.docType === "PHOTO") {
+              return `
+                <div class="upDocRow" style="border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.05);">
+                  <div style="display:flex; flex-direction:column; gap:8px;">
+                    <span style="font-size: 14px; font-weight: 900;">📸 Upload requirement: <span style="color:#38bdf8;">${d.docType}</span></span>
+                    <span style="color:#fca5a5; font-weight:900; font-size:12px; background: rgba(239, 68, 68, 0.2); padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.3); display:inline-block;">
+                      ❌ REASON FOR DENIAL: ${d.remarks}
+                    </span>
+                  </div>
+                  <div style="font-size: 12px; font-weight: 900; color: #f87171; background: rgba(239, 68, 68, 0.1); padding: 10px 16px; border-radius: 12px; border: 1px solid rgba(239, 68, 68, 0.2);">
+                    ⚠️ Note: Re-Upload Project Photos in PCMA Mobile App or <a href="https://pcmamobile.github.io/aklandeo" target="_blank" style="color: #60a5fa; text-decoration: none;">pcmamobile.github.io/aklandeo</a>
+                  </div>
+                </div>
+              `;
+            }
+            return `
+              <div class="upDocRow" style="border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.05);">
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                  <span style="font-size: 14px; font-weight: 900;">📄 Upload requirement: <span style="color:#38bdf8;">${d.docType}</span> <small style="color:#f43f5e">(PDF Only)</small></span>
+                  <span style="color:#fca5a5; font-weight:900; font-size:12px; background: rgba(239, 68, 68, 0.2); padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.3); display:inline-block;">
+                    ❌ REASON FOR DENIAL: ${d.remarks}
+                  </span>
+                </div>
+                <label class="btn-3d upFileBtn" style="padding: 10px 20px;">
+                  📁 Re-Upload PDF
+                  <input type="file" accept=".pdf,application/pdf" style="display:none;" onchange="handleFileUpload(this, '${p.cid}', '${d.docType}', ${d.rowNum})">
+                </label>
+              </div>
+            `;
+          }).join("");
+
+          deniedHTML += `
+            <div class="upAccordionItem">
+              <div class="upAccordionHead" onclick="toggleUpAccordion(this)">${headHTML}</div>
+              <div class="upAccordionBody">${docHtml}</div>
+            </div>`;
+        }
+
+        // Uploaded / Approved
+        if (p.uDocs.length > 0) {
+          const docHtml = p.uDocs.map(d => `
+            <div class="upDocRow" style="border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.05);">
+              <span style="font-size: 14px; font-weight: 900;">✅ Status: <span style="color:#10b981;">${d.docType}</span> Approved</span>
+              <a href="${d.url}" target="_blank" class="btn-3d upDownloadBtn" style="background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 0 #047857;">📥 Download</a>
+            </div>
+          `).join("");
+
+          uploadedHTML += `
+            <div class="upAccordionItem">
+              <div class="upAccordionHead" onclick="toggleUpAccordion(this)">${headHTML}</div>
+              <div class="upAccordionBody">${docHtml}</div>
+            </div>`;
+        }
+      });
+      
+      let statsText = Object.keys(yearStats)
+        .sort((a,b) => b.localeCompare(a)) 
+        .map(y => `${y}: ${yearStats[y].up}/${yearStats[y].tot}`)
+        .join(" | ");
+        
+      document.getElementById('global-doc-stats').innerHTML = statsText ? `📊 ${statsText} Matrix Nodes` : `📊 0 / 0 Matrix Nodes`;
+
+      pList.innerHTML = pendingHTML || `<div class="empty-state"><span>📂</span> No pending documents for the selected filters.</div>`;
+      aList.innerHTML = approvalHTML || `<div class="empty-state"><span>🛡️</span> No documents currently waiting for approval.</div>`;
+      dList.innerHTML = deniedHTML || `<div class="empty-state"><span>✅</span> No denied documents for the selected filters.</div>`;
+      uList.innerHTML = uploadedHTML || `<div class="empty-state"><span>🚀</span> No approved documents for the selected filters.</div>`;
+    }
+
+    // --- UPLOAD HANDLER ---
+    async function handleFileUpload(inputElement, contractId, docType, rowNum) {
+      const file = inputElement.files[0];
+      if (!file) return;
+
+      if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
+        alert("Invalid format! Please upload a PDF matrix core.");
+        inputElement.value = "";
+        return;
+      }
+
+      const btn = inputElement.parentElement;
+      btn.innerHTML = `⏳ UPLOADING...`;
+      btn.style.background = "linear-gradient(135deg, #f59e0b, #d97706)";
+      btn.style.boxShadow = "0 4px 0 #b45309";
+      inputElement.disabled = true;
+
+      const reader = new FileReader();
+      reader.onload = async function(e) {
+        const base64Data = e.target.result.split(',')[1];
+        
+        try {
+          const fileId = await uploadToDrive(base64Data, docType + ".pdf", contractId);
+          await updateSheetCell(rowNum, docType + " UPLOADED", fileId);
+
+          btn.innerHTML = `✔ SENT FOR APPROVAL`;
+          btn.style.background = "#64748b";
+          btn.style.boxShadow = "0 4px 0 #334155";
+        } catch(error) {
+          alert("Upload failed: " + error.message);
+          btn.innerHTML = `📁 SELECT PDF`;
+          btn.style.background = "linear-gradient(135deg, var(--success), #34d399)";
+          btn.style.boxShadow = "0 4px 0 var(--success-depth)";
+          inputElement.disabled = false;
+          inputElement.value = "";
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // --- CUSTOM MODAL AUTHENTICATION LOGIC ---
+    let authCallback = null;
+
+    function openAuthModal(message, requireRemarks, callback) {
+      document.getElementById("authMessage").innerText = message;
+      document.getElementById("authPassword").value = "";
+      
+      const remarksGroup = document.getElementById("authRemarksGroup");
+      const remarksInput = document.getElementById("authRemarks");
+      
+      if (requireRemarks) {
+        remarksGroup.style.display = "flex";
+        remarksInput.value = "";
+      } else {
+        remarksGroup.style.display = "none";
+      }
+
+      authCallback = callback;
+      document.getElementById("authModal").style.display = "flex";
+      document.getElementById("authPassword").focus();
+    }
+
+    function closeAuthModal() {
+      document.getElementById("authModal").style.display = "none";
+      authCallback = null;
+    }
+
+    function submitAuthModal() {
+      if (!authCallback) return;
+      
+      const pwd = document.getElementById("authPassword").value;
+      const isRemarksRequired = document.getElementById("authRemarksGroup").style.display === "flex";
+      const remarks = document.getElementById("authRemarks").value;
+
+      if (isRemarksRequired && remarks.trim() === "") {
+        alert("Rejection reason cannot be empty in the matrix.");
+        document.getElementById("authRemarks").focus();
+        return;
+      }
+
+      authCallback(pwd, isRemarksRequired ? remarks : null);
+      closeAuthModal();
+    }
+
+    document.getElementById("authModal").addEventListener("keypress", function(e) {
+      if (e.key === "Enter") submitAuthModal();
+    });
+
+    function promptApprove(btn, rowNum, docType, rawVal) {
+      openAuthModal("Enter security passcode to approve:", false, async function(pwd) {
+        if (pwd === "jps") {
+          btn.innerHTML = `⏳ APPROVING...`;
+          btn.disabled = true;
+
+          try {
+            await updateSheetCell(rowNum, docType + " UPLOADED", rawVal + "|OK");
+            btn.innerHTML = `✔ APPROVED`;
+            btn.style.background = "#64748b";
+            btn.style.boxShadow = "0 4px 0 #334155";
+            if(btn.nextElementSibling) btn.nextElementSibling.style.display = 'none';
+          } catch(error) {
+            alert("Approval Failed: " + error.message);
+            btn.innerHTML = `✔ APPROVE`;
+            btn.disabled = false;
+          }
+        } else {
+          alert("Security Breach! Incorrect passcode.");
+        }
+      });
+    }
+
+    function promptDeny(btn, rowNum, docType, rawVal) {
+      openAuthModal("Enter passcode & remarks to DENY node:", true, async function(pwd, remarks) {
+        if (pwd === "jps") {
+          btn.innerHTML = `⏳ DENYING...`;
+          btn.disabled = true;
+
+          try {
+            await updateSheetCell(rowNum, docType + " UPLOADED", rawVal + "|DENIED|" + remarks);
+            btn.innerHTML = `✖ DENIED`;
+            btn.style.background = "#64748b";
+            btn.style.boxShadow = "0 4px 0 #334155";
+            if(btn.previousElementSibling) btn.previousElementSibling.style.display = 'none';
+          } catch(error) {
+            alert("Denial Failed: " + error.message);
+            btn.innerHTML = `✖ DENY`;
+            btn.disabled = false;
+          }
+        } else {
+          alert("Security Breach! Incorrect passcode.");
+        }
+      });
+    }
+
+    // --- REALTIME UPDATES ---
+    let lastLogCount = -1;
+    let pollInterval;
+
+    function forceReload() {
+      document.getElementById('reloadBadge').classList.remove('show');
+      loadUploadData(); 
+    }
+
+    async function checkServerForUpdates() {
+      try {
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/UPLOAD!A3:A?key=${API_KEY}`;
+        const res = await fetch(url);
+        const json = await res.json();
+        const currentCount = json.values ? json.values.length : 0;
+        
+        if (lastLogCount === -1) {
+          lastLogCount = currentCount;
+        } else if (currentCount > lastLogCount) {
+          document.getElementById('reloadBadge').classList.add('show');
+          lastLogCount = currentCount; 
+        }
+      } catch (e) {
+        console.error("Polling error: ", e);
+      }
+    }
+
+    function startRadar() {
+      checkServerForUpdates();
+      if (pollInterval) clearInterval(pollInterval);
+      pollInterval = setInterval(checkServerForUpdates, 15000);
+    }
+    
+    window.addEventListener('load', startRadar);
+    window.onload = loadUploadData;
+
+  </script>
+</body>
+</html>

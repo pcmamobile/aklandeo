@@ -217,6 +217,7 @@
     .btn-uploadmon { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); --btn-shadow: #d97880; color: #9f1239;}
     .btn-tracker { background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%); --btn-shadow: #a992d1; color: #4c1d95;}
     .btn-leaderboards { background: linear-gradient(135deg, #fccb90 0%, #d57eeb 100%); --btn-shadow: #c28fa4; color: #701a75;}
+    .btn-fileuploader { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); --btn-shadow: #b9aab0; color: #475569;}
     .btn-pcmarev { background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%); --btn-shadow: #61b896; color: #064e3b;}
     .btn-camera { background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); --btn-shadow: #d68f63; color: #9a3412;}
     .btn-mergepdf { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); --btn-shadow: #3b9bcf; color: #082f49;}
@@ -246,10 +247,11 @@
     .btn-tracker .emoji-icon { animation-delay: 0.4s; }
     .btn-uploadmon .emoji-icon { animation-delay: 0.6s; }
     .btn-leaderboards .emoji-icon { animation-delay: 0.8s; }
-    .btn-pcmarev .emoji-icon { animation-delay: 1.0s; }
-    .btn-camera .emoji-icon { animation-delay: 1.2s; }
-    .btn-mergepdf .emoji-icon { animation-delay: 1.4s; }
-    .btn-download .emoji-icon { animation-delay: 1.6s; }
+    .btn-fileuploader .emoji-icon { animation-delay: 1.0s; }
+    .btn-pcmarev .emoji-icon { animation-delay: 1.2s; }
+    .btn-camera .emoji-icon { animation-delay: 1.4s; }
+    .btn-mergepdf .emoji-icon { animation-delay: 1.6s; }
+    .btn-download .emoji-icon { animation-delay: 1.8s; }
 
     @keyframes iconFloat {
       0%, 100% { transform: translateY(0) rotate(0deg); }
@@ -614,9 +616,13 @@
       <span class="emoji-icon">📡</span>
       <span>Monitoring</span>
     </button>
-    <button type="button" class="btn-3d btn-leaderboards" data-src="Leaderboards.html">
+    <button type="button" class="btn-3d btn-leaderboards" onclick="alert('This module is currently under construction.');">
       <span class="emoji-icon">🏆</span>
-      <span>Leaderboards &<br>File Uploader</span>
+      <span>Leaderboards<br><span style="font-size: 0.8em; color: #dc2626; opacity: 1; display: inline-block; margin-top: 2px;">🚧 Under Construction</span></span>
+    </button>
+    <button type="button" class="btn-3d btn-fileuploader" data-src="File Uploader.html">
+      <span class="emoji-icon">📤</span>
+      <span>File Uploader</span>
     </button>
     <button type="button" class="btn-3d btn-pcmarev" data-src="https://script.google.com/macros/s/AKfycbwIpWr1UICDBB-5SSjNZfAzINmNC7cfiGBmKt54jjH0toEDQfFsbu5QTyX36jfF03A02A/exec?fbclid=IwZXh0bgNhZW0CMTEAc3J0YwZhcHBfaWQPNDM3NjI2MzE2OTczNzg4AAEeeARYP2rIEIu-3sqJFJci6nMtpj_jWa0HwX3qVIz7b6EAMxCtTL_ZQbNjYz8_aem_9v6JVRjnUgCaTKIbxzHBTw">
       <span class="emoji-icon">🔄</span>
