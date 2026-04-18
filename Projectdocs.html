@@ -92,6 +92,10 @@
     .pd-card:nth-child(4) { animation-delay: 0.4s; }
 
     /* Pastel Container Colors */
+    #pdContractDatesSection { background: #fdf4ff !important; border-color: #fae8ff !important; }
+    #pdBiddingStageSection { background: #ecfdf5 !important; border-color: #d1fae5 !important; }
+    #pdCompletionStageSection { background: #fffbeb !important; border-color: #fef3c7 !important; }
+    #pdAcceptanceStageSection { background: #f0f9ff !important; border-color: #e0f2fe !important; }
     #pdDescriptionSection { background: #fff7ed !important; border-color: #ffedd5 !important; }
     #pdScurveCard { background: #eff6ff !important; border-color: #dbeafe !important; }
     #pdPcmaSection { background: #f0fdf4 !important; border-color: #dcfce7 !important; }
@@ -264,6 +268,12 @@
         border: 1px solid #fde047; white-space: nowrap !important; display: inline-block; margin: 0 2px;
       }
 
+      /* Simple KV Table Rows (New Added Modules) */
+      .pd-table-kv tr { flex-direction: column; align-items: flex-start; gap: 2px; width: 100%; }
+      .pd-table-kv th { display: block !important; font-size: 10px; color: #64748b; font-weight: 800; text-shadow: none; letter-spacing: 0.5px; width: 100%; padding-bottom: 2px !important; }
+      .pd-table-kv td.pd-remarks-cell { width: 100%; border-top: none !important; margin-top: 0 !important; padding-top: 0 !important; font-size: 12px !important; color: #0f172a !important; font-weight: 700; border-bottom: 1px solid rgba(0,0,0,0.05) !important; padding-bottom: 8px !important; text-align: left !important; }
+      .pd-table-kv tr:last-child td.pd-remarks-cell { border-bottom: none !important; padding-bottom: 0 !important; }
+
       /* 5. Scope of Work */
       .pd-table-description tr { flex-direction: column; align-items: flex-start; gap: 4px; width: 100%; }
       .pd-table-description th { display: block !important; font-size: 10px; color: #64748b; font-weight: 800; text-shadow: none; letter-spacing: 0.5px; width: 100%; }
@@ -412,6 +422,12 @@
       border: 1px solid #fde047; white-space: nowrap !important; display: inline-block; margin: 0 2px;
     }
 
+    /* Key-Value Tables (Contract Dates, Bidding, etc) */
+    .mobile-mode .pd-table-kv tr { flex-direction: column; align-items: flex-start; gap: 2px; width: 100%; }
+    .mobile-mode .pd-table-kv th { display: block !important; font-size: 10px; color: #64748b; font-weight: 800; text-shadow: none; letter-spacing: 0.5px; width: 100%; padding-bottom: 2px !important; }
+    .mobile-mode .pd-table-kv td.pd-remarks-cell { width: 100%; border-top: none !important; margin-top: 0 !important; padding-top: 0 !important; font-size: 12px !important; color: #0f172a !important; font-weight: 700; border-bottom: 1px solid rgba(0,0,0,0.05) !important; padding-bottom: 8px !important; text-align: left !important; }
+    .mobile-mode .pd-table-kv tr:last-child td.pd-remarks-cell { border-bottom: none !important; padding-bottom: 0 !important; }
+
     .mobile-mode .pd-table-description tr { flex-direction: column; align-items: flex-start; gap: 4px; width: 100%; }
     .mobile-mode .pd-table-description th { display: block !important; font-size: 10px; color: #64748b; font-weight: 800; text-shadow: none; letter-spacing: 0.5px; width: 100%; }
     .mobile-mode .pd-table-description td.pd-remarks-cell { width: 100%; border-top: none !important; margin-top: 0 !important; padding-top: 0 !important; font-size: 11px !important; color: #0f172a !important; font-weight: 600; border-bottom: 1px solid #f1f5f9 !important; padding-bottom: 8px !important; text-align: justify !important; }
@@ -518,6 +534,11 @@
     <div class="content-grid">
       <!-- LEFT COLUMN -->
       <div class="col-left">
+        <!-- Contract Dates -->
+        <section id="pdContractDatesSection" class="pd-card"></section>
+        <!-- Bidding Stage -->
+        <section id="pdBiddingStageSection" class="pd-card"></section>
+        
         <!-- Description -->
         <section id="pdDescriptionSection" class="pd-card"></section>
 
@@ -540,6 +561,11 @@
 
       <!-- RIGHT COLUMN -->
       <div class="col-right">
+        <!-- Completion Stage -->
+        <section id="pdCompletionStageSection" class="pd-card"></section>
+        <!-- Acceptance Stage -->
+        <section id="pdAcceptanceStageSection" class="pd-card"></section>
+        
         <!-- Billing -->
         <section id="pdBillingSection" class="pd-card"></section>
         
@@ -821,6 +847,66 @@
       }
     }
 
+    function buildContractDatesInfo(pdoValues, contractId) {
+      const { header, row } = findContractRow(pdoValues, contractId);
+      if (!header || !row) return null;
+      return {
+        cost: row[findFirstExistingColumn(header, ["Contract Cost", "Contract Amount"])] || "-",
+        abc: row[findFirstExistingColumn(header, ["ABC", "Approved Budget for the Contract"])] || "-",
+        variance: row[findFirstExistingColumn(header, ["Variance", "% Variance"])] || "-",
+        ntp: row[findFirstExistingColumn(header, ["NTP", "Notice to Proceed", "Date of NTP"])] || "-",
+        expiry: row[findFirstExistingColumn(header, ["Expiry Date", "Original Expiry", "Original Expiry Date"])] || "-",
+        cd: row[findFirstExistingColumn(header, ["Calendar Days", "CD", "Duration"])] || "-",
+        revExpiry: row[findFirstExistingColumn(header, ["Revised Expiry", "Revised Expiry Date"])] || "-",
+        revCd: row[findFirstExistingColumn(header, ["Revised CD", "Revised Calendar Days"])] || "-"
+      };
+    }
+
+    function buildBiddingStageInfo(dateValues, contractId) {
+      const { header, row } = findContractRow(dateValues, contractId);
+      if (!header || !row) return null;
+      return {
+        posting: row[findFirstExistingColumn(header, ["Date of Posting", "Posting Date"])] || "-",
+        bidOpening: row[findFirstExistingColumn(header, ["Date of Bid opening", "Bid Opening Date", "Date of Bid Opening"])] || "-",
+        award: row[findFirstExistingColumn(header, ["Date of Award", "NOA Date", "Notice of Award"])] || "-",
+        contract: row[findFirstExistingColumn(header, ["Date of Contract", "Contract Date"])] || "-"
+      };
+    }
+
+    function buildCompletionStageInfo(dateValues, contractId) {
+      const { header, row } = findContractRow(dateValues, contractId);
+      if (!header || !row) return null;
+      return {
+        fcir: row[findFirstExistingColumn(header, ["Date of FCIR", "FCIR Date", "FCIR"])] || "-",
+        completion: row[findFirstExistingColumn(header, ["Date of Completion", "Completion Date"])] || "-",
+        coc: row[findFirstExistingColumn(header, ["Date of COC", "COC Date"])] || "-",
+        turnOver: row[findFirstExistingColumn(header, ["Turn-Over", "Turn Over", "Turnover Date"])] || "-"
+      };
+    }
+
+    function buildAcceptanceStageInfo(dateValues, contractId) {
+      const { header, row } = findContractRow(dateValues, contractId);
+      if (!header || !row) return null;
+      let remarksRaw = row[findFirstExistingColumn(header, ["Remarks Yes/No", "Remarks", "Defects"])] || "-";
+      let remarks = remarksRaw;
+      if (remarksRaw.toLowerCase().includes("no")) {
+          remarks = "No Defects";
+      } else if (remarksRaw.toLowerCase().includes("yes")) {
+          let parts = remarksRaw.replace(/yes/ig, '').replace(/^[^a-zA-Z0-9]+/, '').split(/[\n,\|]+/).map(s => s.trim()).filter(s => s.length > 0);
+          if (parts.length > 0) {
+              remarks = parts.map((p, i) => `${i+1}. ${p}`).join(" | ");
+          } else {
+              remarks = "Yes (Defects Noted)";
+          }
+      }
+      return {
+        remarks: remarks,
+        fair: row[findFirstExistingColumn(header, ["Date of FAIR", "FAIR Date", "FAIR"])] || "-",
+        ca: row[findFirstExistingColumn(header, ["Date of CA", "CA Date", "Certificate of Acceptance"])] || "-",
+        insurance: row[findFirstExistingColumn(header, ["Insurance", "Insurance Date", "Warranty"])] || "-"
+      };
+    }
+
     function buildDescriptionInfo(values, contractId) {
       if (!values || !values.length) return null;
       const { header, row } = findContractRow(values, contractId);
@@ -1076,6 +1162,10 @@
 
     // HTML Generators
     const ICONS = {
+      contractDates: `<div class="icon-3d icon-sm bg-purple"><i class="fa-solid fa-calendar-days"></i></div>`,
+      biddingStage: `<div class="icon-3d icon-sm bg-teal"><i class="fa-solid fa-gavel"></i></div>`,
+      completionStage: `<div class="icon-3d icon-sm bg-green"><i class="fa-solid fa-flag-checkered"></i></div>`,
+      acceptanceStage: `<div class="icon-3d icon-sm bg-blue"><i class="fa-solid fa-handshake"></i></div>`,
       description: `<div class="icon-3d icon-sm bg-orange"><i class="fa-solid fa-file-contract"></i></div>`,
       pcma: `<div class="icon-3d icon-sm bg-green"><i class="fa-solid fa-chart-line"></i></div>`,
       billing: `<div class="icon-3d icon-sm bg-yellow"><i class="fa-solid fa-file-invoice-dollar"></i></div>`,
@@ -1083,6 +1173,98 @@
       vo: `<div class="icon-3d icon-sm bg-purple"><i class="fa-solid fa-money-bill-transfer"></i></div>`,
       cte: `<div class="icon-3d icon-sm bg-teal"><i class="fa-solid fa-calendar-plus"></i></div>`
     };
+
+    function renderContractDatesSection(info) {
+      const container = document.getElementById("pdContractDatesSection");
+      if (!container) return;
+      const title = `<h3 class="section-title text-clean-highlight">${ICONS.contractDates} CONTRACT DATES</h3>`;
+      if (!info) {
+        container.innerHTML = title + `<div class='pd-empty'><i class="fa-solid fa-folder-open"></i> No Data Found</div>`;
+        return;
+      }
+      
+      const costStr = info.cost !== "-" ? (info.cost.includes(pesoSvgIcon) ? info.cost : pesoSvgIcon + info.cost.replace("₱", "").trim()) : "-";
+      const abcStr = info.abc !== "-" ? (info.abc.includes(pesoSvgIcon) ? info.abc : pesoSvgIcon + info.abc.replace("₱", "").trim()) : "-";
+      
+      container.innerHTML = title + `
+        <div class='pd-table-wrapper'>
+          <table class='pd-table pd-table-kv'>
+            <tbody>
+              <tr><th class="text-clean-highlight" style="width:40%;">Contract Cost</th><td class='pd-remarks-cell'>${costStr}</td></tr>
+              <tr><th class="text-clean-highlight">ABC</th><td class='pd-remarks-cell'>${abcStr}</td></tr>
+              <tr><th class="text-clean-highlight">Variance</th><td class='pd-remarks-cell'>${info.variance || "-"}</td></tr>
+              <tr><th class="text-clean-highlight">NTP</th><td class='pd-remarks-cell'>${info.ntp || "-"}</td></tr>
+              <tr><th class="text-clean-highlight">Expiry Date</th><td class='pd-remarks-cell'>${info.expiry || "-"}</td></tr>
+              <tr><th class="text-clean-highlight">Calendar Days</th><td class='pd-remarks-cell'>${info.cd || "-"}</td></tr>
+              <tr><th class="text-clean-highlight">Revised Expiry</th><td class='pd-remarks-cell'>${info.revExpiry || "-"}</td></tr>
+              <tr><th class="text-clean-highlight">Revised CD</th><td class='pd-remarks-cell'>${info.revCd || "-"}</td></tr>
+            </tbody>
+          </table>
+        </div>`;
+    }
+
+    function renderBiddingStageSection(info) {
+      const container = document.getElementById("pdBiddingStageSection");
+      if (!container) return;
+      const title = `<h3 class="section-title text-clean-highlight">${ICONS.biddingStage} BIDDING STAGE</h3>`;
+      if (!info) {
+        container.innerHTML = title + `<div class='pd-empty'><i class="fa-solid fa-folder-open"></i> No Data Found</div>`;
+        return;
+      }
+      container.innerHTML = title + `
+        <div class='pd-table-wrapper'>
+          <table class='pd-table pd-table-kv'>
+            <tbody>
+              <tr><th class="text-clean-highlight" style="width:40%;">Date of Posting</th><td class='pd-remarks-cell'>${info.posting || "-"}</td></tr>
+              <tr><th class="text-clean-highlight">Date of Bid opening</th><td class='pd-remarks-cell'>${info.bidOpening || "-"}</td></tr>
+              <tr><th class="text-clean-highlight">Date of Award</th><td class='pd-remarks-cell'>${info.award || "-"}</td></tr>
+              <tr><th class="text-clean-highlight">Date of Contract</th><td class='pd-remarks-cell'>${info.contract || "-"}</td></tr>
+            </tbody>
+          </table>
+        </div>`;
+    }
+
+    function renderCompletionStageSection(info) {
+      const container = document.getElementById("pdCompletionStageSection");
+      if (!container) return;
+      const title = `<h3 class="section-title text-clean-highlight">${ICONS.completionStage} COMPLETION STAGE</h3>`;
+      if (!info) {
+        container.innerHTML = title + `<div class='pd-empty'><i class="fa-solid fa-folder-open"></i> No Data Found</div>`;
+        return;
+      }
+      container.innerHTML = title + `
+        <div class='pd-table-wrapper'>
+          <table class='pd-table pd-table-kv'>
+            <tbody>
+              <tr><th class="text-clean-highlight" style="width:40%;">Date of FCIR</th><td class='pd-remarks-cell'>${info.fcir || "-"}</td></tr>
+              <tr><th class="text-clean-highlight">Date of Completion</th><td class='pd-remarks-cell'>${info.completion || "-"}</td></tr>
+              <tr><th class="text-clean-highlight">Date of COC</th><td class='pd-remarks-cell'>${info.coc || "-"}</td></tr>
+              <tr><th class="text-clean-highlight">Turn-Over</th><td class='pd-remarks-cell'>${info.turnOver || "-"}</td></tr>
+            </tbody>
+          </table>
+        </div>`;
+    }
+
+    function renderAcceptanceStageSection(info) {
+      const container = document.getElementById("pdAcceptanceStageSection");
+      if (!container) return;
+      const title = `<h3 class="section-title text-clean-highlight">${ICONS.acceptanceStage} ACCEPTANCE STAGE</h3>`;
+      if (!info) {
+        container.innerHTML = title + `<div class='pd-empty'><i class="fa-solid fa-folder-open"></i> No Data Found</div>`;
+        return;
+      }
+      container.innerHTML = title + `
+        <div class='pd-table-wrapper'>
+          <table class='pd-table pd-table-kv'>
+            <tbody>
+              <tr><th class="text-clean-highlight" style="width:40%;">Remarks Yes/No</th><td class='pd-remarks-cell'>${info.remarks || "-"}</td></tr>
+              <tr><th class="text-clean-highlight">Date of FAIR</th><td class='pd-remarks-cell'>${info.fair || "-"}</td></tr>
+              <tr><th class="text-clean-highlight">Date of CA</th><td class='pd-remarks-cell'>${info.ca || "-"}</td></tr>
+              <tr><th class="text-clean-highlight">Insurance</th><td class='pd-remarks-cell'>${info.insurance || "-"}</td></tr>
+            </tbody>
+          </table>
+        </div>`;
+    }
 
     function renderDescriptionSection(info) {
       const container = document.getElementById("pdDescriptionSection");
@@ -1450,14 +1632,15 @@
 
     async function loadProjectDocsData(contractId) {
       try {
-        const [appValues, pcmaValues, voValues, wsoValues, billingSheet, descriptionValues, pdoValues] = await Promise.all([
-          fetchValuesSafe("APP"), fetchValuesSafe("PCMA"), fetchValuesSafe("VO"), fetchValuesSafe("WSO/WRO/CTE"), fetchBillingSheetSafe(), fetchValuesSafe("DESCRIPTION"), fetchValuesSafe("PDO")
+        const [appValues, pcmaValues, voValues, wsoValues, billingSheet, descriptionValues, pdoValues, dateValues] = await Promise.all([
+          fetchValuesSafe("APP"), fetchValuesSafe("PCMA"), fetchValuesSafe("VO"), fetchValuesSafe("WSO/WRO/CTE"), fetchBillingSheetSafe(), fetchValuesSafe("DESCRIPTION"), fetchValuesSafe("PDO"), fetchValuesSafe("DATE")
         ]);
         
         try { applyProjectMeta(appValues, contractId); } catch(e){ console.error("Meta parse error", e); }
         try { applyPdoMeta(pdoValues, contractId); } catch(e){ console.error("PDO parse error", e); }
 
         let descriptionInfo = null, pcmaRows = [], pcmaExtraRows = [], voRows = [], wsoRows = [], cteRows = [], billingRows = [];
+        let contractDatesInfo = null, biddingStageInfo = null, completionStageInfo = null, acceptanceStageInfo = null;
 
         try { descriptionInfo = buildDescriptionInfo(descriptionValues, contractId); } catch(e){ console.error("Desc parse error", e); }
         try { pcmaRows = buildPcmaRows(pcmaValues, contractId); } catch(e){ console.error("PCMA parse error", e); }
@@ -1468,7 +1651,16 @@
             wsoRows = res.wsoRows; cteRows = res.cteRows;
         } catch(e){ console.error("WSO/CTE parse error", e); }
         try { billingRows = buildBillingRows(billingSheet, contractId); } catch(e){ console.error("Billing parse error", e); }
+        
+        try { contractDatesInfo = buildContractDatesInfo(pdoValues, contractId); } catch(e){ console.error("Contract Dates parse error", e); }
+        try { biddingStageInfo = buildBiddingStageInfo(dateValues, contractId); } catch(e){ console.error("Bidding Stage parse error", e); }
+        try { completionStageInfo = buildCompletionStageInfo(dateValues, contractId); } catch(e){ console.error("Completion Stage parse error", e); }
+        try { acceptanceStageInfo = buildAcceptanceStageInfo(dateValues, contractId); } catch(e){ console.error("Acceptance Stage parse error", e); }
 
+        try { renderContractDatesSection(contractDatesInfo); } catch(e){ console.error("Render Contract Dates error", e); }
+        try { renderBiddingStageSection(biddingStageInfo); } catch(e){ console.error("Render Bidding Stage error", e); }
+        try { renderCompletionStageSection(completionStageInfo); } catch(e){ console.error("Render Completion Stage error", e); }
+        try { renderAcceptanceStageSection(acceptanceStageInfo); } catch(e){ console.error("Render Acceptance Stage error", e); }
         try { renderDescriptionSection(descriptionInfo); } catch(e){ console.error("Render Desc error", e); }
         try { renderPcmaSection(pcmaRows, pcmaExtraRows); } catch(e){ console.error("Render PCMA error", e); }
         try { renderBillingSection(billingRows); } catch(e){ console.error("Render Billing error", e); }
