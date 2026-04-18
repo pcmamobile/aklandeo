@@ -53,6 +53,19 @@
       letter-spacing: 0.2px;
     }
 
+    /* Highlight Revised Expiry */
+    .highlight-rev-expiry {
+      color: #b91c1c !important; 
+      font-weight: 900 !important; 
+      background: #fef2f2 !important; 
+      padding: 2px 8px !important; 
+      border-radius: 6px !important; 
+      border: 1px solid #fecaca !important; 
+      display: inline-flex !important; 
+      align-items: center; 
+      justify-content: center;
+    }
+
     /* CSS 3D Gold Coin */
     .coin-3d {
       display: inline-flex;
@@ -161,7 +174,6 @@
     
     .pd-empty { text-align: center; padding: 30px 10px; color: #94a3b8; font-weight: 600; font-size: 14px; }
     .pd-empty i { font-size: 30px; margin-bottom: 10px; color: #cbd5e1; display: block; }
-    .pd-error { padding: 16px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; font-size: 14px; color: #b91c1c; font-weight: bold; box-shadow: 0 4px 10px rgba(220,38,38,0.1); }
 
     /* Desktop View Helpers */
     .pd-show-mobile { display: none !important; }
@@ -269,10 +281,10 @@
       }
 
       /* Simple KV Table Rows (New Added Modules) */
-      .pd-table-kv tr { flex-direction: column; align-items: flex-start; gap: 2px; width: 100%; }
-      .pd-table-kv th { display: block !important; font-size: 10px; color: #64748b; font-weight: 800; text-shadow: none; letter-spacing: 0.5px; width: 100%; padding-bottom: 2px !important; }
-      .pd-table-kv td.pd-remarks-cell { width: 100%; border-top: none !important; margin-top: 0 !important; padding-top: 0 !important; font-size: 12px !important; color: #0f172a !important; font-weight: 700; border-bottom: 1px solid rgba(0,0,0,0.05) !important; padding-bottom: 8px !important; text-align: left !important; }
-      .pd-table-kv tr:last-child td.pd-remarks-cell { border-bottom: none !important; padding-bottom: 0 !important; }
+      .pd-table-kv tr { display: flex; flex-direction: row !important; justify-content: space-between; align-items: center; gap: 8px; width: 100%; border: none !important; border-bottom: 1px solid rgba(0,0,0,0.05) !important; padding: 8px 0 !important; background: transparent !important; box-shadow: none !important; border-radius: 0 !important; }
+      .pd-table-kv tr:last-child { border-bottom: none !important; padding-bottom: 0 !important; }
+      .pd-table-kv th { width: auto !important; display: block !important; font-size: 11px !important; color: #64748b !important; font-weight: 800 !important; text-shadow: none !important; letter-spacing: 0.5px !important; padding: 0 !important; border: none !important; background: transparent !important; }
+      .pd-table-kv td.pd-remarks-cell { width: auto !important; flex: 1 !important; border-top: none !important; margin-top: 0 !important; padding-top: 0 !important; font-size: 13px !important; color: #0f172a !important; font-weight: 800 !important; border-bottom: none !important; padding-bottom: 0 !important; text-align: right !important; justify-content: flex-end !important; align-items: center !important; white-space: normal !important; }
 
       /* 5. Scope of Work */
       .pd-table-description tr { flex-direction: column; align-items: flex-start; gap: 4px; width: 100%; }
@@ -422,11 +434,10 @@
       border: 1px solid #fde047; white-space: nowrap !important; display: inline-block; margin: 0 2px;
     }
 
-    /* Key-Value Tables (Contract Dates, Bidding, etc) */
-    .mobile-mode .pd-table-kv tr { flex-direction: column; align-items: flex-start; gap: 2px; width: 100%; }
-    .mobile-mode .pd-table-kv th { display: block !important; font-size: 10px; color: #64748b; font-weight: 800; text-shadow: none; letter-spacing: 0.5px; width: 100%; padding-bottom: 2px !important; }
-    .mobile-mode .pd-table-kv td.pd-remarks-cell { width: 100%; border-top: none !important; margin-top: 0 !important; padding-top: 0 !important; font-size: 12px !important; color: #0f172a !important; font-weight: 700; border-bottom: 1px solid rgba(0,0,0,0.05) !important; padding-bottom: 8px !important; text-align: left !important; }
-    .mobile-mode .pd-table-kv tr:last-child td.pd-remarks-cell { border-bottom: none !important; padding-bottom: 0 !important; }
+    .mobile-mode .pd-table-kv tr { display: flex; flex-direction: row !important; justify-content: space-between; align-items: center; gap: 8px; width: 100%; border: none !important; border-bottom: 1px solid rgba(0,0,0,0.05) !important; padding: 8px 0 !important; background: transparent !important; box-shadow: none !important; border-radius: 0 !important; }
+    .mobile-mode .pd-table-kv tr:last-child { border-bottom: none !important; padding-bottom: 0 !important; }
+    .mobile-mode .pd-table-kv th { width: auto !important; display: block !important; font-size: 11px !important; color: #64748b !important; font-weight: 800 !important; text-shadow: none !important; letter-spacing: 0.5px !important; padding: 0 !important; border: none !important; background: transparent !important; }
+    .mobile-mode .pd-table-kv td.pd-remarks-cell { width: auto !important; flex: 1 !important; border-top: none !important; margin-top: 0 !important; padding-top: 0 !important; font-size: 13px !important; color: #0f172a !important; font-weight: 800 !important; border-bottom: none !important; padding-bottom: 0 !important; text-align: right !important; justify-content: flex-end !important; align-items: center !important; white-space: normal !important; }
 
     .mobile-mode .pd-table-description tr { flex-direction: column; align-items: flex-start; gap: 4px; width: 100%; }
     .mobile-mode .pd-table-description th { display: block !important; font-size: 10px; color: #64748b; font-weight: 800; text-shadow: none; letter-spacing: 0.5px; width: 100%; }
@@ -538,7 +549,11 @@
         <section id="pdContractDatesSection" class="pd-card"></section>
         <!-- Bidding Stage -->
         <section id="pdBiddingStageSection" class="pd-card"></section>
-        
+        <!-- Completion Stage -->
+        <section id="pdCompletionStageSection" class="pd-card"></section>
+        <!-- Acceptance Stage -->
+        <section id="pdAcceptanceStageSection" class="pd-card"></section>
+
         <!-- Description -->
         <section id="pdDescriptionSection" class="pd-card"></section>
 
@@ -561,11 +576,6 @@
 
       <!-- RIGHT COLUMN -->
       <div class="col-right">
-        <!-- Completion Stage -->
-        <section id="pdCompletionStageSection" class="pd-card"></section>
-        <!-- Acceptance Stage -->
-        <section id="pdAcceptanceStageSection" class="pd-card"></section>
-        
         <!-- Billing -->
         <section id="pdBillingSection" class="pd-card"></section>
         
@@ -1179,26 +1189,32 @@
       if (!container) return;
       const title = `<h3 class="section-title text-clean-highlight">${ICONS.contractDates} CONTRACT DATES</h3>`;
       if (!info) {
-        container.innerHTML = title + `<div class='pd-empty'><i class="fa-solid fa-folder-open"></i> No Data Found</div>`;
+        container.innerHTML = title + `<div class='pd-empty'><i class="fa-solid fa-folder-open"></i> No Data Recorded</div>`;
         return;
       }
       
       const costStr = info.cost !== "-" ? (info.cost.includes(pesoSvgIcon) ? info.cost : pesoSvgIcon + info.cost.replace("₱", "").trim()) : "-";
       const abcStr = info.abc !== "-" ? (info.abc.includes(pesoSvgIcon) ? info.abc : pesoSvgIcon + info.abc.replace("₱", "").trim()) : "-";
       
+      let rowsHtml = '';
+      if (costStr !== "-") rowsHtml += `<tr><th class="text-clean-highlight" style="width:40%;">Contract Cost</th><td class='pd-remarks-cell'>${costStr}</td></tr>`;
+      if (abcStr !== "-") rowsHtml += `<tr><th class="text-clean-highlight">ABC</th><td class='pd-remarks-cell'>${abcStr}</td></tr>`;
+      if (info.variance !== "-") rowsHtml += `<tr><th class="text-clean-highlight">Variance</th><td class='pd-remarks-cell'>${info.variance}</td></tr>`;
+      if (info.ntp !== "-") rowsHtml += `<tr><th class="text-clean-highlight">NTP</th><td class='pd-remarks-cell'>${info.ntp}</td></tr>`;
+      if (info.expiry !== "-") rowsHtml += `<tr><th class="text-clean-highlight">Expiry Date</th><td class='pd-remarks-cell'>${info.expiry}</td></tr>`;
+      if (info.cd !== "-") rowsHtml += `<tr><th class="text-clean-highlight">Calendar Days</th><td class='pd-remarks-cell'>${info.cd}</td></tr>`;
+      if (info.revExpiry !== "-") rowsHtml += `<tr><th class="text-clean-highlight">Revised Expiry</th><td class='pd-remarks-cell'><span class='highlight-rev-expiry'>${info.revExpiry}</span></td></tr>`;
+      if (info.revCd !== "-") rowsHtml += `<tr><th class="text-clean-highlight">Revised CD</th><td class='pd-remarks-cell'>${info.revCd}</td></tr>`;
+
+      if (!rowsHtml) {
+          container.innerHTML = title + `<div class='pd-empty'><i class="fa-solid fa-folder-open"></i> No Data Recorded</div>`;
+          return;
+      }
+
       container.innerHTML = title + `
         <div class='pd-table-wrapper'>
           <table class='pd-table pd-table-kv'>
-            <tbody>
-              <tr><th class="text-clean-highlight" style="width:40%;">Contract Cost</th><td class='pd-remarks-cell'>${costStr}</td></tr>
-              <tr><th class="text-clean-highlight">ABC</th><td class='pd-remarks-cell'>${abcStr}</td></tr>
-              <tr><th class="text-clean-highlight">Variance</th><td class='pd-remarks-cell'>${info.variance || "-"}</td></tr>
-              <tr><th class="text-clean-highlight">NTP</th><td class='pd-remarks-cell'>${info.ntp || "-"}</td></tr>
-              <tr><th class="text-clean-highlight">Expiry Date</th><td class='pd-remarks-cell'>${info.expiry || "-"}</td></tr>
-              <tr><th class="text-clean-highlight">Calendar Days</th><td class='pd-remarks-cell'>${info.cd || "-"}</td></tr>
-              <tr><th class="text-clean-highlight">Revised Expiry</th><td class='pd-remarks-cell'>${info.revExpiry || "-"}</td></tr>
-              <tr><th class="text-clean-highlight">Revised CD</th><td class='pd-remarks-cell'>${info.revCd || "-"}</td></tr>
-            </tbody>
+            <tbody>${rowsHtml}</tbody>
           </table>
         </div>`;
     }
@@ -1208,18 +1224,25 @@
       if (!container) return;
       const title = `<h3 class="section-title text-clean-highlight">${ICONS.biddingStage} BIDDING STAGE</h3>`;
       if (!info) {
-        container.innerHTML = title + `<div class='pd-empty'><i class="fa-solid fa-folder-open"></i> No Data Found</div>`;
+        container.innerHTML = title + `<div class='pd-empty'><i class="fa-solid fa-folder-open"></i> No Data Recorded</div>`;
         return;
       }
+      
+      let rowsHtml = '';
+      if (info.posting !== "-") rowsHtml += `<tr><th class="text-clean-highlight" style="width:40%;">Date of Posting</th><td class='pd-remarks-cell'>${info.posting}</td></tr>`;
+      if (info.bidOpening !== "-") rowsHtml += `<tr><th class="text-clean-highlight">Date of Bid opening</th><td class='pd-remarks-cell'>${info.bidOpening}</td></tr>`;
+      if (info.award !== "-") rowsHtml += `<tr><th class="text-clean-highlight">Date of Award</th><td class='pd-remarks-cell'>${info.award}</td></tr>`;
+      if (info.contract !== "-") rowsHtml += `<tr><th class="text-clean-highlight">Date of Contract</th><td class='pd-remarks-cell'>${info.contract}</td></tr>`;
+
+      if (!rowsHtml) {
+          container.innerHTML = title + `<div class='pd-empty'><i class="fa-solid fa-folder-open"></i> No Data Recorded</div>`;
+          return;
+      }
+
       container.innerHTML = title + `
         <div class='pd-table-wrapper'>
           <table class='pd-table pd-table-kv'>
-            <tbody>
-              <tr><th class="text-clean-highlight" style="width:40%;">Date of Posting</th><td class='pd-remarks-cell'>${info.posting || "-"}</td></tr>
-              <tr><th class="text-clean-highlight">Date of Bid opening</th><td class='pd-remarks-cell'>${info.bidOpening || "-"}</td></tr>
-              <tr><th class="text-clean-highlight">Date of Award</th><td class='pd-remarks-cell'>${info.award || "-"}</td></tr>
-              <tr><th class="text-clean-highlight">Date of Contract</th><td class='pd-remarks-cell'>${info.contract || "-"}</td></tr>
-            </tbody>
+            <tbody>${rowsHtml}</tbody>
           </table>
         </div>`;
     }
@@ -1229,18 +1252,25 @@
       if (!container) return;
       const title = `<h3 class="section-title text-clean-highlight">${ICONS.completionStage} COMPLETION STAGE</h3>`;
       if (!info) {
-        container.innerHTML = title + `<div class='pd-empty'><i class="fa-solid fa-folder-open"></i> No Data Found</div>`;
+        container.innerHTML = title + `<div class='pd-empty'><i class="fa-solid fa-folder-open"></i> No Data Recorded</div>`;
         return;
       }
+      
+      let rowsHtml = '';
+      if (info.fcir !== "-") rowsHtml += `<tr><th class="text-clean-highlight" style="width:40%;">Date of FCIR</th><td class='pd-remarks-cell'>${info.fcir}</td></tr>`;
+      if (info.completion !== "-") rowsHtml += `<tr><th class="text-clean-highlight">Date of Completion</th><td class='pd-remarks-cell'>${info.completion}</td></tr>`;
+      if (info.coc !== "-") rowsHtml += `<tr><th class="text-clean-highlight">Date of COC</th><td class='pd-remarks-cell'>${info.coc}</td></tr>`;
+      if (info.turnOver !== "-") rowsHtml += `<tr><th class="text-clean-highlight">Turn-Over</th><td class='pd-remarks-cell'>${info.turnOver}</td></tr>`;
+
+      if (!rowsHtml) {
+          container.innerHTML = title + `<div class='pd-empty'><i class="fa-solid fa-folder-open"></i> No Data Recorded</div>`;
+          return;
+      }
+
       container.innerHTML = title + `
         <div class='pd-table-wrapper'>
           <table class='pd-table pd-table-kv'>
-            <tbody>
-              <tr><th class="text-clean-highlight" style="width:40%;">Date of FCIR</th><td class='pd-remarks-cell'>${info.fcir || "-"}</td></tr>
-              <tr><th class="text-clean-highlight">Date of Completion</th><td class='pd-remarks-cell'>${info.completion || "-"}</td></tr>
-              <tr><th class="text-clean-highlight">Date of COC</th><td class='pd-remarks-cell'>${info.coc || "-"}</td></tr>
-              <tr><th class="text-clean-highlight">Turn-Over</th><td class='pd-remarks-cell'>${info.turnOver || "-"}</td></tr>
-            </tbody>
+            <tbody>${rowsHtml}</tbody>
           </table>
         </div>`;
     }
@@ -1250,18 +1280,25 @@
       if (!container) return;
       const title = `<h3 class="section-title text-clean-highlight">${ICONS.acceptanceStage} ACCEPTANCE STAGE</h3>`;
       if (!info) {
-        container.innerHTML = title + `<div class='pd-empty'><i class="fa-solid fa-folder-open"></i> No Data Found</div>`;
+        container.innerHTML = title + `<div class='pd-empty'><i class="fa-solid fa-folder-open"></i> No Data Recorded</div>`;
         return;
       }
+      
+      let rowsHtml = '';
+      if (info.remarks !== "-") rowsHtml += `<tr><th class="text-clean-highlight" style="width:40%;">Remarks</th><td class='pd-remarks-cell'>${info.remarks}</td></tr>`;
+      if (info.fair !== "-") rowsHtml += `<tr><th class="text-clean-highlight">Date of FAIR</th><td class='pd-remarks-cell'>${info.fair}</td></tr>`;
+      if (info.ca !== "-") rowsHtml += `<tr><th class="text-clean-highlight">Date of CA</th><td class='pd-remarks-cell'>${info.ca}</td></tr>`;
+      if (info.insurance !== "-") rowsHtml += `<tr><th class="text-clean-highlight">Insurance</th><td class='pd-remarks-cell'>${info.insurance}</td></tr>`;
+
+      if (!rowsHtml) {
+          container.innerHTML = title + `<div class='pd-empty'><i class="fa-solid fa-folder-open"></i> No Data Recorded</div>`;
+          return;
+      }
+
       container.innerHTML = title + `
         <div class='pd-table-wrapper'>
           <table class='pd-table pd-table-kv'>
-            <tbody>
-              <tr><th class="text-clean-highlight" style="width:40%;">Remarks Yes/No</th><td class='pd-remarks-cell'>${info.remarks || "-"}</td></tr>
-              <tr><th class="text-clean-highlight">Date of FAIR</th><td class='pd-remarks-cell'>${info.fair || "-"}</td></tr>
-              <tr><th class="text-clean-highlight">Date of CA</th><td class='pd-remarks-cell'>${info.ca || "-"}</td></tr>
-              <tr><th class="text-clean-highlight">Insurance</th><td class='pd-remarks-cell'>${info.insurance || "-"}</td></tr>
-            </tbody>
+            <tbody>${rowsHtml}</tbody>
           </table>
         </div>`;
     }
