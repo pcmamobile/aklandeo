@@ -3,12 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Dashboard 3D - Pure HTML REST API Edition</title>
+    <title>Project Dashboard 3D - Pastel API Edition</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
-            darkMode: 'class'
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Nunito', 'sans-serif'],
+                    }
+                }
+            }
         }
     </script>
     <!-- Lucide Icons -->
@@ -21,39 +28,59 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
-    <!-- SAFE TAILWIND CUSTOM CLASSES -->
+    <!-- SAFE TAILWIND CUSTOM CLASSES mapped for Pastel Dark Mode -->
     <style type="text/tailwindcss">
         .glass-panel {
-            @apply bg-white/70 dark:bg-black/30 backdrop-blur-xl border border-white/60 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.4)];
+            @apply bg-white/70 dark:bg-[#dbeafe]/80 backdrop-blur-xl border border-white/60 dark:border-[#93c5fd] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_32px_rgba(30,58,138,0.1)];
         }
         .btn-3d {
-            @apply transform hover:-translate-y-0.5 active:translate-y-0.5 transition-all shadow-[0_4px_14px_0_rgb(0,0,0,0.15)] hover:shadow-[0_6px_20px_rgba(99,102,241,0.4)];
+            @apply transform hover:-translate-y-0.5 active:translate-y-0.5 transition-all shadow-[0_4px_14px_0_rgb(0,0,0,0.15)] hover:shadow-[0_6px_20px_rgba(99,102,241,0.4)] dark:shadow-[0_4px_14px_0_rgba(234,88,12,0.15)] dark:hover:shadow-[0_6px_20px_rgba(234,88,12,0.4)];
         }
         .btn-3d-danger {
             @apply transform hover:-translate-y-0.5 active:translate-y-0.5 transition-all shadow-[0_4px_14px_0_rgb(0,0,0,0.1)] hover:shadow-[0_6px_20px_rgba(244,63,94,0.4)];
         }
         .input-field {
-            @apply px-3 py-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-black/40 shadow-[inset_0_2px_4px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_2px_6px_rgba(0,0,0,0.5)] text-slate-800 dark:text-slate-100 text-sm font-semibold focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:bg-white dark:focus:bg-black/60 outline-none transition-all;
+            @apply px-3 py-2.5 rounded-xl border border-slate-200 dark:border-[#93c5fd] bg-slate-50/50 dark:bg-white/60 shadow-[inset_0_2px_4px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_2px_4px_rgba(30,58,138,0.05)] text-slate-800 dark:text-[#1e3a8a] text-sm font-semibold focus:ring-2 focus:ring-indigo-500 dark:focus:ring-[#ea580c] focus:border-indigo-500 dark:focus:border-[#ea580c] focus:bg-white dark:focus:bg-white outline-none transition-all;
         }
         .input-label {
-            @apply flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest mb-1.5 pl-1;
+            @apply flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest mb-1.5 pl-1 dark:text-[#ea580c];
         }
     </style>
 
     <!-- STANDARD CSS & FLATPICKR 3D GLASS THEME -->
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
+        
         :root { --brightness: 100%; }
         body { 
             filter: brightness(var(--brightness)); 
             transition: filter 0.3s ease, background-color 0.5s ease; 
+        }
+
+        /* Animated Background overriding Tailwind Body exclusively for Dark(Pastel) Mode */
+        body.dark {
+            background: linear-gradient(-45deg, #dbeafe, #ffedd5, #bfdbfe, #fed7aa) !important;
+            background-size: 400% 400% !important;
+            animation: gradientBG 15s ease infinite !important;
+            color: #1e3a8a !important;
+        }
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .dark.modal-overlay, .dark .modal-overlay {
+            background: rgba(219, 234, 254, 0.85) !important;
         }
         
         /* Smooth Custom Scrollbar */
         .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #a5b4fc; border-radius: 4px; }
-        .dark .custom-scrollbar::-webkit-scrollbar-thumb { background-color: rgba(79, 70, 229, 0.8); }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #93c5fd; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: #818cf8; }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: #3b82f6; }
         
         .dropdown-content { display: none; position: absolute; z-index: 50; max-height: 300px; overflow-y: auto; width: 100%; border-radius: 0.75rem; margin-top: 0.5rem; }
         .dropdown-content.show { display: block; animation: slideUp 0.2s ease-out; }
@@ -73,10 +100,9 @@
                 inset 1px 1px 2px rgba(255, 255, 255, 0.5);
         }
         .dark .box-3d {
-            box-shadow: 
-                20px 20px 60px rgba(0, 0, 0, 0.6), 
-                -20px -20px 60px rgba(255, 255, 255, 0.03),
-                inset 1px 1px 2px rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px rgba(234, 88, 12, 0.2), inset 1px 1px 2px rgba(255, 255, 255, 0.8) !important;
+            border: 2px solid #fdba74 !important;
+            background: #ffedd5 !important;
         }
 
         /* -------------------------------------------
@@ -93,15 +119,20 @@
             font-family: inherit !important;
         }
         .dark .flatpickr-calendar {
-            background: rgba(15, 23, 42, 0.85) !important;
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255,255,255,0.05) !important;
+            background: rgba(219, 234, 254, 0.95) !important;
+            border: 2px solid #93c5fd !important;
+            box-shadow: 0 8px 32px rgba(30, 58, 138, 0.15) !important;
         }
         .flatpickr-day.selected {
             background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%) !important;
             border: none !important;
             box-shadow: 0 4px 10px rgba(99, 102, 241, 0.4) !important;
             font-weight: bold !important;
+        }
+        .dark .flatpickr-day.selected {
+            background: #3b82f6 !important;
+            color: white !important;
+            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.4) !important;
         }
         .flatpickr-months .flatpickr-month,
         .flatpickr-current-month .flatpickr-monthDropdown-months,
@@ -112,7 +143,7 @@
         .dark .flatpickr-months .flatpickr-month,
         .dark .flatpickr-current-month .flatpickr-monthDropdown-months,
         .dark .flatpickr-current-month input.cur-year {
-            color: #818cf8 !important;
+            color: #ea580c !important;
         }
         .flatpickr-day {
             color: #334155 !important;
@@ -121,21 +152,21 @@
             transition: all 0.2s ease !important;
         }
         .dark .flatpickr-day {
-            color: #cbd5e1 !important;
+            color: #1e3a8a !important;
         }
         .flatpickr-day:hover {
             background: rgba(99, 102, 241, 0.1) !important;
             color: #4f46e5 !important;
         }
         .dark .flatpickr-day:hover {
-            background: rgba(99, 102, 241, 0.2) !important;
-            color: #818cf8 !important;
+            background: rgba(147, 197, 253, 0.5) !important;
+            color: #3b82f6 !important;
         }
         .flatpickr-day.flatpickr-disabled, .flatpickr-day.prevMonthDay, .flatpickr-day.nextMonthDay {
             color: #94a3b8 !important;
         }
         .dark .flatpickr-day.flatpickr-disabled, .dark .flatpickr-day.prevMonthDay, .dark .flatpickr-day.nextMonthDay {
-            color: #475569 !important;
+            color: #93c5fd !important;
         }
         span.flatpickr-weekday {
             color: #64748b !important;
@@ -171,18 +202,18 @@
         .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
     </style>
 </head>
-<body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-200 font-sans min-h-screen relative overflow-x-hidden transition-colors duration-500">
+<body class="bg-slate-100 dark:bg-transparent text-slate-800 dark:text-[#1e3a8a] font-['Nunito'] min-h-screen relative overflow-x-hidden transition-colors duration-500">
 
-    <!-- Ambient 3D Animated Background -->
-    <div class="fixed inset-0 overflow-hidden pointer-events-none z-[-1]">
-        <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-purple-400/30 dark:bg-purple-600/30 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
-        <div class="absolute top-[20%] right-[-10%] w-96 h-96 bg-indigo-400/30 dark:bg-indigo-600/30 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob" style="animation-delay: 2s;"></div>
-        <div class="absolute -bottom-32 left-[20%] w-96 h-96 bg-pink-400/30 dark:bg-pink-600/30 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob" style="animation-delay: 4s;"></div>
+    <!-- Ambient 3D Animated Background (Hidden in Dark Mode to reveal the body gradient) -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none z-[-1] dark:opacity-0 transition-opacity duration-500">
+        <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-purple-400/30 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
+        <div class="absolute top-[20%] right-[-10%] w-96 h-96 bg-indigo-400/30 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob" style="animation-delay: 2s;"></div>
+        <div class="absolute -bottom-32 left-[20%] w-96 h-96 bg-pink-400/30 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob" style="animation-delay: 4s;"></div>
     </div>
 
     <!-- LOGIN PORTAL 3D -->
-    <div id="loginPortal" class="fixed inset-0 z-[200] flex items-center justify-center bg-slate-100/50 dark:bg-black/60 backdrop-blur-md transition-opacity duration-500">
-        <div class="box-3d bg-white/90 dark:bg-slate-900/80 backdrop-blur-2xl p-8 sm:p-10 rounded-[2rem] w-full max-w-md border border-white/60 dark:border-white/10 relative overflow-hidden transform transition-transform duration-500 hover:scale-[1.01]">
+    <div id="loginPortal" class="fixed inset-0 z-[200] flex items-center justify-center bg-slate-100/50 dark:bg-transparent backdrop-blur-md transition-opacity duration-500">
+        <div class="box-3d bg-white/90 backdrop-blur-2xl p-8 sm:p-10 rounded-[2rem] w-full max-w-md border border-white/60 relative overflow-hidden transform transition-transform duration-500 hover:scale-[1.01]">
             <i data-lucide="shield" class="absolute -bottom-10 -right-10 w-48 h-48 text-indigo-500/10 rotate-12 pointer-events-none"></i>
             <i data-lucide="lock" class="absolute -top-10 -left-10 w-32 h-32 text-indigo-500/10 -rotate-12 pointer-events-none"></i>
             
@@ -190,13 +221,13 @@
                 <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-2xl shadow-xl shadow-indigo-500/40 mb-5 transform hover:-translate-y-1 transition-transform rotate-3">
                     <i data-lucide="layers" class="w-10 h-10 text-white -rotate-3"></i>
                 </div>
-                <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400">DASHBOARD</h1>
-                <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-2 flex items-center justify-center gap-1.5"><i data-lucide="fingerprint" class="w-3 h-3"></i> Secure Access</p>
+                <h1 class="text-3xl font-black text-slate-900 dark:text-[#1e3a8a] tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-[#3b82f6] dark:to-[#ea580c]">DASHBOARD</h1>
+                <p class="text-xs font-bold text-slate-500 dark:text-[#ea580c] uppercase tracking-widest mt-2 flex items-center justify-center gap-1.5"><i data-lucide="fingerprint" class="w-3 h-3"></i> Secure Access</p>
             </div>
 
             <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-6 relative z-10">
                 <div class="flex flex-col gap-1.5 relative group">
-                    <label class="input-label text-indigo-600 dark:text-indigo-400 ml-1"><i data-lucide="user" class="w-3.5 h-3.5"></i> Username</label>
+                    <label class="input-label text-indigo-600 dark:text-[#ea580c] ml-1"><i data-lucide="user" class="w-3.5 h-3.5"></i> Username</label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                             <div class="w-2 h-2 rounded-full bg-indigo-400 animate-pulse"></div>
@@ -206,7 +237,7 @@
                 </div>
 
                 <div class="flex flex-col gap-1.5 relative group">
-                    <label class="input-label text-indigo-600 dark:text-indigo-400 ml-1"><i data-lucide="key-round" class="w-3.5 h-3.5"></i> Password</label>
+                    <label class="input-label text-indigo-600 dark:text-[#ea580c] ml-1"><i data-lucide="key-round" class="w-3.5 h-3.5"></i> Password</label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                             <div class="w-2 h-2 rounded-full bg-purple-400 animate-pulse" style="animation-delay: 1s;"></div>
@@ -218,7 +249,7 @@
                     </div>
                 </div>
 
-                <div id="loginError" class="hidden flex items-center gap-2 text-rose-500 text-xs font-bold bg-rose-50 dark:bg-rose-950/80 p-3 rounded-xl border border-rose-200 dark:border-rose-900 shadow-inner">
+                <div id="loginError" class="hidden flex items-center gap-2 text-rose-500 text-xs font-bold bg-rose-50 dark:bg-[#fed7aa] p-3 rounded-xl border border-rose-200 dark:border-[#fb923c] shadow-inner">
                     <i data-lucide="alert-octagon" class="w-5 h-5 shrink-0 animate-bounce"></i>
                     <span id="loginErrorText">Invalid Credentials.</span>
                 </div>
@@ -229,7 +260,7 @@
             </form>
 
             <div class="mt-8 text-center">
-                <span id="loginStatus" class="inline-flex items-center gap-2 text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-widest bg-amber-100 dark:bg-amber-900/60 px-4 py-1.5 rounded-full border border-amber-200 dark:border-amber-700 shadow-sm transition-colors duration-300">
+                <span id="loginStatus" class="inline-flex items-center gap-2 text-[10px] font-bold text-amber-600 dark:text-[#d97706] uppercase tracking-widest bg-amber-100 dark:bg-[#fef3c7] px-4 py-1.5 rounded-full border border-amber-200 dark:border-[#fcd34d] shadow-sm transition-colors duration-300">
                     <i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i> Initializing App...
                 </span>
             </div>
@@ -240,7 +271,7 @@
     <div id="appWrapper" class="hidden flex-col min-h-screen relative z-10 animate-fade-in">
         
         <!-- Header 3D Glassy -->
-        <header class="glass-panel sticky top-0 z-[60] mb-6 border-b">
+        <header class="glass-panel sticky top-0 z-[60] mb-6 border-b dark:border-[#93c5fd]">
             <div class="w-full max-w-[98%] mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col gap-3">
                 <!-- TOP ROW: Logo & Action Buttons -->
                 <div class="flex items-center justify-between">
@@ -249,19 +280,19 @@
                             <i data-lucide="blocks" class="w-7 h-7 text-white"></i>
                         </div>
                         <div>
-                            <h1 class="font-extrabold text-2xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400">Dashboard</h1>
-                            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1"><i data-lucide="activity" class="w-3 h-3 text-emerald-500"></i> Live Sync</p>
+                            <h1 class="font-extrabold text-2xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-[#3b82f6] dark:to-[#ea580c]">Dashboard</h1>
+                            <p class="text-[10px] font-bold text-slate-500 dark:text-[#ea580c] uppercase tracking-widest flex items-center gap-1"><i data-lucide="activity" class="w-3 h-3 text-emerald-500"></i> Live Sync</p>
                         </div>
                     </div>
 
                     <div class="flex items-center gap-3">
                         <!-- USER PROFILE & LOGOUT -->
-                        <div class="flex items-center gap-3 border-r border-slate-300 dark:border-white/10 pr-4 mr-1">
-                            <div class="hidden sm:flex items-center gap-2 bg-white/50 dark:bg-black/20 px-3 py-1.5 rounded-full border border-slate-200 dark:border-white/5 shadow-inner">
+                        <div class="flex items-center gap-3 border-r border-slate-300 dark:border-[#93c5fd] pr-4 mr-1">
+                            <div class="hidden sm:flex items-center gap-2 bg-white/50 dark:bg-white/40 px-3 py-1.5 rounded-full border border-slate-200 dark:border-white/50 shadow-inner">
                                 <div class="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shadow-sm">
                                     <i data-lucide="user" class="w-3.5 h-3.5 text-white"></i>
                                 </div>
-                                <span id="headerUsernameDisplay" class="text-xs font-bold text-slate-700 dark:text-slate-200">Welcome</span>
+                                <span id="headerUsernameDisplay" class="text-xs font-bold text-slate-700 dark:text-[#1e3a8a]">Welcome</span>
                             </div>
                             <button onclick="handleLogout()" class="btn-3d-danger flex items-center gap-1.5 px-3 py-2 bg-gradient-to-br from-rose-500 to-red-600 text-white rounded-xl text-xs font-bold focus:outline-none">
                                 <i data-lucide="power" class="w-4 h-4"></i> <span class="hidden sm:inline">Logout</span>
@@ -269,14 +300,14 @@
                         </div>
 
                         <!-- Change Password Button -->
-                        <button onclick="openChangePasswordModal()" class="btn-3d flex items-center gap-1.5 px-3 py-2 bg-white/80 dark:bg-black/40 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold border border-slate-200 dark:border-white/10 shadow-sm focus:outline-none">
+                        <button onclick="openChangePasswordModal()" class="btn-3d flex items-center gap-1.5 px-3 py-2 bg-white/80 dark:bg-[#dbeafe]/80 text-slate-700 dark:text-[#1e3a8a] rounded-xl text-xs font-bold border border-slate-200 dark:border-[#93c5fd] shadow-sm focus:outline-none">
                             <i data-lucide="shield-check" class="w-4 h-4 text-indigo-500"></i> <span class="hidden xl:inline">Account</span>
                         </button>
 
                         <!-- Theme Color Selector -->
-                        <div class="flex items-center gap-2 bg-white/80 dark:bg-black/40 px-3 py-2 rounded-xl border border-slate-200 dark:border-white/10 shadow-sm hidden lg:flex">
+                        <div class="flex items-center gap-2 bg-white/80 dark:bg-[#dbeafe]/80 px-3 py-2 rounded-xl border border-slate-200 dark:border-[#93c5fd] shadow-sm hidden lg:flex">
                             <i data-lucide="palette" class="w-4 h-4 text-indigo-500"></i>
-                            <select onchange="changeThemeColor(this.value)" class="bg-transparent border-none text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none cursor-pointer appearance-none text-center">
+                            <select onchange="changeThemeColor(this.value)" class="bg-transparent border-none text-xs font-bold text-slate-700 dark:text-[#1e3a8a] focus:outline-none cursor-pointer appearance-none text-center">
                                 <option value="Default">Default Theme</option>
                                 <option value="Orange">Sunset Orange</option>
                                 <option value="Blue">Ocean Blue</option>
@@ -290,7 +321,7 @@
                         </div>
 
                         <!-- Night Mode -->
-                        <button id="themeToggleBtn" onclick="toggleDarkMode()" class="btn-3d p-2 rounded-xl bg-white/80 dark:bg-black/40 border border-slate-200 dark:border-white/10 shadow-sm focus:outline-none">
+                        <button id="themeToggleBtn" onclick="toggleDarkMode()" class="btn-3d p-2 rounded-xl bg-white/80 dark:bg-[#dbeafe]/80 border border-slate-200 dark:border-[#93c5fd] shadow-sm focus:outline-none">
                             <i data-lucide="sun" class="w-5 h-5 text-amber-400"></i>
                         </button>
 
@@ -302,7 +333,7 @@
                 </div>
 
                 <!-- BOTTOM ROW: Filters & Record Count -->
-                <div class="flex items-center justify-between gap-6 border-t border-slate-200/50 dark:border-slate-700/50 pt-3">
+                <div class="flex items-center justify-between gap-6 border-t border-slate-200/50 dark:border-[#93c5fd]/50 pt-3">
                     <div class="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                         <div class="relative w-full group">
                             <div class="relative">
@@ -320,26 +351,26 @@
 
                         <!-- Contractor -->
                         <div class="relative filter-container w-full">
-                            <button type="button" onclick="toggleDropdown('contractorDropdown')" class="input-field w-full h-10 flex justify-between items-center text-xs text-slate-700 dark:text-slate-200 cursor-pointer">
+                            <button type="button" onclick="toggleDropdown('contractorDropdown')" class="input-field w-full h-10 flex justify-between items-center text-xs text-slate-700 dark:text-[#1e3a8a] cursor-pointer">
                                 <span class="flex items-center gap-2 truncate"><i data-lucide="hard-hat" class="w-3.5 h-3.5 text-indigo-500"></i> <span id="contractorLabel">Select Contractors...</span></span>
                                 <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
                             </button>
-                            <div id="contractorDropdown" class="dropdown-content glass-panel mt-2"></div>
+                            <div id="contractorDropdown" class="dropdown-content glass-panel mt-2 dark:bg-[#dbeafe]"></div>
                         </div>
 
                         <!-- Project Engineer (PE) -->
                         <div class="relative filter-container w-full">
-                            <button type="button" onclick="toggleDropdown('peDropdown')" class="input-field w-full h-10 flex justify-between items-center text-xs text-slate-700 dark:text-slate-200 cursor-pointer">
+                            <button type="button" onclick="toggleDropdown('peDropdown')" class="input-field w-full h-10 flex justify-between items-center text-xs text-slate-700 dark:text-[#1e3a8a] cursor-pointer">
                                 <span class="flex items-center gap-2 truncate"><i data-lucide="user-check" class="w-3.5 h-3.5 text-indigo-500"></i> <span id="peLabel">Select PEs...</span></span>
                                 <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
                             </button>
-                            <div id="peDropdown" class="dropdown-content glass-panel mt-2"></div>
+                            <div id="peDropdown" class="dropdown-content glass-panel mt-2 dark:bg-[#dbeafe]"></div>
                         </div>
                     </div>
 
                     <!-- Record Badge -->
                     <div class="shrink-0 hidden md:block">
-                        <span id="rowCountBadge" class="flex items-center gap-1.5 text-xs font-bold bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 px-4 py-2 rounded-xl shadow-inner border border-indigo-200 dark:border-indigo-800">
+                        <span id="rowCountBadge" class="flex items-center gap-1.5 text-xs font-bold bg-indigo-100 dark:bg-[#e0f2fe] text-indigo-700 dark:text-[#0284c7] px-4 py-2 rounded-xl shadow-inner border border-indigo-200 dark:border-[#7dd3fc]">
                             <i data-lucide="database" class="w-4 h-4"></i> 0 Records
                         </span>
                     </div>
@@ -352,8 +383,8 @@
             <div class="glass-panel rounded-2xl overflow-hidden relative animate-slide-up" style="animation-delay: 0.1s;">
                 <div class="overflow-x-auto overflow-y-auto custom-scrollbar max-h-[68vh]">
                     <table class="w-full text-left border-collapse whitespace-nowrap">
-                        <thead class="sticky top-0 z-20 shadow-md bg-slate-100/95 dark:bg-slate-800/95 backdrop-blur-md">
-                            <tr class="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest border-b border-slate-200 dark:border-slate-700">
+                        <thead class="sticky top-0 z-20 shadow-md bg-slate-100/95 dark:bg-[#dbeafe]/95 backdrop-blur-md">
+                            <tr class="text-[10px] font-black text-indigo-600 dark:text-[#3b82f6] uppercase tracking-widest border-b border-slate-200 dark:border-[#93c5fd]">
                                 <th class="px-6 py-5"><div class="flex items-center gap-1.5"><i data-lucide="fingerprint" class="w-3.5 h-3.5"></i> Contract ID</div></th>
                                 <th class="px-6 py-5"><div class="flex items-center gap-1.5"><i data-lucide="calendar" class="w-3.5 h-3.5"></i> Year</div></th>
                                 <th class="px-6 py-5"><div class="flex items-center gap-1.5"><i data-lucide="briefcase" class="w-3.5 h-3.5"></i> Project Name</div></th>
@@ -363,17 +394,17 @@
                                 <th class="px-6 py-5 text-center"><div class="flex items-center justify-center gap-1.5"><i data-lucide="settings" class="w-3.5 h-3.5"></i> Actions</div></th>
                             </tr>
                         </thead>
-                        <tbody id="gridBody" class="divide-y divide-slate-200/50 dark:divide-slate-700/50 text-sm">
+                        <tbody id="gridBody" class="divide-y divide-slate-200/50 dark:divide-[#93c5fd]/50 text-sm">
                             <tr>
                                 <td colspan="7" class="p-20 text-center text-slate-500">
                                     <div class="flex flex-col items-center justify-center">
                                         <div class="relative w-16 h-16 mb-4">
-                                            <div class="absolute inset-0 border-4 border-indigo-200 dark:border-indigo-900 rounded-full shadow-inner"></div>
-                                            <div class="absolute inset-0 border-4 border-indigo-600 dark:border-indigo-400 rounded-full border-t-transparent animate-spin"></div>
+                                            <div class="absolute inset-0 border-4 border-indigo-200 dark:border-[#93c5fd] rounded-full shadow-inner"></div>
+                                            <div class="absolute inset-0 border-4 border-indigo-600 dark:border-[#3b82f6] rounded-full border-t-transparent animate-spin"></div>
                                             <i data-lucide="database" class="absolute inset-0 m-auto w-6 h-6 text-indigo-500"></i>
                                         </div>
-                                        <p class="font-bold text-lg text-slate-800 dark:text-slate-200 tracking-tight">Syncing Database...</p>
-                                        <p class="text-xs mt-2 font-mono bg-white/50 dark:bg-black/20 px-3 py-1 rounded-lg shadow-inner">T+ <span id="loadingCounter">0</span>s</p>
+                                        <p class="font-bold text-lg text-slate-800 dark:text-[#1e3a8a] tracking-tight">Syncing Database...</p>
+                                        <p class="text-xs mt-2 font-mono bg-white/50 dark:bg-white/50 px-3 py-1 rounded-lg shadow-inner">T+ <span id="loadingCounter">0</span>s</p>
                                     </div>
                                 </td>
                             </tr>
@@ -382,15 +413,15 @@
                 </div>
 
                 <!-- Pagination Controls -->
-                <div id="paginationControls" class="px-6 py-4 border-t border-slate-200/50 dark:border-slate-700/50 bg-slate-50/50 dark:bg-black/20 flex flex-col sm:flex-row items-center justify-between gap-4 hidden">
-                    <span class="text-xs font-bold text-slate-500 dark:text-slate-400 flex items-center gap-2" id="paginationInfo">
+                <div id="paginationControls" class="px-6 py-4 border-t border-slate-200/50 dark:border-[#93c5fd]/50 bg-slate-50/50 dark:bg-[#dbeafe]/50 flex flex-col sm:flex-row items-center justify-between gap-4 hidden">
+                    <span class="text-xs font-bold text-slate-500 dark:text-[#ea580c] flex items-center gap-2" id="paginationInfo">
                         <i data-lucide="layout-list" class="w-4 h-4 text-indigo-500"></i> Showing 0 entries
                     </span>
                     <div class="flex items-center gap-2">
-                        <button onclick="prevPage()" id="btnPrevPage" class="btn-3d px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none flex items-center gap-1 shadow-sm">
+                        <button onclick="prevPage()" id="btnPrevPage" class="btn-3d px-4 py-2 text-xs font-bold text-slate-600 dark:text-[#1e3a8a] bg-white dark:bg-[#dbeafe] border border-slate-200 dark:border-[#93c5fd] rounded-xl disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none flex items-center gap-1 shadow-sm">
                             <i data-lucide="chevron-left" class="w-4 h-4"></i> Previous
                         </button>
-                        <button onclick="nextPage()" id="btnNextPage" class="btn-3d px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none flex items-center gap-1 shadow-sm">
+                        <button onclick="nextPage()" id="btnNextPage" class="btn-3d px-4 py-2 text-xs font-bold text-slate-600 dark:text-[#1e3a8a] bg-white dark:bg-[#dbeafe] border border-slate-200 dark:border-[#93c5fd] rounded-xl disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none flex items-center gap-1 shadow-sm">
                             Next <i data-lucide="chevron-right" class="w-4 h-4"></i>
                         </button>
                     </div>
@@ -399,56 +430,55 @@
             </div>
         </main>
     </div> <!-- END APP WRAPPER -->
-
-    <!-- Change Password Modal 3D -->
+	<!-- Change Password Modal 3D -->
     <div id="passwordModal" class="modal-overlay">
-        <div class="box-3d bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl w-full max-w-md rounded-3xl flex flex-col border border-white/50 dark:border-white/10 relative overflow-hidden transform scale-95 transition-transform duration-300" id="passModalInner">
+        <div class="box-3d bg-white/95 backdrop-blur-2xl w-full max-w-md rounded-3xl flex flex-col border border-white/50 relative overflow-hidden transform scale-95 transition-transform duration-300" id="passModalInner">
             
             <!-- Decorative Background -->
             <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-bl-full pointer-events-none"></div>
 
-            <div class="flex items-center justify-between p-6 border-b border-slate-200/60 dark:border-slate-800 relative z-10">
+            <div class="flex items-center justify-between p-6 border-b border-slate-200/60 dark:border-[#fdba74] relative z-10">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
                         <i data-lucide="shield-check" class="w-5 h-5 text-white"></i>
                     </div>
                     <div>
-                        <h2 class="font-black text-lg text-slate-800 dark:text-white tracking-tight">Account Security</h2>
-                        <p class="text-[10px] uppercase tracking-widest font-bold text-slate-500">Update Password</p>
+                        <h2 class="font-black text-lg text-slate-800 dark:text-[#1e3a8a] tracking-tight">Account Security</h2>
+                        <p class="text-[10px] uppercase tracking-widest font-bold text-slate-500 dark:text-[#ea580c]">Update Password</p>
                     </div>
                 </div>
-                <button type="button" onclick="closeChangePasswordModal()" class="text-slate-400 hover:text-rose-500 bg-slate-100 hover:bg-rose-50 dark:bg-slate-800 dark:hover:bg-rose-900/30 p-2 rounded-xl transition-colors focus:outline-none shadow-inner border border-transparent dark:border-white/5">
+                <button type="button" onclick="closeChangePasswordModal()" class="text-slate-400 hover:text-rose-500 bg-slate-100 hover:bg-rose-50 dark:bg-[#ffedd5] dark:hover:bg-[#fb923c]/30 p-2 rounded-xl transition-colors focus:outline-none shadow-inner border border-transparent dark:border-[#93c5fd]">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
             <div class="p-8 space-y-5 relative z-10">
-                <div id="passError" class="hidden flex items-start gap-3 text-rose-600 dark:text-rose-400 text-xs font-bold bg-rose-50 dark:bg-rose-950/50 p-4 rounded-xl border border-rose-200 dark:border-rose-900 shadow-inner">
+                <div id="passError" class="hidden flex items-start gap-3 text-rose-600 dark:text-[#c2410c] text-xs font-bold bg-rose-50 dark:bg-[#fed7aa] p-4 rounded-xl border border-rose-200 dark:border-[#fb923c] shadow-inner">
                     <i data-lucide="shield-alert" class="w-5 h-5 shrink-0 animate-bounce"></i><span id="passErrorText" class="mt-0.5"></span>
                 </div>
                 <div class="flex flex-col gap-1.5 relative group">
-                    <label class="input-label text-indigo-600 dark:text-indigo-400"><i data-lucide="lock" class="w-3.5 h-3.5"></i> Current Password</label>
+                    <label class="input-label text-indigo-600 dark:text-[#ea580c]"><i data-lucide="lock" class="w-3.5 h-3.5"></i> Current Password</label>
                     <input type="password" id="cp_old" class="input-field w-full pr-10 h-11 text-lg tracking-widest">
                     <div class="absolute inset-y-0 right-0 top-[22px] pr-3 flex items-center cursor-pointer" onclick="togglePasswordVisibility('cp_old', 'eyeIconCp1')">
                         <i data-lucide="eye" id="eyeIconCp1" class="w-5 h-5 text-slate-400 hover:text-indigo-500 transition-colors"></i>
                     </div>
                 </div>
                 <div class="flex flex-col gap-1.5 relative group mt-4">
-                    <label class="input-label text-indigo-600 dark:text-indigo-400"><i data-lucide="key-square" class="w-3.5 h-3.5"></i> New Password</label>
-                    <input type="password" id="cp_new" class="input-field w-full pr-10 h-11 border-indigo-300 dark:border-indigo-700 text-lg tracking-widest">
+                    <label class="input-label text-indigo-600 dark:text-[#ea580c]"><i data-lucide="key-square" class="w-3.5 h-3.5"></i> New Password</label>
+                    <input type="password" id="cp_new" class="input-field w-full pr-10 h-11 border-indigo-300 dark:border-[#fdba74] text-lg tracking-widest">
                     <div class="absolute inset-y-0 right-0 top-[22px] pr-3 flex items-center cursor-pointer" onclick="togglePasswordVisibility('cp_new', 'eyeIconCp2')">
                         <i data-lucide="eye" id="eyeIconCp2" class="w-5 h-5 text-slate-400 hover:text-indigo-500 transition-colors"></i>
                     </div>
                 </div>
                 <div class="flex flex-col gap-1.5 relative group">
-                    <label class="input-label text-indigo-600 dark:text-indigo-400"><i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> Confirm Password</label>
-                    <input type="password" id="cp_confirm" class="input-field w-full pr-10 h-11 border-indigo-300 dark:border-indigo-700 text-lg tracking-widest">
+                    <label class="input-label text-indigo-600 dark:text-[#ea580c]"><i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> Confirm Password</label>
+                    <input type="password" id="cp_confirm" class="input-field w-full pr-10 h-11 border-indigo-300 dark:border-[#fdba74] text-lg tracking-widest">
                     <div class="absolute inset-y-0 right-0 top-[22px] pr-3 flex items-center cursor-pointer" onclick="togglePasswordVisibility('cp_confirm', 'eyeIconCp3')">
                         <i data-lucide="eye" id="eyeIconCp3" class="w-5 h-5 text-slate-400 hover:text-indigo-500 transition-colors"></i>
                     </div>
                 </div>
             </div>
-            <div class="p-6 border-t border-slate-200/60 dark:border-slate-800 bg-slate-50/50 dark:bg-black/20 flex justify-end gap-3 relative z-10">
-                <button type="button" onclick="closeChangePasswordModal()" class="px-5 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all shadow-sm focus:outline-none">Cancel</button>
+            <div class="p-6 border-t border-slate-200/60 dark:border-[#fdba74] bg-slate-50/50 dark:bg-[#dbeafe]/80 flex justify-end gap-3 relative z-10">
+                <button type="button" onclick="closeChangePasswordModal()" class="px-5 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-[#1e3a8a] bg-white dark:bg-[#dbeafe] border border-slate-200 dark:border-[#93c5fd] hover:bg-slate-100 dark:hover:bg-[#93c5fd] transition-all shadow-sm focus:outline-none">Cancel</button>
                 <button type="button" onclick="submitChangePassword()" id="btnSavePass" class="btn-3d px-8 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl text-sm font-bold flex items-center gap-2 focus:outline-none">
                     <i data-lucide="save" class="w-4 h-4"></i> Secure Update
                 </button>
@@ -458,31 +488,31 @@
 
     <!-- Modal for Add/Edit (Main Dashboard) 3D UI -->
     <div id="projectModal" class="modal-overlay">
-        <div class="box-3d bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl w-full max-w-6xl h-[88vh] rounded-[2rem] flex flex-col border border-white/50 dark:border-white/10 relative my-auto overflow-hidden transform scale-95 transition-transform duration-300" id="mainModalInner">
+        <div class="box-3d bg-white/95 backdrop-blur-2xl w-full max-w-6xl h-[88vh] rounded-[2rem] flex flex-col border border-white/50 relative my-auto overflow-hidden transform scale-95 transition-transform duration-300" id="mainModalInner">
             
             <!-- Modal Header -->
-            <div class="flex items-center justify-between p-6 border-b border-slate-200/60 dark:border-slate-800 relative z-10">
+            <div class="flex items-center justify-between p-6 border-b border-slate-200/60 dark:border-[#fdba74] relative z-10">
                 <div class="flex items-center gap-4">
                     <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
                         <i data-lucide="folder-edit" class="w-6 h-6 text-white"></i>
                     </div>
                     <div>
-                        <h2 id="modalTitle" class="font-black text-xl text-slate-800 dark:text-white tracking-tight">Project Record</h2>
-                        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5 flex items-center gap-1"><i data-lucide="pen-tool" class="w-3 h-3"></i> Data Entry Mode</p>
+                        <h2 id="modalTitle" class="font-black text-xl text-slate-800 dark:text-[#1e3a8a] tracking-tight">Project Record</h2>
+                        <p class="text-[10px] font-bold text-slate-500 dark:text-[#ea580c] uppercase tracking-widest mt-0.5 flex items-center gap-1"><i data-lucide="pen-tool" class="w-3 h-3"></i> Data Entry Mode</p>
                     </div>
                     <!-- Reload Button with Text -->
-                    <button type="button" id="btnReloadModalWrapper" onclick="reloadModalData()" title="Reload Range Data" class="hidden ml-4 flex items-center gap-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800/50 px-3 py-1.5 rounded-xl hover:bg-indigo-100 transition-all focus:outline-none shadow-inner">
+                    <button type="button" id="btnReloadModalWrapper" onclick="reloadModalData()" title="Reload Range Data" class="hidden ml-4 flex items-center gap-2 bg-indigo-50 dark:bg-[#dbeafe] text-indigo-600 dark:text-[#3b82f6] border border-indigo-200 dark:border-[#93c5fd] px-3 py-1.5 rounded-xl hover:bg-indigo-100 transition-all focus:outline-none shadow-inner">
                         <i data-lucide="refresh-cw" id="btnReloadModal" class="w-4 h-4"></i>
                         <span id="reloadText" class="text-[10px] font-bold uppercase tracking-wider opacity-0 transition-opacity"></span>
                     </button>
                 </div>
-                <button type="button" onclick="closeModal()" class="text-slate-400 hover:text-rose-500 bg-slate-100 hover:bg-rose-50 dark:bg-slate-800 dark:hover:bg-rose-900/30 border border-transparent dark:border-white/5 p-2.5 rounded-xl transition-colors focus:outline-none shadow-inner">
+                <button type="button" onclick="closeModal()" class="text-slate-400 hover:text-rose-500 bg-slate-100 hover:bg-rose-50 dark:bg-[#ffedd5] dark:hover:bg-[#fb923c]/30 border border-transparent dark:border-[#93c5fd] p-2.5 rounded-xl transition-colors focus:outline-none shadow-inner">
                     <i data-lucide="x" class="w-6 h-6"></i>
                 </button>
             </div>
             
             <!-- Modal Tabs Segmented Control -->
-            <div class="px-6 pt-5 pb-2 bg-slate-50/50 dark:bg-black/20 border-b border-slate-200/60 dark:border-slate-800 relative z-10">
+            <div class="px-6 pt-5 pb-2 bg-slate-50/50 dark:bg-[#ffedd5]/80 border-b border-slate-200/60 dark:border-[#fdba74] relative z-10">
                 <div class="flex overflow-x-auto custom-scrollbar pb-3 gap-2">
                     <button type="button" onclick="switchModalTab('pdo')" id="tabBtn_pdo" class="tab-btn active"><i data-lucide="file-text" class="w-4 h-4"></i> PDO Details</button>
                     <button type="button" onclick="switchModalTab('date')" id="tabBtn_date" class="tab-btn inactive"><i data-lucide="calendar-days" class="w-4 h-4"></i> Project Dates</button>
@@ -505,73 +535,73 @@
 
                     <!-- PDO Section -->
                     <div id="pdoSection" class="glass-panel p-6 sm:p-8 rounded-2xl space-y-6">
-                        <div class="border-b border-slate-200 dark:border-slate-800 pb-3 flex items-center gap-2">
+                        <div class="border-b border-slate-200 dark:border-[#fdba74] pb-3 flex items-center gap-2">
                             <i data-lucide="file-badge-2" class="w-5 h-5 text-indigo-500"></i>
-                            <span class="text-sm font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">Primary Data Outline</span>
+                            <span class="text-sm font-black text-indigo-600 dark:text-[#3b82f6] uppercase tracking-widest">Primary Data Outline</span>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div class="flex flex-col gap-1.5 group">
-                                <label class="input-label text-indigo-600 dark:text-indigo-400"><i data-lucide="hash" class="w-3.5 h-3.5"></i> Contract ID</label>
-                                <input type="text" id="f_contract_id" required class="input-field w-full text-lg text-indigo-700 dark:text-indigo-400">
+                                <label class="input-label text-indigo-600 dark:text-[#3b82f6]"><i data-lucide="hash" class="w-3.5 h-3.5"></i> Contract ID</label>
+                                <input type="text" id="f_contract_id" required class="input-field w-full text-lg text-indigo-700 dark:text-[#3b82f6]">
                             </div>
                             <div class="flex flex-col gap-1.5">
-                                <label class="input-label text-indigo-600 dark:text-indigo-400"><i data-lucide="wallet" class="w-3.5 h-3.5"></i> Fund Source</label>
+                                <label class="input-label text-indigo-600 dark:text-[#3b82f6]"><i data-lucide="wallet" class="w-3.5 h-3.5"></i> Fund Source</label>
                                 <input type="text" id="f_fund" class="input-field w-full">
                             </div>
                             <div class="flex flex-col gap-1.5">
-                                <label class="input-label text-indigo-600 dark:text-indigo-400"><i data-lucide="coins" class="w-3.5 h-3.5"></i> Contract Cost</label>
+                                <label class="input-label text-indigo-600 dark:text-[#3b82f6]"><i data-lucide="coins" class="w-3.5 h-3.5"></i> Contract Cost</label>
                                 <input type="text" id="f_cost" class="input-field w-full font-mono" onblur="this.value = toCurrencyFormat(this.value)">
                             </div>
                             <div class="flex flex-col gap-1.5 md:col-span-2">
-                                <label class="input-label text-indigo-600 dark:text-indigo-400"><i data-lucide="type" class="w-3.5 h-3.5"></i> Project Name</label>
+                                <label class="input-label text-indigo-600 dark:text-[#3b82f6]"><i data-lucide="type" class="w-3.5 h-3.5"></i> Project Name</label>
                                 <input type="text" id="f_name" required class="input-field w-full text-base">
                             </div>
                             <div class="flex flex-col gap-1.5">
-                                <label class="input-label text-indigo-600 dark:text-indigo-400"><i data-lucide="landmark" class="w-3.5 h-3.5"></i> ABC</label>
+                                <label class="input-label text-indigo-600 dark:text-[#3b82f6]"><i data-lucide="landmark" class="w-3.5 h-3.5"></i> ABC</label>
                                 <input type="text" id="f_abc" class="input-field w-full font-mono" onblur="this.value = toCurrencyFormat(this.value)">
                             </div>
                             <div class="flex flex-col gap-1.5 md:col-span-3">
-                                <label class="input-label text-indigo-600 dark:text-indigo-400"><i data-lucide="map-pin" class="w-3.5 h-3.5"></i> Location</label>
+                                <label class="input-label text-indigo-600 dark:text-[#3b82f6]"><i data-lucide="map-pin" class="w-3.5 h-3.5"></i> Location</label>
                                 <input type="text" id="f_location" class="input-field w-full">
                             </div>
                             <div class="flex flex-col gap-1.5">
-                                <label class="input-label text-indigo-600 dark:text-indigo-400"><i data-lucide="flag" class="w-3.5 h-3.5"></i> Notice to Proceed (NTP)</label>
+                                <label class="input-label text-indigo-600 dark:text-[#3b82f6]"><i data-lucide="flag" class="w-3.5 h-3.5"></i> Notice to Proceed (NTP)</label>
                                 <input type="text" placeholder="MMMM DD, YYYY" id="f_ntp" class="input-field w-full date-input bg-white/50">
                             </div>
                             <div class="flex flex-col gap-1.5">
-                                <label class="input-label text-indigo-600 dark:text-indigo-400"><i data-lucide="calendar-off" class="w-3.5 h-3.5"></i> Target Expiry Date</label>
+                                <label class="input-label text-indigo-600 dark:text-[#3b82f6]"><i data-lucide="calendar-off" class="w-3.5 h-3.5"></i> Target Expiry Date</label>
                                 <input type="text" placeholder="MMMM DD, YYYY" id="f_expiry" class="input-field w-full date-input bg-white/50">
                             </div>
                         </div>
 
                         <!-- Dropdowns -->
-                        <div class="pt-6 mt-2 border-t border-slate-200 dark:border-slate-800 grid grid-cols-2 md:grid-cols-4 gap-6">
+                        <div class="pt-6 mt-2 border-t border-slate-200 dark:border-[#fdba74] grid grid-cols-2 md:grid-cols-4 gap-6">
                             <div class="flex flex-col gap-1.5 md:col-span-2">
-                                <label class="input-label text-indigo-600 dark:text-indigo-400"><i data-lucide="hard-hat" class="w-3.5 h-3.5"></i> Contractor</label>
+                                <label class="input-label text-indigo-600 dark:text-[#3b82f6]"><i data-lucide="hard-hat" class="w-3.5 h-3.5"></i> Contractor</label>
                                 <input type="text" id="f_contractor" list="dl_contractors" class="input-field w-full">
                             </div>
                             <div class="flex flex-col gap-1.5">
-                                <label class="input-label text-indigo-600 dark:text-indigo-400"><i data-lucide="user-cog" class="w-3.5 h-3.5"></i> Project Engineer (PE)</label>
+                                <label class="input-label text-indigo-600 dark:text-[#3b82f6]"><i data-lucide="user-cog" class="w-3.5 h-3.5"></i> Project Engineer (PE)</label>
                                 <input type="text" id="f_pe" list="dl_personnel" class="input-field w-full">
                             </div>
                             <div class="flex flex-col gap-1.5">
-                                <label class="input-label text-indigo-600 dark:text-indigo-400"><i data-lucide="clipboard-check" class="w-3.5 h-3.5"></i> Project Inspector (PI)</label>
+                                <label class="input-label text-indigo-600 dark:text-[#3b82f6]"><i data-lucide="clipboard-check" class="w-3.5 h-3.5"></i> Project Inspector (PI)</label>
                                 <input type="text" id="f_pi" list="dl_personnel" class="input-field w-full">
                             </div>
                             <div class="flex flex-col gap-1.5">
-                                <label class="input-label text-indigo-600 dark:text-indigo-400"><i data-lucide="building" class="w-3.5 h-3.5"></i> Resident Engineer (RE)</label>
+                                <label class="input-label text-indigo-600 dark:text-[#3b82f6]"><i data-lucide="building" class="w-3.5 h-3.5"></i> Resident Engineer (RE)</label>
                                 <input type="text" id="f_re" list="dl_personnel" class="input-field w-full">
                             </div>
                             <div class="flex flex-col gap-1.5">
-                                <label class="input-label text-indigo-600 dark:text-indigo-400"><i data-lucide="calculator" class="w-3.5 h-3.5"></i> Quantity Engineer (QE)</label>
+                                <label class="input-label text-indigo-600 dark:text-[#3b82f6]"><i data-lucide="calculator" class="w-3.5 h-3.5"></i> Quantity Engineer (QE)</label>
                                 <input type="text" id="f_qe" list="dl_personnel" class="input-field w-full">
                             </div>
                             <div class="flex flex-col gap-1.5">
-                                <label class="input-label text-indigo-600 dark:text-indigo-400"><i data-lucide="microscope" class="w-3.5 h-3.5"></i> Materials Engineer (ME)</label>
+                                <label class="input-label text-indigo-600 dark:text-[#3b82f6]"><i data-lucide="microscope" class="w-3.5 h-3.5"></i> Materials Engineer (ME)</label>
                                 <input type="text" id="f_me" list="dl_personnel" class="input-field w-full">
                             </div>
                             <div class="flex flex-col gap-1.5">
-                                <label class="input-label text-indigo-600 dark:text-indigo-400"><i data-lucide="users" class="w-3.5 h-3.5"></i> Liaison Officer (LO)</label>
+                                <label class="input-label text-indigo-600 dark:text-[#3b82f6]"><i data-lucide="users" class="w-3.5 h-3.5"></i> Liaison Officer (LO)</label>
                                 <input type="text" id="f_lo" list="dl_personnel" class="input-field w-full">
                             </div>
                         </div>
@@ -579,60 +609,60 @@
 
                     <!-- DATE Fields -->
                     <div id="dateSection" class="hidden space-y-8">
-                        <div class="glass-panel p-6 sm:p-8 rounded-2xl relative overflow-hidden border-t-4 border-t-red-500 shadow-[0_8px_30px_rgba(239,68,68,0.1)] dark:shadow-[0_8px_30px_rgba(239,68,68,0.2)]">
+                        <div class="glass-panel p-6 sm:p-8 rounded-2xl relative overflow-hidden border-t-4 border-t-red-500 shadow-[0_8px_30px_rgba(239,68,68,0.1)] dark:shadow-[0_8px_30px_rgba(194,65,12,0.2)]">
                             <div class="absolute -right-10 -top-10 text-red-500/5 rotate-12 pointer-events-none"><i data-lucide="gavel" class="w-48 h-48"></i></div>
-                            <span class="text-sm font-black text-red-600 dark:text-red-400 uppercase tracking-widest block border-b border-red-200 dark:border-red-900/50 pb-3 mb-6 flex items-center gap-2 relative z-10"><i data-lucide="gavel" class="w-5 h-5"></i> Bidding Timeline</span>
+                            <span class="text-sm font-black text-red-600 dark:text-[#c2410c] uppercase tracking-widest block border-b border-red-200 dark:border-[#fb923c] pb-3 mb-6 flex items-center gap-2 relative z-10"><i data-lucide="gavel" class="w-5 h-5"></i> Bidding Timeline</span>
                             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 relative z-10">
-                                <div class="flex flex-col gap-1.5"><label class="input-label text-red-600 dark:text-red-400"><i data-lucide="megaphone" class="w-3 h-3"></i> Date of Posting</label><input type="text" placeholder="MMMM DD, YYYY" id="d_posting" class="input-field w-full date-input border-red-200 dark:border-red-900/50 focus:ring-red-500 bg-white/50"></div>
-                                <div class="flex flex-col gap-1.5"><label class="input-label text-red-600 dark:text-green-400"><i data-lucide="folder-open" class="w-3 h-3"></i> Date of Bid opening</label><input type="text" placeholder="MMMM DD, YYYY" id="d_opening" class="input-field w-full date-input border-red-200 dark:border-red-900/50 focus:ring-red-500 bg-white/50"></div>
-                                <div class="flex flex-col gap-1.5"><label class="input-label text-red-600 dark:text-red-400"><i data-lucide="award" class="w-3 h-3"></i> Date of Award</label><input type="text" placeholder="MMMM DD, YYYY" id="d_award" class="input-field w-full date-input border-red-200 dark:border-red-900/50 focus:ring-red-500 bg-white/50"></div>
-                                <div class="flex flex-col gap-1.5"><label class="input-label text-red-600 dark:text-red-400"><i data-lucide="file-signature" class="w-3 h-3"></i> Date of Contract</label><input type="text" placeholder="MMMM DD, YYYY" id="d_contract" class="input-field w-full date-input border-red-200 dark:border-red-900/50 focus:ring-red-500 bg-white/50"></div>
+                                <div class="flex flex-col gap-1.5"><label class="input-label text-red-600 dark:text-[#c2410c]"><i data-lucide="megaphone" class="w-3 h-3"></i> Date of Posting</label><input type="text" placeholder="MMMM DD, YYYY" id="d_posting" class="input-field w-full date-input border-red-200 dark:border-[#fb923c] focus:ring-red-500 bg-white/50"></div>
+                                <div class="flex flex-col gap-1.5"><label class="input-label text-red-600 dark:text-[#0284c7]"><i data-lucide="folder-open" class="w-3 h-3"></i> Date of Bid opening</label><input type="text" placeholder="MMMM DD, YYYY" id="d_opening" class="input-field w-full date-input border-red-200 dark:border-[#fb923c] focus:ring-red-500 bg-white/50"></div>
+                                <div class="flex flex-col gap-1.5"><label class="input-label text-red-600 dark:text-[#c2410c]"><i data-lucide="award" class="w-3 h-3"></i> Date of Award</label><input type="text" placeholder="MMMM DD, YYYY" id="d_award" class="input-field w-full date-input border-red-200 dark:border-[#fb923c] focus:ring-red-500 bg-white/50"></div>
+                                <div class="flex flex-col gap-1.5"><label class="input-label text-red-600 dark:text-[#c2410c]"><i data-lucide="file-signature" class="w-3 h-3"></i> Date of Contract</label><input type="text" placeholder="MMMM DD, YYYY" id="d_contract" class="input-field w-full date-input border-red-200 dark:border-[#fb923c] focus:ring-red-500 bg-white/50"></div>
                             </div>
                         </div>
 
                         <div class="glass-panel p-6 sm:p-8 rounded-2xl relative overflow-hidden border-t-4 border-t-emerald-500 shadow-[0_8px_30px_rgba(16,185,129,0.1)] dark:shadow-[0_8px_30px_rgba(16,185,129,0.2)]">
                             <div class="absolute -right-10 -top-10 text-emerald-500/5 rotate-12 pointer-events-none"><i data-lucide="check-circle-2" class="w-48 h-48"></i></div>
-                            <span class="text-sm font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest block border-b border-emerald-200 dark:border-emerald-900/50 pb-3 mb-6 flex items-center gap-2 relative z-10"><i data-lucide="check-circle-2" class="w-5 h-5"></i> Completion Milestones</span>
+                            <span class="text-sm font-black text-emerald-600 dark:text-[#0284c7] uppercase tracking-widest block border-b border-emerald-200 dark:border-[#7dd3fc] pb-3 mb-6 flex items-center gap-2 relative z-10"><i data-lucide="check-circle-2" class="w-5 h-5"></i> Completion Milestones</span>
                             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 relative z-10">
-                                <div class="flex flex-col gap-1.5"><label class="input-label text-emerald-700 dark:text-emerald-500"><i data-lucide="list-checks" class="w-3 h-3"></i> Punchlist (95%)</label><input type="text" placeholder="MMMM DD, YYYY" id="d_p95" class="input-field w-full date-input border-emerald-200 dark:border-emerald-900/50 focus:ring-emerald-500 bg-white/50"></div>
-                                <div class="flex flex-col gap-1.5"><label class="input-label text-emerald-700 dark:text-emerald-500"><i data-lucide="file-check" class="w-3 h-3"></i> Cert Correction (95%)</label><input type="text" placeholder="MMMM DD, YYYY" id="d_c95" class="input-field w-full date-input border-emerald-200 dark:border-emerald-900/50 focus:ring-emerald-500 bg-white/50"></div>
-                                <div class="flex flex-col gap-1.5"><label class="input-label text-emerald-700 dark:text-emerald-500"><i data-lucide="list-todo" class="w-3 h-3"></i> Punchlist (Comp)</label><input type="text" placeholder="MMMM DD, YYYY" id="d_pcomp" class="input-field w-full date-input border-emerald-200 dark:border-emerald-900/50 focus:ring-emerald-500 bg-white/50"></div>
-                                <div class="flex flex-col gap-1.5"><label class="input-label text-emerald-700 dark:text-emerald-500"><i data-lucide="shield-check" class="w-3 h-3"></i> Cert Correction (Comp)</label><input type="text" placeholder="MMMM DD, YYYY" id="d_ccomp" class="input-field w-full date-input border-emerald-200 dark:border-emerald-900/50 focus:ring-emerald-500 bg-white/50"></div>
-                                <div class="flex flex-col gap-1.5"><label class="input-label text-emerald-700 dark:text-emerald-500"><i data-lucide="file-search" class="w-3 h-3"></i> Date of FCIR</label><input type="text" placeholder="MMMM DD, YYYY" id="d_fcir" class="input-field w-full date-input border-emerald-200 dark:border-emerald-900/50 focus:ring-emerald-500 bg-white/50"></div>
-                                <div class="flex flex-col gap-1.5"><label class="input-label text-emerald-700 dark:text-emerald-500"><i data-lucide="flag-triangle-right" class="w-3 h-3"></i> Date of Completion</label><input type="text" placeholder="MMMM DD, YYYY" id="d_comp" class="input-field w-full date-input border-emerald-200 dark:border-emerald-900/50 focus:ring-emerald-500 bg-white/50"></div>
-                                <div class="flex flex-col gap-1.5"><label class="input-label text-emerald-700 dark:text-emerald-500"><i data-lucide="scroll-text" class="w-3 h-3"></i> Date of COC</label><input type="text" placeholder="MMMM DD, YYYY" id="d_coc" class="input-field w-full date-input border-emerald-200 dark:border-emerald-900/50 focus:ring-emerald-500 bg-white/50"></div>
+                                <div class="flex flex-col gap-1.5"><label class="input-label text-emerald-700 dark:text-[#0284c7]"><i data-lucide="list-checks" class="w-3 h-3"></i> Punchlist (95%)</label><input type="text" placeholder="MMMM DD, YYYY" id="d_p95" class="input-field w-full date-input border-emerald-200 dark:border-[#7dd3fc] focus:ring-emerald-500 bg-white/50"></div>
+                                <div class="flex flex-col gap-1.5"><label class="input-label text-emerald-700 dark:text-[#0284c7]"><i data-lucide="file-check" class="w-3 h-3"></i> Cert Correction (95%)</label><input type="text" placeholder="MMMM DD, YYYY" id="d_c95" class="input-field w-full date-input border-emerald-200 dark:border-[#7dd3fc] focus:ring-emerald-500 bg-white/50"></div>
+                                <div class="flex flex-col gap-1.5"><label class="input-label text-emerald-700 dark:text-[#0284c7]"><i data-lucide="list-todo" class="w-3 h-3"></i> Punchlist (Comp)</label><input type="text" placeholder="MMMM DD, YYYY" id="d_pcomp" class="input-field w-full date-input border-emerald-200 dark:border-[#7dd3fc] focus:ring-emerald-500 bg-white/50"></div>
+                                <div class="flex flex-col gap-1.5"><label class="input-label text-emerald-700 dark:text-[#0284c7]"><i data-lucide="shield-check" class="w-3 h-3"></i> Cert Correction (Comp)</label><input type="text" placeholder="MMMM DD, YYYY" id="d_ccomp" class="input-field w-full date-input border-emerald-200 dark:border-[#7dd3fc] focus:ring-emerald-500 bg-white/50"></div>
+                                <div class="flex flex-col gap-1.5"><label class="input-label text-emerald-700 dark:text-[#0284c7]"><i data-lucide="file-search" class="w-3 h-3"></i> Date of FCIR</label><input type="text" placeholder="MMMM DD, YYYY" id="d_fcir" class="input-field w-full date-input border-emerald-200 dark:border-[#7dd3fc] focus:ring-emerald-500 bg-white/50"></div>
+                                <div class="flex flex-col gap-1.5"><label class="input-label text-emerald-700 dark:text-[#0284c7]"><i data-lucide="flag-triangle-right" class="w-3 h-3"></i> Date of Completion</label><input type="text" placeholder="MMMM DD, YYYY" id="d_comp" class="input-field w-full date-input border-emerald-200 dark:border-[#7dd3fc] focus:ring-emerald-500 bg-white/50"></div>
+                                <div class="flex flex-col gap-1.5"><label class="input-label text-emerald-700 dark:text-[#0284c7]"><i data-lucide="scroll-text" class="w-3 h-3"></i> Date of COC</label><input type="text" placeholder="MMMM DD, YYYY" id="d_coc" class="input-field w-full date-input border-emerald-200 dark:border-[#7dd3fc] focus:ring-emerald-500 bg-white/50"></div>
                             </div>
                         </div>
 
                         <div class="glass-panel p-6 sm:p-8 rounded-2xl relative overflow-hidden border-t-4 border-t-blue-500 shadow-[0_8px_30px_rgba(59,130,246,0.1)] dark:shadow-[0_8px_30px_rgba(59,130,246,0.2)]">
                             <div class="absolute -right-10 -top-10 text-blue-500/5 rotate-12 pointer-events-none"><i data-lucide="badge-check" class="w-48 h-48"></i></div>
-                            <span class="text-sm font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest block border-b border-blue-200 dark:border-blue-900/50 pb-3 mb-6 flex items-center gap-2 relative z-10"><i data-lucide="badge-check" class="w-5 h-5"></i> Acceptance & Turnover</span>
+                            <span class="text-sm font-black text-blue-600 dark:text-[#3b82f6] uppercase tracking-widest block border-b border-blue-200 dark:border-[#93c5fd] pb-3 mb-6 flex items-center gap-2 relative z-10"><i data-lucide="badge-check" class="w-5 h-5"></i> Acceptance & Turnover</span>
                             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 relative z-10">
                                 <div class="flex flex-col gap-1.5">
-                                    <label class="input-label text-blue-500"><i data-lucide="bell-ring" class="w-3 h-3"></i> Notification Letter</label>
-                                    <input type="text" placeholder="MMMM DD, YYYY" id="d_notif" onchange="toggleFollowUpVisibility(this.value)" class="input-field w-full date-input border-blue-200 dark:border-blue-900/50 focus:ring-blue-500 bg-white/50">
+                                    <label class="input-label text-blue-500 dark:text-[#3b82f6]"><i data-lucide="bell-ring" class="w-3 h-3"></i> Notification Letter</label>
+                                    <input type="text" placeholder="MMMM DD, YYYY" id="d_notif" onchange="toggleFollowUpVisibility(this.value)" class="input-field w-full date-input border-blue-200 dark:border-[#93c5fd] focus:ring-blue-500 bg-white/50">
                                 </div>
-                                <div id="followUpWrapper" class="col-span-3 hidden bg-white/30 dark:bg-black/20 p-4 rounded-xl border border-blue-200/60 dark:border-blue-800/60 shadow-inner">
-                                    <div class="flex items-center justify-between mb-3 border-b border-blue-100 dark:border-blue-900/30 pb-2">
-                                        <label class="input-label text-blue-600 dark:text-blue-400 m-0"><i data-lucide="mails" class="w-3 h-3"></i> Follow Up Letters</label>
+                                <div id="followUpWrapper" class="col-span-3 hidden bg-white/30 dark:bg-white/40 p-4 rounded-xl border border-blue-200/60 dark:border-[#93c5fd] shadow-inner">
+                                    <div class="flex items-center justify-between mb-3 border-b border-blue-100 dark:border-[#93c5fd] pb-2">
+                                        <label class="input-label text-blue-600 dark:text-[#3b82f6] m-0"><i data-lucide="mails" class="w-3 h-3"></i> Follow Up Letters</label>
                                         <button type="button" onclick="addFollowUpRow()" class="btn-3d text-[10px] font-bold text-white bg-blue-500 hover:bg-blue-600 px-3 py-1 rounded-lg flex items-center gap-1"><i data-lucide="plus" class="w-3 h-3"></i> ADD DATE</button>
                                     </div>
                                     <div id="followUpList" class="flex flex-wrap gap-3"></div>
                                 </div>
-                                <div class="flex flex-col gap-1.5"><label class="input-label text-blue-500"><i data-lucide="clipboard-list" class="w-3 h-3"></i> Punchlist (1Y DLP)</label><input type="text" placeholder="MMMM DD, YYYY" id="d_p1y" class="input-field w-full date-input border-blue-200 dark:border-blue-900/50 focus:ring-blue-500 bg-white/50"></div>
+                                <div class="flex flex-col gap-1.5"><label class="input-label text-blue-500 dark:text-[#3b82f6]"><i data-lucide="clipboard-list" class="w-3 h-3"></i> Punchlist (1Y DLP)</label><input type="text" placeholder="MMMM DD, YYYY" id="d_p1y" class="input-field w-full date-input border-blue-200 dark:border-[#93c5fd] focus:ring-blue-500 bg-white/50"></div>
                                 <div class="flex flex-col gap-1.5 col-span-2">
-                                    <label class="input-label text-blue-500"><i data-lucide="message-square-dashed" class="w-3 h-3"></i> Remarks (With/Without Defects)</label>
+                                    <label class="input-label text-blue-500 dark:text-[#3b82f6]"><i data-lucide="message-square-dashed" class="w-3 h-3"></i> Remarks (With/Without Defects)</label>
                                     <div class="flex items-center gap-3">
-                                        <select id="d_rem_opt" onchange="toggleRemarksVisibility(this.value, true)" class="input-field w-full md:w-1/3 border-blue-200 dark:border-blue-900/50 focus:ring-blue-500">
+                                        <select id="d_rem_opt" onchange="toggleRemarksVisibility(this.value, true)" class="input-field w-full md:w-1/3 border-blue-200 dark:border-[#93c5fd] focus:ring-blue-500">
                                             <option value="No">No Defects</option><option value="Yes">Yes (With Defects)</option>
                                         </select>
                                         <button type="button" id="btn_add_rem" onclick="addRemarkRow()" class="hidden btn-3d text-[10px] font-bold text-white bg-blue-500 hover:bg-blue-600 px-3 py-2 rounded-lg flex items-center gap-1"><i data-lucide="plus" class="w-3 h-3"></i> ADD REMARK</button>
                                     </div>
                                     <div id="remarksList" class="space-y-2 mt-3"></div>
                                 </div>
-                                <div id="cert1yWrapper" class="hidden flex flex-col gap-1.5"><label class="input-label text-blue-500"><i data-lucide="shield-check" class="w-3 h-3"></i> Cert Correction (1Y)</label><input type="text" placeholder="MMMM DD, YYYY" id="d_c1y" class="input-field w-full date-input border-blue-200 dark:border-blue-900/50 focus:ring-blue-500 bg-white/50"></div>
-                                <div class="flex flex-col gap-1.5"><label class="input-label text-blue-500"><i data-lucide="file-check-2" class="w-3 h-3"></i> Date of FAIR</label><input type="text" placeholder="MMMM DD, YYYY" id="d_fair" class="input-field w-full date-input border-blue-200 dark:border-blue-900/50 focus:ring-blue-500 bg-white/50"></div>
-                                <div class="flex flex-col gap-1.5"><label class="input-label text-blue-500"><i data-lucide="award" class="w-3 h-3"></i> Date of CA</label><input type="text" placeholder="MMMM DD, YYYY" id="d_ca" class="input-field w-full date-input border-blue-200 dark:border-blue-900/50 focus:ring-blue-500 bg-white/50"></div>
+                                <div id="cert1yWrapper" class="hidden flex flex-col gap-1.5"><label class="input-label text-blue-500 dark:text-[#3b82f6]"><i data-lucide="shield-check" class="w-3 h-3"></i> Cert Correction (1Y)</label><input type="text" placeholder="MMMM DD, YYYY" id="d_c1y" class="input-field w-full date-input border-blue-200 dark:border-[#93c5fd] focus:ring-blue-500 bg-white/50"></div>
+                                <div class="flex flex-col gap-1.5"><label class="input-label text-blue-500 dark:text-[#3b82f6]"><i data-lucide="file-check-2" class="w-3 h-3"></i> Date of FAIR</label><input type="text" placeholder="MMMM DD, YYYY" id="d_fair" class="input-field w-full date-input border-blue-200 dark:border-[#93c5fd] focus:ring-blue-500 bg-white/50"></div>
+                                <div class="flex flex-col gap-1.5"><label class="input-label text-blue-500 dark:text-[#3b82f6]"><i data-lucide="award" class="w-3 h-3"></i> Date of CA</label><input type="text" placeholder="MMMM DD, YYYY" id="d_ca" class="input-field w-full date-input border-blue-200 dark:border-[#93c5fd] focus:ring-blue-500 bg-white/50"></div>
                             </div>
                         </div>
                     </div>
@@ -654,10 +684,10 @@
             </div>
 
             <!-- Modal Footer -->
-            <div class="p-6 border-t border-slate-200/60 dark:border-slate-800 bg-slate-50/50 dark:bg-black/30 flex items-center justify-between shrink-0 relative z-10">
-                <div id="errorBox" class="hidden flex items-center gap-2 text-xs text-rose-600 font-bold bg-rose-50 dark:bg-rose-950/50 px-4 py-2.5 rounded-xl border border-rose-200 dark:border-rose-900 shadow-inner max-w-md truncate"></div>
+            <div class="p-6 border-t border-slate-200/60 dark:border-[#fdba74] bg-slate-50/50 dark:bg-[#dbeafe]/80 flex items-center justify-between shrink-0 relative z-10">
+                <div id="errorBox" class="hidden flex items-center gap-2 text-xs text-rose-600 font-bold bg-rose-50 dark:bg-[#fed7aa] px-4 py-2.5 rounded-xl border border-rose-200 dark:border-[#fb923c] shadow-inner max-w-md truncate"></div>
                 <div class="flex gap-4 ml-auto">
-                    <button type="button" onclick="closeModal()" class="px-6 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all focus:outline-none bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 shadow-sm">Cancel</button>
+                    <button type="button" onclick="closeModal()" class="px-6 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-[#1e3a8a] hover:bg-slate-200 dark:hover:bg-[#93c5fd] transition-all focus:outline-none bg-white dark:bg-[#dbeafe] border border-slate-200 dark:border-[#93c5fd] shadow-sm">Cancel</button>
                     <button type="button" onclick="submitModal()" id="btnSubmit" class="shadow-[0_4px_14px_0_rgb(0,0,0,0.15)] hover:shadow-[0_6px_20px_rgba(99,102,241,0.4)] transform hover:-translate-y-0.5 active:translate-y-0 transition-all px-8 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-xl text-sm font-bold flex items-center gap-2 focus:outline-none">
                         <i data-lucide="save" class="w-4 h-4"></i> Synchronize Data
                     </button>
@@ -668,15 +698,15 @@
 
     <!-- WARNING MODAL (Appears on top of other modals) -->
     <div id="warningModal" class="modal-overlay !z-[400]">
-        <div class="box-3d bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl w-full max-w-sm rounded-3xl flex flex-col border border-white/50 dark:border-rose-500/30 relative overflow-hidden transform scale-95 transition-transform duration-300" id="warningModalInner">
+        <div class="box-3d bg-white/95 backdrop-blur-2xl w-full max-w-sm rounded-3xl flex flex-col border border-white/50 relative overflow-hidden transform scale-95 transition-transform duration-300" id="warningModalInner">
             <div class="absolute -top-10 -right-10 w-32 h-32 bg-rose-500/10 rounded-bl-full pointer-events-none"></div>
             <div class="p-6 sm:p-8 flex flex-col items-center text-center relative z-10">
                 <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-rose-500 to-red-600 flex items-center justify-center shadow-lg shadow-rose-500/30 mb-4 animate-bounce">
                     <i data-lucide="alert-triangle" class="w-8 h-8 text-white"></i>
                 </div>
-                <h2 class="font-black text-xl text-slate-800 dark:text-white tracking-tight mb-2">Attention Required</h2>
-                <p id="warningModalText" class="text-sm font-semibold text-slate-600 dark:text-slate-300 mb-6"></p>
-                <button type="button" onclick="closeWarningModal()" class="btn-3d w-full px-5 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-white rounded-xl text-sm font-bold flex justify-center items-center gap-2 transition-colors focus:outline-none">
+                <h2 class="font-black text-xl text-slate-800 dark:text-[#1e3a8a] tracking-tight mb-2">Attention Required</h2>
+                <p id="warningModalText" class="text-sm font-semibold text-slate-600 dark:text-[#ea580c] mb-6"></p>
+                <button type="button" onclick="closeWarningModal()" class="btn-3d w-full px-5 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-[#dbeafe] dark:hover:bg-[#93c5fd] text-slate-700 dark:text-[#1e3a8a] rounded-xl text-sm font-bold flex justify-center items-center gap-2 transition-colors focus:outline-none">
                     <i data-lucide="x" class="w-4 h-4"></i> Close
                 </button>
             </div>
@@ -685,7 +715,7 @@
     
     <!-- Toast Notification Wrapper -->
     <div id="toastWrapper" class="fixed bottom-6 right-6 z-[300] flex flex-col items-end gap-3 pointer-events-none">
-        <button id="toggleToastsBtn" onclick="toggleToasts()" class="pointer-events-auto btn-3d bg-slate-800 dark:bg-slate-700 text-white px-4 py-2 rounded-full text-xs font-bold mb-2 hidden focus:outline-none flex items-center gap-1.5 border border-slate-600">
+        <button id="toggleToastsBtn" onclick="toggleToasts()" class="pointer-events-auto btn-3d bg-slate-800 dark:bg-[#dbeafe] text-white dark:text-[#1e3a8a] px-4 py-2 rounded-full text-xs font-bold mb-2 hidden focus:outline-none flex items-center gap-1.5 border border-slate-600 dark:border-[#93c5fd]">
             <i data-lucide="bell-off" class="w-3.5 h-3.5"></i> Hide Alerts
         </button>
         <div id="toastContainer" class="flex flex-col gap-3 items-end pointer-events-auto w-80 max-h-[80vh] overflow-y-auto custom-scrollbar p-1"></div>
@@ -698,8 +728,6 @@
     <script>
         /************************************************************************
          * API CONFIGURATION
-         * WARNING: In a public production app, NEVER expose the private_key.
-         * For "pure HTML" demo/internal testing as requested, it is here.
          ************************************************************************/
         const API_CONFIG = {
             SPREADSHEET_ID: "1LSYLZ7tfSeVupQMPsCOHG4SlnzPQqOAIe03QI1qRMr8",
@@ -926,7 +954,7 @@
         }
 
         const CLS_INPUT = "input-field w-full";
-        const CLS_LABEL = "input-label text-indigo-600 dark:text-indigo-400";
+        const CLS_LABEL = "input-label text-indigo-600 dark:text-[#3b82f6]";
 
         function getFieldValue(id) {
             const el = document.getElementById(id);
@@ -1027,13 +1055,13 @@
                         
                         // Visually highlight the Date of CA Input Field with Red Border
                         const caInput = document.getElementById('d_ca');
-                        caInput.classList.remove('border-blue-200', 'dark:border-blue-900/50', 'focus:ring-blue-500');
-                        caInput.classList.add('border-rose-500', 'dark:border-rose-500', 'ring-2', 'ring-rose-500');
+                        caInput.classList.remove('border-blue-200', 'dark:border-[#93c5fd]', 'focus:ring-blue-500');
+                        caInput.classList.add('border-rose-500', 'dark:border-[#fb923c]', 'ring-2', 'ring-rose-500');
                         
                         // Reset the border color back to normal after 5 seconds
                         setTimeout(() => {
-                            caInput.classList.add('border-blue-200', 'dark:border-blue-900/50', 'focus:ring-blue-500');
-                            caInput.classList.remove('border-rose-500', 'dark:border-rose-500', 'ring-2', 'ring-rose-500');
+                            caInput.classList.add('border-blue-200', 'dark:border-[#93c5fd]', 'focus:ring-blue-500');
+                            caInput.classList.remove('border-rose-500', 'dark:border-[#fb923c]', 'ring-2', 'ring-rose-500');
                         }, 5000);
                     }
                 }
@@ -1083,15 +1111,15 @@
 
         // === Theme Color Setup ===
         const themeColors = {
-            'Default': ['bg-slate-100', 'dark:bg-slate-900'],
-            'Orange': ['bg-orange-50', 'dark:bg-orange-900'],
-            'Blue': ['bg-blue-50', 'dark:bg-blue-950'],
-            'Red': ['bg-red-50', 'dark:bg-rose-950'],
-            'Green': ['bg-emerald-50', 'dark:bg-emerald-950'],
-            'Purple': ['bg-purple-50', 'dark:bg-purple-950'],
-            'Pink': ['bg-pink-50', 'dark:bg-fuchsia-950'],
-            'Yellow': ['bg-yellow-50', 'dark:bg-yellow-950'],
-            'Brown': ['bg-stone-100', 'dark:bg-stone-900']
+            'Default': ['bg-slate-100', 'dark:bg-transparent'],
+            'Orange': ['bg-orange-50', 'dark:bg-transparent'],
+            'Blue': ['bg-blue-50', 'dark:bg-transparent'],
+            'Red': ['bg-red-50', 'dark:bg-transparent'],
+            'Green': ['bg-emerald-50', 'dark:bg-transparent'],
+            'Purple': ['bg-purple-50', 'dark:bg-transparent'],
+            'Pink': ['bg-pink-50', 'dark:bg-transparent'],
+            'Yellow': ['bg-yellow-50', 'dark:bg-transparent'],
+            'Brown': ['bg-stone-100', 'dark:bg-transparent']
         };
         let currentThemeColor = 'Default';
 
@@ -1356,55 +1384,55 @@
         function buildStaticFormHTML() {
             const voSec = document.getElementById('voSection');
             if(voSec) {
-                let voHTML = `<div class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-white/60 dark:border-slate-700/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.3)] p-6 sm:p-8 rounded-2xl space-y-6">
-                    <div class="border-b border-slate-200 dark:border-slate-700 pb-3 flex items-center gap-2">
+                let voHTML = `<div class="bg-white/80 dark:bg-[#dbeafe]/80 backdrop-blur-xl border border-white/60 dark:border-[#93c5fd]/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_32px_rgba(30,58,138,0.1)] p-6 sm:p-8 rounded-2xl space-y-6">
+                    <div class="border-b border-slate-200 dark:border-[#93c5fd] pb-3 flex items-center gap-2">
                         <i data-lucide="git-pull-request-draft" class="w-5 h-5 text-indigo-500"></i>
-                        <span class="text-sm font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest block">Variation Orders (VO)</span>
+                        <span class="text-sm font-black text-indigo-600 dark:text-[#3b82f6] uppercase tracking-widest block">Variation Orders (VO)</span>
                     </div>
                     <div class="space-y-8">`;
                 for(let i=1; i<=5; i++) {
-                    voHTML += `<div id="vo_block_${i}" class="grid grid-cols-1 md:grid-cols-12 gap-6 p-5 bg-slate-50/50 dark:bg-black/20 rounded-xl border border-slate-100 dark:border-white/5 shadow-[inset_0_2px_4px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_2px_6px_rgba(0,0,0,0.3)] ${i>1 ? 'hidden' : ''}">
+                    voHTML += `<div id="vo_block_${i}" class="grid grid-cols-1 md:grid-cols-12 gap-6 p-5 bg-slate-50/50 dark:bg-white/40 rounded-xl border border-slate-100 dark:border-[#93c5fd] shadow-[inset_0_2px_4px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_2px_4px_rgba(30,58,138,0.05)] ${i>1 ? 'hidden' : ''}">
                         <div class="flex flex-col gap-1.5 md:col-span-2"><label class="${CLS_LABEL}"><i data-lucide="hash" class="w-3 h-3"></i> VO${i}</label><input type="text" id="f_vo${i}" onblur="this.value = toCurrencyFormat(this.value)" class="${CLS_INPUT}"></div>
                         <div class="flex flex-col gap-1.5 md:col-span-2"><label class="${CLS_LABEL}"><i data-lucide="calendar" class="w-3 h-3"></i> VO${i} Date</label><input type="text" placeholder="MMMM DD, YYYY" id="f_vo${i}_date" class="${CLS_INPUT} date-input bg-white/50"></div>
                         <div class="flex flex-col gap-1.5 md:col-span-2"><label class="${CLS_LABEL}"><i data-lucide="clock-9" class="w-3 h-3"></i> VO${i} Add. Days</label><input type="number" id="f_vo${i}_days" class="${CLS_INPUT}"></div>
                         <div class="flex flex-col gap-1.5 md:col-span-6"><label class="${CLS_LABEL}"><i data-lucide="message-square" class="w-3 h-3"></i> VO${i} Remarks</label><textarea id="f_vo${i}_rem" class="${CLS_INPUT} resize-y" rows="2"></textarea></div>
                     </div>`;
                 }
-                voHTML += `</div><div class="pt-5 mt-2 border-t border-slate-200 dark:border-slate-700"><button type="button" id="btn_add_vo" onclick="unhideNextVO()" class="btn-3d text-[10px] font-bold text-white bg-indigo-500 hover:bg-indigo-600 px-4 py-2 rounded-lg flex items-center gap-1.5"><i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> ADD VARIATION ORDER</button></div></div>`;
+                voHTML += `</div><div class="pt-5 mt-2 border-t border-slate-200 dark:border-[#93c5fd]"><button type="button" id="btn_add_vo" onclick="unhideNextVO()" class="btn-3d text-[10px] font-bold text-white bg-indigo-500 hover:bg-indigo-600 px-4 py-2 rounded-lg flex items-center gap-1.5"><i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> ADD VARIATION ORDER</button></div></div>`;
                 voSec.innerHTML = voHTML;
             }
 
             const wsoSec = document.getElementById('wsoSection');
             if(wsoSec) {
-                let wsoHTML = `<div class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-white/60 dark:border-slate-700/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.3)] p-6 sm:p-8 rounded-2xl space-y-6">
-                    <div class="border-b border-slate-200 dark:border-slate-700 pb-3 flex items-center gap-2">
+                let wsoHTML = `<div class="bg-white/80 dark:bg-[#dbeafe]/80 backdrop-blur-xl border border-white/60 dark:border-[#93c5fd]/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_32px_rgba(30,58,138,0.1)] p-6 sm:p-8 rounded-2xl space-y-6">
+                    <div class="border-b border-slate-200 dark:border-[#93c5fd] pb-3 flex items-center gap-2">
                         <i data-lucide="pause-circle" class="w-5 h-5 text-amber-500"></i>
-                        <span class="text-sm font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest block">Work Suspension (WSO/WRO)</span>
+                        <span class="text-sm font-black text-amber-600 dark:text-[#d97706] uppercase tracking-widest block">Work Suspension (WSO/WRO)</span>
                     </div>
                     <div class="space-y-8">`;
                 for(let i=1; i<=4; i++) {
-                    wsoHTML += `<div id="wso_block_${i}" class="grid grid-cols-1 md:grid-cols-12 gap-6 p-5 bg-amber-50/30 dark:bg-black/20 rounded-xl border border-amber-100 dark:border-white/5 shadow-[inset_0_2px_4px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_2px_6px_rgba(0,0,0,0.3)] ${i>1 ? 'hidden' : ''}">
-                        <div class="flex flex-col gap-1.5 md:col-span-2"><label class="${CLS_LABEL.replace('text-indigo-600', 'text-amber-600').replace('dark:text-indigo-400', 'dark:text-amber-500')}"><i data-lucide="calendar-off" class="w-3 h-3"></i> WSO${i} Date</label><input type="text" placeholder="MMMM DD, YYYY" id="f_wso${i}_date" class="${CLS_INPUT} date-input bg-white/50 focus:ring-amber-500"></div>
-                        <div class="flex flex-col gap-1.5 md:col-span-6"><label class="${CLS_LABEL.replace('text-indigo-600', 'text-amber-600').replace('dark:text-indigo-400', 'dark:text-amber-500')}"><i data-lucide="help-circle" class="w-3 h-3"></i> WSO${i} Reason</label><textarea id="f_wso${i}_rsn" class="${CLS_INPUT} focus:ring-amber-500 resize-y" rows="2"></textarea></div>
-                        <div class="flex flex-col gap-1.5 md:col-span-2"><label class="${CLS_LABEL.replace('text-indigo-600', 'text-emerald-600').replace('dark:text-indigo-400', 'dark:text-emerald-500')}"><i data-lucide="calendar-check" class="w-3 h-3"></i> CWSO${i}a Date</label><input type="text" placeholder="MMMM DD, YYYY" id="f_cwso${i}a_date" class="${CLS_INPUT} date-input bg-white/50 focus:ring-emerald-500"></div>
-                        <div class="flex flex-col gap-1.5 md:col-span-2"><label class="${CLS_LABEL.replace('text-indigo-600', 'text-emerald-600').replace('dark:text-indigo-400', 'dark:text-emerald-500')}"><i data-lucide="play-circle" class="w-3 h-3"></i> WRO${i} Date</label><input type="text" placeholder="MMMM DD, YYYY" id="f_wro${i}_date" class="${CLS_INPUT} date-input bg-white/50 focus:ring-emerald-500"></div>
+                    wsoHTML += `<div id="wso_block_${i}" class="grid grid-cols-1 md:grid-cols-12 gap-6 p-5 bg-amber-50/30 dark:bg-white/40 rounded-xl border border-amber-100 dark:border-[#93c5fd] shadow-[inset_0_2px_4px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_2px_4px_rgba(30,58,138,0.05)] ${i>1 ? 'hidden' : ''}">
+                        <div class="flex flex-col gap-1.5 md:col-span-2"><label class="${CLS_LABEL.replace('text-indigo-600', 'text-amber-600').replace('dark:text-[#3b82f6]', 'dark:text-[#d97706]')}"><i data-lucide="calendar-off" class="w-3 h-3"></i> WSO${i} Date</label><input type="text" placeholder="MMMM DD, YYYY" id="f_wso${i}_date" class="${CLS_INPUT} date-input bg-white/50 focus:ring-amber-500"></div>
+                        <div class="flex flex-col gap-1.5 md:col-span-6"><label class="${CLS_LABEL.replace('text-indigo-600', 'text-amber-600').replace('dark:text-[#3b82f6]', 'dark:text-[#d97706]')}"><i data-lucide="help-circle" class="w-3 h-3"></i> WSO${i} Reason</label><textarea id="f_wso${i}_rsn" class="${CLS_INPUT} focus:ring-amber-500 resize-y" rows="2"></textarea></div>
+                        <div class="flex flex-col gap-1.5 md:col-span-2"><label class="${CLS_LABEL.replace('text-indigo-600', 'text-emerald-600').replace('dark:text-[#3b82f6]', 'dark:text-[#0284c7]')}"><i data-lucide="calendar-check" class="w-3 h-3"></i> CWSO${i}a Date</label><input type="text" placeholder="MMMM DD, YYYY" id="f_cwso${i}a_date" class="${CLS_INPUT} date-input bg-white/50 focus:ring-emerald-500"></div>
+                        <div class="flex flex-col gap-1.5 md:col-span-2"><label class="${CLS_LABEL.replace('text-indigo-600', 'text-emerald-600').replace('dark:text-[#3b82f6]', 'dark:text-[#0284c7]')}"><i data-lucide="play-circle" class="w-3 h-3"></i> WRO${i} Date</label><input type="text" placeholder="MMMM DD, YYYY" id="f_wro${i}_date" class="${CLS_INPUT} date-input bg-white/50 focus:ring-emerald-500"></div>
                     </div>`;
                 }
-                wsoHTML += `</div><div class="pt-5 mt-2 border-t border-slate-200 dark:border-slate-700"><button type="button" id="btn_add_wso" onclick="unhideNextWSO()" class="btn-3d text-[10px] font-bold text-white bg-amber-500 hover:bg-amber-600 px-4 py-2 rounded-lg flex items-center gap-1.5"><i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> ADD WSO</button></div></div>`;
+                wsoHTML += `</div><div class="pt-5 mt-2 border-t border-slate-200 dark:border-[#93c5fd]"><button type="button" id="btn_add_wso" onclick="unhideNextWSO()" class="btn-3d text-[10px] font-bold text-white bg-amber-500 hover:bg-amber-600 px-4 py-2 rounded-lg flex items-center gap-1.5"><i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> ADD WSO</button></div></div>`;
                 
                 let cteHTML = `<div class="glass-panel p-6 sm:p-8 rounded-2xl space-y-6 mt-6">
-                    <div class="border-b border-slate-200 dark:border-slate-700 pb-3 flex items-center gap-2">
+                    <div class="border-b border-slate-200 dark:border-[#93c5fd] pb-3 flex items-center gap-2">
                         <i data-lucide="timer" class="w-5 h-5 text-indigo-500"></i>
-                        <span class="text-sm font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest block">Contract Time Extensions (CTE)</span>
+                        <span class="text-sm font-black text-indigo-600 dark:text-[#3b82f6] uppercase tracking-widest block">Contract Time Extensions (CTE)</span>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">`;
                 for(let i=1; i<=20; i++) {
-                    cteHTML += `<div id="cte_block_${i}" class="grid grid-cols-1 md:grid-cols-12 gap-4 p-4 bg-slate-50/50 dark:bg-black/20 rounded-xl border border-slate-100 dark:border-white/5 shadow-[inset_0_2px_4px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_2px_6px_rgba(0,0,0,0.3)] ${i>1 ? 'hidden' : ''}">
+                    cteHTML += `<div id="cte_block_${i}" class="grid grid-cols-1 md:grid-cols-12 gap-4 p-4 bg-slate-50/50 dark:bg-white/40 rounded-xl border border-slate-100 dark:border-[#93c5fd] shadow-[inset_0_2px_4px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_2px_4px_rgba(30,58,138,0.05)] ${i>1 ? 'hidden' : ''}">
                         <div class="flex flex-col gap-1.5 md:col-span-3"><label class="${CLS_LABEL}"><i data-lucide="plus-square" class="w-3 h-3"></i> CTE${i}</label><input type="text" id="f_cte${i}" class="${CLS_INPUT}"></div>
                         <div class="flex flex-col gap-1.5 md:col-span-9"><label class="${CLS_LABEL}"><i data-lucide="message-square" class="w-3 h-3"></i> CTE${i} Remarks</label><textarea id="f_cte${i}_rem" class="${CLS_INPUT} resize-y" rows="2"></textarea></div>
                     </div>`;
                 }
-                cteHTML += `</div><div class="pt-5 mt-2 border-t border-slate-200 dark:border-slate-700"><button type="button" id="btn_add_cte" onclick="unhideNextCTE()" class="btn-3d text-[10px] font-bold text-white bg-indigo-500 hover:bg-indigo-600 px-4 py-2 rounded-lg flex items-center gap-1.5"><i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> ADD CTE</button></div></div></div>`;
+                cteHTML += `</div><div class="pt-5 mt-2 border-t border-slate-200 dark:border-[#93c5fd]"><button type="button" id="btn_add_cte" onclick="unhideNextCTE()" class="btn-3d text-[10px] font-bold text-white bg-indigo-500 hover:bg-indigo-600 px-4 py-2 rounded-lg flex items-center gap-1.5"><i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> ADD CTE</button></div></div></div>`;
                 wsoSec.innerHTML = wsoHTML + cteHTML;
             }
         }
@@ -1416,8 +1444,8 @@
 
             html += `
                 <label class="flex items-center gap-1.5 cursor-pointer group">
-                    <input type="checkbox" value="ALL" checked onchange="handleYearCheckboxChange(this)" class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-700 cursor-pointer shadow-sm">
-                    <span class="text-xs font-black text-indigo-600 dark:text-indigo-400 group-hover:text-indigo-500 uppercase tracking-widest transition-colors">ALL</span>
+                    <input type="checkbox" value="ALL" checked onchange="handleYearCheckboxChange(this)" class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500 dark:border-[#93c5fd] dark:bg-[#dbeafe] cursor-pointer shadow-sm">
+                    <span class="text-xs font-black text-indigo-600 dark:text-[#3b82f6] group-hover:text-indigo-500 uppercase tracking-widest transition-colors">ALL</span>
                 </label>
             `;
 
@@ -1425,8 +1453,8 @@
                 let y = currentYear - i;
                 html += `
                     <label class="flex items-center gap-1.5 cursor-pointer group">
-                        <input type="checkbox" value="${y}" onchange="handleYearCheckboxChange(this)" class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-700 cursor-pointer shadow-sm">
-                        <span class="text-xs font-bold text-slate-700 dark:text-slate-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">${y}</span>
+                        <input type="checkbox" value="${y}" onchange="handleYearCheckboxChange(this)" class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500 dark:border-[#93c5fd] dark:bg-[#dbeafe] cursor-pointer shadow-sm">
+                        <span class="text-xs font-bold text-slate-700 dark:text-[#7c2d12] group-hover:text-indigo-600 dark:group-hover:text-[#ea580c] transition-colors">${y}</span>
                     </label>
                 `;
             }
@@ -1519,8 +1547,7 @@
         function stopLoadingWatchdog() {
             if(loadingTimerId) clearInterval(loadingTimerId);
         }
-
-        // === Data Loading & Processing ===
+		// === Data Loading & Processing ===
         function initApp() {
             startLoadingWatchdog();
             
@@ -1533,7 +1560,7 @@
                             isDataReady = true;
                             const statusEl = document.getElementById('loginStatus');
                             if(statusEl) {
-                                statusEl.className = "inline-flex items-center gap-2 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest bg-emerald-100 dark:bg-emerald-900/40 px-4 py-1.5 rounded-full border border-emerald-200 dark:border-emerald-700 shadow-sm transition-colors duration-300";
+                                statusEl.className = "inline-flex items-center gap-2 text-[10px] font-bold text-emerald-600 dark:text-[#0284c7] uppercase tracking-widest bg-emerald-100 dark:bg-[#e0f2fe] px-4 py-1.5 rounded-full border border-emerald-200 dark:border-[#7dd3fc] shadow-sm transition-colors duration-300";
                                 statusEl.innerHTML = '<i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> Live Connected';
                                 lucide.createIcons();
                             }
@@ -1713,7 +1740,7 @@
             const isDark = html.classList.contains('dark');
             const btn = document.getElementById('themeToggleBtn');
             if (btn) {
-                btn.innerHTML = `<i data-lucide="${isDark ? 'sun' : 'moon'}" class="w-5 h-5 ${isDark ? 'text-amber-400' : 'text-indigo-500'}"></i>`;
+                btn.innerHTML = `<i data-lucide="${isDark ? 'sun' : 'moon'}" class="w-5 h-5 ${isDark ? 'text-[#d97706]' : 'text-indigo-500'}"></i>`;
                 lucide.createIcons();
             }
         }
@@ -1736,18 +1763,18 @@
             if(!el) return;
             const isAll = options.length > 0 && options.every(o => activeArr.includes(o));
             let h = `
-                <div class="sticky-filter-header p-2 dark:bg-slate-800">
-                    <label class="flex items-center gap-3 p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer">
+                <div class="sticky-filter-header p-2 dark:bg-[#dbeafe]">
+                    <label class="flex items-center gap-3 p-2 rounded-md hover:bg-slate-100 dark:hover:bg-[#bfdbfe] cursor-pointer">
                         <input type="checkbox" onchange="toggleAllFilters('${type}', this)" class="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500" ${isAll ? 'checked' : ''}>
-                        <span class="text-[10px] font-black uppercase text-slate-900 dark:text-slate-100 tracking-tighter">Select All</span>
+                        <span class="text-[10px] font-black uppercase text-slate-900 dark:text-[#1e3a8a] tracking-tighter">Select All</span>
                     </label>
                 </div><div class="p-2 space-y-0.5">
             `;
             options.forEach(o => {
                 h += `
-                    <label class="flex items-center gap-3 p-2 rounded-md hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer transition-colors">
+                    <label class="flex items-center gap-3 p-2 rounded-md hover:bg-slate-50 dark:hover:bg-[#bfdbfe]/50 cursor-pointer transition-colors">
                         <input type="checkbox" value="${o}" class="cb-${type} w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500" ${activeArr.includes(o) ? 'checked' : ''} onchange="updateFilters()">
-                        <span class="text-xs font-semibold text-slate-700 dark:text-slate-300 truncate" title="${o}">${o}</span>
+                        <span class="text-xs font-semibold text-slate-700 dark:text-[#7c2d12] truncate" title="${o}">${o}</span>
                     </label>
                 `;
             });
@@ -1843,7 +1870,7 @@
             paginatedData.forEach((p, i) => {
                 const actualIndex = startIndex + i;
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 cursor-pointer transition-all border-b border-slate-200/50 dark:border-slate-700/50 group transform hover:scale-[1.002]";
+                tr.className = "hover:bg-indigo-50/50 dark:hover:bg-[#93c5fd]/30 cursor-pointer transition-all border-b border-slate-200/50 dark:border-[#93c5fd]/50 group transform hover:scale-[1.002]";
                 tr.title = "Double-click row to edit";
                 
                 tr.onclick = (e) => { 
@@ -1858,16 +1885,16 @@
                 const cst = p.cost ? p.cost.toLocaleString('en-PH', {style:'currency', currency:'PHP'}) : '';
 
                 tr.innerHTML = `
-                    <td class="px-6 py-4 font-black text-indigo-600 dark:text-indigo-400 flex items-center gap-3">
+                    <td class="px-6 py-4 font-black text-indigo-600 dark:text-[#3b82f6] flex items-center gap-3">
                         <i data-lucide="chevron-right" id="ic-row-${actualIndex}" class="w-4 h-4 transition-transform text-slate-400 group-hover:text-indigo-500"></i> ${p.id}
                     </td>
-                    <td class="px-6 py-4 text-slate-600 dark:text-slate-400 font-semibold">${p.year}</td>
-                    <td class="px-6 py-4 font-bold text-slate-900 dark:text-slate-100 whitespace-normal break-words max-w-[280px]">${p.name}</td>
-                    <td class="px-6 py-4 text-slate-600 dark:text-slate-400 font-semibold truncate max-w-[160px]" title="${p.contractor}">${p.contractor}</td>
-                    <td class="px-6 py-4 text-right font-mono text-xs font-bold text-slate-700 dark:text-slate-300">${cst}</td>
-                    <td class="px-6 py-4 text-slate-600 dark:text-slate-400 font-semibold text-left">${p.pe}</td>
+                    <td class="px-6 py-4 text-slate-600 dark:text-[#ea580c] font-semibold">${p.year}</td>
+                    <td class="px-6 py-4 font-bold text-slate-900 dark:text-[#1e3a8a] whitespace-normal break-words max-w-[280px]">${p.name}</td>
+                    <td class="px-6 py-4 text-slate-600 dark:text-[#ea580c] font-semibold truncate max-w-[160px]" title="${p.contractor}">${p.contractor}</td>
+                    <td class="px-6 py-4 text-right font-mono text-xs font-bold text-slate-700 dark:text-[#7c2d12]">${cst}</td>
+                    <td class="px-6 py-4 text-slate-600 dark:text-[#ea580c] font-semibold text-left">${p.pe}</td>
                     <td class="px-6 py-4 text-center">
-                        <button type="button" onclick="event.stopPropagation(); openModal('EDIT', '${p.id.replace(/'/g, "\\'")}')" class="transform hover:-translate-y-0.5 active:translate-y-0.5 transition-all shadow-[0_4px_14px_0_rgb(0,0,0,0.15)] hover:shadow-[0_6px_20px_rgba(99,102,241,0.4)] px-3 py-1.5 rounded-lg bg-indigo-100 dark:bg-indigo-900/60 text-indigo-600 dark:text-indigo-300 opacity-0 group-hover:opacity-100 transition-all focus:outline-none flex items-center gap-1.5 mx-auto font-bold text-xs">
+                        <button type="button" onclick="event.stopPropagation(); openModal('EDIT', '${p.id.replace(/'/g, "\\'")}')" class="transform hover:-translate-y-0.5 active:translate-y-0.5 transition-all shadow-[0_4px_14px_0_rgb(0,0,0,0.15)] hover:shadow-[0_6px_20px_rgba(99,102,241,0.4)] px-3 py-1.5 rounded-lg bg-indigo-100 dark:bg-[#dbeafe] text-indigo-600 dark:text-[#1e3a8a] opacity-0 group-hover:opacity-100 transition-all focus:outline-none flex items-center gap-1.5 mx-auto font-bold text-xs">
                             <i data-lucide="edit-3" class="w-3.5 h-3.5 pointer-events-none"></i> Edit
                         </button>
                     </td>
@@ -1875,8 +1902,8 @@
 
                 const trEx = document.createElement('tr');
                 trEx.id = `exp-row-${actualIndex}`;
-                trEx.className = "expandable-row bg-slate-100/50 dark:bg-slate-900/50 shadow-[inset_0_4px_6px_-1px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_4px_6px_-1px_rgba(0,0,0,0.2)]";
-                trEx.innerHTML = `<td colspan="7" class="p-0 border-b border-slate-200 dark:border-slate-800">${buildExpUI(p.id)}</td>`;
+                trEx.className = "expandable-row bg-slate-100/50 dark:bg-[#dbeafe]/50 shadow-[inset_0_4px_6px_-1px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_4px_6px_-1px_rgba(30,58,138,0.05)]";
+                trEx.innerHTML = `<td colspan="7" class="p-0 border-b border-slate-200 dark:border-[#93c5fd]">${buildExpUI(p.id)}</td>`;
 
                 tb.appendChild(tr); tb.appendChild(trEx);
             });
@@ -1913,9 +1940,9 @@
         function renderFieldHTML(lbl, val) {
             if(!val || String(val).trim() === '') return '';
             return `
-                <div class="flex items-start gap-4 py-2 border-b border-slate-200/50 dark:border-slate-700/50 last:border-0 hover:bg-white dark:hover:bg-slate-800 px-3 rounded-lg transition-colors">
-                    <span class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest min-w-[130px] pt-0.5 shrink-0">${lbl}</span>
-                    <span class="text-xs font-bold text-slate-800 dark:text-slate-200 whitespace-normal break-words flex-1 leading-snug">${val}</span>
+                <div class="flex items-start gap-4 py-2 border-b border-slate-200/50 dark:border-[#93c5fd]/50 last:border-0 hover:bg-white dark:hover:bg-[#bfdbfe] px-3 rounded-lg transition-colors">
+                    <span class="text-[9px] font-black text-slate-400 dark:text-[#ea580c] uppercase tracking-widest min-w-[130px] pt-0.5 shrink-0">${lbl}</span>
+                    <span class="text-xs font-bold text-slate-800 dark:text-[#1e3a8a] whitespace-normal break-words flex-1 leading-snug">${val}</span>
                 </div>
             `;
         }
@@ -1990,11 +2017,11 @@
                 });
             }
 
-            const bx = "bg-white/60 dark:bg-black/20 backdrop-blur-md border border-white/50 dark:border-white/5 rounded-2xl p-6 shadow-xl h-full transform transition-transform hover:scale-[1.01] duration-300";
-            const hd = "text-[11px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-[0.2em] border-b border-indigo-100 dark:border-indigo-900/50 pb-3 mb-4 flex items-center gap-2";
+            const bx = "bg-white/60 dark:bg-white/40 backdrop-blur-md border border-white/50 dark:border-[#93c5fd] rounded-2xl p-6 shadow-xl h-full transform transition-transform hover:scale-[1.01] duration-300";
+            const hd = "text-[11px] font-black text-indigo-600 dark:text-[#3b82f6] uppercase tracking-[0.2em] border-b border-indigo-100 dark:border-[#93c5fd] pb-3 mb-4 flex items-center gap-2";
 
             return `
-                <div class="p-6 md:p-8 grid grid-cols-1 xl:grid-cols-3 gap-6 md:gap-8 bg-indigo-50/30 dark:bg-indigo-900/10 border-t border-slate-200 dark:border-slate-700/50">
+                <div class="p-6 md:p-8 grid grid-cols-1 xl:grid-cols-3 gap-6 md:gap-8 bg-indigo-50/30 dark:bg-[#dbeafe]/20 border-t border-slate-200 dark:border-[#93c5fd]/50">
                     <div class="${bx}"><h4 class="${hd}"><i data-lucide="calendar-clock" class="w-4 h-4"></i> Schedule & Variations</h4><div class="space-y-0">${h1 || '<em class="text-slate-400 text-xs font-bold block p-4 text-center bg-slate-100 dark:bg-slate-800 rounded-lg">No records found</em>'}</div></div>
                     <div class="${bx}"><h4 class="${hd}"><i data-lucide="pause-circle" class="w-4 h-4"></i> Suspensions & Extensions</h4><div class="space-y-0">${h2 || '<em class="text-slate-400 text-xs font-bold block p-4 text-center bg-slate-100 dark:bg-slate-800 rounded-lg">No records found</em>'}</div></div>
                     <div class="${bx}"><h4 class="${hd}"><i data-lucide="line-chart" class="w-4 h-4"></i> Financials (PCMA & BILLING)</h4><div class="space-y-0">${h3 || '<em class="text-slate-400 text-xs font-bold block p-4 text-center bg-slate-100 dark:bg-slate-800 rounded-lg">No records found</em>'}</div></div>
@@ -2008,8 +2035,8 @@
             const keyMap = { 'pdo': 'PDO', 'date': 'DATE', 'vo': 'VO', 'wso': 'WSO_WRO_CTE', 'pcma': 'PCMA', 'billing': 'BILLING' };
             currentActiveTabKey = keyMap[tabId];
 
-            const activeTabClasses = "px-5 py-2.5 text-sm font-bold rounded-xl whitespace-nowrap transition-all duration-300 flex items-center gap-2 outline-none bg-indigo-600 text-white shadow-lg shadow-indigo-500/40 scale-100".split(' ');
-            const inactiveTabClasses = "px-5 py-2.5 text-sm font-bold rounded-xl whitespace-nowrap transition-all duration-300 flex items-center gap-2 outline-none bg-transparent text-slate-500 hover:bg-slate-200 dark:text-slate-400 dark:hover:bg-slate-800/50 hover:text-slate-800 dark:hover:text-slate-200 scale-95".split(' ');
+            const activeTabClasses = "px-5 py-2.5 text-sm font-bold rounded-xl whitespace-nowrap transition-all duration-300 flex items-center gap-2 outline-none bg-indigo-600 dark:bg-[#3b82f6] text-white shadow-lg shadow-indigo-500/40 dark:shadow-[#3b82f6]/40 scale-100".split(' ');
+            const inactiveTabClasses = "px-5 py-2.5 text-sm font-bold rounded-xl whitespace-nowrap transition-all duration-300 flex items-center gap-2 outline-none bg-transparent text-slate-500 dark:text-[#7c2d12] hover:bg-slate-200 dark:hover:bg-[#ffedd5] hover:text-slate-800 dark:hover:text-[#ea580c] scale-95".split(' ');
 
             tabs.forEach(t => {
                 const sec = document.getElementById(t + 'Section');
@@ -2049,8 +2076,8 @@
                 icon.classList.add('animate-spin');
             }
             if(textSpan) {
-                textSpan.classList.remove('opacity-0', 'text-emerald-500', 'text-rose-500', 'dark:text-emerald-400', 'dark:text-rose-400');
-                textSpan.classList.add('text-indigo-500', 'dark:text-indigo-400');
+                textSpan.classList.remove('opacity-0', 'text-emerald-500', 'text-rose-500', 'dark:text-[#0284c7]', 'dark:text-[#c2410c]');
+                textSpan.classList.add('text-indigo-500', 'dark:text-[#3b82f6]');
                 let dots = 0;
                 textSpan.textContent = 'Syncing';
                 clearInterval(reloadInterval);
@@ -2066,13 +2093,13 @@
                 
                 if(textSpan) {
                     clearInterval(reloadInterval);
-                    textSpan.classList.remove('text-indigo-500', 'dark:text-indigo-400');
+                    textSpan.classList.remove('text-indigo-500', 'dark:text-[#3b82f6]');
                     if(success) {
                         textSpan.textContent = 'Synced!';
-                        textSpan.classList.add('text-emerald-500', 'dark:text-emerald-400');
+                        textSpan.classList.add('text-emerald-500', 'dark:text-[#0284c7]');
                     } else {
                         textSpan.textContent = 'Failed';
-                        textSpan.classList.add('text-rose-500', 'dark:text-rose-400');
+                        textSpan.classList.add('text-rose-500', 'dark:text-[#c2410c]');
                     }
                     setTimeout(() => { textSpan.classList.add('opacity-0'); }, 3000);
                 }
@@ -2122,9 +2149,9 @@
                     pcmaChunks.reverse(); 
                     
                     let pcmaHTML = `
-                    <div class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-white/60 dark:border-slate-700/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.3)] p-6 sm:p-8 rounded-2xl w-full relative overflow-hidden">
+                    <div class="bg-white/80 dark:bg-[#dbeafe]/80 backdrop-blur-xl border border-white/60 dark:border-[#93c5fd]/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_32px_rgba(30,58,138,0.1)] p-6 sm:p-8 rounded-2xl w-full relative overflow-hidden">
                         <div class="absolute -right-10 -top-10 text-indigo-500/5 rotate-12 pointer-events-none"><i data-lucide="bar-chart-2" class="w-48 h-48"></i></div>
-                        <span class="text-sm font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest block border-b border-indigo-100 dark:border-indigo-900/50 pb-3 mb-6 flex items-center gap-2 relative z-10"><i data-lucide="bar-chart-2" class="w-5 h-5"></i> Monthly PCMA Records</span>
+                        <span class="text-sm font-black text-indigo-600 dark:text-[#3b82f6] uppercase tracking-widest block border-b border-indigo-100 dark:border-[#93c5fd] pb-3 mb-6 flex items-center gap-2 relative z-10"><i data-lucide="bar-chart-2" class="w-5 h-5"></i> Monthly PCMA Records</span>
                         <div class="space-y-6 relative z-10">
                     `;
 
@@ -2140,8 +2167,8 @@
                         const blockTitle = h1 ? String(h1).trim() : `PCMA Record`;
 
                         pcmaHTML += `
-                            <div class="p-5 bg-white/50 dark:bg-black/20 rounded-xl border border-slate-200/60 dark:border-white/5 shadow-[inset_0_2px_4px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_2px_6px_rgba(0,0,0,0.3)]">
-                                <span class="text-[10px] font-black text-indigo-500 dark:text-indigo-400 uppercase tracking-[0.15em] block mb-4 flex items-center gap-1.5"><i data-lucide="calendar" class="w-3.5 h-3.5"></i> ${blockTitle}</span>
+                            <div class="p-5 bg-white/50 dark:bg-white/40 rounded-xl border border-slate-200/60 dark:border-[#93c5fd] shadow-[inset_0_2px_4px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_2px_4px_rgba(30,58,138,0.05)]">
+                                <span class="text-[10px] font-black text-indigo-500 dark:text-[#3b82f6] uppercase tracking-[0.15em] block mb-4 flex items-center gap-1.5"><i data-lucide="calendar" class="w-3.5 h-3.5"></i> ${blockTitle}</span>
                                 <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
                                     <div class="flex flex-col gap-1.5 md:col-span-3">
                                         <label class="${CLS_LABEL}" title="${h1}"><i data-lucide="percent" class="w-3 h-3"></i> ${h1}</label>
@@ -2184,9 +2211,9 @@
                     billChunks.reverse();
 
                     let billHTML = `
-                    <div class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-white/60 dark:border-slate-700/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.3)] p-6 sm:p-8 rounded-2xl w-full relative overflow-hidden border-t-4 border-t-teal-500">
+                    <div class="bg-white/80 dark:bg-[#dbeafe]/80 backdrop-blur-xl border border-white/60 dark:border-[#93c5fd]/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_32px_rgba(30,58,138,0.1)] p-6 sm:p-8 rounded-2xl w-full relative overflow-hidden border-t-4 border-t-teal-500">
                         <div class="absolute -right-10 -top-10 text-teal-500/5 rotate-12 pointer-events-none"><i data-lucide="banknote" class="w-48 h-48"></i></div>
-                        <span class="text-sm font-black text-teal-600 dark:text-teal-400 uppercase tracking-widest block border-b border-teal-200 dark:border-teal-900/50 pb-3 mb-6 flex items-center gap-2 relative z-10"><i data-lucide="banknote" class="w-5 h-5"></i> Financial Billing Records</span>
+                        <span class="text-sm font-black text-teal-600 dark:text-[#0284c7] uppercase tracking-widest block border-b border-teal-200 dark:border-[#7dd3fc] pb-3 mb-6 flex items-center gap-2 relative z-10"><i data-lucide="banknote" class="w-5 h-5"></i> Financial Billing Records</span>
                         <div class="space-y-6 relative z-10">
                     `;
 
@@ -2215,20 +2242,20 @@
                         const blockTitle = h1 ? String(h1).trim() : `Billing Record`;
 
                         billHTML += `
-                            <div class="p-5 bg-white/50 dark:bg-black/20 rounded-xl border border-slate-200/60 dark:border-white/5 shadow-[inset_0_2px_4px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_2px_6px_rgba(0,0,0,0.3)]">
-                                <span class="text-[10px] font-black text-teal-600 dark:text-teal-500 uppercase tracking-[0.15em] block mb-4 flex items-center gap-1.5"><i data-lucide="calendar" class="w-3.5 h-3.5"></i> ${blockTitle}</span>
+                            <div class="p-5 bg-white/50 dark:bg-white/40 rounded-xl border border-slate-200/60 dark:border-[#93c5fd] shadow-[inset_0_2px_4px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_2px_4px_rgba(30,58,138,0.05)]">
+                                <span class="text-[10px] font-black text-teal-600 dark:text-[#0284c7] uppercase tracking-[0.15em] block mb-4 flex items-center gap-1.5"><i data-lucide="calendar" class="w-3.5 h-3.5"></i> ${blockTitle}</span>
                                 <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
                                     <div class="flex flex-col gap-1.5 md:col-span-3">
-                                        <label class="${CLS_LABEL.replace('text-indigo-600', 'text-teal-600').replace('dark:text-indigo-400', 'dark:text-teal-500')}" title="${h1}"><i data-lucide="coins" class="w-3 h-3"></i> ${h1}</label>
+                                        <label class="${CLS_LABEL.replace('text-indigo-600', 'text-teal-600').replace('dark:text-[#3b82f6]', 'dark:text-[#0284c7]')}" title="${h1}"><i data-lucide="coins" class="w-3 h-3"></i> ${h1}</label>
                                         <input type="text" data-header="${h1}" data-tab="billing" value="${toCurrencyFormat(val1)}" onblur="this.value = toCurrencyFormat(this.value)" class="dyn-bill ${CLS_INPUT} font-mono text-base focus:ring-teal-500">
                                     </div>
                                     ${h2 ? `
                                     <div class="flex flex-col gap-1.5 md:col-span-3">
-                                        <label class="${CLS_LABEL.replace('text-indigo-600', 'text-teal-600').replace('dark:text-indigo-400', 'dark:text-teal-500')}"><i data-lucide="calendar-check" class="w-3 h-3"></i> Date of SWA/Billing</label>
+                                        <label class="${CLS_LABEL.replace('text-indigo-600', 'text-teal-600').replace('dark:text-[#3b82f6]', 'dark:text-[#0284c7]')}"><i data-lucide="calendar-check" class="w-3 h-3"></i> Date of SWA/Billing</label>
                                         <input type="text" placeholder="MMMM DD, YYYY" data-header="${h2}" data-tab="billing-swa" value="${formatDt(swaDate)}" class="dyn-bill-swa date-input ${CLS_INPUT} focus:ring-teal-500 text-sm bg-white/50">
                                     </div>
                                     <div class="flex flex-col gap-1.5 md:col-span-6">
-                                        <label class="${CLS_LABEL.replace('text-indigo-600', 'text-teal-600').replace('dark:text-indigo-400', 'dark:text-teal-500')}" title="${h2}"><i data-lucide="message-square" class="w-3 h-3"></i> ${h2}</label>
+                                        <label class="${CLS_LABEL.replace('text-indigo-600', 'text-teal-600').replace('dark:text-[#3b82f6]', 'dark:text-[#0284c7]')}" title="${h2}"><i data-lucide="message-square" class="w-3 h-3"></i> ${h2}</label>
                                         <textarea data-header="${h2}" data-tab="billing-rem" class="dyn-bill-rem ${CLS_INPUT} text-base focus:ring-teal-500 resize-y" rows="2">${remText}</textarea>
                                     </div>` : ''}
                                 </div>
@@ -2295,7 +2322,7 @@
                 if(inId) {
                     inId.value = cid; 
                     inId.readOnly = true; 
-                    inId.classList.add('opacity-60', 'cursor-not-allowed', 'bg-slate-200', 'dark:bg-slate-800');
+                    inId.classList.add('opacity-60', 'cursor-not-allowed', 'bg-slate-200', 'dark:bg-[#93c5fd]/50');
                 }
                 switchModalTab('pdo'); 
                 loadDataToForm(cid);
@@ -2304,7 +2331,7 @@
                 if(reloadBtnWrapper) reloadBtnWrapper.classList.add('hidden');
                 if(inId) {
                     inId.readOnly = false; 
-                    inId.classList.remove('opacity-60', 'cursor-not-allowed', 'bg-slate-200', 'dark:bg-slate-800');
+                    inId.classList.remove('opacity-60', 'cursor-not-allowed', 'bg-slate-200', 'dark:bg-[#93c5fd]/50');
                 }
                 switchModalTab('pdo'); 
                 toggleFollowUpVisibility(''); toggleRemarksVisibility('No', false);
@@ -2358,9 +2385,9 @@
                         el.value = formattedYmd;
                     }
                     if (!el.value) {
-                        el.classList.add('text-slate-400', 'dark:text-slate-500');
+                        el.classList.add('text-slate-400', 'dark:text-[#1e3a8a]/60');
                     } else {
-                        el.classList.remove('text-slate-400', 'dark:text-slate-500');
+                        el.classList.remove('text-slate-400', 'dark:text-[#1e3a8a]/60');
                     }
                 } else if (isCurrency) {
                     el.value = toCurrencyFormat(rawVal);
@@ -2401,9 +2428,9 @@
                         el.value = ymd;
                     }
                     if (!el.value) {
-                        el.classList.add('text-slate-400', 'dark:text-slate-500');
+                        el.classList.add('text-slate-400', 'dark:text-[#1e3a8a]/60');
                     } else {
-                        el.classList.remove('text-slate-400', 'dark:text-slate-500');
+                        el.classList.remove('text-slate-400', 'dark:text-[#1e3a8a]/60');
                     }
                     if (id === 'd_notif') toggleFollowUpVisibility(ymd);
                 }
@@ -2481,8 +2508,8 @@
                     if (el2._flatpickr) el2._flatpickr.setDate(ymd);
                     else el2.value = ymd;
                     
-                    if (!el2.value) el2.classList.add('text-slate-400', 'dark:text-slate-500');
-                    else el2.classList.remove('text-slate-400', 'dark:text-slate-500');
+                    if (!el2.value) el2.classList.add('text-slate-400', 'dark:text-[#1e3a8a]/60');
+                    else el2.classList.remove('text-slate-400', 'dark:text-[#1e3a8a]/60');
                 }
             }
 
@@ -2516,8 +2543,8 @@
                         if (el._flatpickr) el._flatpickr.setDate(ymd);
                         else el.value = ymd;
                         
-                        if (!el.value) el.classList.add('text-slate-400', 'dark:text-slate-500');
-                        else el.classList.remove('text-slate-400', 'dark:text-slate-500');
+                        if (!el.value) el.classList.add('text-slate-400', 'dark:text-[#1e3a8a]/60');
+                        else el.classList.remove('text-slate-400', 'dark:text-[#1e3a8a]/60');
                     }
                 }
                 setWsoD(`f_wso${i}_date`, `WSO${i} Date`);
@@ -2552,7 +2579,7 @@
         function addFollowUpRow(v='') {
             const div = document.createElement('div'); div.className="flex items-center gap-1";
             const val = v ? formatDt(v) : '';
-            div.innerHTML = `<input type="text" placeholder="MMMM DD, YYYY" value="${val}" class="in-fu date-input ${CLS_INPUT} flex-1 !py-1 bg-white/50"><button type="button" onclick="this.parentElement.remove(); isFormDirty = true; dirtyTabs.add('DATE');" class="text-rose-500 hover:text-rose-700 focus:outline-none"><i data-lucide="minus-circle" class="w-4 h-4"></i></button>`;
+            div.innerHTML = `<input type="text" placeholder="MMMM DD, YYYY" value="${val}" class="in-fu date-input ${CLS_INPUT} flex-1 !py-1 bg-white/50"><button type="button" onclick="this.parentElement.remove(); isFormDirty = true; dirtyTabs.add('DATE');" class="text-rose-500 dark:text-[#ea580c] hover:text-rose-700 dark:hover:text-[#c2410c] focus:outline-none"><i data-lucide="minus-circle" class="w-4 h-4"></i></button>`;
             const parent = document.getElementById('followUpList'); if(parent) parent.appendChild(div); 
             
             // Initialize Flatpickr specifically on the newly created input
@@ -2592,7 +2619,7 @@
 
         function addRemarkRow(v='') {
             const div = document.createElement('div'); div.className="flex items-center gap-1 w-full";
-            div.innerHTML = `<textarea placeholder="Remark detail..." class="in-rem ${CLS_INPUT} flex-1 !py-1.5 resize-y" rows="2">${v}</textarea><button type="button" onclick="this.parentElement.remove(); isFormDirty = true; dirtyTabs.add('DATE');" class="text-rose-400 hover:text-rose-600 focus:outline-none ml-2"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`;
+            div.innerHTML = `<textarea placeholder="Remark detail..." class="in-rem ${CLS_INPUT} flex-1 !py-1.5 resize-y" rows="2">${v}</textarea><button type="button" onclick="this.parentElement.remove(); isFormDirty = true; dirtyTabs.add('DATE');" class="text-rose-400 dark:text-[#fb923c] hover:text-rose-600 dark:hover:text-[#c2410c] focus:outline-none ml-2"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`;
             const parent = document.getElementById('remarksList'); if(parent) parent.appendChild(div); 
             lucide.createIcons();
             isFormDirty = true;
@@ -2638,8 +2665,8 @@
                             if (!isNaN(numVal) && numVal !== 0 && !dateInput.value) {
                                 missingBillingDate = true;
                                 // Highlight the missing field briefly with warning color
-                                dateInput.classList.add('border-amber-500', 'ring-2', 'ring-amber-500');
-                                setTimeout(() => dateInput.classList.remove('border-amber-500', 'ring-2', 'ring-amber-500'), 4000);
+                                dateInput.classList.add('border-amber-500', 'dark:border-[#fcd34d]', 'ring-2', 'ring-amber-500', 'dark:ring-[#fcd34d]');
+                                setTimeout(() => dateInput.classList.remove('border-amber-500', 'dark:border-[#fcd34d]', 'ring-2', 'ring-amber-500', 'dark:ring-[#fcd34d]'), 4000);
                             }
                         }
                     }
