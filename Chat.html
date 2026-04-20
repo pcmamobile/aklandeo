@@ -112,9 +112,12 @@
         <div class="bg-white rounded-3xl shadow-xl p-5 w-full max-w-sm transform animate-float">
             <div class="flex justify-between items-center mb-4">
                 <span class="font-black text-green-500 text-lg flex items-center"><i class="ph-fill ph-users mr-2 text-xl"></i> User Status</span>
-                <div class="flex space-x-3">
-                    <button onclick="forceRefreshOnline()" class="text-green-500 hover:text-green-600 transition-colors"><i class="ph-bold ph-arrows-clockwise text-2xl"></i></button>
-                    <button onclick="closeOnlineModal()" class="text-gray-300 hover:text-red-500 transition-colors"><i class="ph ph-x-circle text-2xl"></i></button>
+                <div class="flex space-x-2">
+                    <button id="refreshStatusBtn" onclick="forceRefreshOnline()" class="text-green-500 hover:text-green-600 transition-colors bg-green-50 px-2 py-1 rounded-lg flex items-center border border-green-100 shadow-sm">
+                        <i class="ph-bold ph-arrows-clockwise text-lg mr-1"></i>
+                        <span class="text-xs font-bold">Refresh</span>
+                    </button>
+                    <button onclick="closeOnlineModal()" class="text-gray-400 hover:text-red-500 transition-colors"><i class="ph ph-x-circle text-2xl"></i></button>
                 </div>
             </div>
             <div id="onlineUsersList" class="max-h-[350px] overflow-y-auto space-y-2 scrollbar-hide pr-1"></div>
@@ -415,8 +418,8 @@
             if (hiddenTime > 0 && (Date.now() - hiddenTime > 60000) && userName) {
                 softLogout();
             } else if (userName) {
-                // FIXED FETCH CALL WITHOUT CUSTOM HEADERS to prevent CORS preflight blocks
-                fetch(`${scriptUrl}?action=fetch&t=${Date.now()}&ping=${encodeURIComponent(userName)}&_cb=${Math.random().toString(36).substring(7)}`);
+                // PINALITAN: Kukuha ng bagong listahan at ire-refresh agad ang screen (UI) paggising ng phone
+                fetchMessages(true);
             }
             hiddenTime = 0;
         }
@@ -562,8 +565,21 @@
     }
     
     async function forceRefreshOnline() {
+        const btn = $('refreshStatusBtn');
+        if (btn) {
+            const icon = btn.querySelector('i');
+            if (icon) icon.classList.add('animate-spin');
+            btn.classList.add('opacity-50');
+        }
+        
         await fetchMessages(true);
         refreshOnlineModalSilent();
+        
+        if (btn) {
+            const icon = btn.querySelector('i');
+            if (icon) icon.classList.remove('animate-spin');
+            btn.classList.remove('opacity-50');
+        }
     }
     
     function openOnlineModal() { refreshOnlineModalSilent(); $('onlineModal').classList.remove('hidden'); forceRefreshOnline(); }
