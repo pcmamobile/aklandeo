@@ -9,24 +9,37 @@
     @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
 
     :root {
-      --bg-gradient: linear-gradient(-45deg, #0f172a, #1e1b4b, #312e81, #0f172a);
-      --glass-bg: rgba(255, 255, 255, 0.05);
-      --glass-border: rgba(255, 255, 255, 0.1);
-      --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      /* Blue & Orange Pastel Animated Gradient */
+      --bg-gradient: linear-gradient(-45deg, #dbeafe, #ffedd5, #bfdbfe, #fed7aa);
       
-      --primary: #3b82f6;
-      --primary-depth: #1d4ed8;
-      --accent: #ec4899;
-      --accent-depth: #be185d;
-      --success: #10b981;
-      --success-depth: #047857;
-      --warning: #f59e0b;
-      --warning-depth: #b45309;
-      --danger: #ef4444;
-      --danger-depth: #b91c1c;
+      /* Vibrant Blue & Orange Pastels with Deep Text Contrasts */
+      --primary: #93c5fd; /* Pastel Blue */
+      --primary-light: #dbeafe;
+      --primary-depth: #3b82f6;
+      --text-primary: #1e3a8a;
+      
+      --accent: #fdba74; /* Pastel Orange */
+      --accent-light: #ffedd5;
+      --accent-depth: #ea580c;
+      --text-accent: #7c2d12;
+      
+      --success: #7dd3fc; /* Sky Blue (Success equivalent) */
+      --success-light: #e0f2fe;
+      --success-depth: #0284c7;
+      --text-success: #082f49;
+      
+      --warning: #fcd34d; /* Pastel Yellow-Orange */
+      --warning-light: #fef3c7;
+      --warning-depth: #d97706;
+      --text-warning: #78350f;
+      
+      --danger: #fb923c; /* Deep Pastel Orange/Coral */
+      --danger-light: #fed7aa;
+      --danger-depth: #c2410c;
+      --text-danger: #431407;
 
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
+      --text-main: #1e3a8a; /* Slate 800 replacement */
+      --text-muted: #ea580c; /* Slate 500 replacement */
     }
 
     body {
@@ -47,9 +60,9 @@
     }
 
     ::-webkit-scrollbar { width: 8px; }
-    ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
-    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
+    ::-webkit-scrollbar-track { background: var(--primary-light); }
+    ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--primary-depth); }
 
     /* 3D Button Utility */
     .btn-3d {
@@ -64,20 +77,20 @@
       transition: all 0.15s ease;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      color: white;
+      color: var(--text-main);
     }
     .btn-3d:active {
       transform: translateY(4px) !important;
       box-shadow: 0 0 0 transparent !important;
     }
 
-    /* Glassmorphism Containers */
+    /* Glassmorphism Containers - Colored with Pastel */
     .glass-panel {
-      background: var(--glass-bg);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid var(--glass-border);
-      box-shadow: var(--glass-shadow);
+      background: var(--primary-light);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 2px solid var(--primary);
+      box-shadow: 0 8px 32px 0 rgba(30, 58, 138, 0.1);
       border-radius: 16px;
     }
 
@@ -86,10 +99,10 @@
       position: sticky;
       top: 0;
       z-index: 200;
-      background: rgba(15, 23, 42, 0.85);
+      background: var(--primary-light);
       backdrop-filter: blur(16px);
-      border-bottom: 2px solid rgba(255,255,255,0.05);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      border-bottom: 2px solid var(--primary);
+      box-shadow: 0 4px 20px rgba(30, 58, 138, 0.15);
     }
 
     .header {
@@ -102,16 +115,47 @@
       width: 56px;
       height: 56px;
       border-radius: 16px;
-      background: rgba(255,255,255,0.1);
+      background: var(--accent-light);
       padding: 4px;
-      box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+      box-shadow: 0 8px 16px rgba(234, 88, 12, 0.2);
       transform: perspective(500px) rotateY(15deg);
       transition: 0.3s;
     }
     .header img:hover { transform: perspective(500px) rotateY(0deg) scale(1.1); }
-    .header-text h1 { margin: 0; font-size: 24px; font-weight: 900; background: linear-gradient(to right, #60a5fa, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-    .header-text p { margin: 4px 0 0; font-size: 13px; color: var(--text-muted); font-weight: 700;}
+    .header-text h1 { margin: 0; font-size: 24px; font-weight: 900; color: var(--text-primary); }
+    .header-text p { margin: 4px 0 0; font-size: 13px; color: var(--text-accent); font-weight: 900;}
     
+    /* Stats Container & Badges */
+    .stats-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .stat-item {
+      display: flex;
+      align-items: center;
+      background: var(--accent-light);
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 900;
+      overflow: hidden;
+      box-shadow: 0 2px 4px rgba(234, 88, 12, 0.15);
+    }
+    .stat-year {
+      background: var(--primary);
+      color: var(--text-primary);
+      padding: 4px 8px;
+    }
+    .stat-pct {
+      padding: 4px 8px;
+      color: var(--text-accent);
+    }
+    .stat-pct.high { color: var(--success-depth); }
+    .stat-pct.med { color: var(--warning-depth); }
+    .stat-pct.low { color: var(--danger-depth); }
+
     .toolbarWrap { padding: 0 24px 12px; display: flex; flex-direction: column; gap: 12px; }
     .toolbarTop { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px;}
     
@@ -123,55 +167,78 @@
     .upTabs::-webkit-scrollbar { display: none; }
     .upTabBtn {
       flex-shrink: 0;
-      background: rgba(255,255,255,0.05);
-      box-shadow: 0 4px 0 rgba(0,0,0,0.3);
+      background: var(--accent-light);
+      box-shadow: 0 4px 0 var(--accent);
       padding: 12px 20px;
       font-size: 13px;
-      border: 1px solid rgba(255,255,255,0.1);
-      color: var(--text-muted);
+      border: 1px solid var(--accent);
+      color: var(--text-accent);
     }
-    .upTabBtn:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
+    .upTabBtn:hover { background: var(--accent); color: var(--text-primary); transform: translateY(-2px); }
     .upTabBtn.active {
-      background: linear-gradient(135deg, var(--primary), #6366f1);
-      box-shadow: 0 4px 0 var(--primary-depth), 0 10px 20px rgba(59, 130, 246, 0.4);
-      color: white;
-      border-color: transparent;
+      background: var(--primary);
+      box-shadow: 0 4px 0 var(--primary-depth), 0 10px 20px rgba(59, 130, 246, 0.3);
+      color: var(--text-primary);
+      border-color: var(--primary-depth);
       transform: translateY(-2px);
+    }
+
+    /* Tab Document & Project Counters */
+    .tab-count {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 900;
+      padding: 2px 8px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.5);
+      color: inherit;
+      border: 1px solid rgba(0,0,0,0.1);
+      margin-left: 4px;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+      letter-spacing: 0.2px;
+      transition: all 0.3s ease;
+    }
+    .upTabBtn.active .tab-count {
+      background: var(--primary-light);
+      color: var(--text-primary);
+      border-color: var(--primary);
+      box-shadow: 0 2px 4px rgba(30, 58, 138, 0.2);
     }
 
     .reloadBtnWrap { position: relative; }
     .reloadBtn {
-      background: linear-gradient(135deg, var(--accent), #f43f5e);
+      background: var(--accent);
       box-shadow: 0 4px 0 var(--accent-depth);
       padding: 12px 24px;
       font-size: 13px;
+      color: var(--text-accent);
     }
-    .reloadBtn:hover { transform: translateY(-2px); box-shadow: 0 6px 0 var(--accent-depth); filter: brightness(1.1);}
+    .reloadBtn:hover { transform: translateY(-2px); box-shadow: 0 6px 0 var(--accent-depth); filter: brightness(1.05);}
     
     .reloadBadge {
-      position: absolute; top: -10px; right: -10px; background: #fbbf24; color: #000; font-size: 10px; font-weight: 900; padding: 4px 10px; border-radius: 12px; display: none; box-shadow: 0 4px 10px rgba(0,0,0,0.4); animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; z-index: 10;
+      position: absolute; top: -10px; right: -10px; background: var(--warning); color: var(--text-warning); font-size: 10px; font-weight: 900; padding: 4px 10px; border-radius: 12px; display: none; box-shadow: 0 4px 10px rgba(0,0,0,0.15); animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; z-index: 10;
     }
     .reloadBadge.show { display: block; }
     @keyframes pop { 0% { transform: scale(0) rotate(-10deg); } 100% { transform: scale(1) rotate(0deg); } }
 
     .mobile-filter-toggle { display: none; }
 
-    .filterBar { display: flex; gap: 12px; padding: 12px 24px; background: rgba(0,0,0,0.2); border-top: 1px solid rgba(255,255,255,0.05); align-items: center; flex-wrap: wrap; }
+    .filterBar { display: flex; gap: 12px; padding: 12px 24px; background: var(--primary); border-top: 2px solid var(--primary-depth); align-items: center; flex-wrap: wrap; border-radius: 16px;}
     
-    .searchBox { display: flex; align-items: center; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 10px 16px; flex: 1; min-width: 250px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5); }
-    .searchBox input { border: none; background: transparent; outline: none; width: 100%; font-size: 14px; color: white; font-weight: bold;}
-    .searchBox input::placeholder { color: #64748b; }
+    .searchBox { display: flex; align-items: center; background: var(--primary-light); border: 2px solid var(--primary-depth); border-radius: 12px; padding: 10px 16px; flex: 1; min-width: 250px; box-shadow: inset 0 2px 4px rgba(30, 58, 138, 0.1); }
+    .searchBox input { border: none; background: transparent; outline: none; width: 100%; font-size: 14px; color: var(--text-primary); font-weight: bold;}
+    .searchBox input::placeholder { color: var(--primary-depth); }
 
     .dropdown { position: relative; display: inline-block; }
-    .dropdownBtn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 10px 16px; border-radius: 12px; font-size: 13px; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: space-between; min-width: 140px; color: white; box-shadow: 0 4px 0 rgba(0,0,0,0.2); transition: 0.2s;}
-    .dropdownBtn:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px);}
+    .dropdownBtn { background: var(--accent-light); border: 2px solid var(--accent); padding: 10px 16px; border-radius: 12px; font-size: 13px; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: space-between; min-width: 140px; color: var(--text-accent); box-shadow: 0 4px 0 var(--accent); transition: 0.2s;}
+    .dropdownBtn:hover { background: var(--accent); transform: translateY(-2px);}
     .dropdownBtn:active { transform: translateY(2px); box-shadow: 0 0 0 transparent; }
     
-    .dropdownContent { display: none; position: absolute; background: rgba(30, 41, 59, 0.95); backdrop-filter: blur(10px); min-width: 220px; max-height: 300px; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; z-index: 200; margin-top: 8px; padding: 8px; }
+    .dropdownContent { display: none; position: absolute; background: var(--accent-light); backdrop-filter: blur(10px); min-width: 220px; max-height: 300px; overflow-y: auto; box-shadow: 0 10px 30px rgba(234, 88, 12, 0.2); border: 2px solid var(--accent); border-radius: 12px; z-index: 200; margin-top: 8px; padding: 8px; }
     .dropdownContent.show { display: block; animation: slideDown 0.2s ease-out; }
     @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-    .dropdownItem { padding: 8px 12px; display: flex; align-items: center; gap: 10px; font-size: 13px; cursor: pointer; border-radius: 8px; color: #cbd5e1; font-weight: bold; transition: 0.2s; }
-    .dropdownItem:hover { background: rgba(255,255,255,0.1); color: white;}
+    .dropdownItem { padding: 8px 12px; display: flex; align-items: center; gap: 10px; font-size: 13px; cursor: pointer; border-radius: 8px; color: var(--text-accent); font-weight: bold; transition: 0.2s; }
+    .dropdownItem:hover { background: var(--accent); color: var(--text-primary);}
     .dropdownItem input { cursor: pointer; transform: scale(1.2); }
 
     .container { max-width: 1500px; margin: 24px auto; padding: 0 24px; }
@@ -180,70 +247,70 @@
     @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
 
     /* List Layout Styles */
-    .listHeader { display: flex; padding: 16px; background: rgba(0,0,0,0.4); border-radius: 16px 16px 0 0; font-weight: 900; font-size: 12px; color: #94a3b8; text-transform: uppercase; gap: 12px; margin-bottom: 8px; align-items: center; letter-spacing: 1px; border: 1px solid rgba(255,255,255,0.05); border-bottom: none;}
+    .listHeader { display: flex; padding: 16px; background: var(--primary); border-radius: 16px 16px 0 0; font-weight: 900; font-size: 12px; color: var(--text-primary); text-transform: uppercase; gap: 12px; margin-bottom: 8px; align-items: center; letter-spacing: 1px; border: 2px solid var(--primary-depth); border-bottom: none;}
     .col-id { width: 120px; flex-shrink: 0; }
-    .col-name { flex: 2; min-width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: white;}
+    .col-name { flex: 2; min-width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-primary);}
     .col-contr { flex: 1.5; min-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
-    .col-amt { width: 130px; flex-shrink: 0; text-align: right; color: #fbbf24; font-family: monospace; font-size: 14px;}
+    .col-amt { width: 130px; flex-shrink: 0; text-align: right; color: var(--warning-depth); font-family: monospace; font-size: 14px;}
     .col-pe { width: 140px; flex-shrink: 0; text-align: center; }
-    .col-prog { width: 80px; flex-shrink: 0; text-align: center; color: #38bdf8; font-weight: 900; }
+    .col-prog { width: 80px; flex-shrink: 0; text-align: center; color: var(--primary-depth); font-weight: 900; }
 
-    .upAccordionItem { background: var(--glass-bg); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; margin-bottom: 12px; overflow: hidden; box-shadow: 0 8px 16px rgba(0,0,0,0.2); transition: 0.3s; }
-    .upAccordionItem:hover { border-color: rgba(255,255,255,0.15); transform: translateY(-2px); box-shadow: 0 12px 24px rgba(0,0,0,0.3); }
+    .upAccordionItem { background: #eff6ff; border: 2px solid var(--primary); border-radius: 12px; margin-bottom: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(30, 58, 138, 0.05); transition: 0.3s; }
+    .upAccordionItem:hover { border-color: var(--primary-depth); transform: translateY(-2px); box-shadow: 0 12px 24px rgba(30, 58, 138, 0.1); }
     
-    .upAccordionHead { display: flex; padding: 16px; cursor: pointer; font-size: 13px; gap: 12px; align-items: center; transition: background 0.2s; font-weight: bold; background: rgba(0,0,0,0.1);}
-    .upAccordionHead:hover { background: rgba(0,0,0,0.2); }
+    .upAccordionHead { display: flex; padding: 16px; cursor: pointer; font-size: 13px; gap: 12px; align-items: center; transition: background 0.2s; font-weight: bold; background: var(--primary-light); border-bottom: 2px solid var(--primary); color: var(--text-primary);}
+    .upAccordionHead:hover { background: var(--primary); }
     
-    .upBadge { background: linear-gradient(135deg, #1e293b, #0f172a); color: #fff; padding: 6px 10px; border-radius: 8px; font-weight: 900; letter-spacing: 1px; display: inline-block; text-align: center; font-size: 11px; box-shadow: inset 0 2px 4px rgba(255,255,255,0.1), 0 4px 8px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1);}
+    .upBadge { background: var(--accent-light); color: var(--text-accent); padding: 6px 10px; border-radius: 8px; font-weight: 900; letter-spacing: 1px; display: inline-block; text-align: center; font-size: 11px; box-shadow: 0 2px 6px rgba(234, 88, 12, 0.15); border: 1px solid var(--accent);}
     
-    .upAccordionBody { display: none; padding: 16px; background: rgba(0,0,0,0.3); border-top: 1px solid rgba(255,255,255,0.05); }
+    .upAccordionBody { display: none; padding: 16px; background: var(--accent-light); border-top: 2px solid var(--accent); }
     .upAccordionBody.open { display: block; animation: expandIn 0.3s ease; }
     @keyframes expandIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
     
-    .upDocRow { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; margin-bottom: 8px; font-size: 13px; flex-wrap: wrap; gap: 12px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);}
-    .upDocRow:hover { background: rgba(255,255,255,0.06); }
+    .upDocRow { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; background: var(--primary-light); border: 2px solid var(--primary); border-radius: 12px; margin-bottom: 8px; font-size: 13px; flex-wrap: wrap; gap: 12px; box-shadow: 0 2px 4px rgba(30, 58, 138, 0.05);}
+    .upDocRow:hover { background: var(--primary); }
     
-    /* 3D Action Buttons */
-    .upFileBtn { background: linear-gradient(135deg, var(--success), #34d399); box-shadow: 0 4px 0 var(--success-depth); }
-    .upFileBtn:hover { filter: brightness(1.1); }
-    .upFileBtn:disabled { background: #64748b; box-shadow: 0 4px 0 #334155; cursor: not-allowed; }
+    /* 3D Action Buttons - Luminous Pastels */
+    .upFileBtn { background: var(--success); box-shadow: 0 4px 0 var(--success-depth); color: var(--text-success); }
+    .upFileBtn:hover { filter: brightness(1.05); }
+    .upFileBtn:disabled { background: var(--primary-light); box-shadow: 0 4px 0 var(--primary); cursor: not-allowed; color: var(--primary-depth); }
     
-    .upDownloadBtn { background: linear-gradient(135deg, var(--primary), #60a5fa); box-shadow: 0 4px 0 var(--primary-depth); padding: 8px 16px; text-decoration: none;}
-    .upDownloadBtn:hover { filter: brightness(1.1); }
+    .upDownloadBtn { background: var(--primary); box-shadow: 0 4px 0 var(--primary-depth); padding: 8px 16px; text-decoration: none; color: var(--text-primary);}
+    .upDownloadBtn:hover { filter: brightness(1.05); }
 
-    .approveBtn { background: linear-gradient(135deg, var(--warning), #fbbf24); box-shadow: 0 4px 0 var(--warning-depth); padding: 8px 16px;}
-    .approveBtn:hover { filter: brightness(1.1); }
+    .approveBtn { background: var(--warning); box-shadow: 0 4px 0 var(--warning-depth); padding: 8px 16px; color: var(--text-warning);}
+    .approveBtn:hover { filter: brightness(1.05); }
 
-    .denyBtn { background: linear-gradient(135deg, var(--danger), #f87171); box-shadow: 0 4px 0 var(--danger-depth); padding: 8px 16px;}
-    .denyBtn:hover { filter: brightness(1.1); }
+    .denyBtn { background: var(--danger); box-shadow: 0 4px 0 var(--danger-depth); padding: 8px 16px; color: var(--text-danger);}
+    .denyBtn:hover { filter: brightness(1.05); }
 
-    .empty-state { text-align: center; padding: 60px; color: #64748b; font-size: 20px; font-weight: 900; background: rgba(0,0,0,0.2); border-radius: 16px; border: 2px dashed rgba(255,255,255,0.1); display: flex; flex-direction: column; align-items: center; gap: 16px;}
+    .empty-state { text-align: center; padding: 60px; color: var(--text-accent); font-size: 20px; font-weight: 900; background: var(--accent-light); border-radius: 16px; border: 3px dashed var(--accent); display: flex; flex-direction: column; align-items: center; gap: 16px;}
 
     /* Progress Loading Overlay */
-    .progOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; z-index: 9999; }
-    .progBox { background: rgba(30, 41, 59, 0.9); border: 1px solid rgba(255,255,255,0.1); padding: 32px; border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 2px 10px rgba(255,255,255,0.1); text-align: center; width: 320px; transform: perspective(1000px) translateZ(50px); animation: floatBox 3s ease-in-out infinite alternate;}
+    .progOverlay { position: fixed; inset: 0; background: rgba(219, 234, 254, 0.85); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; z-index: 9999; }
+    .progBox { background: var(--accent-light); border: 3px solid var(--accent); padding: 32px; border-radius: 24px; box-shadow: 0 20px 50px rgba(234, 88, 12, 0.2); text-align: center; width: 320px; transform: perspective(1000px) translateZ(50px); animation: floatBox 3s ease-in-out infinite alternate;}
     @keyframes floatBox { from { transform: translateY(-10px); } to { transform: translateY(10px); } }
     
-    .progBox h3 { margin: 0 0 16px; color: white; font-size: 20px; font-weight: 900; }
-    .progText { font-size: 14px; color: #38bdf8; margin-bottom: 20px; font-weight: 900; letter-spacing: 1px;}
-    .progBarBg { width: 100%; height: 16px; background: rgba(0,0,0,0.5); border-radius: 16px; overflow: hidden; box-shadow: inset 0 4px 8px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.1); padding: 2px;}
-    .progBarFill { height: 100%; background: linear-gradient(90deg, #10b981, #34d399, #10b981); background-size: 200% 100%; border-radius: 12px; width: 0%; transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1); animation: loadingBar 2s infinite linear; box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);}
+    .progBox h3 { margin: 0 0 16px; color: var(--text-accent); font-size: 20px; font-weight: 900; }
+    .progText { font-size: 14px; color: var(--danger-depth); margin-bottom: 20px; font-weight: 900; letter-spacing: 1px;}
+    .progBarBg { width: 100%; height: 16px; background: rgba(234, 88, 12, 0.1); border-radius: 16px; overflow: hidden; box-shadow: inset 0 2px 4px rgba(234, 88, 12, 0.1); padding: 2px;}
+    .progBarFill { height: 100%; background: linear-gradient(90deg, var(--danger), var(--warning), var(--danger)); background-size: 200% 100%; border-radius: 12px; width: 0%; transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1); animation: loadingBar 2s infinite linear; box-shadow: 0 0 10px rgba(251, 146, 60, 0.5);}
     @keyframes loadingBar { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
 
     /* Custom Password Modal Overlay */
-    .auth-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 10000; backdrop-filter: blur(8px); }
-    .auth-box { background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(255,255,255,0.1); padding: 32px; border-radius: 20px; width: 360px; box-shadow: 0 25px 50px rgba(0,0,0,0.5), inset 0 2px 10px rgba(255,255,255,0.05); display: flex; flex-direction: column; gap: 20px; transform: scale(0.9); animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+    .auth-overlay { position: fixed; inset: 0; background: rgba(219, 234, 254, 0.85); display: none; align-items: center; justify-content: center; z-index: 10000; backdrop-filter: blur(8px); }
+    .auth-box { background: var(--accent-light); border: 3px solid var(--accent); padding: 32px; border-radius: 20px; width: 360px; box-shadow: 0 25px 50px rgba(234, 88, 12, 0.2); display: flex; flex-direction: column; gap: 20px; transform: scale(0.9); animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
     @keyframes modalPop { to { transform: scale(1); } }
-    .auth-box h3 { margin: 0; color: white; font-size: 22px; display: flex; align-items: center; gap: 10px; font-weight: 900;}
-    .auth-box p { margin: 0; font-size: 14px; color: #94a3b8; font-weight: bold;}
+    .auth-box h3 { margin: 0; color: var(--text-accent); font-size: 22px; display: flex; align-items: center; gap: 10px; font-weight: 900;}
+    .auth-box p { margin: 0; font-size: 14px; color: var(--danger-depth); font-weight: bold;}
     .auth-input-group { display: flex; flex-direction: column; gap: 8px; }
-    .auth-input-group label { font-size: 12px; font-weight: 900; color: #cbd5e1; text-transform: uppercase; letter-spacing: 1px;}
-    .auth-box input { padding: 12px 16px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; font-size: 15px; outline: none; transition: 0.3s; width: 100%; box-sizing: border-box; color: white; font-weight: bold;}
-    .auth-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2); }
+    .auth-input-group label { font-size: 12px; font-weight: 900; color: var(--text-accent); text-transform: uppercase; letter-spacing: 1px;}
+    .auth-box input { padding: 12px 16px; background: #ffffff; border: 2px solid var(--accent); border-radius: 12px; font-size: 15px; outline: none; transition: 0.3s; width: 100%; box-sizing: border-box; color: var(--text-accent); font-weight: bold;}
+    .auth-box input:focus { border-color: var(--danger-depth); box-shadow: 0 0 0 4px rgba(251, 146, 60, 0.2); }
     .auth-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 12px; }
     
-    .auth-cancel-btn { background: rgba(255,255,255,0.1); box-shadow: 0 4px 0 rgba(0,0,0,0.3); padding: 10px 20px; color: white;}
-    .auth-submit-btn { background: linear-gradient(135deg, var(--primary), #6366f1); box-shadow: 0 4px 0 var(--primary-depth); padding: 10px 24px;}
+    .auth-cancel-btn { background: var(--primary-light); box-shadow: 0 4px 0 var(--primary); padding: 10px 20px; color: var(--text-primary);}
+    .auth-submit-btn { background: var(--danger); box-shadow: 0 4px 0 var(--danger-depth); padding: 10px 24px; color: var(--text-danger);}
 
     /* RESPONSIVE DESIGN FOR MOBILE */
     @media (max-width: 768px) {
@@ -278,16 +345,24 @@
         }
         .upTabBtn { 
             width: 100%; 
-            padding: 12px 0; 
-            font-size: 20px; 
+            padding: 8px 0; 
+            font-size: 16px; 
             border-radius: 12px;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
+            gap: 4px;
+        }
+        
+        .tab-count {
+            margin-left: 0;
+            font-size: 9px;
+            padding: 2px 4px;
         }
         
         /* Filter Bar Grid */
-        .mobile-filter-toggle { display: flex; width: 100%; padding: 12px; margin-bottom: 8px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); font-size: 14px; }
+        .mobile-filter-toggle { display: flex; width: 100%; padding: 12px; margin-bottom: 8px; background: var(--primary); border: 2px solid var(--primary-depth); font-size: 14px; color: var(--text-primary); }
         .filterBar { display: none !important; grid-template-columns: 1fr 1fr; gap: 8px; padding: 12px; border-radius: 12px; }
         .filterBar.open { display: grid !important; animation: fadeIn 0.3s ease; }
         .searchBox { grid-column: 1 / -1; width: 100%; box-sizing: border-box; }
@@ -310,8 +385,8 @@
         .col-id { grid-area: id; width: 100%; }
         .col-prog { grid-area: prog; width: 100%; text-align: right; }
         .col-name { grid-area: name; width: 100%; white-space: normal; font-size: 15px; margin: 2px 0;}
-        .col-contr { grid-area: contr; width: 100%; white-space: normal; font-size: 12px; color: var(--text-muted); }
-        .col-pe { grid-area: pe; width: 100%; text-align: left; font-size: 12px; }
+        .col-contr { grid-area: contr; width: 100%; white-space: normal; font-size: 12px; color: var(--text-primary); }
+        .col-pe { grid-area: pe; width: 100%; text-align: left; font-size: 12px; color: var(--text-primary); }
         .col-amt { grid-area: amt; width: 100%; text-align: right; font-size: 13px; }
         
         /* Inner Document Rows */
@@ -374,7 +449,10 @@
       <div class="header-text">
         <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap; justify-content: inherit;">
           <h1>✨ Document Uploader</h1>
-          <span id="global-doc-stats" class="hide-mobile" style="background: rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 12px; font-size: 12px; font-weight: 900; letter-spacing: 1px; border: 1px solid rgba(255,255,255,0.2); box-shadow: inset 0 2px 4px rgba(0,0,0,0.5); color: #38bdf8;">📊 0 / 0 Uploaded</span>
+          <div id="global-doc-stats" class="stats-container hide-mobile">
+            <span style="font-size: 16px; margin-right: 4px;">📊</span>
+            <div class="stat-item"><span class="stat-year">Status</span><span class="stat-pct">Syncing...</span></div>
+          </div>
         </div>
         <p class="hide-mobile">Advanced Project File Matrix & Live Tracking</p>
       </div>
@@ -383,10 +461,22 @@
     <div class="toolbarWrap">
       <div class="toolbarTop">
         <div class="upTabs">
-          <button class="btn-3d upTabBtn active" onclick="switchUpTab('pending')">⏳<span class="hide-mobile">&nbsp;Pending</span></button>
-          <button class="btn-3d upTabBtn" onclick="switchUpTab('approval')">🛡️<span class="hide-mobile">&nbsp;Approval</span></button>
-          <button class="btn-3d upTabBtn" onclick="switchUpTab('denied')">❌<span class="hide-mobile">&nbsp;Denied</span></button>
-          <button class="btn-3d upTabBtn" onclick="switchUpTab('uploaded')">✅<span class="hide-mobile">&nbsp;Uploaded</span></button>
+          <button id="tab-btn-pending" class="btn-3d upTabBtn active" onclick="switchUpTab('pending')">
+            ⏳<span class="hide-mobile">&nbsp;Pending</span>
+            <span id="count-pending" class="tab-count">(0 | 0)</span>
+          </button>
+          <button id="tab-btn-approval" class="btn-3d upTabBtn" onclick="switchUpTab('approval')">
+            🛡️<span class="hide-mobile">&nbsp;Approval</span>
+            <span id="count-approval" class="tab-count">(0 | 0)</span>
+          </button>
+          <button id="tab-btn-denied" class="btn-3d upTabBtn" onclick="switchUpTab('denied')">
+            ❌<span class="hide-mobile">&nbsp;Denied</span>
+            <span id="count-denied" class="tab-count">(0 | 0)</span>
+          </button>
+          <button id="tab-btn-uploaded" class="btn-3d upTabBtn" onclick="switchUpTab('uploaded')">
+            ✅<span class="hide-mobile">&nbsp;Uploaded</span>
+            <span id="count-uploaded" class="tab-count">(0 | 0)</span>
+          </button>
         </div>
         
         <div class="reloadBtnWrap hide-mobile">
@@ -482,6 +572,9 @@
       <div id="uploadedList"></div>
     </div>
 
+    <!-- Pagination Controls -->
+    <div id="paginationControls" style="display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 24px; padding-bottom: 40px;"></div>
+
   </div>
 
   <script>
@@ -528,9 +621,15 @@ i2e4E1vAOiqCrUlBSDcvD1r+/g==
 -----END PRIVATE KEY-----`
     };
 
-    const DOC_TYPES = ["VO1", "VO2", "VO3", "VO4", "VO5", "WSO1", "WRO1", "CWSO1", "WSO2", "WRO2", "CWSO2", "WSO3", "WRO3", "CWSO3", "WSO4", "WRO4", "CWSO4", "CTE1", "CTE2", "CTE3", "CTE4", "CTE5", "CTE6", "CTE7", "CTE8", "CTE9", "CTE10", "CTE11", "CTE12", "CTE13", "CTE14", "CTE15", "CTE16", "CTE17", "CTE18", "CTE19", "CTE20", "FCIR", "COC", "FAIR", "CFA", "PHOTO"];
+    let DOC_TYPES = []; 
     let allProjects = []; 
     let globalHeaders = [];
+
+    // State Variables for Optimization & Pagination
+    let currentTab = 'pending';
+    let currentPage = 1;
+    const itemsPerPage = 50;
+    let currentFilteredProjects = [];
 
     /* ========================================================================= 
      * JWT SERVICE ACCOUNT SIGNER (Replaces App Script backend needs)
@@ -681,8 +780,13 @@ i2e4E1vAOiqCrUlBSDcvD1r+/g==
     function switchUpTab(tabId) {
       document.querySelectorAll('.upTabBtn').forEach(b => b.classList.remove('active'));
       document.querySelectorAll('.upTabContent').forEach(c => c.classList.remove('active'));
-      event.currentTarget.classList.add('active');
+      
+      document.getElementById("tab-btn-" + tabId).classList.add('active');
       document.getElementById("upTab-" + tabId).classList.add('active');
+      
+      currentTab = tabId;
+      currentPage = 1;
+      renderActiveTab();
     }
 
     function toggleUpAccordion(el) { el.nextElementSibling.classList.toggle('open'); }
@@ -723,6 +827,17 @@ i2e4E1vAOiqCrUlBSDcvD1r+/g==
         }
 
         globalHeaders = json.values[0].map(h => String(h).trim().toUpperCase());
+        
+        // Dynamically detect Document Types based on sheet headers
+        DOC_TYPES = [];
+        globalHeaders.forEach(h => {
+          if (h.endsWith(" UPLOADED")) {
+            let baseName = h.replace(" UPLOADED", "").trim();
+            if (globalHeaders.includes(baseName) && !DOC_TYPES.includes(baseName)) {
+              DOC_TYPES.push(baseName);
+            }
+          }
+        });
         
         const rows = [];
         for(let i=1; i<json.values.length; i++) {
@@ -788,21 +903,27 @@ i2e4E1vAOiqCrUlBSDcvD1r+/g==
             if (docIdx >= 0 && String(rVals[docIdx] || "").trim() !== "") {
               let rawVal = upIdx >= 0 ? String(rVals[upIdx] || "").trim() : "";
               
-              if (rawVal !== "") {
-                let parts = rawVal.split("|");
-                let fileIdOrUrl = parts[0].trim();
-                let finalUrl = fileIdOrUrl.startsWith("http") ? fileIdOrUrl : "https://drive.google.com/file/d/" + fileIdOrUrl + "/view";
-                
-                if (rawVal.includes("|OK")) {
-                  uDocs.push({ docType: doc, url: finalUrl });
-                } else if (rawVal.includes("|DENIED|")) {
-                  let remarks = rawVal.split("|DENIED|")[1] || "No remarks provided";
-                  dDocs.push({ docType: doc, rowNum: row.rowNumber, remarks: remarks });
-                } else {
-                  aDocs.push({ docType: doc, url: finalUrl, rowNum: row.rowNumber, rawVal: rawVal });
-                }
+              const isAutoApprove = ["MOBILIZATION", "ON-GOING", "COMPLETED", "GEOTAGGED MOB", "GEOTAGGED ON-GOING", "GEOTAGGED COMPLETED", "ACTUAL", "PCMA", "ACTUAL AND PCMA", "PHOTO"].includes(doc);
+
+              if (isAutoApprove) {
+                uDocs.push({ docType: doc, isAuto: true });
               } else {
-                pDocs.push({ docType: doc, rowNum: row.rowNumber });
+                if (rawVal !== "") {
+                  let parts = rawVal.split("|");
+                  let fileIdOrUrl = parts[0].trim();
+                  let finalUrl = fileIdOrUrl.startsWith("http") ? fileIdOrUrl : "https://drive.google.com/file/d/" + fileIdOrUrl + "/view";
+                  
+                  if (rawVal.includes("|OK")) {
+                    uDocs.push({ docType: doc, url: finalUrl });
+                  } else if (rawVal.includes("|DENIED|")) {
+                    let remarks = rawVal.split("|DENIED|")[1] || "No remarks provided";
+                    dDocs.push({ docType: doc, rowNum: row.rowNumber, remarks: remarks });
+                  } else {
+                    aDocs.push({ docType: doc, url: finalUrl, rowNum: row.rowNumber, rawVal: rawVal });
+                  }
+                } else {
+                  pDocs.push({ docType: doc, rowNum: row.rowNumber });
+                }
               }
             }
           });
@@ -846,8 +967,9 @@ i2e4E1vAOiqCrUlBSDcvD1r+/g==
       const yearDropdown = document.getElementById("yearDropdown");
       yearDropdown.innerHTML = "";
       
-      years.forEach((yr, i) => {
-        const isChecked = i < 2 ? "checked" : "";
+      years.forEach((yr) => {
+        // Automatically check/select ALL years by default to prevent hidden data
+        const isChecked = "checked"; 
         yearDropdown.innerHTML += `
           <label class="dropdownItem">
             <input type="checkbox" class="year-chk" value="${yr}" ${isChecked} onchange="applyFilters()"> ${yr}
@@ -895,7 +1017,7 @@ i2e4E1vAOiqCrUlBSDcvD1r+/g==
       const selectedREs = Array.from(document.querySelectorAll(".re-chk:checked")).map(c => c.value);
       const selectedQEs = Array.from(document.querySelectorAll(".qe-chk:checked")).map(c => c.value);
 
-      const filtered = allProjects.filter(p => {
+      currentFilteredProjects = allProjects.filter(p => {
         const matchSearch = searchQ === "" || 
                             p.cid.toLowerCase().includes(searchQ) || 
                             p.pname.toLowerCase().includes(searchQ) || 
@@ -907,21 +1029,19 @@ i2e4E1vAOiqCrUlBSDcvD1r+/g==
         return matchSearch && matchYear && matchPE && matchRE && matchQE;
       });
 
-      renderUI(filtered);
+      currentPage = 1;
+      updateStats(currentFilteredProjects);
+      renderActiveTab();
     }
 
-    function renderUI(projects) {
-      const pList = document.getElementById("pendingList");
-      const aList = document.getElementById("approvalList");
-      const dList = document.getElementById("deniedList");
-      const uList = document.getElementById("uploadedList");
-      
-      let pendingHTML = "";
-      let approvalHTML = "";
-      let deniedHTML = "";
-      let uploadedHTML = "";
-      
+    function updateStats(projects) {
       let yearStats = {};
+      let counts = {
+        pending: { docs: 0, projs: 0 },
+        approval: { docs: 0, projs: 0 },
+        denied: { docs: 0, projs: 0 },
+        uploaded: { docs: 0, projs: 0 }
+      };
 
       projects.forEach(p => {
         const totalDocs = p.pDocs.length + p.aDocs.length + (p.dDocs ? p.dDocs.length : 0) + p.uDocs.length;
@@ -932,6 +1052,64 @@ i2e4E1vAOiqCrUlBSDcvD1r+/g==
         yearStats[y].up += upDocs;
         yearStats[y].tot += totalDocs;
 
+        if (p.pDocs.length > 0) { counts.pending.docs += p.pDocs.length; counts.pending.projs++; }
+        if (p.aDocs.length > 0) { counts.approval.docs += p.aDocs.length; counts.approval.projs++; }
+        if (p.dDocs && p.dDocs.length > 0) { counts.denied.docs += p.dDocs.length; counts.denied.projs++; }
+        if (p.uDocs.length > 0) { counts.uploaded.docs += p.uDocs.length; counts.uploaded.projs++; }
+      });
+      
+      // Update dynamic tab counts
+      document.getElementById('count-pending').textContent = `(${counts.pending.docs.toLocaleString()} | ${counts.pending.projs.toLocaleString()})`;
+      document.getElementById('count-approval').textContent = `(${counts.approval.docs.toLocaleString()} | ${counts.approval.projs.toLocaleString()})`;
+      document.getElementById('count-denied').textContent = `(${counts.denied.docs.toLocaleString()} | ${counts.denied.projs.toLocaleString()})`;
+      document.getElementById('count-uploaded').textContent = `(${counts.uploaded.docs.toLocaleString()} | ${counts.uploaded.projs.toLocaleString()})`;
+
+      let statsHTML = `<span style="font-size: 16px; margin-right: 4px;">📊</span>`;
+      let yearKeys = Object.keys(yearStats).sort((a,b) => b.localeCompare(a));
+      
+      if (yearKeys.length === 0) {
+          statsHTML += `<div class="stat-item"><span class="stat-year">Global</span><span class="stat-pct">0%</span></div>`;
+      } else {
+          yearKeys.forEach(y => {
+              const pct = yearStats[y].tot === 0 ? 0 : Math.round((yearStats[y].up / yearStats[y].tot) * 100);
+              let colorClass = pct >= 75 ? 'high' : (pct >= 40 ? 'med' : 'low');
+              statsHTML += `
+              <div class="stat-item">
+                  <span class="stat-year">${y}</span>
+                  <span class="stat-pct ${colorClass}">${pct}%</span>
+              </div>`;
+          });
+      }
+
+      document.getElementById('global-doc-stats').innerHTML = statsHTML;
+    }
+
+    function renderActiveTab() {
+      // Clear out all DOM elements inside inactive tabs to dramatically save memory & eliminate lag
+      ['pending', 'approval', 'denied', 'uploaded'].forEach(t => {
+          if (t !== currentTab) document.getElementById(t + "List").innerHTML = "";
+      });
+
+      let tabProjects = [];
+      if (currentTab === 'pending') tabProjects = currentFilteredProjects.filter(p => p.pDocs.length > 0);
+      else if (currentTab === 'approval') tabProjects = currentFilteredProjects.filter(p => p.aDocs.length > 0);
+      else if (currentTab === 'denied') tabProjects = currentFilteredProjects.filter(p => p.dDocs && p.dDocs.length > 0);
+      else if (currentTab === 'uploaded') tabProjects = currentFilteredProjects.filter(p => p.uDocs.length > 0);
+
+      const totalPages = Math.ceil(tabProjects.length / itemsPerPage);
+      if (currentPage > totalPages && totalPages > 0) currentPage = totalPages;
+
+      const start = (currentPage - 1) * itemsPerPage;
+      const end = start + itemsPerPage;
+      const paginatedProjects = tabProjects.slice(start, end);
+
+      const listEl = document.getElementById(currentTab + "List");
+      let html = "";
+
+      paginatedProjects.forEach(p => {
+        const totalDocs = p.pDocs.length + p.aDocs.length + (p.dDocs ? p.dDocs.length : 0) + p.uDocs.length;
+        const upDocs = p.uDocs.length + p.aDocs.length;
+
         const headHTML = `
           <div class="col-id"><span class="upBadge">🔑 ${p.cid}</span></div>
           <div class="col-name" title="${p.pname}">🏗️ ${p.pname}</div>
@@ -941,25 +1119,48 @@ i2e4E1vAOiqCrUlBSDcvD1r+/g==
           <div class="col-prog" title="Uploaded / Total Documents">📈 ${upDocs}/${totalDocs}</div>
         `;
 
-        // Pending
-        if (p.pDocs.length > 0) {
-          const docHtml = p.pDocs.map(d => {
-            if (d.docType === "PHOTO") {
+        let docHtml = "";
+        
+        if (currentTab === 'pending') {
+          docHtml = p.pDocs.map(d => {
+            if (["MOBILIZATION", "ON-GOING", "COMPLETED", "PHOTO"].includes(d.docType)) {
               return `
-                <div class="upDocRow">
+                <div class="upDocRow" style="background: var(--primary-light); border: 1px solid var(--primary);">
                   <div style="display:flex; flex-direction:column; gap:4px;">
-                    <span style="font-size: 14px; font-weight: 900;">📸 Upload requirement: <span style="color:#38bdf8;">${d.docType}</span></span>
+                    <span style="font-size: 14px; font-weight: 900; color: var(--text-primary);">📸 Upload requirement: <span style="color: var(--primary-depth);">${d.docType}</span></span>
                   </div>
-                  <div style="font-size: 12px; font-weight: 900; color: #f87171; background: rgba(239, 68, 68, 0.1); padding: 10px 16px; border-radius: 12px; border: 1px solid rgba(239, 68, 68, 0.2);">
-                    ⚠️ Note: Upload Project Photos in PCMA Mobile App or <a href="https://pcmamobile.github.io/aklandeo" target="_blank" style="color: #60a5fa; text-decoration: none;">pcmamobile.github.io/aklandeo</a>
+                  <div style="font-size: 12px; font-weight: 900; color: var(--text-danger); background: var(--danger-light); padding: 10px 16px; border-radius: 12px; border: 1px solid var(--danger);">
+                    ⚠️ Action Required: Please utilize the <span style="color: var(--danger-depth);">PCMA Mobile App</span> or visit <a href="https://pcmamobile.github.io/aklandeo" target="_blank" style="color: var(--primary-depth); text-decoration: none;">pcmamobile.github.io/aklandeo</a> to securely upload project photos.
+                  </div>
+                </div>
+              `;
+            } else if (["GEOTAGGED MOB", "GEOTAGGED ON-GOING", "GEOTAGGED COMPLETED"].includes(d.docType)) {
+              return `
+                <div class="upDocRow" style="background: var(--primary-light); border: 1px solid var(--primary);">
+                  <div style="display:flex; flex-direction:column; gap:4px;">
+                    <span style="font-size: 14px; font-weight: 900; color: var(--text-primary);">📍 Upload requirement: <span style="color: var(--primary-depth);">${d.docType}</span></span>
+                  </div>
+                  <div style="font-size: 12px; font-weight: 900; color: var(--text-warning); background: var(--warning-light); padding: 10px 16px; border-radius: 12px; border: 1px solid var(--warning);">
+                    ⚠️ Geospatial Data: Kindly capture and upload geotagged project photos exclusively via the <span style="color: var(--warning-depth);">ArcGIS Survey123 App</span>.
+                  </div>
+                </div>
+              `;
+            } else if (["ACTUAL AND PCMA", "ACTUAL", "PCMA"].includes(d.docType)) {
+              return `
+                <div class="upDocRow" style="background: var(--primary-light); border: 1px solid var(--primary);">
+                  <div style="display:flex; flex-direction:column; gap:4px;">
+                    <span style="font-size: 14px; font-weight: 900; color: var(--text-primary);">📊 Upload requirement: <span style="color: var(--primary-depth);">${d.docType}</span></span>
+                  </div>
+                  <div style="font-size: 12px; font-weight: 900; color: var(--text-primary); background: var(--primary-light); padding: 10px 16px; border-radius: 12px; border: 1px solid var(--primary);">
+                    ⚠️ Status Coordination: Please submit your updated project accomplishment reports directly to <span style="color: var(--primary-depth);">Ms. Roxanne</span> for system synchronization.
                   </div>
                 </div>
               `;
             }
             return `
-              <div class="upDocRow">
+              <div class="upDocRow" style="background: var(--primary-light); border: 1px solid var(--primary);">
                 <div style="display:flex; flex-direction:column; gap:4px;">
-                  <span style="font-size: 14px; font-weight: 900;">📄 Upload requirement: <span style="color:#38bdf8;">${d.docType}</span> <small style="color:#f43f5e">(PDF Only)</small></span>
+                  <span style="font-size: 14px; font-weight: 900; color: var(--text-primary);">📄 Upload requirement: <span style="color: var(--primary-depth);">${d.docType}</span> <small style="color: var(--text-danger);">(PDF Only)</small></span>
                 </div>
                 <label class="btn-3d upFileBtn" style="padding: 10px 20px;">
                   📁 Select PDF
@@ -968,19 +1169,11 @@ i2e4E1vAOiqCrUlBSDcvD1r+/g==
               </div>
             `;
           }).join("");
-
-          pendingHTML += `
-            <div class="upAccordionItem">
-              <div class="upAccordionHead" onclick="toggleUpAccordion(this)">${headHTML}</div>
-              <div class="upAccordionBody">${docHtml}</div>
-            </div>`;
-        }
-
-        // For Approval
-        if (p.aDocs.length > 0) {
-          const docHtml = p.aDocs.map(d => `
-            <div class="upDocRow">
-              <span style="font-size: 14px; font-weight: 900;">🛡️ Status: <span style="color:#fbbf24;">${d.docType}</span> is waiting for Admin Approval</span>
+        } 
+        else if (currentTab === 'approval') {
+          docHtml = p.aDocs.map(d => `
+            <div class="upDocRow" style="background: var(--primary-light); border: 1px solid var(--primary);">
+              <span style="font-size: 14px; font-weight: 900; color: var(--text-primary);">🛡️ Status: <span style="color: var(--text-warning);">${d.docType}</span> is waiting for Admin Approval</span>
               <div style="display:flex; gap:12px; flex-wrap:wrap;">
                 <a href="${d.url}" target="_blank" class="btn-3d upDownloadBtn">👀 View File</a>
                 <button class="btn-3d approveBtn" onclick="promptApprove(this, ${d.rowNum}, '${d.docType}', '${d.rawVal}')">✔ Approve</button>
@@ -988,37 +1181,57 @@ i2e4E1vAOiqCrUlBSDcvD1r+/g==
               </div>
             </div>
           `).join("");
-
-          approvalHTML += `
-            <div class="upAccordionItem">
-              <div class="upAccordionHead" onclick="toggleUpAccordion(this)">${headHTML}</div>
-              <div class="upAccordionBody">${docHtml}</div>
-            </div>`;
-        }
-
-        // Denied 
-        if (p.dDocs && p.dDocs.length > 0) {
-          const docHtml = p.dDocs.map(d => {
-            if (d.docType === "PHOTO") {
+        } 
+        else if (currentTab === 'denied') {
+          docHtml = p.dDocs.map(d => {
+            if (["MOBILIZATION", "ON-GOING", "COMPLETED", "PHOTO"].includes(d.docType)) {
               return `
-                <div class="upDocRow" style="border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.05);">
+                <div class="upDocRow" style="background: var(--accent-light); border: 1px solid var(--accent); border-left: 4px solid var(--danger);">
                   <div style="display:flex; flex-direction:column; gap:8px;">
-                    <span style="font-size: 14px; font-weight: 900;">📸 Upload requirement: <span style="color:#38bdf8;">${d.docType}</span></span>
-                    <span style="color:#fca5a5; font-weight:900; font-size:12px; background: rgba(239, 68, 68, 0.2); padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.3); display:inline-block;">
+                    <span style="font-size: 14px; font-weight: 900; color: var(--text-accent);">📸 Upload requirement: <span style="color: var(--primary-depth);">${d.docType}</span></span>
+                    <span style="color: var(--text-danger); font-weight:900; font-size:12px; background: var(--danger-light); padding: 6px 12px; border-radius: 8px; border: 1px solid var(--danger); display:inline-block;">
                       ❌ REASON FOR DENIAL: ${d.remarks}
                     </span>
                   </div>
-                  <div style="font-size: 12px; font-weight: 900; color: #f87171; background: rgba(239, 68, 68, 0.1); padding: 10px 16px; border-radius: 12px; border: 1px solid rgba(239, 68, 68, 0.2);">
-                    ⚠️ Note: Re-Upload Project Photos in PCMA Mobile App or <a href="https://pcmamobile.github.io/aklandeo" target="_blank" style="color: #60a5fa; text-decoration: none;">pcmamobile.github.io/aklandeo</a>
+                  <div style="font-size: 12px; font-weight: 900; color: var(--text-danger); background: var(--danger-light); padding: 10px 16px; border-radius: 12px; border: 1px solid var(--danger);">
+                    ⚠️ Action Required: Please utilize the <span style="color: var(--danger-depth);">PCMA Mobile App</span> or visit <a href="https://pcmamobile.github.io/aklandeo" target="_blank" style="color: var(--primary-depth); text-decoration: none;">pcmamobile.github.io/aklandeo</a> to securely re-upload project photos.
+                  </div>
+                </div>
+              `;
+            } else if (["GEOTAGGED MOB", "GEOTAGGED ON-GOING", "GEOTAGGED COMPLETED"].includes(d.docType)) {
+              return `
+                <div class="upDocRow" style="background: var(--accent-light); border: 1px solid var(--accent); border-left: 4px solid var(--danger);">
+                  <div style="display:flex; flex-direction:column; gap:8px;">
+                    <span style="font-size: 14px; font-weight: 900; color: var(--text-accent);">📍 Upload requirement: <span style="color: var(--primary-depth);">${d.docType}</span></span>
+                    <span style="color: var(--text-danger); font-weight:900; font-size:12px; background: var(--danger-light); padding: 6px 12px; border-radius: 8px; border: 1px solid var(--danger); display:inline-block;">
+                      ❌ REASON FOR DENIAL: ${d.remarks}
+                    </span>
+                  </div>
+                  <div style="font-size: 12px; font-weight: 900; color: var(--text-warning); background: var(--warning-light); padding: 10px 16px; border-radius: 12px; border: 1px solid var(--warning);">
+                    ⚠️ Geospatial Data: Kindly capture and re-upload geotagged project photos exclusively via the <span style="color: var(--warning-depth);">ArcGIS Survey123 App</span>.
+                  </div>
+                </div>
+              `;
+            } else if (["ACTUAL AND PCMA", "ACTUAL", "PCMA"].includes(d.docType)) {
+              return `
+                <div class="upDocRow" style="background: var(--accent-light); border: 1px solid var(--accent); border-left: 4px solid var(--danger);">
+                  <div style="display:flex; flex-direction:column; gap:8px;">
+                    <span style="font-size: 14px; font-weight: 900; color: var(--text-accent);">📊 Upload requirement: <span style="color: var(--primary-depth);">${d.docType}</span></span>
+                    <span style="color: var(--text-danger); font-weight:900; font-size:12px; background: var(--danger-light); padding: 6px 12px; border-radius: 8px; border: 1px solid var(--danger); display:inline-block;">
+                      ❌ REASON FOR DENIAL: ${d.remarks}
+                    </span>
+                  </div>
+                  <div style="font-size: 12px; font-weight: 900; color: var(--text-primary); background: var(--primary-light); padding: 10px 16px; border-radius: 12px; border: 1px solid var(--primary);">
+                    ⚠️ Status Coordination: Please submit your corrected project accomplishment reports directly to <span style="color: var(--primary-depth);">Ms. Roxanne</span>.
                   </div>
                 </div>
               `;
             }
             return `
-              <div class="upDocRow" style="border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.05);">
+              <div class="upDocRow" style="background: var(--accent-light); border: 1px solid var(--accent); border-left: 4px solid var(--danger);">
                 <div style="display:flex; flex-direction:column; gap:8px;">
-                  <span style="font-size: 14px; font-weight: 900;">📄 Upload requirement: <span style="color:#38bdf8;">${d.docType}</span> <small style="color:#f43f5e">(PDF Only)</small></span>
-                  <span style="color:#fca5a5; font-weight:900; font-size:12px; background: rgba(239, 68, 68, 0.2); padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.3); display:inline-block;">
+                  <span style="font-size: 14px; font-weight: 900; color: var(--text-accent);">📄 Upload requirement: <span style="color: var(--primary-depth);">${d.docType}</span> <small style="color: var(--text-danger);">(PDF Only)</small></span>
+                  <span style="color: var(--text-danger); font-weight:900; font-size:12px; background: var(--danger-light); padding: 6px 12px; border-radius: 8px; border: 1px solid var(--danger); display:inline-block;">
                     ❌ REASON FOR DENIAL: ${d.remarks}
                   </span>
                 </div>
@@ -1029,42 +1242,78 @@ i2e4E1vAOiqCrUlBSDcvD1r+/g==
               </div>
             `;
           }).join("");
+        } 
+        else if (currentTab === 'uploaded') {
+          docHtml = p.uDocs.map(d => {
+            if (d.isAuto) {
+              let extMsg = "";
+              if (["MOBILIZATION", "ON-GOING", "COMPLETED", "PHOTO"].includes(d.docType)) {
+                  extMsg = `Synced via <span style="color: var(--primary-depth);">PCMA Mobile App</span>`;
+              } else if (["GEOTAGGED MOB", "GEOTAGGED ON-GOING", "GEOTAGGED COMPLETED"].includes(d.docType)) {
+                  extMsg = `Synced via <span style="color: var(--warning-depth);">ArcGIS Survey123</span>`;
+              } else {
+                  extMsg = `Synced via <span style="color: var(--accent-depth);">Ms. Roxanne (Accomplishment)</span>`;
+              }
 
-          deniedHTML += `
-            <div class="upAccordionItem">
-              <div class="upAccordionHead" onclick="toggleUpAccordion(this)">${headHTML}</div>
-              <div class="upAccordionBody">${docHtml}</div>
-            </div>`;
+              return `
+              <div class="upDocRow" style="background: var(--primary-light); border: 1px solid var(--primary); border-left: 4px solid var(--success);">
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                  <span style="font-size: 14px; font-weight: 900; color: var(--text-primary);">✅ Status: <span style="color: var(--text-success);">${d.docType}</span> Auto-Approved</span>
+                  <div style="font-size: 12px; font-weight: 900; color: var(--text-success); background: var(--success-light); padding: 8px 16px; border-radius: 12px; border: 1px solid var(--success);">
+                    ${extMsg}
+                  </div>
+                </div>
+              </div>
+              `;
+            }
+            return `
+              <div class="upDocRow" style="background: var(--primary-light); border: 1px solid var(--primary); border-left: 4px solid var(--success);">
+                <span style="font-size: 14px; font-weight: 900; color: var(--text-primary);">✅ Status: <span style="color: var(--text-success);">${d.docType}</span> Approved</span>
+                <a href="${d.url}" target="_blank" class="btn-3d upDownloadBtn" style="background: var(--success); box-shadow: 0 4px 0 var(--success-depth); color: var(--text-success);">📥 Download</a>
+              </div>
+            `;
+          }).join("");
         }
 
-        // Uploaded / Approved
-        if (p.uDocs.length > 0) {
-          const docHtml = p.uDocs.map(d => `
-            <div class="upDocRow" style="border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.05);">
-              <span style="font-size: 14px; font-weight: 900;">✅ Status: <span style="color:#10b981;">${d.docType}</span> Approved</span>
-              <a href="${d.url}" target="_blank" class="btn-3d upDownloadBtn" style="background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 0 #047857;">📥 Download</a>
-            </div>
-          `).join("");
-
-          uploadedHTML += `
-            <div class="upAccordionItem">
-              <div class="upAccordionHead" onclick="toggleUpAccordion(this)">${headHTML}</div>
-              <div class="upAccordionBody">${docHtml}</div>
-            </div>`;
-        }
+        html += `
+          <div class="upAccordionItem">
+            <div class="upAccordionHead" onclick="toggleUpAccordion(this)">${headHTML}</div>
+            <div class="upAccordionBody">${docHtml}</div>
+          </div>`;
       });
-      
-      let statsText = Object.keys(yearStats)
-        .sort((a,b) => b.localeCompare(a)) 
-        .map(y => `${y}: ${yearStats[y].up}/${yearStats[y].tot}`)
-        .join(" | ");
-        
-      document.getElementById('global-doc-stats').innerHTML = statsText ? `📊 ${statsText} Matrix Nodes` : `📊 0 / 0 Matrix Nodes`;
 
-      pList.innerHTML = pendingHTML || `<div class="empty-state"><span>📂</span> No pending documents for the selected filters.</div>`;
-      aList.innerHTML = approvalHTML || `<div class="empty-state"><span>🛡️</span> No documents currently waiting for approval.</div>`;
-      dList.innerHTML = deniedHTML || `<div class="empty-state"><span>✅</span> No denied documents for the selected filters.</div>`;
-      uList.innerHTML = uploadedHTML || `<div class="empty-state"><span>🚀</span> No approved documents for the selected filters.</div>`;
+      let emptyMsg = "No documents found.";
+      let icon = "📂";
+      if (currentTab === 'pending') { emptyMsg = "No pending documents for the selected filters."; icon = "📂"; }
+      else if (currentTab === 'approval') { emptyMsg = "No documents currently waiting for approval."; icon = "🛡️"; }
+      else if (currentTab === 'denied') { emptyMsg = "No denied documents for the selected filters."; icon = "✅"; }
+      else if (currentTab === 'uploaded') { emptyMsg = "No approved documents for the selected filters."; icon = "🚀"; }
+
+      listEl.innerHTML = html || `<div class="empty-state"><span>${icon}</span> ${emptyMsg}</div>`;
+
+      renderPaginationControls(totalPages);
+    }
+
+    function renderPaginationControls(totalPages) {
+      const paginationDiv = document.getElementById("paginationControls");
+      if (totalPages <= 1) {
+        paginationDiv.innerHTML = "";
+        return;
+      }
+
+      let html = `<button class="btn-3d" style="background: var(--accent-light); color: var(--text-accent); border: 1px solid var(--accent); padding: 8px 16px; opacity: ${currentPage === 1 ? '0.5' : '1'}; cursor: ${currentPage === 1 ? 'not-allowed' : 'pointer'}" ${currentPage === 1 ? 'disabled' : ''} onclick="changePage(${currentPage - 1})">⬅ Prev</button>`;
+      
+      html += `<span style="font-weight: 900; color: var(--text-primary); font-size: 14px; background: var(--primary-light); padding: 8px 16px; border-radius: 12px; border: 1px solid var(--primary); box-shadow: var(--glass-shadow);">Page ${currentPage} of ${totalPages}</span>`;
+      
+      html += `<button class="btn-3d" style="background: var(--accent-light); color: var(--text-accent); border: 1px solid var(--accent); padding: 8px 16px; opacity: ${currentPage === totalPages ? '0.5' : '1'}; cursor: ${currentPage === totalPages ? 'not-allowed' : 'pointer'}" ${currentPage === totalPages ? 'disabled' : ''} onclick="changePage(${currentPage + 1})">Next ➡</button>`;
+
+      paginationDiv.innerHTML = html;
+    }
+
+    function changePage(newPage) {
+      currentPage = newPage;
+      renderActiveTab();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     // --- UPLOAD HANDLER ---
@@ -1080,8 +1329,9 @@ i2e4E1vAOiqCrUlBSDcvD1r+/g==
 
       const btn = inputElement.parentElement;
       btn.innerHTML = `⏳ UPLOADING...`;
-      btn.style.background = "linear-gradient(135deg, #f59e0b, #d97706)";
-      btn.style.boxShadow = "0 4px 0 #b45309";
+      btn.style.background = "var(--warning)";
+      btn.style.boxShadow = "0 4px 0 var(--warning-depth)";
+      btn.style.color = "var(--text-warning)";
       inputElement.disabled = true;
 
       const reader = new FileReader();
@@ -1089,17 +1339,20 @@ i2e4E1vAOiqCrUlBSDcvD1r+/g==
         const base64Data = e.target.result.split(',')[1];
         
         try {
-          const fileId = await uploadToDrive(base64Data, docType + ".pdf", contractId);
+          const fileName = `${contractId} - ${docType}.pdf`;
+          const fileId = await uploadToDrive(base64Data, fileName, contractId);
           await updateSheetCell(rowNum, docType + " UPLOADED", fileId);
 
           btn.innerHTML = `✔ SENT FOR APPROVAL`;
-          btn.style.background = "#64748b";
-          btn.style.boxShadow = "0 4px 0 #334155";
+          btn.style.background = "var(--accent-light)";
+          btn.style.boxShadow = "0 4px 0 var(--accent)";
+          btn.style.color = "var(--text-accent)";
         } catch(error) {
           alert("Upload failed: " + error.message);
           btn.innerHTML = `📁 SELECT PDF`;
-          btn.style.background = "linear-gradient(135deg, var(--success), #34d399)";
+          btn.style.background = "var(--success)";
           btn.style.boxShadow = "0 4px 0 var(--success-depth)";
+          btn.style.color = "var(--text-success)";
           inputElement.disabled = false;
           inputElement.value = "";
         }
@@ -1164,8 +1417,9 @@ i2e4E1vAOiqCrUlBSDcvD1r+/g==
           try {
             await updateSheetCell(rowNum, docType + " UPLOADED", rawVal + "|OK");
             btn.innerHTML = `✔ APPROVED`;
-            btn.style.background = "#64748b";
-            btn.style.boxShadow = "0 4px 0 #334155";
+            btn.style.background = "var(--accent-light)";
+            btn.style.boxShadow = "0 4px 0 var(--accent)";
+            btn.style.color = "var(--text-accent)";
             if(btn.nextElementSibling) btn.nextElementSibling.style.display = 'none';
           } catch(error) {
             alert("Approval Failed: " + error.message);
@@ -1187,8 +1441,9 @@ i2e4E1vAOiqCrUlBSDcvD1r+/g==
           try {
             await updateSheetCell(rowNum, docType + " UPLOADED", rawVal + "|DENIED|" + remarks);
             btn.innerHTML = `✖ DENIED`;
-            btn.style.background = "#64748b";
-            btn.style.boxShadow = "0 4px 0 #334155";
+            btn.style.background = "var(--accent-light)";
+            btn.style.boxShadow = "0 4px 0 var(--accent)";
+            btn.style.color = "var(--text-accent)";
             if(btn.previousElementSibling) btn.previousElementSibling.style.display = 'none';
           } catch(error) {
             alert("Denial Failed: " + error.message);

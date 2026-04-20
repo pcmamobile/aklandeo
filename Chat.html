@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Pastel 3D Messenger Pro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <style>
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    .bg-animated-pastel { background: linear-gradient(-45deg, #ff9a9e, #fecfef, #a1c4fd, #c2e9fb); background-size: 400% 400%; animation: gradientBG 15s ease infinite; }
+    @keyframes gradientBG { 0% {background-position: 0% 50%} 50% {background-position: 100% 50%} 100% {background-position: 0% 50%} }
+    
+    .btn-3d { transition: all 0.1s ease; cursor: pointer; position: relative; }
+    .btn-3d:active { transform: translateY(2px); box-shadow: none !important; }
+    .glass { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.5); }
+    
+    .reaction-badge { border-width: 1px; transition: all 0.2s; cursor: pointer; }
+    .reaction-badge:hover { transform: scale(1.1) rotate(3deg); }
+    .animate-float { animation: float 3s ease-in-out infinite; }
+    @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-5px); } }
+    
+    .emoji-btn { width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 12px; transition: 0.1s; }
+    .emoji-btn:active { transform: scale(0.9); background: #f3f4f6; }
+
+    .chat-image {
+        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), z-index 0s;
+        transform-origin: center;
+        position: relative;
+        z-index: 10;
+    }
+    .chat-image:hover {
+        transform: scale(2.5);
+        z-index: 50;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+    }
+    
+    .profile-pic-chat {
+        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), z-index 0s;
+        transform-origin: center;
+        position: relative;
+        z-index: 10;
+    }
+    .profile-pic-chat:hover {
+        transform: scale(3.0);
+        z-index: 50;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+    
+    .swipeable-message {
+        will-change: transform;
+        position: relative;
+    }
+    
+    textarea::-webkit-scrollbar {
+        width: 0px;
+        background: transparent;
+    }
+  </style>
+</head>
+<body class="bg-animated-pastel font-sans h-screen w-full flex flex-col overflow-hidden text-gray-800 selection:bg-pink-200">
+
+  <div id="authView" class="hidden flex-1 flex items-center justify-center p-4 absolute inset-0 z-50 bg-black/10 backdrop-blur-sm">
+    <div class="bg-white rounded-3xl shadow-[0_6px_0_0_#fbcfe8] border-2 border-pink-100 p-6 sm:p-8 w-full max-w-sm flex flex-col items-center animate-float">
+      <div class="bg-gradient-to-br from-pink-400 to-purple-400 p-4 rounded-full mb-4 border-2 border-white shadow-md text-white">
+        <i class="ph ph-chat-centered-dots text-4xl"></i>
+      </div>
+      <h1 class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-600 mb-1">Pastel Space</h1>
+      <p class="text-gray-400 text-xs font-bold mb-6 uppercase tracking-widest">Community Chat</p>
+      
+      <input type="text" id="nameInput" placeholder="Pangalan mo..." class="w-full px-4 py-4 bg-pink-50 rounded-xl border border-pink-200 outline-none mb-4 font-bold text-lg focus:border-pink-400 transition-all text-center shadow-inner">
+      
+      <div class="w-full">
+        <button onclick="authenticateUser('login')" id="loginBtn" class="btn-3d w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white font-black py-4 rounded-xl shadow-[0_4px_0_0_#c026d3] text-lg hover:brightness-110">Join Chat</button>
+      </div>
+      <p id="authErrorMsg" class="text-red-500 mt-4 hidden font-bold text-xs text-center"></p>
+    </div>
+  </div>
+
+  <div id="chatView" class="hidden flex-col h-full w-full absolute inset-0 z-30">
+    <header class="glass px-3 py-2 sm:px-5 sm:py-2.5 flex justify-between items-center shrink-0 z-40 shadow-sm">
+      <div class="flex items-center space-x-2.5 cursor-pointer group" onclick="openProfileModal()">
+        <div class="w-10 h-10 rounded-xl shadow-sm border-2 border-pink-200 bg-white flex items-center justify-center overflow-hidden group-hover:scale-105 transition-transform">
+            <img id="headerProfilePic" src="" class="w-full h-full object-cover hidden" alt="Profile">
+            <i id="headerProfileIcon" class="ph-fill ph-user text-pink-400 text-xl"></i>
+        </div>
+        <div>
+          <h2 class="text-base sm:text-lg font-black text-pink-600 leading-tight" id="headerUserName">Pastel Global</h2>
+          <div class="flex items-center text-[10px] font-bold text-green-500 uppercase cursor-pointer hover:bg-green-50 rounded px-1 -ml-1 transition-colors" onclick="event.stopPropagation(); openOnlineModal();">
+            <span class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1 animate-pulse"></span> Online (<span id="onlineCount">0</span>)
+          </div>
+        </div>
+      </div>
+      <div class="flex items-center space-x-2">
+        <button onclick="$('settingsModal').classList.remove('hidden')" class="btn-3d p-1.5 sm:p-2 bg-gradient-to-r from-violet-500 via-fuchsia-500 to-pink-500 text-white rounded-lg sm:rounded-xl border-2 border-white shadow-[0_3px_0_0_#a855f7] hover:rotate-90 transition-transform duration-300 group">
+            <i class="ph-bold ph-gear-six text-xl sm:text-2xl drop-shadow-md group-hover:animate-spin"></i>
+        </button>
+        <button onclick="logout()" class="btn-3d p-1.5 sm:p-2 bg-red-50 text-red-500 rounded-lg sm:rounded-xl border border-red-100 shadow-sm hover:bg-red-100 transition-colors">
+            <i class="ph-bold ph-sign-out text-xl sm:text-2xl"></i>
+        </button>
+      </div>
+    </header>
+
+    <div id="messagesContainer" class="flex-1 overflow-y-auto p-2 sm:p-4 bg-white/30 backdrop-blur-sm overflow-x-hidden"></div>
+
+    <div id="onlineModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl shadow-xl p-5 w-full max-w-sm transform animate-float">
+            <div class="flex justify-between items-center mb-4">
+                <span class="font-black text-green-500 text-lg flex items-center"><i class="ph-fill ph-users mr-2 text-xl"></i> User Status</span>
+                <button onclick="closeOnlineModal()" class="text-gray-300 hover:text-red-500 transition-colors"><i class="ph ph-x-circle text-2xl"></i></button>
+            </div>
+            <div id="onlineUsersList" class="max-h-[350px] overflow-y-auto space-y-2 scrollbar-hide pr-1">
+                </div>
+        </div>
+    </div>
+
+    <div id="profileModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+      <div class="bg-white rounded-3xl shadow-xl p-6 w-full max-w-xs border-2 border-pink-100 transform animate-float flex flex-col items-center">
+        <div class="w-full flex justify-end mb-2">
+            <button onclick="$('profileModal').classList.add('hidden')" class="text-gray-300 hover:text-red-500"><i class="ph ph-x-circle text-2xl"></i></button>
+        </div>
+        <h3 class="font-black text-pink-500 text-lg mb-4">Profile Mo</h3>
+        
+        <div class="w-28 h-28 rounded-full border-4 border-pink-100 mb-4 overflow-hidden bg-gray-50 flex items-center justify-center shadow-inner relative group">
+            <img id="modalProfilePic" src="" class="w-full h-full object-cover hidden">
+            <i id="modalProfileIcon" class="ph-fill ph-user text-gray-300 text-5xl"></i>
+            <div class="absolute inset-0 bg-black/30 hidden group-hover:flex items-center justify-center cursor-pointer transition-colors" onclick="$('profilePicInput').click()">
+                <i class="ph-bold ph-camera text-white text-2xl"></i>
+            </div>
+        </div>
+        
+        <input type="file" id="profilePicInput" accept="image/*" class="hidden" onchange="handleProfilePicUpload(event)">
+        <button onclick="$('profilePicInput').click()" class="btn-3d w-full bg-pink-100 text-pink-600 font-bold py-3 rounded-xl border border-pink-200 hover:bg-pink-200 mb-2">
+            <i class="ph-bold ph-upload-simple mr-1"></i> Palitan ang Litrato
+        </button>
+
+        <div id="picUploadProgress" class="w-full hidden mt-2">
+            <p class="text-[10px] text-center text-pink-500 font-bold mb-1">Ina-upload...</p>
+            <div class="w-full bg-pink-50 rounded-full h-2"><div id="picUploadBar" class="bg-pink-400 h-full w-0 transition-all"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="settingsModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+      <div class="bg-white rounded-3xl shadow-xl p-5 w-full max-w-[420px] border-2 border-gray-100 transform animate-float">
+        <div class="flex justify-between items-center mb-3">
+            <span class="font-black text-gray-800 text-lg flex items-center"><i class="ph-fill ph-palette mr-2 text-violet-500"></i> Tema ng Chat</span>
+            <button onclick="$('settingsModal').classList.add('hidden')" class="text-gray-300 hover:text-red-500"><i class="ph ph-x-circle text-3xl"></i></button>
+        </div>
+        <p class="text-[11px] font-bold text-gray-500 mb-3 uppercase tracking-widest text-center">Piliin ang Iyong Kulay (50 Options)</p>
+        
+        <div id="themeGrid" class="grid grid-cols-5 sm:grid-cols-6 gap-2.5 place-items-center max-h-[350px] overflow-y-auto p-2 scrollbar-hide">
+           </div>
+      </div>
+    </div>
+
+    <div id="reactionDetailsModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl shadow-xl p-5 w-full max-w-xs transform">
+            <div class="flex justify-between items-center mb-3">
+                <span class="font-black text-pink-500 text-lg flex items-center"><i class="ph-fill ph-users mr-2 text-xl"></i> Mga Nag-React</span>
+                <button onclick="$('reactionDetailsModal').classList.add('hidden')" class="text-gray-300 hover:text-red-500"><i class="ph ph-x-circle text-2xl"></i></button>
+            </div>
+            <div id="reactionDetailsList" class="max-h-[250px] overflow-y-auto space-y-2"></div>
+        </div>
+    </div>
+
+    <div id="reactionPopup" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl shadow-xl p-5 w-full max-w-[340px] transform">
+            <div class="flex justify-between items-center mb-3">
+                <span class="font-black text-gray-700 text-base">Mag-React</span>
+                <button onclick="$('reactionPopup').classList.add('hidden')" class="text-gray-300 hover:text-red-500"><i class="ph ph-x-circle text-2xl"></i></button>
+            </div>
+            <div id="reactionGrid" class="flex flex-wrap gap-1.5 max-h-[300px] overflow-y-auto p-1 justify-center"></div>
+        </div>
+    </div>
+
+    <div class="bg-white p-2 sm:p-3 border-t border-gray-100 shrink-0 relative z-40 shadow-[0_-5px_15px_rgba(0,0,0,0.02)]">
+      
+      <div id="uploadProgressContainer" class="hidden absolute bottom-full left-4 right-4 bg-white border border-pink-100 rounded-xl p-2.5 shadow-lg mb-2">
+        <div class="flex justify-between text-xs font-bold text-pink-500 mb-1.5"><span>Nag-uupload...</span><span id="uploadPercentText">0%</span></div>
+        <div class="w-full bg-pink-50 rounded-full h-1.5 overflow-hidden"><div id="uploadProgressBar" class="bg-pink-400 h-full w-0 transition-all duration-300"></div></div>
+      </div>
+
+      <div id="editingIndicator" class="hidden absolute bottom-full left-4 right-4 bg-yellow-50 border border-yellow-200 rounded-t-xl p-2 px-4 shadow-sm flex justify-between items-center text-xs font-bold text-yellow-600 mb-0">
+          <span><i class="ph-bold ph-pencil-simple mr-1"></i> Ie-edit ang mensahe...</span>
+          <button onclick="cancelEdit()" class="text-gray-400 hover:text-red-500"><i class="ph-bold ph-x-circle text-lg"></i></button>
+      </div>
+
+      <div id="replyingIndicator" class="hidden absolute bottom-full left-0 right-0 bg-gray-50 border-t border-gray-200 p-2.5 px-4 flex items-center justify-between shadow-sm z-30">
+          <div class="flex flex-col overflow-hidden border-l-4 border-blue-500 pl-3 flex-1">
+              <span class="text-[10px] font-black text-blue-600 uppercase tracking-wider flex items-center">
+                  <i class="ph-bold ph-reply mr-1"></i> Nag-reply kay <span id="replyPreviewName" class="ml-1"></span>
+              </span>
+              <span class="text-xs text-gray-600 truncate font-medium mt-0.5" id="replyPreviewText"></span>
+          </div>
+          <button onclick="cancelReply()" class="p-2 text-gray-400 hover:text-red-500 transition-colors ml-2 bg-white rounded-full shadow-sm">
+              <i class="ph-bold ph-x text-lg"></i>
+          </button>
+      </div>
+
+      <div id="emojiPicker" class="hidden absolute bottom-full mb-2 left-2 bg-white border border-gray-200 shadow-xl rounded-2xl p-2 flex flex-wrap gap-1.5 max-w-[320px] z-50 justify-center"></div>
+
+      <div class="flex items-end space-x-1.5 max-w-5xl mx-auto">
+        <button onclick="toggleEmojis()" class="btn-3d p-2 sm:p-2.5 bg-gray-50 text-gray-500 rounded-xl hover:bg-pink-50 hover:text-pink-500 shadow-[0_2px_0_0_#f3f4f6] mb-0.5"><i class="ph-bold ph-smiley text-xl sm:text-2xl"></i></button>
+        <input type="file" id="chatFileInput" class="hidden" onchange="handleChatFileUpload(event)">
+        <button onclick="$('chatFileInput').click()" class="btn-3d p-2 sm:p-2.5 bg-gray-50 text-gray-500 rounded-xl hover:bg-blue-50 hover:text-blue-500 shadow-[0_2px_0_0_#f3f4f6] mb-0.5"><i class="ph-bold ph-paperclip-horizontal text-xl sm:text-2xl"></i></button>
+        <button id="micBtn" onclick="toggleRecording()" class="btn-3d p-2 sm:p-2.5 bg-gray-50 text-gray-500 rounded-xl hover:bg-purple-50 hover:text-purple-500 shadow-[0_2px_0_0_#f3f4f6] mb-0.5"><i class="ph-bold ph-microphone text-xl sm:text-2xl"></i></button>
+        
+        <div class="flex-1 relative">
+            <textarea id="messageInput" rows="1" placeholder="Mensahe..." class="w-full bg-gray-100 px-4 py-2 sm:py-2.5 rounded-2xl border border-transparent focus:outline-none focus:border-pink-200 focus:bg-white font-medium text-sm sm:text-base transition-colors resize-none overflow-y-auto block" style="min-height: 40px; max-height: 120px;"></textarea>
+        </div>
+        
+        <button onclick="submitMessage()" class="btn-3d px-3 sm:px-4 py-2 sm:py-2.5 bg-pink-500 text-white rounded-xl shadow-[0_3px_0_0_#db2777] hover:bg-pink-600 flex items-center justify-center min-w-[45px] mb-0.5" id="sendBtn">
+            <i class="ph-bold ph-paper-plane-right text-xl sm:text-2xl" id="sendIcon"></i>
+            <span id="sendText" class="hidden text-xs sm:text-sm font-bold ml-1 whitespace-nowrap"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const $ = id => document.getElementById(id);
+    const scriptUrl = 'https://script.google.com/macros/s/AKfycbzMJD5wwpAcUsjzVzY7WIqAU6RhIsnrAfiSBpeLYwtBipzaIbYmFJTF_RJcBjOpHVj9AA/exec'; 
+    
+    let userName = localStorage.getItem('messengerUserName') || '';
+    let userColor = localStorage.getItem('myBubbleColor') || 'pink';
+    let userPicUrl = localStorage.getItem('myProfilePic') || '';
+    let fetchedMessages = [], lastMessagesJSON = null;
+    let globalUserProfiles = {}; 
+    let displayLimit = 30; 
+    let selectedMsgTime = null, autoScrollEnabled = true;
+    let mediaRecorder = null, audioChunks = [], isRecording = false;
+    let editingMsgTime = null; 
+    let replyingToData = null; 
+    let sendingAnimInterval = null;
+    let inactivityTimer = null;
+
+    // 50 Magkakaibang Themes
+    const THEMES = {
+      pink: { label: 'Pink', outer: 'bg-pink-100 border-pink-200', inner: 'bg-pink-500 text-white shadow-[0_2px_0_0_#be185d]', textCol: 'text-pink-600', btn: 'bg-pink-500' },
+      blue: { label: 'Blue', outer: 'bg-blue-100 border-blue-200', inner: 'bg-blue-500 text-white shadow-[0_2px_0_0_#1d4ed8]', textCol: 'text-blue-600', btn: 'bg-blue-500' },
+      green: { label: 'Green', outer: 'bg-emerald-100 border-emerald-200', inner: 'bg-emerald-500 text-white shadow-[0_2px_0_0_#047857]', textCol: 'text-emerald-600', btn: 'bg-emerald-500' },
+      yellow: { label: 'Yellow', outer: 'bg-amber-100 border-amber-200', inner: 'bg-amber-500 text-white shadow-[0_2px_0_0_#b45309]', textCol: 'text-amber-600', btn: 'bg-amber-500' },
+      red: { label: 'Red', outer: 'bg-rose-100 border-rose-200', inner: 'bg-rose-500 text-white shadow-[0_2px_0_0_#be123c]', textCol: 'text-rose-600', btn: 'bg-rose-500' },
+      purple: { label: 'Purple', outer: 'bg-purple-100 border-purple-200', inner: 'bg-purple-500 text-white shadow-[0_2px_0_0_#7e22ce]', textCol: 'text-purple-600', btn: 'bg-purple-500' },
+      orange: { label: 'Orange', outer: 'bg-orange-100 border-orange-200', inner: 'bg-orange-500 text-white shadow-[0_2px_0_0_#c2410c]', textCol: 'text-orange-600', btn: 'bg-orange-500' },
+      lime: { label: 'Lime', outer: 'bg-lime-100 border-lime-200', inner: 'bg-lime-500 text-white shadow-[0_2px_0_0_#4d7c0f]', textCol: 'text-lime-600', btn: 'bg-lime-500' },
+      neonPink: { label: 'Neon Pink', outer: 'bg-fuchsia-100 border-fuchsia-300', inner: 'bg-fuchsia-500 text-white shadow-[0_2px_0_0_#a21caf]', textCol: 'text-fuchsia-600', btn: 'bg-fuchsia-500 shadow-[0_0_10px_#d946ef]' },
+      neonBlue: { label: 'Neon Blue', outer: 'bg-cyan-100 border-cyan-300', inner: 'bg-cyan-500 text-white shadow-[0_2px_0_0_#0e7490]', textCol: 'text-cyan-600', btn: 'bg-cyan-500 shadow-[0_0_10px_#06b6d4]' },
+      gold: { label: 'Gold', outer: 'bg-yellow-50 border-yellow-200', inner: 'bg-gradient-to-r from-yellow-400 to-yellow-600 text-white shadow-[0_2px_0_0_#854d0e]', textCol: 'text-yellow-600', btn: 'bg-gradient-to-r from-yellow-400 to-yellow-600' },
+      silver: { label: 'Silver', outer: 'bg-gray-100 border-gray-300', inner: 'bg-gradient-to-r from-gray-400 to-gray-500 text-white shadow-[0_2px_0_0_#374151]', textCol: 'text-gray-600', btn: 'bg-gradient-to-r from-gray-400 to-gray-500' },
+      dark: { label: 'Dark', outer: 'bg-gray-200 border-gray-300', inner: 'bg-gray-700 text-white shadow-[0_2px_0_0_#374151]', textCol: 'text-gray-700', btn: 'bg-gray-700' },
+      midnight: { label: 'Midnight', outer: 'bg-slate-300 border-slate-400', inner: 'bg-slate-900 text-white shadow-[0_2px_0_0_#0f172a]', textCol: 'text-slate-800', btn: 'bg-slate-900' },
+      chocolate: { label: 'Chocolate', outer: 'bg-orange-100 border-orange-200', inner: 'bg-orange-900 text-white shadow-[0_2px_0_0_#431407]', textCol: 'text-orange-900', btn: 'bg-orange-900' },
+      lavender: { label: 'Lavender', outer: 'bg-indigo-100 border-indigo-200', inner: 'bg-indigo-500 text-white shadow-[0_2px_0_0_#4f46e5]', textCol: 'text-indigo-600', btn: 'bg-indigo-400' },
+      mint: { label: 'Mint', outer: 'bg-teal-100 border-teal-200', inner: 'bg-teal-500 text-white shadow-[0_2px_0_0_#0f766e]', textCol: 'text-teal-600', btn: 'bg-teal-400' },
+      sky: { label: 'Sky', outer: 'bg-sky-100 border-sky-200', inner: 'bg-sky-500 text-white shadow-[0_2px_0_0_#0369a1]', textCol: 'text-sky-600', btn: 'bg-sky-400' },
+      softRose: { label: 'Soft Rose', outer: 'bg-rose-50 border-rose-200', inner: 'bg-rose-300 text-gray-800 shadow-[0_2px_0_0_#f43f5e]', textCol: 'text-rose-500', btn: 'bg-rose-300' },
+      pureWhite: { label: 'Pure White', outer: 'bg-white border-gray-200 shadow-sm', inner: 'bg-white text-gray-800 border border-gray-200 shadow-[0_2px_0_0_#e5e7eb]', textCol: 'text-gray-500', btn: 'bg-white border-2 border-gray-200' },
+      teal: { label: 'Teal', outer: 'bg-teal-50 border-teal-200', inner: 'bg-teal-600 text-white shadow-[0_2px_0_0_#0f766e]', textCol: 'text-teal-700', btn: 'bg-teal-600' },
+      cyan: { label: 'Cyan', outer: 'bg-cyan-50 border-cyan-200', inner: 'bg-cyan-600 text-white shadow-[0_2px_0_0_#0891b2]', textCol: 'text-cyan-700', btn: 'bg-cyan-600' },
+      indigo: { label: 'Indigo', outer: 'bg-indigo-50 border-indigo-200', inner: 'bg-indigo-600 text-white shadow-[0_2px_0_0_#4338ca]', textCol: 'text-indigo-700', btn: 'bg-indigo-600' },
+      fuchsia: { label: 'Fuchsia', outer: 'bg-fuchsia-50 border-fuchsia-200', inner: 'bg-fuchsia-600 text-white shadow-[0_2px_0_0_#c026d3]', textCol: 'text-fuchsia-700', btn: 'bg-fuchsia-600' },
+      ruby: { label: 'Ruby', outer: 'bg-red-100 border-red-300', inner: 'bg-red-700 text-white shadow-[0_2px_0_0_#991b1b]', textCol: 'text-red-800', btn: 'bg-red-700' },
+      sapphire: { label: 'Sapphire', outer: 'bg-blue-100 border-blue-300', inner: 'bg-blue-700 text-white shadow-[0_2px_0_0_#1e40af]', textCol: 'text-blue-800', btn: 'bg-blue-700' },
+      emerald: { label: 'Emerald', outer: 'bg-green-100 border-green-300', inner: 'bg-green-700 text-white shadow-[0_2px_0_0_#15803d]', textCol: 'text-green-800', btn: 'bg-green-700' },
+      amethyst: { label: 'Amethyst', outer: 'bg-purple-100 border-purple-300', inner: 'bg-purple-700 text-white shadow-[0_2px_0_0_#6b21a8]', textCol: 'text-purple-800', btn: 'bg-purple-700' },
+      topaz: { label: 'Topaz', outer: 'bg-yellow-100 border-yellow-300', inner: 'bg-yellow-600 text-white shadow-[0_2px_0_0_#ca8a04]', textCol: 'text-yellow-800', btn: 'bg-yellow-600' },
+      obsidian: { label: 'Obsidian', outer: 'bg-zinc-300 border-zinc-400', inner: 'bg-zinc-900 text-white shadow-[0_2px_0_0_#18181b]', textCol: 'text-zinc-900', btn: 'bg-zinc-900' },
+      pastelPink: { label: 'Pastel Pink', outer: 'bg-pink-50 border-pink-100', inner: 'bg-pink-300 text-gray-800 shadow-[0_2px_0_0_#fbcfe8]', textCol: 'text-pink-500', btn: 'bg-pink-300' },
+      pastelBlue: { label: 'Pastel Blue', outer: 'bg-blue-50 border-blue-100', inner: 'bg-blue-300 text-gray-800 shadow-[0_2px_0_0_#bfdbfe]', textCol: 'text-blue-500', btn: 'bg-blue-300' },
+      pastelGreen: { label: 'Pastel Green', outer: 'bg-green-50 border-green-100', inner: 'bg-green-300 text-gray-800 shadow-[0_2px_0_0_#bbf7d0]', textCol: 'text-green-500', btn: 'bg-green-300' },
+      pastelYellow: { label: 'Pastel Yellow', outer: 'bg-yellow-50 border-yellow-100', inner: 'bg-yellow-300 text-gray-800 shadow-[0_2px_0_0_#fef08a]', textCol: 'text-yellow-600', btn: 'bg-yellow-300' },
+      pastelPurple: { label: 'Pastel Purple', outer: 'bg-purple-50 border-purple-100', inner: 'bg-purple-300 text-gray-800 shadow-[0_2px_0_0_#e9d5ff]', textCol: 'text-purple-500', btn: 'bg-purple-300' },
+      sunset: { label: 'Sunset', outer: 'bg-orange-100 border-orange-200', inner: 'bg-gradient-to-r from-orange-400 to-rose-400 text-white shadow-[0_2px_0_0_#e11d48]', textCol: 'text-rose-600', btn: 'bg-gradient-to-r from-orange-400 to-rose-400' },
+      ocean: { label: 'Ocean', outer: 'bg-cyan-100 border-cyan-200', inner: 'bg-gradient-to-r from-cyan-400 to-blue-500 text-white shadow-[0_2px_0_0_#1d4ed8]', textCol: 'text-blue-600', btn: 'bg-gradient-to-r from-cyan-400 to-blue-500' },
+      forest: { label: 'Forest', outer: 'bg-emerald-100 border-emerald-200', inner: 'bg-gradient-to-r from-emerald-500 to-green-700 text-white shadow-[0_2px_0_0_#15803d]', textCol: 'text-green-700', btn: 'bg-gradient-to-r from-emerald-500 to-green-700' },
+      cherry: { label: 'Cherry', outer: 'bg-rose-100 border-rose-200', inner: 'bg-rose-600 text-white shadow-[0_2px_0_0_#9f1239]', textCol: 'text-rose-700', btn: 'bg-rose-600' },
+      grape: { label: 'Grape', outer: 'bg-purple-100 border-purple-200', inner: 'bg-purple-600 text-white shadow-[0_2px_0_0_#581c87]', textCol: 'text-purple-700', btn: 'bg-purple-600' },
+      mango: { label: 'Mango', outer: 'bg-orange-50 border-orange-200', inner: 'bg-orange-400 text-white shadow-[0_2px_0_0_#c2410c]', textCol: 'text-orange-500', btn: 'bg-orange-400' },
+      peach: { label: 'Peach', outer: 'bg-red-50 border-red-100', inner: 'bg-red-400 text-white shadow-[0_2px_0_0_#fca5a5]', textCol: 'text-red-500', btn: 'bg-red-400' },
+      lemon: { label: 'Lemon', outer: 'bg-lime-50 border-lime-100', inner: 'bg-lime-400 text-gray-800 shadow-[0_2px_0_0_#bef264]', textCol: 'text-lime-600', btn: 'bg-lime-400' },
+      aqua: { label: 'Aqua', outer: 'bg-cyan-50 border-cyan-100', inner: 'bg-cyan-400 text-gray-800 shadow-[0_2px_0_0_#67e8f9]', textCol: 'text-cyan-600', btn: 'bg-cyan-400' },
+      denim: { label: 'Denim', outer: 'bg-blue-100 border-blue-200', inner: 'bg-blue-600 text-white shadow-[0_2px_0_0_#1e40af]', textCol: 'text-blue-700', btn: 'bg-blue-600' },
+      lilac: { label: 'Lilac', outer: 'bg-indigo-50 border-indigo-100', inner: 'bg-indigo-400 text-white shadow-[0_2px_0_0_#a5b4fc]', textCol: 'text-indigo-500', btn: 'bg-indigo-400' },
+      charcoal: { label: 'Charcoal', outer: 'bg-stone-300 border-stone-400', inner: 'bg-stone-800 text-white shadow-[0_2px_0_0_#292524]', textCol: 'text-stone-900', btn: 'bg-stone-800' },
+      coral: { label: 'Coral', outer: 'bg-rose-100 border-rose-200', inner: 'bg-rose-500 text-white shadow-[0_2px_0_0_#e11d48]', textCol: 'text-rose-600', btn: 'bg-rose-500' },
+      olive: { label: 'Olive', outer: 'bg-lime-100 border-lime-200', inner: 'bg-lime-700 text-white shadow-[0_2px_0_0_#4d7c0f]', textCol: 'text-lime-800', btn: 'bg-lime-700' },
+      salmon: { label: 'Salmon', outer: 'bg-red-100 border-red-200', inner: 'bg-red-500 text-white shadow-[0_2px_0_0_#dc2626]', textCol: 'text-red-600', btn: 'bg-red-500' }
+    };
+    const OTHER_THEME = { outer: 'bg-gray-50 border-gray-200', inner: 'bg-white text-gray-800 shadow-[0_2px_0_0_#e5e7eb]', textCol: 'text-gray-500' };
+
+    const EMOJIS = ['😀','😂','🥰','😎','😭','😡','👍','🔥','❤️','🎉','✨','👀','💯','🎵','🎤','🎂','🍕','🌸','🐶','🌈','🍦','🍭','🐱','🌙','🎁','🎨','🚀','💎','💌'];
+    const REACTIONS = ['❤️','😂','😲','😢','😡','👍','🔥','💯','🙌','✨','🙏','🤣','🥰','😎','😱','💔','👏','👀','🎉','🍭'];
+    const ALL_UNIQUE_EMOJIS = Array.from(new Set([...EMOJIS, ...REACTIONS]));
+
+    function getAnimatedEmojiUrl(emoji) {
+      const special = { '❤️': '2764_fe0f', '✨': '2728_fe0f' };
+      let code = special[emoji] || emoji.codePointAt(0).toString(16);
+      return `https://fonts.gstatic.com/s/e/notoemoji/latest/${code}/512.webp`;
+    }
+
+    function init() {
+      const savedName = localStorage.getItem('messengerUserName') || '';
+      $('nameInput').value = savedName;
+
+      EMOJIS.forEach(e => { 
+        const b = document.createElement('button'); b.className = "emoji-btn hover:bg-gray-100 flex items-center justify-center p-1"; 
+        b.innerHTML = `<img src="${getAnimatedEmojiUrl(e)}" class="w-8 h-8 pointer-events-none select-none drop-shadow-sm" alt="${e}" onerror="this.outerHTML='<span class=\\'text-2xl\\'>${e}</span>'">`;
+        b.onclick = () => { 
+            const mi = $('messageInput');
+            mi.value += e; 
+            $('emojiPicker').classList.add('hidden'); 
+            mi.dispatchEvent(new Event('input'));
+            mi.focus();
+        }; 
+        $('emojiPicker').appendChild(b); 
+      });
+      REACTIONS.forEach(e => { 
+        const b = document.createElement('button'); b.className = "emoji-btn hover:bg-gray-100 transition-all hover:scale-110 active:scale-95 flex items-center justify-center p-1"; 
+        b.innerHTML = `<img src="${getAnimatedEmojiUrl(e)}" class="w-10 h-10 pointer-events-none select-none drop-shadow-md" alt="${e}" onerror="this.outerHTML='<span class=\\'text-3xl\\'>${e}</span>'">`;
+        b.onclick = () => confirmReact(e); 
+        $('reactionGrid').appendChild(b); 
+      });
+
+      const themeGrid = $('themeGrid');
+      if (themeGrid) {
+          Object.keys(THEMES).forEach(k => {
+              const btn = document.createElement('button');
+              btn.className = `w-9 h-9 rounded-xl ${THEMES[k].btn} shadow-sm ring-2 ring-offset-2 ring-transparent focus:ring-gray-300 hover:scale-110 transition-transform`;
+              btn.title = THEMES[k].label;
+              btn.onclick = () => setTheme(k);
+              themeGrid.appendChild(btn);
+          });
+      }
+
+      const msgInput = $('messageInput');
+      msgInput.addEventListener('input', function() {
+          this.style.height = '40px'; 
+          this.style.height = (this.scrollHeight) + 'px';
+      });
+      msgInput.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              submitMessage();
+          }
+      });
+
+      if (!userName) $('authView').classList.remove('hidden'); else showChat();
+
+      const msgContainer = $('messagesContainer');
+      msgContainer.addEventListener('scroll', function() {
+        const isAtBottom = (this.scrollHeight - this.scrollTop) <= (this.clientHeight + 150);
+        autoScrollEnabled = isAtBottom;
+        if (this.scrollTop <= 10 && displayLimit < fetchedMessages.length) {
+            const oldHeight = this.scrollHeight; displayLimit += 30; renderMessagesHTML(true, oldHeight);
+        }
+      });
+
+      let touchStartX = 0;
+      let swipeElement = null;
+
+      msgContainer.addEventListener('touchstart', e => {
+          const bubble = e.target.closest('.swipeable-message');
+          if (bubble) {
+              touchStartX = e.touches[0].clientX;
+              swipeElement = bubble;
+              bubble.style.transition = 'none';
+          }
+      }, {passive: true});
+
+      msgContainer.addEventListener('touchmove', e => {
+          if (!swipeElement) return;
+          const currentX = e.touches[0].clientX;
+          const diff = currentX - touchStartX;
+          if (diff > 0 && diff < 80) { 
+              swipeElement.style.transform = `translateX(${diff}px)`;
+          }
+      }, {passive: true});
+
+      msgContainer.addEventListener('touchend', e => {
+          if (!swipeElement) return;
+          const currentX = e.changedTouches[0].clientX;
+          const diff = currentX - touchStartX;
+          
+          swipeElement.style.transition = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
+          swipeElement.style.transform = 'translateX(0)';
+          
+          if (diff > 40) {
+              const name = swipeElement.getAttribute('data-name');
+              let content = swipeElement.getAttribute('data-content');
+              if (name) replyTo(name, content);
+          }
+          swipeElement = null;
+      });
+
+      // AUTO LOGOUT NA 60 SECONDS
+      let hiddenTime = 0;
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            hiddenTime = Date.now();
+            if (userName) {
+                inactivityTimer = setTimeout(() => {
+                    softLogout();
+                }, 60000); 
+            }
+        } else {
+            if (inactivityTimer) {
+                clearTimeout(inactivityTimer);
+                inactivityTimer = null;
+            }
+            // Kung na-suspend ang browser ng higit 60s
+            if (hiddenTime > 0 && (Date.now() - hiddenTime > 60000) && userName) {
+                softLogout();
+            } else if (userName) {
+                fetch(`${scriptUrl}?t=${Date.now()}&ping=${encodeURIComponent(userName)}`, {mode: 'no-cors'});
+            }
+            hiddenTime = 0;
+        }
+      });
+      
+      // Mag-send ng logout bago ma-close ang tab
+      window.addEventListener('beforeunload', () => {
+          if (userName) {
+              navigator.sendBeacon(`${scriptUrl}?action=logout&name=${encodeURIComponent(userName)}`);
+          }
+      });
+    }
+
+    // FUNCTION FOR AUTO-LOGOUT
+    function softLogout() {
+        if (userName) {
+            navigator.sendBeacon(`${scriptUrl}?action=logout&name=${encodeURIComponent(userName)}`);
+        }
+        userName = '';
+        $('chatView').classList.add('hidden');
+        $('chatView').classList.remove('flex');
+        $('authView').classList.remove('hidden');
+        
+        $('nameInput').value = localStorage.getItem('messengerUserName') || '';
+        $('authErrorMsg').innerText = "Naka-logout ka para sa privacy dahil lumipas ang 60 seconds. I-click ang Join Chat para bumalik.";
+        $('authErrorMsg').classList.remove('hidden');
+    }
+
+    // ONLINE STATUS CALCULATOR
+    function getUserStatus(profileData) {
+        if (!profileData) return { text: "Offline", color: "text-gray-400", dot: "bg-gray-400" };
+        if (profileData.isCurrentUser) return { text: "Online", color: "text-green-500", dot: "bg-green-500 animate-pulse" };
+        
+        if (profileData.isOnline) {
+            return { text: "Online", color: "text-green-500", dot: "bg-green-500" };
+        } else {
+            const lastActive = profileData.lastActive;
+            if (lastActive && lastActive > 0) {
+                const diffMins = Math.floor((Date.now() - lastActive) / 60000);
+                if (diffMins < 1) return { text: "Kaa-offline lang", color: "text-gray-400", dot: "bg-gray-400" };
+                if (diffMins < 60) return { text: `Offline (${diffMins}m)`, color: "text-gray-400", dot: "bg-gray-400" };
+                const diffHours = Math.floor(diffMins / 60);
+                if (diffHours < 24) return { text: `Offline (${diffHours}h)`, color: "text-gray-400", dot: "bg-gray-400" };
+                return { text: `Offline (${Math.floor(diffHours/24)}d)`, color: "text-gray-400", dot: "bg-gray-400" };
+            }
+            return { text: "Offline", color: "text-gray-400", dot: "bg-gray-400" };
+        }
+    }
+
+    function startSendingAnimation() {
+        const btn = $('sendBtn'), icon = $('sendIcon'), txt = $('sendText');
+        btn.disabled = true;
+        if(icon) icon.classList.add('hidden');
+        if(txt) {
+            txt.classList.remove('hidden'); txt.innerText = "Sending";
+            let dots = 0; sendingAnimInterval = setInterval(() => { dots = (dots + 1) % 4; txt.innerText = "Sending" + ".".repeat(dots); }, 400);
+        }
+    }
+    function stopSendingAnimation() {
+        clearInterval(sendingAnimInterval);
+        const btn = $('sendBtn'), icon = $('sendIcon'), txt = $('sendText');
+        btn.disabled = false;
+        if(icon) icon.classList.remove('hidden');
+        if(txt) { txt.classList.add('hidden'); txt.innerText = ""; }
+    }
+
+    function updateHeaderProfile() {
+        $('headerUserName').innerText = userName;
+        if (userPicUrl) {
+            $('headerProfilePic').src = userPicUrl; $('modalProfilePic').src = userPicUrl;
+            $('headerProfilePic').classList.remove('hidden'); $('modalProfilePic').classList.remove('hidden');
+            $('headerProfileIcon').classList.add('hidden'); $('modalProfileIcon').classList.add('hidden');
+        } else {
+            $('headerProfilePic').classList.add('hidden'); $('modalProfilePic').classList.add('hidden');
+            $('headerProfileIcon').classList.remove('hidden'); $('modalProfileIcon').classList.remove('hidden');
+        }
+    }
+
+    function openProfileModal() { $('profileModal').classList.remove('hidden'); }
+
+    function updateOnlineCount() {
+        let count = 1; 
+        Object.keys(globalUserProfiles).forEach(u => {
+            if(u !== userName) {
+                if (globalUserProfiles[u].isOnline) count++;
+            }
+        });
+        if ($('onlineCount')) $('onlineCount').innerText = count;
+    }
+    
+    // SILENT REFRESH FUNCTION PARA SA ONLINE MODAL
+    function refreshOnlineModalSilent() {
+        const list = $('onlineUsersList');
+        list.innerHTML = '';
+        
+        let allUsers = [{name: userName, pic: userPicUrl, color: userColor, isOnline: true, isCurrentUser: true}];
+        Object.keys(globalUserProfiles).forEach(u => {
+            if(u !== userName) {
+                allUsers.push({
+                    name: u, 
+                    pic: globalUserProfiles[u].picUrl, 
+                    color: globalUserProfiles[u].color,
+                    isOnline: globalUserProfiles[u].isOnline,
+                    lastActive: globalUserProfiles[u].lastActive
+                });
+            }
+        });
+
+        allUsers.sort((a, b) => {
+            if (a.isOnline === b.isOnline) return (b.lastActive || 0) - (a.lastActive || 0);
+            return a.isOnline ? -1 : 1;
+        });
+
+        allUsers.forEach(u => {
+            const status = getUserStatus(u);
+            const div = document.createElement('div'); 
+            div.className = "flex items-center p-2.5 bg-gray-50 rounded-xl space-x-3 border border-gray-100";
+            const picSrc = u.pic ? `<img src="${u.pic}" class="w-10 h-10 rounded-full object-cover border border-gray-200">` : `<div class="w-10 h-10 rounded-full bg-gray-200 border border-gray-200 flex items-center justify-center"><i class="ph-fill ph-user text-xl text-gray-400"></i></div>`;
+            
+            div.innerHTML = `${picSrc} 
+                <div class="flex flex-col flex-1">
+                    <span class="text-sm font-bold text-gray-700">${u.name} ${u.isCurrentUser ? '<span class="text-pink-500">(Ikaw)</span>' : ''}</span>
+                    <span class="text-[10px] font-bold ${status.color}">${status.text}</span>
+                </div>
+                <span class="w-2.5 h-2.5 ${status.dot} rounded-full ml-auto shadow-sm"></span>`;
+            list.appendChild(div);
+        });
+    }
+    
+    function openOnlineModal() {
+        refreshOnlineModalSilent();
+        $('onlineModal').classList.remove('hidden');
+    }
+    
+    function closeOnlineModal() { $('onlineModal').classList.add('hidden'); }
+
+    function setTheme(colorKey) {
+        userColor = colorKey; localStorage.setItem('myBubbleColor', colorKey); $('settingsModal').classList.add('hidden'); renderMessagesHTML(); 
+        try { fetch(scriptUrl, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'update_theme', name: userName, color: colorKey }) }); } catch(e) {}
+    }
+
+    async function authenticateUser(action) {
+      const name = $('nameInput').value.trim(); if (!name) return;
+      const btn = $('loginBtn'), origTxt = btn.innerText; btn.innerText = "Wait...";
+      try {
+        const res = await fetch(`${scriptUrl}?action=login&name=${encodeURIComponent(name)}`);
+        const data = await res.json();
+        if (data.success) { 
+            userName = name; localStorage.setItem('messengerUserName', userName); 
+            if (data.color) { userColor = data.color; localStorage.setItem('myBubbleColor', data.color); }
+            if (data.picUrl) { userPicUrl = data.picUrl; localStorage.setItem('myProfilePic', data.picUrl); }
+            
+            $('authView').classList.add('hidden');
+            $('authErrorMsg').classList.add('hidden');
+            showChat();
+            btn.innerText = origTxt;
+        } else { 
+            $('authErrorMsg').innerText = data.error; 
+            $('authErrorMsg').classList.remove('hidden'); 
+            btn.innerText = origTxt; 
+        }
+      } catch (err) { alert("Network Error"); btn.innerText = origTxt; }
+    }
+
+    function showChat() {
+      $('chatView').classList.remove('hidden'); $('chatView').classList.add('flex');
+      updateHeaderProfile(); fetchMessages(); setInterval(fetchMessages, 4000); 
+    }
+
+    async function fetchMessages() {
+      try {
+        const res = await fetch(`${scriptUrl}?t=${Date.now()}&ping=${encodeURIComponent(userName)}`);
+        const responseData = await res.json();
+        
+        let dataMsgs = Array.isArray(responseData) ? responseData : (responseData.messages || []);
+        if (responseData.profiles) {
+            globalUserProfiles = responseData.profiles;
+            updateOnlineCount();
+            
+            // SILENT REFRESH NG MODAL KUNG NAKABUKAS
+            if (!$('onlineModal').classList.contains('hidden')) {
+                refreshOnlineModalSilent();
+            }
+        }
+
+        const jsonStr = JSON.stringify(responseData);
+        if (jsonStr === lastMessagesJSON) return; 
+        
+        lastMessagesJSON = jsonStr; fetchedMessages = dataMsgs; 
+        
+        if(displayLimit === 30 && autoScrollEnabled) renderMessagesHTML(false, 0, true);
+        else renderMessagesHTML();
+        
+      } catch (err) {}
+    }
+
+    function renderMessagesHTML(isLazyLoad = false, oldScrollHeight = 0, forceBottom = false) {
+      const c = $('messagesContainer'); const prevScroll = c.scrollTop;
+      const visibleMsgs = fetchedMessages.slice(-displayLimit);
+      
+      let groups = [];
+      visibleMsgs.forEach(msg => {
+          if (groups.length > 0 && groups[groups.length - 1].name === msg.name) groups[groups.length - 1].msgs.push(msg);
+          else groups.push({ name: msg.name, isMe: msg.name === userName, msgs: [msg] });
+      });
+
+      let html = '';
+      groups.forEach(group => {
+          const align = group.isMe ? 'items-end' : 'items-start';
+          html += `<div class="flex flex-col w-full ${align} mb-4">`;
+          
+          let profileObj = group.isMe ? { color: userColor, picUrl: userPicUrl } : (globalUserProfiles[group.name] || { color: 'pink', picUrl: '' });
+          let themeToUse = group.isMe ? (THEMES[userColor] || THEMES['pink']) : (THEMES[profileObj.color] || OTHER_THEME);
+
+          if (!group.isMe) {
+              const picSrc = profileObj.picUrl ? `<img src="${profileObj.picUrl}" class="profile-pic-chat w-7 h-7 rounded-full object-cover mr-2 border border-gray-200 shadow-sm">` : `<div class="profile-pic-chat w-7 h-7 rounded-full bg-gray-200 border border-gray-200 flex items-center justify-center mr-2 shadow-sm"><i class="ph-fill ph-user text-xs text-gray-400"></i></div>`;
+              html += `<div class="flex items-center mb-1 ml-1">
+                          ${picSrc} 
+                          <span class="block text-[13px] font-black uppercase tracking-wider drop-shadow-sm ${themeToUse.textCol}">${group.name}</span>
+                       </div>`;
+          } else {
+              const myPicSrc = userPicUrl ? `<img src="${userPicUrl}" class="profile-pic-chat w-7 h-7 rounded-full object-cover ml-2 border border-gray-200 shadow-sm">` : `<div class="profile-pic-chat w-7 h-7 rounded-full bg-gray-200 border border-gray-200 flex items-center justify-center ml-2 shadow-sm"><i class="ph-fill ph-user text-xs text-gray-400"></i></div>`;
+              html += `<div class="flex items-center mb-1 mr-1 justify-end">
+                          <span class="block text-[13px] font-black uppercase tracking-wider drop-shadow-sm ${themeToUse.textCol}">${userName}</span>
+                          ${myPicSrc} 
+                       </div>`;
+          }
+
+          html += `<div class="flex flex-col gap-1.5 p-2 sm:p-3 rounded-3xl ${themeToUse.outer} max-w-[95%] sm:max-w-[85%] border shadow-sm">`;
+
+          group.msgs.forEach((msg, idx) => {
+              let contentHtml = '';
+              const isDeleted = msg.content === '🗑️ Deleted';
+              
+              let rawContentForReply = msg.content;
+              if (msg.type === 'image') rawContentForReply = "📸 Nagpadala ng larawan";
+              else if (msg.type === 'video') rawContentForReply = "🎥 Nagpadala ng video";
+              else if (msg.type === 'audio') rawContentForReply = "🎵 Nagpadala ng audio";
+              else if (msg.type === 'file') rawContentForReply = "📁 Nagpadala ng file";
+              
+              const safeTxt = String(rawContentForReply).replace(/'/g, "\\'").replace(/"/g, "&quot;");
+
+              if (isDeleted) {
+                  contentHtml = `<div class="italic text-gray-500 font-bold text-sm sm:text-[15px] flex items-center bg-white/50 p-1.5 px-3 rounded-xl"><i class="ph-bold ph-trash mr-1.5 text-base"></i> Ang mensaheng ito ay binura.</div>`;
+              }
+              else if (msg.type === 'image') contentHtml = `<img src="${msg.content}" class="chat-image rounded-xl w-full max-w-[200px] sm:max-w-[250px] h-auto cursor-pointer shadow-sm border border-white/20" onclick="window.open('${msg.content}')">`;
+              else if (msg.type === 'video') contentHtml = `<div class="rounded-xl overflow-hidden bg-black/20 shadow-sm w-full max-w-[200px] sm:max-w-[250px] border border-white/20"><video controls class="w-full h-auto" onplay="autoScrollEnabled=false" onpause="autoScrollEnabled=true"><source src="${msg.content.replace('view','download')}"></video></div>`;
+              else if (msg.type === 'audio') contentHtml = `<div class="bg-white/20 p-2 rounded-xl border border-white/30 w-full max-w-[200px] sm:max-w-[250px]"><div class="flex items-center mb-1 px-1 text-[10px] font-bold uppercase"><i class="ph-fill ph-music-notes mr-1"></i> Audio</div><audio controls class="w-full h-8" src="${msg.content}"></audio></div>`;
+              else if (msg.type === 'file') contentHtml = `<a href="${msg.content}" target="_blank" class="flex items-center space-x-2 bg-white/20 p-2 rounded-xl hover:bg-white/30 w-fit"><i class="ph-bold ph-file-zip text-2xl"></i><span class="font-bold text-xs underline">Download</span></a>`;
+              else { 
+                  let txt = String(msg.content || "").replace(/</g, "&lt;").replace(/>/g, "&gt;"); 
+                  
+                  if (txt.includes("[Reply kay")) {
+                      txt = txt.replace(/\[Reply kay (.*?): "(.*?)"\]\n?/g, `<div class="bg-black/10 p-2 rounded-xl text-[11px] font-bold mb-2 opacity-80 border-l-4 border-white flex flex-col"><span class="text-[9px] uppercase tracking-wider opacity-70 mb-0.5 flex items-center"><i class="ph-fill ph-reply mr-1"></i> Nag-reply kay $1</span><span class="truncate">$2</span></div>`); 
+                  }
+                  
+                  ALL_UNIQUE_EMOJIS.forEach(emoji => {
+                      if (txt.includes(emoji)) {
+                          txt = txt.split(emoji).join(`<img src="${getAnimatedEmojiUrl(emoji)}" class="inline-block w-7 h-7 sm:w-8 sm:h-8 align-middle mx-0.5 drop-shadow-sm select-none" alt="${emoji}" onerror="this.outerHTML='<span class=\\'text-2xl align-middle mx-0.5\\'>${emoji}</span>'">`);
+                      }
+                  });
+
+                  contentHtml = `<div class="whitespace-pre-wrap break-words font-medium text-sm sm:text-[15px] leading-snug">${txt}</div>`; 
+              }
+
+              let reactHtml = '';
+              if (!isDeleted && msg.reactions && Object.keys(msg.reactions).length > 0) {
+                  reactHtml = `<div class="flex flex-wrap gap-1.5 mt-1 -mb-2 relative z-10 ${group.isMe ? 'justify-end pr-2' : 'justify-start pl-2'}">`;
+                  for (const [emoji, users] of Object.entries(msg.reactions)) {
+                      const iReact = users.includes(userName), safeReactsStr = encodeURIComponent(JSON.stringify(msg.reactions));
+                      const badgeClass = iReact ? (group.isMe ? 'bg-white/40 border-white text-white' : 'bg-pink-100 border-pink-300 text-pink-600') : (group.isMe ? 'bg-white/10 border-white/30 text-white' : 'bg-gray-50 border-gray-200 text-gray-500');
+                      
+                      reactHtml += `<button onclick="showReactionDetails('${safeReactsStr}', '${msg.time}')" class="reaction-badge ${badgeClass} px-2 py-1 rounded-full text-xs font-bold flex items-center shadow-sm hover:scale-110 active:scale-95 transition-transform">
+                          <img src="${getAnimatedEmojiUrl(emoji)}" class="w-5 h-5 sm:w-6 sm:h-6 mr-1 drop-shadow-sm select-none" alt="${emoji}" onerror="this.outerHTML='<span class=\\'text-lg mr-1\\'>${emoji}</span>'">
+                          <span class="text-xs font-black">${users.length}</span>
+                      </button>`;
+                  }
+                  reactHtml += `</div>`;
+              }
+
+              const innerAlign = group.isMe ? 'self-end' : 'self-start';
+
+              html += `
+                <div class="relative group flex flex-col ${innerAlign} max-w-full swipeable-message" data-name="${group.name}" data-content="${safeTxt}">
+                  <div class="px-3 py-2 rounded-2xl ${isDeleted ? 'bg-transparent border border-white/20' : themeToUse.inner} flex flex-col relative z-10">
+                      ${contentHtml}
+                  </div>
+                  
+                  <div class="flex justify-between items-end mt-0.5 mb-0.5 px-1 relative z-0">
+                      ${reactHtml}
+                      <div class="text-[9px] font-bold tracking-tighter ${themeToUse.textCol} ml-auto mt-0.5 opacity-70">${new Date(msg.time).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div>
+                  </div>
+                  
+                  ${!isDeleted ? `
+                  <div class="absolute -top-2.5 ${group.isMe ? '-left-6' : '-right-6'} hidden group-hover:flex space-x-1 z-20">
+                      <button onclick="openReact('${msg.time}')" class="w-7 h-7 rounded-full flex items-center justify-center bg-white shadow-sm border border-gray-100 text-pink-500 hover:scale-110 transition"><i class="ph-bold ph-heart text-sm"></i></button>
+                      <button onclick="replyTo('${group.name}', '${safeTxt}')" class="w-7 h-7 rounded-full flex items-center justify-center bg-white shadow-sm border border-gray-100 text-blue-500 hover:scale-110 transition"><i class="ph-bold ph-arrow-u-up-left text-sm"></i></button>
+                      ${group.isMe && msg.type === 'text' ? `<button onclick="copyToEdit('${safeTxt}', '${msg.time}')" class="w-7 h-7 rounded-full flex items-center justify-center bg-white shadow-sm border border-gray-100 text-green-500 hover:scale-110 transition"><i class="ph-bold ph-pencil-simple text-sm"></i></button>` : ''}
+                      ${group.isMe ? `<button onclick="deleteMessage('${msg.time}')" class="w-7 h-7 rounded-full flex items-center justify-center bg-white shadow-sm border border-gray-100 text-red-500 hover:scale-110 transition"><i class="ph-bold ph-trash text-sm"></i></button>` : ''}
+                  </div>
+                  ` : ''}
+                </div>
+              `;
+          });
+          html += `</div></div>`; 
+      });
+
+      c.innerHTML = html;
+      if (isLazyLoad) c.scrollTop = c.scrollHeight - oldScrollHeight;
+      else if (forceBottom || autoScrollEnabled) setTimeout(() => { c.scrollTop = c.scrollHeight; }, 50);
+      else c.scrollTop = prevScroll;
+    }
+
+    function openReact(t) { selectedMsgTime = Number(t); $('reactionPopup').classList.remove('hidden'); }
+    function closeReact() { $('reactionPopup').classList.add('hidden'); }
+    function toggleEmojis() { $('emojiPicker').classList.toggle('hidden'); }
+    
+    async function logout() { 
+        if (userName) {
+            try { await fetch(`${scriptUrl}?action=logout&name=${encodeURIComponent(userName)}`); } catch(e) {}
+        }
+        localStorage.clear(); 
+        location.reload(); 
+    }
+    
+    function copyToEdit(txt, time) { 
+        cancelReply(); 
+        editingMsgTime = Number(time); $('messageInput').value = txt.replace(/\[Reply kay .*?\]\n/, ''); 
+        $('messageInput').dispatchEvent(new Event('input')); 
+        $('messageInput').focus(); $('editingIndicator').classList.remove('hidden'); $('messageInput').classList.add('ring-2', 'ring-yellow-400', 'bg-yellow-50');
+    }
+    
+    function cancelEdit() { 
+        editingMsgTime = null; $('messageInput').value = ''; 
+        $('messageInput').dispatchEvent(new Event('input')); 
+        $('editingIndicator').classList.add('hidden'); $('messageInput').classList.remove('ring-2', 'ring-yellow-400', 'bg-yellow-50'); 
+    }
+
+    function replyTo(n, txt) { 
+        cancelEdit(); 
+        replyingToData = { name: n, content: txt.length > 50 ? txt.substring(0, 50) + "..." : txt };
+        $('replyPreviewName').innerText = n;
+        $('replyPreviewText').innerText = replyingToData.content;
+        $('replyingIndicator').classList.remove('hidden');
+        $('messageInput').focus(); 
+    }
+    
+    function cancelReply() {
+        replyingToData = null;
+        $('replyingIndicator').classList.add('hidden');
+    }
+
+    async function deleteMessage(time) {
+      if(!confirm("Sigurado ka bang gusto mong burahin ang mensaheng ito?")) return;
+      const msgTime = Number(time);
+      await fetch(scriptUrl, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'edit_message', name: userName, content: '🗑️ Deleted', messageTime: msgTime }) });
+      setTimeout(fetchMessages, 1000);
+    }
+
+    async function confirmReact(emoji) {
+      closeReact();
+      await fetch(scriptUrl, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'react', emoji: emoji, messageTime: selectedMsgTime, userName: userName }) });
+      setTimeout(fetchMessages, 800);
+    }
+
+    async function submitMessage() {
+      const i = $('messageInput'), v = i.value.trim(); if (!v) return;
+      i.value = ''; i.style.height = '40px'; autoScrollEnabled = true; startSendingAnimation();
+      
+      let finalContent = v;
+      if (replyingToData && !editingMsgTime) {
+          finalContent = `[Reply kay ${replyingToData.name}: "${replyingToData.content}"]\n${v}`;
+          cancelReply();
+      }
+
+      if (editingMsgTime) {
+          await fetch(scriptUrl, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'edit_message', name: userName, content: finalContent, messageTime: editingMsgTime }) });
+          cancelEdit();
+      } else {
+          await fetch(scriptUrl, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'chat', name: userName, type: 'text', content: finalContent }) });
+      }
+      stopSendingAnimation(); setTimeout(() => fetchMessages(), 1000);
+    }
+
+    function showReactionDetails(rStr, msgTime) {
+      const reacts = JSON.parse(decodeURIComponent(rStr)), list = $('reactionDetailsList'); list.innerHTML = '';
+      for (const [emoji, users] of Object.entries(reacts)) {
+          const div = document.createElement('div'); div.className = "bg-gray-50 p-4 rounded-xl flex items-center space-x-4";
+          div.innerHTML = `
+            <img src="${getAnimatedEmojiUrl(emoji)}" class="w-12 h-12 drop-shadow-md select-none" alt="${emoji}" onerror="this.outerHTML='<span class=\\'text-4xl\\'>${emoji}</span>'">
+            <div class="flex-1"><span class="text-xs font-bold text-gray-700">${users.join(', ')}</span></div>
+          `;
+          list.appendChild(div);
+      }
+      const btn = document.createElement('button'); btn.className = "w-full mt-3 bg-pink-100 text-pink-500 font-bold py-3 rounded-xl hover:bg-pink-200 transition shadow-sm";
+      btn.innerHTML = "<i class='ph-bold ph-heart mr-1'></i> Mag-React din"; btn.onclick = () => { closeReactionDetails(); openReact(msgTime); };
+      list.appendChild(btn); $('reactionDetailsModal').classList.remove('hidden');
+    }
+    function closeReactionDetails() { $('reactionDetailsModal').classList.add('hidden'); }
+
+    async function toggleRecording() {
+      const btn = $('micBtn');
+      if (!isRecording) {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true }); mediaRecorder = new MediaRecorder(stream); audioChunks = [];
+          mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
+          mediaRecorder.onstop = () => {
+            const mime = mediaRecorder.mimeType || 'audio/webm';
+            const ext = mime.includes('mp4') ? 'mp4' : (mime.includes('ogg') ? 'ogg' : 'webm');
+            const blob = new Blob(audioChunks, { type: mime });
+            const r = new FileReader(); 
+            r.onload = e => executeChatUpload(e.target.result, 'audio', { name: 'Voice_' + Date.now() + '.' + ext, mimeType: mime }); 
+            r.readAsDataURL(blob);
+            
+            stream.getTracks().forEach(track => track.stop());
+          };
+          mediaRecorder.start(); isRecording = true; 
+          btn.classList.replace('bg-gray-50','bg-red-500'); btn.classList.replace('text-gray-500','text-white'); btn.classList.add('animate-pulse');
+        } catch(e) { alert("Mic required or not supported on this browser!"); }
+      } else {
+        mediaRecorder.stop(); isRecording = false; 
+        btn.classList.replace('bg-red-500','bg-gray-50'); btn.classList.replace('text-white','text-gray-500'); btn.classList.remove('animate-pulse');
+      }
+    }
+
+    function handleChatFileUpload(e) {
+      const f = e.target.files[0]; if (!f) return;
+      const r = new FileReader(); r.onload = ev => { let type = f.type.split('/')[0]; if (!['image', 'video', 'audio'].includes(type)) type = 'file'; executeChatUpload(ev.target.result, type, f); }; r.readAsDataURL(f);
+    }
+
+    async function executeChatUpload(b64, type, file) {
+      const pc = $('uploadProgressContainer'), pb = $('uploadProgressBar'), pt = $('uploadPercentText');
+      pc.classList.remove('hidden'); pb.style.width = "40%"; pt.innerText = "40%"; autoScrollEnabled = true; startSendingAnimation();
+      
+      await fetch(scriptUrl, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'chat', name: userName, type: type, content: b64, fileName: file.name, mimeType: file.type }) });
+      
+      stopSendingAnimation(); pb.style.width = "100%"; pt.innerText = "100%"; setTimeout(() => { pc.classList.add('hidden'); fetchMessages(); }, 1500);
+    }
+
+    function handleProfilePicUpload(e) {
+      const file = e.target.files[0]; if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = (event) => {
+          const img = new Image();
+          img.onload = async () => {
+              const canvas = document.createElement('canvas'); const MAX_SIZE = 400;
+              let width = img.width, height = img.height;
+              if (width > height) { if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; } } 
+              else { if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; } }
+              canvas.width = width; canvas.height = height;
+              canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+              
+              const b64 = canvas.toDataURL('image/jpeg', 0.8);
+              $('picUploadProgress').classList.remove('hidden'); $('picUploadBar').style.width = '50%';
+              
+              try {
+                  const res = await fetch(scriptUrl, { method: 'POST', body: JSON.stringify({ action: 'update_profile_pic', name: userName, content: b64, fileName: file.name, mimeType: 'image/jpeg' }) });
+                  const result = await res.json();
+                  
+                  $('picUploadBar').style.width = '100%';
+                  if(result.success && result.picUrl) {
+                      userPicUrl = result.picUrl; localStorage.setItem('myProfilePic', userPicUrl);
+                      updateHeaderProfile(); fetchMessages(); 
+                  }
+              } catch(err) {}
+              setTimeout(() => { $('picUploadProgress').classList.add('hidden'); $('profileModal').classList.add('hidden'); }, 1000);
+          };
+          img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    init();
+  </script>
+</body>
+</html>

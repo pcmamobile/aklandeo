@@ -581,11 +581,83 @@
       #pcmaModalNext{ right:8px; left:auto; } 
     }
 
+    /* =========================================================
+       FLOATING CHAT APP BUTTON
+       ========================================================= */
+    .chat-fab {
+      position: fixed;
+      bottom: calc(var(--footer-h) + 20px);
+      right: 20px;
+      width: 65px;
+      height: 65px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2), inset 0 3px 0 rgba(255,255,255,0.3);
+      cursor: pointer;
+      z-index: 10500;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      border: 2px solid rgba(255,255,255,0.8);
+      -webkit-tap-highlight-color: transparent;
+    }
+    .chat-fab:hover {
+      transform: translateY(-4px) scale(1.05);
+      box-shadow: 0 14px 25px rgba(0,0,0,0.3), inset 0 3px 0 rgba(255,255,255,0.4);
+    }
+    .chat-fab:active {
+      transform: translateY(2px) scale(0.95);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2), inset 0 3px 0 rgba(255,255,255,0.2);
+    }
+    .chat-fab .emoji-icon {
+      font-size: 2.2rem;
+      animation: none; 
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+    }
+    
+    .chat-badge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: #ef4444;
+      color: white;
+      font-size: 0.85rem;
+      font-weight: 900;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #fff;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      animation: pulseBadge 2s infinite;
+      z-index: 10501;
+    }
+    .chat-badge.hidden { display: none; }
+
+    @keyframes pulseBadge {
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+      70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+
+    @media (max-width: 768px) {
+      .chat-fab { right: 15px; width: 60px; height: 60px; }
+      .chat-fab .emoji-icon { font-size: 2rem; }
+    }
   </style>
 </head>
 <body>
 
 <div id="version-tag">Version 8.1</div>
+
+<!-- FLOATING CHAT BUTTON -->
+<div id="chatFab" class="chat-fab" onclick="openChat()">
+  <span class="emoji-icon">💬</span>
+  <div id="chatBadge" class="chat-badge hidden">1</div>
+</div>
 
 <!-- 1. HOME VIEW -->
 <main id="homeView" class="home-view">
@@ -751,6 +823,25 @@
 
 <script>
   const PCMA = (window.PCMA = window.PCMA || {});
+
+  // Simulate a chat notification popping up after 3 seconds so the user can test the animation!
+  setTimeout(() => {
+    const badge = document.getElementById('chatBadge');
+    if (badge && PCMA.viewStack[PCMA.viewStack.length - 1] === 'homeView') {
+        badge.classList.remove('hidden');
+    }
+  }, 3000);
+
+  // Chat Button Action
+  window.openChat = function() {
+      // Hide the notification dot
+      const badge = document.getElementById('chatBadge');
+      if(badge) badge.classList.add('hidden');
+      
+      // Load Chat.html seamlessly into the module framework
+      document.getElementById('moduleFrame').src = 'Chat.html';
+      PCMA.showView('moduleView');
+  };
   
   // =========================================================
   // SPA ARCHITECTURE - SINGLE WINDOW NAVIGATION ENGINE
@@ -765,6 +856,12 @@
       });
       const target = document.getElementById(viewId);
       if (target) target.classList.remove('hidden');
+
+      // Cleverly hide the Floating Chat button when a module is open so it doesn't overlap the view!
+      const chatFab = document.getElementById('chatFab');
+      if (chatFab) {
+          chatFab.style.display = (viewId === 'homeView') ? 'flex' : 'none';
+      }
 
       if (PCMA.viewStack[PCMA.viewStack.length - 1] !== viewId) {
           PCMA.viewStack.push(viewId);
@@ -791,6 +888,12 @@
           
           const target = document.getElementById(prevView);
           if (target) target.classList.remove('hidden');
+
+          // Reveal Chat button again if we return to the Home page
+          const chatFab = document.getElementById('chatFab');
+          if (chatFab) {
+              chatFab.style.display = (prevView === 'homeView') ? 'flex' : 'none';
+          }
           
           window.scrollTo({ top: 0, behavior: 'smooth' });
       }
