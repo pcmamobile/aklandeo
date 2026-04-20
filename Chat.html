@@ -10,45 +10,30 @@
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-    .bg-animated-pastel { background: linear-gradient(-45deg, #ff9a9e, #fecfef, #a1c4fd, #c2e9fb); background-size: 400% 400%; animation: gradientBG 15s ease infinite; }
+    
+    /* Default High Performance / Animations */
+    .bg-animated-pastel { background: linear-gradient(-45deg, #ff9a9e, #fecfef, #a1c4fd, #c2e9fb); background-size: 400% 400%; }
+    .perf-high .bg-animated-pastel { animation: gradientBG 15s ease infinite; }
     @keyframes gradientBG { 0% {background-position: 0% 50%} 50% {background-position: 100% 50%} 100% {background-position: 0% 50%} }
     
     .btn-3d { transition: all 0.1s ease; cursor: pointer; position: relative; }
-    .btn-3d:active { transform: translateY(2px); box-shadow: none !important; }
-    .glass { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.5); }
+    .perf-high .btn-3d:active, .perf-medium .btn-3d:active { transform: translateY(2px); box-shadow: none !important; }
     
-    .reaction-badge { border-width: 1px; transition: all 0.2s; cursor: pointer; }
-    .reaction-badge:hover { transform: scale(1.1) rotate(3deg); }
-    .animate-float { animation: float 3s ease-in-out infinite; }
+    .glass { border-bottom: 1px solid rgba(255,255,255,0.5); }
+    .perf-high .glass { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); }
+    .perf-medium .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(4px); }
+    .perf-low .glass { background: #f8fafc; backdrop-filter: none; }
+    
+    .reaction-badge { border-width: 1px; cursor: pointer; }
+    .perf-high .reaction-badge, .perf-medium .reaction-badge { transition: all 0.2s; }
+    .perf-high .reaction-badge:hover, .perf-medium .reaction-badge:hover { transform: scale(1.1) rotate(3deg); }
+    
+    .perf-high .animate-float { animation: float 3s ease-in-out infinite; }
     @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-5px); } }
     
     .emoji-btn { width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 12px; transition: 0.1s; }
     .emoji-btn:active { transform: scale(0.9); background: #f3f4f6; }
 
-    .chat-image {
-        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), z-index 0s;
-        transform-origin: center;
-        position: relative;
-        z-index: 10;
-    }
-    .chat-image:hover {
-        transform: scale(2.5);
-        z-index: 50;
-        box-shadow: 0 15px 35px rgba(0,0,0,0.3);
-    }
-    
-    .profile-pic-chat {
-        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), z-index 0s;
-        transform-origin: center;
-        position: relative;
-        z-index: 10;
-    }
-    .profile-pic-chat:hover {
-        transform: scale(3.0);
-        z-index: 50;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-    }
-    
     .swipeable-message {
         will-change: transform;
         position: relative;
@@ -58,9 +43,27 @@
         width: 0px;
         background: transparent;
     }
+
+    /* LOW PERFORMANCE OVERRIDES */
+    .perf-low * { box-shadow: none !important; transition: none !important; animation: none !important; }
+    .perf-low .bg-animated-pastel { background: #fdf2f8 !important; }
+
+    /* Custom Image Lightbox */
+    .lightbox-scroll-area {
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    #lightboxImg {
+        transition: transform 0.2s ease-out;
+        transform-origin: center center;
+    }
   </style>
 </head>
-<body class="bg-animated-pastel font-sans h-screen w-full flex flex-col overflow-hidden text-gray-800 selection:bg-pink-200">
+<body id="mainBody" class="perf-high bg-animated-pastel font-sans h-screen w-full flex flex-col overflow-hidden text-gray-800 selection:bg-pink-200">
 
   <div id="authView" class="hidden flex-1 flex items-center justify-center p-4 absolute inset-0 z-50 bg-black/10 backdrop-blur-sm">
     <div class="bg-white rounded-3xl shadow-[0_6px_0_0_#fbcfe8] border-2 border-pink-100 p-6 sm:p-8 w-full max-w-sm flex flex-col items-center animate-float">
@@ -80,33 +83,51 @@
   </div>
 
   <div id="chatView" class="hidden flex-col h-full w-full absolute inset-0 z-30">
-    <header class="glass px-3 py-2 sm:px-5 sm:py-2.5 flex justify-between items-center shrink-0 z-40 shadow-sm">
-      <div class="flex items-center space-x-2.5 cursor-pointer group" onclick="openProfileModal()">
-        <div class="w-10 h-10 rounded-xl shadow-sm border-2 border-pink-200 bg-white flex items-center justify-center overflow-hidden group-hover:scale-105 transition-transform">
+    <!-- PINALIIT NA HEADER -->
+    <header class="glass px-2 py-1.5 sm:px-4 sm:py-2 flex justify-between items-center shrink-0 z-40 shadow-sm">
+      <div class="flex items-center space-x-2 cursor-pointer group" onclick="openProfileModal()">
+        <div class="w-8 h-8 rounded-lg shadow-sm border border-pink-200 bg-white flex items-center justify-center overflow-hidden group-hover:scale-105 transition-transform">
             <img id="headerProfilePic" src="" class="w-full h-full object-cover hidden" alt="Profile">
-            <i id="headerProfileIcon" class="ph-fill ph-user text-pink-400 text-xl"></i>
+            <i id="headerProfileIcon" class="ph-fill ph-user text-pink-400 text-lg"></i>
         </div>
         <div>
-          <h2 class="text-base sm:text-lg font-black text-pink-600 leading-tight" id="headerUserName">Pastel Global</h2>
-          <div class="flex items-center text-[10px] font-bold text-green-500 uppercase cursor-pointer hover:bg-green-50 rounded px-1 -ml-1 transition-colors" onclick="event.stopPropagation(); openOnlineModal();">
+          <h2 class="text-sm sm:text-base font-black text-pink-600 leading-tight" id="headerUserName">Pastel Global</h2>
+          <div class="flex items-center text-[9px] font-bold text-green-500 uppercase cursor-pointer hover:bg-green-50 rounded px-1 -ml-1 transition-colors" onclick="event.stopPropagation(); openOnlineModal();">
             <span class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1 animate-pulse"></span> Online (<span id="onlineCount">0</span>)
           </div>
         </div>
       </div>
-      <div class="flex items-center space-x-1.5 sm:space-x-2">
-        <button onclick="$('settingsModal').classList.remove('hidden')" class="btn-3d p-1.5 sm:p-2 bg-gradient-to-r from-violet-500 via-fuchsia-500 to-pink-500 text-white rounded-lg sm:rounded-xl border-2 border-white shadow-[0_3px_0_0_#a855f7] hover:rotate-90 transition-transform duration-300 group" title="Settings">
-            <i class="ph-bold ph-gear-six text-xl sm:text-2xl drop-shadow-md group-hover:animate-spin"></i>
+      <div class="flex items-center space-x-1 sm:space-x-1.5">
+        <button onclick="$('settingsModal').classList.remove('hidden')" class="btn-3d p-1.5 sm:p-2 bg-gradient-to-r from-violet-500 via-fuchsia-500 to-pink-500 text-white rounded-lg border border-white shadow-[0_2px_0_0_#a855f7] hover:rotate-90 transition-transform duration-300 group" title="Settings">
+            <i class="ph-bold ph-gear-six text-lg sm:text-xl drop-shadow-md group-hover:animate-spin"></i>
         </button>
-        <button onclick="logout()" class="btn-3d p-1.5 sm:p-2 bg-red-50 text-red-500 rounded-lg sm:rounded-xl border border-red-100 shadow-sm hover:bg-red-100 transition-colors" title="Log Out">
-            <i class="ph-bold ph-sign-out text-xl sm:text-2xl"></i>
+        <button onclick="logout()" class="btn-3d p-1.5 sm:p-2 bg-red-50 text-red-500 rounded-lg border border-red-100 shadow-sm hover:bg-red-100 transition-colors" title="Log Out">
+            <i class="ph-bold ph-sign-out text-lg sm:text-xl"></i>
         </button>
-        <button onclick="closeApp()" class="btn-3d p-1.5 sm:p-2 bg-gray-50 text-gray-500 rounded-lg sm:rounded-xl border border-gray-200 shadow-sm hover:bg-gray-200 hover:text-gray-800 transition-colors" title="Close App">
-            <i class="ph-bold ph-x text-xl sm:text-2xl"></i>
+        <button onclick="closeApp()" class="btn-3d p-1.5 sm:p-2 bg-gray-50 text-gray-500 rounded-lg border border-gray-200 shadow-sm hover:bg-gray-200 hover:text-gray-800 transition-colors" title="Close App">
+            <i class="ph-bold ph-x text-lg sm:text-xl"></i>
         </button>
       </div>
     </header>
 
     <div id="messagesContainer" class="flex-1 overflow-y-auto p-2 sm:p-4 bg-white/30 backdrop-blur-sm overflow-x-hidden"></div>
+
+    <!-- MODALS -->
+
+    <!-- LIGHTBOX PARA SA ZOOM NG IMAGES -->
+    <div id="imageLightbox" class="hidden fixed inset-0 z-[60] bg-black/95 flex flex-col items-center justify-center">
+        <div class="absolute top-4 right-4 z-[70] flex space-x-3 bg-black/50 p-2 rounded-2xl backdrop-blur-md">
+            <button onclick="zoomLightbox(1.5)" class="text-white p-2 hover:bg-gray-700 rounded-xl transition"><i class="ph-bold ph-magnifying-glass-plus text-2xl"></i></button>
+            <button onclick="zoomLightbox(0.66)" class="text-white p-2 hover:bg-gray-700 rounded-xl transition"><i class="ph-bold ph-magnifying-glass-minus text-2xl"></i></button>
+            <button onclick="closeLightbox()" class="text-red-400 p-2 hover:bg-red-500 hover:text-white rounded-xl transition"><i class="ph-bold ph-x text-2xl"></i></button>
+        </div>
+        <div class="w-full h-full overflow-auto touch-pan-x touch-pan-y flex items-center justify-center p-4">
+            <!-- Nag-aadjust ang min-width para mas malinaw pag-zoom -->
+            <div class="min-w-fit min-h-fit flex items-center justify-center">
+                <img id="lightboxImg" src="" class="max-w-none shadow-2xl" style="transform: scale(1);" alt="Zoomed Image">
+            </div>
+        </div>
+    </div>
 
     <div id="onlineModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
         <div class="bg-white rounded-3xl shadow-xl p-5 w-full max-w-sm transform animate-float">
@@ -151,15 +172,25 @@
       </div>
     </div>
 
+    <!-- UPDATE: Settings Modal with Lag Option -->
     <div id="settingsModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
       <div class="bg-white rounded-3xl shadow-xl p-5 w-full max-w-[420px] border-2 border-gray-100 transform animate-float">
         <div class="flex justify-between items-center mb-3">
-            <span class="font-black text-gray-800 text-lg flex items-center"><i class="ph-fill ph-palette mr-2 text-violet-500"></i> Tema ng Chat</span>
+            <span class="font-black text-gray-800 text-lg flex items-center"><i class="ph-fill ph-gear mr-2 text-violet-500"></i> Settings</span>
             <button onclick="$('settingsModal').classList.add('hidden')" class="text-gray-300 hover:text-red-500"><i class="ph ph-x-circle text-3xl"></i></button>
         </div>
-        <p class="text-[11px] font-bold text-gray-500 mb-3 uppercase tracking-widest text-center">Piliin ang Iyong Kulay (50 Options)</p>
-        
-        <div id="themeGrid" class="grid grid-cols-5 sm:grid-cols-6 gap-2.5 place-items-center max-h-[350px] overflow-y-auto p-2 scrollbar-hide"></div>
+
+        <p class="text-[11px] font-bold text-gray-500 mb-2 uppercase tracking-widest text-center mt-2">Bilis / Graphics (Lag Fix)</p>
+        <div class="flex space-x-2 justify-center mb-4">
+            <button onclick="setPerfMode('low')" id="btnPerfLow" class="flex-1 px-2 py-2 text-xs font-bold rounded-xl border transition-colors">Low (Fast)</button>
+            <button onclick="setPerfMode('medium')" id="btnPerfMedium" class="flex-1 px-2 py-2 text-xs font-bold rounded-xl border transition-colors">Medium</button>
+            <button onclick="setPerfMode('high')" id="btnPerfHigh" class="flex-1 px-2 py-2 text-xs font-bold rounded-xl border transition-colors">High (3D)</button>
+        </div>
+
+        <div class="border-t border-gray-100 pt-4">
+            <p class="text-[11px] font-bold text-gray-500 mb-3 uppercase tracking-widest text-center">Piliin ang Kulay (50 Options)</p>
+            <div id="themeGrid" class="grid grid-cols-5 sm:grid-cols-6 gap-2.5 place-items-center max-h-[250px] overflow-y-auto p-2 scrollbar-hide"></div>
+        </div>
       </div>
     </div>
 
@@ -183,6 +214,7 @@
         </div>
     </div>
 
+    <!-- INPUT AREA -->
     <div class="bg-white p-2 sm:p-3 border-t border-gray-100 shrink-0 relative z-40 shadow-[0_-5px_15px_rgba(0,0,0,0.02)]">
       
       <div id="uploadProgressContainer" class="hidden absolute bottom-full left-4 right-4 bg-white border border-pink-100 rounded-xl p-2.5 shadow-lg mb-2">
@@ -221,6 +253,7 @@
         
         <button onclick="submitMessage()" class="btn-3d px-3 sm:px-4 py-2 sm:py-2.5 bg-pink-500 text-white rounded-xl shadow-[0_3px_0_0_#db2777] hover:bg-pink-600 flex items-center justify-center min-w-[45px] mb-0.5" id="sendBtn">
             <i class="ph-bold ph-paper-plane-right text-xl sm:text-2xl" id="sendIcon"></i>
+            <span id="sendText" class="hidden text-xs sm:text-sm font-bold ml-1 whitespace-nowrap"></span>
         </button>
       </div>
     </div>
@@ -233,6 +266,7 @@
     let userName = localStorage.getItem('messengerUserName') || '';
     let userColor = localStorage.getItem('myBubbleColor') || 'pink';
     let userPicUrl = localStorage.getItem('myProfilePic') || '';
+    let currentPerfMode = localStorage.getItem('perfMode') || 'high'; // Performance Mode
     
     let fetchedMessages = [];
     let lastMessagesStr = "";
@@ -244,7 +278,9 @@
     let mediaRecorder = null, audioChunks = [], isRecording = false;
     let editingMsgTime = null; 
     let replyingToData = null; 
+    let sendingAnimInterval = null;
     let inactivityTimer = null;
+    let lightboxZoom = 1;
 
     const THEMES = {
       pink: { label: 'Pink', outer: 'bg-pink-100 border-pink-200', inner: 'bg-pink-500 text-white shadow-[0_2px_0_0_#be185d]', textCol: 'text-pink-600', btn: 'bg-pink-500' },
@@ -311,6 +347,9 @@
     }
 
     function init() {
+      // SET PERFORMANCE MODE NGA NAKA SAVE SA PHONE
+      setPerfMode(currentPerfMode, false);
+      
       const savedName = localStorage.getItem('messengerUserName') || '';
       $('nameInput').value = savedName;
 
@@ -416,8 +455,7 @@
             if (hiddenTime > 0 && (Date.now() - hiddenTime > 60000) && userName) {
                 softLogout();
             } else if (userName) {
-                // PINALITAN: Kukuha ng bagong listahan at ire-refresh agad ang screen (UI) paggising ng phone
-                fetchMessages(true);
+                fetch(`${scriptUrl}?action=fetch&t=${Date.now()}&ping=${encodeURIComponent(userName)}&_cb=${Math.random().toString(36).substring(7)}`);
             }
             hiddenTime = 0;
         }
@@ -428,12 +466,47 @@
       });
     }
 
-    // FUNCTION TO CLOSE THE APP (TAB OR WINDOW)
+    // --- BAGONG LOGIC PARA SA LAG SETTINGS ---
+    function setPerfMode(mode, save = true) {
+        currentPerfMode = mode;
+        if(save) localStorage.setItem('perfMode', mode);
+        
+        $('mainBody').className = `font-sans h-screen w-full flex flex-col overflow-hidden text-gray-800 selection:bg-pink-200 bg-animated-pastel perf-${mode}`;
+        
+        // Update Button UI
+        ['btnPerfLow', 'btnPerfMedium', 'btnPerfHigh'].forEach(id => {
+            $(id).classList.remove('bg-blue-100', 'border-blue-400', 'text-blue-700');
+            $(id).classList.add('bg-white', 'border-gray-200', 'text-gray-500');
+        });
+        
+        if (mode === 'low') $('btnPerfLow').classList.add('bg-blue-100', 'border-blue-400', 'text-blue-700');
+        if (mode === 'medium') $('btnPerfMedium').classList.add('bg-blue-100', 'border-blue-400', 'text-blue-700');
+        if (mode === 'high') $('btnPerfHigh').classList.add('bg-blue-100', 'border-blue-400', 'text-blue-700');
+    }
+
+    // --- BAGONG LOGIC PARA SA IMAGE LIGHTBOX (ZOOM) ---
+    function openLightbox(src) {
+        $('lightboxImg').src = src;
+        lightboxZoom = 1;
+        $('lightboxImg').style.transform = `scale(${lightboxZoom})`;
+        $('imageLightbox').classList.remove('hidden');
+    }
+    
+    function closeLightbox() {
+        $('imageLightbox').classList.add('hidden');
+        $('lightboxImg').src = '';
+    }
+    
+    function zoomLightbox(factor) {
+        lightboxZoom *= factor;
+        if(lightboxZoom < 0.5) lightboxZoom = 0.5;
+        if(lightboxZoom > 4) lightboxZoom = 4;
+        $('lightboxImg').style.transform = `scale(${lightboxZoom})`;
+    }
+
     function closeApp() {
         if(confirm("Gusto mo bang isara ang app?")) {
-            // Subukan isara ang window (gagana kung script ang nag-open)
             window.close();
-            // Kung ayaw magsara (dahil sa browser security), i-hide na lang o i-redirect
             setTimeout(() => {
                 $('chatView').innerHTML = `<div class="w-full h-full flex flex-col items-center justify-center bg-gray-100"><i class="ph-fill ph-check-circle text-6xl text-green-400 mb-4"></i><h1 class="text-2xl font-black text-gray-600">Safe na Isara</h1><p class="text-gray-400 text-sm">Maaari mo nang i-close ang tab na ito.</p></div>`;
             }, 300);
@@ -478,23 +551,6 @@
             }
             return { text: "Offline", color: "text-gray-400", dot: "bg-gray-400" };
         }
-    }
-
-    function startSendingAnimation() {
-        const btn = $('sendBtn'), icon = $('sendIcon'), txt = $('sendText');
-        btn.disabled = true;
-        if(icon) icon.classList.add('hidden');
-        if(txt) {
-            txt.classList.remove('hidden'); txt.innerText = "Sending";
-            let dots = 0; sendingAnimInterval = setInterval(() => { dots = (dots + 1) % 4; txt.innerText = "Sending" + ".".repeat(dots); }, 400);
-        }
-    }
-    function stopSendingAnimation() {
-        clearInterval(sendingAnimInterval);
-        const btn = $('sendBtn'), icon = $('sendIcon'), txt = $('sendText');
-        btn.disabled = false;
-        if(icon) icon.classList.remove('hidden');
-        if(txt) { txt.classList.add('hidden'); txt.innerText = ""; }
     }
 
     function updateHeaderProfile() {
@@ -592,7 +648,6 @@
       const name = $('nameInput').value.trim(); if (!name) return;
       const btn = $('loginBtn'), origTxt = btn.innerText; btn.innerText = "Wait...";
       try {
-        // REMOVED HEADERS to fix the CORS preflight block
         const res = await fetch(`${scriptUrl}?action=login&name=${encodeURIComponent(name)}&t=${Date.now()}&_cb=${Math.random().toString(36).substring(7)}`);
         const data = await res.json();
         if (data.success) { 
@@ -619,7 +674,6 @@
 
     async function fetchMessages(force = false) {
       try {
-        // REMOVED HEADERS to fix the CORS preflight block
         const res = await fetch(`${scriptUrl}?action=fetch&t=${Date.now()}&ping=${encodeURIComponent(userName)}&_cb=${Math.random().toString(36).substring(7)}`);
         const responseData = await res.json();
         
@@ -659,6 +713,29 @@
       const c = $('messagesContainer'); const prevScroll = c.scrollTop;
       const visibleMsgs = fetchedMessages.slice(-displayLimit);
       
+      // --- BAGONG LOGIC: "Seen By" / Read Receipts ---
+      let seenMap = {};
+      Object.keys(globalUserProfiles).forEach(uName => {
+          if (uName === userName) return; // Wag isama ang sarili sa listahan ng nakakita
+          let uData = globalUserProfiles[uName];
+          let effectiveLastActive = uData.isOnline ? Date.now() : (uData.lastActive || 0);
+
+          let lastSeenMsg = null;
+          for (let i = visibleMsgs.length - 1; i >= 0; i--) {
+              let msg = visibleMsgs[i];
+              if (msg.content !== '🗑️ Deleted' && msg.status !== 'sending' && msg.time <= effectiveLastActive) {
+                  lastSeenMsg = msg;
+                  break;
+              }
+          }
+          
+          if (lastSeenMsg && lastSeenMsg.name !== uName) {
+              if (!seenMap[lastSeenMsg.time]) seenMap[lastSeenMsg.time] = [];
+              seenMap[lastSeenMsg.time].push({ name: uName, picUrl: uData.picUrl });
+          }
+      });
+      // ---------------------------------------------
+
       let groups = [];
       visibleMsgs.forEach(msg => {
           if (groups.length > 0 && groups[groups.length - 1].name === msg.name) groups[groups.length - 1].msgs.push(msg);
@@ -704,7 +781,7 @@
               if (isDeleted) {
                   contentHtml = `<div class="italic text-gray-500 font-bold text-sm sm:text-[15px] flex items-center bg-white/50 p-1.5 px-3 rounded-xl"><i class="ph-bold ph-trash mr-1.5 text-base"></i> Ang mensaheng ito ay binura.</div>`;
               }
-              else if (msg.type === 'image') contentHtml = `<img src="${msg.content}" class="chat-image rounded-xl w-full max-w-[200px] sm:max-w-[250px] h-auto cursor-pointer shadow-sm border border-white/20" onclick="window.open('${msg.content}')">`;
+              else if (msg.type === 'image') contentHtml = `<img src="${msg.content}" class="chat-image rounded-xl w-full h-auto cursor-pointer shadow-sm border border-white/20 object-cover" style="min-width:200px;" onclick="openLightbox('${msg.content}')">`;
               else if (msg.type === 'video') contentHtml = `<div class="rounded-xl overflow-hidden bg-black/20 shadow-sm w-full max-w-[200px] sm:max-w-[250px] border border-white/20"><video controls class="w-full h-auto" onplay="autoScrollEnabled=false" onpause="autoScrollEnabled=true"><source src="${msg.content.replace('view','download')}"></video></div>`;
               else if (msg.type === 'audio') contentHtml = `<div class="bg-white/20 p-2 rounded-xl border border-white/30 w-full max-w-[200px] sm:max-w-[250px]"><div class="flex items-center mb-1 px-1 text-[10px] font-bold uppercase"><i class="ph-fill ph-music-notes mr-1"></i> Audio</div><audio controls class="w-full h-8" src="${msg.content}"></audio></div>`;
               else if (msg.type === 'file') contentHtml = `<a href="${msg.content}" target="_blank" class="flex items-center space-x-2 bg-white/20 p-2 rounded-xl hover:bg-white/30 w-fit"><i class="ph-bold ph-file-zip text-2xl"></i><span class="font-bold text-xs underline">Download</span></a>`;
@@ -712,7 +789,7 @@
                   let txt = String(msg.content || "").replace(/</g, "&lt;").replace(/>/g, "&gt;"); 
                   
                   if (txt.includes("[Reply kay")) {
-                      txt = txt.replace(/\[Reply kay (.*?): "(.*?)"\]\n?/g, `<div class="bg-black/10 p-2 rounded-xl text-[11px] font-bold mb-1 italic opacity-80 border-l-4 border-white flex flex-col"><span class="text-[9px] uppercase tracking-wider opacity-70 mb-0.5 flex items-center"><i class="ph-fill ph-reply mr-1"></i> Nag-reply kay $1</span><span class="truncate">$2</span></div>`); 
+                      txt = txt.replace(/\[Reply kay (.*?): "(.*?)"\]\n?/g, `<div class="bg-black/10 p-2 rounded-xl text-[11px] font-bold mb-2 opacity-80 border-l-4 border-white flex flex-col"><span class="text-[9px] uppercase tracking-wider opacity-70 mb-0.5 flex items-center"><i class="ph-fill ph-reply mr-1"></i> Nag-reply kay $1</span><span class="truncate">$2</span></div>`); 
                   }
                   
                   ALL_UNIQUE_EMOJIS.forEach(emoji => {
@@ -740,6 +817,30 @@
               }
 
               const innerAlign = group.isMe ? 'self-end' : 'self-start';
+              
+              // NEW SEEN HTML
+              let seenHtml = '';
+              let readers = seenMap[msg.time];
+              if (readers && readers.length > 0) {
+                  seenHtml = `<div class="flex ${group.isMe ? 'justify-end' : 'justify-start'} w-full mt-0.5 px-1" title="Nakita nina: ${readers.map(r=>r.name).join(', ')}">`;
+                  seenHtml += `<div class="flex items-center -space-x-1.5 opacity-90 hover:opacity-100 transition-opacity cursor-pointer">`;
+                  
+                  let maxDisplay = 5;
+                  let displayReaders = readers.slice(0, maxDisplay);
+                  let extraCount = readers.length - maxDisplay;
+
+                  if (extraCount > 0) {
+                      seenHtml += `<div class="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-gray-100 border border-white flex items-center justify-center text-[6px] sm:text-[7px] font-black text-gray-600 shadow-sm z-0">+${extraCount}</div>`;
+                  }
+
+                  displayReaders.forEach((r, i) => { 
+                      let zIndex = 10 - i; 
+                      let pSrc = r.picUrl ? `<img src="${r.picUrl}" class="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full object-cover border border-white shadow-sm" style="z-index: ${zIndex}">` : `<div class="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-gray-300 border border-white flex items-center justify-center shadow-sm" style="z-index: ${zIndex}"><i class="ph-fill ph-user text-[7px] text-white"></i></div>`;
+                      seenHtml += pSrc;
+                  });
+
+                  seenHtml += `</div></div>`;
+              }
 
               html += `
                 <div class="relative group flex flex-col ${innerAlign} max-w-full swipeable-message" data-name="${group.name}" data-content="${safeTxt}">
@@ -754,6 +855,7 @@
                           ${group.isMe ? (msg.status === 'sending' ? '<i class="ph-bold ph-spinner animate-spin text-[10px] ml-1 opacity-70"></i>' : '<i class="ph-bold ph-check-circle text-[10px] text-green-500 ml-1"></i>') : ''}
                       </div>
                   </div>
+                  ${seenHtml}
                   
                   ${!isDeleted ? `
                   <div class="absolute -top-2.5 ${group.isMe ? '-left-6' : '-right-6'} hidden group-hover:flex space-x-1 z-20">
@@ -830,7 +932,6 @@
           cancelReply();
       }
 
-      // Optimistic UI - Idagdag agad sa chat kahit di pa tapos mag-load!
       let isEdit = !!editingMsgTime;
       let tempId = Date.now() + Math.random();
       
@@ -853,7 +954,6 @@
       
       btn.disabled = false;
 
-      // Palitan ang Loading Icon ng Checkmark Icon (Sent)
       if (!isEdit) {
           let msgRef = fetchedMessages.find(m => m.tempId === tempId);
           if (msgRef) msgRef.status = 'sent';
@@ -915,7 +1015,6 @@
       const pc = $('uploadProgressContainer'), pb = $('uploadProgressBar'), pt = $('uploadPercentText');
       pc.classList.remove('hidden'); pb.style.width = "40%"; pt.innerText = "40%"; autoScrollEnabled = true; 
       
-      // Optimistic UI para sa Images/Files (Lalabas agad habang nag-a-upload)
       let tempId = Date.now() + Math.random();
       fetchedMessages.push({
           time: Date.now(), name: userName, type: type, content: b64, reactions: {}, tempId: tempId, status: 'sending'
@@ -926,7 +1025,6 @@
       
       pb.style.width = "100%"; pt.innerText = "100%"; 
       
-      // Palitan ang spinner ng Check mark pagtapos ma-upload
       let msgRef = fetchedMessages.find(m => m.tempId === tempId);
       if (msgRef) msgRef.status = 'sent';
       renderMessagesHTML();
