@@ -97,7 +97,8 @@
           </div>
         </div>
       </div>
-      <div class="flex items-center space-x-1 sm:space-x-1.5">
+      <!-- IN-UPDATE: Naglagay ng 'mr-8 sm:mr-0' para umusad pakaliwa at hindi matabunan ng arrow ng cellphone -->
+      <div class="flex items-center space-x-1 sm:space-x-1.5 mr-8 sm:mr-0">
         <button onclick="$('settingsModal').classList.remove('hidden')" class="btn-3d p-1.5 sm:p-2 bg-gradient-to-r from-violet-500 via-fuchsia-500 to-pink-500 text-white rounded-lg border border-white shadow-[0_2px_0_0_#a855f7] hover:rotate-90 transition-transform duration-300 group" title="Settings">
             <i class="ph-bold ph-gear-six text-lg sm:text-xl drop-shadow-md group-hover:animate-spin"></i>
         </button>
@@ -911,6 +912,22 @@
     function openReact(t) { selectedMsgTime = Number(t); $('reactionPopup').classList.remove('hidden'); }
     function closeReact() { $('reactionPopup').classList.add('hidden'); }
     function toggleEmojis() { $('emojiPicker').classList.toggle('hidden'); }
+    
+    function logout() { 
+        // IN-UPDATE: Mas maaasahang fetch request at instant visual feedback
+        if (userName) { fetch(`${scriptUrl}?action=logout&name=${encodeURIComponent(userName)}`, { mode: 'no-cors' }); }
+        localStorage.clear(); 
+        
+        $('chatView').classList.add('hidden'); 
+        $('chatView').classList.remove('flex');
+        $('authView').classList.remove('hidden');
+        $('nameInput').value = '';
+        $('authErrorMsg').innerText = "Matagumpay na nag-logout.";
+        $('authErrorMsg').classList.remove('hidden', 'text-red-500');
+        $('authErrorMsg').classList.add('text-green-500');
+        
+        setTimeout(() => { location.reload(); }, 800);
+    }
     
     function copyToEdit(txt, time) { 
         cancelReply(); 
