@@ -221,7 +221,6 @@
         
         <button onclick="submitMessage()" class="btn-3d px-3 sm:px-4 py-2 sm:py-2.5 bg-pink-500 text-white rounded-xl shadow-[0_3px_0_0_#db2777] hover:bg-pink-600 flex items-center justify-center min-w-[45px] mb-0.5" id="sendBtn">
             <i class="ph-bold ph-paper-plane-right text-xl sm:text-2xl" id="sendIcon"></i>
-            <span id="sendText" class="hidden text-xs sm:text-sm font-bold ml-1 whitespace-nowrap"></span>
         </button>
       </div>
     </div>
@@ -245,7 +244,6 @@
     let mediaRecorder = null, audioChunks = [], isRecording = false;
     let editingMsgTime = null; 
     let replyingToData = null; 
-    let sendingAnimInterval = null;
     let inactivityTimer = null;
 
     const THEMES = {
@@ -751,7 +749,10 @@
                   
                   <div class="flex justify-between items-end mt-0.5 mb-0.5 px-1 relative z-0">
                       ${reactHtml}
-                      <div class="text-[9px] font-bold tracking-tighter ${themeToUse.textCol} ml-auto mt-0.5 opacity-70">${new Date(msg.time).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div>
+                      <div class="text-[9px] font-bold tracking-tighter ${themeToUse.textCol} ml-auto mt-0.5 opacity-70 flex items-center">
+                          ${new Date(msg.time).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}
+                          ${group.isMe ? (msg.status === 'sending' ? '<i class="ph-bold ph-spinner animate-spin text-[10px] ml-1 opacity-70"></i>' : '<i class="ph-bold ph-check-circle text-[10px] text-green-500 ml-1"></i>') : ''}
+                      </div>
                   </div>
                   
                   ${!isDeleted ? `
@@ -820,7 +821,8 @@
 
     async function submitMessage() {
       const i = $('messageInput'), v = i.value.trim(); if (!v) return;
-      i.value = ''; i.style.height = '40px'; autoScrollEnabled = true; startSendingAnimation();
+      i.value = ''; i.style.height = '40px'; autoScrollEnabled = true;
+      const btn = $('sendBtn'); btn.disabled = true;
       
       let finalContent = v;
       if (replyingToData && !editingMsgTime) {
@@ -828,13 +830,40 @@
           cancelReply();
       }
 
-      if (editingMsgTime) {
+      // Optimistic UI - Idagdag agad sa chat kahit di pa tapos mag-load!
+      let isEdit = !!editingMsgTime;
+      let tempId = Date.now() + Math.random();
+      
+      if (!isEdit) {
+          fetchedMessages.push({
+              time: Date.now(), name: userName, type: 'text', content: finalContent, reactions: {}, tempId: tempId, status: 'sending'
+          });
+          renderMessagesHTML(false, 0, true);
+      } else {
+          let editedMsg = fetchedMessages.find(m => m.time === editingMsgTime);
+          if (editedMsg) { editedMsg.content = finalContent; editedMsg.status = 'sending'; renderMessagesHTML(); }
+      }
+
+      if (isEdit) {
           await fetch(scriptUrl, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'edit_message', name: userName, content: finalContent, messageTime: editingMsgTime }) });
           cancelEdit();
       } else {
           await fetch(scriptUrl, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'chat', name: userName, type: 'text', content: finalContent }) });
       }
-      stopSendingAnimation(); setTimeout(() => fetchMessages(), 1000);
+      
+      btn.disabled = false;
+
+      // Palitan ang Loading Icon ng Checkmark Icon (Sent)
+      if (!isEdit) {
+          let msgRef = fetchedMessages.find(m => m.tempId === tempId);
+          if (msgRef) msgRef.status = 'sent';
+      } else {
+          let editedMsg = fetchedMessages.find(m => m.time === editingMsgTime);
+          if (editedMsg) editedMsg.status = 'sent';
+      }
+      renderMessagesHTML();
+      
+      setTimeout(() => fetchMessages(true), 500);
     }
 
     function showReactionDetails(rStr, msgTime) {
@@ -884,11 +913,25 @@
 
     async function executeChatUpload(b64, type, file) {
       const pc = $('uploadProgressContainer'), pb = $('uploadProgressBar'), pt = $('uploadPercentText');
-      pc.classList.remove('hidden'); pb.style.width = "40%"; pt.innerText = "40%"; autoScrollEnabled = true; startSendingAnimation();
+      pc.classList.remove('hidden'); pb.style.width = "40%"; pt.innerText = "40%"; autoScrollEnabled = true; 
+      
+      // Optimistic UI para sa Images/Files (Lalabas agad habang nag-a-upload)
+      let tempId = Date.now() + Math.random();
+      fetchedMessages.push({
+          time: Date.now(), name: userName, type: type, content: b64, reactions: {}, tempId: tempId, status: 'sending'
+      });
+      renderMessagesHTML(false, 0, true);
       
       await fetch(scriptUrl, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'chat', name: userName, type: type, content: b64, fileName: file.name, mimeType: file.type }) });
       
-      stopSendingAnimation(); pb.style.width = "100%"; pt.innerText = "100%"; setTimeout(() => { pc.classList.add('hidden'); fetchMessages(); }, 1500);
+      pb.style.width = "100%"; pt.innerText = "100%"; 
+      
+      // Palitan ang spinner ng Check mark pagtapos ma-upload
+      let msgRef = fetchedMessages.find(m => m.tempId === tempId);
+      if (msgRef) msgRef.status = 'sent';
+      renderMessagesHTML();
+      
+      setTimeout(() => { pc.classList.add('hidden'); fetchMessages(true); }, 1000);
     }
 
     function handleProfilePicUpload(e) {
