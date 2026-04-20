@@ -643,6 +643,28 @@
       100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
     }
 
+    /* Back button when inside the chat */
+    .chat-back-btn {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      width: 40px;
+      height: 40px;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 12000;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      transition: all 0.2s;
+    }
+    .chat-back-btn:active { transform: scale(0.9); }
+    .chat-back-btn svg { width: 22px; height: 22px; stroke: #1e293b; }
+
     @media (max-width: 768px) {
       .chat-fab { right: 15px; width: 60px; height: 60px; }
       .chat-fab .emoji-icon { font-size: 2rem; }
@@ -794,6 +816,16 @@
   <iframe id="moduleFrame" class="full-iframe" src=""></iframe>
 </main>
 
+<!-- 7. CHAT VIEW (Single Window) -->
+<main id="chatView" class="hidden fullscreen-view relative-view">
+  <button class="chat-back-btn" onclick="PCMA.goBack()" aria-label="Back">
+    <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5">
+      <polyline points="15 18 9 12 15 6"></polyline>
+    </svg>
+  </button>
+  <iframe id="chatFrame" class="full-iframe" src=""></iframe>
+</main>
+
 <footer class="app-footer">
   <div class="footer-inner">
     <button id="footerReloadBtn" type="button" class="footer-btn">
@@ -838,9 +870,9 @@
       const badge = document.getElementById('chatBadge');
       if(badge) badge.classList.add('hidden');
       
-      // Load Chat.html seamlessly into the module framework
-      document.getElementById('moduleFrame').src = 'Chat.html';
-      PCMA.showView('moduleView');
+      // Load Chat.html seamlessly into the dedicated chat framework
+      document.getElementById('chatFrame').src = 'Chat.html';
+      PCMA.showView('chatView');
   };
   
   // =========================================================
@@ -849,13 +881,19 @@
   PCMA.viewStack = ['homeView'];
 
   PCMA.showView = function(viewId) {
-      const views = ['homeView', 'appView', 'modalView', 'docsView', 'uploadView', 'moduleView'];
+      const views = ['homeView', 'appView', 'modalView', 'docsView', 'uploadView', 'moduleView', 'chatView'];
       views.forEach(id => {
           const el = document.getElementById(id);
           if (el) el.classList.add('hidden');
       });
       const target = document.getElementById(viewId);
       if (target) target.classList.remove('hidden');
+
+      // Hide Footer ONLY when Chat is open so it doesn't block the textbox
+      const footer = document.querySelector('.app-footer');
+      if (footer) {
+          footer.style.display = (viewId === 'chatView') ? 'none' : '';
+      }
 
       // Cleverly hide the Floating Chat button when a module is open so it doesn't overlap the view!
       const chatFab = document.getElementById('chatFab');
@@ -877,10 +915,11 @@
           if(currentView === 'moduleView') document.getElementById('moduleFrame').src = 'about:blank';
           if(currentView === 'docsView') document.getElementById('projectDocsFrame').src = 'about:blank';
           if(currentView === 'uploadView') document.getElementById('uploadPhotosFrame').src = 'about:blank';
+          if(currentView === 'chatView') document.getElementById('chatFrame').src = 'about:blank';
           
           const prevView = PCMA.viewStack[PCMA.viewStack.length - 1];
           
-          const views = ['homeView', 'appView', 'modalView', 'docsView', 'uploadView', 'moduleView'];
+          const views = ['homeView', 'appView', 'modalView', 'docsView', 'uploadView', 'moduleView', 'chatView'];
           views.forEach(id => {
               const el = document.getElementById(id);
               if (el) el.classList.add('hidden');
@@ -888,6 +927,12 @@
           
           const target = document.getElementById(prevView);
           if (target) target.classList.remove('hidden');
+
+          // Restore Footer display if going back
+          const footer = document.querySelector('.app-footer');
+          if (footer) {
+              footer.style.display = (prevView === 'chatView') ? 'none' : '';
+          }
 
           // Reveal Chat button again if we return to the Home page
           const chatFab = document.getElementById('chatFab');
@@ -903,7 +948,7 @@
       PCMA.viewStack = ['homeView'];
       PCMA.showView('homeView');
       // MASSIVE MEMORY CLEANUP
-      ['moduleFrame', 'projectDocsFrame', 'uploadPhotosFrame', 'pcmaModalFrame'].forEach(id => {
+      ['moduleFrame', 'projectDocsFrame', 'uploadPhotosFrame', 'pcmaModalFrame', 'chatFrame'].forEach(id => {
           const frame = document.getElementById(id);
           if (frame) frame.src = 'about:blank';
       });
