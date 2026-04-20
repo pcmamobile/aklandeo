@@ -214,6 +214,17 @@
         </div>
     </div>
 
+    <!-- BAGONG MODAL PARA SA "SEEN BY" -->
+    <div id="seenByModal" class="hidden fixed inset-0 z-[55] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl shadow-xl p-5 w-full max-w-xs transform animate-float">
+            <div class="flex justify-between items-center mb-3">
+                <span class="font-black text-blue-500 text-lg flex items-center"><i class="ph-fill ph-eye mr-2 text-xl"></i> Nakita nina</span>
+                <button onclick="closeSeenByModal()" class="text-gray-300 hover:text-red-500 transition-colors"><i class="ph ph-x-circle text-2xl"></i></button>
+            </div>
+            <div id="seenByList" class="max-h-[250px] overflow-y-auto space-y-2 scrollbar-hide pr-1"></div>
+        </div>
+    </div>
+
     <!-- INPUT AREA -->
     <div class="bg-white p-2 sm:p-3 border-t border-gray-100 shrink-0 relative z-40 shadow-[0_-5px_15px_rgba(0,0,0,0.02)]">
       
@@ -575,6 +586,22 @@
         if ($('onlineCount')) $('onlineCount').innerText = count;
     }
     
+    // BAGONG FUNCTIONS PARA SA SEEN BY MODAL
+    function openSeenByModal(readersStr) {
+        const readers = JSON.parse(decodeURIComponent(readersStr));
+        const list = $('seenByList');
+        list.innerHTML = '';
+        readers.forEach(r => {
+            const div = document.createElement('div'); 
+            div.className = "flex items-center p-2.5 bg-gray-50 rounded-xl space-x-3 border border-gray-100";
+            const picSrc = r.picUrl ? `<img src="${r.picUrl}" class="w-10 h-10 rounded-full object-cover border border-gray-200 cursor-pointer hover:scale-105 transition-transform" onclick="openLightbox('${r.picUrl}')">` : `<div class="w-10 h-10 rounded-full bg-gray-200 border border-gray-200 flex items-center justify-center"><i class="ph-fill ph-user text-xl text-gray-400"></i></div>`;
+            div.innerHTML = `${picSrc}<span class="text-sm font-bold text-gray-700">${r.name}</span>`;
+            list.appendChild(div);
+        });
+        $('seenByModal').classList.remove('hidden');
+    }
+    function closeSeenByModal() { $('seenByModal').classList.add('hidden'); }
+
     function refreshOnlineModalSilent() {
         const list = $('onlineUsersList');
         list.innerHTML = '';
@@ -606,7 +633,8 @@
             const status = getUserStatus(u);
             const div = document.createElement('div'); 
             div.className = "flex items-center p-2.5 bg-gray-50 rounded-xl space-x-3 border border-gray-100";
-            const picSrc = u.pic ? `<img src="${u.pic}" class="w-10 h-10 rounded-full object-cover border border-gray-200">` : `<div class="w-10 h-10 rounded-full bg-gray-200 border border-gray-200 flex items-center justify-center"><i class="ph-fill ph-user text-xl text-gray-400"></i></div>`;
+            // IN-UPDATE UPANG MA-CLICK AT MA-ZOOM ANG PICTURE SA ONLINE LIST
+            const picSrc = u.pic ? `<img src="${u.pic}" class="w-10 h-10 rounded-full object-cover border border-gray-200 cursor-pointer hover:scale-105 transition-transform" onclick="openLightbox('${u.pic}')">` : `<div class="w-10 h-10 rounded-full bg-gray-200 border border-gray-200 flex items-center justify-center"><i class="ph-fill ph-user text-xl text-gray-400"></i></div>`;
             
             div.innerHTML = `${picSrc} 
                 <div class="flex flex-col flex-1">
@@ -751,13 +779,15 @@
           let themeToUse = group.isMe ? (THEMES[userColor] || THEMES['pink']) : (THEMES[profileObj.color] || OTHER_THEME);
 
           if (!group.isMe) {
-              const picSrc = profileObj.picUrl ? `<img src="${profileObj.picUrl}" class="profile-pic-chat w-7 h-7 rounded-full object-cover mr-2 border border-gray-200 shadow-sm">` : `<div class="profile-pic-chat w-7 h-7 rounded-full bg-gray-200 border border-gray-200 flex items-center justify-center mr-2 shadow-sm"><i class="ph-fill ph-user text-xs text-gray-400"></i></div>`;
+              // IN-UPDATE: Clickable/Zoomable Profile Pic sa Chat Area
+              const picSrc = profileObj.picUrl ? `<img src="${profileObj.picUrl}" class="profile-pic-chat w-7 h-7 rounded-full object-cover mr-2 border border-gray-200 shadow-sm cursor-pointer" onclick="openLightbox('${profileObj.picUrl}')">` : `<div class="profile-pic-chat w-7 h-7 rounded-full bg-gray-200 border border-gray-200 flex items-center justify-center mr-2 shadow-sm"><i class="ph-fill ph-user text-xs text-gray-400"></i></div>`;
               html += `<div class="flex items-center mb-1 ml-1">
                           ${picSrc} 
                           <span class="block text-[13px] font-black uppercase tracking-wider drop-shadow-sm ${themeToUse.textCol}">${group.name}</span>
                        </div>`;
           } else {
-              const myPicSrc = userPicUrl ? `<img src="${userPicUrl}" class="profile-pic-chat w-7 h-7 rounded-full object-cover ml-2 border border-gray-200 shadow-sm">` : `<div class="profile-pic-chat w-7 h-7 rounded-full bg-gray-200 border border-gray-200 flex items-center justify-center ml-2 shadow-sm"><i class="ph-fill ph-user text-xs text-gray-400"></i></div>`;
+              // IN-UPDATE: Clickable/Zoomable Profile Pic sa Chat Area
+              const myPicSrc = userPicUrl ? `<img src="${userPicUrl}" class="profile-pic-chat w-7 h-7 rounded-full object-cover ml-2 border border-gray-200 shadow-sm cursor-pointer" onclick="openLightbox('${userPicUrl}')">` : `<div class="profile-pic-chat w-7 h-7 rounded-full bg-gray-200 border border-gray-200 flex items-center justify-center ml-2 shadow-sm"><i class="ph-fill ph-user text-xs text-gray-400"></i></div>`;
               html += `<div class="flex items-center mb-1 mr-1 justify-end">
                           <span class="block text-[13px] font-black uppercase tracking-wider drop-shadow-sm ${themeToUse.textCol}">${userName}</span>
                           ${myPicSrc} 
@@ -818,12 +848,13 @@
 
               const innerAlign = group.isMe ? 'self-end' : 'self-start';
               
-              // NEW SEEN HTML
+              // NEW SEEN HTML NA CLICKABLE
               let seenHtml = '';
               let readers = seenMap[msg.time];
               if (readers && readers.length > 0) {
+                  let safeReadersStr = encodeURIComponent(JSON.stringify(readers));
                   seenHtml = `<div class="flex ${group.isMe ? 'justify-end' : 'justify-start'} w-full mt-0.5 px-1" title="Nakita nina: ${readers.map(r=>r.name).join(', ')}">`;
-                  seenHtml += `<div class="flex items-center -space-x-1.5 opacity-90 hover:opacity-100 transition-opacity cursor-pointer">`;
+                  seenHtml += `<div onclick="openSeenByModal('${safeReadersStr}')" class="flex items-center -space-x-1.5 opacity-90 hover:opacity-100 transition-opacity cursor-pointer">`;
                   
                   let maxDisplay = 5;
                   let displayReaders = readers.slice(0, maxDisplay);
