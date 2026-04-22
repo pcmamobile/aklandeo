@@ -263,10 +263,33 @@
                 <div id="receiving-form-container" class="hidden max-w-2xl mx-auto bg-white/90 backdrop-blur-md p-6 md:p-8 rounded-2xl border border-white shadow-xl mt-2 md:mt-0">
                     <h3 class="text-xl md:text-2xl font-bold mb-6 text-indigo-700 flex items-center"><span class="bg-indigo-100 text-indigo-500 p-2 rounded-lg mr-3"><i class="fa-solid fa-cloud-arrow-up"></i></span> Upload New Document</h3>
                     <form id="upload-form" onsubmit="event.preventDefault(); submitNewDocument();">
-                        <div class="mb-5">
-                            <label class="block text-sm font-bold mb-1.5 text-slate-600">Reference No.</label>
-                            <input type="text" id="doc-ref-no" class="input-3d" placeholder="e.g., REF-2026-001" required>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
+                            <div>
+                                <label class="block text-sm font-bold mb-1.5 text-slate-600">Reference No.</label>
+                                <input type="text" id="doc-ref-no" class="input-3d" placeholder="e.g., REF-2026-001" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold mb-1.5 text-slate-600">Types of Letter</label>
+                                <select id="doc-type-letter" class="input-3d bg-white" required>
+                                    <option value="" disabled selected>Select type...</option>
+                                    <option value="Inquiry Letter (Yes)">Inquiry Letter (Yes)</option>
+                                    <option value="Request Letter (Yes)">Request Letter (Yes)</option>
+                                    <option value="Order Letter (Yes)">Order Letter (Yes)</option>
+                                    <option value="Application Letter (Yes)">Application Letter (Yes)</option>
+                                    <option value="Complaint Letter (Yes)">Complaint Letter (Yes)</option>
+                                    <option value="Information Letter (No)">Information Letter (No)</option>
+                                    <option value="Mandate / Directive (No)">Mandate / Directive (No)</option>
+                                    <option value="Acknowledgment (No)">Acknowledgment (No)</option>
+                                    <option value="Follow-up Letter (Yes)">Follow-up Letter (Yes)</option>
+                                    <option value="Copy Furnished (No)">Copy Furnished (No)</option>
+                                    <option value="Letter of Recommendation (No)">Letter of Recommendation (No)</option>
+                                    <option value="Resignation Letter (Yes)">Resignation Letter (Yes)</option>
+                                    <option value="Thank You Letter (No)">Thank You Letter (No)</option>
+                                    <option value="Letter of Interest (Optional)">Letter of Interest (Optional)</option>
+                                </select>
+                            </div>
                         </div>
+
                         <div class="mb-5">
                             <label class="block text-sm font-bold mb-1.5 text-slate-600">Title / Subject</label>
                             <textarea id="doc-title" class="input-3d resize-none overflow-hidden" rows="1" style="min-height: 48px;" required oninput="this.style.height = 'auto'; this.style.height = this.scrollHeight + 'px'"></textarea>
@@ -396,9 +419,31 @@
             <h3 class="text-xl font-bold mb-6 text-indigo-700"><i class="fa-solid fa-pen-to-square mr-2"></i> Edit Document</h3>
             <input type="hidden" id="edit-rowidx">
             
-            <div class="mb-5">
-                <label class="block text-sm font-bold mb-1.5 text-slate-600">Reference No.</label>
-                <input type="text" id="edit-ref-no" class="input-3d" placeholder="e.g., REF-2026-001" required>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
+                <div>
+                    <label class="block text-sm font-bold mb-1.5 text-slate-600">Reference No.</label>
+                    <input type="text" id="edit-ref-no" class="input-3d" placeholder="e.g., REF-2026-001" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold mb-1.5 text-slate-600">Types of Letter</label>
+                    <select id="edit-type-letter" class="input-3d bg-white" required>
+                        <option value="" disabled selected>Select type...</option>
+                        <option value="Inquiry Letter (Yes)">Inquiry Letter (Yes)</option>
+                        <option value="Request Letter (Yes)">Request Letter (Yes)</option>
+                        <option value="Order Letter (Yes)">Order Letter (Yes)</option>
+                        <option value="Application Letter (Yes)">Application Letter (Yes)</option>
+                        <option value="Complaint Letter (Yes)">Complaint Letter (Yes)</option>
+                        <option value="Information Letter (No)">Information Letter (No)</option>
+                        <option value="Mandate / Directive (No)">Mandate / Directive (No)</option>
+                        <option value="Acknowledgment (No)">Acknowledgment (No)</option>
+                        <option value="Follow-up Letter (Yes)">Follow-up Letter (Yes)</option>
+                        <option value="Copy Furnished (No)">Copy Furnished (No)</option>
+                        <option value="Letter of Recommendation (No)">Letter of Recommendation (No)</option>
+                        <option value="Resignation Letter (Yes)">Resignation Letter (Yes)</option>
+                        <option value="Thank You Letter (No)">Thank You Letter (No)</option>
+                        <option value="Letter of Interest (Optional)">Letter of Interest (Optional)</option>
+                    </select>
+                </div>
             </div>
             
             <div class="mb-5">
@@ -902,18 +947,36 @@
                     if (c.key === 'action') {
                         cellContent = `<div class="flex flex-wrap gap-2">${getActions(tabName, doc)}</div>`;
                     } else if (c.key === 'Title/Description') {
-                        let v = doc[c.key] || '';
-                        if (v.includes(' | ')) {
-                            const parts = v.split(' | ');
-                            const refNo = parts[0];
-                            const titleText = parts.slice(1).join(' | ');
-                            cellContent = `<div class="flex flex-col items-start gap-1">
-                                <span class="bg-indigo-100 text-indigo-700 text-[10px] md:text-[11px] font-bold px-2 py-0.5 rounded border border-indigo-200 shadow-sm tracking-wide"><i class="fa-solid fa-hashtag mr-1 opacity-70"></i>${refNo}</span>
-                                <span class="font-semibold text-slate-800">${titleText}</span>
-                            </div>`;
-                        } else {
-                            cellContent = `<span class="font-semibold text-slate-800">${v}</span>`;
+                        let titleText = doc['Title/Description'] || '';
+                        let refNo = doc['Reference Number'] || '';
+                        let letterType = doc['Types of Letter'] || '';
+                        
+                        // Backward compatibility for old "REF | Title" format
+                        if (!refNo && titleText.includes(' | ')) {
+                            const parts = titleText.split(' | ');
+                            refNo = parts[0];
+                            titleText = parts.slice(1).join(' | ');
                         }
+                        
+                        let badgesHtml = '';
+                        if (refNo) {
+                            badgesHtml += `<span class="bg-indigo-100 text-indigo-700 text-[10px] md:text-[11px] font-bold px-2 py-0.5 rounded border border-indigo-200 shadow-sm tracking-wide"><i class="fa-solid fa-hashtag mr-1 opacity-70"></i>${refNo}</span>`;
+                        }
+                        if (letterType) {
+                            let typeBadgeColor = 'bg-slate-100 text-slate-700 border-slate-200';
+                            if (letterType.includes('(Yes)') || letterType.includes('(Optional)')) {
+                                typeBadgeColor = 'bg-emerald-100 text-emerald-700 border-emerald-200';
+                            } else if (letterType.includes('(No)')) {
+                                typeBadgeColor = 'bg-rose-100 text-rose-700 border-rose-200';
+                            }
+                            badgesHtml += `<span class="${typeBadgeColor} text-[10px] md:text-[11px] font-bold px-2 py-0.5 rounded border shadow-sm tracking-wide ml-1.5"><i class="fa-solid fa-tag mr-1 opacity-70"></i>${letterType}</span>`;
+                        }
+
+                        cellContent = `<div class="flex flex-col items-start gap-1.5">
+                            <div class="flex flex-wrap items-center">${badgesHtml}</div>
+                            <span class="font-semibold text-slate-800 leading-snug">${titleText}</span>
+                        </div>`;
+                        
                     } else if (c.key === 'Date Viewed by User') {
                         let v = doc[c.key] || '';
                         if (v) {
@@ -975,12 +1038,10 @@
         function getActions(tabName, doc) {
             let html = `<button onclick="viewFile('${doc['Received File ID']}', ${doc.rowIndex}, '${tabName}')" class="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-eye"></i> View</button>`;
             
-            const safeTitle = (doc['Title/Description'] || '').replace(/'/g, "\\'").replace(/"/g, "&quot;");
             const safeUsers = (doc['User'] || '').replace(/'/g, "\\'").replace(/"/g, "&quot;");
-            const safeDateRec = (doc['Date Received'] || '').replace(/'/g, "\\'").replace(/"/g, "&quot;");
 
             if(currentUser.role === 'Admin') {
-                html += `<button onclick="openEditModal(${doc.rowIndex}, '${safeTitle}', '${doc['Deadline']||''}', '${safeDateRec}', '${tabName}')" class="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-pen"></i> Edit</button>`;
+                html += `<button onclick="openEditModal(${doc.rowIndex}, '${tabName}')" class="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-pen"></i> Edit</button>`;
                 
                 if(tabName === 'In Progress') {
                     html += `<button onclick="openReassignModal(${doc.rowIndex}, '${safeUsers}')" class="bg-sky-100 text-sky-700 hover:bg-sky-200 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-user-pen"></i> Reassign</button>`;
@@ -989,7 +1050,7 @@
                 }
                 if(tabName === 'For Signature') {
                     html += `<button onclick="openReassignModal(${doc.rowIndex}, '${safeUsers}')" class="bg-sky-100 text-sky-700 hover:bg-sky-200 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-user-pen"></i> Reassign</button>`;
-                    html += `<button onclick="openReplyModal(${doc.rowIndex}, '${safeTitle}')" class="bg-fuchsia-100 text-fuchsia-700 hover:bg-fuchsia-200 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-upload"></i> Reply</button>`;
+                    html += `<button onclick="openReplyModal(${doc.rowIndex})" class="bg-fuchsia-100 text-fuchsia-700 hover:bg-fuchsia-200 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-upload"></i> Reply</button>`;
                     html += `<button onclick="openArchiveModal(${doc.rowIndex})" class="bg-slate-200 text-slate-600 hover:bg-slate-300 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-box-archive"></i> Archive</button>`;
                 }
                 if(tabName === 'Approved') {
@@ -1035,17 +1096,18 @@
 
             // Capture data BEFORE resetting the form
             const refNo = document.getElementById('doc-ref-no').value.trim();
-            const rawTitle = document.getElementById('doc-title').value.trim();
-            const desc = `${refNo} | ${rawTitle}`;
+            const typeLetter = document.getElementById('doc-type-letter').value;
+            const title = document.getElementById('doc-title').value.trim();
+            
             const dateRec = document.getElementById('doc-date-received').value;
             const deadline = document.getElementById('doc-deadline').value;
 
-            // Preserve file extension
+            // Preserve file extension & create nice filename
             let fileExt = '';
             if (f.name.includes('.')) {
                 fileExt = f.name.substring(f.name.lastIndexOf('.'));
             }
-            const customFileName = `${desc}${fileExt}`;
+            const customFileName = `${refNo ? refNo + ' - ' : ''}${title}${fileExt}`;
 
             // --- SILENT UI RESET (Instantly clear form so user can start the next one) ---
             document.getElementById('upload-form').reset(); 
@@ -1074,16 +1136,18 @@
                     fileData: b64.split(',')[1], 
                     mimeType: f.type,
                     fileName: customFileName,
-                    description: desc,
+                    description: title,
+                    referenceNumber: refNo,
+                    typeOfLetter: typeLetter,
                     dateReceived: dateRec,
                     deadline: deadline,
                     users: selectedUsers
                 });
 
-                showToast(`"${desc}" successfully recorded!`, "success");
+                showToast(`"${title}" successfully recorded!`, "success");
                 manualRefresh(true); // Silent table refresh
             } catch(e) { 
-                showToast(`Upload Failed for "${desc}": ` + e.message, "error"); 
+                showToast(`Upload Failed for "${title}": ` + e.message, "error"); 
             }
         }
 
@@ -1148,21 +1212,27 @@
             }
         }
 
-        function openEditModal(rowIdx, title, deadline, dateReceived, tabName) {
+        function openEditModal(rowIdx, tabName) {
+            const doc = globalTrackerData.find(d => d.rowIndex == rowIdx);
+            if (!doc) return;
+            
             document.getElementById('edit-rowidx').value = rowIdx;
             
-            const refInput = document.getElementById('edit-ref-no');
-            const editTitleArea = document.getElementById('edit-title');
+            let refNo = doc['Reference Number'] || '';
+            let title = doc['Title/Description'] || '';
             
-            if (title.includes(' | ')) {
+            // Backward compatibility during edit
+            if (!refNo && title.includes(' | ')) {
                 const parts = title.split(' | ');
-                refInput.value = parts[0];
-                editTitleArea.value = parts.slice(1).join(' | ');
-            } else {
-                refInput.value = '';
-                editTitleArea.value = title;
+                refNo = parts[0];
+                title = parts.slice(1).join(' | ');
             }
 
+            document.getElementById('edit-ref-no').value = refNo;
+            document.getElementById('edit-type-letter').value = doc['Types of Letter'] || '';
+            
+            const editTitleArea = document.getElementById('edit-title');
+            editTitleArea.value = title;
             setTimeout(() => {
                 editTitleArea.style.height = 'auto';
                 editTitleArea.style.height = editTitleArea.scrollHeight + 'px';
@@ -1176,6 +1246,7 @@
             }
 
             const dateRecInput = document.getElementById('edit-date-received');
+            const dateReceived = doc['Date Received'] || '';
             if (dateReceived) {
                 const dRec = new Date(dateReceived);
                 if (!isNaN(dRec)) {
@@ -1190,6 +1261,7 @@
             const deadlineInput = document.getElementById('edit-deadline');
             const deadlinePicker = deadlineInput._flatpickr;
             const noDeadlineCb = document.getElementById('edit-no-deadline-cb');
+            const deadline = doc['Deadline'] || '';
             
             if (deadline) {
                 const d = new Date(deadline);
@@ -1215,23 +1287,26 @@
         async function submitEdit() {
             const rowIdx = document.getElementById('edit-rowidx').value;
             const refNo = document.getElementById('edit-ref-no').value.trim();
-            const rawTitle = document.getElementById('edit-title').value.trim();
+            const typeLetter = document.getElementById('edit-type-letter').value;
+            const title = document.getElementById('edit-title').value.trim();
             const dateReceived = document.getElementById('edit-date-received').value;
             const deadline = document.getElementById('edit-deadline').value;
             
-            if(!rawTitle) {
+            if(!title) {
                 showToast("Title is required.", "error");
                 return;
             }
-
-            const fullTitle = refNo ? `${refNo} | ${rawTitle}` : rawTitle;
 
             closeModal('modal-edit');
             showToast("Saving changes...", "success");
 
             try {
                 const datesSectionHidden = document.getElementById('edit-dates-section').style.display === 'none';
-                let updateFields = { "Title/Description": fullTitle };
+                let updateFields = { 
+                    "Reference Number": refNo,
+                    "Types of Letter": typeLetter,
+                    "Title/Description": title 
+                };
                 
                 if (!datesSectionHidden) {
                     updateFields["Date Received"] = dateReceived;
@@ -1272,9 +1347,20 @@
             } catch(e) { showToast("Failed: " + e.message, "error"); }
         }
 
-        function openReplyModal(rowIdx, title) { 
+        function openReplyModal(rowIdx) { 
+            const doc = globalTrackerData.find(d => d.rowIndex == rowIdx);
+            if(!doc) return;
+            
             document.getElementById('reply-rowidx').value = rowIdx; 
+            
+            let refNo = doc['Reference Number'] || '';
+            let title = doc['Title/Description'] || '';
+            
+            if (!refNo && title.includes(' | ')) {
+                title = title.split(' | ').slice(1).join(' | ');
+            }
             document.getElementById('reply-title').value = title; 
+            
             const approvedInput = document.getElementById('modal-date-approved');
             if(approvedInput._flatpickr) approvedInput._flatpickr.clear();
             document.getElementById('modal-reply-file').value = '';
