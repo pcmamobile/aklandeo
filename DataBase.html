@@ -631,6 +631,7 @@
                                 <div class="flex flex-col gap-1.5"><label class="input-label text-emerald-700 dark:text-[#0284c7]"><i data-lucide="file-search" class="w-3 h-3"></i> Date of FCIR</label><input type="text" placeholder="MMMM DD, YYYY" id="d_fcir" class="input-field w-full date-input border-emerald-200 dark:border-[#7dd3fc] focus:ring-emerald-500 bg-white/50"></div>
                                 <div class="flex flex-col gap-1.5"><label class="input-label text-emerald-700 dark:text-[#0284c7]"><i data-lucide="flag-triangle-right" class="w-3 h-3"></i> Date of Completion</label><input type="text" placeholder="MMMM DD, YYYY" id="d_comp" class="input-field w-full date-input border-emerald-200 dark:border-[#7dd3fc] focus:ring-emerald-500 bg-white/50"></div>
                                 <div class="flex flex-col gap-1.5"><label class="input-label text-emerald-700 dark:text-[#0284c7]"><i data-lucide="scroll-text" class="w-3 h-3"></i> Date of COC</label><input type="text" placeholder="MMMM DD, YYYY" id="d_coc" class="input-field w-full date-input border-emerald-200 dark:border-[#7dd3fc] focus:ring-emerald-500 bg-white/50"></div>
+                                <div class="flex flex-col gap-1.5"><label class="input-label text-emerald-700 dark:text-[#0284c7]"><i data-lucide="key" class="w-3 h-3"></i> Turn-Over</label><input type="text" placeholder="MMMM DD, YYYY" id="d_turnover" class="input-field w-full date-input border-emerald-200 dark:border-[#7dd3fc] focus:ring-emerald-500 bg-white/50"></div>
                             </div>
                         </div>
 
@@ -663,6 +664,7 @@
                                 <div id="cert1yWrapper" class="hidden flex flex-col gap-1.5"><label class="input-label text-blue-500 dark:text-[#3b82f6]"><i data-lucide="shield-check" class="w-3 h-3"></i> Cert Correction (1Y)</label><input type="text" placeholder="MMMM DD, YYYY" id="d_c1y" class="input-field w-full date-input border-blue-200 dark:border-[#93c5fd] focus:ring-blue-500 bg-white/50"></div>
                                 <div class="flex flex-col gap-1.5"><label class="input-label text-blue-500 dark:text-[#3b82f6]"><i data-lucide="file-check-2" class="w-3 h-3"></i> Date of FAIR</label><input type="text" placeholder="MMMM DD, YYYY" id="d_fair" class="input-field w-full date-input border-blue-200 dark:border-[#93c5fd] focus:ring-blue-500 bg-white/50"></div>
                                 <div class="flex flex-col gap-1.5"><label class="input-label text-blue-500 dark:text-[#3b82f6]"><i data-lucide="award" class="w-3 h-3"></i> Date of CA</label><input type="text" placeholder="MMMM DD, YYYY" id="d_ca" class="input-field w-full date-input border-blue-200 dark:border-[#93c5fd] focus:ring-blue-500 bg-white/50"></div>
+                                <div class="flex flex-col gap-1.5"><label class="input-label text-blue-500 dark:text-[#3b82f6]"><i data-lucide="shield" class="w-3 h-3"></i> Insurance</label><input type="text" placeholder="MMMM DD, YYYY" id="d_insurance" class="input-field w-full date-input border-blue-200 dark:border-[#93c5fd] focus:ring-blue-500 bg-white/50"></div>
                             </div>
                         </div>
                     </div>
@@ -984,7 +986,8 @@
             if(str === '') return '';
             let num = parseFloat(str.replace(/[^\d.-]/g, ''));
             if (isNaN(num)) return str;
-            return '₱ ' + num.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            // Removed '₱ ' prefix and formatted strictly as #,###.00 so Spreadsheets receives it perfectly
+            return num.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
         }
         
         function formatDateDisplay(v) { 
@@ -1882,7 +1885,7 @@
                     openModal('EDIT', p.id);
                 };
 
-                const cst = p.cost ? p.cost.toLocaleString('en-PH', {style:'currency', currency:'PHP'}) : '';
+                const cst = p.cost ? p.cost.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '';
 
                 tr.innerHTML = `
                     <td class="px-6 py-4 font-black text-indigo-600 dark:text-[#3b82f6] flex items-center gap-3">
@@ -1958,7 +1961,7 @@
             h1 += renderFieldHTML('Orig. Expiry', safeFormat(pdo['EXPIRY DATE'] || dt['Orig. Expiry'] || dt['EXPIRY DATE']));
             h1 += renderFieldHTML('Rev. Expiry', safeFormat(dt['Rev. Expiry'] || dt['Rev. Expiry Date'] || pc['RE. EXPIRY']));
             
-            ['Date of FCIR', 'Date of Completion', 'Date of COC', 'Date of FAIR', 'Date of CA'].forEach(k => h1 += renderFieldHTML(k, safeFormat(dt[k])));
+            ['Date of FCIR', 'Date of Completion', 'Date of COC', 'Turn-Over', 'Date of FAIR', 'Date of CA', 'Insurance'].forEach(k => h1 += renderFieldHTML(k, safeFormat(dt[k])));
             for(let i=1; i<=5; i++) {
                 h1 += renderFieldHTML(`VO${i}`, vo[`VO${i}`]);
                 h1 += renderFieldHTML(`VO${i} Date`, formatDateDisplay(vo[`VO${i} Date`]));
@@ -2001,18 +2004,44 @@
                         const v = bi[hdr];
                         let r = bi[remHeader] || '';
                         
+                        let swaDate = '';
+                        let grossAmt = '';
+                        let remText = r;
+                        
                         if (r) {
-                            const parts = r.split('|');
-                            const firstPart = parts[0].trim();
-                            if (/(^\d{4}-\d{2}-\d{2}$)|(^[A-Za-z]+ \d{2}, \d{4}$)/.test(firstPart)) {
-                                parts[0] = formatDateDisplay(firstPart) + ' ';
-                                r = parts.join('|').trim();
+                            const parts = r.split('|').map(s=>s.trim());
+                            if (parts.length >= 3) {
+                                const firstPart = parts[0];
+                                if (/(^\d{4}-\d{2}-\d{2}$)|(^[A-Za-z]+ \d{2}, \d{4}$)/.test(firstPart)) {
+                                    swaDate = formatDateDisplay(firstPart);
+                                } else {
+                                    swaDate = firstPart;
+                                }
+                                grossAmt = parts[1];
+                                remText = parts.slice(2).join(' | ');
+                            } else if (parts.length === 2) {
+                                const firstPart = parts[0];
+                                if (/(^\d{4}-\d{2}-\d{2}$)|(^[A-Za-z]+ \d{2}, \d{4}$)/.test(firstPart)) {
+                                    swaDate = formatDateDisplay(firstPart);
+                                    remText = parts[1];
+                                } else {
+                                    remText = r;
+                                }
                             } else if (/(^\d{4}-\d{2}-\d{2}$)|(^[A-Za-z]+ \d{2}, \d{4}$)/.test(r.trim())) {
-                                r = formatDateDisplay(r.trim());
+                                swaDate = formatDateDisplay(r.trim());
+                                remText = '';
                             }
                         }
                         
-                        if(v || r) h3 += renderFieldHTML(String(hdr).trim(), [v, r].filter(Boolean).join(' - '));
+                        let combinedStr = [];
+                        if(v) combinedStr.push(`Net: ${toCurrencyFormat(v)}`);
+                        if(grossAmt) combinedStr.push(`Gross: ${toCurrencyFormat(grossAmt)}`);
+                        if(swaDate) combinedStr.push(`Date: ${swaDate}`);
+                        if(remText) combinedStr.push(`Rem: ${remText}`);
+                        
+                        if(combinedStr.length > 0) {
+                            h3 += renderFieldHTML(String(hdr).trim(), combinedStr.join(' &bull; '));
+                        }
                     }
                 });
             }
@@ -2225,14 +2254,21 @@
                         const rawVal2 = h2 ? (billMap[h2] || '') : '';
                         
                         let swaDate = '';
+                        let grossAmt = '';
                         let remText = rawVal2;
                         
                         if (rawVal2) {
-                            const parts = rawVal2.split('|');
-                            const firstPart = parts[0].trim();
-                            if (/(^\d{4}-\d{2}-\d{2}$)|(^[A-Za-z]+ \d{2}, \d{4}$)/.test(firstPart)) {
-                                swaDate = firstPart;
-                                remText = parts.slice(1).join('|').trim();
+                            const parts = rawVal2.split('|').map(s=>s.trim());
+                            if (parts.length >= 3) {
+                                swaDate = parts[0];
+                                grossAmt = parts[1];
+                                remText = parts.slice(2).join(' | ').trim();
+                            } else if (parts.length === 2) {
+                                const firstPart = parts[0];
+                                if (/(^\d{4}-\d{2}-\d{2}$)|(^[A-Za-z]+ \d{2}, \d{4}$)/.test(firstPart)) {
+                                    swaDate = firstPart;
+                                    remText = parts.slice(1).join('|').trim();
+                                }
                             } else if (/(^\d{4}-\d{2}-\d{2}$)|(^[A-Za-z]+ \d{2}, \d{4}$)/.test(rawVal2.trim())) {
                                 swaDate = rawVal2.trim();
                                 remText = '';
@@ -2246,7 +2282,7 @@
                                 <span class="text-[10px] font-black text-teal-600 dark:text-[#0284c7] uppercase tracking-[0.15em] block mb-4 flex items-center gap-1.5"><i data-lucide="calendar" class="w-3.5 h-3.5"></i> ${blockTitle}</span>
                                 <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
                                     <div class="flex flex-col gap-1.5 md:col-span-3">
-                                        <label class="${CLS_LABEL.replace('text-indigo-600', 'text-teal-600').replace('dark:text-[#3b82f6]', 'dark:text-[#0284c7]')}" title="${h1}"><i data-lucide="coins" class="w-3 h-3"></i> ${h1}</label>
+                                        <label class="${CLS_LABEL.replace('text-indigo-600', 'text-teal-600').replace('dark:text-[#3b82f6]', 'dark:text-[#0284c7]')}" title="${h1}"><i data-lucide="coins" class="w-3 h-3"></i> Net Amount</label>
                                         <input type="text" data-header="${h1}" data-tab="billing" value="${toCurrencyFormat(val1)}" onblur="this.value = toCurrencyFormat(this.value)" class="dyn-bill ${CLS_INPUT} font-mono text-base focus:ring-teal-500">
                                     </div>
                                     ${h2 ? `
@@ -2254,8 +2290,12 @@
                                         <label class="${CLS_LABEL.replace('text-indigo-600', 'text-teal-600').replace('dark:text-[#3b82f6]', 'dark:text-[#0284c7]')}"><i data-lucide="calendar-check" class="w-3 h-3"></i> Date of SWA/Billing</label>
                                         <input type="text" placeholder="MMMM DD, YYYY" data-header="${h2}" data-tab="billing-swa" value="${formatDt(swaDate)}" class="dyn-bill-swa date-input ${CLS_INPUT} focus:ring-teal-500 text-sm bg-white/50">
                                     </div>
-                                    <div class="flex flex-col gap-1.5 md:col-span-6">
-                                        <label class="${CLS_LABEL.replace('text-indigo-600', 'text-teal-600').replace('dark:text-[#3b82f6]', 'dark:text-[#0284c7]')}" title="${h2}"><i data-lucide="message-square" class="w-3 h-3"></i> ${h2}</label>
+                                    <div class="flex flex-col gap-1.5 md:col-span-3">
+                                        <label class="${CLS_LABEL.replace('text-indigo-600', 'text-teal-600').replace('dark:text-[#3b82f6]', 'dark:text-[#0284c7]')}"><i data-lucide="banknote" class="w-3 h-3"></i> Gross Amount</label>
+                                        <input type="text" data-header="${h2}" data-tab="billing-gross" value="${toCurrencyFormat(grossAmt)}" onblur="this.value = toCurrencyFormat(this.value)" class="dyn-bill-gross ${CLS_INPUT} font-mono text-base focus:ring-teal-500">
+                                    </div>
+                                    <div class="flex flex-col gap-1.5 md:col-span-3">
+                                        <label class="${CLS_LABEL.replace('text-indigo-600', 'text-teal-600').replace('dark:text-[#3b82f6]', 'dark:text-[#0284c7]')}" title="${h2} Remarks"><i data-lucide="message-square" class="w-3 h-3"></i> Remarks</label>
                                         <textarea data-header="${h2}" data-tab="billing-rem" class="dyn-bill-rem ${CLS_INPUT} text-base focus:ring-teal-500 resize-y" rows="2">${remText}</textarea>
                                     </div>` : ''}
                                 </div>
@@ -2448,6 +2488,7 @@
                 setD('d_fcir', 'Date of FCIR'); 
                 setD('d_comp', 'Date of Completion'); 
                 setD('d_coc', 'Date of COC');
+                setD('d_turnover', 'Turn-Over');
                 setD('d_notif', 'Notification Letter'); 
                 
                 const fuListContainer = document.getElementById('followUpList');
@@ -2479,6 +2520,7 @@
                 setD('d_c1y', 'Certificate of Correction (After 1Y Defects Liability Period)');
                 setD('d_fair', 'Date of FAIR'); 
                 setD('d_ca', 'Date of CA');
+                setD('d_insurance', 'Insurance');
             }
 
             // VO
@@ -2727,6 +2769,7 @@
             addDate(getFieldValue('d_fcir'), 'Date of FCIR', true);
             addDate(getFieldValue('d_comp'), 'Date of Completion', true);
             addDate(getFieldValue('d_coc'), 'Date of COC', true);
+            addDate(getFieldValue('d_turnover'), 'Turn-Over', true);
             addDate(getFieldValue('d_notif'), 'Notification Letter', true);
             addDate(fus, 'Follow Up Letter');
             addDate(getFieldValue('d_p1y'), 'Punchlist Report (After 1Y Defects Liability Period)', true);
@@ -2734,6 +2777,7 @@
             addDate(getFieldValue('d_c1y'), 'Certificate of Correction (After 1Y Defects Liability Period)', true);
             addDate(getFieldValue('d_fair'), 'Date of FAIR', true);
             addDate(getFieldValue('d_ca'), 'Date of CA', true);
+            addDate(getFieldValue('d_insurance'), 'Insurance', true);
 
             const voHeaders = (serverData.VO.headers || []).map(h => String(h||'').toUpperCase().trim());
             const voChanges = [];
@@ -2787,6 +2831,7 @@
             addBill(cid, 'CONTRACT ID');
             
             const swaInputs = Array.from(document.querySelectorAll('.dyn-bill-swa'));
+            const grossInputs = Array.from(document.querySelectorAll('.dyn-bill-gross'));
             const remInputs = Array.from(document.querySelectorAll('.dyn-bill-rem'));
 
             document.querySelectorAll('.dyn-bill').forEach(el => {
@@ -2795,13 +2840,19 @@
 
             swaInputs.forEach(swaEl => {
                 const header = swaEl.getAttribute('data-header');
+                const grossEl = grossInputs.find(el => el.getAttribute('data-header') === header);
                 const remEl = remInputs.find(el => el.getAttribute('data-header') === header);
                 
                 let combined = [];
-                if (swaEl.value) combined.push(swaEl.value);
-                if (remEl && remEl.value) combined.push(remEl.value);
+                if (swaEl.value || (grossEl && grossEl.value) || (remEl && remEl.value)) {
+                    combined.push(swaEl.value || '');
+                    combined.push(grossEl && grossEl.value ? grossEl.value : '');
+                    combined.push(remEl && remEl.value ? remEl.value : '');
+                }
                 
-                addBill(combined.join(' | '), header);
+                if (combined.length > 0) {
+                    addBill(combined.join(' | '), header);
+                }
             });
 
             const pRow = pdoRecords.find(x => x.id === cid);
