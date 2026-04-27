@@ -223,8 +223,11 @@
                     <p class="text-xs md:text-sm text-slate-500 truncate font-medium">Welcome, <span id="display-user" class="font-bold text-indigo-600"></span> (<span id="display-role" class="text-purple-600"></span><span id="display-designation"></span>)</p>
                 </div>
             </div>
-            <!-- Mobile 3-column / Desktop flex header buttons -->
-            <div class="grid grid-cols-3 md:flex gap-3 w-full md:w-auto justify-start md:justify-end">
+            <!-- Mobile 4-column / Desktop flex header buttons -->
+            <div class="grid grid-cols-4 md:flex gap-3 w-full md:w-auto justify-start md:justify-end">
+                <button onclick="openSearchView()" class="btn-3d py-2 md:py-2.5 md:px-5 text-sm md:text-base bg-gradient-to-r from-emerald-400 to-teal-500 shadow-[0_5px_0_#0f766e] text-center flex items-center justify-center">
+                    <i class="fa-solid fa-magnifying-glass md:mr-2"></i><span class="hidden md:inline">Search</span>
+                </button>
                 <button onclick="manualRefresh()" class="btn-3d py-2 md:py-2.5 md:px-5 text-sm md:text-base bg-gradient-to-r from-blue-400 to-indigo-400 shadow-[0_5px_0_#6366f1] text-center flex items-center justify-center">
                     <i class="fa-solid fa-arrows-rotate md:mr-2"></i><span class="hidden md:inline">Refresh</span>
                 </button>
@@ -263,10 +266,27 @@
                 <div id="receiving-form-container" class="hidden max-w-2xl mx-auto bg-white/90 backdrop-blur-md p-6 md:p-8 rounded-2xl border border-white shadow-xl mt-2 md:mt-0">
                     <h3 class="text-xl md:text-2xl font-bold mb-6 text-indigo-700 flex items-center"><span class="bg-indigo-100 text-indigo-500 p-2 rounded-lg mr-3"><i class="fa-solid fa-cloud-arrow-up"></i></span> Upload New Document</h3>
                     <form id="upload-form" onsubmit="event.preventDefault(); submitNewDocument();">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-5">
                             <div>
                                 <label class="block text-sm font-bold mb-1.5 text-slate-600">Reference No.</label>
-                                <input type="text" id="doc-ref-no" class="input-3d" placeholder="e.g., REF-2026-001" required>
+                                <input type="text" id="doc-ref-no" class="input-3d" placeholder="e.g., REF-001" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold mb-1.5 text-slate-600">Origin</label>
+                                <select id="doc-origin" class="input-3d bg-white" required>
+                                    <option value="" disabled selected>Select origin...</option>
+                                    <option value="DPWH">DPWH</option>
+                                    <option value="COA">COA</option>
+                                    <option value="LGU">LGU</option>
+                                    <option value="DepEd">DepEd</option>
+                                    <option value="PEO">PEO</option>
+                                    <option value="SB">SB</option>
+                                    <option value="SP">SP</option>
+                                    <option value="DAR">DAR</option>
+                                    <option value="DA">DA</option>
+                                    <option value="Other">Other</option>
+                                </select>
                             </div>
                             <div>
                                 <label class="block text-sm font-bold mb-1.5 text-slate-600">Types of Letter</label>
@@ -277,13 +297,15 @@
                                     <option value="Order Letter (Yes)">Order Letter (Yes)</option>
                                     <option value="Application Letter (Yes)">Application Letter (Yes)</option>
                                     <option value="Complaint Letter (Yes)">Complaint Letter (Yes)</option>
+                                    <option value="Follow-up Letter (Yes)">Follow-up Letter (Yes)</option>
+                                    <option value="Resignation Letter (Yes)">Resignation Letter (Yes)</option>
+                                    <option value="AOM (Yes)">AOM (Yes)</option>
+                                    <option value="RFA (Yes)">RFA (Yes)</option>
                                     <option value="Information Letter (No)">Information Letter (No)</option>
                                     <option value="Mandate / Directive (No)">Mandate / Directive (No)</option>
                                     <option value="Acknowledgment (No)">Acknowledgment (No)</option>
-                                    <option value="Follow-up Letter (Yes)">Follow-up Letter (Yes)</option>
                                     <option value="Copy Furnished (No)">Copy Furnished (No)</option>
                                     <option value="Letter of Recommendation (No)">Letter of Recommendation (No)</option>
-                                    <option value="Resignation Letter (Yes)">Resignation Letter (Yes)</option>
                                     <option value="Thank You Letter (No)">Thank You Letter (No)</option>
                                     <option value="Letter of Interest (Optional)">Letter of Interest (Optional)</option>
                                 </select>
@@ -334,6 +356,100 @@
                         <i class="fa-regular fa-folder-open text-6xl md:text-7xl mb-6 text-indigo-200"></i>
                         <p class="text-base md:text-lg font-medium tracking-wide">No documents found here.</p>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search View (Advanced Filtering) -->
+    <div id="search-view" class="hidden flex-1 flex flex-col p-3 md:p-8">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 md:mb-8 box-3d p-5 md:px-8">
+            <div class="flex items-center gap-4 w-full md:w-auto mb-5 md:mb-0">
+                <div class="w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br from-teal-100 to-emerald-100 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm border border-white">
+                    <i class="fa-solid fa-magnifying-glass text-xl md:text-2xl text-teal-500"></i>
+                </div>
+                <div class="overflow-hidden">
+                    <h1 class="text-xl md:text-2xl font-bold truncate text-slate-800">Advanced Search</h1>
+                    <p class="text-xs md:text-sm text-slate-500 truncate font-medium">Find documents quickly across all categories</p>
+                </div>
+            </div>
+            <button onclick="closeSearchView()" class="btn-3d py-2 md:py-2.5 md:px-5 text-sm md:text-base bg-gradient-to-r from-slate-400 to-gray-500 shadow-[0_5px_0_#475569] text-center w-full md:w-auto flex items-center justify-center">
+                <i class="fa-solid fa-arrow-left md:mr-2"></i><span class="hidden md:inline">Back to Dashboard</span>
+            </button>
+        </div>
+
+        <div class="box-3d p-5 md:p-6 mb-6 bg-white/70">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-sm font-bold mb-1.5 text-slate-600">Keyword Search</label>
+                    <input type="text" id="search-keyword" class="input-3d" placeholder="Title, Ref No, Remarks...">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold mb-1.5 text-slate-600">Origin</label>
+                    <select id="search-origin" class="input-3d bg-white">
+                        <option value="">All Origins</option>
+                        <option value="DPWH">DPWH</option>
+                        <option value="COA">COA</option>
+                        <option value="LGU">LGU</option>
+                        <option value="DepEd">DepEd</option>
+                        <option value="PEO">PEO</option>
+                        <option value="SB">SB</option>
+                        <option value="SP">SP</option>
+                        <option value="DAR">DAR</option>
+                        <option value="DA">DA</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold mb-1.5 text-slate-600">Types of Letter</label>
+                    <select id="search-type" class="input-3d bg-white">
+                        <option value="">All Types</option>
+                        <option value="Inquiry Letter (Yes)">Inquiry Letter (Yes)</option>
+                        <option value="Request Letter (Yes)">Request Letter (Yes)</option>
+                        <option value="Order Letter (Yes)">Order Letter (Yes)</option>
+                        <option value="Application Letter (Yes)">Application Letter (Yes)</option>
+                        <option value="Complaint Letter (Yes)">Complaint Letter (Yes)</option>
+                        <option value="Follow-up Letter (Yes)">Follow-up Letter (Yes)</option>
+                        <option value="Resignation Letter (Yes)">Resignation Letter (Yes)</option>
+                        <option value="AOM (Yes)">AOM (Yes)</option>
+                        <option value="RFA (Yes)">RFA (Yes)</option>
+                        <option value="Information Letter (No)">Information Letter (No)</option>
+                        <option value="Mandate / Directive (No)">Mandate / Directive (No)</option>
+                        <option value="Acknowledgment (No)">Acknowledgment (No)</option>
+                        <option value="Copy Furnished (No)">Copy Furnished (No)</option>
+                        <option value="Letter of Recommendation (No)">Letter of Recommendation (No)</option>
+                        <option value="Thank You Letter (No)">Thank You Letter (No)</option>
+                        <option value="Letter of Interest (Optional)">Letter of Interest (Optional)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold mb-1.5 text-slate-600">Document Status</label>
+                    <select id="search-status" class="input-3d bg-white">
+                        <option value="">All Statuses</option>
+                    </select>
+                </div>
+                <div id="search-user-container" class="hidden">
+                    <label class="block text-sm font-bold mb-1.5 text-slate-600">Assigned User</label>
+                    <select id="search-user" class="input-3d bg-white">
+                        <option value="">All Users</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end gap-3">
+                <button onclick="clearSearch()" class="py-2.5 px-6 bg-slate-100 rounded-xl font-bold text-slate-500 hover:bg-slate-200 transition">Clear Filters</button>
+                <button onclick="executeSearch()" class="btn-3d py-2.5 px-6 shadow-[0_5px_0_#0f766e] bg-gradient-to-r from-emerald-400 to-teal-500">Search Documents</button>
+            </div>
+        </div>
+
+        <div class="box-3d flex-1 flex flex-col overflow-hidden bg-white/70 p-2 md:p-6">
+            <div class="overflow-x-auto w-full px-2 md:px-0 pb-4">
+                <table class="w-full text-left border-collapse min-w-full">
+                    <thead id="search-table-head"></thead>
+                    <tbody id="search-table-body"></tbody>
+                </table>
+                <div id="search-empty-state" class="text-center py-16 text-slate-400/70">
+                    <i class="fa-solid fa-magnifying-glass text-6xl md:text-7xl mb-6 text-teal-200"></i>
+                    <p class="text-base md:text-lg font-medium tracking-wide">Enter criteria above to find documents.</p>
                 </div>
             </div>
         </div>
@@ -419,10 +535,26 @@
             <h3 class="text-xl font-bold mb-6 text-indigo-700"><i class="fa-solid fa-pen-to-square mr-2"></i> Edit Document</h3>
             <input type="hidden" id="edit-rowidx">
             
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-5">
                 <div>
                     <label class="block text-sm font-bold mb-1.5 text-slate-600">Reference No.</label>
-                    <input type="text" id="edit-ref-no" class="input-3d" placeholder="e.g., REF-2026-001" required>
+                    <input type="text" id="edit-ref-no" class="input-3d" placeholder="e.g., REF-001" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold mb-1.5 text-slate-600">Origin</label>
+                    <select id="edit-origin" class="input-3d bg-white" required>
+                        <option value="" disabled selected>Select origin...</option>
+                        <option value="DPWH">DPWH</option>
+                        <option value="COA">COA</option>
+                        <option value="LGU">LGU</option>
+                        <option value="DepEd">DepEd</option>
+                        <option value="PEO">PEO</option>
+                        <option value="SB">SB</option>
+                        <option value="SP">SP</option>
+                        <option value="DAR">DAR</option>
+                        <option value="DA">DA</option>
+                        <option value="Other">Other</option>
+                    </select>
                 </div>
                 <div>
                     <label class="block text-sm font-bold mb-1.5 text-slate-600">Types of Letter</label>
@@ -433,13 +565,15 @@
                         <option value="Order Letter (Yes)">Order Letter (Yes)</option>
                         <option value="Application Letter (Yes)">Application Letter (Yes)</option>
                         <option value="Complaint Letter (Yes)">Complaint Letter (Yes)</option>
+                        <option value="Follow-up Letter (Yes)">Follow-up Letter (Yes)</option>
+                        <option value="Resignation Letter (Yes)">Resignation Letter (Yes)</option>
+                        <option value="AOM (Yes)">AOM (Yes)</option>
+                        <option value="RFA (Yes)">RFA (Yes)</option>
                         <option value="Information Letter (No)">Information Letter (No)</option>
                         <option value="Mandate / Directive (No)">Mandate / Directive (No)</option>
                         <option value="Acknowledgment (No)">Acknowledgment (No)</option>
-                        <option value="Follow-up Letter (Yes)">Follow-up Letter (Yes)</option>
                         <option value="Copy Furnished (No)">Copy Furnished (No)</option>
                         <option value="Letter of Recommendation (No)">Letter of Recommendation (No)</option>
-                        <option value="Resignation Letter (Yes)">Resignation Letter (Yes)</option>
                         <option value="Thank You Letter (No)">Thank You Letter (No)</option>
                         <option value="Letter of Interest (Optional)">Letter of Interest (Optional)</option>
                     </select>
@@ -556,18 +690,17 @@
 
         // --- CORE APPLICATION LOGIC ---
 
-        const ADMIN_TABS = ["Receiving", "In Progress", "For Signature", "Approved", "Completed", "Archive"];
+        const ADMIN_TABS = ["Receiving", "Action Required", "For Info", "For Signature", "Approved", "Completed", "Archive"];
         const USER_TABS = ["Incoming", "Processing", "Completed", "Archive"];
 
         document.addEventListener('DOMContentLoaded', function() {
             
             // Initialize Flatpickr Custom Date Pickers Globally
             flatpickr(".date-picker", {
-                dateFormat: "F d, Y", // Internally formats to "Month DD, YYYY"
+                dateFormat: "F d, Y", 
                 disableMobile: "true",
             });
 
-            // Special listener for auto +15 days logic
             const dateRecInput = document.getElementById('doc-date-received');
             if (dateRecInput && dateRecInput._flatpickr) {
                 dateRecInput._flatpickr.config.onChange.push(function(selectedDates, dateStr, instance) {
@@ -591,6 +724,240 @@
                 }
             } catch (error) {}
         });
+
+        // --- SEARCH FUNCTIONS ---
+        function openSearchView() {
+            document.getElementById('dashboard-view').classList.add('hidden');
+            document.getElementById('search-view').classList.remove('hidden');
+            
+            // Populate Status dropdown based on role
+            const statusSelect = document.getElementById('search-status');
+            statusSelect.innerHTML = '<option value="">All Statuses</option>';
+            const tabs = currentUser.role === 'Admin' ? ADMIN_TABS.filter(t => t !== "Receiving") : USER_TABS;
+            if (currentUser.role === 'Admin') statusSelect.innerHTML += '<option value="Receiving">Receiving (Unassigned)</option>';
+            tabs.forEach(tab => {
+                statusSelect.innerHTML += `<option value="${tab}">${tab}</option>`;
+            });
+
+            // Populate User dropdown for Admins
+            const userContainer = document.getElementById('search-user-container');
+            if (currentUser.role === 'Admin') {
+                userContainer.classList.remove('hidden');
+                const userSelect = document.getElementById('search-user');
+                userSelect.innerHTML = '<option value="">All Users</option>';
+                globalUsersData.forEach(u => {
+                    const text = u.designation ? `${u.account} - ${u.designation}` : u.account;
+                    userSelect.innerHTML += `<option value="${u.account}">${text}</option>`;
+                });
+            } else {
+                userContainer.classList.add('hidden');
+            }
+
+            executeSearch(); // Initial load
+        }
+
+        function closeSearchView() {
+            document.getElementById('search-view').classList.add('hidden');
+            document.getElementById('dashboard-view').classList.remove('hidden');
+            if(currentTab !== "Receiving" && currentTab !== "") loadTableData(currentTab, true);
+        }
+
+        function clearSearch() {
+            document.getElementById('search-keyword').value = '';
+            document.getElementById('search-origin').value = '';
+            document.getElementById('search-type').value = '';
+            document.getElementById('search-status').value = '';
+            if(document.getElementById('search-user')) document.getElementById('search-user').value = '';
+            executeSearch();
+        }
+
+        function getDocumentStatus(doc, role) {
+            const isArchived = doc["Archive"] && String(doc["Archive"]).trim().toUpperCase() === "OK";
+            const letterType = doc['Types of Letter'] || '';
+            const needsReply = letterType.includes('(Yes)') || letterType.includes('(Optional)') || letterType === '';
+            
+            if (role === "Admin") {
+                if (isArchived) return "Archive";
+                if (doc["Date Released/Completed"]) return "Completed";
+                if (doc["Reply File ID"]) return "Approved";
+                if (doc["Date for Signature"]) return "For Signature";
+                if (doc["User"]) return needsReply ? "Action Required" : "For Info";
+                return "Receiving";
+            } else {
+                if (isArchived) return "Archive";
+                if (doc["Reply File ID"]) return "Completed";
+                if (doc["Date for Signature"]) return "Processing";
+                return "Incoming";
+            }
+        }
+
+        function executeSearch() {
+            const keyword = document.getElementById('search-keyword').value.toLowerCase();
+            const origin = document.getElementById('search-origin').value;
+            const type = document.getElementById('search-type').value;
+            const statusFilter = document.getElementById('search-status').value;
+            const userFilter = document.getElementById('search-user') ? document.getElementById('search-user').value.toLowerCase() : '';
+
+            let results = [];
+
+            globalTrackerData.forEach(doc => {
+                // Determine if standard User can see this
+                if (currentUser.role === "User") {
+                    const docUsers = String(doc["User"]).toLowerCase().split(',').map(u => u.trim());
+                    const isAssigned = docUsers.includes(currentUser.account.toLowerCase()) || docUsers.includes("all users");
+                    if (!isAssigned) return; // Skip
+                }
+
+                const actualStatus = getDocumentStatus(doc, currentUser.role);
+
+                // Status Filter
+                if (statusFilter && actualStatus !== statusFilter) return;
+
+                // Origin Filter
+                const docOrigin = doc['Origin'] || '';
+                if (origin && docOrigin !== origin) return;
+
+                // Type Filter
+                const docType = doc['Types of Letter'] || '';
+                if (type && docType !== type) return;
+
+                // User Filter (Admin only)
+                if (currentUser.role === "Admin" && userFilter) {
+                    const docUsers = String(doc["User"]).toLowerCase();
+                    if (!docUsers.includes(userFilter) && !docUsers.includes("all users")) return;
+                }
+
+                // Keyword Filter
+                if (keyword) {
+                    const searchString = `
+                        ${doc['Reference Number']||''} 
+                        ${doc['Title/Description']||''} 
+                        ${doc['Remarks']||''} 
+                        ${doc['User']||''}
+                    `.toLowerCase();
+                    
+                    if (!searchString.includes(keyword)) return;
+                }
+
+                // Inject computed status so renderer knows what buttons to show
+                doc._computedStatus = actualStatus;
+                results.push(doc);
+            });
+
+            renderSearchResults(results.reverse());
+        }
+
+        function renderSearchResults(docs) {
+            const head = document.getElementById('search-table-head');
+            const body = document.getElementById('search-table-body');
+            const emptyState = document.getElementById('search-empty-state');
+            const tableCont = document.getElementById('search-table-head').parentElement;
+            head.innerHTML = ''; body.innerHTML = '';
+
+            if(docs.length === 0) {
+                emptyState.classList.remove('hidden'); tableCont.classList.add('hidden');
+                return;
+            }
+            emptyState.classList.add('hidden'); tableCont.classList.remove('hidden');
+
+            let cols = [
+                { key: 'action', label: 'Action' }, 
+                { key: 'status', label: 'Status' }, 
+                { key: 'Title/Description', label: 'Document Details' }, 
+                { key: 'Date Received', label: 'Received' }, 
+                { key: 'Deadline', label: 'Deadline' }
+            ];
+            
+            if(currentUser.role === 'Admin') {
+                cols.push({ key: 'User', label: 'User(s)' });
+            }
+
+            let trH = '<tr>'; cols.forEach(c => trH += `<th class="p-3 md:p-4">${c.label}</th>`); head.innerHTML = trH + '</tr>';
+
+            docs.forEach(doc => {
+                let tr = '<tr class="hover:bg-indigo-50/40 transition-colors">';
+                const tabName = doc._computedStatus;
+
+                cols.forEach(c => {
+                    let cellContent = '';
+                    if (c.key === 'action') {
+                        cellContent = `<div class="flex flex-wrap gap-2">${getActions(tabName, doc)}</div>`;
+                    } else if (c.key === 'status') {
+                        let statusColor = "bg-slate-100 text-slate-600 border-slate-200";
+                        let icon = "fa-layer-group";
+                        if(tabName === "Archive") { statusColor = "bg-gray-100 text-gray-600 border-gray-300"; icon = "fa-box-archive"; }
+                        else if(tabName === "Completed" || tabName === "Approved") { statusColor = "bg-emerald-100 text-emerald-700 border-emerald-300"; icon = "fa-check-double"; }
+                        else if(tabName === "Action Required" || tabName === "Processing" || tabName === "For Signature") { statusColor = "bg-amber-100 text-amber-700 border-amber-300"; icon = "fa-spinner"; }
+                        else if(tabName === "Receiving" || tabName === "Incoming") { statusColor = "bg-blue-100 text-blue-700 border-blue-300"; icon = "fa-inbox"; }
+                        else if(tabName === "For Info") { statusColor = "bg-cyan-100 text-cyan-700 border-cyan-300"; icon = "fa-info-circle"; }
+                        
+                        cellContent = `<span class="${statusColor} text-[11px] font-bold px-2.5 py-1 rounded-md border shadow-sm tracking-wide whitespace-nowrap"><i class="fa-solid ${icon} mr-1.5 opacity-80"></i>${tabName}</span>`;
+                    } else if (c.key === 'Title/Description') {
+                        let titleText = doc['Title/Description'] || '';
+                        let refNo = doc['Reference Number'] || '';
+                        let letterType = doc['Types of Letter'] || '';
+                        let originVal = doc['Origin'] || '';
+                        
+                        if (!refNo && titleText.includes(' | ')) {
+                            const parts = titleText.split(' | ');
+                            refNo = parts[0];
+                            titleText = parts.slice(1).join(' | ');
+                        }
+                        
+                        let badgesHtml = '';
+                        if (refNo) badgesHtml += `<span class="bg-indigo-100 text-indigo-700 text-[10px] md:text-[11px] font-bold px-2 py-0.5 rounded border border-indigo-200 shadow-sm tracking-wide mr-1.5 mb-1 inline-block"><i class="fa-solid fa-hashtag mr-1 opacity-70"></i>${refNo}</span>`;
+                        if (originVal) badgesHtml += `<span class="bg-blue-100 text-blue-700 text-[10px] md:text-[11px] font-bold px-2 py-0.5 rounded border border-blue-200 shadow-sm tracking-wide mr-1.5 mb-1 inline-block"><i class="fa-solid fa-building mr-1 opacity-70"></i>${originVal}</span>`;
+                        if (letterType) {
+                            let typeBadgeColor = 'bg-slate-100 text-slate-700 border-slate-200';
+                            if (letterType.includes('(Yes)') || letterType.includes('(Optional)')) typeBadgeColor = 'bg-emerald-100 text-emerald-700 border-emerald-200';
+                            else if (letterType.includes('(No)')) typeBadgeColor = 'bg-rose-100 text-rose-700 border-rose-200';
+                            badgesHtml += `<span class="${typeBadgeColor} text-[10px] md:text-[11px] font-bold px-2 py-0.5 rounded border shadow-sm tracking-wide mb-1 inline-block"><i class="fa-solid fa-tag mr-1 opacity-70"></i>${letterType}</span>`;
+                        }
+
+                        cellContent = `<div class="flex flex-col items-start gap-1">
+                            <div class="flex flex-wrap items-center">${badgesHtml}</div>
+                            <span class="font-semibold text-slate-800 leading-snug">${titleText}</span>
+                        </div>`;
+                        
+                    } else {
+                        let v = doc[c.key] || '';
+                        if (c.key === 'Deadline' && v && !['Approved', 'Completed', 'Archive'].includes(tabName)) {
+                            const today = new Date();
+                            today.setHours(0,0,0,0);
+                            const dDate = new Date(v);
+                            
+                            if (!isNaN(dDate)) {
+                                const diffTime = dDate.getTime() - today.getTime();
+                                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                                const fDate = formatCustomDate(v);
+                                let badgeClass = ""; let icon = ""; let daysText = "";
+                                
+                                if (diffDays < 0) {
+                                    const absDays = Math.abs(diffDays);
+                                    badgeClass = "bg-rose-100 text-rose-700 border-rose-300 shadow-md"; icon = "fa-triangle-exclamation"; daysText = `Overdue by ${absDays} day${absDays!==1?'s':''}`;
+                                } else if (diffDays <= 3) {
+                                    badgeClass = "bg-orange-100 text-orange-700 border-orange-300 shadow-md animate-pulse"; icon = "fa-fire"; daysText = `${diffDays} day${diffDays!==1?'s':''} left`;
+                                } else if (diffDays <= 7) {
+                                    badgeClass = "bg-amber-100 text-amber-700 border-amber-300 shadow-sm"; icon = "fa-clock"; daysText = `${diffDays} days left`;
+                                } else {
+                                    badgeClass = "bg-emerald-100 text-emerald-700 border-emerald-300 shadow-sm"; icon = "fa-calendar-check"; daysText = `${diffDays} days`;
+                                }
+                                cellContent = `<span class="${badgeClass} px-3 py-1.5 rounded-lg text-xs md:text-[13px] font-bold border inline-flex items-center gap-1.5 mt-1 md:mt-0 whitespace-nowrap tracking-wide"><i class="fa-solid ${icon}"></i>${fDate} (${daysText})</span>`;
+                            } else { cellContent = v; }
+                        } 
+                        else if (c.key.includes('Date') || v instanceof Date || (typeof v === 'string' && v.includes('T00:00'))) {
+                            cellContent = formatCustomDate(v);
+                        } else {
+                            cellContent = v;
+                        }
+                    }
+                    tr += `<td data-label="${c.label}" class="p-3 md:p-4 whitespace-normal text-sm font-medium md:font-normal text-slate-700">${cellContent}</td>`;
+                });
+                body.innerHTML += tr + '</tr>';
+            });
+        }
+
+        // ------------------------------------
 
         function toggleDropdown(id) { document.getElementById(id).classList.toggle('hidden'); }
         document.addEventListener('click', function(event) {
@@ -627,7 +994,6 @@
             const deadlinePicker = document.getElementById('doc-deadline')._flatpickr;
             const cb = document.getElementById('no-deadline-cb');
 
-            // If a receive date is set, always update the deadline picker to +15 days automatically.
             if (dateRecStr) {
                 let d = new Date(dateRecStr);
                 d.setDate(d.getDate() + 15);
@@ -641,7 +1007,7 @@
             const deadlinePicker = deadlineInput._flatpickr;
 
             if(cb.checked) {
-                updateDefaultDeadline(); // Recalculates from Date Received just to be safe
+                updateDefaultDeadline(); 
                 deadlineInput.readOnly = true;
                 deadlineInput.classList.add('opacity-40', 'cursor-not-allowed', 'bg-slate-50');
                 deadlinePicker.set('clickOpens', false);
@@ -687,7 +1053,6 @@
             const btn = event.target.querySelector('button[type="submit"]');
             const origHtml = btn.innerHTML;
             
-            // Provides quiet, immediate feedback on the button itself
             btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Authenticating...';
             btn.disabled = true;
 
@@ -729,6 +1094,7 @@
             
             document.getElementById('login-view').classList.remove('hidden');
             document.getElementById('dashboard-view').classList.add('hidden');
+            document.getElementById('search-view').classList.add('hidden');
             document.getElementById('login-form').reset();
             document.getElementById('login-error').classList.add('hidden');
             
@@ -751,7 +1117,6 @@
             const tabContainer = document.getElementById('tabs-container');
             tabContainer.innerHTML = '';
             
-            // Flex layout is used for both so it easily scrolls horizontally on mobile for any number of tabs
             tabContainer.className = "flex overflow-x-auto hide-scrollbar pt-4 px-4 gap-2 bg-transparent border-b border-indigo-100 w-full";
             
             tabs.forEach((tab, index) => {
@@ -782,7 +1147,13 @@
                     if(initUsers) populateUsersDropdown(); 
                     
                     refreshStatsUI();
-                    if(currentTab !== "Receiving" && currentTab !== "") loadTableData(currentTab, true);
+                    
+                    // Auto-refresh whichever view is active
+                    if (document.getElementById('search-view') && !document.getElementById('search-view').classList.contains('hidden')) {
+                        executeSearch();
+                    } else if (currentTab !== "Receiving" && currentTab !== "") {
+                        loadTableData(currentTab, true);
+                    }
                 }
             } catch(e) { console.error(e); }
         }
@@ -814,6 +1185,8 @@
 
             globalTrackerData.forEach(doc => {
                 const isArchived = doc["Archive"] && String(doc["Archive"]).trim().toUpperCase() === "OK";
+                const letterType = doc['Types of Letter'] || '';
+                const needsReply = letterType.includes('(Yes)') || letterType.includes('(Optional)') || letterType === '';
                 
                 if (!isArchived) { 
                     if (doc["Date Released/Completed"]) stats.completed++;
@@ -825,7 +1198,10 @@
                 if (currentUser.role === "Admin") {
                     if (isArchived) counts["Archive"] = (counts["Archive"] || 0) + 1;
                     else {
-                        if (doc["User"] && !doc["Date for Signature"]) counts["In Progress"] = (counts["In Progress"] || 0) + 1;
+                        if (doc["User"] && !doc["Date for Signature"]) {
+                            if (needsReply) counts["Action Required"] = (counts["Action Required"] || 0) + 1;
+                            else counts["For Info"] = (counts["For Info"] || 0) + 1;
+                        }
                         else if (doc["Date for Signature"] && !doc["Reply File ID"]) counts["For Signature"] = (counts["For Signature"] || 0) + 1;
                         else if (doc["Reply File ID"] && !doc["Date Released/Completed"]) counts["Approved"] = (counts["Approved"] || 0) + 1;
                         else if (doc["Date Released/Completed"]) counts["Completed"] = (counts["Completed"] || 0) + 1;
@@ -881,12 +1257,15 @@
             let filteredDocs = [];
             globalTrackerData.forEach(doc => {
                 const isArchived = doc["Archive"] && String(doc["Archive"]).trim().toUpperCase() === "OK";
+                const letterType = doc['Types of Letter'] || '';
+                const needsReply = letterType.includes('(Yes)') || letterType.includes('(Optional)') || letterType === '';
                 let isMatch = false;
 
                 if (currentUser.role === "Admin") {
                     if (tabName === "Archive" && isArchived) isMatch = true;
                     else if (!isArchived) {
-                        if (tabName === "In Progress" && doc["User"] && !doc["Date for Signature"]) isMatch = true;
+                        if (tabName === "Action Required" && doc["User"] && !doc["Date for Signature"] && needsReply) isMatch = true;
+                        if (tabName === "For Info" && doc["User"] && !doc["Date for Signature"] && !needsReply) isMatch = true;
                         if (tabName === "For Signature" && doc["Date for Signature"] && !doc["Reply File ID"]) isMatch = true;
                         if (tabName === "Approved" && doc["Reply File ID"] && !doc["Date Released/Completed"]) isMatch = true;
                         if (tabName === "Completed" && doc["Date Released/Completed"]) isMatch = true;
@@ -907,14 +1286,14 @@
                 }
                 if (isMatch) filteredDocs.push(doc);
             });
-            renderTable(tabName, filteredDocs.reverse());
+            renderTable(tabName, filteredDocs.reverse(), false);
         }
 
-        function renderTable(tabName, docs) {
-            const head = document.getElementById('table-head');
-            const body = document.getElementById('table-body');
-            const emptyState = document.getElementById('empty-state');
-            const tableCont = document.querySelector('table');
+        function renderTable(tabName, docs, isSearch = false) {
+            const head = isSearch ? document.getElementById('search-table-head') : document.getElementById('table-head');
+            const body = isSearch ? document.getElementById('search-table-body') : document.getElementById('table-body');
+            const emptyState = isSearch ? document.getElementById('search-empty-state') : document.getElementById('empty-state');
+            const tableCont = isSearch ? document.getElementById('search-table-head').parentElement : document.querySelector('#data-table-container table');
             head.innerHTML = ''; body.innerHTML = '';
 
             if(docs.length === 0) {
@@ -923,33 +1302,59 @@
             }
             emptyState.classList.add('hidden'); tableCont.classList.remove('hidden');
 
-            let cols = [{ key: 'action', label: 'Action' }, { key: 'Title/Description', label: 'Title' }, { key: 'Date Received', label: 'Received' }, { key: 'Deadline', label: 'Deadline' }];
-            if(currentUser.role === 'Admin') {
-                cols.push({ key: 'User', label: 'User(s)' });
-                if(tabName !== 'Archive') cols.push({ key: 'Date Viewed by User', label: 'Viewed' });
-                if(['For Signature', 'Approved', 'Completed'].includes(tabName)) { cols.push({ key: 'Date of Letter', label: 'Letter Date' }); cols.push({ key: 'Date for Signature', label: 'Sign Date' }); }
-                if(['Approved', 'Completed'].includes(tabName)) cols.push({ key: 'Date Approved', label: 'Approved' });
-                if(tabName === 'Completed') cols.push({ key: 'Date Released/Completed', label: 'Completed' });
-                if(tabName === 'Archive') cols.push({ key: 'Remarks', label: 'Remarks' });
+            let cols = [];
+            
+            if (isSearch) {
+                cols = [
+                    { key: 'action', label: 'Action' }, 
+                    { key: 'status', label: 'Status' }, 
+                    { key: 'Title/Description', label: 'Document Details' }, 
+                    { key: 'Date Received', label: 'Received' }, 
+                    { key: 'Deadline', label: 'Deadline' }
+                ];
+                if(currentUser.role === 'Admin') cols.push({ key: 'User', label: 'User(s)' });
             } else {
-                cols.push({ key: 'User', label: 'User(s)' });
-                if(['Processing', 'Completed'].includes(tabName)) { cols.push({ key: 'Date of Letter', label: 'Letter Date' }); cols.push({ key: 'Date for Signature', label: 'Sign Date' }); }
-                if(['Completed', 'Archive'].includes(tabName)) cols.push({ key: 'Date Approved', label: 'Approved' });
-                if(tabName === 'Archive') cols.push({ key: 'Remarks', label: 'Remarks' });
+                cols = [{ key: 'action', label: 'Action' }, { key: 'Title/Description', label: 'Title' }, { key: 'Date Received', label: 'Received' }, { key: 'Deadline', label: 'Deadline' }];
+                if(currentUser.role === 'Admin') {
+                    cols.push({ key: 'User', label: 'User(s)' });
+                    if(tabName !== 'Archive') cols.push({ key: 'Date Viewed by User', label: 'Viewed' });
+                    if(['For Signature', 'Approved', 'Completed'].includes(tabName)) { cols.push({ key: 'Date of Letter', label: 'Letter Date' }); cols.push({ key: 'Date for Signature', label: 'Sign Date' }); }
+                    if(['Approved', 'Completed'].includes(tabName)) cols.push({ key: 'Date Approved', label: 'Approved' });
+                    if(tabName === 'Completed') cols.push({ key: 'Date Released/Completed', label: 'Completed' });
+                    if(tabName === 'Archive') cols.push({ key: 'Remarks', label: 'Remarks' });
+                } else {
+                    cols.push({ key: 'User', label: 'User(s)' });
+                    if(['Processing', 'Completed'].includes(tabName)) { cols.push({ key: 'Date of Letter', label: 'Letter Date' }); cols.push({ key: 'Date for Signature', label: 'Sign Date' }); }
+                    if(['Completed', 'Archive'].includes(tabName)) cols.push({ key: 'Date Approved', label: 'Approved' });
+                    if(tabName === 'Archive') cols.push({ key: 'Remarks', label: 'Remarks' });
+                }
             }
 
             let trH = '<tr>'; cols.forEach(c => trH += `<th class="p-3 md:p-4">${c.label}</th>`); head.innerHTML = trH + '</tr>';
 
             docs.forEach(doc => {
                 let tr = '<tr class="hover:bg-indigo-50/40 transition-colors">';
+                const currentDocTab = isSearch ? doc._computedStatus : tabName;
+
                 cols.forEach(c => {
                     let cellContent = '';
                     if (c.key === 'action') {
-                        cellContent = `<div class="flex flex-wrap gap-2">${getActions(tabName, doc)}</div>`;
+                        cellContent = `<div class="flex flex-wrap gap-2">${getActions(currentDocTab, doc)}</div>`;
+                    } else if (c.key === 'status') {
+                        let statusColor = "bg-slate-100 text-slate-600 border-slate-200";
+                        let icon = "fa-layer-group";
+                        if(currentDocTab === "Archive") { statusColor = "bg-gray-100 text-gray-600 border-gray-300"; icon = "fa-box-archive"; }
+                        else if(currentDocTab === "Completed" || currentDocTab === "Approved") { statusColor = "bg-emerald-100 text-emerald-700 border-emerald-300"; icon = "fa-check-double"; }
+                        else if(currentDocTab === "Action Required" || currentDocTab === "Processing" || currentDocTab === "For Signature") { statusColor = "bg-amber-100 text-amber-700 border-amber-300"; icon = "fa-spinner"; }
+                        else if(currentDocTab === "Receiving" || currentDocTab === "Incoming") { statusColor = "bg-blue-100 text-blue-700 border-blue-300"; icon = "fa-inbox"; }
+                        else if(currentDocTab === "For Info") { statusColor = "bg-cyan-100 text-cyan-700 border-cyan-300"; icon = "fa-info-circle"; }
+                        
+                        cellContent = `<span class="${statusColor} text-[11px] font-bold px-2.5 py-1 rounded-md border shadow-sm tracking-wide whitespace-nowrap"><i class="fa-solid ${icon} mr-1.5 opacity-80"></i>${currentDocTab}</span>`;
                     } else if (c.key === 'Title/Description') {
                         let titleText = doc['Title/Description'] || '';
                         let refNo = doc['Reference Number'] || '';
                         let letterType = doc['Types of Letter'] || '';
+                        let originVal = doc['Origin'] || '';
                         
                         // Backward compatibility for old "REF | Title" format
                         if (!refNo && titleText.includes(' | ')) {
@@ -960,7 +1365,10 @@
                         
                         let badgesHtml = '';
                         if (refNo) {
-                            badgesHtml += `<span class="bg-indigo-100 text-indigo-700 text-[10px] md:text-[11px] font-bold px-2 py-0.5 rounded border border-indigo-200 shadow-sm tracking-wide"><i class="fa-solid fa-hashtag mr-1 opacity-70"></i>${refNo}</span>`;
+                            badgesHtml += `<span class="bg-indigo-100 text-indigo-700 text-[10px] md:text-[11px] font-bold px-2 py-0.5 rounded border border-indigo-200 shadow-sm tracking-wide mr-1.5 mb-1 inline-block"><i class="fa-solid fa-hashtag mr-1 opacity-70"></i>${refNo}</span>`;
+                        }
+                        if (originVal) {
+                            badgesHtml += `<span class="bg-blue-100 text-blue-700 text-[10px] md:text-[11px] font-bold px-2 py-0.5 rounded border border-blue-200 shadow-sm tracking-wide mr-1.5 mb-1 inline-block"><i class="fa-solid fa-building mr-1 opacity-70"></i>${originVal}</span>`;
                         }
                         if (letterType) {
                             let typeBadgeColor = 'bg-slate-100 text-slate-700 border-slate-200';
@@ -969,10 +1377,10 @@
                             } else if (letterType.includes('(No)')) {
                                 typeBadgeColor = 'bg-rose-100 text-rose-700 border-rose-200';
                             }
-                            badgesHtml += `<span class="${typeBadgeColor} text-[10px] md:text-[11px] font-bold px-2 py-0.5 rounded border shadow-sm tracking-wide ml-1.5"><i class="fa-solid fa-tag mr-1 opacity-70"></i>${letterType}</span>`;
+                            badgesHtml += `<span class="${typeBadgeColor} text-[10px] md:text-[11px] font-bold px-2 py-0.5 rounded border shadow-sm tracking-wide mb-1 inline-block"><i class="fa-solid fa-tag mr-1 opacity-70"></i>${letterType}</span>`;
                         }
 
-                        cellContent = `<div class="flex flex-col items-start gap-1.5">
+                        cellContent = `<div class="flex flex-col items-start gap-1">
                             <div class="flex flex-wrap items-center">${badgesHtml}</div>
                             <span class="font-semibold text-slate-800 leading-snug">${titleText}</span>
                         </div>`;
@@ -987,7 +1395,7 @@
                         let v = doc[c.key] || '';
                         
                         // Custom Date Math and Formats
-                        if (c.key === 'Deadline' && v && !['Approved', 'Completed', 'Archive'].includes(tabName)) {
+                        if (c.key === 'Deadline' && v && !['Approved', 'Completed', 'Archive'].includes(currentDocTab)) {
                             const today = new Date();
                             today.setHours(0,0,0,0);
                             const dDate = new Date(v);
@@ -1038,19 +1446,21 @@
         function getActions(tabName, doc) {
             let html = `<button onclick="viewFile('${doc['Received File ID']}', ${doc.rowIndex}, '${tabName}')" class="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-eye"></i> View</button>`;
             
+            const safeTitle = (doc['Title/Description'] || '').replace(/'/g, "\\'").replace(/"/g, "&quot;");
             const safeUsers = (doc['User'] || '').replace(/'/g, "\\'").replace(/"/g, "&quot;");
+            const safeDateRec = (doc['Date Received'] || '').replace(/'/g, "\\'").replace(/"/g, "&quot;");
 
             if(currentUser.role === 'Admin') {
                 html += `<button onclick="openEditModal(${doc.rowIndex}, '${tabName}')" class="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-pen"></i> Edit</button>`;
                 
-                if(tabName === 'In Progress') {
+                if(tabName === 'Action Required' || tabName === 'For Info') {
                     html += `<button onclick="openReassignModal(${doc.rowIndex}, '${safeUsers}')" class="bg-sky-100 text-sky-700 hover:bg-sky-200 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-user-pen"></i> Reassign</button>`;
                     html += `<button onclick="openDatesModal(${doc.rowIndex})" class="bg-amber-100 text-amber-700 hover:bg-amber-200 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-calendar-plus"></i> Dates</button>`;
                     html += `<button onclick="openArchiveModal(${doc.rowIndex})" class="bg-slate-200 text-slate-600 hover:bg-slate-300 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-box-archive"></i> Archive</button>`;
                 }
                 if(tabName === 'For Signature') {
                     html += `<button onclick="openReassignModal(${doc.rowIndex}, '${safeUsers}')" class="bg-sky-100 text-sky-700 hover:bg-sky-200 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-user-pen"></i> Reassign</button>`;
-                    html += `<button onclick="openReplyModal(${doc.rowIndex})" class="bg-fuchsia-100 text-fuchsia-700 hover:bg-fuchsia-200 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-upload"></i> Reply</button>`;
+                    html += `<button onclick="openReplyModal(${doc.rowIndex}, '${safeTitle}')" class="bg-fuchsia-100 text-fuchsia-700 hover:bg-fuchsia-200 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-upload"></i> Reply</button>`;
                     html += `<button onclick="openArchiveModal(${doc.rowIndex})" class="bg-slate-200 text-slate-600 hover:bg-slate-300 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-box-archive"></i> Archive</button>`;
                 }
                 if(tabName === 'Approved') {
@@ -1096,13 +1506,14 @@
 
             // Capture data BEFORE resetting the form
             const refNo = document.getElementById('doc-ref-no').value.trim();
+            const originVal = document.getElementById('doc-origin').value;
             const typeLetter = document.getElementById('doc-type-letter').value;
             const title = document.getElementById('doc-title').value.trim();
             
             const dateRec = document.getElementById('doc-date-received').value;
             const deadline = document.getElementById('doc-deadline').value;
 
-            // Preserve file extension & create nice filename
+            // Preserve file extension
             let fileExt = '';
             if (f.name.includes('.')) {
                 fileExt = f.name.substring(f.name.lastIndexOf('.'));
@@ -1138,6 +1549,7 @@
                     fileName: customFileName,
                     description: title,
                     referenceNumber: refNo,
+                    origin: originVal,
                     typeOfLetter: typeLetter,
                     dateReceived: dateRec,
                     deadline: deadline,
@@ -1229,6 +1641,7 @@
             }
 
             document.getElementById('edit-ref-no').value = refNo;
+            document.getElementById('edit-origin').value = doc['Origin'] || '';
             document.getElementById('edit-type-letter').value = doc['Types of Letter'] || '';
             
             const editTitleArea = document.getElementById('edit-title');
@@ -1287,6 +1700,7 @@
         async function submitEdit() {
             const rowIdx = document.getElementById('edit-rowidx').value;
             const refNo = document.getElementById('edit-ref-no').value.trim();
+            const originVal = document.getElementById('edit-origin').value;
             const typeLetter = document.getElementById('edit-type-letter').value;
             const title = document.getElementById('edit-title').value.trim();
             const dateReceived = document.getElementById('edit-date-received').value;
@@ -1304,6 +1718,7 @@
                 const datesSectionHidden = document.getElementById('edit-dates-section').style.display === 'none';
                 let updateFields = { 
                     "Reference Number": refNo,
+                    "Origin": originVal,
                     "Types of Letter": typeLetter,
                     "Title/Description": title 
                 };
@@ -1347,19 +1762,19 @@
             } catch(e) { showToast("Failed: " + e.message, "error"); }
         }
 
-        function openReplyModal(rowIdx) { 
+        function openReplyModal(rowIdx, title) { 
             const doc = globalTrackerData.find(d => d.rowIndex == rowIdx);
             if(!doc) return;
             
             document.getElementById('reply-rowidx').value = rowIdx; 
             
             let refNo = doc['Reference Number'] || '';
-            let title = doc['Title/Description'] || '';
+            let titleText = doc['Title/Description'] || '';
             
-            if (!refNo && title.includes(' | ')) {
-                title = title.split(' | ').slice(1).join(' | ');
+            if (!refNo && titleText.includes(' | ')) {
+                titleText = titleText.split(' | ').slice(1).join(' | ');
             }
-            document.getElementById('reply-title').value = title; 
+            document.getElementById('reply-title').value = titleText; 
             
             const approvedInput = document.getElementById('modal-date-approved');
             if(approvedInput._flatpickr) approvedInput._flatpickr.clear();
