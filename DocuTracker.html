@@ -68,32 +68,42 @@
             background: linear-gradient(135deg, #a78bfa, #818cf8); 
             color: white; 
             border-radius: 12px; 
-            box-shadow: 0 5px 0 #6366f1, 0 8px 15px rgba(139, 92, 246, 0.3); 
+            box-shadow: 0 4px 0 #6366f1, 0 6px 10px rgba(139, 92, 246, 0.3); 
             transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1); 
             font-weight: 600; 
             border: none;
         }
-        .btn-3d:active { transform: translateY(5px); box-shadow: 0 0 0 #6366f1; }
+        @media (min-width: 768px) {
+            .btn-3d { box-shadow: 0 5px 0 #6366f1, 0 8px 15px rgba(139, 92, 246, 0.3); }
+        }
+        .btn-3d:active { transform: translateY(4px); box-shadow: 0 0 0 #6366f1; }
         
-        .btn-3d-green { background: linear-gradient(135deg, #34d399, #10b981); box-shadow: 0 5px 0 #059669, 0 8px 15px rgba(16, 185, 129, 0.3); }
+        .btn-3d-green { background: linear-gradient(135deg, #34d399, #10b981); box-shadow: 0 4px 0 #059669, 0 6px 10px rgba(16, 185, 129, 0.3); }
+        @media (min-width: 768px) { .btn-3d-green { box-shadow: 0 5px 0 #059669, 0 8px 15px rgba(16, 185, 129, 0.3); } }
         .btn-3d-green:active { box-shadow: 0 0 0 #059669; }
         
-        .btn-3d-purple { background: linear-gradient(135deg, #f472b6, #d946ef); box-shadow: 0 5px 0 #a21caf, 0 8px 15px rgba(217, 70, 239, 0.3); }
+        .btn-3d-purple { background: linear-gradient(135deg, #f472b6, #d946ef); box-shadow: 0 4px 0 #a21caf, 0 6px 10px rgba(217, 70, 239, 0.3); }
+        @media (min-width: 768px) { .btn-3d-purple { box-shadow: 0 5px 0 #a21caf, 0 8px 15px rgba(217, 70, 239, 0.3); } }
         .btn-3d-purple:active { box-shadow: 0 0 0 #a21caf; }
         
-        .btn-3d-gray { background: linear-gradient(135deg, #94a3b8, #64748b); box-shadow: 0 5px 0 #475569, 0 8px 15px rgba(100, 116, 139, 0.3); }
+        .btn-3d-gray { background: linear-gradient(135deg, #94a3b8, #64748b); box-shadow: 0 4px 0 #475569, 0 6px 10px rgba(100, 116, 139, 0.3); }
+        @media (min-width: 768px) { .btn-3d-gray { box-shadow: 0 5px 0 #475569, 0 8px 15px rgba(100, 116, 139, 0.3); } }
         .btn-3d-gray:active { box-shadow: 0 0 0 #475569; }
 
         /* Refined Inputs */
         .input-3d { 
             background: rgba(248, 250, 252, 0.8); 
             border: 2px solid #e2e8f0; 
-            border-radius: 12px; 
-            padding: 12px 16px; 
+            border-radius: 8px; 
+            padding: 8px 12px; 
+            font-size: 0.8rem;
             width: 100%; 
             outline: none; 
             transition: all 0.3s ease;
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        }
+        @media (min-width: 768px) {
+            .input-3d { padding: 12px 16px; font-size: 0.875rem; border-radius: 12px; }
         }
         .input-3d:focus { border-color: #a78bfa; box-shadow: 0 0 0 4px rgba(167, 139, 250, 0.15); background: #ffffff; }
 
@@ -107,8 +117,8 @@
         /* 3D Custom Checkbox */
         .checkbox-3d {
             appearance: none;
-            width: 22px;
-            height: 22px;
+            width: 18px;
+            height: 18px;
             background: #f8fafc;
             border: 2px solid #cbd5e1;
             border-radius: 6px;
@@ -116,6 +126,9 @@
             cursor: pointer;
             position: relative;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @media (min-width: 768px) {
+            .checkbox-3d { width: 22px; height: 22px; }
         }
         .checkbox-3d:checked {
             background: linear-gradient(135deg, #a78bfa, #8b5cf6);
@@ -131,8 +144,11 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 12px;
+            font-size: 10px;
             text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+        @media (min-width: 768px) {
+            .checkbox-3d:checked::after { font-size: 12px; }
         }
         .checkbox-3d:active {
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.1), 0 0 0 #cbd5e1;
@@ -141,22 +157,27 @@
 
         /* Soft Tabs */
         .tab-btn { 
-            padding: 12px 18px; 
-            border-radius: 14px 14px 0 0; 
+            padding: 8px 10px; 
+            border-radius: 10px 10px 0 0; 
             background: rgba(241, 245, 249, 0.7); 
             font-weight: 600; 
+            font-size: 0.7rem;
             color: #64748b; 
             cursor: pointer; 
             transition: all 0.3s ease; 
-            margin-right: 4px;
+            margin-right: 2px;
+        }
+        @media (min-width: 768px) {
+            .tab-btn { padding: 12px 18px; border-radius: 14px 14px 0 0; font-size: 0.875rem; margin-right: 4px; }
         }
         .tab-btn:hover { background: rgba(226, 232, 240, 0.9); color: #475569; }
         .tab-btn.active { 
             background: white; 
             color: #8b5cf6; 
-            border-top: 4px solid #a78bfa; 
+            border-top: 3px solid #a78bfa; 
             box-shadow: 0 -4px 15px rgba(167, 139, 250, 0.08); 
         }
+        @media (min-width: 768px) { .tab-btn.active { border-top: 4px solid #a78bfa; } }
 
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -173,10 +194,10 @@
         @media (max-width: 767px) {
             table, thead, tbody, th, td, tr { display: block; width: 100%; }
             thead tr { display: none; } /* visually hide headers */
-            tr { border: 1px solid rgba(226, 232, 240, 0.8); border-radius: 1rem; margin-bottom: 1.25rem; background-color: rgba(255,255,255,0.9); box-shadow: 0 4px 15px -3px rgba(167, 139, 250, 0.1); overflow: hidden; }
-            td { border-bottom: 1px solid #f1f5f9; padding: 0.75rem 0.75rem 0.75rem 38% !important; position: relative; min-height: 3.5rem; word-wrap: break-word; text-align: left; }
+            tr { border: 1px solid rgba(226, 232, 240, 0.8); border-radius: 0.75rem; margin-bottom: 0.75rem; background-color: rgba(255,255,255,0.9); box-shadow: 0 4px 10px -3px rgba(167, 139, 250, 0.1); overflow: hidden; }
+            td { border-bottom: 1px solid #f1f5f9; padding: 0.5rem 0.5rem 0.5rem 32% !important; position: relative; min-height: 2.5rem; word-wrap: break-word; text-align: left; font-size: 0.75rem; }
             td:last-child { border-bottom: none; }
-            td::before { content: attr(data-label); position: absolute; left: 0.75rem; top: 1rem; font-weight: 700; font-size: 0.70rem; color: #8b5cf6; text-transform: uppercase; width: 32%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: 0.05em; }
+            td::before { content: attr(data-label); position: absolute; left: 0.5rem; top: 0.6rem; font-weight: 700; font-size: 0.65rem; color: #8b5cf6; text-transform: uppercase; width: 28%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: 0.05em; }
         }
     </style>
 </head>
@@ -186,94 +207,94 @@
     <div id="toast-container" class="fixed bottom-4 right-4 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
 
     <!-- Login View -->
-    <div id="login-view" class="flex flex-1 items-center justify-center p-4">
-        <div id="login-box" class="box-3d p-8 md:p-12 max-w-md w-[95%] text-center border-t border-white/80">
-            <div class="mb-8 flex justify-center">
-                <div class="w-24 h-24 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-2xl flex items-center justify-center shadow-inner transform rotate-3">
-                    <i class="fa-solid fa-file-shield text-4xl text-indigo-500 transform -rotate-3 drop-shadow-md"></i>
+    <div id="login-view" class="flex flex-1 items-center justify-center p-3 md:p-4">
+        <div id="login-box" class="box-3d p-6 md:p-12 max-w-md w-[95%] text-center border-t border-white/80">
+            <div class="mb-5 md:mb-8 flex justify-center">
+                <div class="w-16 h-16 md:w-24 md:h-24 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-xl md:rounded-2xl flex items-center justify-center shadow-inner transform rotate-3">
+                    <i class="fa-solid fa-file-shield text-2xl md:text-4xl text-indigo-500 transform -rotate-3 drop-shadow-md"></i>
                 </div>
             </div>
-            <h1 class="text-3xl md:text-4xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">DocuTracker</h1>
-            <p class="text-sm md:text-base text-slate-500 mb-8 font-medium">Sign in to your beautiful workspace</p>
+            <h1 class="text-2xl md:text-4xl font-bold mb-1 md:mb-2 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">DocuTracker</h1>
+            <p class="text-xs md:text-base text-slate-500 mb-5 md:mb-8 font-medium">Sign in to your beautiful workspace</p>
             
             <form id="login-form" onsubmit="handleLogin(event)">
-                <div class="mb-5 text-left">
-                    <label class="block text-sm font-semibold mb-2 ml-1 text-slate-600"><i class="fa-solid fa-user mr-2 text-indigo-400"></i>Username</label>
+                <div class="mb-4 md:mb-5 text-left">
+                    <label class="block text-xs md:text-sm font-semibold mb-1.5 md:mb-2 ml-1 text-slate-600"><i class="fa-solid fa-user mr-2 text-indigo-400"></i>Username</label>
                     <input type="text" id="username" class="input-3d" required placeholder="Enter username">
                 </div>
-                <div class="mb-8 text-left">
-                    <label class="block text-sm font-semibold mb-2 ml-1 text-slate-600"><i class="fa-solid fa-lock mr-2 text-indigo-400"></i>Password</label>
+                <div class="mb-6 md:mb-8 text-left">
+                    <label class="block text-xs md:text-sm font-semibold mb-1.5 md:mb-2 ml-1 text-slate-600"><i class="fa-solid fa-lock mr-2 text-indigo-400"></i>Password</label>
                     <input type="password" id="password" class="input-3d" required placeholder="Enter password">
                 </div>
-                <button type="submit" class="btn-3d w-full py-3.5 text-lg shadow-[0_5px_0_#6366f1]"><i class="fa-solid fa-wand-magic-sparkles mr-2"></i> Enter Workspace</button>
+                <button type="submit" class="btn-3d w-full py-2 md:py-3.5 text-sm md:text-lg"><i class="fa-solid fa-wand-magic-sparkles mr-2"></i> Enter Workspace</button>
             </form>
-            <div id="login-error" class="bg-rose-100 text-rose-600 px-4 py-3 rounded-xl mt-6 font-semibold hidden text-sm border border-rose-200 shadow-sm"></div>
+            <div id="login-error" class="bg-rose-100 text-rose-600 px-4 py-3 rounded-lg md:rounded-xl mt-4 md:mt-6 font-semibold hidden text-xs md:text-sm border border-rose-200 shadow-sm"></div>
         </div>
     </div>
 
     <!-- Dashboard View -->
-    <div id="dashboard-view" class="hidden flex-1 flex flex-col p-3 md:p-8">
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 md:mb-8 box-3d p-5 md:px-8">
-            <div class="flex items-center gap-4 w-full md:w-auto mb-5 md:mb-0">
-                <div class="w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm border border-white">
-                    <i class="fa-solid fa-layer-group text-xl md:text-2xl text-indigo-500"></i>
+    <div id="dashboard-view" class="hidden flex-1 flex flex-col p-2 md:p-8">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 md:mb-8 box-3d p-3 md:p-5 md:px-8">
+            <div class="flex items-center gap-3 md:gap-4 w-full md:w-auto mb-3 md:mb-0">
+                <div class="w-10 h-10 md:w-14 md:h-14 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-lg md:rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm border border-white">
+                    <i class="fa-solid fa-layer-group text-lg md:text-2xl text-indigo-500"></i>
                 </div>
                 <div class="overflow-hidden">
-                    <h1 class="text-xl md:text-2xl font-bold truncate text-slate-800">Workspace</h1>
-                    <p class="text-xs md:text-sm text-slate-500 truncate font-medium">Welcome, <span id="display-user" class="font-bold text-indigo-600"></span> (<span id="display-role" class="text-purple-600"></span><span id="display-designation"></span>)</p>
+                    <h1 class="text-lg md:text-2xl font-bold truncate text-slate-800">Workspace</h1>
+                    <p class="text-[10px] md:text-sm text-slate-500 truncate font-medium">Welcome, <span id="display-user" class="font-bold text-indigo-600"></span> (<span id="display-role" class="text-purple-600"></span><span id="display-designation"></span>)</p>
                 </div>
             </div>
             <!-- Mobile 4-column / Desktop flex header buttons -->
-            <div class="grid grid-cols-4 md:flex gap-3 w-full md:w-auto justify-start md:justify-end">
-                <button onclick="openSearchView()" class="btn-3d py-2 md:py-2.5 md:px-5 text-sm md:text-base bg-gradient-to-r from-emerald-400 to-teal-500 shadow-[0_5px_0_#0f766e] text-center flex items-center justify-center">
-                    <i class="fa-solid fa-magnifying-glass md:mr-2"></i><span class="hidden md:inline">Search</span>
+            <div class="grid grid-cols-4 md:flex gap-1.5 md:gap-3 w-full md:w-auto justify-start md:justify-end">
+                <button onclick="openSearchView()" class="btn-3d py-1.5 md:py-2.5 px-2 md:px-5 text-[10px] sm:text-xs md:text-base bg-gradient-to-r from-emerald-400 to-teal-500 shadow-[0_4px_0_#0f766e] md:shadow-[0_5px_0_#0f766e] text-center flex flex-col md:flex-row items-center justify-center">
+                    <i class="fa-solid fa-magnifying-glass md:mr-2 mb-0.5 md:mb-0"></i><span class="hidden md:inline">Search</span>
                 </button>
-                <button onclick="manualRefresh()" class="btn-3d py-2 md:py-2.5 md:px-5 text-sm md:text-base bg-gradient-to-r from-blue-400 to-indigo-400 shadow-[0_5px_0_#6366f1] text-center flex items-center justify-center">
-                    <i class="fa-solid fa-arrows-rotate md:mr-2"></i><span class="hidden md:inline">Refresh</span>
+                <button onclick="manualRefresh()" class="btn-3d py-1.5 md:py-2.5 px-2 md:px-5 text-[10px] sm:text-xs md:text-base bg-gradient-to-r from-blue-400 to-indigo-400 shadow-[0_4px_0_#6366f1] md:shadow-[0_5px_0_#6366f1] text-center flex flex-col md:flex-row items-center justify-center">
+                    <i class="fa-solid fa-arrows-rotate md:mr-2 mb-0.5 md:mb-0"></i><span class="hidden md:inline">Refresh</span>
                 </button>
-                <button onclick="openChangePasswordModal()" class="btn-3d py-2 md:py-2.5 md:px-5 text-sm md:text-base bg-gradient-to-r from-purple-400 to-fuchsia-400 shadow-[0_5px_0_#a21caf] text-center flex items-center justify-center">
-                    <i class="fa-solid fa-key md:mr-2"></i><span class="hidden md:inline">Password</span>
+                <button onclick="openChangePasswordModal()" class="btn-3d py-1.5 md:py-2.5 px-2 md:px-5 text-[10px] sm:text-xs md:text-base bg-gradient-to-r from-purple-400 to-fuchsia-400 shadow-[0_4px_0_#a21caf] md:shadow-[0_5px_0_#a21caf] text-center flex flex-col md:flex-row items-center justify-center">
+                    <i class="fa-solid fa-key md:mr-2 mb-0.5 md:mb-0"></i><span class="hidden md:inline">Password</span>
                 </button>
-                <button onclick="handleLogout()" class="btn-3d py-2 md:py-2.5 md:px-5 text-sm md:text-base bg-gradient-to-r from-rose-400 to-pink-400 shadow-[0_5px_0_#be123c] text-center flex items-center justify-center">
-                    <i class="fa-solid fa-power-off md:mr-2"></i><span class="hidden md:inline">Logout</span>
+                <button onclick="handleLogout()" class="btn-3d py-1.5 md:py-2.5 px-2 md:px-5 text-[10px] sm:text-xs md:text-base bg-gradient-to-r from-rose-400 to-pink-400 shadow-[0_4px_0_#be123c] md:shadow-[0_5px_0_#be123c] text-center flex flex-col md:flex-row items-center justify-center">
+                    <i class="fa-solid fa-power-off md:mr-2 mb-0.5 md:mb-0"></i><span class="hidden md:inline">Logout</span>
                 </button>
             </div>
         </div>
 
-        <div id="top-stats-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-6 md:mb-8">
-            <div class="box-3d box-3d-color-1 stat-box p-5 md:p-6 flex items-center justify-between">
-                <div><p class="text-xs md:text-sm font-bold text-blue-400/80 uppercase tracking-wider">Received</p><h2 class="text-3xl md:text-4xl font-extrabold mt-1 text-slate-700" id="stat-received">0</h2></div>
-                <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center"><i class="fa-solid fa-inbox text-2xl text-blue-400"></i></div>
+        <div id="top-stats-container" class="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-6 mb-4 md:mb-8">
+            <div class="box-3d box-3d-color-1 stat-box p-3 md:p-6 flex items-center justify-between">
+                <div><p class="text-[10px] md:text-sm font-bold text-blue-400/80 uppercase tracking-wider">Received</p><h2 class="text-xl md:text-4xl font-extrabold mt-0.5 md:mt-1 text-slate-700" id="stat-received">0</h2></div>
+                <div class="w-8 h-8 md:w-12 md:h-12 rounded-full bg-blue-100 flex items-center justify-center"><i class="fa-solid fa-inbox text-sm md:text-2xl text-blue-400"></i></div>
             </div>
-            <div class="box-3d box-3d-color-2 stat-box p-5 md:p-6 flex items-center justify-between">
-                <div><p class="text-xs md:text-sm font-bold text-amber-500/80 uppercase tracking-wider">In Progress</p><h2 class="text-3xl md:text-4xl font-extrabold mt-1 text-slate-700" id="stat-processing">0</h2></div>
-                <div class="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center"><i class="fa-solid fa-spinner text-2xl text-amber-500"></i></div>
+            <div class="box-3d box-3d-color-2 stat-box p-3 md:p-6 flex items-center justify-between">
+                <div><p class="text-[10px] md:text-sm font-bold text-amber-500/80 uppercase tracking-wider">In Progress</p><h2 class="text-xl md:text-4xl font-extrabold mt-0.5 md:mt-1 text-slate-700" id="stat-processing">0</h2></div>
+                <div class="w-8 h-8 md:w-12 md:h-12 rounded-full bg-amber-100 flex items-center justify-center"><i class="fa-solid fa-spinner text-sm md:text-2xl text-amber-500"></i></div>
             </div>
-            <div class="box-3d box-3d-color-3 stat-box p-5 md:p-6 flex items-center justify-between">
-                <div><p class="text-xs md:text-sm font-bold text-purple-400/80 uppercase tracking-wider">Approved</p><h2 class="text-3xl md:text-4xl font-extrabold mt-1 text-slate-700" id="stat-approved">0</h2></div>
-                <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center"><i class="fa-solid fa-file-signature text-2xl text-purple-400"></i></div>
+            <div class="box-3d box-3d-color-3 stat-box p-3 md:p-6 flex items-center justify-between">
+                <div><p class="text-[10px] md:text-sm font-bold text-purple-400/80 uppercase tracking-wider">Approved</p><h2 class="text-xl md:text-4xl font-extrabold mt-0.5 md:mt-1 text-slate-700" id="stat-approved">0</h2></div>
+                <div class="w-8 h-8 md:w-12 md:h-12 rounded-full bg-purple-100 flex items-center justify-center"><i class="fa-solid fa-file-signature text-sm md:text-2xl text-purple-400"></i></div>
             </div>
-            <div class="box-3d box-3d-color-4 stat-box p-5 md:p-6 flex items-center justify-between">
-                <div><p class="text-xs md:text-sm font-bold text-emerald-500/80 uppercase tracking-wider">Completed</p><h2 class="text-3xl md:text-4xl font-extrabold mt-1 text-slate-700" id="stat-completed">0</h2></div>
-                <div class="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center"><i class="fa-solid fa-check-double text-2xl text-emerald-500"></i></div>
+            <div class="box-3d box-3d-color-4 stat-box p-3 md:p-6 flex items-center justify-between">
+                <div><p class="text-[10px] md:text-sm font-bold text-emerald-500/80 uppercase tracking-wider">Completed</p><h2 class="text-xl md:text-4xl font-extrabold mt-0.5 md:mt-1 text-slate-700" id="stat-completed">0</h2></div>
+                <div class="w-8 h-8 md:w-12 md:h-12 rounded-full bg-emerald-100 flex items-center justify-center"><i class="fa-solid fa-check-double text-sm md:text-2xl text-emerald-500"></i></div>
             </div>
         </div>
 
         <div class="box-3d flex-1 flex flex-col overflow-hidden bg-white/70">
             <div id="tabs-container"></div>
-            <div class="p-2 md:p-6 flex-1 overflow-auto rounded-b-2xl relative bg-white/40">
+            <div class="p-1 md:p-6 flex-1 overflow-auto rounded-b-2xl relative bg-white/40">
                 
-                <div id="receiving-form-container" class="hidden max-w-2xl mx-auto bg-white/90 backdrop-blur-md p-6 md:p-8 rounded-2xl border border-white shadow-xl mt-2 md:mt-0">
-                    <h3 class="text-xl md:text-2xl font-bold mb-6 text-indigo-700 flex items-center"><span class="bg-indigo-100 text-indigo-500 p-2 rounded-lg mr-3"><i class="fa-solid fa-cloud-arrow-up"></i></span> Upload New Document</h3>
+                <div id="receiving-form-container" class="hidden max-w-2xl mx-auto bg-white/90 backdrop-blur-md p-4 md:p-8 rounded-xl md:rounded-2xl border border-white shadow-xl mt-2 md:mt-0">
+                    <h3 class="text-lg md:text-2xl font-bold mb-4 md:mb-6 text-indigo-700 flex items-center"><span class="bg-indigo-100 text-indigo-500 p-1.5 md:p-2 rounded-lg mr-2 md:mr-3"><i class="fa-solid fa-cloud-arrow-up"></i></span> Upload New Document</h3>
                     <form id="upload-form" onsubmit="event.preventDefault(); submitNewDocument();">
                         
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-5">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-5 mb-3 md:mb-5">
                             <div>
-                                <label class="block text-sm font-bold mb-1.5 text-slate-600">Reference No.</label>
+                                <label class="block text-xs md:text-sm font-bold mb-1 md:mb-1.5 text-slate-600">Reference No.</label>
                                 <input type="text" id="doc-ref-no" class="input-3d" placeholder="e.g., REF-001" required>
                             </div>
                             <div>
-                                <label class="block text-sm font-bold mb-1.5 text-slate-600">Origin</label>
+                                <label class="block text-xs md:text-sm font-bold mb-1 md:mb-1.5 text-slate-600">Origin</label>
                                 <select id="doc-origin" class="input-3d bg-white" required>
                                     <option value="" disabled selected>Select origin...</option>
                                     <option value="DPWH">DPWH</option>
@@ -289,7 +310,7 @@
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-sm font-bold mb-1.5 text-slate-600">Types of Letter</label>
+                                <label class="block text-xs md:text-sm font-bold mb-1 md:mb-1.5 text-slate-600">Types of Letter</label>
                                 <select id="doc-type-letter" class="input-3d bg-white" required>
                                     <option value="" disabled selected>Select type...</option>
                                     <option value="Inquiry Letter (Yes)">Inquiry Letter (Yes)</option>
@@ -312,49 +333,49 @@
                             </div>
                         </div>
 
-                        <div class="mb-5">
-                            <label class="block text-sm font-bold mb-1.5 text-slate-600">Title / Subject</label>
-                            <textarea id="doc-title" class="input-3d resize-none overflow-hidden" rows="1" style="min-height: 48px;" required oninput="this.style.height = 'auto'; this.style.height = this.scrollHeight + 'px'"></textarea>
+                        <div class="mb-3 md:mb-5">
+                            <label class="block text-xs md:text-sm font-bold mb-1 md:mb-1.5 text-slate-600">Title / Subject</label>
+                            <textarea id="doc-title" class="input-3d resize-none overflow-hidden" rows="1" style="min-height: 40px;" required oninput="this.style.height = 'auto'; this.style.height = this.scrollHeight + 'px'"></textarea>
                         </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
-                            <div><label class="block text-sm font-bold mb-1.5 text-slate-600">Date Received</label>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-5 mb-3 md:mb-5">
+                            <div><label class="block text-xs md:text-sm font-bold mb-1 md:mb-1.5 text-slate-600">Date Received</label>
                                 <input type="text" id="doc-date-received" class="input-3d date-picker" placeholder="Select Date" required>
                             </div>
                             <div>
-                                <div class="flex justify-between items-center mb-1.5">
-                                    <label class="block text-sm font-bold text-slate-600">Deadline</label>
-                                    <label class="text-xs flex items-center cursor-pointer text-slate-500 hover:text-indigo-500 transition-colors font-medium">
-                                        <input type="checkbox" id="no-deadline-cb" class="mr-2 checkbox-3d" onchange="toggleDeadline()"> Auto +15 Days
+                                <div class="flex justify-between items-center mb-1 md:mb-1.5">
+                                    <label class="block text-xs md:text-sm font-bold text-slate-600">Deadline</label>
+                                    <label class="text-[10px] md:text-xs flex items-center cursor-pointer text-slate-500 hover:text-indigo-500 transition-colors font-medium">
+                                        <input type="checkbox" id="no-deadline-cb" class="mr-1.5 md:mr-2 checkbox-3d" onchange="toggleDeadline()"> Auto +15 Days
                                     </label>
                                 </div>
                                 <input type="text" id="doc-deadline" class="input-3d date-picker" placeholder="Select Deadline Date" required>
                             </div>
                         </div>
                         
-                        <div class="mb-5 relative">
-                            <label class="block text-sm font-bold mb-1.5 text-slate-600">Assign to User(s)</label>
-                            <div id="doc-user-display" onclick="toggleDropdown('doc-user-dropdown')" class="input-3d cursor-pointer flex justify-between items-center min-h-[48px] bg-white">
+                        <div class="mb-4 md:mb-5 relative">
+                            <label class="block text-xs md:text-sm font-bold mb-1 md:mb-1.5 text-slate-600">Assign to User(s)</label>
+                            <div id="doc-user-display" onclick="toggleDropdown('doc-user-dropdown')" class="input-3d cursor-pointer flex justify-between items-center min-h-[40px] md:min-h-[48px] bg-white">
                                 <span id="doc-user-text" class="text-slate-400 truncate">Select User(s)...</span>
                                 <i class="fa-solid fa-chevron-down text-indigo-300"></i>
                             </div>
-                            <div id="doc-user-dropdown" class="absolute z-50 w-full mt-2 bg-white/95 backdrop-blur-lg border border-indigo-100 rounded-xl shadow-2xl hidden max-h-56 overflow-y-auto">
-                                <div id="doc-user-options" class="p-2 flex flex-col gap-1"></div>
+                            <div id="doc-user-dropdown" class="absolute z-50 w-full mt-1 md:mt-2 bg-white/95 backdrop-blur-lg border border-indigo-100 rounded-xl shadow-2xl hidden max-h-48 md:max-h-56 overflow-y-auto">
+                                <div id="doc-user-options" class="p-1 md:p-2 flex flex-col gap-1"></div>
                             </div>
                         </div>
 
-                        <div class="mb-8"><label class="block text-sm font-bold mb-1.5 text-slate-600">Document File</label><input type="file" id="doc-file" class="input-3d bg-white text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer" required></div>
-                        <button type="submit" class="btn-3d w-full py-3.5 shadow-[0_5px_0_#6366f1] text-lg"><i class="fa-solid fa-paper-plane mr-2"></i> Upload & Record Document</button>
+                        <div class="mb-6 md:mb-8"><label class="block text-xs md:text-sm font-bold mb-1 md:mb-1.5 text-slate-600">Document File</label><input type="file" id="doc-file" class="input-3d bg-white text-[10px] md:text-sm file:mr-2 md:file:mr-4 file:py-1 md:file:py-2 file:px-3 md:file:px-4 file:rounded-full file:border-0 file:text-[10px] md:file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer" required></div>
+                        <button type="submit" class="btn-3d w-full py-2.5 md:py-3.5 shadow-[0_4px_0_#6366f1] md:shadow-[0_5px_0_#6366f1] text-sm md:text-lg"><i class="fa-solid fa-paper-plane mr-2"></i> Upload & Record Document</button>
                     </form>
                 </div>
 
-                <div id="data-table-container" class="overflow-x-auto hidden w-full px-2 md:px-0 mt-2 md:mt-0 pb-4">
+                <div id="data-table-container" class="overflow-x-auto hidden w-full px-1 md:px-0 mt-2 md:mt-0 pb-2 md:pb-4">
                     <table class="w-full text-left border-collapse min-w-full">
                         <thead id="table-head"></thead>
                         <tbody id="table-body"></tbody>
                     </table>
-                    <div id="empty-state" class="hidden text-center py-16 text-slate-400/70">
-                        <i class="fa-regular fa-folder-open text-6xl md:text-7xl mb-6 text-indigo-200"></i>
-                        <p class="text-base md:text-lg font-medium tracking-wide">No documents found here.</p>
+                    <div id="empty-state" class="hidden text-center py-10 md:py-16 text-slate-400/70">
+                        <i class="fa-regular fa-folder-open text-5xl md:text-7xl mb-4 md:mb-6 text-indigo-200"></i>
+                        <p class="text-sm md:text-lg font-medium tracking-wide">No documents found here.</p>
                     </div>
                 </div>
             </div>
@@ -362,30 +383,30 @@
     </div>
 
     <!-- Search View (Advanced Filtering) -->
-    <div id="search-view" class="hidden flex-1 flex flex-col p-3 md:p-8">
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 md:mb-8 box-3d p-5 md:px-8">
-            <div class="flex items-center gap-4 w-full md:w-auto mb-5 md:mb-0">
-                <div class="w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br from-teal-100 to-emerald-100 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm border border-white">
-                    <i class="fa-solid fa-magnifying-glass text-xl md:text-2xl text-teal-500"></i>
+    <div id="search-view" class="hidden flex-1 flex flex-col p-2 md:p-8">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 md:mb-8 box-3d p-3 md:p-5 md:px-8">
+            <div class="flex items-center gap-3 md:gap-4 w-full md:w-auto mb-3 md:mb-0">
+                <div class="w-10 h-10 md:w-14 md:h-14 bg-gradient-to-br from-teal-100 to-emerald-100 rounded-lg md:rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm border border-white">
+                    <i class="fa-solid fa-magnifying-glass text-lg md:text-2xl text-teal-500"></i>
                 </div>
                 <div class="overflow-hidden">
-                    <h1 class="text-xl md:text-2xl font-bold truncate text-slate-800">Advanced Search</h1>
-                    <p class="text-xs md:text-sm text-slate-500 truncate font-medium">Find documents quickly across all categories</p>
+                    <h1 class="text-lg md:text-2xl font-bold truncate text-slate-800">Advanced Search</h1>
+                    <p class="text-[10px] md:text-sm text-slate-500 truncate font-medium">Find documents quickly across all categories</p>
                 </div>
             </div>
-            <button onclick="closeSearchView()" class="btn-3d py-2 md:py-2.5 md:px-5 text-sm md:text-base bg-gradient-to-r from-slate-400 to-gray-500 shadow-[0_5px_0_#475569] text-center w-full md:w-auto flex items-center justify-center">
-                <i class="fa-solid fa-arrow-left md:mr-2"></i><span class="hidden md:inline">Back to Dashboard</span>
+            <button onclick="closeSearchView()" class="btn-3d py-1.5 md:py-2.5 px-3 md:px-5 text-[10px] sm:text-xs md:text-base bg-gradient-to-r from-slate-400 to-gray-500 shadow-[0_4px_0_#475569] md:shadow-[0_5px_0_#475569] text-center w-full md:w-auto flex items-center justify-center">
+                <i class="fa-solid fa-arrow-left mr-2"></i><span>Back to Dashboard</span>
             </button>
         </div>
 
-        <div class="box-3d p-5 md:p-6 mb-6 bg-white/70">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="box-3d p-4 md:p-6 mb-4 md:mb-6 bg-white/70">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
                 <div>
-                    <label class="block text-sm font-bold mb-1.5 text-slate-600">Keyword Search</label>
+                    <label class="block text-xs md:text-sm font-bold mb-1 md:mb-1.5 text-slate-600">Keyword Search</label>
                     <input type="text" id="search-keyword" class="input-3d" placeholder="Title, Ref No, Remarks...">
                 </div>
                 <div>
-                    <label class="block text-sm font-bold mb-1.5 text-slate-600">Origin</label>
+                    <label class="block text-xs md:text-sm font-bold mb-1 md:mb-1.5 text-slate-600">Origin</label>
                     <select id="search-origin" class="input-3d bg-white">
                         <option value="">All Origins</option>
                         <option value="DPWH">DPWH</option>
@@ -401,7 +422,7 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-bold mb-1.5 text-slate-600">Types of Letter</label>
+                    <label class="block text-xs md:text-sm font-bold mb-1 md:mb-1.5 text-slate-600">Types of Letter</label>
                     <select id="search-type" class="input-3d bg-white">
                         <option value="">All Types</option>
                         <option value="Inquiry Letter (Yes)">Inquiry Letter (Yes)</option>
@@ -423,33 +444,33 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-bold mb-1.5 text-slate-600">Document Status</label>
+                    <label class="block text-xs md:text-sm font-bold mb-1 md:mb-1.5 text-slate-600">Document Status</label>
                     <select id="search-status" class="input-3d bg-white">
                         <option value="">All Statuses</option>
                     </select>
                 </div>
                 <div id="search-user-container" class="hidden">
-                    <label class="block text-sm font-bold mb-1.5 text-slate-600">Assigned User</label>
+                    <label class="block text-xs md:text-sm font-bold mb-1 md:mb-1.5 text-slate-600">Assigned User</label>
                     <select id="search-user" class="input-3d bg-white">
                         <option value="">All Users</option>
                     </select>
                 </div>
             </div>
-            <div class="mt-6 flex justify-end gap-3">
-                <button onclick="clearSearch()" class="py-2.5 px-6 bg-slate-100 rounded-xl font-bold text-slate-500 hover:bg-slate-200 transition">Clear Filters</button>
-                <button onclick="executeSearch()" class="btn-3d py-2.5 px-6 shadow-[0_5px_0_#0f766e] bg-gradient-to-r from-emerald-400 to-teal-500">Search Documents</button>
+            <div class="mt-4 md:mt-6 flex flex-col md:flex-row justify-end gap-2 md:gap-3">
+                <button onclick="clearSearch()" class="py-2 md:py-2.5 px-4 md:px-6 bg-slate-100 rounded-lg md:rounded-xl font-bold text-slate-500 text-xs md:text-sm hover:bg-slate-200 transition">Clear Filters</button>
+                <button onclick="executeSearch()" class="btn-3d py-2 md:py-2.5 px-4 md:px-6 shadow-[0_4px_0_#0f766e] md:shadow-[0_5px_0_#0f766e] text-xs md:text-sm bg-gradient-to-r from-emerald-400 to-teal-500">Search Documents</button>
             </div>
         </div>
 
-        <div class="box-3d flex-1 flex flex-col overflow-hidden bg-white/70 p-2 md:p-6">
-            <div class="overflow-x-auto w-full px-2 md:px-0 pb-4">
+        <div class="box-3d flex-1 flex flex-col overflow-hidden bg-white/70 p-1 md:p-6">
+            <div class="overflow-x-auto w-full px-1 md:px-0 pb-2 md:pb-4">
                 <table class="w-full text-left border-collapse min-w-full">
                     <thead id="search-table-head"></thead>
                     <tbody id="search-table-body"></tbody>
                 </table>
-                <div id="search-empty-state" class="text-center py-16 text-slate-400/70">
-                    <i class="fa-solid fa-magnifying-glass text-6xl md:text-7xl mb-6 text-teal-200"></i>
-                    <p class="text-base md:text-lg font-medium tracking-wide">Enter criteria above to find documents.</p>
+                <div id="search-empty-state" class="text-center py-10 md:py-16 text-slate-400/70">
+                    <i class="fa-solid fa-magnifying-glass text-5xl md:text-7xl mb-4 md:mb-6 text-teal-200"></i>
+                    <p class="text-sm md:text-lg font-medium tracking-wide">Enter criteria above to find documents.</p>
                 </div>
             </div>
         </div>
@@ -457,91 +478,91 @@
 
     <!-- Modals -->
     <div id="modal-dates" class="modal p-4">
-        <div class="box-3d p-8 w-full max-w-md mx-auto border border-white/50">
-            <h3 class="text-xl font-bold mb-6 text-indigo-700"><i class="fa-regular fa-calendar-plus mr-2"></i> Update Dates</h3>
+        <div class="box-3d p-5 md:p-8 w-full max-w-md mx-auto border border-white/50">
+            <h3 class="text-lg md:text-xl font-bold mb-4 md:mb-6 text-indigo-700"><i class="fa-regular fa-calendar-plus mr-2"></i> Update Dates</h3>
             <input type="hidden" id="dates-rowidx">
-            <div class="mb-5"><label class="block text-sm font-bold mb-1.5 text-slate-600">Date of Letter</label><input type="text" id="modal-date-letter" class="input-3d date-picker" placeholder="Select Date" required></div>
-            <div class="mb-8"><label class="block text-sm font-bold mb-1.5 text-slate-600">Date for Signature</label><input type="text" id="modal-date-signature" class="input-3d date-picker" placeholder="Select Date" required></div>
-            <div class="flex flex-col sm:flex-row gap-3 sm:gap-4"><button onclick="closeModal('modal-dates')" class="w-full sm:flex-1 py-3 bg-slate-100 rounded-xl font-bold text-slate-500 hover:bg-slate-200 transition">Cancel</button><button onclick="submitDates()" class="w-full sm:flex-1 btn-3d shadow-[0_5px_0_#6366f1] py-3">Save Dates</button></div>
+            <div class="mb-4 md:mb-5"><label class="block text-xs md:text-sm font-bold mb-1 md:mb-1.5 text-slate-600">Date of Letter</label><input type="text" id="modal-date-letter" class="input-3d date-picker" placeholder="Select Date" required></div>
+            <div class="mb-6 md:mb-8"><label class="block text-xs md:text-sm font-bold mb-1 md:mb-1.5 text-slate-600">Date for Signature</label><input type="text" id="modal-date-signature" class="input-3d date-picker" placeholder="Select Date" required></div>
+            <div class="flex flex-col sm:flex-row gap-2 md:gap-4"><button onclick="closeModal('modal-dates')" class="w-full sm:flex-1 py-2 md:py-3 bg-slate-100 rounded-lg md:rounded-xl font-bold text-slate-500 hover:bg-slate-200 transition text-sm md:text-base">Cancel</button><button onclick="submitDates()" class="w-full sm:flex-1 btn-3d shadow-[0_4px_0_#6366f1] md:shadow-[0_5px_0_#6366f1] py-2 md:py-3 text-sm md:text-base">Save Dates</button></div>
         </div>
     </div>
 
     <div id="modal-reply" class="modal p-4">
-        <div class="box-3d p-8 w-full max-w-md mx-auto border border-white/50">
-            <h3 class="text-xl font-bold mb-6 text-fuchsia-600"><i class="fa-solid fa-file-arrow-up mr-2"></i> Upload Reply</h3>
+        <div class="box-3d p-5 md:p-8 w-full max-w-md mx-auto border border-white/50">
+            <h3 class="text-lg md:text-xl font-bold mb-4 md:mb-6 text-fuchsia-600"><i class="fa-solid fa-file-arrow-up mr-2"></i> Upload Reply</h3>
             <input type="hidden" id="reply-rowidx"><input type="hidden" id="reply-title">
-            <div class="mb-5"><label class="block text-sm font-bold mb-1.5 text-slate-600">Date Approved</label><input type="text" id="modal-date-approved" class="input-3d date-picker" placeholder="Select Date" required></div>
-            <div class="mb-8"><label class="block text-sm font-bold mb-1.5 text-slate-600">Reply Document</label><input type="file" id="modal-reply-file" class="input-3d bg-white text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-fuchsia-50 file:text-fuchsia-700 hover:file:bg-fuchsia-100 cursor-pointer" required></div>
-            <div class="flex flex-col sm:flex-row gap-3 sm:gap-4"><button onclick="closeModal('modal-reply')" class="w-full sm:flex-1 py-3 bg-slate-100 rounded-xl font-bold text-slate-500 hover:bg-slate-200 transition">Cancel</button><button onclick="submitReply()" class="w-full sm:flex-1 btn-3d btn-3d-purple py-3 text-white shadow-[0_5px_0_#a21caf]">Upload File</button></div>
+            <div class="mb-4 md:mb-5"><label class="block text-xs md:text-sm font-bold mb-1 md:mb-1.5 text-slate-600">Date Approved</label><input type="text" id="modal-date-approved" class="input-3d date-picker" placeholder="Select Date" required></div>
+            <div class="mb-6 md:mb-8"><label class="block text-xs md:text-sm font-bold mb-1 md:mb-1.5 text-slate-600">Reply Document</label><input type="file" id="modal-reply-file" class="input-3d bg-white text-[10px] md:text-sm file:mr-2 md:file:mr-4 file:py-1 md:file:py-2 file:px-3 md:file:px-4 file:rounded-full file:border-0 file:text-[10px] md:file:text-sm file:font-semibold file:bg-fuchsia-50 file:text-fuchsia-700 hover:file:bg-fuchsia-100 cursor-pointer" required></div>
+            <div class="flex flex-col sm:flex-row gap-2 md:gap-4"><button onclick="closeModal('modal-reply')" class="w-full sm:flex-1 py-2 md:py-3 bg-slate-100 rounded-lg md:rounded-xl font-bold text-slate-500 hover:bg-slate-200 transition text-sm md:text-base">Cancel</button><button onclick="submitReply()" class="w-full sm:flex-1 btn-3d btn-3d-purple py-2 md:py-3 text-white shadow-[0_4px_0_#a21caf] md:shadow-[0_5px_0_#a21caf] text-sm md:text-base">Upload File</button></div>
         </div>
     </div>
 
     <div id="modal-release" class="modal p-4">
-        <div class="box-3d p-8 w-full max-w-md mx-auto border border-white/50">
-            <h3 class="text-xl font-bold mb-6 text-emerald-600"><i class="fa-solid fa-flag-checkered mr-2"></i> Finalize Document</h3>
+        <div class="box-3d p-5 md:p-8 w-full max-w-md mx-auto border border-white/50">
+            <h3 class="text-lg md:text-xl font-bold mb-4 md:mb-6 text-emerald-600"><i class="fa-solid fa-flag-checkered mr-2"></i> Finalize Document</h3>
             <input type="hidden" id="release-rowidx">
-            <div class="mb-8"><label class="block text-sm font-bold mb-1.5 text-slate-600">Date Completed / Released</label><input type="text" id="modal-date-released" class="input-3d date-picker" placeholder="Select Date" required></div>
-            <div class="flex flex-col sm:flex-row gap-3 sm:gap-4"><button onclick="closeModal('modal-release')" class="w-full sm:flex-1 py-3 bg-slate-100 rounded-xl font-bold text-slate-500 hover:bg-slate-200 transition">Cancel</button><button onclick="submitRelease()" class="w-full sm:flex-1 btn-3d btn-3d-green py-3 shadow-[0_5px_0_#059669]">Complete</button></div>
+            <div class="mb-6 md:mb-8"><label class="block text-xs md:text-sm font-bold mb-1 md:mb-1.5 text-slate-600">Date Completed / Released</label><input type="text" id="modal-date-released" class="input-3d date-picker" placeholder="Select Date" required></div>
+            <div class="flex flex-col sm:flex-row gap-2 md:gap-4"><button onclick="closeModal('modal-release')" class="w-full sm:flex-1 py-2 md:py-3 bg-slate-100 rounded-lg md:rounded-xl font-bold text-slate-500 hover:bg-slate-200 transition text-sm md:text-base">Cancel</button><button onclick="submitRelease()" class="w-full sm:flex-1 btn-3d btn-3d-green py-2 md:py-3 shadow-[0_4px_0_#059669] md:shadow-[0_5px_0_#059669] text-sm md:text-base">Complete</button></div>
         </div>
     </div>
 
     <div id="modal-change-password" class="modal p-4">
-        <div class="box-3d p-8 w-full max-w-md mx-auto border border-white/50">
-            <h3 class="text-xl font-bold mb-6 text-purple-600"><i class="fa-solid fa-key mr-2"></i> Change Password</h3>
+        <div class="box-3d p-5 md:p-8 w-full max-w-md mx-auto border border-white/50">
+            <h3 class="text-lg md:text-xl font-bold mb-4 md:mb-6 text-purple-600"><i class="fa-solid fa-key mr-2"></i> Change Password</h3>
             <form id="change-password-form" onsubmit="submitChangePassword(event)">
-                <div class="mb-4">
-                    <label class="block text-sm font-bold mb-1.5 text-slate-600">Current Password</label>
+                <div class="mb-3 md:mb-4">
+                    <label class="block text-xs md:text-sm font-bold mb-1 md:mb-1.5 text-slate-600">Current Password</label>
                     <input type="password" id="cp-current" class="input-3d" required>
                 </div>
-                <div class="mb-4">
-                    <label class="block text-sm font-bold mb-1.5 text-slate-600">New Password</label>
+                <div class="mb-3 md:mb-4">
+                    <label class="block text-xs md:text-sm font-bold mb-1 md:mb-1.5 text-slate-600">New Password</label>
                     <input type="password" id="cp-new" class="input-3d" required>
                 </div>
-                <div class="mb-8">
-                    <label class="block text-sm font-bold mb-1.5 text-slate-600">Confirm New Password</label>
+                <div class="mb-5 md:mb-8">
+                    <label class="block text-xs md:text-sm font-bold mb-1 md:mb-1.5 text-slate-600">Confirm New Password</label>
                     <input type="password" id="cp-confirm" class="input-3d" required>
                 </div>
-                <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
-                    <button type="button" onclick="closeModal('modal-change-password')" class="w-full sm:flex-1 py-3 bg-slate-100 rounded-xl font-bold text-slate-500 hover:bg-slate-200 transition">Cancel</button>
-                    <button type="submit" class="w-full sm:flex-1 btn-3d btn-3d-purple shadow-[0_5px_0_#a21caf] py-3">Save Password</button>
+                <div class="flex flex-col sm:flex-row gap-2 md:gap-4">
+                    <button type="button" onclick="closeModal('modal-change-password')" class="w-full sm:flex-1 py-2 md:py-3 bg-slate-100 rounded-lg md:rounded-xl font-bold text-slate-500 hover:bg-slate-200 transition text-sm md:text-base">Cancel</button>
+                    <button type="submit" class="w-full sm:flex-1 btn-3d btn-3d-purple shadow-[0_4px_0_#a21caf] md:shadow-[0_5px_0_#a21caf] py-2 md:py-3 text-sm md:text-base">Save Password</button>
                 </div>
             </form>
         </div>
     </div>
     
     <div id="modal-reassign" class="modal p-4">
-        <div class="box-3d p-8 w-full max-w-md mx-auto overflow-visible border border-white/50">
-            <h3 class="text-xl font-bold mb-6 text-sky-600"><i class="fa-solid fa-users mr-2"></i> Assign User(s)</h3>
+        <div class="box-3d p-5 md:p-8 w-full max-w-md mx-auto overflow-visible border border-white/50">
+            <h3 class="text-lg md:text-xl font-bold mb-4 md:mb-6 text-sky-600"><i class="fa-solid fa-users mr-2"></i> Assign User(s)</h3>
             <input type="hidden" id="reassign-rowidx">
-            <div class="mb-8 relative">
-                <label class="block text-sm font-bold mb-1.5 text-slate-600">Select User(s)</label>
-                <div id="reassign-user-display" onclick="toggleDropdown('reassign-user-dropdown')" class="input-3d bg-white cursor-pointer flex justify-between items-center min-h-[48px]">
+            <div class="mb-6 md:mb-8 relative">
+                <label class="block text-xs md:text-sm font-bold mb-1 md:mb-1.5 text-slate-600">Select User(s)</label>
+                <div id="reassign-user-display" onclick="toggleDropdown('reassign-user-dropdown')" class="input-3d bg-white cursor-pointer flex justify-between items-center min-h-[40px] md:min-h-[48px]">
                     <span id="reassign-user-text" class="text-slate-400 truncate">Select User(s)...</span>
                     <i class="fa-solid fa-chevron-down text-sky-300"></i>
                 </div>
-                <div id="reassign-user-dropdown" class="absolute z-50 w-full mt-2 bg-white/95 backdrop-blur-lg border border-sky-100 rounded-xl shadow-2xl hidden max-h-48 overflow-y-auto">
-                    <div id="reassign-user-options" class="p-2 flex flex-col gap-1"></div>
+                <div id="reassign-user-dropdown" class="absolute z-50 w-full mt-1 md:mt-2 bg-white/95 backdrop-blur-lg border border-sky-100 rounded-xl shadow-2xl hidden max-h-48 overflow-y-auto">
+                    <div id="reassign-user-options" class="p-1 md:p-2 flex flex-col gap-1"></div>
                 </div>
             </div>
-            <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-8">
-                <button onclick="closeModal('modal-reassign')" class="w-full sm:flex-1 py-3 bg-slate-100 rounded-xl font-bold text-slate-500 hover:bg-slate-200 transition">Cancel</button>
-                <button onclick="submitReassign()" class="w-full sm:flex-1 btn-3d bg-gradient-to-r from-sky-400 to-blue-500 shadow-[0_5px_0_#0284c7] py-3">Save Assignments</button>
+            <div class="flex flex-col sm:flex-row gap-2 md:gap-4 mt-6 md:mt-8">
+                <button onclick="closeModal('modal-reassign')" class="w-full sm:flex-1 py-2 md:py-3 bg-slate-100 rounded-lg md:rounded-xl font-bold text-slate-500 hover:bg-slate-200 transition text-sm md:text-base">Cancel</button>
+                <button onclick="submitReassign()" class="w-full sm:flex-1 btn-3d bg-gradient-to-r from-sky-400 to-blue-500 shadow-[0_4px_0_#0284c7] md:shadow-[0_5px_0_#0284c7] py-2 md:py-3 text-sm md:text-base">Save Assignments</button>
             </div>
         </div>
     </div>
 
     <div id="modal-edit" class="modal p-4">
-        <div class="box-3d p-8 w-full max-w-md mx-auto border border-white/50">
-            <h3 class="text-xl font-bold mb-6 text-indigo-700"><i class="fa-solid fa-pen-to-square mr-2"></i> Edit Document</h3>
+        <div class="box-3d p-5 md:p-8 w-full max-w-md mx-auto border border-white/50">
+            <h3 class="text-lg md:text-xl font-bold mb-4 md:mb-6 text-indigo-700"><i class="fa-solid fa-pen-to-square mr-2"></i> Edit Document</h3>
             <input type="hidden" id="edit-rowidx">
             
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-5">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-5 mb-3 md:mb-5">
                 <div>
-                    <label class="block text-sm font-bold mb-1.5 text-slate-600">Reference No.</label>
+                    <label class="block text-xs md:text-sm font-bold mb-1 md:mb-1.5 text-slate-600">Reference No.</label>
                     <input type="text" id="edit-ref-no" class="input-3d" placeholder="e.g., REF-001" required>
                 </div>
                 <div>
-                    <label class="block text-sm font-bold mb-1.5 text-slate-600">Origin</label>
+                    <label class="block text-xs md:text-sm font-bold mb-1 md:mb-1.5 text-slate-600">Origin</label>
                     <select id="edit-origin" class="input-3d bg-white" required>
                         <option value="" disabled selected>Select origin...</option>
                         <option value="DPWH">DPWH</option>
@@ -557,7 +578,7 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-bold mb-1.5 text-slate-600">Types of Letter</label>
+                    <label class="block text-xs md:text-sm font-bold mb-1 md:mb-1.5 text-slate-600">Types of Letter</label>
                     <select id="edit-type-letter" class="input-3d bg-white" required>
                         <option value="" disabled selected>Select type...</option>
                         <option value="Inquiry Letter (Yes)">Inquiry Letter (Yes)</option>
@@ -580,47 +601,47 @@
                 </div>
             </div>
             
-            <div class="mb-5">
-                <label class="block text-sm font-bold mb-1.5 text-slate-600">Title / Subject</label>
-                <textarea id="edit-title" class="input-3d resize-none overflow-hidden" rows="1" style="min-height: 48px;" required oninput="this.style.height = 'auto'; this.style.height = this.scrollHeight + 'px'"></textarea>
+            <div class="mb-3 md:mb-5">
+                <label class="block text-xs md:text-sm font-bold mb-1 md:mb-1.5 text-slate-600">Title / Subject</label>
+                <textarea id="edit-title" class="input-3d resize-none overflow-hidden" rows="1" style="min-height: 40px;" required oninput="this.style.height = 'auto'; this.style.height = this.scrollHeight + 'px'"></textarea>
             </div>
 
             <div id="edit-dates-section">
-                <div class="mb-5">
-                    <label class="block text-sm font-bold mb-1.5 text-slate-600">Date Received</label>
+                <div class="mb-3 md:mb-5">
+                    <label class="block text-xs md:text-sm font-bold mb-1 md:mb-1.5 text-slate-600">Date Received</label>
                     <input type="text" id="edit-date-received" class="input-3d date-picker" placeholder="Select Date">
                 </div>
                 
-                <div class="mb-8">
-                    <div class="flex justify-between items-center mb-1.5">
-                        <label class="block text-sm font-bold text-slate-600">Deadline</label>
-                        <label class="text-xs flex items-center cursor-pointer text-slate-500 hover:text-indigo-500 transition-colors font-medium">
-                            <input type="checkbox" id="edit-no-deadline-cb" class="mr-2 checkbox-3d" onchange="toggleEditDeadline()"> Auto +15 Days
+                <div class="mb-5 md:mb-8">
+                    <div class="flex justify-between items-center mb-1 md:mb-1.5">
+                        <label class="block text-xs md:text-sm font-bold text-slate-600">Deadline</label>
+                        <label class="text-[10px] md:text-xs flex items-center cursor-pointer text-slate-500 hover:text-indigo-500 transition-colors font-medium">
+                            <input type="checkbox" id="edit-no-deadline-cb" class="mr-1.5 md:mr-2 checkbox-3d" onchange="toggleEditDeadline()"> Auto +15 Days
                         </label>
                     </div>
                     <input type="text" id="edit-deadline" class="input-3d date-picker" placeholder="Select Deadline Date">
                 </div>
             </div>
-            <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
-                <button onclick="closeModal('modal-edit')" class="w-full sm:flex-1 py-3 bg-slate-100 rounded-xl font-bold text-slate-500 hover:bg-slate-200 transition">Cancel</button>
-                <button onclick="submitEdit()" class="w-full sm:flex-1 btn-3d shadow-[0_5px_0_#6366f1] py-3">Save Changes</button>
+            <div class="flex flex-col sm:flex-row gap-2 md:gap-4 mt-4 md:mt-0">
+                <button onclick="closeModal('modal-edit')" class="w-full sm:flex-1 py-2 md:py-3 bg-slate-100 rounded-lg md:rounded-xl font-bold text-slate-500 hover:bg-slate-200 transition text-sm md:text-base">Cancel</button>
+                <button onclick="submitEdit()" class="w-full sm:flex-1 btn-3d shadow-[0_4px_0_#6366f1] md:shadow-[0_5px_0_#6366f1] py-2 md:py-3 text-sm md:text-base">Save Changes</button>
             </div>
         </div>
     </div>
 
     <div id="modal-archive" class="modal p-4">
-        <div class="box-3d p-8 w-full max-w-md mx-auto text-center border border-white/50">
-            <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4"><i class="fa-solid fa-box-archive text-2xl text-slate-500"></i></div>
-            <h3 class="text-xl font-bold mb-2 text-slate-700">Confirm Archive</h3>
-            <p class="mb-5 text-slate-500 text-sm md:text-base font-medium">Are you sure you want to move this document to the Archive safely?</p>
+        <div class="box-3d p-5 md:p-8 w-full max-w-md mx-auto text-center border border-white/50">
+            <div class="w-12 h-12 md:w-16 md:h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4"><i class="fa-solid fa-box-archive text-xl md:text-2xl text-slate-500"></i></div>
+            <h3 class="text-lg md:text-xl font-bold mb-1 md:mb-2 text-slate-700">Confirm Archive</h3>
+            <p class="mb-4 md:mb-5 text-slate-500 text-xs md:text-sm font-medium">Are you sure you want to move this document to the Archive safely?</p>
             <input type="hidden" id="archive-rowidx">
-            <div class="mb-8 text-left">
-                <label class="block text-sm font-bold mb-1.5 text-slate-600">Remarks (Optional)</label>
-                <textarea id="archive-remarks" class="input-3d resize-none" rows="3" placeholder="Enter reason or notes..."></textarea>
+            <div class="mb-5 md:mb-8 text-left">
+                <label class="block text-xs md:text-sm font-bold mb-1 md:mb-1.5 text-slate-600">Remarks (Optional)</label>
+                <textarea id="archive-remarks" class="input-3d resize-none" rows="2" placeholder="Enter reason or notes..."></textarea>
             </div>
-            <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
-                <button onclick="closeModal('modal-archive')" class="w-full sm:flex-1 py-3 bg-slate-100 rounded-xl font-bold text-slate-500 hover:bg-slate-200 transition">Cancel</button>
-                <button onclick="submitArchive()" class="w-full sm:flex-1 btn-3d btn-3d-gray shadow-[0_5px_0_#475569] py-3">Yes, Archive</button>
+            <div class="flex flex-col sm:flex-row gap-2 md:gap-4">
+                <button onclick="closeModal('modal-archive')" class="w-full sm:flex-1 py-2 md:py-3 bg-slate-100 rounded-lg md:rounded-xl font-bold text-slate-500 hover:bg-slate-200 transition text-sm md:text-base">Cancel</button>
+                <button onclick="submitArchive()" class="w-full sm:flex-1 btn-3d btn-3d-gray shadow-[0_4px_0_#475569] md:shadow-[0_5px_0_#475569] py-2 md:py-3 text-sm md:text-base">Yes, Archive</button>
             </div>
         </div>
     </div>
@@ -677,8 +698,8 @@
             const bgColor = type === 'success' ? 'bg-gradient-to-r from-emerald-500 to-green-500' : 'bg-gradient-to-r from-rose-500 to-red-500';
             const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
             
-            toast.className = `flex items-center gap-3 text-white px-5 py-4 rounded-xl shadow-2xl transform transition-all duration-500 translate-y-[150%] opacity-0 ${bgColor} backdrop-blur-md font-medium tracking-wide border border-white/20`;
-            toast.innerHTML = `<i class="fa-solid ${icon} text-xl shadow-sm rounded-full"></i> <span>${message}</span>`;
+            toast.className = `flex items-center gap-2 md:gap-3 text-white px-4 md:px-5 py-3 md:py-4 rounded-lg md:rounded-xl shadow-2xl transform transition-all duration-500 translate-y-[150%] opacity-0 ${bgColor} backdrop-blur-md font-medium tracking-wide border border-white/20`;
+            toast.innerHTML = `<i class="fa-solid ${icon} text-lg md:text-xl shadow-sm rounded-full"></i> <span class="text-xs md:text-base">${message}</span>`;
             
             container.appendChild(toast);
             setTimeout(() => { toast.classList.remove('translate-y-[150%]', 'opacity-0'); }, 10);
@@ -872,7 +893,7 @@
                 cols.push({ key: 'User', label: 'User(s)' });
             }
 
-            let trH = '<tr>'; cols.forEach(c => trH += `<th class="p-3 md:p-4">${c.label}</th>`); head.innerHTML = trH + '</tr>';
+            let trH = '<tr>'; cols.forEach(c => trH += `<th class="p-2 md:p-4">${c.label}</th>`); head.innerHTML = trH + '</tr>';
 
             docs.forEach(doc => {
                 let tr = '<tr class="hover:bg-indigo-50/40 transition-colors">';
@@ -881,7 +902,7 @@
                 cols.forEach(c => {
                     let cellContent = '';
                     if (c.key === 'action') {
-                        cellContent = `<div class="flex flex-wrap gap-2">${getActions(tabName, doc)}</div>`;
+                        cellContent = `<div class="flex flex-wrap gap-1.5 md:gap-2">${getActions(tabName, doc)}</div>`;
                     } else if (c.key === 'status') {
                         let statusColor = "bg-slate-100 text-slate-600 border-slate-200";
                         let icon = "fa-layer-group";
@@ -891,7 +912,7 @@
                         else if(tabName === "Receiving" || tabName === "Incoming") { statusColor = "bg-blue-100 text-blue-700 border-blue-300"; icon = "fa-inbox"; }
                         else if(tabName === "For Info") { statusColor = "bg-cyan-100 text-cyan-700 border-cyan-300"; icon = "fa-info-circle"; }
                         
-                        cellContent = `<span class="${statusColor} text-[11px] font-bold px-2.5 py-1 rounded-md border shadow-sm tracking-wide whitespace-nowrap"><i class="fa-solid ${icon} mr-1.5 opacity-80"></i>${tabName}</span>`;
+                        cellContent = `<span class="${statusColor} text-[9px] md:text-[11px] font-bold px-1.5 md:px-2.5 py-0.5 md:py-1 rounded-md border shadow-sm tracking-wide whitespace-nowrap"><i class="fa-solid ${icon} mr-1 md:mr-1.5 opacity-80"></i>${tabName}</span>`;
                     } else if (c.key === 'Title/Description') {
                         let titleText = doc['Title/Description'] || '';
                         let refNo = doc['Reference Number'] || '';
@@ -905,18 +926,18 @@
                         }
                         
                         let badgesHtml = '';
-                        if (refNo) badgesHtml += `<span class="bg-indigo-100 text-indigo-700 text-[10px] md:text-[11px] font-bold px-2 py-0.5 rounded border border-indigo-200 shadow-sm tracking-wide mr-1.5 mb-1 inline-block"><i class="fa-solid fa-hashtag mr-1 opacity-70"></i>${refNo}</span>`;
-                        if (originVal) badgesHtml += `<span class="bg-blue-100 text-blue-700 text-[10px] md:text-[11px] font-bold px-2 py-0.5 rounded border border-blue-200 shadow-sm tracking-wide mr-1.5 mb-1 inline-block"><i class="fa-solid fa-building mr-1 opacity-70"></i>${originVal}</span>`;
+                        if (refNo) badgesHtml += `<span class="bg-indigo-100 text-indigo-700 text-[9px] md:text-[11px] font-bold px-1.5 md:px-2 py-0.5 rounded border border-indigo-200 shadow-sm tracking-wide mr-1 md:mr-1.5 mb-1 inline-block"><i class="fa-solid fa-hashtag mr-1 opacity-70"></i>${refNo}</span>`;
+                        if (originVal) badgesHtml += `<span class="bg-blue-100 text-blue-700 text-[9px] md:text-[11px] font-bold px-1.5 md:px-2 py-0.5 rounded border border-blue-200 shadow-sm tracking-wide mr-1 md:mr-1.5 mb-1 inline-block"><i class="fa-solid fa-building mr-1 opacity-70"></i>${originVal}</span>`;
                         if (letterType) {
                             let typeBadgeColor = 'bg-slate-100 text-slate-700 border-slate-200';
                             if (letterType.includes('(Yes)') || letterType.includes('(Optional)')) typeBadgeColor = 'bg-emerald-100 text-emerald-700 border-emerald-200';
                             else if (letterType.includes('(No)')) typeBadgeColor = 'bg-rose-100 text-rose-700 border-rose-200';
-                            badgesHtml += `<span class="${typeBadgeColor} text-[10px] md:text-[11px] font-bold px-2 py-0.5 rounded border shadow-sm tracking-wide mb-1 inline-block"><i class="fa-solid fa-tag mr-1 opacity-70"></i>${letterType}</span>`;
+                            badgesHtml += `<span class="${typeBadgeColor} text-[9px] md:text-[11px] font-bold px-1.5 md:px-2 py-0.5 rounded border shadow-sm tracking-wide mb-1 inline-block"><i class="fa-solid fa-tag mr-1 opacity-70"></i>${letterType}</span>`;
                         }
 
                         cellContent = `<div class="flex flex-col items-start gap-1">
                             <div class="flex flex-wrap items-center">${badgesHtml}</div>
-                            <span class="font-semibold text-slate-800 leading-snug">${titleText}</span>
+                            <span class="font-semibold text-slate-800 leading-snug text-xs md:text-sm">${titleText}</span>
                         </div>`;
                         
                     } else {
@@ -942,20 +963,21 @@
                                 } else {
                                     badgeClass = "bg-emerald-100 text-emerald-700 border-emerald-300 shadow-sm"; icon = "fa-calendar-check"; daysText = `${diffDays} days`;
                                 }
-                                cellContent = `<span class="${badgeClass} px-3 py-1.5 rounded-lg text-xs md:text-[13px] font-bold border inline-flex items-center gap-1.5 mt-1 md:mt-0 whitespace-nowrap tracking-wide"><i class="fa-solid ${icon}"></i>${fDate} (${daysText})</span>`;
+                                cellContent = `<span class="${badgeClass} px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-[10px] md:text-[13px] font-bold border inline-flex items-center gap-1 mt-1 md:mt-0 whitespace-nowrap tracking-wide"><i class="fa-solid ${icon}"></i>${fDate} (${daysText})</span>`;
                             } else { cellContent = v; }
                         } 
                         else if (c.key.includes('Date') || v instanceof Date || (typeof v === 'string' && v.includes('T00:00'))) {
                             cellContent = formatCustomDate(v);
                         } else {
-                            cellContent = v;
+                            cellContent = `<span class="text-xs md:text-sm">${v}</span>`;
                         }
                     }
-                    tr += `<td data-label="${c.label}" class="p-3 md:p-4 whitespace-normal text-sm font-medium md:font-normal text-slate-700">${cellContent}</td>`;
+                    tr += `<td data-label="${c.label}" class="p-2 md:p-4 whitespace-normal text-xs md:text-sm font-medium md:font-normal text-slate-700">${cellContent}</td>`;
                 });
                 body.innerHTML += tr + '</tr>';
             });
         }
+
 
         // ------------------------------------
 
@@ -1117,14 +1139,14 @@
             const tabContainer = document.getElementById('tabs-container');
             tabContainer.innerHTML = '';
             
-            tabContainer.className = "flex overflow-x-auto hide-scrollbar pt-4 px-4 gap-2 bg-transparent border-b border-indigo-100 w-full";
+            tabContainer.className = "flex overflow-x-auto hide-scrollbar pt-4 px-2 md:px-4 gap-1 md:gap-2 bg-transparent border-b border-indigo-100 w-full";
             
             tabs.forEach((tab, index) => {
                 const btn = document.createElement('div');
-                btn.className = `tab-btn relative flex-shrink-0 whitespace-nowrap text-sm md:text-base py-3 tracking-wide ${index === 0 ? 'active' : ''}`;
+                btn.className = `tab-btn relative flex-shrink-0 whitespace-nowrap text-xs md:text-base py-2.5 md:py-3 tracking-wide ${index === 0 ? 'active' : ''}`;
                 
                 const badgeId = `badge-${tab.replace(/\s+/g, '-')}`;
-                btn.innerHTML = `<span>${tab}</span><span id="${badgeId}" class="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-rose-400 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold shadow-md z-10 border border-white" style="display:none;">0</span>`;
+                btn.innerHTML = `<span>${tab}</span><span id="${badgeId}" class="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-rose-400 text-white rounded-full w-4 h-4 md:w-5 md:h-5 flex items-center justify-center text-[9px] md:text-[10px] font-bold shadow-md z-10 border border-white" style="display:none;">0</span>`;
                 btn.onclick = () => switchTab(tab, btn);
                 tabContainer.appendChild(btn);
             });
@@ -1165,15 +1187,15 @@
             
             options1.innerHTML = ''; options2.innerHTML = '';
             
-            const allHtml1 = `<label class="flex items-center p-2.5 hover:bg-indigo-50 rounded-lg cursor-pointer border-b border-indigo-50/50 transition-colors"><input type="checkbox" value="All Users" data-label="All Users" class="mr-3 w-4 h-4 text-indigo-500 rounded border-indigo-200 accent-indigo-500 checkbox-3d" onchange="updateSelectedText('doc')"><span class="font-bold text-indigo-600">All Users</span></label>`;
-            const allHtml2 = `<label class="flex items-center p-2.5 hover:bg-sky-50 rounded-lg cursor-pointer border-b border-sky-50/50 transition-colors"><input type="checkbox" value="All Users" data-label="All Users" class="mr-3 w-4 h-4 text-sky-500 rounded border-sky-200 accent-sky-500 checkbox-3d" onchange="updateSelectedText('reassign')"><span class="font-bold text-sky-600">All Users</span></label>`;
+            const allHtml1 = `<label class="flex items-center p-2 hover:bg-indigo-50 rounded-md cursor-pointer border-b border-indigo-50/50 transition-colors"><input type="checkbox" value="All Users" data-label="All Users" class="mr-2 md:mr-3 checkbox-3d" onchange="updateSelectedText('doc')"><span class="font-bold text-indigo-600 text-xs md:text-sm">All Users</span></label>`;
+            const allHtml2 = `<label class="flex items-center p-2 hover:bg-sky-50 rounded-md cursor-pointer border-b border-sky-50/50 transition-colors"><input type="checkbox" value="All Users" data-label="All Users" class="mr-2 md:mr-3 checkbox-3d" onchange="updateSelectedText('reassign')"><span class="font-bold text-sky-600 text-xs md:text-sm">All Users</span></label>`;
             
             options1.innerHTML += allHtml1; options2.innerHTML += allHtml2;
             
             globalUsersData.forEach(u => {
                 const text = u.designation ? `${u.account} - ${u.designation}` : u.account;
-                options1.innerHTML += `<label class="flex items-center p-2.5 hover:bg-indigo-50/70 rounded-lg cursor-pointer transition-colors"><input type="checkbox" value="${u.account}" data-label="${text}" class="mr-3 w-4 h-4 rounded border-indigo-200 accent-indigo-500 checkbox-3d" onchange="updateSelectedText('doc')"><span class="text-slate-600 font-medium">${text}</span></label>`;
-                options2.innerHTML += `<label class="flex items-center p-2.5 hover:bg-sky-50/70 rounded-lg cursor-pointer transition-colors"><input type="checkbox" value="${u.account}" data-label="${text}" class="mr-3 w-4 h-4 rounded border-sky-200 accent-sky-500 checkbox-3d" onchange="updateSelectedText('reassign')"><span class="text-slate-600 font-medium">${text}</span></label>`;
+                options1.innerHTML += `<label class="flex items-center p-2 hover:bg-indigo-50/70 rounded-md cursor-pointer transition-colors"><input type="checkbox" value="${u.account}" data-label="${text}" class="mr-2 md:mr-3 checkbox-3d" onchange="updateSelectedText('doc')"><span class="text-slate-600 font-medium text-xs md:text-sm">${text}</span></label>`;
+                options2.innerHTML += `<label class="flex items-center p-2 hover:bg-sky-50/70 rounded-md cursor-pointer transition-colors"><input type="checkbox" value="${u.account}" data-label="${text}" class="mr-2 md:mr-3 checkbox-3d" onchange="updateSelectedText('reassign')"><span class="text-slate-600 font-medium text-xs md:text-sm">${text}</span></label>`;
             });
             
             updateSelectedText('doc'); updateSelectedText('reassign');
@@ -1330,7 +1352,7 @@
                 }
             }
 
-            let trH = '<tr>'; cols.forEach(c => trH += `<th class="p-3 md:p-4">${c.label}</th>`); head.innerHTML = trH + '</tr>';
+            let trH = '<tr>'; cols.forEach(c => trH += `<th class="p-2 md:p-4">${c.label}</th>`); head.innerHTML = trH + '</tr>';
 
             docs.forEach(doc => {
                 let tr = '<tr class="hover:bg-indigo-50/40 transition-colors">';
@@ -1339,7 +1361,7 @@
                 cols.forEach(c => {
                     let cellContent = '';
                     if (c.key === 'action') {
-                        cellContent = `<div class="flex flex-wrap gap-2">${getActions(currentDocTab, doc)}</div>`;
+                        cellContent = `<div class="flex flex-wrap gap-1.5 md:gap-2">${getActions(currentDocTab, doc)}</div>`;
                     } else if (c.key === 'status') {
                         let statusColor = "bg-slate-100 text-slate-600 border-slate-200";
                         let icon = "fa-layer-group";
@@ -1349,7 +1371,7 @@
                         else if(currentDocTab === "Receiving" || currentDocTab === "Incoming") { statusColor = "bg-blue-100 text-blue-700 border-blue-300"; icon = "fa-inbox"; }
                         else if(currentDocTab === "For Info") { statusColor = "bg-cyan-100 text-cyan-700 border-cyan-300"; icon = "fa-info-circle"; }
                         
-                        cellContent = `<span class="${statusColor} text-[11px] font-bold px-2.5 py-1 rounded-md border shadow-sm tracking-wide whitespace-nowrap"><i class="fa-solid ${icon} mr-1.5 opacity-80"></i>${currentDocTab}</span>`;
+                        cellContent = `<span class="${statusColor} text-[9px] md:text-[11px] font-bold px-1.5 md:px-2.5 py-0.5 md:py-1 rounded-md border shadow-sm tracking-wide whitespace-nowrap"><i class="fa-solid ${icon} mr-1 md:mr-1.5 opacity-80"></i>${currentDocTab}</span>`;
                     } else if (c.key === 'Title/Description') {
                         let titleText = doc['Title/Description'] || '';
                         let refNo = doc['Reference Number'] || '';
@@ -1365,10 +1387,10 @@
                         
                         let badgesHtml = '';
                         if (refNo) {
-                            badgesHtml += `<span class="bg-indigo-100 text-indigo-700 text-[10px] md:text-[11px] font-bold px-2 py-0.5 rounded border border-indigo-200 shadow-sm tracking-wide mr-1.5 mb-1 inline-block"><i class="fa-solid fa-hashtag mr-1 opacity-70"></i>${refNo}</span>`;
+                            badgesHtml += `<span class="bg-indigo-100 text-indigo-700 text-[9px] md:text-[11px] font-bold px-1.5 md:px-2 py-0.5 rounded border border-indigo-200 shadow-sm tracking-wide mr-1 md:mr-1.5 mb-1 inline-block"><i class="fa-solid fa-hashtag mr-1 opacity-70"></i>${refNo}</span>`;
                         }
                         if (originVal) {
-                            badgesHtml += `<span class="bg-blue-100 text-blue-700 text-[10px] md:text-[11px] font-bold px-2 py-0.5 rounded border border-blue-200 shadow-sm tracking-wide mr-1.5 mb-1 inline-block"><i class="fa-solid fa-building mr-1 opacity-70"></i>${originVal}</span>`;
+                            badgesHtml += `<span class="bg-blue-100 text-blue-700 text-[9px] md:text-[11px] font-bold px-1.5 md:px-2 py-0.5 rounded border border-blue-200 shadow-sm tracking-wide mr-1 md:mr-1.5 mb-1 inline-block"><i class="fa-solid fa-building mr-1 opacity-70"></i>${originVal}</span>`;
                         }
                         if (letterType) {
                             let typeBadgeColor = 'bg-slate-100 text-slate-700 border-slate-200';
@@ -1377,19 +1399,19 @@
                             } else if (letterType.includes('(No)')) {
                                 typeBadgeColor = 'bg-rose-100 text-rose-700 border-rose-200';
                             }
-                            badgesHtml += `<span class="${typeBadgeColor} text-[10px] md:text-[11px] font-bold px-2 py-0.5 rounded border shadow-sm tracking-wide mb-1 inline-block"><i class="fa-solid fa-tag mr-1 opacity-70"></i>${letterType}</span>`;
+                            badgesHtml += `<span class="${typeBadgeColor} text-[9px] md:text-[11px] font-bold px-1.5 md:px-2 py-0.5 rounded border shadow-sm tracking-wide mb-1 inline-block"><i class="fa-solid fa-tag mr-1 opacity-70"></i>${letterType}</span>`;
                         }
 
                         cellContent = `<div class="flex flex-col items-start gap-1">
                             <div class="flex flex-wrap items-center">${badgesHtml}</div>
-                            <span class="font-semibold text-slate-800 leading-snug">${titleText}</span>
+                            <span class="font-semibold text-slate-800 leading-snug text-xs md:text-sm">${titleText}</span>
                         </div>`;
                         
                     } else if (c.key === 'Date Viewed by User') {
                         let v = doc[c.key] || '';
                         if (v) {
                             const fDate = formatCustomDate(v);
-                            cellContent = `<span class="bg-sky-100 text-sky-700 px-2.5 py-1 rounded-md text-[11px] md:text-[12px] font-bold border border-sky-200 shadow-sm inline-flex items-center gap-1.5 mt-1 md:mt-0 whitespace-nowrap tracking-wide"><i class="fa-solid fa-eye opacity-80"></i>${fDate}</span>`;
+                            cellContent = `<span class="bg-sky-100 text-sky-700 px-1.5 md:px-2.5 py-0.5 md:py-1 rounded-md text-[9px] md:text-[12px] font-bold border border-sky-200 shadow-sm inline-flex items-center gap-1 mt-1 md:mt-0 whitespace-nowrap tracking-wide"><i class="fa-solid fa-eye opacity-80"></i>${fDate}</span>`;
                         }
                     } else {
                         let v = doc[c.key] || '';
@@ -1428,53 +1450,53 @@
                                     daysText = `${diffDays} days`;
                                 }
                                 
-                                cellContent = `<span class="${badgeClass} px-3 py-1.5 rounded-lg text-xs md:text-[13px] font-bold border inline-flex items-center gap-1.5 mt-1 md:mt-0 whitespace-nowrap tracking-wide"><i class="fa-solid ${icon}"></i>${fDate} (${daysText})</span>`;
+                                cellContent = `<span class="${badgeClass} px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-[10px] md:text-[13px] font-bold border inline-flex items-center gap-1 mt-1 md:mt-0 whitespace-nowrap tracking-wide"><i class="fa-solid ${icon}"></i>${fDate} (${daysText})</span>`;
                             } else { cellContent = v; }
                         } 
                         else if (c.key.includes('Date') || v instanceof Date || (typeof v === 'string' && v.includes('T00:00'))) {
                             cellContent = formatCustomDate(v);
                         } else {
-                            cellContent = v;
+                            cellContent = `<span class="text-xs md:text-sm">${v}</span>`;
                         }
                     }
-                    tr += `<td data-label="${c.label}" class="p-3 md:p-4 whitespace-normal text-sm font-medium md:font-normal text-slate-700">${cellContent}</td>`;
+                    tr += `<td data-label="${c.label}" class="p-2 md:p-4 whitespace-normal text-xs md:text-sm font-medium md:font-normal text-slate-700">${cellContent}</td>`;
                 });
                 body.innerHTML += tr + '</tr>';
             });
         }
 
         function getActions(tabName, doc) {
-            let html = `<button onclick="viewFile('${doc['Received File ID']}', ${doc.rowIndex}, '${tabName}')" class="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-eye"></i> View</button>`;
+            let html = `<button onclick="viewFile('${doc['Received File ID']}', ${doc.rowIndex}, '${tabName}')" class="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 transition-colors px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold tracking-wide"><i class="fa-solid fa-eye"></i> View</button>`;
             
             const safeTitle = (doc['Title/Description'] || '').replace(/'/g, "\\'").replace(/"/g, "&quot;");
             const safeUsers = (doc['User'] || '').replace(/'/g, "\\'").replace(/"/g, "&quot;");
             const safeDateRec = (doc['Date Received'] || '').replace(/'/g, "\\'").replace(/"/g, "&quot;");
 
             if(currentUser.role === 'Admin') {
-                html += `<button onclick="openEditModal(${doc.rowIndex}, '${tabName}')" class="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-pen"></i> Edit</button>`;
+                html += `<button onclick="openEditModal(${doc.rowIndex}, '${tabName}')" class="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 transition-colors px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold tracking-wide"><i class="fa-solid fa-pen"></i> Edit</button>`;
                 
                 if(tabName === 'Action Required' || tabName === 'For Info') {
-                    html += `<button onclick="openReassignModal(${doc.rowIndex}, '${safeUsers}')" class="bg-sky-100 text-sky-700 hover:bg-sky-200 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-user-pen"></i> Reassign</button>`;
-                    html += `<button onclick="openDatesModal(${doc.rowIndex})" class="bg-amber-100 text-amber-700 hover:bg-amber-200 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-calendar-plus"></i> Dates</button>`;
-                    html += `<button onclick="openArchiveModal(${doc.rowIndex})" class="bg-slate-200 text-slate-600 hover:bg-slate-300 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-box-archive"></i> Archive</button>`;
+                    html += `<button onclick="openReassignModal(${doc.rowIndex}, '${safeUsers}')" class="bg-sky-100 text-sky-700 hover:bg-sky-200 transition-colors px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold tracking-wide"><i class="fa-solid fa-user-pen"></i> Reassign</button>`;
+                    html += `<button onclick="openDatesModal(${doc.rowIndex})" class="bg-amber-100 text-amber-700 hover:bg-amber-200 transition-colors px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold tracking-wide"><i class="fa-solid fa-calendar-plus"></i> Dates</button>`;
+                    html += `<button onclick="openArchiveModal(${doc.rowIndex})" class="bg-slate-200 text-slate-600 hover:bg-slate-300 transition-colors px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold tracking-wide"><i class="fa-solid fa-box-archive"></i> Archive</button>`;
                 }
                 if(tabName === 'For Signature') {
-                    html += `<button onclick="openReassignModal(${doc.rowIndex}, '${safeUsers}')" class="bg-sky-100 text-sky-700 hover:bg-sky-200 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-user-pen"></i> Reassign</button>`;
-                    html += `<button onclick="openReplyModal(${doc.rowIndex}, '${safeTitle}')" class="bg-fuchsia-100 text-fuchsia-700 hover:bg-fuchsia-200 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-upload"></i> Reply</button>`;
-                    html += `<button onclick="openArchiveModal(${doc.rowIndex})" class="bg-slate-200 text-slate-600 hover:bg-slate-300 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-box-archive"></i> Archive</button>`;
+                    html += `<button onclick="openReassignModal(${doc.rowIndex}, '${safeUsers}')" class="bg-sky-100 text-sky-700 hover:bg-sky-200 transition-colors px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold tracking-wide"><i class="fa-solid fa-user-pen"></i> Reassign</button>`;
+                    html += `<button onclick="openReplyModal(${doc.rowIndex}, '${safeTitle}')" class="bg-fuchsia-100 text-fuchsia-700 hover:bg-fuchsia-200 transition-colors px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold tracking-wide"><i class="fa-solid fa-upload"></i> Reply</button>`;
+                    html += `<button onclick="openArchiveModal(${doc.rowIndex})" class="bg-slate-200 text-slate-600 hover:bg-slate-300 transition-colors px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold tracking-wide"><i class="fa-solid fa-box-archive"></i> Archive</button>`;
                 }
                 if(tabName === 'Approved') {
-                    html += `<button onclick="openReleaseModal(${doc.rowIndex})" class="bg-emerald-100 text-emerald-700 hover:bg-emerald-200 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-check-double"></i> Release</button>`;
+                    html += `<button onclick="openReleaseModal(${doc.rowIndex})" class="bg-emerald-100 text-emerald-700 hover:bg-emerald-200 transition-colors px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold tracking-wide"><i class="fa-solid fa-check-double"></i> Release</button>`;
                 }
                 if(['Approved', 'Completed', 'Archive'].includes(tabName) && doc['Reply File ID']) {
-                    html += `<button onclick="viewFile('${doc['Reply File ID']}', null, 'Reply')" class="bg-slate-200 text-slate-700 hover:bg-slate-300 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-envelope-open-text"></i> Reply File</button>`;
+                    html += `<button onclick="viewFile('${doc['Reply File ID']}', null, 'Reply')" class="bg-slate-200 text-slate-700 hover:bg-slate-300 transition-colors px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold tracking-wide"><i class="fa-solid fa-envelope-open-text"></i> Reply File</button>`;
                 }
             } else if(currentUser.role === 'User') {
                 if (tabName !== 'Completed' && tabName !== 'Archive') {
-                    html += `<button onclick="openReassignModal(${doc.rowIndex}, '${safeUsers}')" class="bg-sky-100 text-sky-700 hover:bg-sky-200 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-user-plus"></i> Assign</button>`;
+                    html += `<button onclick="openReassignModal(${doc.rowIndex}, '${safeUsers}')" class="bg-sky-100 text-sky-700 hover:bg-sky-200 transition-colors px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold tracking-wide"><i class="fa-solid fa-user-plus"></i> Assign</button>`;
                 }
                 if(['Processing', 'Completed', 'Archive'].includes(tabName) && doc['Reply File ID']) {
-                    html += `<button onclick="viewFile('${doc['Reply File ID']}', null, 'Reply')" class="bg-fuchsia-100 text-fuchsia-700 hover:bg-fuchsia-200 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"><i class="fa-solid fa-envelope-open-text"></i> Reply</button>`;
+                    html += `<button onclick="viewFile('${doc['Reply File ID']}', null, 'Reply')" class="bg-fuchsia-100 text-fuchsia-700 hover:bg-fuchsia-200 transition-colors px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold tracking-wide"><i class="fa-solid fa-envelope-open-text"></i> Reply</button>`;
                 }
             }
             return html;
