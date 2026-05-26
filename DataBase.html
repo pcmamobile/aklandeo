@@ -2228,15 +2228,26 @@
                 billContainer.className = 'flex flex-col gap-5 w-full';
                 if (serverData.BILLING && serverData.BILLING.headers) {
                     const excludeBILLING = ['CONTRACT ID', 'CONTRACT NO', 'YEAR', 'STATUS', 'ACTUAL', 'PROJECT NAME', 'CONTRACT COST', 'ORIG. EXPIRY', 'COC', 'REMARKS', '1111 FEBRUARY REMARKS', 'OPTION 1', 'OPTION 2', 'OPTION 2 CONTAINER', 'CONTRACTOR', 'NTP', 'REV. EXPIRY', 'PE', 'PAYMENT', 'LAST BILLING', '1111 JANUARY'];
-                    const billDynamicHeaders = serverData.BILLING.headers.filter(h => h && !excludeBILLING.includes(String(h).toUpperCase().trim()));
+                    const billHeaders = serverData.BILLING.headers;
 
+                    // Dynamically identify only the primary Net Amount headers (excluding any "Remarks" or excluded system columns)
+                    const mainHeaders = billHeaders.filter(h => {
+                        if (!h) return false;
+                        const uh = String(h).toUpperCase().trim();
+                        if (excludeBILLING.includes(uh)) return false;
+                        if (uh.endsWith(" REMARKS")) return false;
+                        return true;
+                    });
+
+                    // Match each primary Month header to its specific Remarks column to build clean chunks
                     let billChunks = [];
-                    for (let i = 0; i < billDynamicHeaders.length; i += 2) {
+                    mainHeaders.forEach(mainHdr => {
+                        const remHdr = billHeaders.find(h => h && String(h).toUpperCase().trim() === String(mainHdr).toUpperCase().trim() + " REMARKS");
                         billChunks.push({
-                            h1: billDynamicHeaders[i],
-                            h2: billDynamicHeaders[i+1]
+                            h1: mainHdr,
+                            h2: remHdr || null
                         });
-                    }
+                    });
                     billChunks.reverse();
 
                     let billHTML = `
@@ -2447,7 +2458,7 @@
             setInputVal('f_ntp', 'NTP'); 
             setInputVal('f_expiry', 'EXPIRY DATE');
             setInputVal('f_pe', 'PROJECT ENGINEER (PE)'); 
-            setInputVal('f_pi', 'PROJECT INSPECTOR (PI)');
+            setInputVal('f_pi', 'PROJECT Inspector (PI)');
             setInputVal('f_re', 'RESIDENT ENGINEER (RE)'); 
             setInputVal('f_qe', 'QUANTITY ENGINEER (QE)');
             setInputVal('f_me', 'MATERIALS ENGINEER (ME)'); 
