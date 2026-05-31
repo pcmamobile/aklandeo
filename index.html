@@ -13,6 +13,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
 
+  <!-- JWT Generation Library for High-Performance Direct Authentication -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.5.27/jsrsasign-all-min.js"></script>
+
   <style>
     /* =========================================================
        GLOBAL UI & ANIMATED ANIME BACKGROUND
@@ -316,6 +319,15 @@
       background:#eee;
       flex:0 0 auto;
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .card-thumb.loading-shimmer {
+      background: linear-gradient(90deg, #eceff1 25%, #f6f7f8 50%, #eceff1 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+    }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
     }
     .card-content{padding:4px 2px;flex:1;font-size:.8rem;line-height:1.2;}
     .contract-id{font-size:1.3rem;font-weight:900;color:#8b0000;letter-spacing:.2px;}
@@ -984,7 +996,11 @@
     if (btnGoProjects) {
       btnGoProjects.addEventListener("click", () => {
           PCMA.showView('appView');
-          document.getElementById("grid").classList.remove("hidden"); 
+          const grid = document.getElementById("grid");
+          if (!PCMA.state || !PCMA.state.records || PCMA.state.records.length === 0) {
+              grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#1e293b;font-weight:bold;font-size:1.2rem;"><div class="card-thumb loading-shimmer" style="width:50px;height:50px;border-radius:50%;margin:0 auto 15px auto;"></div>Fetching high priority data from Google...</div>';
+          }
+          grid.classList.remove("hidden"); 
           document.getElementById("resultInfo").classList.remove("hidden");
       });
     }
@@ -1054,13 +1070,16 @@
   });
 
   // =========================================================
-  // filter.js logic
+  // filter.js logic (Optimized with Secure Service Account Token Flow)
   // =========================================================
   (function () {
     PCMA.config = {
       SHEET_ID: "1LSYLZ7tfSeVupQMPsCOHG4SlnzPQqOAIe03QI1qRMr8",
       RANGE: "APP!A:AZ",
-      API_KEY: "AIzaSyCz6fNJr3ecn-M2HActqM1aCXbxqRLj2e8",
+      SERVICE_ACCOUNT: {
+        client_email: "pcma-mobile@gold-mode-473811-c6.iam.gserviceaccount.com",
+        private_key: `-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQC1sEJI1CN6V8mj\nAhBvpiLC7JOEbrFFxsvqbzJjitbDRbyRhbk7prF1NQqAz0OV8l+9/v69UJ3ddGmE\n3Oq4EEqgOmeEpfdSeJeMa+alsc0H+1E2EmWLnhGNv/ot91osgokv7tUG7p/WnGSf\n0IP2bmbbEmQfhganvTCTmhTASHUSK32O+ZmYklYwqs9qptWCFjS3lj+uhaQ2nAFQ\nGCloj6go1aRbQTGxDygwwxtK08v68EuApslm5qs/x08gnj1UEV/FfHDUvUbCswm2\nIRTULJqNoGTYNs4DxbUJClUwcf72xmddbiE/CbOWs1g626obziGNe6/Dq74Ws5IR\nj39h8S57AgMBAAECggEAPUZdDH/TGUM7Iykijuz6Yz/zPmIwkiZKBl4LIewkowXF\nY1S0lGwTBELnsGp2Uj9ET+kMU5+5JgNJRQBWfs4rxN79o4xvnVZDUh3f0zjkO5Fk\nIbbRnWUpaWN6Bf+aX1GE3/AN00EuEex7uTRTFQzFzpNkxgbm/rI9DEKWRgUJyp7j\nwrbzhTp2cRRrQaPtONZej68dUtkkAsd2rlt3Reht3/NCdmNRTjpRHqiICZvuZuHe\njebcK/ewVZWqW9XpwVMfjhZeyBnfzNqRElNxF4BtodjmSpw+TkWyPK9obVFEBDG5\nFeRxBk6aTdutNkIN2uXOPFBP7UV4evsD3fiuYMRFvQKBgQDbiMwo80cLbnV7fuq/\nSr1y2i/mj8XDVX6xOJWDXOhrHNEDcTpYHp5Ey5qQwQhkGOiK/aUJWfWHJGMLM7DY\n7l6nvRe+oX/1inocjKMkiq5TGDvptBv2T9rz0K3LFueFNcxAv7445GgCsFADgYBM\n67reu9QcmT6Uis2nUffzcleGNQKBgQDT3ibtkMmkeDi3sl1uY9PudlZqnCcP11Pi\nQJF4+thJYjN/bYBKA3F4GhRZzEKxW6jjF/mQ/kZDLHJeGI4Y0ETpz76kB4gSO1zc\nlsKZnGBvfug2Oz7/fnPfdpMdSsaFS9AHOHTm7TAiyMuSXciJ1Sy5LxVeELP91cbJ\nBsJtKX+37wKBgQDFKUSB+orxn1Bvivp0tkESpxWh8blgxqWzr+fHRGeP2x90Afqu\nLUFi86BrJJHOo/gk68uObHZv2qQA6XmIOfxUlSSAFjb/ZFBq13ulU89f3UHhj9oV\nCn7Pvbh3zqg7IKfB9vJ10dv/ni0eGO4LJyJ66yGCVba4XTh5bspKn4QviQKBgQCi\nud3sWWiGilAFx1k7kDEW1o1JFOZrpFcpT65r3T6CHoqvNMt0DXD5bg5zag9Pabct\ntRxZ4PLWZSzyWKnLJSvI6WbjVWWNm0qXorOUiCcJe8+e16JrWhRlbg1QUj5n4vLE\nmPgw5bwy+0ZgBOgh9TmEgkVHGk0kiS1E+Ywbi+QswQKBgQDOI10/zjkwXOmqHlX7\n7nkuSIG9Kojrt2XWIsecZ9xP4lnIq6oyBUxDLaj3MaSnGeuvJZjDHa7YxqyAZvOO\nPxJ2F55gm4PME6obOldAw8rWdTWmlpG5rm679Q01nupwlC5+rJPqSzW/GpibKjZa\ni2e4E1vAOiqCrUlBSDcvD1r+/g==\n-----END PRIVATE KEY-----`
+      },
       LOGO_FALLBACK: "https://lh3.googleusercontent.com/d/1VanVX82ANGfKA8jcGZL8cVDQh4EuN8-r=s800?authuser=0"
     };
 
@@ -1087,11 +1106,49 @@
 
     PCMA.el = el;
 
+    let oauthToken = null;
+    let tokenExp = 0;
+
+    async function getAuthToken() {
+      if (oauthToken && tokenExp > Date.now()) return oauthToken;
+      const header = { alg: "RS256", typ: "JWT" };
+      const now = Math.floor(Date.now() / 1000);
+      const claim = {
+        iss: PCMA.config.SERVICE_ACCOUNT.client_email,
+        scope: "https://www.googleapis.com/auth/spreadsheets",
+        aud: "https://oauth2.googleapis.com/token",
+        exp: now + 3600,
+        iat: now
+      };
+
+      const sHeader = JSON.stringify(header);
+      const sClaim = JSON.stringify(claim);
+      const sJWS = KJUR.jws.JWS.sign("RS256", sHeader, sClaim, PCMA.config.SERVICE_ACCOUNT.private_key);
+
+      const res = await fetch("https://oauth2.googleapis.com/token", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${sJWS}`
+      });
+      
+      const data = await res.json();
+      if (data.access_token) {
+        oauthToken = data.access_token;
+        tokenExp = Date.now() + (data.expires_in * 1000) - 60000;
+        return data.access_token;
+      } else {
+        throw new Error("Failed to get Google Token: " + (data.error_description || JSON.stringify(data)));
+      }
+    }
+
     async function loadData() {
-      const { SHEET_ID, RANGE, API_KEY } = PCMA.config;
-      const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`;
+      const { SHEET_ID, RANGE } = PCMA.config;
       try {
-        const res = await fetch(url);
+        const token = await getAuthToken();
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}`;
+        const res = await fetch(url, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
         const data = await res.json();
         if (!data.values || !data.values.length) throw new Error("No data");
 
