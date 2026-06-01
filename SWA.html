@@ -111,7 +111,7 @@
         </div>
     </div>
 
-    <!-- Login Portal Overlay (Sits underneath Loader initially, completely hides UI until authenticated) -->
+    <!-- Login Portal Overlay -->
     <div id="login-modal" class="fixed inset-0 z-[150] bg-dark-bg flex flex-col justify-center items-center p-4">
         <div class="bg-card-bg border border-slate-800 rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl p-7 flex flex-col gap-6">
             <div class="text-center">
@@ -190,8 +190,14 @@
                 
                 <!-- Contract Selector (Warm Peach Orange Pastel Container) -->
                 <div class="bg-[#2d2538] border border-[#4d3d5f] rounded-2xl p-4 shadow-sm flex flex-col gap-3">
-                    <label class="text-[10px] font-black text-orange-400 tracking-wider uppercase"><i class="fa-solid fa-file-contract mr-1"></i> Active Contract Identifier</label>
-                    <button onclick="openContractSelectorModal()" class="w-full bg-[#1d1b26] hover:bg-[#252233] border border-[#443854] rounded-xl py-3.5 px-4 text-left flex items-center justify-between transition-colors focus:outline-none">
+                    <div class="flex justify-between items-center">
+                        <label class="text-[10px] font-black text-orange-400 tracking-wider uppercase"><i class="fa-solid fa-file-contract mr-1"></i> Active Contract</label>
+                        <!-- ADDED FILTER BUTTON HERE -->
+                        <button onclick="openFilterMonthModal()" class="text-[9px] font-black tracking-widest uppercase bg-sky-950 text-sky-400 border border-sky-900 px-2.5 py-1 rounded hover:bg-sky-900 transition-colors shadow-sm shadow-sky-950/50">
+                            <i class="fa-solid fa-filter"></i> Filter
+                        </button>
+                    </div>
+                    <button onclick="openContractSelectorModal()" class="w-full bg-[#1d1b26] hover:bg-[#252233] border border-[#443854] rounded-xl py-3.5 px-4 text-left flex items-center justify-between transition-colors focus:outline-none mt-1">
                         <span id="selected-contract-display" class="font-bold text-orange-300 text-sm">Select Contract ID...</span>
                         <i class="fa-solid fa-chevron-down text-orange-400 text-xs"></i>
                     </button>
@@ -278,9 +284,9 @@
                     <table class="w-full text-left table-fixed border-collapse text-xs min-w-[320px]">
                         <thead>
                             <tr class="border-b border-slate-800 text-slate-400 uppercase font-black tracking-wider text-[10px] bg-slate-900/50">
-                                <th class="py-2 px-1 w-1/3">Item No.</th>
-                                <th class="py-2 px-1 w-1/3 text-right">Quantity</th>
-                                <th class="py-2 px-1 w-1/3 text-right">Unit Cost</th>
+                                <th class="py-2 px-1 w-1/2">Item No.</th>
+                                <th class="py-2 px-1 w-1/4 text-right">Quantity</th>
+                                <th class="py-2 px-1 w-1/4 text-right">Unit Cost</th>
                             </tr>
                         </thead>
                         <tbody id="items-editor-table-body" class="divide-y divide-slate-800/60">
@@ -324,18 +330,32 @@
                 <button onclick="closeContractSelectorModal()" class="text-slate-400 hover:text-rose-500 text-lg transition-colors"><i class="fa-solid fa-times-circle"></i></button>
             </div>
             
-            <!-- Quick Active Filter Bar -->
-            <div class="px-4 pt-3 pb-1">
-                <button id="toggle-updated-only" onclick="toggleUpdatedOnlyFilter()" class="w-full py-2.5 px-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-[10px] font-black tracking-wider uppercase text-slate-300 transition-colors flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-filter text-sky-400"></i> Show Updated Only (This Month)
-                </button>
-            </div>
-
             <div class="p-4 border-b border-slate-800">
-                <input type="text" id="contract-search-input" oninput="filterContractIds()" placeholder="Type to filter contracts..." class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-slate-200 focus:outline-none focus:border-sky-400 text-sm">
+                <input type="text" id="contract-search-input" oninput="filterContractIds()" placeholder="Type to search contracts..." class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-slate-200 focus:outline-none focus:border-sky-400 text-sm">
             </div>
             <div id="contract-list-results" class="p-2 overflow-y-auto flex-1 flex flex-col gap-1 min-h-[30vh]">
                 <!-- Sift results injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Dedicated Filter Month Modal overlay -->
+    <div id="filter-month-modal" class="fixed inset-0 z-50 bg-slate-950/40 backdrop-blur-md p-4 hidden flex-col justify-start pt-12">
+        <div class="bg-card-bg border border-slate-800 rounded-2xl w-full max-w-md mx-auto max-h-[80vh] flex flex-col overflow-hidden shadow-2xl">
+            <div class="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/50">
+                <span class="font-extrabold text-sm text-slate-200 tracking-wider uppercase"><i class="fa-solid fa-filter mr-1.5 text-sky-400"></i> Filter by Update Month</span>
+                <button onclick="closeFilterMonthModal()" class="text-slate-400 hover:text-rose-500 text-lg transition-colors"><i class="fa-solid fa-times-circle"></i></button>
+            </div>
+            
+            <div class="px-3 pt-4 pb-2 flex flex-col gap-2 border-b border-slate-800">
+                <label class="text-[10px] font-black text-slate-400 tracking-wider uppercase px-1">Select Month</label>
+                <div id="filter-month-carousel" class="flex gap-2 overflow-x-auto no-scrollbar py-1 px-1">
+                    <!-- Pills injected dynamically -->
+                </div>
+            </div>
+
+            <div id="filter-month-results" class="p-2 overflow-y-auto flex-1 flex flex-col gap-1 min-h-[30vh]">
+                <!-- Filtered Sift results injected here -->
             </div>
         </div>
     </div>
@@ -556,6 +576,13 @@
             });
         }
 
+        // Helper to convert formatted input strings like "P 1,234.00" back to pure numbers for math
+        function parseEditVal(val) {
+            if (!val) return 0;
+            const parsed = parseFloat(String(val).replace(/[^0-9.-]+/g, ""));
+            return isNaN(parsed) ? 0 : parsed;
+        }
+
         // =========================================================================
         // APPLICATION STATE MANAGEMENT
         // =========================================================================
@@ -577,7 +604,6 @@
             itemsLookupMap: {},             // Local lookup database for ITEMS sheet
             voLookupMap: {},                // Local lookup database for VO sheet (Amounts)
             pdoLookupMap: {},               // Local lookup database for PDO sheet
-            showUpdatedOnly: false          // Flag to display only contracts with entries in the selected month
         };
 
         // Initialize Application
@@ -974,7 +1000,7 @@
         }
 
         // =========================================================================
-        // CONTRACT SELECTION DIALOG LOGIC
+        // CONTRACT SELECTION & FILTER DIALOG LOGICS
         // =========================================================================
         function openContractSelectorModal() {
             document.getElementById('contract-search-input').value = '';
@@ -989,13 +1015,96 @@
             document.getElementById('contract-modal').classList.remove('flex');
         }
 
-        // Evaluates if a given contract has an entry with quantity > 0 for the selected month
-        function isContractUpdatedInActivePeriod(contractId) {
+        // FILTER MONTH MODAL LOGIC
+        let filterModalActiveMonth = 5;
+
+        function openFilterMonthModal() {
+            filterModalActiveMonth = appState.activeMonthOffset;
+            renderFilterMonthPills();
+            renderFilteredContracts();
+            document.getElementById('filter-month-modal').classList.remove('hidden');
+            document.getElementById('filter-month-modal').classList.add('flex');
+        }
+
+        function closeFilterMonthModal() {
+            document.getElementById('filter-month-modal').classList.add('hidden');
+            document.getElementById('filter-month-modal').classList.remove('flex');
+        }
+
+        function renderFilterMonthPills() {
+            const container = document.getElementById('filter-month-carousel');
+            container.innerHTML = '';
+            
+            const limitYear = 2026;
+            const limitMonthIdx = 5;
+            const maxOffset = (limitYear - START_YEAR) * 12 + limitMonthIdx;
+            
+            for (let i = 0; i <= maxOffset; i++) {
+                const label = getMonthLabel(i);
+                const btn = document.createElement('button');
+                btn.id = `filter-pill-${i}`;
+                btn.onclick = () => selectFilterMonth(i);
+                btn.className = `flex-shrink-0 px-4 py-2.5 rounded-full text-xs font-black border transition-all ${
+                    i === filterModalActiveMonth 
+                    ? 'bg-[#4c356d] text-purple-200 border-[#654693] shadow-sm shadow-[#4c356d]/50' 
+                    : 'bg-[#222335] text-slate-400 border-[#30324c] hover:bg-[#2a2a3e]'
+                }`;
+                btn.innerText = label;
+                container.appendChild(btn);
+            }
+
+            setTimeout(() => {
+                const activePill = document.getElementById(`filter-pill-${filterModalActiveMonth}`);
+                if (activePill) activePill.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+            }, 50);
+        }
+
+        function selectFilterMonth(offset) {
+            filterModalActiveMonth = offset;
+            renderFilterMonthPills();
+            renderFilteredContracts();
+        }
+
+        function renderFilteredContracts() {
+            const container = document.getElementById('filter-month-results');
+            container.innerHTML = '';
+
+            const filtered = appState.contractsList.filter(id => isContractUpdatedInMonth(id, filterModalActiveMonth));
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="text-center py-6 text-slate-400 font-bold text-xs">No projects updated in ${getMonthLabel(filterModalActiveMonth)}.</div>`;
+                return;
+            }
+
+            filtered.forEach(id => {
+                const btn = document.createElement('button');
+                btn.onclick = () => {
+                    selectMonthOffset(filterModalActiveMonth); // Automatically set app period to see the updates!
+                    selectContract(id);
+                    closeFilterMonthModal();
+                };
+                btn.className = `w-full text-left p-3 rounded-lg text-sm font-bold transition-all ${
+                    id === appState.selectedContractId && filterModalActiveMonth === appState.activeMonthOffset
+                    ? 'bg-sky-950 text-sky-400 border border-sky-900' 
+                    : 'text-slate-300 hover:bg-[#1a1b2b]'
+                }`;
+                btn.innerText = id;
+                container.appendChild(btn);
+            });
+        }
+
+        // Evaluates securely if contract has non-zero input for a specific month
+        function isContractUpdatedInMonth(contractId, targetMonthOffset) {
             const record = appState.rows.find(r => r.contractId === contractId);
             if (!record) return false;
 
+            const ntpStr = appState.pdoLookupMap[contractId] ? appState.pdoLookupMap[contractId].ntp : '';
+            const ntpOffset = parseNtpToOffset(ntpStr);
+            const monthDiff = targetMonthOffset - ntpOffset;
+
+            if (monthDiff < 0) return false;
+
             const row = record.values;
-            const rowNumber = record.rowNumber;
             const headers = appState.headers;
             const contractColIndex = findContractHeaderCol(headers);
 
@@ -1005,15 +1114,14 @@
                 const colHeader = String(headers[c] || '').trim();
                 const cellVal = String(row[c] || '').trim();
                 
-                const cacheKey = `${c}_${rowNumber}`;
+                const cacheKey = `${c}_${record.rowNumber}`;
                 const isLocallyModified = appState.modifiedCells[cacheKey] !== undefined;
 
                 if ((colHeader.toUpperCase().startsWith('ITEM') && cellVal !== "" && cellVal.includes('|')) || isLocallyModified) {
-                    const item = appState.modifiedCells[cacheKey] || parseCellToItem(cellVal, colHeader, c, rowNumber);
-                    const metrics = calculateMetrics(item.parts, appState.activeMonthOffset, item.headerName);
+                    const item = appState.modifiedCells[cacheKey] || parseCellToItem(cellVal, colHeader, c, record.rowNumber);
                     
-                    // Consider it updated if quantity this period is greater than zero
-                    if (metrics.thisPeriod > 0) {
+                    const val = parseFloat(item.parts[7 + monthDiff]) || 0;
+                    if (val !== 0) {
                         return true;
                     }
                 }
@@ -1021,34 +1129,12 @@
             return false;
         }
 
-        function toggleUpdatedOnlyFilter() {
-            appState.showUpdatedOnly = !appState.showUpdatedOnly;
-            const btn = document.getElementById('toggle-updated-only');
-            
-            if (appState.showUpdatedOnly) {
-                btn.className = "w-full py-2.5 px-3 bg-amber-950 hover:bg-amber-900 border border-amber-800 rounded-xl text-[10px] font-black tracking-wider uppercase text-amber-300 transition-colors flex items-center justify-center gap-2 shadow-sm shadow-amber-950";
-                btn.innerHTML = `<i class="fa-solid fa-filter-circle-xmark text-amber-400"></i> Show All Projects (Active)`;
-            } else {
-                btn.className = "w-full py-2.5 px-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-[10px] font-black tracking-wider uppercase text-slate-300 transition-colors flex items-center justify-center gap-2";
-                btn.innerHTML = `<i class="fa-solid fa-filter text-sky-400"></i> Show Updated Only (This Month)`;
-            }
-            filterContractIds();
-        }
-
         function filterContractIds() {
             const query = document.getElementById('contract-search-input').value.toLowerCase().trim();
             const container = document.getElementById('contract-list-results');
             container.innerHTML = '';
 
-            let filtered = appState.contractsList;
-
-            // Apply "updated only for this month" filter rule
-            if (appState.showUpdatedOnly) {
-                filtered = filtered.filter(id => isContractUpdatedInActivePeriod(id));
-            }
-
-            // Apply search filter rule
-            filtered = filtered.filter(id => id.toLowerCase().includes(query));
+            let filtered = appState.contractsList.filter(id => id.toLowerCase().includes(query));
 
             if (filtered.length === 0) {
                 container.innerHTML = `<div class="text-center py-6 text-slate-400 font-bold text-xs">No matching Contracts found.</div>`;
@@ -1713,7 +1799,7 @@
                 const desc = appState.itemsLookupMap[key].description || '';
                 const optionLabel = `${key} - ${desc}`;
                 const isSelected = (key === itemNo);
-                const activeClass = isSelected ? 'text-amber-300 bg-[#342e23]' : 'text-slate-300 hover:bg-[#1a1b2b]';
+                const activeClass = isSelected ? 'text-amber-300 bg-[#342e23] dropdown-selected-highlight' : 'text-slate-300 hover:bg-[#1a1b2b]';
                 
                 dropdownItemsHtml += `
                     <button type="button" 
@@ -1724,8 +1810,11 @@
                     </button>`;
             }
 
+            const qtyFormatted = qty ? formatNum(qty) : '';
+            const costFormatted = unitCost ? 'P ' + formatNum(unitCost) : '';
+
             tr.innerHTML = `
-                <td class="py-2.5 px-1 w-1/3 relative align-top">
+                <td class="py-2.5 px-1 w-1/2 relative align-top">
                     <div class="relative dropdown-container">
                         <!-- Custom Select Trigger Button -->
                         <button type="button" onclick="toggleDropdown(this)" class="w-full text-left bg-[#161724] border border-[#30324c] rounded-lg px-2 py-1.5 text-slate-300 text-xs font-bold focus:outline-none focus:border-sky-400 flex justify-between items-center dropdown-btn">
@@ -1746,11 +1835,23 @@
                         </div>
                     </div>
                 </td>
-                <td class="py-2.5 px-1 w-1/3 align-top">
-                    <input type="number" step="any" min="0" value="${qty || ''}" placeholder="0.00" class="w-full bg-[#161724] border border-[#30324c] rounded-lg px-2 py-1.5 text-slate-300 text-xs font-bold focus:outline-none focus:border-sky-400 text-right editor-qty">
+                <td class="py-2.5 px-1 w-1/4 align-top">
+                    <input type="text" 
+                        value="${qtyFormatted}" 
+                        data-raw="${qty || ''}"
+                        onfocus="this.value = this.dataset.raw"
+                        onblur="let v = parseEditVal(this.value); this.dataset.raw = this.value === '' ? '' : v; this.value = this.value === '' ? '' : formatNum(v);"
+                        placeholder="0.00" 
+                        class="w-full bg-[#161724] border border-[#30324c] rounded-lg px-2 py-1.5 text-slate-300 text-xs font-bold focus:outline-none focus:border-sky-400 text-right editor-qty">
                 </td>
-                <td class="py-2.5 px-1 w-1/3 align-top">
-                    <input type="number" step="any" min="0" value="${unitCost || ''}" placeholder="0.00" class="w-full bg-[#161724] border border-[#30324c] rounded-lg px-2 py-1.5 text-slate-300 text-xs font-bold focus:outline-none focus:border-sky-400 text-right editor-unit-cost">
+                <td class="py-2.5 px-1 w-1/4 align-top">
+                    <input type="text" 
+                        value="${costFormatted}" 
+                        data-raw="${unitCost || ''}"
+                        onfocus="this.value = this.dataset.raw"
+                        onblur="let v = parseEditVal(this.value); this.dataset.raw = this.value === '' ? '' : v; this.value = this.value === '' ? '' : 'P ' + formatNum(v);"
+                        placeholder="P 0.00" 
+                        class="w-full bg-[#161724] border border-[#30324c] rounded-lg px-2 py-1.5 text-slate-300 text-xs font-bold focus:outline-none focus:border-sky-400 text-right editor-unit-cost">
                 </td>
             `;
             tbody.appendChild(tr);
@@ -1776,6 +1877,14 @@
                 searchInput.value = '';
                 filterDropdownOptions(searchInput);
                 searchInput.focus();
+
+                // Auto-scroll instantly to the currently highlighted item to prevent unnecessary scrolling
+                setTimeout(() => {
+                    const selected = menu.querySelector('.dropdown-selected-highlight');
+                    if (selected) {
+                        selected.scrollIntoView({ behavior: 'auto', block: 'nearest' });
+                    }
+                }, 10);
             } else {
                 menu.classList.add('hidden');
                 menu.classList.remove('flex');
@@ -1806,7 +1915,7 @@
                 btn.className = "w-full text-left p-2 rounded text-[11px] font-bold tracking-wide dropdown-item-option text-slate-300 hover:bg-[#1a1b2b]";
             });
             if (itemNo) {
-                optionBtn.className = "w-full text-left p-2 rounded text-[11px] font-bold tracking-wide dropdown-item-option text-amber-300 bg-[#342e23]";
+                optionBtn.className = "w-full text-left p-2 rounded text-[11px] font-bold tracking-wide dropdown-item-option text-amber-300 bg-[#342e23] dropdown-selected-highlight";
             }
 
             menu.classList.add('hidden');
@@ -1817,7 +1926,9 @@
             if (tr) {
                 const costInput = tr.querySelector('.editor-unit-cost');
                 if (costInput && itemNo && appState.itemsLookupMap[itemNo]) {
-                    costInput.value = appState.itemsLookupMap[itemNo].unitCost || 0;
+                    const cost = appState.itemsLookupMap[itemNo].unitCost || 0;
+                    costInput.dataset.raw = cost;
+                    costInput.value = cost ? 'P ' + formatNum(cost) : '';
                 }
             }
         }
@@ -1877,8 +1988,10 @@
                 const tr = rows[i];
                 const colIdx = parseInt(tr.dataset.colIndex);
                 const itemNoInput = tr.querySelector('.editor-item-no').value.trim();
-                const qtyInput = parseFloat(tr.querySelector('.editor-qty').value) || 0;
-                const costInput = parseFloat(tr.querySelector('.editor-unit-cost').value) || 0;
+                
+                // Use reverse-parsing logic for formatted strings
+                const qtyInput = parseEditVal(tr.querySelector('.editor-qty').value);
+                const costInput = parseEditVal(tr.querySelector('.editor-unit-cost').value);
 
                 if (!itemNoInput) continue;
 
