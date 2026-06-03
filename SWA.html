@@ -195,11 +195,11 @@
     </header>
 
     <!-- Main Navigation / Responsive Viewports -->
-    <main class="p-4 lg:p-6 flex-1 max-w-6xl w-full mx-auto">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+    <main class="p-4 lg:p-6 2xl:p-10 flex-1 w-full mx-auto max-w-[1920px]">
+        <div class="grid grid-cols-1 lg:grid-cols-12 xl:grid-cols-12 gap-6 xl:gap-8 items-start">
             
-            <!-- Left Panel: Configurations & Active Metrics (Desktop: 4/12 width) -->
-            <div class="lg:col-span-4 flex flex-col gap-5 lg:sticky lg:top-20">
+            <!-- Left Panel: Configurations & Active Metrics (Desktop: 4/12 or 3/12 width) -->
+            <div class="lg:col-span-4 xl:col-span-3 flex flex-col gap-5 lg:sticky lg:top-20">
                 
                 <!-- Contract Selector (Warm Peach Orange Pastel Container) -->
                 <div class="bg-[#2d2538] border border-[#4d3d5f] rounded-2xl p-4 shadow-sm flex flex-col gap-3">
@@ -265,13 +265,21 @@
                     </div>
                 </div>
 
+                <!-- Monthly Remarks Container -->
+                <div id="remarks-container" class="hidden bg-[#1e1e2f] border border-slate-800 rounded-2xl p-4 shadow-sm flex-col gap-3">
+                    <div class="flex justify-between items-center">
+                        <label class="text-[10px] font-black text-amber-400 tracking-wider uppercase"><i class="fa-solid fa-comment-dots mr-1"></i> Monthly Remarks</label>
+                    </div>
+                    <textarea id="monthly-remarks" rows="3" oninput="onRemarksEdit(this)" class="w-full bg-[#171721] border border-slate-800 rounded-xl p-3 text-slate-300 text-xs focus:outline-none focus:border-amber-500 placeholder-slate-600 transition-colors resize-none" placeholder="Enter remarks for the selected month..."></textarea>
+                </div>
+
             </div>
 
-            <!-- Right Panel: SWA Card Items Viewport (Desktop: 8/12 width) -->
-            <div class="lg:col-span-8 flex flex-col gap-4">
-                <!-- Rendered as a multi-column responsive grid on PC / Tablets -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="items-list-container">
-                    <div class="col-span-1 md:col-span-2 text-center py-12 text-slate-400 bg-[#222335] border border-[#30324c] rounded-2xl shadow-sm">
+            <!-- Right Panel: SWA Card Items Viewport (Desktop: 8/12 or 9/12 width) -->
+            <div class="lg:col-span-8 xl:col-span-9 flex flex-col gap-4">
+                <!-- Rendered as a multi-column responsive grid dynamically adjusting for ultra-wide PC screens -->
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 xl:gap-6" id="items-list-container">
+                    <div class="col-span-full text-center py-12 text-slate-400 bg-[#222335] border border-[#30324c] rounded-2xl shadow-sm">
                         <i class="fa-solid fa-magnifying-glass text-4xl mb-3 opacity-25"></i>
                         <p class="text-xs font-bold">Please select a contract to view items.</p>
                     </div>
@@ -281,9 +289,9 @@
         </div>
     </main>
 
-    <!-- Multi-Item Batch Editor Modal Overlay -->
+    <!-- Multi-Item Batch Editor Modal Overlay (Widened for PC) -->
     <div id="items-editor-modal" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-md p-4 hidden flex-col justify-center items-center">
-        <div class="bg-card-bg border border-slate-800 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col max-h-[85vh]">
+        <div class="bg-card-bg border border-slate-800 rounded-2xl w-full max-w-4xl overflow-hidden shadow-2xl flex flex-col max-h-[85vh]">
             <div class="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/50">
                 <span class="font-extrabold text-sm text-amber-500 tracking-wider uppercase">
                     <i class="fa-solid fa-gears mr-1.5"></i> Add / Edit / Update Items
@@ -294,12 +302,12 @@
             </div>
             <div class="p-4 overflow-y-auto flex-1 flex flex-col gap-4" style="overflow-x: visible;">
                 <div class="overflow-x-auto no-scrollbar" style="overflow-x: visible;">
-                    <table class="w-full text-left table-fixed border-collapse text-xs min-w-[320px]">
+                    <table class="w-full text-left table-fixed border-collapse text-xs min-w-[500px]">
                         <thead>
                             <tr class="border-b border-slate-800 text-slate-400 uppercase font-black tracking-wider text-[10px] bg-slate-900/50">
-                                <th class="py-2 px-1 w-1/2">Item No.</th>
-                                <th class="py-2 px-1 w-1/4 text-right">Quantity</th>
-                                <th class="py-2 px-1 w-1/4 text-right">Unit Cost</th>
+                                <th class="py-2 px-1 w-[45%]">Item No. & Description</th>
+                                <th class="py-2 px-1 w-[25%] text-right">Target Quantity</th>
+                                <th class="py-2 px-1 w-[30%] text-right">Unit Cost</th>
                             </tr>
                         </thead>
                         <tbody id="items-editor-table-body" class="divide-y divide-slate-800/60">
@@ -1135,6 +1143,8 @@
                 if (c === contractColIndex) continue;
                 
                 const colHeader = String(headers[c] || '').trim();
+                if (colHeader.toUpperCase() === 'REMARKS') continue;
+
                 const cellVal = String(row[c] || '').trim();
                 
                 const cacheKey = `${c}_${record.rowNumber}`;
@@ -1229,12 +1239,19 @@
             }
 
             document.getElementById('items-list-container').innerHTML = `
-                <div class="col-span-1 md:col-span-2 text-center py-12 text-slate-400 bg-[#222335] border border-[#30324c] rounded-2xl shadow-sm">
+                <div class="col-span-full text-center py-12 text-slate-400 bg-[#222335] border border-[#30324c] rounded-2xl shadow-sm">
                     <i class="fa-solid fa-magnifying-glass text-4xl mb-3 opacity-25"></i>
                     <p class="text-xs font-bold">Please select a contract to view items.</p>
                 </div>
             `;
             updateGlobalStatsGrid(0, 0, 0);
+
+            const remarksContainer = document.getElementById('remarks-container');
+            if (remarksContainer) {
+                remarksContainer.classList.add('hidden');
+                remarksContainer.classList.remove('flex');
+            }
+
             updatePrintButtonState();
         }
 
@@ -1357,19 +1374,19 @@
 
             const validItems = [];
 
-            // Prepend "Add/Edit/Update Items" trigger button spanning responsive columns
+            // Prepend "Add/Edit/Update Items" trigger button spanning responsive columns dynamically
             const addBtn = document.createElement('button');
             if (isPastPeriod) {
                 addBtn.disabled = true;
-                addBtn.className = "col-span-1 md:col-span-2 py-3.5 border border-slate-800 bg-[#161724] text-slate-500 rounded-xl text-xs font-black tracking-widest uppercase flex items-center justify-center gap-2 mb-2 cursor-not-allowed opacity-50";
+                addBtn.className = "col-span-full py-3.5 border border-slate-800 bg-[#161724] text-slate-500 rounded-xl text-xs font-black tracking-widest uppercase flex items-center justify-center gap-2 mb-2 cursor-not-allowed opacity-50";
                 addBtn.innerHTML = `<i class="fa-solid fa-lock text-slate-600"></i> Locked (Past Period)`;
             } else if (!isAuthorized) {
                 addBtn.disabled = true;
-                addBtn.className = "col-span-1 md:col-span-2 py-3.5 border border-rose-900/50 bg-[#1a1014] text-rose-500/50 rounded-xl text-xs font-black tracking-widest uppercase flex items-center justify-center gap-2 mb-2 cursor-not-allowed";
+                addBtn.className = "col-span-full py-3.5 border border-rose-900/50 bg-[#1a1014] text-rose-500/50 rounded-xl text-xs font-black tracking-widest uppercase flex items-center justify-center gap-2 mb-2 cursor-not-allowed";
                 addBtn.innerHTML = `<i class="fa-solid fa-ban text-rose-700"></i> View-Only (Assigned to: ${contractLoginUser || 'None'})`;
             } else {
                 addBtn.onclick = openItemsEditorModal;
-                addBtn.className = "col-span-1 md:col-span-2 py-3.5 border border-dashed border-sky-800 hover:border-sky-500 bg-[#1c2e42] text-sky-300 rounded-xl text-xs font-black tracking-widest uppercase transition-all flex items-center justify-center gap-2 mb-2 shadow-sm";
+                addBtn.className = "col-span-full py-3.5 border border-dashed border-sky-800 hover:border-sky-500 bg-[#1c2e42] text-sky-300 rounded-xl text-xs font-black tracking-widest uppercase transition-all flex items-center justify-center gap-2 mb-2 shadow-sm";
                 addBtn.innerHTML = `<i class="fa-solid fa-gears"></i> Add/Edit/Update Items`;
             }
             container.appendChild(addBtn);
@@ -1379,6 +1396,8 @@
                 if (c === contractColIndex) continue;
                 
                 const colHeader = String(headers[c] || '').trim();
+                if (colHeader.toUpperCase() === 'REMARKS') continue;
+
                 const cellVal = String(row[c] || '').trim();
                 
                 // Track either existing parsed cells, or locally newly added items
@@ -1393,7 +1412,7 @@
 
             if (validItems.length === 0) {
                 const emptyMsg = document.createElement('div');
-                emptyMsg.className = "col-span-1 md:col-span-2 text-center py-12 text-slate-400 bg-[#222335] border border-[#30324c] rounded-2xl shadow-sm";
+                emptyMsg.className = "col-span-full text-center py-12 text-slate-400 bg-[#222335] border border-[#30324c] rounded-2xl shadow-sm";
                 emptyMsg.innerHTML = `
                     <i class="fa-solid fa-face-frown text-4xl mb-3 opacity-25"></i>
                     <p class="text-xs font-bold">No SWA item records identified for this contract.</p>
@@ -1402,6 +1421,8 @@
                 
                 const contractVo = appState.voLookupMap[appState.selectedContractId] || { amount: 0 };
                 updateGlobalStatsGrid(contractVo.amount, 0, 0);
+
+                renderRemarks();
                 return;
             }
 
@@ -1509,6 +1530,84 @@
             const actualPercent = contractAmount > 0 ? (totalToDateAmount / contractAmount) * 100 : 0;
 
             updateGlobalStatsGrid(contractAmount, totalToDateAmount, actualPercent);
+
+            renderRemarks();
+        }
+
+        // Add dynamically updated remarks container renderer
+        function renderRemarks() {
+            const container = document.getElementById('remarks-container');
+            if (!container) return;
+            
+            if (!appState.contractRowData) {
+                container.classList.add('hidden');
+                container.classList.remove('flex');
+                return;
+            }
+            
+            const headers = appState.headers;
+            const remarksColIdx = headers.findIndex(h => String(h || '').toUpperCase().trim() === 'REMARKS');
+            if (remarksColIdx === -1) {
+                container.classList.add('hidden');
+                container.classList.remove('flex');
+                return;
+            }
+            
+            container.classList.remove('hidden');
+            container.classList.add('flex');
+            
+            const row = appState.contractRowData.values;
+            const rowNumber = appState.contractRowData.rowNumber;
+            
+            const loginColIndex = headers.findIndex(h => String(h || '').toUpperCase().trim() === 'LOGIN');
+            const contractLoginUser = loginColIndex !== -1 && row[loginColIndex] ? String(row[loginColIndex]).trim() : '';
+            
+            const isPastPeriod = appState.activeMonthOffset < CURRENT_MONTH_OFFSET;
+            const isAuthorized = appState.loggedInUser && appState.loggedInUser !== 'Guest' && contractLoginUser.toLowerCase() === appState.loggedInUser.toLowerCase();
+            const isLocked = isPastPeriod || !isAuthorized;
+            
+            let ntpOffset = 0;
+            if (appState.selectedContractId && appState.pdoLookupMap[appState.selectedContractId]) {
+                const ntpStr = appState.pdoLookupMap[appState.selectedContractId].ntp;
+                ntpOffset = parseNtpToOffset(ntpStr);
+            }
+            const monthDiff = appState.activeMonthOffset - ntpOffset;
+            
+            const textarea = document.getElementById('monthly-remarks');
+            
+            if (monthDiff < 0) {
+                textarea.value = "";
+                textarea.placeholder = "Selected month is before NTP.";
+                textarea.disabled = true;
+                textarea.classList.add('cursor-not-allowed', 'opacity-60');
+                return;
+            }
+            
+            textarea.placeholder = `Enter remarks for ${getMonthLabel(appState.activeMonthOffset)}...`;
+            
+            const cacheKey = `${remarksColIdx}_${rowNumber}`;
+            let remarksStr = '';
+            
+            if (appState.modifiedCells[cacheKey]) {
+                const parts = appState.modifiedCells[cacheKey].parts;
+                remarksStr = parts[monthDiff] || '';
+            } else {
+                const cellVal = String(row[remarksColIdx] || '');
+                const parts = cellVal.split('|');
+                remarksStr = parts[monthDiff] || '';
+            }
+            
+            textarea.value = remarksStr;
+            
+            textarea.disabled = isLocked;
+            if (isLocked) {
+                textarea.classList.add('cursor-not-allowed', 'opacity-60');
+            } else {
+                textarea.classList.remove('cursor-not-allowed', 'opacity-60');
+            }
+            
+            textarea.dataset.colIndex = remarksColIdx;
+            textarea.dataset.rowNumber = rowNumber;
         }
 
         // New format parsing: "Item No.|Original|Unit Cost|Previous|This Period|To Date|Balance|Start at NTP|next month..."
@@ -1690,6 +1789,58 @@
             recalculateAggregatedTotals();
         }
 
+        // Handling user input on the Monthly Remarks textarea mapping
+        function onRemarksEdit(textarea) {
+            if (textarea.disabled) return;
+            
+            const colIdx = parseInt(textarea.dataset.colIndex);
+            const rowNumber = parseInt(textarea.dataset.rowNumber);
+            const cacheKey = `${colIdx}_${rowNumber}`;
+            
+            let ntpOffset = 0;
+            if (appState.selectedContractId && appState.pdoLookupMap[appState.selectedContractId]) {
+                const ntpStr = appState.pdoLookupMap[appState.selectedContractId].ntp;
+                ntpOffset = parseNtpToOffset(ntpStr);
+            }
+            const monthDiff = appState.activeMonthOffset - ntpOffset;
+            
+            if (monthDiff < 0) return;
+            
+            let val = textarea.value;
+            val = val.replace(/\|/g, '-'); // Replace pipes to avoid breaking structure
+            
+            let workingParts = [];
+            if (appState.modifiedCells[cacheKey]) {
+                workingParts = [...appState.modifiedCells[cacheKey].parts];
+            } else {
+                const cellVal = String(appState.contractRowData.values[colIdx] || '');
+                if (cellVal !== '') {
+                    workingParts = cellVal.split('|');
+                }
+            }
+            
+            while (workingParts.length <= monthDiff) {
+                workingParts.push('');
+            }
+            
+            workingParts[monthDiff] = val;
+            
+            appState.modifiedCells[cacheKey] = {
+                colIndex: colIdx,
+                colLetter: colToLetter(colIdx),
+                rowNumber: rowNumber,
+                headerName: 'REMARKS',
+                parts: workingParts
+            };
+            
+            const originalVal = String(appState.contractRowData.values[colIdx] || '');
+            if (originalVal === workingParts.join('|')) {
+                delete appState.modifiedCells[cacheKey];
+            }
+            
+            updatePendingBadge();
+        }
+
         // Recalculates aggregated totals for displaying progress
         function recalculateAggregatedTotals() {
             const container = document.getElementById('items-list-container');
@@ -1781,6 +1932,8 @@
                 if (c === contractColIndex) continue;
 
                 const colHeader = String(headers[c] || '').trim();
+                if (colHeader.toUpperCase() === 'REMARKS') continue;
+
                 const cellVal = String(rowValues[c] || '').trim();
 
                 const cacheKey = `${c}_${rowNumber}`;
@@ -1842,7 +1995,7 @@
             const costFormatted = unitCost ? 'P ' + formatNum(unitCost) : '';
 
             tr.innerHTML = `
-                <td class="py-2.5 px-1 w-1/2 relative align-top">
+                <td class="py-2.5 px-1 w-[45%] relative align-top">
                     <div class="relative dropdown-container">
                         <!-- Custom Select Trigger Button -->
                         <button type="button" onclick="toggleDropdown(this)" class="w-full text-left bg-[#161724] border border-[#30324c] rounded-lg px-2 py-1.5 text-slate-300 text-xs font-bold focus:outline-none focus:border-sky-400 flex justify-between items-center dropdown-btn">
@@ -1863,7 +2016,7 @@
                         </div>
                     </div>
                 </td>
-                <td class="py-2.5 px-1 w-1/4 align-top">
+                <td class="py-2.5 px-1 w-[25%] align-top">
                     <input type="text" 
                         value="${qtyFormatted}" 
                         data-raw="${qty || ''}"
@@ -1872,7 +2025,7 @@
                         placeholder="0.00" 
                         class="w-full bg-[#161724] border border-[#30324c] rounded-lg px-2 py-1.5 text-slate-300 text-xs font-bold focus:outline-none focus:border-sky-400 text-right editor-qty">
                 </td>
-                <td class="py-2.5 px-1 w-1/4 align-top">
+                <td class="py-2.5 px-1 w-[30%] align-top">
                     <input type="text" 
                         value="${costFormatted}" 
                         data-raw="${unitCost || ''}"
@@ -2434,6 +2587,8 @@
             for (let c = 0; c < row.length; c++) {
                 if (c === contractColIndex) continue;
                 const colHeader = String(headers[c] || '').trim();
+                if (colHeader.toUpperCase() === 'REMARKS') continue;
+
                 const cellVal = String(row[c] || '').trim();
                 const cacheKey = `${c}_${rowNumber}`;
                 const isLocallyAdded = appState.modifiedCells[cacheKey] !== undefined;
