@@ -46,12 +46,6 @@
             pointer-events: none;
         }
 
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
         .neon-border-glow:focus-within {
             box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
             border-color: #3b82f6;
@@ -93,20 +87,20 @@
     </div>
 
     <!-- Reusable Custom Confirmation / Alert Modal Overlay -->
-    <div id="confirm-modal" class="fixed inset-0 z-[250] bg-slate-900/40 backdrop-blur-md p-4 hidden flex-col justify-center items-center">
-        <div class="bg-white/80 backdrop-blur-xl border border-white/60 rounded-3xl w-full max-w-xs overflow-hidden shadow-[0_10px_40px_rgba(0,0,0,0.2)] transform transition-transform duration-300 scale-95" id="confirm-modal-box">
-            <div class="p-5 flex flex-col gap-4 text-center">
-                <div class="mx-auto w-14 h-14 bg-blue-50 border border-blue-200 shadow-inner rounded-full flex items-center justify-center text-blue-500 text-2xl">
+    <div id="confirm-modal" class="fixed inset-0 z-[250] bg-slate-900/60 backdrop-blur-md p-4 hidden flex-col justify-center items-center">
+        <div class="bg-white/95 backdrop-blur-xl border border-white/80 rounded-3xl w-full max-w-sm overflow-hidden shadow-[0_10px_40px_rgba(0,0,0,0.3)] transform transition-transform duration-300 scale-95" id="confirm-modal-box">
+            <div class="p-6 flex flex-col gap-4 text-center">
+                <div class="mx-auto w-16 h-16 bg-blue-50 border border-blue-200 shadow-inner rounded-full flex items-center justify-center text-blue-500 text-3xl">
                     <i class="fa-solid fa-circle-question" id="confirm-modal-icon"></i>
                 </div>
                 <div>
                     <h3 class="text-base font-black text-slate-800 tracking-wider" id="confirm-modal-title">Confirm Action</h3>
-                    <p id="confirm-modal-text" class="text-sm text-slate-600 mt-2 leading-relaxed px-2 whitespace-pre-line font-bold"></p>
+                    <p id="confirm-modal-text" class="text-sm text-slate-600 mt-3 leading-relaxed px-2 whitespace-pre-line font-bold"></p>
                 </div>
             </div>
-            <div class="p-4 bg-white/50 border-t border-white/60 grid grid-cols-2 gap-3" id="confirm-modal-actions">
-                <button id="confirm-btn-cancel" class="w-full py-2.5 rounded-xl border border-white/80 text-slate-600 bg-white/60 shadow-sm font-bold text-xs uppercase tracking-widest hover:bg-white/90 hover:shadow-md transition-all">Cancel</button>
-                <button id="confirm-btn-ok" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-black text-xs uppercase tracking-widest shadow-md shadow-blue-500/30 hover:scale-[1.02] transition-all">OK</button>
+            <div class="p-4 bg-slate-50/50 border-t border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-3" id="confirm-modal-actions">
+                <button id="confirm-btn-cancel" class="w-full py-3 rounded-xl border border-slate-300 text-slate-600 bg-white shadow-sm font-black text-xs uppercase tracking-widest hover:bg-slate-50 hover:shadow-md transition-all">Cancel</button>
+                <button id="confirm-btn-ok" class="w-full py-3 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-black text-xs uppercase tracking-widest shadow-md shadow-blue-500/30 hover:scale-[1.02] transition-all">OK</button>
             </div>
         </div>
     </div>
@@ -286,39 +280,39 @@
         </div>
     </main>
 
-    <!-- Multi-Item Batch Editor Modal Overlay -->
-    <div id="items-editor-modal" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-md p-4 hidden flex-col justify-center items-center">
-        <div class="bg-white/80 backdrop-blur-xl border border-white/80 rounded-[30px] w-full max-w-4xl overflow-hidden shadow-[0_20px_50px_rgba(31,38,135,0.2)] flex flex-col max-h-[85vh]">
-            <div class="p-5 border-b border-white/60 flex items-center justify-between bg-white/50">
-                <span class="font-black text-base text-amber-600 tracking-wider uppercase">
+    <!-- Multi-Item Batch Editor Modal Overlay (Responsive Full-Screen on Mobile) -->
+    <div id="items-editor-modal" class="fixed inset-0 z-50 bg-slate-50 md:bg-slate-900/50 md:backdrop-blur-md md:p-4 hidden flex-col justify-center items-center">
+        <div class="bg-slate-50 md:bg-white/80 md:backdrop-blur-xl border-none md:border md:border-white/80 rounded-none md:rounded-[30px] w-full h-[100dvh] md:h-auto md:max-w-4xl overflow-hidden shadow-none md:shadow-[0_20px_50px_rgba(31,38,135,0.2)] flex flex-col md:max-h-[85vh]">
+            <div class="p-4 md:p-5 border-b border-slate-200 md:border-white/60 flex items-center justify-between bg-white md:bg-white/50 shadow-sm md:shadow-none z-10 shrink-0">
+                <span class="font-black text-sm md:text-base text-amber-600 tracking-wider uppercase">
                     <i class="fa-solid fa-gears mr-2"></i> Add / Edit / Update Items
                 </span>
                 <button onclick="closeItemsEditorModal()" class="text-slate-400 hover:text-rose-500 text-2xl transition-colors">
                     <i class="fa-solid fa-times-circle"></i>
                 </button>
             </div>
-            <div class="p-5 overflow-y-auto flex-1 flex flex-col gap-4" style="overflow-x: visible;">
+            <div class="p-3 md:p-5 overflow-y-auto flex-1 flex flex-col gap-3 md:gap-4" style="overflow-x: visible;">
                 <div class="overflow-x-auto no-scrollbar" style="overflow-x: visible;">
-                    <table class="w-full text-left table-fixed border-collapse text-sm min-w-[500px]">
+                    <table class="w-full text-left table-fixed border-collapse text-xs md:text-sm min-w-[500px]">
                         <thead>
-                            <tr class="border-b border-white/60 text-slate-500 uppercase font-black tracking-wider text-[11px] bg-white/40">
-                                <th class="py-3 px-2 w-[45%]">Item No. & Description</th>
-                                <th class="py-3 px-2 w-[25%] text-right">Target Quantity</th>
-                                <th class="py-3 px-2 w-[30%] text-right">Unit Cost</th>
+                            <tr class="border-b border-slate-200 md:border-white/60 text-slate-500 uppercase font-black tracking-wider text-[10px] md:text-[11px] bg-slate-100 md:bg-white/40">
+                                <th class="py-2 px-1 md:py-3 md:px-2 w-[45%]">Item No. & Description</th>
+                                <th class="py-2 px-1 md:py-3 md:px-2 w-[25%] text-right">Target Quantity</th>
+                                <th class="py-2 px-1 md:py-3 md:px-2 w-[30%] text-right">Unit Cost</th>
                             </tr>
                         </thead>
-                        <tbody id="items-editor-table-body" class="divide-y divide-white/50">
+                        <tbody id="items-editor-table-body" class="divide-y divide-slate-200 md:divide-white/50">
                             <!-- Rows dynamically populated -->
                         </tbody>
                     </table>
                 </div>
-                <button onclick="addEmptyRowInEditor()" class="w-full py-3.5 border-2 border-dashed border-blue-300 hover:border-blue-500 bg-blue-50/50 text-blue-600 rounded-2xl text-sm font-black tracking-widest uppercase transition-all flex items-center justify-center gap-2 mt-2">
+                <button onclick="addEmptyRowInEditor()" class="w-full py-3 md:py-3.5 border-2 border-dashed border-blue-300 hover:border-blue-500 bg-blue-50 md:bg-blue-50/50 text-blue-600 rounded-xl md:rounded-2xl text-xs md:text-sm font-black tracking-widest uppercase transition-all flex items-center justify-center gap-2 mt-2 shadow-sm md:shadow-none">
                     <i class="fa-solid fa-plus-circle"></i> Add Row
                 </button>
             </div>
-            <div class="p-5 border-t border-white/60 bg-white/50 grid grid-cols-2 gap-4">
-                <button onclick="closeItemsEditorModal()" class="w-full py-3.5 rounded-xl border border-white/80 text-slate-600 bg-white/60 shadow-sm font-bold text-sm uppercase tracking-widest hover:bg-white/90 transition-all">Cancel</button>
-                <button onclick="saveItemsEditorChanges()" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-black text-sm uppercase tracking-widest shadow-lg shadow-amber-500/30 hover:scale-[1.02] transition-all">Apply Changes</button>
+            <div class="p-4 md:p-5 border-t border-slate-200 md:border-white/60 bg-white md:bg-white/50 grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4 z-10 shrink-0">
+                <button onclick="closeItemsEditorModal()" class="w-full py-3 md:py-3.5 rounded-xl border border-slate-300 md:border-white/80 text-slate-600 bg-white md:bg-white/60 shadow-sm font-bold text-sm uppercase tracking-widest hover:bg-slate-50 md:hover:bg-white/90 transition-all">Cancel</button>
+                <button onclick="saveItemsEditorChanges()" class="w-full py-3 md:py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-black text-sm uppercase tracking-widest shadow-lg shadow-amber-500/30 hover:scale-[1.02] transition-all">Apply Changes</button>
             </div>
         </div>
     </div>
@@ -502,7 +496,10 @@
             }
         }
 
-        function showConfirm(message, onConfirm) {
+        // --- UNSAVED CHANGES PROTECTION STATE ---
+        let editorIsDirty = false;
+
+        function showConfirm(message, onConfirm, okText = "OK", cancelText = "Cancel") {
             const modal = document.getElementById('confirm-modal');
             const textBox = document.getElementById('confirm-modal-text');
             const titleBox = document.getElementById('confirm-modal-title');
@@ -510,12 +507,15 @@
             const btnOk = document.getElementById('confirm-btn-ok');
             const btnCancel = document.getElementById('confirm-btn-cancel');
 
-            titleBox.innerText = "Confirm Action";
-            iconBox.className = "fa-solid fa-circle-question text-blue-500";
+            titleBox.innerText = "Warning / Confirmation";
+            iconBox.className = "fa-solid fa-circle-exclamation text-blue-500";
             textBox.innerText = message;
             
+            btnOk.innerText = okText;
+            btnCancel.innerText = cancelText;
+            
             btnCancel.classList.remove('hidden');
-            btnOk.className = "w-full py-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-black text-xs uppercase tracking-widest shadow-md shadow-blue-500/30 hover:scale-[1.02] transition-all";
+            btnOk.className = "w-full py-3 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-black text-xs uppercase tracking-widest shadow-md shadow-blue-500/30 hover:scale-[1.02] transition-all";
 
             modal.classList.remove('hidden');
             modal.classList.add('flex');
@@ -549,8 +549,9 @@
             iconBox.className = "fa-solid fa-triangle-exclamation text-rose-500";
             textBox.innerText = message;
             
+            btnOk.innerText = "OK";
             btnCancel.classList.add('hidden');
-            btnOk.className = "col-span-2 w-full py-2.5 rounded-xl bg-gradient-to-r from-rose-500 to-red-600 text-white font-black text-xs uppercase tracking-widest shadow-md shadow-rose-500/30 hover:scale-[1.02] transition-all";
+            btnOk.className = "col-span-1 sm:col-span-2 w-full py-3 rounded-xl bg-gradient-to-r from-rose-500 to-red-600 text-white font-black text-xs uppercase tracking-widest shadow-md shadow-rose-500/30 hover:scale-[1.02] transition-all";
 
             modal.classList.remove('hidden');
             modal.classList.add('flex');
@@ -590,9 +591,85 @@
             pdoLookupMap: {},
         };
 
+        // --- PARENT SPA BACK BUTTON INTERCEPTION ---
+        let originalParentGoBack = null;
+
         document.addEventListener('DOMContentLoaded', () => {
             initializeMonthSlider();
             fetchSheetData();
+
+            try {
+                if (window.parent && window.parent.PCMA && typeof window.parent.PCMA.goBack === 'function') {
+                    originalParentGoBack = window.parent.PCMA.goBack;
+                    window.parent.PCMA.goBack = function() {
+                        if (typeof window.handleAppBack === 'function') {
+                            window.handleAppBack();
+                        } else {
+                            originalParentGoBack.call(window.parent.PCMA);
+                        }
+                    };
+                }
+            } catch(e) {
+                console.warn("Could not bind parent back button", e);
+            }
+        });
+
+        window.handleAppBack = function() {
+            const isEditorOpen = !document.getElementById('items-editor-modal').classList.contains('hidden');
+            
+            if (isEditorOpen && editorIsDirty) {
+                showConfirm(
+                    "You have unsaved inputs in the Items Editor.\n\nDo you want to save first or exit and discard changes?", 
+                    () => {
+                        closeItemsEditorModalForce();
+                        checkMainStateAndExit();
+                    }, 
+                    "Exit Without Saving", 
+                    "I want to save first"
+                );
+            } else {
+                checkMainStateAndExit();
+            }
+        };
+
+        function checkMainStateAndExit() {
+            const hasMainChanges = Object.keys(appState.modifiedCells).length > 0;
+            if (hasMainChanges) {
+                showConfirm(
+                    "You have un-synchronized SWA updates!\n\nDo you want to save your progress first or exit?", 
+                    () => {
+                        executeParentBack();
+                    }, 
+                    "Exit Without Saving", 
+                    "I want to save first"
+                );
+            } else {
+                executeParentBack();
+            }
+        }
+
+        function executeParentBack() {
+            if (originalParentGoBack && window.parent && window.parent.PCMA) {
+                window.parent.PCMA.goBack = originalParentGoBack;
+                window.parent.PCMA.goBack();
+            }
+        }
+
+        window.addEventListener('unload', () => {
+            try {
+                if (originalParentGoBack && window.parent && window.parent.PCMA) {
+                    window.parent.PCMA.goBack = originalParentGoBack;
+                }
+            } catch(e){}
+        });
+
+        window.addEventListener('beforeunload', (e) => {
+            const hasChanges = Object.keys(appState.modifiedCells).length > 0 || editorIsDirty;
+            if (hasChanges) {
+                e.preventDefault();
+                e.returnValue = 'You have unsaved progress. Are you sure you want to exit?';
+                return e.returnValue;
+            }
         });
 
         function initializeMonthSlider() {
@@ -818,14 +895,36 @@
         }
 
         function logout() {
-            showConfirm("Are you sure you want to log out and terminate this session?", () => {
-                appState.loggedInUser = null;
-                localStorage.removeItem('swa_loggedInUser'); 
-                document.getElementById('login-username').value = '';
-                document.getElementById('header-username-display').innerText = '---';
-                document.getElementById('login-modal').classList.remove('hidden');
-                resetContractDisplay();
-            });
+            const hasChanges = Object.keys(appState.modifiedCells).length > 0 || editorIsDirty;
+            
+            if (hasChanges) {
+                showConfirm(
+                    "You have unsaved changes! Logging out will completely discard all your progress.\n\nWhat would you like to do?", 
+                    () => {
+                        performLogout();
+                    }, 
+                    "Exit & Logout", 
+                    "I want to save first"
+                );
+            } else {
+                showConfirm(
+                    "Are you sure you want to log out and terminate this session?", 
+                    () => {
+                        performLogout();
+                    }, 
+                    "Logout", 
+                    "Cancel"
+                );
+            }
+        }
+        
+        function performLogout() {
+            appState.loggedInUser = null;
+            localStorage.removeItem('swa_loggedInUser'); 
+            document.getElementById('login-username').value = '';
+            document.getElementById('header-username-display').innerText = '---';
+            document.getElementById('login-modal').classList.remove('hidden');
+            resetContractDisplay();
         }
 
         function buildItemsLookupMap(data) {
@@ -1129,12 +1228,17 @@
 
         function selectContract(id) {
             if (Object.keys(appState.modifiedCells).length > 0) {
-                showConfirm("Unsaved localized updates exist. Switching contracts will wipe outstanding edits. Proceed?", () => {
-                    appState.selectedContractId = id;
-                    appState.modifiedCells = {};
-                    updatePendingBadge();
-                    loadContract(id);
-                });
+                showConfirm(
+                    "Unsaved localized updates exist. Switching contracts will wipe outstanding edits.\n\nWhat would you like to do?", 
+                    () => {
+                        appState.selectedContractId = id;
+                        appState.modifiedCells = {};
+                        updatePendingBadge();
+                        loadContract(id);
+                    }, 
+                    "Switch & Discard", 
+                    "I want to save first"
+                );
             } else {
                 appState.selectedContractId = id;
                 appState.modifiedCells = {};
@@ -1823,6 +1927,7 @@
             const contractColIndex = findContractHeaderCol(headers);
 
             let hasItems = false;
+            editorIsDirty = false; 
 
             for (let c = 0; c < rowValues.length; c++) {
                 if (c === contractColIndex) continue;
@@ -1863,11 +1968,11 @@
                 ? `${itemNo} - ${(currentItemInfo && currentItemInfo.description) ? currentItemInfo.description : ''}` 
                 : '-- Select --';
 
-            let dropdownItemsHtml = `<button type="button" onclick="selectDropdownOption(this, '', '-- Select --')" class="w-full text-left p-3 rounded-lg text-sm text-slate-500 hover:bg-slate-100 font-bold tracking-wide">-- Select --</button>`;
+            let dropdownItemsHtml = `<button type="button" onclick="selectDropdownOption(this, '', '-- Select --')" class="w-full text-left p-2 md:p-3 rounded-md md:rounded-lg text-xs md:text-sm text-slate-500 hover:bg-slate-100 font-bold tracking-wide">-- Select --</button>`;
 
             const hasSelected = Object.keys(appState.itemsLookupMap).includes(itemNo);
             if (!hasSelected && itemNo) {
-                dropdownItemsHtml += `<button type="button" onclick="selectDropdownOption(this, '${itemNo}', '${initialLabel}')" class="w-full text-left p-3 rounded-lg text-sm text-blue-700 bg-blue-50 hover:bg-slate-100 font-bold tracking-wide dropdown-item-option" data-search-text="${itemNo.toLowerCase()}">${initialLabel}</button>`;
+                dropdownItemsHtml += `<button type="button" onclick="selectDropdownOption(this, '${itemNo}', '${initialLabel}')" class="w-full text-left p-2 md:p-3 rounded-md md:rounded-lg text-xs md:text-sm text-blue-700 bg-blue-50 hover:bg-slate-100 font-bold tracking-wide dropdown-item-option" data-search-text="${itemNo.toLowerCase()}">${initialLabel}</button>`;
             }
 
             for (const key in appState.itemsLookupMap) {
@@ -1879,7 +1984,7 @@
                 dropdownItemsHtml += `
                     <button type="button" 
                         onclick="selectDropdownOption(this, '${key}', '${key} - ${desc.replace(/'/g, "\\'")}')" 
-                        class="w-full text-left p-3 rounded-lg text-sm font-bold tracking-wide dropdown-item-option ${activeClass}" 
+                        class="w-full text-left p-2 md:p-3 rounded-md md:rounded-lg text-xs md:text-sm font-bold tracking-wide dropdown-item-option ${activeClass}" 
                         data-search-text="${key.toLowerCase()} ${desc.toLowerCase()}">
                         ${optionLabel}
                     </button>`;
@@ -1889,41 +1994,43 @@
             const costFormatted = unitCost ? 'P ' + formatNum(unitCost) : '';
 
             tr.innerHTML = `
-                <td class="py-3 px-2 w-[45%] relative align-top">
+                <td class="py-2 md:py-3 px-1 md:px-2 w-[45%] relative align-top">
                     <div class="relative dropdown-container">
-                        <button type="button" onclick="toggleDropdown(this)" class="w-full text-left bg-white/70 border border-white/80 shadow-inner rounded-xl px-4 py-3 text-slate-800 text-sm font-bold focus:outline-none focus:border-blue-400 flex justify-between items-center dropdown-btn">
+                        <button type="button" onclick="toggleDropdown(this)" class="w-full text-left bg-white/90 md:bg-white/70 border border-slate-200 md:border-white/80 shadow-sm md:shadow-inner rounded-lg md:rounded-xl px-2.5 md:px-4 py-2 md:py-3 text-slate-800 text-xs md:text-sm font-bold focus:outline-none focus:border-blue-400 flex justify-between items-center dropdown-btn">
                             <span class="truncate dropdown-selected-label">${initialLabel}</span>
-                            <i class="fa-solid fa-chevron-down text-slate-400 text-xs ml-2 shrink-0"></i>
+                            <i class="fa-solid fa-chevron-down text-slate-400 text-[10px] md:text-xs ml-1 md:ml-2 shrink-0"></i>
                         </button>
                         <input type="hidden" value="${itemNo || ''}" class="editor-item-no">
                         
-                        <div class="absolute left-0 z-[100] w-[300px] sm:w-[500px] md:w-[650px] max-w-[85vw] mt-2 bg-white/95 backdrop-blur-xl border border-white/80 rounded-2xl shadow-2xl hidden flex-col dropdown-menu">
-                            <div class="p-4 border-b border-slate-100 bg-slate-50/50 rounded-t-2xl">
-                                <input type="text" oninput="filterDropdownOptions(this)" placeholder="Search item or description..." class="w-full bg-white border border-slate-200 shadow-sm rounded-xl px-4 py-3 text-slate-800 text-sm font-bold focus:outline-none focus:border-blue-400 dropdown-search">
+                        <div class="absolute left-0 z-[100] w-[280px] sm:w-[500px] md:w-[650px] max-w-[85vw] mt-1.5 md:mt-2 bg-white md:bg-white/95 backdrop-blur-none md:backdrop-blur-xl border border-slate-200 md:border-white/80 rounded-xl md:rounded-2xl shadow-xl md:shadow-2xl hidden flex-col dropdown-menu">
+                            <div class="p-2 md:p-4 border-b border-slate-100 bg-slate-50 md:bg-slate-50/50 rounded-t-xl md:rounded-t-2xl">
+                                <input type="text" oninput="filterDropdownOptions(this)" placeholder="Search item or description..." class="w-full bg-white border border-slate-200 shadow-sm rounded-lg md:rounded-xl px-3 md:px-4 py-2 md:py-3 text-slate-800 text-xs md:text-sm font-bold focus:outline-none focus:border-blue-400 dropdown-search">
                             </div>
-                            <div class="max-h-[55vh] overflow-y-auto p-3 flex flex-col gap-1.5 dropdown-list no-scrollbar">
+                            <div class="max-h-[45vh] md:max-h-[55vh] overflow-y-auto p-1.5 md:p-3 flex flex-col gap-1 md:gap-1.5 dropdown-list no-scrollbar">
                                 ${dropdownItemsHtml}
                             </div>
                         </div>
                     </div>
                 </td>
-                <td class="py-3 px-2 w-[25%] align-top">
+                <td class="py-2 md:py-3 px-1 md:px-2 w-[25%] align-top">
                     <input type="text" 
                         value="${qtyFormatted}" 
                         data-raw="${qty || ''}"
+                        oninput="editorIsDirty = true;"
                         onfocus="this.value = this.dataset.raw"
                         onblur="let v = parseEditVal(this.value); this.dataset.raw = this.value === '' ? '' : v; this.value = this.value === '' ? '' : formatNum(v);"
                         placeholder="0.00" 
-                        class="w-full bg-white/70 border border-white/80 shadow-inner rounded-xl px-4 py-3 text-slate-800 text-sm font-bold focus:outline-none focus:border-blue-400 text-right editor-qty">
+                        class="w-full bg-white/90 md:bg-white/70 border border-slate-200 md:border-white/80 shadow-sm md:shadow-inner rounded-lg md:rounded-xl px-2.5 md:px-4 py-2 md:py-3 text-slate-800 text-xs md:text-sm font-bold focus:outline-none focus:border-blue-400 text-right editor-qty">
                 </td>
-                <td class="py-3 px-2 w-[30%] align-top">
+                <td class="py-2 md:py-3 px-1 md:px-2 w-[30%] align-top">
                     <input type="text" 
                         value="${costFormatted}" 
                         data-raw="${unitCost || ''}"
+                        oninput="editorIsDirty = true;"
                         onfocus="this.value = this.dataset.raw"
                         onblur="let v = parseEditVal(this.value); this.dataset.raw = this.value === '' ? '' : v; this.value = this.value === '' ? '' : 'P ' + formatNum(v);"
                         placeholder="P 0.00" 
-                        class="w-full bg-white/70 border border-white/80 shadow-inner rounded-xl px-4 py-3 text-slate-800 text-sm font-bold focus:outline-none focus:border-blue-400 text-right editor-unit-cost">
+                        class="w-full bg-white/90 md:bg-white/70 border border-slate-200 md:border-white/80 shadow-sm md:shadow-inner rounded-lg md:rounded-xl px-2.5 md:px-4 py-2 md:py-3 text-slate-800 text-xs md:text-sm font-bold focus:outline-none focus:border-blue-400 text-right editor-unit-cost">
                 </td>
             `;
             tbody.appendChild(tr);
@@ -1952,7 +2059,6 @@
                 menu.classList.remove('hidden');
                 menu.classList.add('flex');
                 
-                // Dynamically boost the parent row to prevent the dropdown from getting clipped behind the rows underneath it
                 if (tr) {
                     tr.style.position = 'relative';
                     tr.style.zIndex = '50';
@@ -1979,28 +2085,6 @@
             }
         }
 
-        document.addEventListener('click', (e) => {
-            // Dropdown Menu Auto-close
-            if (!e.target.closest('.dropdown-container')) {
-                document.querySelectorAll('.dropdown-menu').forEach(menu => {
-                    menu.classList.add('hidden');
-                    menu.classList.remove('flex');
-                    if (menu.closest('tr')) {
-                        menu.closest('tr').style.zIndex = '';
-                        menu.closest('tr').style.position = '';
-                    }
-                });
-            }
-            
-            // Modal Auto-close
-            const confirmBox = document.getElementById('confirm-modal-box');
-            const confirmModal = document.getElementById('confirm-modal');
-            if (confirmModal && !confirmModal.classList.contains('hidden') && e.target === confirmModal) {
-                confirmModal.classList.add('hidden');
-                confirmModal.classList.remove('flex');
-            }
-        });
-
         function selectDropdownOption(optionBtn, itemNo, label) {
             const container = optionBtn.closest('.dropdown-container');
             const hiddenInput = container.querySelector('.editor-item-no');
@@ -2011,11 +2095,13 @@
             hiddenInput.value = itemNo;
             displayLabel.innerText = label;
 
+            editorIsDirty = true;
+
             container.querySelectorAll('.dropdown-item-option').forEach(btn => {
-                btn.className = "w-full text-left p-3 rounded-lg text-sm font-bold tracking-wide dropdown-item-option text-slate-600 hover:bg-slate-100";
+                btn.className = "w-full text-left p-2 md:p-3 rounded-md md:rounded-lg text-xs md:text-sm font-bold tracking-wide dropdown-item-option text-slate-600 hover:bg-slate-100";
             });
             if (itemNo) {
-                optionBtn.className = "w-full text-left p-3 rounded-lg text-sm font-bold tracking-wide dropdown-item-option text-blue-800 bg-blue-100 dropdown-selected-highlight";
+                optionBtn.className = "w-full text-left p-2 md:p-3 rounded-md md:rounded-lg text-xs md:text-sm font-bold tracking-wide dropdown-item-option text-blue-800 bg-blue-100 dropdown-selected-highlight";
             }
 
             menu.classList.add('hidden');
@@ -2070,12 +2156,27 @@
                 return;
             }
 
+            editorIsDirty = true;
             appendEditorRow(emptyColIdx, '', '', '');
         }
 
         function closeItemsEditorModal() {
+            if (editorIsDirty) {
+                showConfirm(
+                    "You have unsaved inputs in the Items Editor.\n\nDo you want to save first or exit without saving?", 
+                    closeItemsEditorModalForce, 
+                    "Exit Without Saving", 
+                    "I want to save first"
+                );
+            } else {
+                closeItemsEditorModalForce();
+            }
+        }
+
+        function closeItemsEditorModalForce() {
             document.getElementById('items-editor-modal').classList.add('hidden');
             document.getElementById('items-editor-modal').classList.remove('flex');
+            editorIsDirty = false;
         }
 
         function saveItemsEditorChanges() {
@@ -2159,7 +2260,7 @@
                 changesCount++;
             }
 
-            closeItemsEditorModal();
+            closeItemsEditorModalForce();
             updatePendingBadge();
             renderItemsList();
 
@@ -2299,7 +2400,7 @@
                     document.getElementById('loader').classList.add('hidden');
                     showToast("Sync Error", err.message, "error");
                 }
-            });
+            }, "Sync Data", "Cancel");
         }
 
         function formatNum(num) {
