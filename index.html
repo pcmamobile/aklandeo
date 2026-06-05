@@ -880,6 +880,38 @@
   // =========================================================
   PCMA.viewStack = ['homeView'];
 
+  PCMA.updateBackButtonPosition = function(viewId) {
+      const footer = document.querySelector('.app-footer');
+      const footerInner = document.querySelector('.footer-inner');
+      if (!footer || !footerInner) return;
+      
+      let pos = 'lower-left';
+      if (viewId === 'modalView' || viewId === 'docsView' || viewId === 'uploadView') {
+          pos = 'upper-left';
+      } else if (viewId === 'moduleView') {
+          const src = document.getElementById('moduleFrame').src || '';
+          const decodedSrc = decodeURIComponent(src);
+          if (decodedSrc.includes('SWA.html') || decodedSrc.includes('Monitoring.html')) pos = 'upper-left';
+          else if (decodedSrc.includes('DocuTracker.html') || decodedSrc.includes('File Uploader.html')) pos = 'upper-right';
+          else if (decodedSrc.includes('DataBase.html')) pos = 'lower-left';
+      }
+      
+      if (pos === 'upper-left') {
+          footer.style.top = '0';
+          footer.style.bottom = 'auto';
+          footerInner.style.justifyContent = 'flex-start';
+      } else if (pos === 'upper-right') {
+          footer.style.top = '0';
+          footer.style.bottom = 'auto';
+          footerInner.style.justifyContent = 'flex-end';
+      } else {
+          // lower-left
+          footer.style.top = 'auto';
+          footer.style.bottom = '0';
+          footerInner.style.justifyContent = 'flex-start';
+      }
+  };
+
   PCMA.showView = function(viewId) {
       const views = ['homeView', 'appView', 'modalView', 'docsView', 'uploadView', 'moduleView', 'chatView'];
       views.forEach(id => {
@@ -893,6 +925,7 @@
       const footer = document.querySelector('.app-footer');
       if (footer) {
           footer.style.display = (viewId === 'chatView') ? 'none' : '';
+          PCMA.updateBackButtonPosition(viewId);
       }
 
       // Cleverly hide the Floating Chat button when a module is open so it doesn't overlap the view!
@@ -932,6 +965,7 @@
           const footer = document.querySelector('.app-footer');
           if (footer) {
               footer.style.display = (prevView === 'chatView') ? 'none' : '';
+              PCMA.updateBackButtonPosition(prevView);
           }
 
           // Reveal Chat button again if we return to the Home page

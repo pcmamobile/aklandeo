@@ -163,9 +163,14 @@
         <p id="loader-text" class="text-sm font-bold text-slate-600 mt-2 text-center px-6">Validating credentials and retrieving live data...</p>
     </div>
 
-    <!-- Header Section -->
-    <header class="bg-white/40 border-b border-white/50 backdrop-blur-lg sticky top-0 z-40 p-3 lg:p-4 flex items-center justify-between shadow-sm">
-        <div class="flex items-center gap-2">
+<!-- Header Section -->
+    <header class="bg-white/40 border-b border-white/50 backdrop-blur-lg sticky top-0 z-40 p-3 lg:p-4 flex items-center justify-between shadow-sm relative">
+        
+        <!-- Left Placeholder to balance flex layout naturally on larger screens -->
+        <div class="flex-1 hidden sm:block"></div>
+
+        <!-- Centered Action Buttons (Absolutely Centered for perfect alignment) -->
+        <div class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center gap-2 w-max z-10">
             <button onclick="saveChanges()" id="sync-button" disabled class="bg-white/50 border border-white/60 text-slate-400 px-3 py-2 lg:px-5 lg:py-2.5 rounded-xl font-black text-xs transition-all flex items-center gap-1.5 cursor-not-allowed">
                 <i class="fa-solid fa-cloud-arrow-up"></i> Save
                 <span id="pending-changes-counter" class="hidden"></span>
@@ -176,12 +181,13 @@
             </button>
         </div>
         
-        <div class="flex items-center gap-3 lg:gap-4">
+        <!-- Right Profile Section -->
+        <div class="flex items-center justify-end gap-3 lg:gap-4 flex-1 relative z-20">
             <div class="text-right hidden sm:block">
                 <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest leading-none mb-1">User Profile</p>
                 <p id="header-username-display" class="text-xs font-black text-blue-700 uppercase leading-none truncate max-w-[120px]">---</p>
             </div>
-            <button onclick="logout()" class="w-10 h-10 rounded-full bg-white/70 border border-white/80 text-slate-600 flex items-center justify-center hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition-all shadow-sm" title="Logout">
+            <button onclick="logout()" class="w-10 h-10 rounded-full bg-white/70 border border-white/80 text-slate-600 flex items-center justify-center hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition-all shadow-sm shrink-0" title="Logout">
                 <i class="fa-solid fa-power-off text-sm"></i>
             </button>
         </div>
