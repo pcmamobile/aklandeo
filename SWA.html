@@ -11,38 +11,50 @@
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- JWT Generation Library (Required for Client-Side Google API Auth) -->
+    <!-- JWT Generation Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.5.27/jsrsasign-all-min.js"></script>
 
-    <!-- Tailwind Configuration -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'dark-bg': '#171721', // Moody Dark Pastel Lavender Base
-                        'card-bg': '#222335', // Deep desaturated Plum Surface
-                        'neon-blue': '#0284c7', // Sky Blue
-                        'neon-purple': '#7e22ce', // Lilac Purple
-                        'neon-green': '#059669', // Sage Green
-                        'neon-orange': '#ea580c', // Peach Orange
-                        'neon-pink': '#e11d48' // Coral Pink
-                    }
-                }
-            }
-        }
-    </script>
     <style>
+        /* =========================================================
+           GLOBAL UI & ANIMATED ANIME BACKGROUND (From index.html)
+           ========================================================= */
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800;900&display=swap');
+        
         body {
-            background-color: #171721;
-            color: #cbd5e1;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Nunito', sans-serif;
+            margin: 0;
+            color: #1e293b;
+            /* Stunning Pastel Anime Sky Background */
+            background-image: url('https://images.unsplash.com/photo-1500964757637-c85e8a162699?q=80&w=2560&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            position: relative;
             -webkit-tap-highlight-color: transparent;
+            min-height: 100vh;
+        }
+
+        /* Magic Color-Shifting Overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(45deg, rgba(255, 154, 158, 0.4), rgba(254, 207, 239, 0.4), rgba(161, 196, 253, 0.4));
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         .neon-border-glow:focus-within {
-            box-shadow: 0 0 10px rgba(14, 165, 233, 0.2);
-            border-color: #0284c7;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+            border-color: #3b82f6;
         }
 
         /* Hide scrollbars but allow functional scrolling */
@@ -56,103 +68,91 @@
 
         /* Print Specific Isolated Rules */
         @media print {
-            body * {
-                visibility: hidden;
-            }
-            #print-report-modal, #print-report-modal * {
-                visibility: visible;
-            }
+            body * { visibility: hidden; }
+            body::before { display: none; }
+            body { background: white !important; }
+            #print-report-modal, #print-report-modal * { visibility: visible; }
             #print-report-modal {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-                height: auto;
-                background-color: white !important;
-                padding: 0 !important;
-                margin: 0 !important;
-                box-shadow: none !important;
-                backdrop-filter: none !important;
-                display: flex !important;
-                overflow-y: visible !important;
+                position: absolute; left: 0; top: 0; width: 100%; height: auto;
+                background-color: white !important; padding: 0 !important; margin: 0 !important;
+                box-shadow: none !important; backdrop-filter: none !important;
+                display: flex !important; overflow-y: visible !important;
             }
-            .print\:hidden {
-                display: none !important;
-            }
+            .print\:hidden { display: none !important; }
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col pb-6">
+<body class="flex flex-col pb-6">
 
     <!-- Toast Notification Tray -->
     <div id="toast-notification" class="fixed top-4 left-1/2 -translate-x-1/2 z-[200] max-w-sm w-[90%] transform -translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
-        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-xl flex items-center gap-3" id="toast-box">
+        <div class="bg-white/90 backdrop-blur-md border rounded-xl p-4 shadow-2xl flex items-center gap-3" id="toast-box">
             <i id="toast-icon" class="fa-solid fa-circle-check text-xl"></i>
             <span id="toast-text" class="text-sm font-bold"></span>
         </div>
     </div>
 
     <!-- Reusable Custom Confirmation / Alert Modal Overlay -->
-    <div id="confirm-modal" class="fixed inset-0 z-[250] bg-slate-950/80 backdrop-blur-md p-4 hidden flex-col justify-center items-center">
-        <div class="bg-card-bg border border-slate-800 rounded-2xl w-full max-w-xs overflow-hidden shadow-2xl transform transition-transform duration-300 scale-95" id="confirm-modal-box">
+    <div id="confirm-modal" class="fixed inset-0 z-[250] bg-slate-900/40 backdrop-blur-md p-4 hidden flex-col justify-center items-center">
+        <div class="bg-white/80 backdrop-blur-xl border border-white/60 rounded-3xl w-full max-w-xs overflow-hidden shadow-[0_10px_40px_rgba(0,0,0,0.2)] transform transition-transform duration-300 scale-95" id="confirm-modal-box">
             <div class="p-5 flex flex-col gap-4 text-center">
-                <div class="mx-auto w-12 h-12 bg-sky-950 border border-sky-900 rounded-full flex items-center justify-center text-sky-400 text-lg">
+                <div class="mx-auto w-14 h-14 bg-blue-50 border border-blue-200 shadow-inner rounded-full flex items-center justify-center text-blue-500 text-2xl">
                     <i class="fa-solid fa-circle-question" id="confirm-modal-icon"></i>
                 </div>
                 <div>
-                    <h3 class="text-sm font-black text-slate-200 uppercase tracking-wider" id="confirm-modal-title">Confirm Action</h3>
-                    <p id="confirm-modal-text" class="text-xs text-slate-400 mt-2 leading-relaxed px-2 whitespace-pre-line"></p>
+                    <h3 class="text-base font-black text-slate-800 tracking-wider" id="confirm-modal-title">Confirm Action</h3>
+                    <p id="confirm-modal-text" class="text-sm text-slate-600 mt-2 leading-relaxed px-2 whitespace-pre-line font-bold"></p>
                 </div>
             </div>
-            <div class="p-4 bg-slate-900/50 border-t border-slate-800 grid grid-cols-2 gap-3" id="confirm-modal-actions">
-                <button id="confirm-btn-cancel" class="w-full py-2.5 rounded-xl border border-slate-700 text-slate-300 bg-slate-800 font-bold text-xs uppercase tracking-widest hover:bg-slate-700 transition-colors">Cancel</button>
-                <button id="confirm-btn-ok" class="w-full py-2.5 rounded-xl bg-sky-600 text-white font-black text-xs uppercase tracking-widest shadow-md shadow-sky-900 hover:bg-sky-500 transition-all">OK</button>
+            <div class="p-4 bg-white/50 border-t border-white/60 grid grid-cols-2 gap-3" id="confirm-modal-actions">
+                <button id="confirm-btn-cancel" class="w-full py-2.5 rounded-xl border border-white/80 text-slate-600 bg-white/60 shadow-sm font-bold text-xs uppercase tracking-widest hover:bg-white/90 hover:shadow-md transition-all">Cancel</button>
+                <button id="confirm-btn-ok" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-black text-xs uppercase tracking-widest shadow-md shadow-blue-500/30 hover:scale-[1.02] transition-all">OK</button>
             </div>
         </div>
     </div>
 
     <!-- Login Portal Overlay -->
-    <div id="login-modal" class="fixed inset-0 z-[150] bg-dark-bg flex flex-col justify-center items-center p-4">
-        <div class="bg-card-bg border border-slate-800 rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl p-7 flex flex-col gap-6">
+    <div id="login-modal" class="fixed inset-0 z-[150] bg-slate-900/40 backdrop-blur-md flex flex-col justify-center items-center p-4">
+        <div class="bg-white/70 backdrop-blur-xl border border-white/80 rounded-[35px] w-full max-w-sm overflow-hidden shadow-[0_20px_50px_rgba(31,38,135,0.2)] p-8 flex flex-col gap-6">
             <div class="text-center">
-                <div class="mx-auto w-16 h-16 bg-sky-950 border border-sky-900 rounded-full flex items-center justify-center text-sky-400 text-2xl mb-4 shadow-sm shadow-sky-950">
+                <div class="mx-auto w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 border-2 border-white rounded-full flex items-center justify-center text-blue-600 text-3xl mb-4 shadow-lg shadow-blue-500/20">
                     <i class="fa-solid fa-user-lock"></i>
                 </div>
-                <h2 class="text-lg font-black text-slate-200 tracking-wider">SWA PORTAL</h2>
-                <p class="text-[11px] font-bold text-slate-400 mt-1 uppercase tracking-widest">Authentication Required</p>
+                <h2 class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 tracking-wider">SWA PORTAL</h2>
+                <p class="text-xs font-bold text-slate-500 mt-1 uppercase tracking-widest">Authentication Required</p>
             </div>
             
-            <div id="login-error" class="hidden bg-rose-950/50 border border-rose-900 text-rose-400 text-[10px] font-bold p-2.5 rounded-xl text-center uppercase tracking-wider shadow-inner"></div>
+            <div id="login-error" class="hidden bg-rose-50/90 border border-rose-200 text-rose-600 text-xs font-bold p-3 rounded-xl text-center uppercase tracking-wider shadow-inner"></div>
             
             <div class="flex flex-col gap-4">
                 <div>
-                    <label class="text-[10px] font-black text-slate-400 tracking-wider uppercase mb-1.5 block">Username</label>
-                    <div class="relative">
-                        <i class="fa-solid fa-user absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-500"></i>
-                        <input type="text" id="login-username" class="w-full bg-[#161724] border border-[#30324c] rounded-xl pl-10 pr-4 py-3.5 text-slate-200 text-sm font-bold focus:outline-none focus:border-sky-500 transition-colors placeholder-slate-600" placeholder="Enter ID">
+                    <label class="text-[10px] font-black text-slate-600 tracking-wider uppercase mb-1.5 block">Username</label>
+                    <div class="relative neon-border-glow rounded-xl">
+                        <i class="fa-solid fa-user absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                        <input type="text" id="login-username" class="w-full bg-white/70 border border-white/60 rounded-xl pl-10 pr-4 py-3.5 text-slate-800 text-sm font-bold focus:outline-none focus:bg-white shadow-inner transition-colors placeholder-slate-400" placeholder="Enter ID">
                     </div>
                 </div>
                 <div>
-                    <label class="text-[10px] font-black text-slate-400 tracking-wider uppercase mb-1.5 block">Password</label>
-                    <div class="relative">
-                        <i class="fa-solid fa-key absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-500"></i>
-                        <input type="password" id="login-password" onkeypress="if(event.key === 'Enter') attemptLogin()" class="w-full bg-[#161724] border border-[#30324c] rounded-xl pl-10 pr-4 py-3.5 text-slate-200 text-sm font-bold focus:outline-none focus:border-sky-500 transition-colors placeholder-slate-600" placeholder="••••••••">
+                    <label class="text-[10px] font-black text-slate-600 tracking-wider uppercase mb-1.5 block">Password</label>
+                    <div class="relative neon-border-glow rounded-xl">
+                        <i class="fa-solid fa-key absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                        <input type="password" id="login-password" onkeypress="if(event.key === 'Enter') attemptLogin()" class="w-full bg-white/70 border border-white/60 rounded-xl pl-10 pr-4 py-3.5 text-slate-800 text-sm font-bold focus:outline-none focus:bg-white shadow-inner transition-colors placeholder-slate-400" placeholder="••••••••">
                     </div>
                 </div>
             </div>
             
-            <div class="flex flex-col gap-3 mt-1">
-                <button onclick="attemptLogin()" class="w-full py-4 rounded-xl bg-sky-600 text-white font-black text-xs uppercase tracking-widest shadow-md shadow-sky-900 hover:bg-sky-500 transition-all">
+            <div class="flex flex-col gap-3 mt-2">
+                <button onclick="attemptLogin()" class="w-full py-4 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-black text-xs uppercase tracking-widest shadow-lg shadow-blue-500/30 hover:scale-[1.02] transition-all">
                     Verify & Login
                 </button>
                 
-                <div class="relative flex items-center py-1">
-                    <div class="flex-grow border-t border-slate-700/50"></div>
-                    <span class="flex-shrink-0 mx-4 text-slate-500 text-[9px] font-bold uppercase tracking-widest">Or</span>
-                    <div class="flex-grow border-t border-slate-700/50"></div>
+                <div class="relative flex items-center py-2">
+                    <div class="flex-grow border-t border-slate-300/50"></div>
+                    <span class="flex-shrink-0 mx-4 text-slate-400 text-[10px] font-bold uppercase tracking-widest">Or</span>
+                    <div class="flex-grow border-t border-slate-300/50"></div>
                 </div>
                 
-                <button onclick="attemptGuestLogin()" class="w-full py-4 rounded-xl bg-slate-800 text-slate-300 border border-slate-700 font-black text-xs uppercase tracking-widest hover:bg-slate-700 transition-all shadow-sm">
+                <button onclick="attemptGuestLogin()" class="w-full py-4 rounded-xl bg-white/60 text-slate-600 border border-white/80 font-black text-xs uppercase tracking-widest hover:bg-white/90 hover:shadow-md transition-all">
                     Continue as Guest
                 </button>
             </div>
@@ -160,36 +160,35 @@
     </div>
 
     <!-- Loader Overlay -->
-    <div id="loader" class="fixed inset-0 z-[200] bg-slate-950/95 flex flex-col items-center justify-center backdrop-blur-md">
+    <div id="loader" class="fixed inset-0 z-[200] bg-white/60 backdrop-blur-xl flex flex-col items-center justify-center">
         <div class="relative flex items-center justify-center mb-6">
-            <div class="w-16 h-16 border-4 border-t-sky-600 border-r-purple-500 border-b-pink-500 border-l-transparent rounded-full animate-spin"></div>
-            <i class="fa-solid fa-cube text-2xl text-sky-600 absolute"></i>
+            <div class="w-20 h-20 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin shadow-lg"></div>
+            <i class="fa-solid fa-cube text-3xl text-blue-600 absolute"></i>
         </div>
-        <h2 class="text-xl font-black text-slate-200 tracking-wider" id="loader-title">Loading SWA System</h2>
-        <p id="loader-text" class="text-xs text-slate-400 mt-2 text-center px-6">Validating credentials and retrieving live SWA data...</p>
+        <h2 class="text-2xl font-black text-slate-800 tracking-wider" id="loader-title">Loading SWA System</h2>
+        <p id="loader-text" class="text-sm font-bold text-slate-600 mt-2 text-center px-6">Validating credentials and retrieving live data...</p>
     </div>
 
     <!-- Header Section -->
-    <header class="bg-[#1e1e2f] border-b border-slate-800 backdrop-blur-md sticky top-0 z-40 p-3 lg:p-4 flex items-center justify-between shadow-sm">
+    <header class="bg-white/40 border-b border-white/50 backdrop-blur-lg sticky top-0 z-40 p-3 lg:p-4 flex items-center justify-between shadow-sm">
         <div class="flex items-center gap-2">
-            <!-- Action Buttons Moved to Header -->
-            <button onclick="saveChanges()" id="sync-button" disabled class="bg-slate-800 text-slate-500 px-3 py-2 lg:px-5 lg:py-2.5 rounded-lg font-black text-xs transition-all flex items-center gap-1.5 cursor-not-allowed">
+            <button onclick="saveChanges()" id="sync-button" disabled class="bg-white/50 border border-white/60 text-slate-400 px-3 py-2 lg:px-5 lg:py-2.5 rounded-xl font-black text-xs transition-all flex items-center gap-1.5 cursor-not-allowed">
                 <i class="fa-solid fa-cloud-arrow-up"></i> Save
                 <span id="pending-changes-counter" class="hidden"></span>
             </button>
             
-            <button onclick="generateSWAReport()" id="print-report-button" disabled class="bg-slate-800 text-slate-500 px-3 py-2 lg:px-5 lg:py-2.5 rounded-lg font-black text-xs transition-all flex items-center gap-1.5 cursor-not-allowed">
+            <button onclick="generateSWAReport()" id="print-report-button" disabled class="bg-white/50 border border-white/60 text-slate-400 px-3 py-2 lg:px-5 lg:py-2.5 rounded-xl font-black text-xs transition-all flex items-center gap-1.5 cursor-not-allowed">
                 <i class="fa-solid fa-file-invoice"></i> Generate
             </button>
         </div>
         
-        <div class="flex items-center gap-2 lg:gap-3">
+        <div class="flex items-center gap-3 lg:gap-4">
             <div class="text-right hidden sm:block">
-                <p class="text-[9px] text-slate-500 font-bold uppercase tracking-widest leading-none mb-0.5">User Profile</p>
-                <p id="header-username-display" class="text-[11px] font-black text-sky-400 uppercase leading-none truncate max-w-[100px]">---</p>
+                <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest leading-none mb-1">User Profile</p>
+                <p id="header-username-display" class="text-xs font-black text-blue-700 uppercase leading-none truncate max-w-[120px]">---</p>
             </div>
-            <button onclick="logout()" class="w-8 h-8 rounded-full bg-[#222335] border border-[#30324c] text-slate-400 flex items-center justify-center hover:bg-rose-950 hover:text-rose-400 hover:border-rose-900 transition-all shadow-sm" title="Logout">
-                <i class="fa-solid fa-power-off text-[11px]"></i>
+            <button onclick="logout()" class="w-10 h-10 rounded-full bg-white/70 border border-white/80 text-slate-600 flex items-center justify-center hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition-all shadow-sm" title="Logout">
+                <i class="fa-solid fa-power-off text-sm"></i>
             </button>
         </div>
     </header>
@@ -198,90 +197,88 @@
     <main class="p-4 lg:p-6 2xl:p-10 flex-1 w-full mx-auto max-w-[1920px]">
         <div class="grid grid-cols-1 lg:grid-cols-12 xl:grid-cols-12 gap-6 xl:gap-8 items-start">
             
-            <!-- Left Panel: Configurations & Active Metrics (Desktop: 4/12 or 3/12 width) -->
-            <div class="lg:col-span-4 xl:col-span-3 flex flex-col gap-5 lg:sticky lg:top-20">
+            <!-- Left Panel: Configurations & Active Metrics -->
+            <div class="lg:col-span-4 xl:col-span-3 flex flex-col gap-5 lg:sticky lg:top-24">
                 
-                <!-- Contract Selector (Warm Peach Orange Pastel Container) -->
-                <div class="bg-[#2d2538] border border-[#4d3d5f] rounded-2xl p-4 shadow-sm flex flex-col gap-3">
+                <!-- Contract Selector -->
+                <div class="bg-white/50 backdrop-blur-xl border border-white/60 rounded-3xl p-5 shadow-[0_8px_30px_rgba(0,0,0,0.05)] flex flex-col gap-3">
                     <div class="flex justify-between items-center">
-                        <label class="text-[10px] font-black text-orange-400 tracking-wider uppercase"><i class="fa-solid fa-file-contract mr-1"></i> Active Contract</label>
-                        <!-- ADDED FILTER BUTTON HERE -->
-                        <button onclick="openFilterMonthModal()" class="text-[9px] font-black tracking-widest uppercase bg-sky-950 text-sky-400 border border-sky-900 px-2.5 py-1 rounded hover:bg-sky-900 transition-colors shadow-sm shadow-sky-950/50">
+                        <label class="text-xs font-black text-orange-600 tracking-wider uppercase"><i class="fa-solid fa-file-contract mr-1.5"></i> Active Contract</label>
+                        <button onclick="openFilterMonthModal()" class="text-[10px] font-black tracking-widest uppercase bg-white/80 text-blue-600 border border-white shadow-sm px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors">
                             <i class="fa-solid fa-filter"></i> Filter
                         </button>
                     </div>
-                    <button onclick="openContractSelectorModal()" class="w-full bg-[#1d1b26] hover:bg-[#252233] border border-[#443854] rounded-xl py-3.5 px-4 text-left flex items-center justify-between transition-colors focus:outline-none mt-1">
-                        <span id="selected-contract-display" class="font-bold text-orange-300 text-sm">Select Contract ID...</span>
-                        <i class="fa-solid fa-chevron-down text-orange-400 text-xs"></i>
+                    <button onclick="openContractSelectorModal()" class="w-full bg-white/60 hover:bg-white/90 border border-white/80 rounded-2xl py-3.5 px-4 text-left flex items-center justify-between transition-all shadow-inner focus:outline-none mt-1">
+                        <span id="selected-contract-display" class="font-black text-slate-600 text-sm">Select Contract ID...</span>
+                        <i class="fa-solid fa-chevron-down text-orange-500 text-sm"></i>
                     </button>
                 </div>
 
-                <!-- Representative Selector (Moody Dark Plum Container) -->
-                <div class="bg-[#1e1e2f] border border-slate-800 rounded-2xl p-4 shadow-sm flex flex-col gap-3">
-                    <label class="text-[10px] font-black text-purple-400 tracking-wider uppercase"><i class="fa-solid fa-user-tie mr-1"></i> Authorized Representative</label>
-                    <div class="relative">
-                        <select id="history-name-selector" class="w-full bg-[#171721] border border-slate-800 rounded-xl py-3 px-4 text-slate-300 font-bold text-sm focus:outline-none focus:border-purple-400 appearance-none cursor-pointer">
+                <!-- Representative Selector -->
+                <div class="bg-white/50 backdrop-blur-xl border border-white/60 rounded-3xl p-5 shadow-[0_8px_30px_rgba(0,0,0,0.05)] flex flex-col gap-3">
+                    <label class="text-xs font-black text-purple-600 tracking-wider uppercase"><i class="fa-solid fa-user-tie mr-1.5"></i> Authorized Representative</label>
+                    <div class="relative neon-border-glow rounded-2xl">
+                        <select id="history-name-selector" class="w-full bg-white/60 border border-white/80 rounded-2xl py-3.5 px-4 text-slate-800 font-bold text-sm focus:outline-none shadow-inner appearance-none cursor-pointer">
                             <option value="">-- Select Representative --</option>
                         </select>
-                        <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none text-purple-400 text-xs">
+                        <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none text-purple-500 text-sm">
                             <i class="fa-solid fa-chevron-down"></i>
                         </div>
                     </div>
                 </div>
 
-                <!-- Update History Timeline (Deep Plum Container) -->
-                <div class="bg-[#1e1e2f] border border-slate-800 rounded-2xl p-4 shadow-sm flex flex-col gap-3">
-                    <label class="text-[10px] font-black text-rose-400 tracking-wider uppercase"><i class="fa-solid fa-clock-rotate-left mr-1"></i> SWA Update Log</label>
-                    <div id="history-timeline-container" class="flex flex-col gap-2 max-h-40 overflow-y-auto no-scrollbar">
-                        <p class="text-[11px] text-slate-500 italic">No previous updates recorded.</p>
+                <!-- Update History Timeline -->
+                <div class="bg-white/50 backdrop-blur-xl border border-white/60 rounded-3xl p-5 shadow-[0_8px_30px_rgba(0,0,0,0.05)] flex flex-col gap-3">
+                    <label class="text-xs font-black text-rose-600 tracking-wider uppercase"><i class="fa-solid fa-clock-rotate-left mr-1.5"></i> SWA Update Log</label>
+                    <div id="history-timeline-container" class="flex flex-col gap-2.5 max-h-40 overflow-y-auto no-scrollbar">
+                        <p class="text-xs text-slate-500 italic font-bold">No previous updates recorded.</p>
                     </div>
                 </div>
 
                 <!-- Horizontal Scroll Month Picker -->
                 <div class="flex flex-col gap-2">
-                    <label class="text-[10px] font-black text-slate-400 tracking-wider uppercase px-1"><i class="fa-solid fa-calendar-days mr-1 text-purple-400"></i> Select Active Period (This Period)</label>
-                    <div id="month-carousel" class="flex gap-2 overflow-x-auto no-scrollbar py-1 px-1">
+                    <label class="text-xs font-black text-slate-600 tracking-wider uppercase px-2"><i class="fa-solid fa-calendar-days mr-1.5 text-blue-500"></i> Active Period</label>
+                    <div id="month-carousel" class="flex gap-2 overflow-x-auto no-scrollbar py-2 px-1">
                         <!-- Dynamically injected months -->
                     </div>
                 </div>
 
-                <!-- Contract Aggregated Stats Summary Grid (Rich Pastel Boxes) -->
+                <!-- Contract Aggregated Stats Summary Grid -->
                 <div class="grid grid-cols-2 gap-3" id="stats-summary-grid">
-                    <div class="bg-[#1c2e42] border border-[#2b4866] rounded-xl p-3 flex flex-col justify-between shadow-sm">
-                        <span class="text-[9px] text-blue-300 font-black uppercase tracking-wider">Amount</span>
-                        <span id="stat-amount" class="text-sm font-extrabold text-blue-200 mt-1">Php 0.00</span>
+                    <div class="bg-blue-50/60 backdrop-blur-md border border-blue-200/60 rounded-2xl p-4 flex flex-col justify-between shadow-sm">
+                        <span class="text-[10px] text-blue-600 font-black uppercase tracking-wider">Amount</span>
+                        <span id="stat-amount" class="text-sm font-extrabold text-blue-900 mt-1">Php 0.00</span>
                     </div>
-                    <div class="bg-[#15342a] border border-[#245243] rounded-xl p-3 flex flex-col justify-between shadow-sm">
-                        <span class="text-[9px] text-emerald-300 font-black uppercase tracking-wider">To Date</span>
-                        <span id="stat-todate-amount" class="text-sm font-extrabold text-emerald-200 mt-1">Php 0.00</span>
+                    <div class="bg-emerald-50/60 backdrop-blur-md border border-emerald-200/60 rounded-2xl p-4 flex flex-col justify-between shadow-sm">
+                        <span class="text-[10px] text-emerald-600 font-black uppercase tracking-wider">To Date</span>
+                        <span id="stat-todate-amount" class="text-sm font-extrabold text-emerald-900 mt-1">Php 0.00</span>
                     </div>
-                    <div class="bg-[#2a1d3d] border border-[#432e61] rounded-xl p-3 flex flex-col justify-between shadow-sm">
-                        <span class="text-[9px] text-purple-300 font-black uppercase tracking-wider">Actual %</span>
-                        <span id="stat-actual-percent" class="text-sm font-extrabold text-purple-200 mt-1">0.00 %</span>
+                    <div class="bg-purple-50/60 backdrop-blur-md border border-purple-200/60 rounded-2xl p-4 flex flex-col justify-between shadow-sm">
+                        <span class="text-[10px] text-purple-600 font-black uppercase tracking-wider">Actual %</span>
+                        <span id="stat-actual-percent" class="text-sm font-extrabold text-purple-900 mt-1">0.00 %</span>
                     </div>
-                    <div class="bg-[#3c1825] border border-[#5d2539] rounded-xl p-3 flex flex-col justify-between shadow-sm">
-                        <span class="text-[9px] text-rose-300 font-black uppercase tracking-wider">Slippage</span>
-                        <span id="stat-slippage" class="text-sm font-extrabold text-rose-200 mt-1">-</span>
+                    <div class="bg-rose-50/60 backdrop-blur-md border border-rose-200/60 rounded-2xl p-4 flex flex-col justify-between shadow-sm">
+                        <span class="text-[10px] text-rose-600 font-black uppercase tracking-wider">Slippage</span>
+                        <span id="stat-slippage" class="text-sm font-extrabold text-rose-900 mt-1">-</span>
                     </div>
                 </div>
 
                 <!-- Monthly Remarks Container -->
-                <div id="remarks-container" class="hidden bg-[#1e1e2f] border border-slate-800 rounded-2xl p-4 shadow-sm flex-col gap-3">
+                <div id="remarks-container" class="hidden bg-white/50 backdrop-blur-xl border border-white/60 rounded-3xl p-5 shadow-[0_8px_30px_rgba(0,0,0,0.05)] flex-col gap-3">
                     <div class="flex justify-between items-center">
-                        <label class="text-[10px] font-black text-amber-400 tracking-wider uppercase"><i class="fa-solid fa-comment-dots mr-1"></i> Monthly Remarks</label>
+                        <label class="text-xs font-black text-amber-600 tracking-wider uppercase"><i class="fa-solid fa-comment-dots mr-1.5"></i> Monthly Remarks</label>
                     </div>
-                    <textarea id="monthly-remarks" rows="3" oninput="onRemarksEdit(this)" class="w-full bg-[#171721] border border-slate-800 rounded-xl p-3 text-slate-300 text-xs focus:outline-none focus:border-amber-500 placeholder-slate-600 transition-colors resize-none" placeholder="Enter remarks for the selected month..."></textarea>
+                    <textarea id="monthly-remarks" rows="3" oninput="onRemarksEdit(this)" class="w-full bg-white/70 border border-white/80 rounded-2xl p-4 text-slate-800 text-sm font-bold focus:outline-none focus:border-amber-400 placeholder-slate-400 transition-colors shadow-inner resize-none" placeholder="Enter remarks for the selected month..."></textarea>
                 </div>
 
             </div>
 
-            <!-- Right Panel: SWA Card Items Viewport (Desktop: 8/12 or 9/12 width) -->
+            <!-- Right Panel: SWA Card Items Viewport -->
             <div class="lg:col-span-8 xl:col-span-9 flex flex-col gap-4">
-                <!-- Rendered as a multi-column responsive grid dynamically adjusting for ultra-wide PC screens -->
                 <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 xl:gap-6" id="items-list-container">
-                    <div class="col-span-full text-center py-12 text-slate-400 bg-[#222335] border border-[#30324c] rounded-2xl shadow-sm">
-                        <i class="fa-solid fa-magnifying-glass text-4xl mb-3 opacity-25"></i>
-                        <p class="text-xs font-bold">Please select a contract to view items.</p>
+                    <div class="col-span-full text-center py-16 text-slate-500 bg-white/50 backdrop-blur-xl border border-white/60 rounded-[30px] shadow-sm">
+                        <i class="fa-solid fa-magnifying-glass text-5xl mb-4 opacity-30 text-blue-500"></i>
+                        <p class="text-sm font-black">Please select a contract to view items.</p>
                     </div>
                 </div>
             </div>
@@ -289,106 +286,105 @@
         </div>
     </main>
 
-    <!-- Multi-Item Batch Editor Modal Overlay (Widened for PC) -->
-    <div id="items-editor-modal" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-md p-4 hidden flex-col justify-center items-center">
-        <div class="bg-card-bg border border-slate-800 rounded-2xl w-full max-w-4xl overflow-hidden shadow-2xl flex flex-col max-h-[85vh]">
-            <div class="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/50">
-                <span class="font-extrabold text-sm text-amber-500 tracking-wider uppercase">
-                    <i class="fa-solid fa-gears mr-1.5"></i> Add / Edit / Update Items
+    <!-- Multi-Item Batch Editor Modal Overlay -->
+    <div id="items-editor-modal" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-md p-4 hidden flex-col justify-center items-center">
+        <div class="bg-white/80 backdrop-blur-xl border border-white/80 rounded-[30px] w-full max-w-4xl overflow-hidden shadow-[0_20px_50px_rgba(31,38,135,0.2)] flex flex-col max-h-[85vh]">
+            <div class="p-5 border-b border-white/60 flex items-center justify-between bg-white/50">
+                <span class="font-black text-base text-amber-600 tracking-wider uppercase">
+                    <i class="fa-solid fa-gears mr-2"></i> Add / Edit / Update Items
                 </span>
-                <button onclick="closeItemsEditorModal()" class="text-slate-400 hover:text-rose-500 text-lg transition-colors">
+                <button onclick="closeItemsEditorModal()" class="text-slate-400 hover:text-rose-500 text-2xl transition-colors">
                     <i class="fa-solid fa-times-circle"></i>
                 </button>
             </div>
-            <div class="p-4 overflow-y-auto flex-1 flex flex-col gap-4" style="overflow-x: visible;">
+            <div class="p-5 overflow-y-auto flex-1 flex flex-col gap-4" style="overflow-x: visible;">
                 <div class="overflow-x-auto no-scrollbar" style="overflow-x: visible;">
-                    <table class="w-full text-left table-fixed border-collapse text-xs min-w-[500px]">
+                    <table class="w-full text-left table-fixed border-collapse text-sm min-w-[500px]">
                         <thead>
-                            <tr class="border-b border-slate-800 text-slate-400 uppercase font-black tracking-wider text-[10px] bg-slate-900/50">
-                                <th class="py-2 px-1 w-[45%]">Item No. & Description</th>
-                                <th class="py-2 px-1 w-[25%] text-right">Target Quantity</th>
-                                <th class="py-2 px-1 w-[30%] text-right">Unit Cost</th>
+                            <tr class="border-b border-white/60 text-slate-500 uppercase font-black tracking-wider text-[11px] bg-white/40">
+                                <th class="py-3 px-2 w-[45%]">Item No. & Description</th>
+                                <th class="py-3 px-2 w-[25%] text-right">Target Quantity</th>
+                                <th class="py-3 px-2 w-[30%] text-right">Unit Cost</th>
                             </tr>
                         </thead>
-                        <tbody id="items-editor-table-body" class="divide-y divide-slate-800/60">
+                        <tbody id="items-editor-table-body" class="divide-y divide-white/50">
                             <!-- Rows dynamically populated -->
                         </tbody>
                     </table>
                 </div>
-                <button onclick="addEmptyRowInEditor()" class="w-full py-2.5 border border-dashed border-sky-800 hover:border-sky-500 bg-sky-950 text-sky-400 rounded-xl text-[10px] font-black tracking-widest uppercase transition-all flex items-center justify-center gap-1.5 mt-2">
+                <button onclick="addEmptyRowInEditor()" class="w-full py-3.5 border-2 border-dashed border-blue-300 hover:border-blue-500 bg-blue-50/50 text-blue-600 rounded-2xl text-sm font-black tracking-widest uppercase transition-all flex items-center justify-center gap-2 mt-2">
                     <i class="fa-solid fa-plus-circle"></i> Add Row
                 </button>
             </div>
-            <div class="p-4 border-t border-slate-800 bg-slate-900/40 grid grid-cols-2 gap-3">
-                <button onclick="closeItemsEditorModal()" class="w-full py-3 rounded-xl border border-slate-700 text-slate-300 bg-slate-800 font-bold text-xs uppercase tracking-widest hover:bg-slate-700 transition-colors">Cancel</button>
-                <button onclick="saveItemsEditorChanges()" class="w-full py-3 rounded-xl bg-amber-600 text-white font-black text-xs uppercase tracking-widest shadow-sm shadow-amber-900 hover:bg-amber-700 transition-all">Apply Changes</button>
+            <div class="p-5 border-t border-white/60 bg-white/50 grid grid-cols-2 gap-4">
+                <button onclick="closeItemsEditorModal()" class="w-full py-3.5 rounded-xl border border-white/80 text-slate-600 bg-white/60 shadow-sm font-bold text-sm uppercase tracking-widest hover:bg-white/90 transition-all">Cancel</button>
+                <button onclick="saveItemsEditorChanges()" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-black text-sm uppercase tracking-widest shadow-lg shadow-amber-500/30 hover:scale-[1.02] transition-all">Apply Changes</button>
             </div>
         </div>
     </div>
 
     <!-- Contract Finder Search Modal overlay -->
-    <div id="contract-modal" class="fixed inset-0 z-50 bg-slate-950/40 backdrop-blur-md p-4 hidden flex-col justify-start pt-12">
-        <div class="bg-card-bg border border-slate-800 rounded-2xl w-full max-w-md mx-auto max-h-[80vh] flex flex-col overflow-hidden shadow-2xl">
-            <div class="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/50">
-                <span class="font-extrabold text-sm text-slate-200 tracking-wider uppercase"><i class="fa-solid fa-search mr-1.5 text-sky-400"></i> Find Contract ID</span>
-                <button onclick="closeContractSelectorModal()" class="text-slate-400 hover:text-rose-500 text-lg transition-colors"><i class="fa-solid fa-times-circle"></i></button>
+    <div id="contract-modal" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-md p-4 hidden flex-col justify-start pt-20">
+        <div class="bg-white/80 backdrop-blur-xl border border-white/80 rounded-[30px] w-full max-w-md mx-auto max-h-[75vh] flex flex-col overflow-hidden shadow-[0_20px_50px_rgba(31,38,135,0.2)]">
+            <div class="p-5 border-b border-white/60 flex items-center justify-between bg-white/50">
+                <span class="font-black text-base text-slate-800 tracking-wider uppercase"><i class="fa-solid fa-search mr-2 text-blue-500"></i> Find Contract ID</span>
+                <button onclick="closeContractSelectorModal()" class="text-slate-400 hover:text-rose-500 text-2xl transition-colors"><i class="fa-solid fa-times-circle"></i></button>
             </div>
             
-            <div class="p-4 border-b border-slate-800">
-                <input type="text" id="contract-search-input" oninput="filterContractIds()" placeholder="Type to search contracts..." class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-slate-200 focus:outline-none focus:border-sky-400 text-sm">
+            <div class="p-5 border-b border-white/60">
+                <input type="text" id="contract-search-input" oninput="filterContractIds()" placeholder="Type to search contracts..." class="w-full bg-white/70 border border-white/80 rounded-2xl p-4 text-slate-800 focus:outline-none focus:border-blue-400 text-sm font-bold shadow-inner">
             </div>
-            <div id="contract-list-results" class="p-2 overflow-y-auto flex-1 flex flex-col gap-1 min-h-[30vh]">
+            <div id="contract-list-results" class="p-3 overflow-y-auto flex-1 flex flex-col gap-1.5 min-h-[30vh] no-scrollbar">
                 <!-- Sift results injected here -->
             </div>
         </div>
     </div>
 
     <!-- Dedicated Filter Month Modal overlay -->
-    <div id="filter-month-modal" class="fixed inset-0 z-50 bg-slate-950/40 backdrop-blur-md p-4 hidden flex-col justify-start pt-12">
-        <div class="bg-card-bg border border-slate-800 rounded-2xl w-full max-w-md mx-auto max-h-[80vh] flex flex-col overflow-hidden shadow-2xl">
-            <div class="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/50">
-                <span class="font-extrabold text-sm text-slate-200 tracking-wider uppercase"><i class="fa-solid fa-filter mr-1.5 text-sky-400"></i> Filter by Update Month</span>
-                <button onclick="closeFilterMonthModal()" class="text-slate-400 hover:text-rose-500 text-lg transition-colors"><i class="fa-solid fa-times-circle"></i></button>
+    <div id="filter-month-modal" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-md p-4 hidden flex-col justify-start pt-20">
+        <div class="bg-white/80 backdrop-blur-xl border border-white/80 rounded-[30px] w-full max-w-md mx-auto max-h-[75vh] flex flex-col overflow-hidden shadow-[0_20px_50px_rgba(31,38,135,0.2)]">
+            <div class="p-5 border-b border-white/60 flex items-center justify-between bg-white/50">
+                <span class="font-black text-base text-slate-800 tracking-wider uppercase"><i class="fa-solid fa-filter mr-2 text-blue-500"></i> Filter by Update Month</span>
+                <button onclick="closeFilterMonthModal()" class="text-slate-400 hover:text-rose-500 text-2xl transition-colors"><i class="fa-solid fa-times-circle"></i></button>
             </div>
             
-            <div class="px-3 pt-4 pb-2 flex flex-col gap-2 border-b border-slate-800">
-                <label class="text-[10px] font-black text-slate-400 tracking-wider uppercase px-1">Select Month</label>
-                <div id="filter-month-carousel" class="flex gap-2 overflow-x-auto no-scrollbar py-1 px-1">
+            <div class="px-4 pt-5 pb-3 flex flex-col gap-2 border-b border-white/60 bg-white/30">
+                <label class="text-xs font-black text-slate-500 tracking-wider uppercase px-2">Select Month</label>
+                <div id="filter-month-carousel" class="flex gap-2.5 overflow-x-auto no-scrollbar py-2 px-1">
                     <!-- Pills injected dynamically -->
                 </div>
             </div>
 
-            <div id="filter-month-results" class="p-2 overflow-y-auto flex-1 flex flex-col gap-1 min-h-[30vh]">
+            <div id="filter-month-results" class="p-3 overflow-y-auto flex-1 flex flex-col gap-1.5 min-h-[30vh] no-scrollbar">
                 <!-- Filtered Sift results injected here -->
             </div>
         </div>
     </div>
 
     <!-- Printable SWA Report Overlay Modal -->
-    <div id="print-report-modal" class="fixed inset-0 z-[300] bg-slate-950/80 backdrop-blur-md p-4 hidden flex-col justify-start overflow-y-auto">
-        <!-- Control Bar (Hidden during actual print) -->
-        <div class="w-full max-w-6xl mx-auto mb-4 bg-card-bg border border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-xl print:hidden shrink-0">
-            <div class="flex items-center gap-2">
-                <i class="fa-solid fa-file-invoice text-sky-400 text-lg"></i>
+    <div id="print-report-modal" class="fixed inset-0 z-[300] bg-slate-900/60 backdrop-blur-md p-4 hidden flex-col justify-start overflow-y-auto">
+        <!-- Control Bar -->
+        <div class="w-full max-w-6xl mx-auto mb-6 bg-white/80 backdrop-blur-xl border border-white/80 p-5 rounded-3xl flex items-center justify-between shadow-xl print:hidden shrink-0">
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-file-invoice text-blue-500 text-2xl"></i>
                 <div>
-                    <h3 class="text-sm font-black text-slate-200">SWA Report Generator</h3>
-                    <p class="text-[10px] text-slate-400">Review layout before exporting or printing</p>
+                    <h3 class="text-base font-black text-slate-800 uppercase tracking-wide">SWA Report Generator</h3>
+                    <p class="text-xs font-bold text-slate-500">Review layout before exporting or printing</p>
                 </div>
             </div>
-            <div class="flex items-center gap-2">
-                <button onclick="window.print()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs uppercase tracking-widest px-4 py-2.5 rounded-xl flex items-center gap-1.5 transition-all shadow-md shadow-emerald-950">
+            <div class="flex items-center gap-3">
+                <button onclick="window.print()" class="bg-gradient-to-r from-emerald-500 to-teal-500 hover:scale-[1.02] text-white font-black text-xs uppercase tracking-widest px-5 py-3 rounded-xl flex items-center gap-2 transition-all shadow-lg shadow-emerald-500/30">
                     <i class="fa-solid fa-print"></i> Print / Save PDF
                 </button>
-                <button onclick="closePrintReportModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs uppercase tracking-widest px-4 py-2.5 rounded-xl border border-slate-700 transition-colors">
+                <button onclick="closePrintReportModal()" class="bg-white/60 hover:bg-white/90 text-slate-700 font-bold text-xs uppercase tracking-widest px-5 py-3 rounded-xl border border-white/80 shadow-sm transition-colors">
                     Close Preview
                 </button>
             </div>
         </div>
 
         <!-- Printable Document Canvas -->
-        <div class="w-full max-w-6xl mx-auto bg-white text-black p-8 md:p-12 rounded-2xl shadow-2xl print:shadow-none print:p-0 print:m-0 print:w-full print:max-w-none font-sans overflow-x-auto print:overflow-visible">
+        <div class="w-full max-w-6xl mx-auto bg-white text-black p-8 md:p-12 rounded-3xl shadow-2xl print:shadow-none print:p-0 print:m-0 print:w-full print:max-w-none font-sans overflow-x-auto print:overflow-visible">
             <div class="min-w-[950px] print:min-w-0">
-                <!-- Header block matching photo -->
                 <div class="text-center mb-6">
                     <h2 class="text-lg font-black tracking-wide uppercase font-sans">STATEMENT OF WORK ACCOMPLISHMENT</h2>
                     <p class="text-sm font-bold text-slate-700 mt-1 flex justify-center items-center gap-1">
@@ -396,7 +392,6 @@
                     </p>
                 </div>
 
-                <!-- Info Block matching photo -->
                 <div class="grid grid-cols-1 gap-2 mb-6 text-xs font-semibold">
                     <div class="flex">
                         <span class="w-48 shrink-0 uppercase tracking-wider font-bold">PROJECT NAME</span>
@@ -415,7 +410,6 @@
                     </div>
                 </div>
 
-                <!-- The SWA Data Table matching photo -->
                 <div class="overflow-x-visible">
                     <table class="w-full text-[9px] border-collapse border border-black text-black leading-tight font-sans">
                         <thead>
@@ -459,14 +453,11 @@
     </div>
 
     <script>
-        // =========================================================================
-        // SPREADSHEET CONFIGURATION & SERVICES IDENTICAL TO MONITORING.HTML
-        // =========================================================================
         const API_CONFIG = {
             SPREADSHEET_ID: "1LSYLZ7tfSeVupQMPsCOHG4SlnzPQqOAIe03QI1qRMr8",
             SERVICE_ACCOUNT: {
                 "client_email": "pcma-mobile@gold-mode-473811-c6.iam.gserviceaccount.com",
-                "private_key": `-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQC1sEJI1CN6V8mj\nAhBvpiLC7JOEbrFFxsvqbzJjitbDRbyRhbk7prF1NQqAz0OV8l+9/v69UJ3ddGmE\n3Oq4EEqgOmeEpfdSeJeMa+alsc0H+1E2EmWLnhGNv/ot91osgokv7tUG7p/WnGSf\n0IP2bmbbEmQfhganvTCTmhTASHUSK32O+ZmYklYwqs9qptWCFjS3lj+uhaQ2nAFQ\nGCloj6go1aRbQTGxDygwwxtK08v68EuApslm5qs/x08gnj1UEV/FfHDUvUbCswm2\nIRTULJqNoGTYNs4DxbUJClUwcf72xmddbiE/CbOWs1g626obziGNe6/Dq74Ws5IR\nj39h8S57AgMBAAECggEAPUZdDH/TGUM7Iykijuz6Yz/zPmIwkiZKBl4LIewkowXF\nY1S0lGwTBELnsGp2Uj9ET+kMU5+5JgNJRQBWfs4rxN79o4xvnVZDUh3f0zjkO5Fk\nIbbRnWUpaWN6Bf+aX1GE3/AN00EuEex7uTRTFQzFzpNkxgbm/rI9DEKWRgUJyp7j\nwrbzhTp2cRRrQaPtONZej68dUtkkAsd2rlt3Reht3/NCdmNRTjpRHqiICZvuZuHe\njebcK/ewVZWqW9XpwVMfjhZeyBnfzNqRElNxF4BtodjmSpw+TkWyPK9obVFEBDG5\FeRxBk6aTdutNkIN2uXOPFBP7UV4evsD3fiuYMRFvQKBgQDbiMwo80cLbnV7fuq/\nSr1y2i/mj8XDVX6xOJWDXOhrHNEDcTpYHp5Ey5qQwQhkGOiK/aUJWfWHJGMLM7DY\n7l6nvRe+oX/1inocjKMkiq5TGDvptBv2T9rz0K3LFueFNcxAv7445GgCsFADgYBM\n67reu9QcmT6Uis2nUffzcleGNQKBgQDT3ibtkMmkeDi3sl1uY9PudlZqnCcP11Pi\nQJF4+thJYjN/bYBKA3F4GhRZzEKxW6jjF/mQ/kZDLHJeGI4Y0ETpz76kB4gSO1zc\lsKZnGBvfug2Oz7/fnPfdpMdSsaFS9AHOHTm7TAiyMuSXciJ1Sy5LxVeELP91cbJ\BsJtKX+37wKBgQDFKUSB+orxn1Bvivp0tkESpxWh8blgxqWzr+fHRGeP2x90Afqu\nLUFi86BrJJHOo/gk68uObHZv2qQA6XmIOfxUlSSAFjb/ZFBq13ulU89f3UHhj9oV\Cn7Pvbh3zqg7IKfB9vJ10dv/ni0eGO4LJyJ66yGCVba4XTh5bspKn4QviQKBgQCi\nud3sWWiGilAFx1k7kDEW1o1JFOZrpFcpT65r3T6CHoqvNMt0DXD5bg5zag9Pabct\ntRxZ4PLWZSzyWKnLJSvI6WbjVWWNm0qXorOUiCcJe8+e16JrWhRlbg1QUj5n4vLE\nmPgw5bwy+0ZgBOgh9TmEgkVHGk0kiS1E+Ywbi+QswQKBgQDOI10/zjkwXOmqHlX7\n7nkuSIG9Kojrt2XWIsecZ9xP4lnIq6oyBUxDLaj3MaSnGeuvJZjDHa7YxqyAZvOO\nPxJ2F55gm4PME6obOldAw8rWdTWmlpG5rm679Q01nupwlC5+rJPqSzW/GpibKjZa\ni2e4E1vAOiqCrUlBSDcvD1r+/g==\n-----END PRIVATE KEY-----`
+                "private_key": `-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQC1sEJI1CN6V8mj\nAhBvpiLC7JOEbrFFxsvqbzJjitbDRbyRhbk7prF1NQqAz0OV8l+9/v69UJ3ddGmE\n3Oq4EEqgOmeEpfdSeJeMa+alsc0H+1E2EmWLnhGNv/ot91osgokv7tUG7p/WnGSf\n0IP2bmbbEmQfhganvTCTmhTASHUSK32O+ZmYklYwqs9qptWCFjS3lj+uhaQ2nAFQ\nGCloj6go1aRbQTGxDygwwxtK08v68EuApslm5qs/x08gnj1UEV/FfHDUvUbCswm2\nIRTULJqNoGTYNs4DxbUJClUwcf72xmddbiE/CbOWs1g626obziGNe6/Dq74Ws5IR\nj39h8S57AgMBAAECggEAPUZdDH/TGUM7Iykijuz6Yz/zPmIwkiZKBl4LIewkowXF\nY1S0lGwTBELnsGp2Uj9ET+kMU5+5JgNJRQBWfs4rxN79o4xvnVZDUh3f0zjkO5Fk\nIbbRnWUpaWN6Bf+aX1GE3/AN00EuEex7uTRTFQzFzpNkxgbm/rI9DEKWRgUJyp7j\nwrbzhTp2cRRrQaPtONZej68dUtkkAsd2rlt3Reht3/NCdmNRTjpRHqiICZvuZuHe\njebcK/ewVZWqW9XpwVMfjhZeyBnfzNqRElNxF4BtodjmSpw+TkWyPK9obVFEBDG5\nFeRxBk6aTdutNkIN2uXOPFBP7UV4evsD3fiuYMRFvQKBgQDbiMwo80cLbnV7fuq/\nSr1y2i/mj8XDVX6xOJWDXOhrHNEDcTpYHp5Ey5qQwQhkGOiK/aUJWfWHJGMLM7DY\n7l6nvRe+oX/1inocjKMkiq5TGDvptBv2T9rz0K3LFueFNcxAv7445GgCsFADgYBM\n67reu9QcmT6Uis2nUffzcleGNQKBgQDT3ibtkMmkeDi3sl1uY9PudlZqnCcP11Pi\nQJF4+thJYjN/bYBKA3F4GhRZzEKxW6jjF/mQ/kZDLHJeGI4Y0ETpz76kB4gSO1zc\nlsKZnGBvfug2Oz7/fnPfdpMdSsaFS9AHOHTm7TAiyMuSXciJ1Sy5LxVeELP91cbJ\nBsJtKX+37wKBgQDFKUSB+orxn1Bvivp0tkESpxWh8blgxqWzr+fHRGeP2x90Afqu\nLUFi86BrJJHOo/gk68uObHZv2qQA6XmIOfxUlSSAFjb/ZFBq13ulU89f3UHhj9oV\nCn7Pvbh3zqg7IKfB9vJ10dv/ni0eGO4LJyJ66yGCVba4XTh5bspKn4QviQKBgQCi\nud3sWWiGilAFx1k7kDEW1o1JFOZrpFcpT65r3T6CHoqvNMt0DXD5bg5zag9Pabct\ntRxZ4PLWZSzyWKnLJSvI6WbjVWWNm0qXorOUiCcJe8+e16JrWhRlbg1QUj5n4vLE\nmPgw5bwy+0ZgBOgh9TmEgkVHGk0kiS1E+Ywbi+QswQKBgQDOI10/zjkwXOmqHlX7\n7nkuSIG9Kojrt2XWIsecZ9xP4lnIq6oyBUxDLaj3MaSnGeuvJZjDHa7YxqyAZvOO\nPxJ2F55gm4PME6obOldAw8rWdTWmlpG5rm679Q01nupwlC5+rJPqSzW/GpibKjZa\ni2e4E1vAOiqCrUlBSDcvD1r+/g==\n-----END PRIVATE KEY-----`
             }
         };
 
@@ -490,7 +481,6 @@
                 const sClaim = JSON.stringify(claim);
                 const sJWS = KJUR.jws.JWS.sign("RS256", sHeader, sClaim, API_CONFIG.SERVICE_ACCOUNT.private_key);
 
-                // Use URLSearchParams to enforce strict, safe URL-encoding
                 const params = new URLSearchParams();
                 params.append("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer");
                 params.append("assertion", sJWS);
@@ -512,9 +502,6 @@
             }
         }
 
-        // =========================================================================
-        // REUSABLE CUSTOM DIALOG OVERLAY SERVICES
-        // =========================================================================
         function showConfirm(message, onConfirm) {
             const modal = document.getElementById('confirm-modal');
             const textBox = document.getElementById('confirm-modal-text');
@@ -524,17 +511,15 @@
             const btnCancel = document.getElementById('confirm-btn-cancel');
 
             titleBox.innerText = "Confirm Action";
-            iconBox.className = "fa-solid fa-circle-question text-sky-500";
+            iconBox.className = "fa-solid fa-circle-question text-blue-500";
             textBox.innerText = message;
             
-            // Show both buttons
             btnCancel.classList.remove('hidden');
-            btnOk.className = "w-full py-2.5 rounded-xl bg-sky-600 text-white font-black text-xs uppercase tracking-widest shadow-md shadow-sky-900 hover:bg-sky-500 transition-all";
+            btnOk.className = "w-full py-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-black text-xs uppercase tracking-widest shadow-md shadow-blue-500/30 hover:scale-[1.02] transition-all";
 
             modal.classList.remove('hidden');
             modal.classList.add('flex');
 
-            // Clone to clean listeners
             const newBtnOk = btnOk.cloneNode(true);
             const newBtnCancel = btnCancel.cloneNode(true);
             btnOk.parentNode.replaceChild(newBtnOk, btnOk);
@@ -564,9 +549,8 @@
             iconBox.className = "fa-solid fa-triangle-exclamation text-rose-500";
             textBox.innerText = message;
             
-            // Hide Cancel to turn modal into alert layout
             btnCancel.classList.add('hidden');
-            btnOk.className = "col-span-2 w-full py-2.5 rounded-xl bg-rose-600 text-white font-black text-xs uppercase tracking-widest shadow-sm shadow-rose-900 hover:bg-rose-500 transition-all";
+            btnOk.className = "col-span-2 w-full py-2.5 rounded-xl bg-gradient-to-r from-rose-500 to-red-600 text-white font-black text-xs uppercase tracking-widest shadow-md shadow-rose-500/30 hover:scale-[1.02] transition-all";
 
             modal.classList.remove('hidden');
             modal.classList.add('flex');
@@ -580,50 +564,44 @@
             });
         }
 
-        // Helper to convert formatted input strings like "P 1,234.00" back to pure numbers for math
         function parseEditVal(val) {
             if (!val) return 0;
             const parsed = parseFloat(String(val).replace(/[^0-9.-]+/g, ""));
             return isNaN(parsed) ? 0 : parsed;
         }
 
-        // =========================================================================
-        // APPLICATION STATE MANAGEMENT
-        // =========================================================================
         const MONTHS_LABELS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
         const START_YEAR = 2026;
-        const CURRENT_MONTH_OFFSET = 5; // June 2026 is index 5
+        const CURRENT_MONTH_OFFSET = 5; 
         
         let appState = {
-            loggedInUser: null,             // Currently Authenticated Username
-            registeredUsers: {},            // Cache of REGISTRATION credentials map (Username -> Password)
-            activeTab: 'SWA',               // Main sheet
-            activeMonthOffset: 5,           // Defaults to Jun26 (Index 5)
-            contractsList: [],              // Array of parsed Contract IDs from SWA
-            selectedContractId: null,       // Selected Contract ID string
-            headers: [],                    // Column headers array for SWA sheet
-            rows: [],                       // SWA rows cache array
-            contractRowData: null,          // Selected contract's parsed row information
-            modifiedCells: {},              // Tracks updates in format { colIndex_rowIndex: Item }
-            itemsLookupMap: {},             // Local lookup database for ITEMS sheet
-            voLookupMap: {},                // Local lookup database for VO sheet (Amounts)
-            pdoLookupMap: {},               // Local lookup database for PDO sheet
+            loggedInUser: null,
+            registeredUsers: {},
+            activeTab: 'SWA',
+            activeMonthOffset: 5,
+            contractsList: [],
+            selectedContractId: null,
+            headers: [],
+            rows: [],
+            contractRowData: null,
+            modifiedCells: {},
+            itemsLookupMap: {},
+            voLookupMap: {},
+            pdoLookupMap: {},
         };
 
-        // Initialize Application
         document.addEventListener('DOMContentLoaded', () => {
             initializeMonthSlider();
             fetchSheetData();
         });
 
-        // Generate Month options dynamically starting Jan 2026, capped at June 2026
         function initializeMonthSlider() {
             const container = document.getElementById('month-carousel');
             container.innerHTML = '';
             
             const limitYear = 2026;
-            const limitMonthIdx = 5; // June (0-indexed)
-            const maxOffset = (limitYear - START_YEAR) * 12 + limitMonthIdx; // offset = 5
+            const limitMonthIdx = 5;
+            const maxOffset = (limitYear - START_YEAR) * 12 + limitMonthIdx; 
             
             for (let i = 0; i <= maxOffset; i++) {
                 const year = START_YEAR + Math.floor(i / 12);
@@ -634,16 +612,15 @@
                 const btn = document.createElement('button');
                 btn.id = `month-pill-${i}`;
                 btn.onclick = () => selectMonthOffset(i);
-                btn.className = `flex-shrink-0 px-4 py-2.5 rounded-full text-xs font-black border transition-all ${
+                btn.className = `flex-shrink-0 px-5 py-2.5 rounded-xl text-xs font-black border transition-all shadow-sm ${
                     i === appState.activeMonthOffset 
-                    ? 'bg-[#4c356d] text-purple-200 border-[#654693] shadow-sm shadow-[#4c356d]/50' 
-                    : 'bg-[#222335] text-slate-400 border-[#30324c] hover:bg-[#2a2a3e]'
+                    ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white border-blue-400 scale-[1.05]' 
+                    : 'bg-white/60 text-slate-600 border-white/80 hover:bg-white/90'
                 }`;
                 btn.innerText = label;
                 container.appendChild(btn);
             }
 
-            // Scroll active element slightly into focus
             setTimeout(() => {
                 const activePill = document.getElementById(`month-pill-${appState.activeMonthOffset}`);
                 if (activePill) activePill.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
@@ -653,45 +630,36 @@
         function selectMonthOffset(offset) {
             const oldPill = document.getElementById(`month-pill-${appState.activeMonthOffset}`);
             if (oldPill) {
-                oldPill.className = 'flex-shrink-0 px-4 py-2.5 rounded-full text-xs font-black border transition-all bg-[#222335] text-slate-400 border-[#30324c] hover:bg-[#2a2a3e]';
+                oldPill.className = 'flex-shrink-0 px-5 py-2.5 rounded-xl text-xs font-black border transition-all shadow-sm bg-white/60 text-slate-600 border-white/80 hover:bg-white/90';
             }
             
             appState.activeMonthOffset = offset;
             
             const newPill = document.getElementById(`month-pill-${offset}`);
             if (newPill) {
-                newPill.className = 'flex-shrink-0 px-4 py-2.5 rounded-full text-xs font-black border transition-all bg-[#4c356d] text-purple-200 border-[#654693] shadow-sm shadow-[#4c356d]/50';
+                newPill.className = 'flex-shrink-0 px-5 py-2.5 rounded-xl text-xs font-black border transition-all shadow-sm bg-gradient-to-r from-blue-500 to-indigo-500 text-white border-blue-400 scale-[1.05]';
                 newPill.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
             }
 
-            // Recalculate metrics for UI
             if (appState.selectedContractId) {
                 renderItemsList();
             }
 
-            // Real-time update the selection list if already open or active
             if (document.getElementById('contract-modal') && !document.getElementById('contract-modal').classList.contains('hidden')) {
                 filterContractIds();
             }
         }
 
-        // =========================================================================
-        // DATA INTAKE & MULTI-TAB REFERENCE PARSING (SWA, ITEMS, VO, PDO, REGISTRATION)
-        // =========================================================================
         async function fetchSheetData() {
             setLoaderStatus("Accessing Google Sheets...", "Downloading SWA, ITEMS, VO, PDO and REGISTRATION databases...");
             try {
                 const token = await GoogleSheetsAPI.getAuthToken();
-                
-                // Optimized single batch request to prevent 503 / HTTP Overload rejections
-                // Includes REGISTRATION!A3:ZZ to fetch login credentials securely in the background
                 const batchUrl = `https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values:batchGet?ranges=SWA!A3:ZZ&ranges=ITEMS!A3:ZZ&ranges=VO!A3:ZZ&ranges=PDO!A3:ZZ&ranges=REGISTRATION!A3:ZZ`;
                 
                 let response = await fetch(batchUrl, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
 
-                // Simple fallback retry for 503 Service Unavailable / Rate limits
                 if (response.status === 503 || response.status === 429) {
                     await new Promise(r => setTimeout(r, 1000));
                     response = await fetch(batchUrl, { headers: { Authorization: `Bearer ${token}` } });
@@ -713,13 +681,11 @@
                 const dataPDO = batchData.valueRanges[3] || { values: [] };
                 const dataREGISTRATION = batchData.valueRanges[4] || { values: [] };
 
-                // 1. Build Reference Lookup Maps & Credentials Registry
                 buildItemsLookupMap(dataITEMS);
                 buildVoLookupMap(dataVO);
                 buildPdoLookupMap(dataPDO);
                 buildRegistrationMap(dataREGISTRATION);
 
-                // 2. Process primary SWA columns
                 if (!dataSWA.values || dataSWA.values.length < 2) {
                     throw new Error("Target SWA tab possesses missing rows or invalid column structures.");
                 }
@@ -738,7 +704,7 @@
                     if (!contractId) continue;
 
                     appState.rows.push({
-                        rowNumber: i + 3, // Header index is 0 (Row 3), index i of values is row i+3
+                        rowNumber: i + 3, 
                         contractId: contractId,
                         values: rowVals
                     });
@@ -746,27 +712,24 @@
 
                 appState.contractsList = [...new Set(appState.rows.map(r => r.contractId))].sort();
 
-                // Check Local Storage for active session (Remember Me)
                 const savedUser = localStorage.getItem('swa_loggedInUser');
                 if (savedUser) {
                     if (savedUser === 'Guest') {
                         appState.loggedInUser = 'Guest';
                         document.getElementById('header-username-display').innerText = 'Guest (View Only)';
-                        document.getElementById('header-username-display').classList.replace('text-sky-400', 'text-slate-400');
+                        document.getElementById('header-username-display').classList.replace('text-blue-700', 'text-slate-500');
                     } else if (appState.registeredUsers[savedUser.toLowerCase()] !== undefined) {
                         appState.loggedInUser = savedUser;
                         document.getElementById('header-username-display').innerText = savedUser;
-                        document.getElementById('header-username-display').classList.replace('text-slate-400', 'text-sky-400');
+                        document.getElementById('header-username-display').classList.replace('text-slate-500', 'text-blue-700');
                     }
                 }
 
                 document.getElementById('loader').classList.add('hidden');
                 
-                // Show Login Screen if user is not authenticated yet
                 if (!appState.loggedInUser) {
                     document.getElementById('login-modal').classList.remove('hidden');
                 } else {
-                    // Hide the modal explicitly because auto-login succeeded
                     document.getElementById('login-modal').classList.add('hidden');
                     
                     if (appState.selectedContractId && appState.contractsList.includes(appState.selectedContractId)) {
@@ -782,7 +745,6 @@
             }
         }
 
-        // Parse User Authentication List from REGISTRATION Sheet
         function buildRegistrationMap(data) {
             appState.registeredUsers = {};
             if (!data.values || data.values.length < 1) return;
@@ -791,23 +753,18 @@
             const colUser = headers.findIndex(h => h === 'USERNAME');
             const colPass = headers.findIndex(h => h === 'PASSWORD');
 
-            if (colUser === -1 || colPass === -1) {
-                console.warn("REGISTRATION tab missing 'Username' or 'Password' columns.");
-                return;
-            }
+            if (colUser === -1 || colPass === -1) return;
 
             for (let i = 1; i < data.values.length; i++) {
                 const row = data.values[i];
                 const u = row[colUser] ? String(row[colUser]).trim() : '';
                 const p = row[colPass] ? String(row[colPass]).trim() : '';
                 if (u) {
-                    // Force lowercase registry key for case-insensitive logins
                     appState.registeredUsers[u.toLowerCase()] = p;
                 }
             }
         }
 
-        // Login Logic Process
         function attemptLogin() {
             const uInput = document.getElementById('login-username').value.trim();
             const pInput = document.getElementById('login-password').value;
@@ -821,20 +778,16 @@
 
             const storedPass = appState.registeredUsers[uInput.toLowerCase()];
             
-            // Strictly check password match
             if (storedPass !== undefined && storedPass === pInput) {
                 appState.loggedInUser = uInput;
-                localStorage.setItem('swa_loggedInUser', uInput); // Save persistent session
+                localStorage.setItem('swa_loggedInUser', uInput); 
                 document.getElementById('header-username-display').innerText = uInput;
-                document.getElementById('header-username-display').classList.replace('text-slate-400', 'text-sky-400');
+                document.getElementById('header-username-display').classList.replace('text-slate-500', 'text-blue-700');
                 
                 document.getElementById('login-modal').classList.add('hidden');
                 errBox.classList.add('hidden');
-                
-                // Clean up sensitive fields
                 document.getElementById('login-password').value = '';
                 
-                // Proceed to UI
                 if (appState.selectedContractId && appState.contractsList.includes(appState.selectedContractId)) {
                     loadContract(appState.selectedContractId);
                 } else {
@@ -849,14 +802,13 @@
 
         function attemptGuestLogin() {
             appState.loggedInUser = 'Guest';
-            localStorage.setItem('swa_loggedInUser', 'Guest'); // Save persistent session
+            localStorage.setItem('swa_loggedInUser', 'Guest'); 
             
             document.getElementById('header-username-display').innerText = 'Guest (View Only)';
-            document.getElementById('header-username-display').classList.replace('text-sky-400', 'text-slate-400');
+            document.getElementById('header-username-display').classList.replace('text-blue-700', 'text-slate-500');
             
             document.getElementById('login-modal').classList.add('hidden');
             
-            // Proceed to UI
             if (appState.selectedContractId && appState.contractsList.includes(appState.selectedContractId)) {
                 loadContract(appState.selectedContractId);
             } else {
@@ -868,7 +820,7 @@
         function logout() {
             showConfirm("Are you sure you want to log out and terminate this session?", () => {
                 appState.loggedInUser = null;
-                localStorage.removeItem('swa_loggedInUser'); // Remove persistent session
+                localStorage.removeItem('swa_loggedInUser'); 
                 document.getElementById('login-username').value = '';
                 document.getElementById('header-username-display').innerText = '---';
                 document.getElementById('login-modal').classList.remove('hidden');
@@ -876,7 +828,6 @@
             });
         }
 
-        // VLOOKUP ITEMS Reference mapping (Description, Unit, Unit Cost)
         function buildItemsLookupMap(data) {
             appState.itemsLookupMap = {};
             if (!data.values || data.values.length < 1) return;
@@ -900,7 +851,6 @@
             }
         }
 
-        // VLOOKUP VO Reference mapping: Fetch Rev. Contract Cost, fallback if empty to Contract Cost
         function buildVoLookupMap(data) {
             appState.voLookupMap = {};
             if (!data.values || data.values.length < 1) return;
@@ -921,7 +871,6 @@
                 const costStr = colCost !== -1 ? String(row[colCost] || '').trim() : '';
 
                 let finalAmount = 0;
-                // Strict check: if Rev. Contract Cost is empty/blank, fall back to Contract Cost
                 if (revCostStr !== '') {
                     finalAmount = parseFloat(revCostStr.replace(/[^0-9.]/g, '')) || 0;
                 } else if (costStr !== '') {
@@ -934,7 +883,6 @@
             }
         }
 
-        // VLOOKUP PDO Reference mapping (Contractor, Project Name, Location, NTP, Representatives)
         function buildPdoLookupMap(data) {
             appState.pdoLookupMap = {};
             if (!data.values || data.values.length < 1) return;
@@ -950,7 +898,6 @@
             const colLocation = headers.findIndex(h => h === 'LOCATION');
             const colNtp = headers.findIndex(h => h === 'NTP');
 
-            // Find specific engineer and representative headers
             const colPE = headers.findIndex(h => h === 'PROJECT ENGINEER (PE)' || h.includes('PROJECT ENGINEER'));
             const colPI = headers.findIndex(h => h === 'PROJECT INSPECTOR (PI)' || h.includes('PROJECT INSPECTOR'));
             const colRE = headers.findIndex(h => h === 'RESIDENT ENGINEER (RE)' || h.includes('RESIDENT ENGINEER'));
@@ -966,7 +913,6 @@
                 const location = colLocation !== -1 && row[colLocation] ? String(row[colLocation]).trim() : '';
                 const ntp = colNtp !== -1 && row[colNtp] ? String(row[colNtp]).trim() : '';
 
-                // Extract representative names
                 const pe = colPE !== -1 && row[colPE] ? String(row[colPE]).trim() : '';
                 const pi = colPI !== -1 && row[colPI] ? String(row[colPI]).trim() : '';
                 const re = colRE !== -1 && row[colRE] ? String(row[colRE]).trim() : '';
@@ -985,17 +931,14 @@
             return index !== -1 ? index : 0;
         }
 
-        // Locates the history logging column
         function findHistoryHeaderCol(headers) {
             return headers.findIndex(h => String(h || '').toUpperCase().trim() === 'HISTORY');
         }
 
-        // Calculates month offset relative to Jan 2026 based on multiple date formats
         function parseNtpToOffset(ntpStr) {
             if (!ntpStr) return 0;
             const cleaned = ntpStr.toLowerCase().trim();
             
-            // Check if it's month-year format like "Jan-26" or "Jan 26"
             const monthNames = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
             let monthIdx = -1;
             for (let i = 0; i < 12; i++) {
@@ -1019,7 +962,6 @@
                 return (year - START_YEAR) * 12 + monthIdx;
             }
 
-            // Fallback: try Native Date parse
             const d = new Date(ntpStr);
             if (!isNaN(d.getTime())) {
                 const year = d.getFullYear();
@@ -1027,12 +969,9 @@
                 return (year - START_YEAR) * 12 + month;
             }
 
-            return 0; // Default fallback to Jan 2026
+            return 0; 
         }
 
-        // =========================================================================
-        // CONTRACT SELECTION & FILTER DIALOG LOGICS
-        // =========================================================================
         function openContractSelectorModal() {
             document.getElementById('contract-search-input').value = '';
             filterContractIds();
@@ -1046,7 +985,6 @@
             document.getElementById('contract-modal').classList.remove('flex');
         }
 
-        // FILTER MONTH MODAL LOGIC
         let filterModalActiveMonth = 5;
 
         function openFilterMonthModal() {
@@ -1075,10 +1013,10 @@
                 const btn = document.createElement('button');
                 btn.id = `filter-pill-${i}`;
                 btn.onclick = () => selectFilterMonth(i);
-                btn.className = `flex-shrink-0 px-4 py-2.5 rounded-full text-xs font-black border transition-all ${
+                btn.className = `flex-shrink-0 px-4 py-2 rounded-xl text-xs font-black border transition-all ${
                     i === filterModalActiveMonth 
-                    ? 'bg-[#4c356d] text-purple-200 border-[#654693] shadow-sm shadow-[#4c356d]/50' 
-                    : 'bg-[#222335] text-slate-400 border-[#30324c] hover:bg-[#2a2a3e]'
+                    ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white border-blue-400 shadow-md' 
+                    : 'bg-white/60 text-slate-600 border-white/80 hover:bg-white/90 shadow-sm'
                 }`;
                 btn.innerText = label;
                 container.appendChild(btn);
@@ -1103,28 +1041,27 @@
             const filtered = appState.contractsList.filter(id => isContractUpdatedInMonth(id, filterModalActiveMonth));
 
             if (filtered.length === 0) {
-                container.innerHTML = `<div class="text-center py-6 text-slate-400 font-bold text-xs">No projects updated in ${getMonthLabel(filterModalActiveMonth)}.</div>`;
+                container.innerHTML = `<div class="text-center py-6 text-slate-500 font-bold text-sm">No projects updated in ${getMonthLabel(filterModalActiveMonth)}.</div>`;
                 return;
             }
 
             filtered.forEach(id => {
                 const btn = document.createElement('button');
                 btn.onclick = () => {
-                    selectMonthOffset(filterModalActiveMonth); // Automatically set app period to see the updates!
+                    selectMonthOffset(filterModalActiveMonth); 
                     selectContract(id);
                     closeFilterMonthModal();
                 };
-                btn.className = `w-full text-left p-3 rounded-lg text-sm font-bold transition-all ${
+                btn.className = `w-full text-left p-3.5 rounded-xl text-sm font-bold transition-all shadow-sm ${
                     id === appState.selectedContractId && filterModalActiveMonth === appState.activeMonthOffset
-                    ? 'bg-sky-950 text-sky-400 border border-sky-900' 
-                    : 'text-slate-300 hover:bg-[#1a1b2b]'
+                    ? 'bg-blue-100 text-blue-700 border border-blue-300' 
+                    : 'text-slate-700 bg-white/60 hover:bg-white/90 border border-white/80'
                 }`;
                 btn.innerText = id;
                 container.appendChild(btn);
             });
         }
 
-        // Evaluates securely if contract has non-zero input for a specific month
         function isContractUpdatedInMonth(contractId, targetMonthOffset) {
             const record = appState.rows.find(r => r.contractId === contractId);
             if (!record) return false;
@@ -1170,7 +1107,7 @@
             let filtered = appState.contractsList.filter(id => id.toLowerCase().includes(query));
 
             if (filtered.length === 0) {
-                container.innerHTML = `<div class="text-center py-6 text-slate-400 font-bold text-xs">No matching Contracts found.</div>`;
+                container.innerHTML = `<div class="text-center py-6 text-slate-500 font-bold text-sm">No matching Contracts found.</div>`;
                 return;
             }
 
@@ -1180,10 +1117,10 @@
                     selectContract(id);
                     closeContractSelectorModal();
                 };
-                btn.className = `w-full text-left p-3 rounded-lg text-sm font-bold transition-all ${
+                btn.className = `w-full text-left p-3.5 rounded-xl text-sm font-bold transition-all shadow-sm ${
                     id === appState.selectedContractId 
-                    ? 'bg-sky-950 text-sky-400 border border-sky-900' 
-                    : 'text-slate-300 hover:bg-[#1a1b2b]'
+                    ? 'bg-blue-100 text-blue-700 border border-blue-300' 
+                    : 'text-slate-700 bg-white/60 hover:bg-white/90 border border-white/80'
                 }`;
                 btn.innerText = id;
                 container.appendChild(btn);
@@ -1208,7 +1145,7 @@
 
         function loadContract(id) {
             document.getElementById('selected-contract-display').innerText = id;
-            document.getElementById('selected-contract-display').className = "font-black text-orange-300 text-sm";
+            document.getElementById('selected-contract-display').className = "font-black text-orange-600 text-sm";
             
             const record = appState.rows.find(r => r.contractId === id);
             if (record) {
@@ -1224,24 +1161,22 @@
             appState.selectedContractId = null;
             appState.contractRowData = null;
             document.getElementById('selected-contract-display').innerText = "Select Contract ID...";
-            document.getElementById('selected-contract-display').className = "font-bold text-orange-300 text-sm";
+            document.getElementById('selected-contract-display').className = "font-black text-slate-600 text-sm";
             
-            // Clean up representatives selector
             const selector = document.getElementById('history-name-selector');
             if (selector) {
                 selector.innerHTML = '<option value="">-- Select Representative --</option>';
             }
 
-            // Clean up SWA timeline log
             const timelineContainer = document.getElementById('history-timeline-container');
             if (timelineContainer) {
-                timelineContainer.innerHTML = '<p class="text-[11px] text-slate-500 italic">No previous updates recorded.</p>';
+                timelineContainer.innerHTML = '<p class="text-xs text-slate-500 italic font-bold">No previous updates recorded.</p>';
             }
 
             document.getElementById('items-list-container').innerHTML = `
-                <div class="col-span-full text-center py-12 text-slate-400 bg-[#222335] border border-[#30324c] rounded-2xl shadow-sm">
-                    <i class="fa-solid fa-magnifying-glass text-4xl mb-3 opacity-25"></i>
-                    <p class="text-xs font-bold">Please select a contract to view items.</p>
+                <div class="col-span-full text-center py-16 text-slate-500 bg-white/50 backdrop-blur-xl border border-white/60 rounded-[30px] shadow-sm">
+                    <i class="fa-solid fa-magnifying-glass text-5xl mb-4 opacity-30 text-blue-500"></i>
+                    <p class="text-sm font-black">Please select a contract to view items.</p>
                 </div>
             `;
             updateGlobalStatsGrid(0, 0, 0);
@@ -1255,7 +1190,6 @@
             updatePrintButtonState();
         }
 
-        // Dynamic setup for authorized representative dropdown selection list
         function populateRepresentativeDropdown(contractId) {
             const selector = document.getElementById('history-name-selector');
             if (!selector) return;
@@ -1292,7 +1226,6 @@
             }
         }
 
-        // Parses and extracts raw log entries from SWA row
         function getParsedHistory() {
             if (!appState.contractRowData) return [];
             const historyColIdx = findHistoryHeaderCol(appState.headers);
@@ -1311,7 +1244,6 @@
             return entries;
         }
 
-        // Renders visual list sequence of SWA historical updates
         function renderHistoryTimeline() {
             const container = document.getElementById('history-timeline-container');
             if (!container) return;
@@ -1320,13 +1252,13 @@
 
             const entries = getParsedHistory();
             if (entries.length === 0) {
-                container.innerHTML = '<p class="text-[11px] text-slate-500 italic">No previous updates recorded.</p>';
+                container.innerHTML = '<p class="text-xs text-slate-500 italic font-bold">No previous updates recorded.</p>';
                 return;
             }
 
             entries.forEach(e => {
                 const item = document.createElement('div');
-                item.className = "flex items-start gap-2.5 bg-[#171721] p-2 rounded-xl border border-slate-800/60";
+                item.className = "flex items-start gap-3 bg-white/60 p-3 rounded-xl border border-white/80 shadow-sm";
 
                 let formattedDate = e.date;
                 try {
@@ -1337,19 +1269,16 @@
                 } catch (err) {}
 
                 item.innerHTML = `
-                    <div class="w-1.5 h-1.5 rounded-full bg-rose-500 mt-1 shrink-0 animate-pulse"></div>
+                    <div class="w-2 h-2 rounded-full bg-rose-500 mt-1 shrink-0 animate-pulse"></div>
                     <div class="flex-1 min-w-0">
-                        <p class="text-[11px] font-bold text-slate-300 truncate">${e.name}</p>
-                        <p class="text-[9px] text-slate-500 font-semibold uppercase mt-0.5">${formattedDate}</p>
+                        <p class="text-[11px] font-black text-slate-800 truncate">${e.name}</p>
+                        <p class="text-[10px] text-slate-500 font-bold uppercase mt-0.5">${formattedDate}</p>
                     </div>
                 `;
                 container.appendChild(item);
             });
         }
 
-        // =========================================================================
-        // CALCULATION MATRIX AND CARD RENDERING ENGINE
-        // =========================================================================
         function renderItemsList() {
             if (!appState.contractRowData) return;
             
@@ -1361,37 +1290,32 @@
             const headers = appState.headers;
             const contractColIndex = findContractHeaderCol(headers);
 
-            // Access Authorizaton Verification Engine
             const loginColIndex = headers.findIndex(h => String(h || '').toUpperCase().trim() === 'LOGIN');
             const contractLoginUser = loginColIndex !== -1 && row[loginColIndex] ? String(row[loginColIndex]).trim() : '';
             
             const isPastPeriod = appState.activeMonthOffset < CURRENT_MONTH_OFFSET;
-            // Evaluates securely verifying logged in name matches the designated assigned user (and is not a Guest)
             const isAuthorized = appState.loggedInUser && appState.loggedInUser !== 'Guest' && contractLoginUser.toLowerCase() === appState.loggedInUser.toLowerCase();
             
-            // True if past month locked OR currently unauthorized to edit this contract
             const isLocked = isPastPeriod || !isAuthorized;
 
             const validItems = [];
 
-            // Prepend "Add/Edit/Update Items" trigger button spanning responsive columns dynamically
             const addBtn = document.createElement('button');
             if (isPastPeriod) {
                 addBtn.disabled = true;
-                addBtn.className = "col-span-full py-3.5 border border-slate-800 bg-[#161724] text-slate-500 rounded-xl text-xs font-black tracking-widest uppercase flex items-center justify-center gap-2 mb-2 cursor-not-allowed opacity-50";
-                addBtn.innerHTML = `<i class="fa-solid fa-lock text-slate-600"></i> Locked (Past Period)`;
+                addBtn.className = "col-span-full py-4 border border-white/50 bg-white/40 text-slate-500 rounded-2xl text-xs font-black tracking-widest uppercase flex items-center justify-center gap-2 mb-2 cursor-not-allowed shadow-inner opacity-70";
+                addBtn.innerHTML = `<i class="fa-solid fa-lock text-slate-500"></i> Locked (Past Period)`;
             } else if (!isAuthorized) {
                 addBtn.disabled = true;
-                addBtn.className = "col-span-full py-3.5 border border-rose-900/50 bg-[#1a1014] text-rose-500/50 rounded-xl text-xs font-black tracking-widest uppercase flex items-center justify-center gap-2 mb-2 cursor-not-allowed";
-                addBtn.innerHTML = `<i class="fa-solid fa-ban text-rose-700"></i> View-Only (Assigned to: ${contractLoginUser || 'None'})`;
+                addBtn.className = "col-span-full py-4 border border-rose-200 bg-rose-50/50 text-rose-500 rounded-2xl text-xs font-black tracking-widest uppercase flex items-center justify-center gap-2 mb-2 cursor-not-allowed shadow-inner";
+                addBtn.innerHTML = `<i class="fa-solid fa-ban text-rose-500"></i> View-Only (Assigned to: ${contractLoginUser || 'None'})`;
             } else {
                 addBtn.onclick = openItemsEditorModal;
-                addBtn.className = "col-span-full py-3.5 border border-dashed border-sky-800 hover:border-sky-500 bg-[#1c2e42] text-sky-300 rounded-xl text-xs font-black tracking-widest uppercase transition-all flex items-center justify-center gap-2 mb-2 shadow-sm";
+                addBtn.className = "col-span-full py-4 border-2 border-dashed border-blue-400 hover:border-blue-500 bg-white/60 hover:bg-white/80 text-blue-700 rounded-2xl text-xs font-black tracking-widest uppercase transition-all flex items-center justify-center gap-2 mb-2 shadow-sm";
                 addBtn.innerHTML = `<i class="fa-solid fa-gears"></i> Add/Edit/Update Items`;
             }
             container.appendChild(addBtn);
 
-            // Detect matching data columns. Criteria: starts with "Item", non-empty, and possesses pipes
             for (let c = 0; c < row.length; c++) {
                 if (c === contractColIndex) continue;
                 
@@ -1400,7 +1324,6 @@
 
                 const cellVal = String(row[c] || '').trim();
                 
-                // Track either existing parsed cells, or locally newly added items
                 const cacheKey = `${c}_${rowNumber}`;
                 const isLocallyAdded = appState.modifiedCells[cacheKey] !== undefined;
 
@@ -1412,10 +1335,10 @@
 
             if (validItems.length === 0) {
                 const emptyMsg = document.createElement('div');
-                emptyMsg.className = "col-span-full text-center py-12 text-slate-400 bg-[#222335] border border-[#30324c] rounded-2xl shadow-sm";
+                emptyMsg.className = "col-span-full text-center py-16 text-slate-500 bg-white/50 backdrop-blur-xl border border-white/60 rounded-[30px] shadow-sm";
                 emptyMsg.innerHTML = `
-                    <i class="fa-solid fa-face-frown text-4xl mb-3 opacity-25"></i>
-                    <p class="text-xs font-bold">No SWA item records identified for this contract.</p>
+                    <i class="fa-solid fa-face-frown text-5xl mb-4 opacity-30 text-blue-500"></i>
+                    <p class="text-sm font-black">No SWA item records identified for this contract.</p>
                 `;
                 container.appendChild(emptyMsg);
                 
@@ -1432,82 +1355,80 @@
                 const cacheKey = `${item.colIndex}_${item.rowNumber}`;
                 const workingItem = appState.modifiedCells[cacheKey] || item;
 
-                // Parse metrics based on index formatting (Unit Cost resolved dynamically from lookup map / string segment)
                 const metrics = calculateMetrics(workingItem.parts, appState.activeMonthOffset, workingItem.headerName);
                 
-                // Accomplished Amount = To Date Qty * Unit Cost
                 const itemToDateAmount = metrics.toDate * metrics.unitCost;
                 totalToDateAmount += itemToDateAmount;
 
-                // VLOOKUP ITEMS Lookup Map
                 const lookupInfo = appState.itemsLookupMap[metrics.itemNo] || { description: '', unit: '' };
                 const itemDescription = lookupInfo.description;
                 const itemUnit = lookupInfo.unit;
 
                 const progressPercent = metrics.targetQuantity > 0 ? Math.min(100, Math.max(0, (metrics.toDate / metrics.targetQuantity) * 100)) : 0;
                 
-                let progressColor = "bg-sky-400";
-                if (progressPercent >= 100) progressColor = "bg-emerald-400 shadow-[0_0_8px_rgba(4,120,87,0.3)]";
-                else if (progressPercent >= 75) progressColor = "bg-purple-400 shadow-[0_0_8px_rgba(107,33,168,0.3)]";
-                else if (progressPercent <= 0) progressColor = "bg-slate-800";
+                let progressColor = "bg-blue-400";
+                if (progressPercent >= 100) progressColor = "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]";
+                else if (progressPercent >= 75) progressColor = "bg-purple-400 shadow-[0_0_8px_rgba(167,139,250,0.5)]";
+                else if (progressPercent <= 0) progressColor = "bg-slate-300";
 
                 const card = document.createElement('div');
-                card.className = `bg-[#222335] border rounded-2xl p-4 shadow-sm hover:bg-[#2a2a3e] transition-all ${
-                    appState.modifiedCells[cacheKey] ? 'border-[#6a532d] bg-[#342e23]' : 'border-[#30324c]'
+                card.className = `backdrop-blur-md border rounded-2xl p-4 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1 ${
+                    appState.modifiedCells[cacheKey] 
+                    ? 'border-amber-400 bg-amber-50/70' 
+                    : 'bg-gradient-to-br from-white/70 to-white/40 border-white/60 hover:border-blue-300'
                 }`;
 
                 const inputDisabledAttr = isLocked ? "disabled" : "";
-                const inputClass = isLocked ? "w-full bg-transparent border-0 outline-none text-xs text-slate-500 font-bold py-1 cursor-not-allowed focus:ring-0" : "w-full bg-transparent border-0 outline-none text-xs text-slate-100 font-black py-1 placeholder-slate-600 focus:ring-0";
-                const iconClass = isPastPeriod ? "fa-solid fa-lock text-slate-600 text-xs mr-2 animate-pulse" : (!isAuthorized ? "fa-solid fa-ban text-rose-800 text-xs mr-2" : "fa-solid fa-pen-nib text-slate-500 text-xs mr-2");
+                const inputClass = isLocked 
+                    ? "w-full bg-transparent border-0 outline-none text-xs text-slate-500 font-bold py-1.5 cursor-not-allowed focus:ring-0" 
+                    : "w-full bg-transparent border-0 outline-none text-xs text-slate-800 font-black py-1.5 placeholder-slate-400 focus:ring-0";
+                const iconClass = isPastPeriod 
+                    ? "fa-solid fa-lock text-slate-400 text-xs mr-2 animate-pulse" 
+                    : (!isAuthorized ? "fa-solid fa-ban text-rose-500 text-xs mr-2" : "fa-solid fa-pen-nib text-blue-500 text-xs mr-2");
                 const inputPlaceholder = isLocked ? "-" : "0.00";
 
                 card.innerHTML = `
-                    <!-- Badge and Identification Head -->
-                    <div class="flex items-center justify-between border-b border-[#30324c] pb-2 mb-2">
-                        <span class="text-sm font-extrabold text-slate-200 tracking-wider flex items-center gap-1.5">
+                    <div class="flex items-center justify-between border-b border-white/60 pb-2 mb-2">
+                        <span class="text-sm font-extrabold text-slate-800 tracking-wider flex items-center gap-2">
                             ${metrics.itemNo}
-                            ${appState.modifiedCells[cacheKey] ? '<span class="text-[8px] bg-amber-950 text-amber-300 border border-amber-800 px-1.5 py-0.2 rounded font-black uppercase">PENDING UPDATE</span>' : ''}
+                            ${appState.modifiedCells[cacheKey] ? '<span class="text-[9px] bg-amber-100 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-md font-black uppercase">PENDING</span>' : ''}
                         </span>
-                        ${itemUnit ? `<span class="text-[10px] font-black text-sky-300 bg-[#1c2e42] px-2.5 py-0.5 rounded border border-[#2b4866] uppercase">${itemUnit}</span>` : ''}
+                        ${itemUnit ? `<span class="text-[10px] font-black text-blue-700 bg-blue-100 px-2.5 py-0.5 rounded-lg border border-blue-200 uppercase">${itemUnit}</span>` : ''}
                     </div>
 
-                    <!-- Client VLOOKUP Description -->
-                    ${itemDescription ? `<p class="text-xs text-slate-400 italic mb-3 leading-tight px-1 font-semibold">${itemDescription}</p>` : ''}
+                    ${itemDescription ? `<p class="text-xs text-slate-600 italic mb-3 leading-tight px-1 font-bold">${itemDescription}</p>` : ''}
 
-                    <div class="flex justify-between items-end mb-1 text-[10px] text-slate-500 font-bold px-1">
+                    <div class="flex justify-between items-end mb-1 text-[10px] text-slate-500 font-black px-1">
                         <span>Completion Progress</span>
-                        <span class="text-slate-300 font-extrabold">${progressPercent.toFixed(1)}%</span>
+                        <span class="text-slate-700 text-xs font-extrabold">${progressPercent.toFixed(1)}%</span>
                     </div>
 
-                    <!-- Visual Progress Component -->
-                    <div class="w-full bg-[#161724] rounded-full h-1.5 mb-4 border border-[#25273d] overflow-hidden">
-                        <div class="${progressColor} h-1.5 rounded-full transition-all duration-300" style="width: ${progressPercent}%"></div>
+                    <div class="w-full bg-white/60 rounded-full h-2 mb-4 border border-white/60 overflow-hidden shadow-inner">
+                        <div class="${progressColor} h-2 rounded-full transition-all duration-300" style="width: ${progressPercent}%"></div>
                     </div>
 
-                    <!-- Calculated Matrix Layout (Inner card shadow) -->
-                    <div class="grid grid-cols-3 gap-2 text-center bg-[#1a1b2b] border border-[#282a42] p-2.5 rounded-xl mb-3.5 shadow-inner">
+                    <div class="grid grid-cols-3 gap-2 text-center bg-white/50 border border-white/50 p-3 rounded-xl mb-3.5 shadow-inner">
                         <div>
-                            <span class="text-[8px] text-slate-400 font-black uppercase tracking-wider block">Previous</span>
-                            <span class="text-xs font-bold text-slate-300 block mt-0.5" id="prev-display-${index}">${formatNum(metrics.previous)}</span>
+                            <span class="text-[9px] text-slate-500 font-black uppercase tracking-wider block">Previous</span>
+                            <span class="text-xs font-black text-slate-700 block mt-0.5" id="prev-display-${index}">${formatNum(metrics.previous)}</span>
                         </div>
                         <div>
-                            <span class="text-[8px] text-slate-400 font-black uppercase tracking-wider block">To Date</span>
-                            <span class="text-xs font-black text-emerald-300 block mt-0.5" id="todate-display-${index}">${formatNum(metrics.toDate)}</span>
+                            <span class="text-[9px] text-slate-500 font-black uppercase tracking-wider block">To Date</span>
+                            <span class="text-xs font-black text-emerald-600 block mt-0.5" id="todate-display-${index}">${formatNum(metrics.toDate)}</span>
                         </div>
                         <div>
-                            <span class="text-[8px] text-slate-400 font-black uppercase tracking-wider block">Balance</span>
-                            <span class="text-xs font-black text-rose-300 block mt-0.5" id="bal-display-${index}">${formatNum(metrics.balance)}</span>
+                            <span class="text-[9px] text-slate-500 font-black uppercase tracking-wider block">Balance</span>
+                            <span class="text-xs font-black text-rose-500 block mt-0.5" id="bal-display-${index}">${formatNum(metrics.balance)}</span>
                         </div>
                     </div>
 
-                    <!-- Input/Adjustment Segment -->
-                    <div class="flex flex-col gap-2 border-t border-[#30324c] pt-3">
-                        <div class="flex justify-between items-center px-1 text-[8px] font-black text-slate-400 uppercase tracking-wider">
+                    <div class="flex flex-col gap-2 border-t border-white/60 pt-3">
+                        <div class="flex justify-between items-center px-1 text-[9px] font-black text-slate-500 uppercase tracking-wider">
                             <span>Qty for ${getMonthLabel(appState.activeMonthOffset)} ${isLocked ? '(VIEW ONLY)' : ''}</span>
-                            <span>Target: ${formatNum(metrics.targetQuantity)} | Cost: Php ${formatNum(metrics.unitCost)}</span>
+                            <span class="text-slate-400">Target: ${formatNum(metrics.targetQuantity)}</span>
                         </div>
                         <div class="flex gap-2">
-                            <div class="relative w-full flex items-center bg-[#161724] border border-[#25273d] rounded-xl px-3 py-1">
+                            <div class="relative w-full flex items-center bg-white/80 border border-white/60 shadow-inner rounded-xl px-3 py-0.5">
                                 <i class="${iconClass}"></i>
                                 <input type="number" step="any" min="0" 
                                     value="${metrics.thisPeriod === 0 ? '' : metrics.thisPeriod}" 
@@ -1524,7 +1445,6 @@
                 container.appendChild(card);
             });
 
-            // Retrieve master contract Amount from VO table
             const contractVo = appState.voLookupMap[appState.selectedContractId] || { amount: 0 };
             const contractAmount = contractVo.amount;
             const actualPercent = contractAmount > 0 ? (totalToDateAmount / contractAmount) * 100 : 0;
@@ -1534,7 +1454,6 @@
             renderRemarks();
         }
 
-        // Add dynamically updated remarks container renderer
         function renderRemarks() {
             const container = document.getElementById('remarks-container');
             if (!container) return;
@@ -1610,21 +1529,19 @@
             textarea.dataset.rowNumber = rowNumber;
         }
 
-        // New format parsing: "Item No.|Original|Unit Cost|Previous|This Period|To Date|Balance|Start at NTP|next month..."
         function parseCellToItem(cellVal, colHeader, colIdx, rowNum) {
             let parts = cellVal.split('|').map(p => p.trim());
             
-            // Validate minimum parts configuration (Up to Balance at index 6)
             if (parts.length < 7 || !cellVal.includes('|')) {
                 parts = [
-                    parts[0] || '',  // Item No
-                    parts[1] || '0', // Original Target Quantity
-                    parts[2] || '0', // Unit Cost
-                    '0',             // Previous
-                    '0',             // This Period
-                    '0',             // To Date
-                    '0',             // Balance
-                    '0'              // Start at NTP
+                    parts[0] || '',  
+                    parts[1] || '0', 
+                    parts[2] || '0', 
+                    '0',             
+                    '0',             
+                    '0',             
+                    '0',             
+                    '0'              
                 ];
             }
 
@@ -1637,19 +1554,16 @@
             };
         }
 
-        // Calculation of SWA accomplishments relative to NTP offsets with inline Unit Cost formatting
         function calculateMetrics(parts, activeMonthOffset, fallbackItemNo) {
             const itemNo = parts[0] || fallbackItemNo || '';
-            const targetQuantity = parseFloat(parts[1]) || 0; // Original Target Quantity
+            const targetQuantity = parseFloat(parts[1]) || 0; 
 
-            // Read unitCost from parts[2], fallback to itemsLookupMap database if missing
             let unitCost = parseFloat(parts[2]) || 0;
             if (unitCost === 0) {
                 const lookupInfo = appState.itemsLookupMap[itemNo] || { description: '', unit: '', unitCost: 0 };
                 unitCost = lookupInfo.unitCost || 0;
             }
 
-            // Fetch contract-level NTP month offset
             let ntpOffset = 0;
             if (appState.selectedContractId && appState.pdoLookupMap[appState.selectedContractId]) {
                 const ntpStr = appState.pdoLookupMap[appState.selectedContractId].ntp;
@@ -1658,7 +1572,6 @@
             
             const monthDiff = activeMonthOffset - ntpOffset;
 
-            // Monthly lists start at parts[7] representing Start at NTP (NTP Month)
             const expectedLength = 7 + Math.max(0, monthDiff) + 1;
             const workingParts = [...parts];
             while (workingParts.length < expectedLength) {
@@ -1669,7 +1582,6 @@
             let thisPeriod = 0;
 
             if (monthDiff >= 0) {
-                // Sum from parts[7] up to parts[7 + monthDiff - 1] (Previous)
                 for (let i = 7; i < 7 + monthDiff; i++) {
                     previous += parseFloat(workingParts[i]) || 0;
                 }
@@ -1693,9 +1605,6 @@
             };
         }
 
-        // =========================================================================
-        // REAL-TIME LOCAL CACHING AND EVENT UPDATES
-        // =========================================================================
         function onItemEdit(inputEl, cardIndex, colIdx, rowNumber) {
             if (inputEl.disabled) return;
 
@@ -1710,7 +1619,6 @@
 
             const workingParts = [...baseItem.parts];
             
-            // Resolve NTP parameters
             let ntpOffset = 0;
             if (appState.selectedContractId && appState.pdoLookupMap[appState.selectedContractId]) {
                 const ntpStr = appState.pdoLookupMap[appState.selectedContractId].ntp;
@@ -1731,7 +1639,6 @@
 
             workingParts[requiredIndex] = String(val);
 
-            // Recompute metric pre-calculations
             let previous = 0;
             for (let i = 7; i < 7 + monthDiff; i++) {
                 previous += parseFloat(workingParts[i]) || 0;
@@ -1741,14 +1648,12 @@
             const original = parseFloat(workingParts[1]) || 0;
             const balance = original - toDate;
 
-            // Balance Quantity Validation Check
             if (balance < 0) {
                 showToast("Quantity Limit Exceeded", "Input rejected. Remaining balance cannot be negative.", "error");
-                inputEl.value = ""; // Reset invalid value in UI
+                inputEl.value = ""; 
                 
-                // Rollback modifications and recalculate metrics
                 delete appState.modifiedCells[cacheKey];
-                card.className = 'bg-[#222335] border border-[#30324c] rounded-2xl p-4 shadow-sm hover:bg-[#2a2a3e] transition-all';
+                card.className = 'backdrop-blur-md border rounded-2xl p-4 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1 bg-gradient-to-br from-white/70 to-white/40 border-white/60 hover:border-blue-300';
                 
                 const rollbackMetrics = calculateMetrics(baseItem.parts, appState.activeMonthOffset, baseItem.headerName);
                 document.getElementById(`prev-display-${cardIndex}`).innerText = formatNum(rollbackMetrics.previous);
@@ -1760,7 +1665,6 @@
                 return;
             }
 
-            // Sync calculations directly to SWA calculated header fields (Indices 3-6)
             workingParts[3] = String(previous);
             workingParts[4] = String(thisPeriod);
             workingParts[5] = String(toDate);
@@ -1779,17 +1683,16 @@
                 const baseMetrics = calculateMetrics(baseItem.parts, appState.activeMonthOffset, baseItem.headerName);
                 if (baseMetrics.thisPeriod === 0) {
                     delete appState.modifiedCells[cacheKey];
-                    card.className = 'bg-[#222335] border border-[#30324c] rounded-2xl p-4 shadow-sm hover:bg-[#2a2a3e] transition-all';
+                    card.className = 'backdrop-blur-md border rounded-2xl p-4 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1 bg-gradient-to-br from-white/70 to-white/40 border-white/60 hover:border-blue-300';
                 }
             } else {
-                card.className = 'bg-[#222335] border border-purple-400 rounded-2xl p-4 shadow-sm transition-all';
+                card.className = 'backdrop-blur-md border border-amber-400 bg-amber-50/70 rounded-2xl p-4 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1';
             }
 
             updatePendingBadge();
             recalculateAggregatedTotals();
         }
 
-        // Handling user input on the Monthly Remarks textarea mapping
         function onRemarksEdit(textarea) {
             if (textarea.disabled) return;
             
@@ -1807,7 +1710,7 @@
             if (monthDiff < 0) return;
             
             let val = textarea.value;
-            val = val.replace(/\|/g, '-'); // Replace pipes to avoid breaking structure
+            val = val.replace(/\|/g, '-'); 
             
             let workingParts = [];
             if (appState.modifiedCells[cacheKey]) {
@@ -1841,7 +1744,6 @@
             updatePendingBadge();
         }
 
-        // Recalculates aggregated totals for displaying progress
         function recalculateAggregatedTotals() {
             const container = document.getElementById('items-list-container');
             const cards = container.querySelectorAll('[data-raw-item]');
@@ -1854,8 +1756,6 @@
                 const workingItem = appState.modifiedCells[cacheKey] || baseItem;
                 
                 const metrics = calculateMetrics(workingItem.parts, appState.activeMonthOffset, workingItem.headerName);
-                
-                // Calculated Financial Accomplishment To Date
                 totalToDateAmount += (metrics.toDate * metrics.unitCost);
             });
 
@@ -1874,18 +1774,18 @@
             if (count > 0) {
                 if (counterLabel) {
                     counterLabel.innerText = count;
-                    counterLabel.className = "ml-1 px-1.5 py-0.5 bg-purple-800 text-white rounded text-[10px] animate-pulse";
+                    counterLabel.className = "ml-1.5 px-2 py-0.5 bg-white text-purple-600 rounded-lg text-[10px] animate-pulse shadow-sm";
                     counterLabel.classList.remove('hidden');
                 }
                 syncBtn.disabled = false;
-                syncBtn.className = "bg-purple-600 text-white px-3 py-2 lg:px-5 lg:py-2.5 rounded-lg font-black text-xs shadow-sm shadow-purple-900 hover:bg-purple-700 transition-all flex items-center gap-1.5 cursor-pointer";
+                syncBtn.className = "bg-gradient-to-r from-purple-500 to-indigo-500 text-white px-3 py-2 lg:px-5 lg:py-2.5 rounded-xl font-black text-xs shadow-md shadow-purple-500/30 hover:scale-[1.02] transition-all flex items-center gap-1.5 cursor-pointer";
             } else {
                 if (counterLabel) {
                     counterLabel.innerText = `0`;
                     counterLabel.classList.add('hidden');
                 }
                 syncBtn.disabled = true;
-                syncBtn.className = "bg-slate-800 text-slate-500 px-3 py-2 lg:px-5 lg:py-2.5 rounded-lg font-black text-xs transition-all flex items-center gap-1.5 cursor-not-allowed";
+                syncBtn.className = "bg-white/50 border border-white/60 text-slate-400 px-3 py-2 lg:px-5 lg:py-2.5 rounded-xl font-black text-xs transition-all flex items-center gap-1.5 cursor-not-allowed";
             }
         }
 
@@ -1893,12 +1793,9 @@
             document.getElementById('stat-amount').innerText = amount > 0 ? formatCurrency(amount) : 'Php 0.00';
             document.getElementById('stat-todate-amount').innerText = toDateAmount > 0 ? formatCurrency(toDateAmount) : 'Php 0.00';
             document.getElementById('stat-actual-percent').innerText = amount > 0 ? `${actualPercent.toFixed(2)} %` : '0.00 %';
-            document.getElementById('stat-slippage').innerText = '-'; // TBD ("not yet")
+            document.getElementById('stat-slippage').innerText = '-'; 
         }
 
-        // =========================================================================
-        // MULTI-ITEM BATCH EDITOR METHODS
-        // =========================================================================
         function openItemsEditorModal() {
             if (appState.activeMonthOffset < CURRENT_MONTH_OFFSET) {
                 showCustomAlert("Period Locked!\n\nThis month is historical and cannot be modified. Updating items is only allowed in the current month (Jun26).");
@@ -1910,7 +1807,6 @@
                 return;
             }
 
-            // Security Check Validation
             const loginColIndex = appState.headers.findIndex(h => String(h||'').toUpperCase().trim() === 'LOGIN');
             const contractLoginUser = loginColIndex !== -1 && appState.contractRowData.values[loginColIndex] ? String(appState.contractRowData.values[loginColIndex]).trim() : '';
             if (!appState.loggedInUser || appState.loggedInUser === 'Guest' || contractLoginUser.toLowerCase() !== appState.loggedInUser.toLowerCase()) {
@@ -1948,7 +1844,6 @@
                 }
             }
 
-            // If no items exist on selection, load one template row
             if (!hasItems) {
                 addEmptyRowInEditor();
             }
@@ -1960,7 +1855,7 @@
         function appendEditorRow(colIndex, itemNo, qty, unitCost) {
             const tbody = document.getElementById('items-editor-table-body');
             const tr = document.createElement('tr');
-            tr.className = "hover:bg-slate-900/40";
+            tr.className = "hover:bg-white/50 transition-colors";
             tr.dataset.colIndex = colIndex;
 
             const currentItemInfo = appState.itemsLookupMap[itemNo];
@@ -1968,24 +1863,23 @@
                 ? `${itemNo} - ${(currentItemInfo && currentItemInfo.description) ? currentItemInfo.description : ''}` 
                 : '-- Select --';
 
-            // Generate search-friendly list of options
-            let dropdownItemsHtml = `<button type="button" onclick="selectDropdownOption(this, '', '-- Select --')" class="w-full text-left p-2 rounded text-[11px] text-slate-400 hover:bg-[#1a1b2b] font-bold tracking-wide">-- Select --</button>`;
+            let dropdownItemsHtml = `<button type="button" onclick="selectDropdownOption(this, '', '-- Select --')" class="w-full text-left p-3 rounded-lg text-sm text-slate-500 hover:bg-slate-100 font-bold tracking-wide">-- Select --</button>`;
 
             const hasSelected = Object.keys(appState.itemsLookupMap).includes(itemNo);
             if (!hasSelected && itemNo) {
-                dropdownItemsHtml += `<button type="button" onclick="selectDropdownOption(this, '${itemNo}', '${initialLabel}')" class="w-full text-left p-2 rounded text-[11px] text-sky-400 bg-sky-950 hover:bg-[#1a1b2b] font-bold tracking-wide dropdown-item-option" data-search-text="${itemNo.toLowerCase()}">${initialLabel}</button>`;
+                dropdownItemsHtml += `<button type="button" onclick="selectDropdownOption(this, '${itemNo}', '${initialLabel}')" class="w-full text-left p-3 rounded-lg text-sm text-blue-700 bg-blue-50 hover:bg-slate-100 font-bold tracking-wide dropdown-item-option" data-search-text="${itemNo.toLowerCase()}">${initialLabel}</button>`;
             }
 
             for (const key in appState.itemsLookupMap) {
                 const desc = appState.itemsLookupMap[key].description || '';
                 const optionLabel = `${key} - ${desc}`;
                 const isSelected = (key === itemNo);
-                const activeClass = isSelected ? 'text-amber-300 bg-[#342e23] dropdown-selected-highlight' : 'text-slate-300 hover:bg-[#1a1b2b]';
+                const activeClass = isSelected ? 'text-blue-700 bg-blue-100 dropdown-selected-highlight' : 'text-slate-600 hover:bg-slate-100';
                 
                 dropdownItemsHtml += `
                     <button type="button" 
                         onclick="selectDropdownOption(this, '${key}', '${key} - ${desc.replace(/'/g, "\\'")}')" 
-                        class="w-full text-left p-2 rounded text-[11px] font-bold tracking-wide dropdown-item-option ${activeClass}" 
+                        class="w-full text-left p-3 rounded-lg text-sm font-bold tracking-wide dropdown-item-option ${activeClass}" 
                         data-search-text="${key.toLowerCase()} ${desc.toLowerCase()}">
                         ${optionLabel}
                     </button>`;
@@ -1995,71 +1889,79 @@
             const costFormatted = unitCost ? 'P ' + formatNum(unitCost) : '';
 
             tr.innerHTML = `
-                <td class="py-2.5 px-1 w-[45%] relative align-top">
+                <td class="py-3 px-2 w-[45%] relative align-top">
                     <div class="relative dropdown-container">
-                        <!-- Custom Select Trigger Button -->
-                        <button type="button" onclick="toggleDropdown(this)" class="w-full text-left bg-[#161724] border border-[#30324c] rounded-lg px-2 py-1.5 text-slate-300 text-xs font-bold focus:outline-none focus:border-sky-400 flex justify-between items-center dropdown-btn">
-                            <span class="truncate dropdown-selected-label text-[10px]">${initialLabel}</span>
-                            <i class="fa-solid fa-chevron-down text-slate-400 text-[9px] ml-1 shrink-0"></i>
+                        <button type="button" onclick="toggleDropdown(this)" class="w-full text-left bg-white/70 border border-white/80 shadow-inner rounded-xl px-4 py-3 text-slate-800 text-sm font-bold focus:outline-none focus:border-blue-400 flex justify-between items-center dropdown-btn">
+                            <span class="truncate dropdown-selected-label">${initialLabel}</span>
+                            <i class="fa-solid fa-chevron-down text-slate-400 text-xs ml-2 shrink-0"></i>
                         </button>
-                        <!-- Hidden tracking value input -->
                         <input type="hidden" value="${itemNo || ''}" class="editor-item-no">
                         
-                        <!-- Searchable Popup Panel -->
-                        <div class="absolute left-0 z-[100] w-64 mt-1 bg-[#222335] border border-[#30324c] rounded-lg shadow-2xl hidden flex-col dropdown-menu">
-                            <div class="p-2 border-b border-[#30324c]">
-                                <input type="text" oninput="filterDropdownOptions(this)" placeholder="Search item or description..." class="w-full bg-[#161724] border border-[#30324c] rounded-md px-2 py-1 text-slate-300 text-[10px] focus:outline-none focus:border-sky-400 dropdown-search">
+                        <div class="absolute left-0 z-[100] w-[300px] sm:w-[500px] md:w-[650px] max-w-[85vw] mt-2 bg-white/95 backdrop-blur-xl border border-white/80 rounded-2xl shadow-2xl hidden flex-col dropdown-menu">
+                            <div class="p-4 border-b border-slate-100 bg-slate-50/50 rounded-t-2xl">
+                                <input type="text" oninput="filterDropdownOptions(this)" placeholder="Search item or description..." class="w-full bg-white border border-slate-200 shadow-sm rounded-xl px-4 py-3 text-slate-800 text-sm font-bold focus:outline-none focus:border-blue-400 dropdown-search">
                             </div>
-                            <div class="max-h-40 overflow-y-auto p-1 flex flex-col gap-0.5 dropdown-list no-scrollbar">
+                            <div class="max-h-[55vh] overflow-y-auto p-3 flex flex-col gap-1.5 dropdown-list no-scrollbar">
                                 ${dropdownItemsHtml}
                             </div>
                         </div>
                     </div>
                 </td>
-                <td class="py-2.5 px-1 w-[25%] align-top">
+                <td class="py-3 px-2 w-[25%] align-top">
                     <input type="text" 
                         value="${qtyFormatted}" 
                         data-raw="${qty || ''}"
                         onfocus="this.value = this.dataset.raw"
                         onblur="let v = parseEditVal(this.value); this.dataset.raw = this.value === '' ? '' : v; this.value = this.value === '' ? '' : formatNum(v);"
                         placeholder="0.00" 
-                        class="w-full bg-[#161724] border border-[#30324c] rounded-lg px-2 py-1.5 text-slate-300 text-xs font-bold focus:outline-none focus:border-sky-400 text-right editor-qty">
+                        class="w-full bg-white/70 border border-white/80 shadow-inner rounded-xl px-4 py-3 text-slate-800 text-sm font-bold focus:outline-none focus:border-blue-400 text-right editor-qty">
                 </td>
-                <td class="py-2.5 px-1 w-[30%] align-top">
+                <td class="py-3 px-2 w-[30%] align-top">
                     <input type="text" 
                         value="${costFormatted}" 
                         data-raw="${unitCost || ''}"
                         onfocus="this.value = this.dataset.raw"
                         onblur="let v = parseEditVal(this.value); this.dataset.raw = this.value === '' ? '' : v; this.value = this.value === '' ? '' : 'P ' + formatNum(v);"
                         placeholder="P 0.00" 
-                        class="w-full bg-[#161724] border border-[#30324c] rounded-lg px-2 py-1.5 text-slate-300 text-xs font-bold focus:outline-none focus:border-sky-400 text-right editor-unit-cost">
+                        class="w-full bg-white/70 border border-white/80 shadow-inner rounded-xl px-4 py-3 text-slate-800 text-sm font-bold focus:outline-none focus:border-blue-400 text-right editor-unit-cost">
                 </td>
             `;
             tbody.appendChild(tr);
         }
 
-        // =========================================================================
-        // CUSTOM COMBOBOX DROPDOWN LOGIC
-        // =========================================================================
         function toggleDropdown(btn) {
             const container = btn.closest('.dropdown-container');
             const menu = container.querySelector('.dropdown-menu');
             const searchInput = container.querySelector('.dropdown-search');
             
-            // Hide any other active dropdown overlays
             document.querySelectorAll('.dropdown-menu').forEach(m => {
-                if (m !== menu) m.classList.add('hidden');
+                if (m !== menu) {
+                    m.classList.add('hidden');
+                    m.classList.remove('flex');
+                    if (m.closest('tr')) {
+                        m.closest('tr').style.zIndex = '';
+                        m.closest('tr').style.position = '';
+                    }
+                }
             });
 
             const isHidden = menu.classList.contains('hidden');
+            const tr = btn.closest('tr');
+
             if (isHidden) {
                 menu.classList.remove('hidden');
                 menu.classList.add('flex');
+                
+                // Dynamically boost the parent row to prevent the dropdown from getting clipped behind the rows underneath it
+                if (tr) {
+                    tr.style.position = 'relative';
+                    tr.style.zIndex = '50';
+                }
+
                 searchInput.value = '';
                 filterDropdownOptions(searchInput);
                 searchInput.focus();
 
-                // Auto-scroll instantly to the currently highlighted item to prevent unnecessary scrolling
                 setTimeout(() => {
                     const selected = menu.querySelector('.dropdown-selected-highlight');
                     if (selected) {
@@ -2069,16 +1971,33 @@
             } else {
                 menu.classList.add('hidden');
                 menu.classList.remove('flex');
+                
+                if (tr) {
+                    tr.style.zIndex = '';
+                    tr.style.position = '';
+                }
             }
         }
 
-        // Dismiss dropdown list on blur clicking outside selection elements
         document.addEventListener('click', (e) => {
+            // Dropdown Menu Auto-close
             if (!e.target.closest('.dropdown-container')) {
                 document.querySelectorAll('.dropdown-menu').forEach(menu => {
                     menu.classList.add('hidden');
                     menu.classList.remove('flex');
+                    if (menu.closest('tr')) {
+                        menu.closest('tr').style.zIndex = '';
+                        menu.closest('tr').style.position = '';
+                    }
                 });
+            }
+            
+            // Modal Auto-close
+            const confirmBox = document.getElementById('confirm-modal-box');
+            const confirmModal = document.getElementById('confirm-modal');
+            if (confirmModal && !confirmModal.classList.contains('hidden') && e.target === confirmModal) {
+                confirmModal.classList.add('hidden');
+                confirmModal.classList.remove('flex');
             }
         });
 
@@ -2087,23 +2006,26 @@
             const hiddenInput = container.querySelector('.editor-item-no');
             const displayLabel = container.querySelector('.dropdown-selected-label');
             const menu = container.querySelector('.dropdown-menu');
+            const tr = optionBtn.closest('tr');
 
             hiddenInput.value = itemNo;
             displayLabel.innerText = label;
 
-            // Reset selected styling classes
             container.querySelectorAll('.dropdown-item-option').forEach(btn => {
-                btn.className = "w-full text-left p-2 rounded text-[11px] font-bold tracking-wide dropdown-item-option text-slate-300 hover:bg-[#1a1b2b]";
+                btn.className = "w-full text-left p-3 rounded-lg text-sm font-bold tracking-wide dropdown-item-option text-slate-600 hover:bg-slate-100";
             });
             if (itemNo) {
-                optionBtn.className = "w-full text-left p-2 rounded text-[11px] font-bold tracking-wide dropdown-item-option text-amber-300 bg-[#342e23] dropdown-selected-highlight";
+                optionBtn.className = "w-full text-left p-3 rounded-lg text-sm font-bold tracking-wide dropdown-item-option text-blue-800 bg-blue-100 dropdown-selected-highlight";
             }
 
             menu.classList.add('hidden');
             menu.classList.remove('flex');
+            
+            if (tr) {
+                tr.style.zIndex = '';
+                tr.style.position = '';
+            }
 
-            // Dynamic Unit Cost Lookup injection from ITEMS registry database
-            const tr = optionBtn.closest('tr');
             if (tr) {
                 const costInput = tr.querySelector('.editor-unit-cost');
                 if (costInput && itemNo && appState.itemsLookupMap[itemNo]) {
@@ -2164,13 +2086,11 @@
             let changesCount = 0;
             let targetBuffer = {};
 
-            // Perform negative balance validation check before storing locally
             for (let i = 0; i < rows.length; i++) {
                 const tr = rows[i];
                 const colIdx = parseInt(tr.dataset.colIndex);
                 const itemNoInput = tr.querySelector('.editor-item-no').value.trim();
                 
-                // Use reverse-parsing logic for formatted strings
                 const qtyInput = parseEditVal(tr.querySelector('.editor-qty').value);
                 const costInput = parseEditVal(tr.querySelector('.editor-unit-cost').value);
 
@@ -2183,7 +2103,6 @@
                 const existingItem = appState.modifiedCells[cacheKey] || parseCellToItem(cellVal, appState.headers[colIdx], colIdx, rowNumber);
                 const workingParts = [...existingItem.parts];
 
-                // Ensure array length covers up to Balance
                 while (workingParts.length < 7) {
                     workingParts.push('0');
                 }
@@ -2192,7 +2111,6 @@
                 workingParts[1] = String(qtyInput);
                 workingParts[2] = String(costInput);
 
-                // Run structural check for negative balance
                 let ntpOffset = 0;
                 if (appState.selectedContractId && appState.pdoLookupMap[appState.selectedContractId]) {
                     const ntpStr = appState.pdoLookupMap[appState.selectedContractId].ntp;
@@ -2200,7 +2118,6 @@
                 }
                 const monthDiff = appState.activeMonthOffset - ntpOffset;
 
-                // Ensure array length covers up to active month
                 const expectedLength = 7 + Math.max(0, monthDiff) + 1;
                 while (workingParts.length < expectedLength) {
                     workingParts.push('0');
@@ -2220,10 +2137,9 @@
 
                 if (balance < 0) {
                     showCustomAlert(`Save Blocked!\n\nItem [ ${itemNoInput} ] yields a negative Balance of ${formatNum(balance)} (Original: ${formatNum(qtyInput)} | To Date Accomplished: ${formatNum(toDate)}).\n\nPlease correct the Quantity value.`);
-                    return; // Terminate execution, do not apply changes
+                    return; 
                 }
 
-                // Sync calculations directly to array indices
                 workingParts[3] = String(previous);
                 workingParts[4] = String(thisPeriod);
                 workingParts[5] = String(toDate);
@@ -2238,7 +2154,6 @@
                 };
             }
 
-            // Transfer validation-cleared buffer directly into cache
             for (const key in targetBuffer) {
                 appState.modifiedCells[key] = targetBuffer[key];
                 changesCount++;
@@ -2253,7 +2168,6 @@
             }
         }
 
-        // Calculates the serialized history sequence using "Name1|Date1|Name2|Date2"
         function getUpdatedHistoryString(currentHistoryStr, selectedName) {
             const parts = currentHistoryStr ? currentHistoryStr.split('|').map(p => p.trim()) : [];
             const entries = [];
@@ -2265,24 +2179,21 @@
                 }
             }
 
-            // Identify current target month and year parameters for active period selection
             const periodYear = START_YEAR + Math.floor(appState.activeMonthOffset / 12);
-            const periodMonth = (appState.activeMonthOffset % 12); // 0-11
+            const periodMonth = (appState.activeMonthOffset % 12); 
 
-            // Write Current Date (ISO YYYY-MM-DD)
             const today = new Date();
             const yyyy = today.getFullYear();
             const mm = String(today.getMonth() + 1).padStart(2, '0');
             const dd = String(today.getDate()).padStart(2, '0');
             const currentDateStr = `${yyyy}-${mm}-${dd}`;
 
-            // Check if there is an existing log entry corresponding to active selected month
             let matchIndex = -1;
             for (let i = 0; i < entries.length; i++) {
                 const entryDateParts = entries[i].date.split('-');
                 if (entryDateParts.length >= 2) {
                     const entryYear = parseInt(entryDateParts[0]);
-                    const entryMonth = parseInt(entryDateParts[1]) - 1; // 0-11
+                    const entryMonth = parseInt(entryDateParts[1]) - 1; 
                     if (entryYear === periodYear && entryMonth === periodMonth) {
                         matchIndex = i;
                         break;
@@ -2299,26 +2210,20 @@
             }
 
             if (matchIndex !== -1) {
-                // Same period offset matches: overwrite current record entry
                 entries[matchIndex] = { name: selectedName, date: currentDateStr };
             } else {
-                // Period offset does not match: append a new record entry
                 entries.push({ name: selectedName, date: currentDateStr });
             }
 
             return entries.map(e => `${e.name}|${e.date}`).join('|');
         }
 
-        // =========================================================================
-        // WRITE BACK / SYNCHRONIZATION TRANSACTION BLOCK
-        // =========================================================================
         async function saveChanges() {
             const count = Object.keys(appState.modifiedCells).length;
             if (count === 0) return;
             
             if (!appState.contractRowData) return;
 
-            // Security check validation for saving
             const loginColIndex = appState.headers.findIndex(h => String(h || '').toUpperCase().trim() === 'LOGIN');
             const contractLoginUser = loginColIndex !== -1 && appState.contractRowData.values[loginColIndex] ? String(appState.contractRowData.values[loginColIndex]).trim() : '';
             
@@ -2327,7 +2232,6 @@
                 return;
             }
 
-            // Enforce Authorized Representative Selection prior to database synchronization
             const nameSelector = document.getElementById('history-name-selector');
             const selectedName = nameSelector ? nameSelector.value : '';
 
@@ -2344,7 +2248,6 @@
                     const token = await GoogleSheetsAPI.getAuthToken();
                     const payload = [];
 
-                    // 1. Process SWA Item Updates
                     for (const key in appState.modifiedCells) {
                         const item = appState.modifiedCells[key];
                         const newValueString = item.parts.join('|');
@@ -2356,7 +2259,6 @@
                         });
                     }
 
-                    // 2. Process Row-Level History Log Update
                     const historyColIdx = findHistoryHeaderCol(appState.headers);
                     if (historyColIdx !== -1) {
                         const historyColLetter = colToLetter(historyColIdx);
@@ -2368,11 +2270,8 @@
                             range: `SWA!${historyColLetter}${rowNum}`,
                             values: [[updatedHistoryStr]]
                         });
-                    } else {
-                        console.warn("History column header not found in SWA spreadsheet!");
                     }
 
-                    // Push payload inside single network block transaction
                     const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values:batchUpdate`, {
                         method: 'POST',
                         headers: {
@@ -2394,7 +2293,6 @@
                     updatePendingBadge();
                     showToast("Synchronization Successful!", "SWA database updated successfully", "success");
 
-                    // Auto Refresh
                     await fetchSheetData();
 
                 } catch (err) {
@@ -2404,9 +2302,6 @@
             });
         }
 
-        // =========================================================================
-        // REUSABLE PRESENTATION UTILITIES
-        // =========================================================================
         function formatNum(num) {
             return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num);
         }
@@ -2414,16 +2309,6 @@
         function formatCurrency(num) {
             return 'Php ' + formatNum(num);
         }
-
-        // Dismiss active modal overlays when clicking outside dialog boxes
-        document.addEventListener('click', (e) => {
-            const confirmBox = document.getElementById('confirm-modal-box');
-            const confirmModal = document.getElementById('confirm-modal');
-            if (confirmModal && !confirmModal.classList.contains('hidden') && e.target === confirmModal) {
-                confirmModal.classList.add('hidden');
-                confirmModal.classList.remove('flex');
-            }
-        });
 
         function getMonthLabel(offset) {
             const year = START_YEAR + Math.floor(offset / 12);
@@ -2456,29 +2341,27 @@
             if (spinner) spinner.classList.remove('animate-spin');
             
             const icon = loader.querySelector('.fa-cube');
-            if (icon) icon.className = "fa-solid fa-triangle-exclamation text-4xl text-rose-500";
+            if (icon) icon.className = "fa-solid fa-triangle-exclamation text-5xl text-rose-500 drop-shadow-md";
 
             document.getElementById('loader-title').innerText = title;
-            document.getElementById('loader-title').className = "text-xl font-black text-rose-500 tracking-wider";
-            document.getElementById('loader-text').innerHTML = `<span class="text-slate-500">${subtitle}</span><br><br><button onclick="window.location.reload()" class="mt-4 px-6 py-2.5 bg-rose-500 text-white text-xs font-bold rounded-lg uppercase tracking-widest hover:opacity-90">Re-Initialize</button>`;
+            document.getElementById('loader-title').className = "text-2xl font-black text-rose-600 tracking-wider";
+            document.getElementById('loader-text').innerHTML = `<span class="text-slate-700 font-bold">${subtitle}</span><br><br><button onclick="window.location.reload()" class="mt-6 px-8 py-3 bg-gradient-to-r from-rose-500 to-red-600 text-white shadow-lg text-xs font-black rounded-xl uppercase tracking-widest hover:scale-[1.02] transition-transform">Re-Initialize</button>`;
         }
 
-        // Standard dynamic popup window helper
         function showToast(title, subtitle, type) {
             const toast = document.getElementById('toast-notification');
             const box = document.getElementById('toast-box');
             const icon = document.getElementById('toast-icon');
             const text = document.getElementById('toast-text');
 
-            text.innerHTML = `<span class="text-slate-800 block font-black leading-tight">${title}</span><span class="text-[10px] text-slate-400 block font-normal mt-0.5">${subtitle}</span>`;
+            text.innerHTML = `<span class="text-slate-800 block font-black leading-tight">${title}</span><span class="text-[10px] text-slate-500 block font-bold mt-0.5">${subtitle}</span>`;
             
-            box.className = "bg-white border rounded-xl p-4 shadow-xl flex items-center gap-3 w-full " + 
+            box.className = "bg-white/95 backdrop-blur-md border rounded-2xl p-4 shadow-2xl flex items-center gap-4 w-full " + 
                 (type === 'success' ? 'border-emerald-200' : 'border-rose-200');
 
-            icon.className = "fa-solid text-xl " + 
-                (type === 'success' ? 'fa-circle-check text-emerald-500' : 'fa-circle-exclamation text-rose-500');
+            icon.className = "fa-solid text-2xl " + 
+                (type === 'success' ? 'fa-circle-check text-emerald-500 drop-shadow-sm' : 'fa-circle-exclamation text-rose-500 drop-shadow-sm');
 
-            // Slide down animation
             toast.classList.remove('pointer-events-none', 'opacity-0', '-translate-y-20');
             toast.classList.add('opacity-100', 'translate-y-0');
 
@@ -2488,17 +2371,14 @@
             }, 3000);
         }
 
-        // =========================================================================
-        // PRINT SWA ENGINE (REPLICATING THE DESIGN SEEN IN THE IMAGE)
-        // =========================================================================
         function updatePrintButtonState() {
             const printBtn = document.getElementById('print-report-button');
             if (appState.selectedContractId) {
                 printBtn.disabled = false;
-                printBtn.className = "bg-sky-600 text-white px-3 py-2 lg:px-5 lg:py-2.5 rounded-lg font-black text-xs hover:bg-sky-500 transition-all flex items-center gap-1.5 cursor-pointer shadow-sm shadow-sky-900";
+                printBtn.className = "bg-gradient-to-r from-blue-500 to-sky-500 text-white px-3 py-2 lg:px-5 lg:py-2.5 rounded-xl font-black text-xs hover:scale-[1.02] transition-all flex items-center gap-1.5 cursor-pointer shadow-md shadow-blue-500/30";
             } else {
                 printBtn.disabled = true;
-                printBtn.className = "bg-slate-800 text-slate-500 px-3 py-2 lg:px-5 lg:py-2.5 rounded-lg font-black text-xs transition-all flex items-center gap-1.5 cursor-not-allowed";
+                printBtn.className = "bg-white/50 border border-white/60 text-slate-400 px-3 py-2 lg:px-5 lg:py-2.5 rounded-xl font-black text-xs transition-all flex items-center gap-1.5 cursor-not-allowed";
             }
         }
 
@@ -2513,7 +2393,6 @@
                 const clean = String(h || '').toUpperCase();
                 return clean.includes('PROJECT') || clean.includes('TITLE');
             });
-            // Falls back to standard credentials shown on image if metadata column does not exist
             return index !== -1 && rowValues[index] ? rowValues[index] : '23GA0174 - Construction/Improvement of MPB, Ibajay, Aklan';
         }
 
@@ -2528,24 +2407,20 @@
                 const clean = String(h || '').toUpperCase();
                 return clean.includes('LOCATION');
             });
-            // Falls back to standard credentials shown on image if metadata column does not exist
             return index !== -1 && rowValues[index] ? rowValues[index] : 'Ibajay, Aklan';
         }
 
         function getContractorName(rowValues) {
-            // Priority: Fetch Contractor from "PDO" sheet lookup map
             if (appState.selectedContractId && appState.pdoLookupMap[appState.selectedContractId]) {
                 const contractor = appState.pdoLookupMap[appState.selectedContractId].contractor;
                 if (contractor) return contractor;
             }
 
-            // Fallback: SWA local row parsing
             const headers = appState.headers;
             const index = headers.findIndex(h => {
                 const clean = String(h || '').toUpperCase();
                 return clean.includes('CONTRACTOR') || clean.includes('COMPANY');
             });
-            // Falls back to standard credentials shown on image if metadata column does not exist
             return index !== -1 && rowValues[index] ? rowValues[index] : 'EC STRUCTURAL COMPOSITES, INC.';
         }
 
@@ -2560,7 +2435,6 @@
             const headers = appState.headers;
             const contractColIndex = findContractHeaderCol(headers);
 
-            // Fetch dynamic Project Details
             const projectName = getProjectName(row);
             const locationName = getLocationName(row);
             const contractorName = getContractorName(row);
@@ -2569,7 +2443,6 @@
             document.getElementById('print-location-name').innerText = locationName || 'N/A';
             document.getElementById('print-contractor-name').innerText = contractorName || 'N/A';
             
-            // Format current date as "as of mmmm dd, yyyy"
             const today = new Date();
             const monthNamesLong = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
             const mmmm = monthNamesLong[today.getMonth()];
@@ -2583,7 +2456,6 @@
 
             const validItems = [];
 
-            // Fetch all items from matching row
             for (let c = 0; c < row.length; c++) {
                 if (c === contractColIndex) continue;
                 const colHeader = String(headers[c] || '').trim();
@@ -2605,7 +2477,6 @@
                 return;
             }
 
-            // Calculate total original contract cost for weights
             let totalOriginalCost = 0;
             const calculatedRows = validItems.map(item => {
                 const metrics = calculateMetrics(item.parts, appState.activeMonthOffset, item.headerName);
@@ -2674,7 +2545,6 @@
                 tbody.appendChild(tr);
             });
 
-            // Footer row with exact sum aggregates matching layout on image
             const tfoot = document.createElement('tr');
             tfoot.className = "text-center font-black border-t-2 border-black bg-slate-100 print:bg-transparent text-black uppercase";
             tfoot.innerHTML = `
@@ -2694,7 +2564,6 @@
                 <td class="p-2 text-right font-black text-[10px]">${formatPrintNum(sumPercentage)}%</td>
             `;
 
-            // Append footer row
             const tableElement = document.querySelector('#print-report-modal table');
             let tfootElement = tableElement.querySelector('tfoot');
             if (!tfootElement) {
@@ -2704,7 +2573,6 @@
             tfootElement.innerHTML = '';
             tfootElement.appendChild(tfoot);
 
-            // Display Report Overlay
             document.getElementById('print-report-modal').classList.remove('hidden');
             document.getElementById('print-report-modal').classList.add('flex');
         }
@@ -2715,7 +2583,6 @@
         }
 
         function formatPrintNum(num) {
-            // Displays a dash for zero values as shown in your image
             if (!num || isNaN(num) || num === 0) return '-';
             return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num);
         }

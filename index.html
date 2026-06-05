@@ -374,7 +374,7 @@
       padding:5px 12px 8px; 
       display:flex;
       gap:12px;
-      justify-content: center;
+      justify-content: flex-start;
       pointer-events: auto;
       background: transparent !important;
     }
@@ -417,8 +417,6 @@
       letter-spacing: 0.5px;
     }
 
-    #footerReloadBtn svg { stroke: #22c55e; } 
-    #footerHomeBtn svg { stroke: #3b82f6; }   
     #footerBackBtn svg { stroke: #f43f5e; }   
 
     .footer-btn.primary{
@@ -433,7 +431,7 @@
 
     @media (max-width: 768px){
       :root{ --footer-h: 60px; }
-      .footer-inner{ padding: 5px 10px 4px; gap:8px; }
+      .footer-inner{ padding: 0 0 5px 5px; gap:8px; }
       .footer-btn { padding: 4px 2px; font-size: 0.75rem; }
       .footer-btn svg { width: 28px; height: 28px; }
     }
@@ -846,22 +844,6 @@
 
 <footer class="app-footer">
   <div class="footer-inner">
-    <button id="footerReloadBtn" type="button" class="footer-btn">
-      <svg viewBox="0 0 24 24">
-        <polyline points="23 4 23 10 17 10"></polyline>
-        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
-      </svg>
-      <span>Reload</span>
-    </button>
-    
-    <button id="footerHomeBtn" type="button" class="footer-btn">
-      <svg viewBox="0 0 24 24">
-        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-        <polyline points="9 22 9 12 15 12 15 22"></polyline>
-      </svg>
-      <span>Home</span>
-    </button>
-
     <button id="footerBackBtn" type="button" class="footer-btn">
       <svg viewBox="0 0 24 24">
         <polyline points="15 18 9 12 15 6"></polyline>
@@ -975,7 +957,7 @@
   // =========================================================
   // MESSAGE LISTENER FROM MODALS
   // =========================================================
-  window.addEventListener('message', (e) => {
+  window.addEventListener('message', async (e) => {
       if (!e.data) return;
       if (e.data.type === 'CLOSE_MODAL') {
           PCMA.goBack();
@@ -986,7 +968,15 @@
           document.getElementById('uploadPhotosFrame').src = `Upload Photos.html?cid=${encodeURIComponent(e.data.cid)}&link=${encodeURIComponent(e.data.link)}`;
           PCMA.showView('uploadView');
       } else if (e.data.type === 'RELOAD_APP') {
-          document.getElementById('footerReloadBtn').click();
+          if (typeof window.PCMA.reload === "function") {
+              const currentView = PCMA.viewStack[PCMA.viewStack.length - 1];
+              await window.PCMA.reload(); 
+              if (currentView === 'modalView' && typeof window.PCMA.refreshCurrentModal === "function") {
+                  window.PCMA.refreshCurrentModal();
+              }
+          } else {
+              location.reload(); 
+          }
       }
   });
 
@@ -995,8 +985,6 @@
   // =========================================================
   document.addEventListener("DOMContentLoaded", () => {
     const backBtn = document.getElementById("footerBackBtn");
-    const homeBtn = document.getElementById("footerHomeBtn");
-    const reloadBtn = document.getElementById("footerReloadBtn");
     const btnGoProjects = document.getElementById("btnGoProjects");
 
     if (btnGoProjects) {
@@ -1029,48 +1017,6 @@
     if (backBtn) {
       backBtn.addEventListener("click", () => {
          PCMA.goBack();
-      });
-    }
-
-    if (homeBtn) {
-      homeBtn.addEventListener("click", () => {
-         PCMA.goHome();
-      });
-    }
-
-    if (reloadBtn) {
-      reloadBtn.addEventListener("click", async () => { 
-        const iconSvg = reloadBtn.querySelector('svg');
-        if (iconSvg) iconSvg.style.animation = "spin 1s linear infinite";
-
-        const currentView = PCMA.viewStack[PCMA.viewStack.length - 1];
-
-        // If viewing an iframe module, silently refresh just the iframe content!
-        if (['moduleView', 'docsView', 'uploadView'].includes(currentView)) {
-            let frameId = currentView === 'moduleView' ? 'moduleFrame' : (currentView === 'docsView' ? 'projectDocsFrame' : 'uploadPhotosFrame');
-            const frame = document.getElementById(frameId);
-            if (frame && frame.src && frame.src !== 'about:blank') {
-                const currentSrc = frame.src;
-                frame.src = 'about:blank';
-                setTimeout(() => { frame.src = currentSrc; }, 50);
-            }
-        } else {
-            // Re-fetch sheet data
-            if (typeof window.PCMA.reload === "function") {
-                const grid = document.getElementById("grid");
-                if (currentView === 'appView' && grid) {
-                    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:#fff;font-weight:bold;font-size:1.2rem;text-shadow: 0 2px 4px rgba(255,255,255,0.5);">Reloading data...</div>';
-                }
-                await window.PCMA.reload(); 
-                if (currentView === 'modalView' && typeof window.PCMA.refreshCurrentModal === "function") {
-                    window.PCMA.refreshCurrentModal();
-                }
-            } else {
-                location.reload(); 
-            }
-        }
-
-        setTimeout(() => { if (iconSvg) iconSvg.style.animation = ""; }, 500);
       });
     }
   });
