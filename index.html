@@ -880,7 +880,7 @@
   // =========================================================
   PCMA.viewStack = ['homeView'];
 
-  PCMA.updateBackButtonPosition = function(viewId) {
+PCMA.updateBackButtonPosition = function(viewId) {
       const footer = document.querySelector('.app-footer');
       const footerInner = document.querySelector('.footer-inner');
       if (!footer || !footerInner) return;
@@ -891,24 +891,33 @@
       } else if (viewId === 'moduleView') {
           const src = document.getElementById('moduleFrame').src || '';
           const decodedSrc = decodeURIComponent(src);
-          if (decodedSrc.includes('SWA.html') || decodedSrc.includes('Monitoring.html')) pos = 'upper-left';
+          // Hide the footer completely if SWA.html is loaded
+          if (decodedSrc.includes('SWA.html')) pos = 'hidden';
+          else if (decodedSrc.includes('Monitoring.html')) pos = 'upper-left';
           else if (decodedSrc.includes('DocuTracker.html') || decodedSrc.includes('File Uploader.html')) pos = 'upper-right';
           else if (decodedSrc.includes('DataBase.html')) pos = 'lower-left';
       }
       
-      if (pos === 'upper-left') {
-          footer.style.top = '0';
-          footer.style.bottom = 'auto';
-          footerInner.style.justifyContent = 'flex-start';
-      } else if (pos === 'upper-right') {
-          footer.style.top = '0';
-          footer.style.bottom = 'auto';
-          footerInner.style.justifyContent = 'flex-end';
+      // Apply the positioning or hide the footer
+      if (pos === 'hidden') {
+          footer.style.display = 'none';
       } else {
-          // lower-left
-          footer.style.top = 'auto';
-          footer.style.bottom = '0';
-          footerInner.style.justifyContent = 'flex-start';
+          // Make sure it's visible if it's not hidden
+          footer.style.display = ''; 
+          if (pos === 'upper-left') {
+              footer.style.top = '0';
+              footer.style.bottom = 'auto';
+              footerInner.style.justifyContent = 'flex-start';
+          } else if (pos === 'upper-right') {
+              footer.style.top = '0';
+              footer.style.bottom = 'auto';
+              footerInner.style.justifyContent = 'flex-end';
+          } else {
+              // lower-left
+              footer.style.top = 'auto';
+              footer.style.bottom = '0';
+              footerInner.style.justifyContent = 'flex-start';
+          }
       }
   };
 
