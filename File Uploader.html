@@ -230,7 +230,7 @@
     .searchBox input::placeholder { color: var(--primary-depth); }
 
     .dropdown { position: relative; display: inline-block; }
-    .dropdownBtn { background: var(--accent-light); border: 2px solid var(--accent); padding: 10px 16px; border-radius: 12px; font-size: 13px; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: space-between; min-width: 140px; color: var(--text-accent); box-shadow: 0 4px 0 var(--accent); transition: 0.2s;}
+    .dropdownBtn { background: var(--accent-light); border: 2px solid var(--accent); padding: 10px 16px; border-radius: 12px; font-size: 13px; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: space-between; min-width: 140px; color: var(--text-accent); box-shadow: 0 4px 0 var(--accent); transition: 0.2s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
     .dropdownBtn:hover { background: var(--accent); transform: translateY(-2px);}
     .dropdownBtn:active { transform: translateY(2px); box-shadow: 0 0 0 transparent; }
     
@@ -494,22 +494,22 @@
           </div>
 
           <div class="dropdown">
-            <button class="btn-3d dropdownBtn" onclick="toggleDropdown('yearDropdown')">📅 Year ▼</button>
+            <button id="btn-year" class="btn-3d dropdownBtn" onclick="toggleDropdown('yearDropdown')">📅 Year ▼</button>
             <div class="dropdownContent" id="yearDropdown"></div>
           </div>
 
           <div class="dropdown">
-            <button class="btn-3d dropdownBtn" onclick="toggleDropdown('peDropdown')">👷 PE ▼</button>
+            <button id="btn-pe" class="btn-3d dropdownBtn" onclick="toggleDropdown('peDropdown')">👷 PE ▼</button>
             <div class="dropdownContent" id="peDropdown"></div>
           </div>
           
           <div class="dropdown">
-            <button class="btn-3d dropdownBtn" onclick="toggleDropdown('reDropdown')">📐 RE ▼</button>
+            <button id="btn-re" class="btn-3d dropdownBtn" onclick="toggleDropdown('reDropdown')">📐 RE ▼</button>
             <div class="dropdownContent" id="reDropdown"></div>
           </div>
           
           <div class="dropdown">
-            <button class="btn-3d dropdownBtn" onclick="toggleDropdown('qeDropdown')">🔬 QE ▼</button>
+            <button id="btn-qe" class="btn-3d dropdownBtn" onclick="toggleDropdown('qeDropdown')">🔬 QE ▼</button>
             <div class="dropdownContent" id="qeDropdown"></div>
           </div>
         </div>
@@ -585,10 +585,17 @@
     const SPREADSHEET_ID = "1LSYLZ7tfSeVupQMPsCOHG4SlnzPQqOAIe03QI1qRMr8";
     const API_KEY = "AIzaSyCz6fNJr3ecn-M2HActqM1aCXbxqRLj2e8";
     
-    // The Apps Script Web App URL provided for document uploads
     const UPLOAD_API_URL = "https://script.google.com/macros/s/AKfycbxhb3G0bcXXlPQQ7-jeRxoNdOcxHWfa3pKMmQc5nLnvZxwltI7RVxuw7pWs5r_7vP1FgQ/exec";
     
-    // Service Account used to dynamically generate a Google OAuth Access Token
+    // Auto Approval Categories mapping specific new matrix documents naturally
+    const AUTO_APPROVE_MOBILE = ["MOBILIZATION", "ON-GOING", "COMPLETED", "PHOTO"];
+    const AUTO_APPROVE_GEO = ["GEOTAGGED MOB", "GEOTAGGED ON-GOING", "GEOTAGGED COMPLETED"];
+    const AUTO_APPROVE_COORD = [
+      "ACTUAL AND PCMA", "ACTUAL", "PCMA", "REMARKS", 
+      "UPDATE VARIATION ORDER", "UPDATE SUSPENSION ORDER", 
+      "UPDATE RESUMPTION ORDER", "UPDATE CTE'S", "UPDATE CTES"
+    ];
+
     const SERVICE_ACCOUNT = {
       "client_email": "pcma-mobile@gold-mode-473811-c6.iam.gserviceaccount.com",
       "private_key": `-----BEGIN PRIVATE KEY-----
@@ -632,7 +639,7 @@ i2e4E1vAOiqCrUlBSDcvD1r+/g==
     let currentFilteredProjects = [];
 
     /* ========================================================================= 
-     * JWT SERVICE ACCOUNT SIGNER (Replaces App Script backend needs)
+     * JWT SERVICE ACCOUNT SIGNER
      * ========================================================================= */
     async function getAccessToken() {
       if (window._cachedToken && window._tokenExpiry > Date.now()) {
@@ -662,10 +669,8 @@ i2e4E1vAOiqCrUlBSDcvD1r+/g==
         SERVICE_ACCOUNT.private_key.indexOf(pemFooter)
       );
 
-      // Strip literal \n sequences if user pasted raw string, and strip ALL normal whitespace
       pemContents = pemContents.replace(/\\n/g, '').replace(/\\r/g, '').replace(/[^A-Za-z0-9+/=]/g, '');
 
-      // Padding to nearest multiple of 4 to guarantee 100% stable atob decoding
       while (pemContents.length % 4 !== 0) {
         pemContents += '=';
       }
@@ -704,9 +709,6 @@ i2e4E1vAOiqCrUlBSDcvD1r+/g==
       }
     }
 
-    /* ========================================================================= 
-     * DIRECT GOOGLE API MANIPULATORS
-     * ========================================================================= */
     function columnToLetter(column) {
       let temp, letter = '';
       while (column > 0) {
@@ -790,6 +792,7 @@ i2e4E1vAOiqCrUlBSDcvD1r+/g==
     }
 
     function toggleUpAccordion(el) { el.nextElementSibling.classList.toggle('open'); }
+    
     function toggleDropdown(id) {
       const el = document.getElementById(id);
       const isShowing = el.classList.contains('show');
@@ -828,7 +831,6 @@ i2e4E1vAOiqCrUlBSDcvD1r+/g==
 
         globalHeaders = json.values[0].map(h => String(h).trim().toUpperCase());
         
-        // Dynamically detect Document Types based on sheet headers
         DOC_TYPES = [];
         globalHeaders.forEach(h => {
           if (h.endsWith(" UPLOADED")) {
@@ -842,7 +844,7 @@ i2e4E1vAOiqCrUlBSDcvD1r+/g==
         const rows = [];
         for(let i=1; i<json.values.length; i++) {
           rows.push({
-            rowNumber: i + 3, // Header is row 3 in sheets
+            rowNumber: i + 3,
             values: json.values[i]
           });
         }
@@ -884,17 +886,26 @@ i2e4E1vAOiqCrUlBSDcvD1r+/g==
           const pname = rVals[idxName] || "Unknown";
           const contr = rVals[idxContr] || "Unknown";
           const amt = formatPhp(rVals[idxAmt]);
-          const year = idxYear >= 0 ? String(rVals[idxYear]).trim() : "Unknown";
           
-          const pe = idxPE >= 0 ? (rVals[idxPE] || "Unassigned") : "Unassigned";
-          const pi = idxPI >= 0 ? (rVals[idxPI] || "Unassigned") : "Unassigned";
-          const re = idxRE >= 0 ? (rVals[idxRE] || "Unassigned") : "Unassigned";
-          const qe = idxQE >= 0 ? (rVals[idxQE] || "Unassigned") : "Unassigned";
+          let year = idxYear >= 0 ? String(rVals[idxYear] || "").trim() : "Unknown";
+          if (!year) year = "Unknown";
+          
+          let pe = idxPE >= 0 ? String(rVals[idxPE] || "").trim() : "Unassigned";
+          if (!pe) pe = "Unassigned";
 
-          const pDocs = []; // Pending
-          const aDocs = []; // For Approval
-          const dDocs = []; // Denied
-          const uDocs = []; // Approved/Uploaded
+          let pi = idxPI >= 0 ? String(rVals[idxPI] || "").trim() : "Unassigned";
+          if (!pi) pi = "Unassigned";
+
+          let re = idxRE >= 0 ? String(rVals[idxRE] || "").trim() : "Unassigned";
+          if (!re) re = "Unassigned";
+
+          let qe = idxQE >= 0 ? String(rVals[idxQE] || "").trim() : "Unassigned";
+          if (!qe) qe = "Unassigned";
+
+          const pDocs = []; 
+          const aDocs = []; 
+          const dDocs = []; 
+          const uDocs = []; 
 
           DOC_TYPES.forEach(doc => {
             const docIdx = headers.indexOf(doc);
@@ -903,10 +914,17 @@ i2e4E1vAOiqCrUlBSDcvD1r+/g==
             if (docIdx >= 0 && String(rVals[docIdx] || "").trim() !== "") {
               let rawVal = upIdx >= 0 ? String(rVals[upIdx] || "").trim() : "";
               
-              const isAutoApprove = ["MOBILIZATION", "ON-GOING", "COMPLETED", "GEOTAGGED MOB", "GEOTAGGED ON-GOING", "GEOTAGGED COMPLETED", "ACTUAL", "PCMA", "ACTUAL AND PCMA", "PHOTO"].includes(doc);
+              const docUpper = doc.toUpperCase();
+              const isAutoApprove = AUTO_APPROVE_MOBILE.includes(docUpper) || AUTO_APPROVE_GEO.includes(docUpper) || AUTO_APPROVE_COORD.includes(docUpper);
 
               if (isAutoApprove) {
-                uDocs.push({ docType: doc, isAuto: true });
+                if (rawVal !== "") {
+                  // Only push to uploaded if they actually inputted data
+                  uDocs.push({ docType: doc, isAuto: true });
+                } else {
+                  // Otherwise, it stays in the Pending list
+                  pDocs.push({ docType: doc, rowNum: row.rowNumber });
+                }
               } else {
                 if (rawVal !== "") {
                   let parts = rawVal.split("|");
@@ -938,6 +956,14 @@ i2e4E1vAOiqCrUlBSDcvD1r+/g==
         if (currentIndex < total) {
           requestAnimationFrame(processChunk);
         } else {
+          // --- SORT PROJECTS BY YEAR (CURRENT/NEWEST TO OLDEST) ---
+          allProjects.sort((a, b) => {
+            let ya = a.year === "Unknown" ? 0 : (parseInt(a.year) || 0);
+            let yb = b.year === "Unknown" ? 0 : (parseInt(b.year) || 0);
+            if (yb !== ya) return yb - ya; // Year Descending
+            return a.cid.localeCompare(b.cid); // Secondary Sort by Contract ID
+          });
+
           setTimeout(() => {
             document.getElementById('progOverlay').style.display = 'none';
             buildFilters();
@@ -950,6 +976,33 @@ i2e4E1vAOiqCrUlBSDcvD1r+/g==
 
     // --- FILTERS AND RENDERING LISTS ---
 
+    // Exposed to Global Scope for Inline HTML calls
+    window.toggleSelectAll = function(type) {
+      const selectAllChk = document.getElementById(`selectAll-${type}`);
+      const isChecked = selectAllChk.checked;
+      const checkboxes = document.querySelectorAll(`.${type}-chk`);
+      checkboxes.forEach(chk => chk.checked = isChecked);
+      applyFilters();
+    };
+
+    function buildDropdown(type, values, dropdownId) {
+      const dropdown = document.getElementById(dropdownId);
+      let html = `
+        <label class="dropdownItem" style="border-bottom: 2px solid var(--accent); margin-bottom: 4px; padding-bottom: 8px;">
+          <input type="checkbox" id="selectAll-${type}" checked onchange="toggleSelectAll('${type}')"> 
+          <b style="color: var(--text-primary);">Select All</b>
+        </label>
+      `;
+      values.forEach(val => {
+        html += `
+          <label class="dropdownItem">
+            <input type="checkbox" class="${type}-chk" value="${val}" checked onchange="applyFilters()"> ${val}
+          </label>
+        `;
+      });
+      dropdown.innerHTML = html;
+    }
+
     function buildFilters() {
       const yearSet = new Set();
       const peSet = new Set();
@@ -957,75 +1010,104 @@ i2e4E1vAOiqCrUlBSDcvD1r+/g==
       const qeSet = new Set();
 
       allProjects.forEach(p => {
-        if(p.year && p.year !== "Unknown") yearSet.add(p.year);
-        if(p.pe && p.pe !== "Unassigned") peSet.add(p.pe);
-        if(p.re && p.re !== "Unassigned") reSet.add(p.re);
-        if(p.qe && p.qe !== "Unassigned") qeSet.add(p.qe);
+        if(p.year) yearSet.add(p.year);
+        if(p.pe) peSet.add(p.pe);
+        if(p.re) reSet.add(p.re);
+        if(p.qe) qeSet.add(p.qe);
       });
 
-      const years = Array.from(yearSet).sort((a, b) => b - a);
-      const yearDropdown = document.getElementById("yearDropdown");
-      yearDropdown.innerHTML = "";
-      
-      years.forEach((yr) => {
-        // Automatically check/select ALL years by default to prevent hidden data
-        const isChecked = "checked"; 
-        yearDropdown.innerHTML += `
-          <label class="dropdownItem">
-            <input type="checkbox" class="year-chk" value="${yr}" ${isChecked} onchange="applyFilters()"> ${yr}
-          </label>`;
+      // Filter 1: Descending Year Logic gracefully handling "Unknown"
+      const years = Array.from(yearSet).sort((a, b) => {
+        if (a === "Unknown") return 1;
+        if (b === "Unknown") return -1;
+        return Number(b) - Number(a);
       });
+      buildDropdown('year', years, 'yearDropdown');
 
-      const pes = Array.from(peSet).sort();
-      const peDropdown = document.getElementById("peDropdown");
-      peDropdown.innerHTML = "";
-      
-      pes.forEach(pe => {
-        peDropdown.innerHTML += `
-          <label class="dropdownItem">
-            <input type="checkbox" class="pe-chk" value="${pe}" onchange="applyFilters()"> ${pe}
-          </label>`;
+      const pes = Array.from(peSet).sort((a, b) => {
+        if (a === "Unassigned") return 1;
+        if (b === "Unassigned") return -1;
+        return a.localeCompare(b);
       });
+      buildDropdown('pe', pes, 'peDropdown');
 
-      const res = Array.from(reSet).sort();
-      const reDropdown = document.getElementById("reDropdown");
-      reDropdown.innerHTML = "";
-      
-      res.forEach(re => {
-        reDropdown.innerHTML += `
-          <label class="dropdownItem">
-            <input type="checkbox" class="re-chk" value="${re}" onchange="applyFilters()"> ${re}
-          </label>`;
+      const res = Array.from(reSet).sort((a, b) => {
+        if (a === "Unassigned") return 1;
+        if (b === "Unassigned") return -1;
+        return a.localeCompare(b);
       });
+      buildDropdown('re', res, 'reDropdown');
 
-      const qes = Array.from(qeSet).sort();
-      const qeDropdown = document.getElementById("qeDropdown");
-      qeDropdown.innerHTML = "";
-      
-      qes.forEach(qe => {
-        qeDropdown.innerHTML += `
-          <label class="dropdownItem">
-            <input type="checkbox" class="qe-chk" value="${qe}" onchange="applyFilters()"> ${qe}
-          </label>`;
+      const qes = Array.from(qeSet).sort((a, b) => {
+        if (a === "Unassigned") return 1;
+        if (b === "Unassigned") return -1;
+        return a.localeCompare(b);
       });
+      buildDropdown('qe', qes, 'qeDropdown');
+    }
+
+    function updateSelectAllState(type) {
+      const selectAllChk = document.getElementById(`selectAll-${type}`);
+      if (!selectAllChk) return;
+      const checkboxes = document.querySelectorAll(`.${type}-chk`);
+      const allChecked = Array.from(checkboxes).length > 0 && Array.from(checkboxes).every(chk => chk.checked);
+      selectAllChk.checked = allChecked;
+    }
+
+    function updateDropdownButton(type, defaultText, icon) {
+      const checkboxes = Array.from(document.querySelectorAll(`.${type}-chk`));
+      if (checkboxes.length === 0) return;
+      
+      const checked = checkboxes.filter(c => c.checked);
+      const btn = document.getElementById(`btn-${type}`);
+      if (!btn) return;
+      
+      if (checked.length === checkboxes.length) {
+        btn.innerHTML = `${icon} ${defaultText} ▼`;
+      } else if (checked.length === 1) {
+        let text = checked[0].value;
+        if (text.length > 15) text = text.substring(0, 15) + '...';
+        btn.innerHTML = `${icon} ${text} ▼`;
+      } else if (checked.length === 0) {
+        btn.innerHTML = `${icon} None ▼`;
+      } else {
+        btn.innerHTML = `${icon} ${defaultText} (${checked.length}) ▼`;
+      }
     }
 
     function applyFilters() {
+      // 1. Sync Select All Checkboxes
+      ['year', 'pe', 're', 'qe'].forEach(updateSelectAllState);
+      
+      // 2. Update Button Labels dynamically
+      updateDropdownButton('year', 'Year', '📅');
+      updateDropdownButton('pe', 'PE', '👷');
+      updateDropdownButton('re', 'RE', '📐');
+      updateDropdownButton('qe', 'QE', '🔬');
+
       const searchQ = document.getElementById("searchInput").value.toLowerCase();
       const selectedYears = Array.from(document.querySelectorAll(".year-chk:checked")).map(c => c.value);
       const selectedPEs = Array.from(document.querySelectorAll(".pe-chk:checked")).map(c => c.value);
       const selectedREs = Array.from(document.querySelectorAll(".re-chk:checked")).map(c => c.value);
       const selectedQEs = Array.from(document.querySelectorAll(".qe-chk:checked")).map(c => c.value);
 
+      const allYearChks = document.querySelectorAll(".year-chk");
+      const allPEChks = document.querySelectorAll(".pe-chk");
+      const allREChks = document.querySelectorAll(".re-chk");
+      const allQEChks = document.querySelectorAll(".qe-chk");
+
       currentFilteredProjects = allProjects.filter(p => {
         const matchSearch = searchQ === "" || 
                             p.cid.toLowerCase().includes(searchQ) || 
                             p.pname.toLowerCase().includes(searchQ) || 
                             p.contr.toLowerCase().includes(searchQ);
-        const matchYear = selectedYears.length === 0 || selectedYears.includes(p.year);
-        const matchPE = selectedPEs.length === 0 || selectedPEs.includes(p.pe);
-        const matchRE = selectedREs.length === 0 || selectedREs.includes(p.re);
-        const matchQE = selectedQEs.length === 0 || selectedQEs.includes(p.qe);
+                            
+        // Strict mapping ensures that if everything is unchecked, 0 projects show up
+        const matchYear = allYearChks.length === 0 || selectedYears.includes(p.year);
+        const matchPE = allPEChks.length === 0 || selectedPEs.includes(p.pe);
+        const matchRE = allREChks.length === 0 || selectedREs.includes(p.re);
+        const matchQE = allQEChks.length === 0 || selectedQEs.includes(p.qe);
+        
         return matchSearch && matchYear && matchPE && matchRE && matchQE;
       });
 
@@ -1058,7 +1140,6 @@ i2e4E1vAOiqCrUlBSDcvD1r+/g==
         if (p.uDocs.length > 0) { counts.uploaded.docs += p.uDocs.length; counts.uploaded.projs++; }
       });
       
-      // Update dynamic tab counts
       document.getElementById('count-pending').textContent = `(${counts.pending.docs.toLocaleString()} | ${counts.pending.projs.toLocaleString()})`;
       document.getElementById('count-approval').textContent = `(${counts.approval.docs.toLocaleString()} | ${counts.approval.projs.toLocaleString()})`;
       document.getElementById('count-denied').textContent = `(${counts.denied.docs.toLocaleString()} | ${counts.denied.projs.toLocaleString()})`;
@@ -1085,7 +1166,6 @@ i2e4E1vAOiqCrUlBSDcvD1r+/g==
     }
 
     function renderActiveTab() {
-      // Clear out all DOM elements inside inactive tabs to dramatically save memory & eliminate lag
       ['pending', 'approval', 'denied', 'uploaded'].forEach(t => {
           if (t !== currentTab) document.getElementById(t + "List").innerHTML = "";
       });
@@ -1123,7 +1203,9 @@ i2e4E1vAOiqCrUlBSDcvD1r+/g==
         
         if (currentTab === 'pending') {
           docHtml = p.pDocs.map(d => {
-            if (["MOBILIZATION", "ON-GOING", "COMPLETED", "PHOTO"].includes(d.docType)) {
+            const docUpper = String(d.docType).toUpperCase();
+            
+            if (AUTO_APPROVE_MOBILE.includes(docUpper)) {
               return `
                 <div class="upDocRow" style="background: var(--primary-light); border: 1px solid var(--primary);">
                   <div style="display:flex; flex-direction:column; gap:4px;">
@@ -1134,7 +1216,7 @@ i2e4E1vAOiqCrUlBSDcvD1r+/g==
                   </div>
                 </div>
               `;
-            } else if (["GEOTAGGED MOB", "GEOTAGGED ON-GOING", "GEOTAGGED COMPLETED"].includes(d.docType)) {
+            } else if (AUTO_APPROVE_GEO.includes(docUpper)) {
               return `
                 <div class="upDocRow" style="background: var(--primary-light); border: 1px solid var(--primary);">
                   <div style="display:flex; flex-direction:column; gap:4px;">
@@ -1145,7 +1227,7 @@ i2e4E1vAOiqCrUlBSDcvD1r+/g==
                   </div>
                 </div>
               `;
-            } else if (["ACTUAL AND PCMA", "ACTUAL", "PCMA"].includes(d.docType)) {
+            } else if (AUTO_APPROVE_COORD.includes(docUpper)) {
               return `
                 <div class="upDocRow" style="background: var(--primary-light); border: 1px solid var(--primary);">
                   <div style="display:flex; flex-direction:column; gap:4px;">
@@ -1184,7 +1266,9 @@ i2e4E1vAOiqCrUlBSDcvD1r+/g==
         } 
         else if (currentTab === 'denied') {
           docHtml = p.dDocs.map(d => {
-            if (["MOBILIZATION", "ON-GOING", "COMPLETED", "PHOTO"].includes(d.docType)) {
+            const docUpper = String(d.docType).toUpperCase();
+            
+            if (AUTO_APPROVE_MOBILE.includes(docUpper)) {
               return `
                 <div class="upDocRow" style="background: var(--accent-light); border: 1px solid var(--accent); border-left: 4px solid var(--danger);">
                   <div style="display:flex; flex-direction:column; gap:8px;">
@@ -1198,7 +1282,7 @@ i2e4E1vAOiqCrUlBSDcvD1r+/g==
                   </div>
                 </div>
               `;
-            } else if (["GEOTAGGED MOB", "GEOTAGGED ON-GOING", "GEOTAGGED COMPLETED"].includes(d.docType)) {
+            } else if (AUTO_APPROVE_GEO.includes(docUpper)) {
               return `
                 <div class="upDocRow" style="background: var(--accent-light); border: 1px solid var(--accent); border-left: 4px solid var(--danger);">
                   <div style="display:flex; flex-direction:column; gap:8px;">
@@ -1212,7 +1296,7 @@ i2e4E1vAOiqCrUlBSDcvD1r+/g==
                   </div>
                 </div>
               `;
-            } else if (["ACTUAL AND PCMA", "ACTUAL", "PCMA"].includes(d.docType)) {
+            } else if (AUTO_APPROVE_COORD.includes(docUpper)) {
               return `
                 <div class="upDocRow" style="background: var(--accent-light); border: 1px solid var(--accent); border-left: 4px solid var(--danger);">
                   <div style="display:flex; flex-direction:column; gap:8px;">
@@ -1245,11 +1329,12 @@ i2e4E1vAOiqCrUlBSDcvD1r+/g==
         } 
         else if (currentTab === 'uploaded') {
           docHtml = p.uDocs.map(d => {
+            const docUpper = String(d.docType).toUpperCase();
             if (d.isAuto) {
               let extMsg = "";
-              if (["MOBILIZATION", "ON-GOING", "COMPLETED", "PHOTO"].includes(d.docType)) {
+              if (AUTO_APPROVE_MOBILE.includes(docUpper)) {
                   extMsg = `Synced via <span style="color: var(--primary-depth);">PCMA Mobile App</span>`;
-              } else if (["GEOTAGGED MOB", "GEOTAGGED ON-GOING", "GEOTAGGED COMPLETED"].includes(d.docType)) {
+              } else if (AUTO_APPROVE_GEO.includes(docUpper)) {
                   extMsg = `Synced via <span style="color: var(--warning-depth);">ArcGIS Survey123</span>`;
               } else {
                   extMsg = `Synced via <span style="color: var(--accent-depth);">Ms. Roxanne (Accomplishment)</span>`;
@@ -1339,7 +1424,9 @@ i2e4E1vAOiqCrUlBSDcvD1r+/g==
         const base64Data = e.target.result.split(',')[1];
         
         try {
+          // Rule 2 applied exactly: "Save the file with Contract ID for example 25GA0001 - VO1"
           const fileName = `${contractId} - ${docType}.pdf`;
+          
           const fileId = await uploadToDrive(base64Data, fileName, contractId);
           await updateSheetCell(rowNum, docType + " UPLOADED", fileId);
 

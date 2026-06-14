@@ -11,7 +11,7 @@
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- JWT Generation Library (Required for Ultra-Fast Client-Side Data Fetching) -->
+    <!-- JWT Generation Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.5.27/jsrsasign-all-min.js"></script>
 
     <!-- Configuration & Custom CSS -->
@@ -112,7 +112,6 @@
             50% { opacity: 0.5; transform: scale(1.05); }
         }
 
-        /* Missing Doc Chip Hover */
         .doc-chip {
             cursor: pointer;
             transition: all 0.2s;
@@ -145,13 +144,15 @@
 
         <!-- Document Type Toggle -->
         <div class="sticky top-0 md:static z-40 grid grid-cols-3 md:flex md:flex-wrap justify-center mb-6 bg-[#181822]/95 backdrop-blur-md rounded-xl md:rounded-2xl p-2 w-full md:w-fit mx-auto border border-gray-700/50 shadow-[0_10px_30px_rgba(0,0,0,0.6)] md:shadow-inner gap-1 md:gap-2">
-            <button onclick="switchDocType('ALL')" id="type-ALL" class="col-span-3 md:col-span-1 px-1 md:px-4 py-2 rounded-lg font-black text-[10px] md:text-sm transition-all bg-[#2a2a3a] text-neon-blue shadow-md border border-gray-600/50 text-center">ALL TABS</button>
-            <button onclick="switchDocType('MOBILIZATION')" id="type-MOBILIZATION" class="px-1 md:px-4 py-2 rounded-lg font-black text-[10px] md:text-sm transition-all text-gray-400 hover:text-white border-transparent text-center">MOBILIZATION</button>
-            <button onclick="switchDocType('ON-GOING')" id="type-ON-GOING" class="px-1 md:px-4 py-2 rounded-lg font-black text-[10px] md:text-sm transition-all text-gray-400 hover:text-white border-transparent text-center">ON-GOING</button>
+            <button onclick="switchDocType('ALL')" id="type-ALL" class="px-1 md:px-4 py-2 rounded-lg font-black text-[10px] md:text-sm transition-all bg-[#2a2a3a] text-neon-blue shadow-md border border-gray-600/50 text-center">ALL TABS</button>
+            <button onclick="switchDocType('PLANNING')" id="type-PLANNING" class="px-1 md:px-4 py-2 rounded-lg font-black text-[10px] md:text-sm transition-all text-gray-400 hover:text-white border-transparent text-center">PLANNING</button>
+            <button onclick="switchDocType('PROCUREMENT')" id="type-PROCUREMENT" class="px-1 md:px-4 py-2 rounded-lg font-black text-[10px] md:text-sm transition-all text-gray-400 hover:text-white border-transparent text-center">PROCUREMENT</button>
+            <button onclick="switchDocType('CONSTRUCTION')" id="type-CONSTRUCTION" class="px-1 md:px-4 py-2 rounded-lg font-black text-[10px] md:text-sm transition-all text-gray-400 hover:text-white border-transparent text-center">CONSTRUCTION</button>
+            <button onclick="switchDocType('PCMA')" id="type-PCMA" class="px-1 md:px-4 py-2 rounded-lg font-black text-[10px] md:text-sm transition-all text-gray-400 hover:text-white border-transparent text-center">PCMA</button>
+            <button onclick="switchDocType('GEOTAGGING')" id="type-GEOTAGGING" class="px-1 md:px-4 py-2 rounded-lg font-black text-[10px] md:text-sm transition-all text-gray-400 hover:text-white border-transparent text-center">GEOTAGGING</button>
+            <button onclick="switchDocType('PCMAMOBILE')" id="type-PCMAMOBILE" class="px-1 md:px-4 py-2 rounded-lg font-black text-[10px] md:text-sm transition-all text-gray-400 hover:text-white border-transparent text-center">PCMA MOBILE</button>
             <button onclick="switchDocType('COMPLETION')" id="type-COMPLETION" class="px-1 md:px-4 py-2 rounded-lg font-black text-[10px] md:text-sm transition-all text-gray-400 hover:text-white border-transparent text-center">COMPLETION</button>
             <button onclick="switchDocType('ACCEPTANCE')" id="type-ACCEPTANCE" class="px-1 md:px-4 py-2 rounded-lg font-black text-[10px] md:text-sm transition-all text-gray-400 hover:text-white border-transparent text-center">ACCEPTANCE</button>
-            <button onclick="switchDocType('GEOTAGGING')" id="type-GEOTAGGING" class="px-1 md:px-4 py-2 rounded-lg font-black text-[10px] md:text-sm transition-all text-gray-400 hover:text-white border-transparent text-center">GEOTAGGING</button>
-            <button onclick="switchDocType('PCMA')" id="type-PCMA" class="px-1 md:px-4 py-2 rounded-lg font-black text-[10px] md:text-sm transition-all text-gray-400 hover:text-white border-transparent text-center">PCMA</button>
         </div>
 
         <!-- Role Tabs -->
@@ -266,21 +267,12 @@
     </div>
 
     <script>
-        // =========================================================================
-        // HYBRID API CONFIGURATION
-        // - Fetching: Direct Google Sheets REST API (Extremely Fast, uses JWT)
-        // - Uploading/Saving: Google Apps Script Web App (Avoids CORS upload errors)
-        // =========================================================================
-        
-        // 1. Google Apps Script Backend (For Saving/Uploading)
-        const API_URL = 'https://script.google.com/macros/s/AKfycbyEzusTIK4YXUYYy-_AiebjRF7Ecd4pQ8xmFN_X6L3eaKBRlicHC0VNP1VvRHD6L1K-ZA/exec';
-
-        // 2. Direct REST API Config (For Lightning Fast Fetching)
         const API_CONFIG = {
             SPREADSHEET_ID: "1LSYLZ7tfSeVupQMPsCOHG4SlnzPQqOAIe03QI1qRMr8",
+            MOTHER_FOLDER_ID: "10NX0VFM_0qfivETMYVgHCqIVk8F8Kz5I",
             SERVICE_ACCOUNT: {
                 "client_email": "pcma-mobile@gold-mode-473811-c6.iam.gserviceaccount.com",
-                "private_key": `-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQC1sEJI1CN6V8mj\nAhBvpiLC7JOEbrFFxsvqbzJjitbDRbyRhbk7prF1NQqAz0OV8l+9/v69UJ3ddGmE\n3Oq4EEqgOmeEpfdSeJeMa+alsc0H+1E2EmWLnhGNv/ot91osgokv7tUG7p/WnGSf\n0IP2bmbbEmQfhganvTCTmhTASHUSK32O+ZmYklYwqs9qptWCFjS3lj+uhaQ2nAFQ\nGCloj6go1aRbQTGxDygwwxtK08v68EuApslm5qs/x08gnj1UEV/FfHDUvUbCswm2\nIRTULJqNoGTYNs4DxbUJClUwcf72xmddbiE/CbOWs1g626obziGNe6/Dq74Ws5IR\nj39h8S57AgMBAAECggEAPUZdDH/TGUM7Iykijuz6Yz/zPmIwkiZKBl4LIewkowXF\nY1S0lGwTBELnsGp2Uj9ET+kMU5+5JgNJRQBWfs4rxN79o4xvnVZDUh3f0zjkO5Fk\nIbbRnWUpaWN6Bf+aX1GE3/AN00EuEex7uTRTFQzFzpNkxgbm/rI9DEKWRgUJyp7j\nwrbzhTp2cRRrQaPtONZej68dUtkkAsd2rlt3Reht3/NCdmNRTjpRHqiICZvuZuHe\njebcK/ewVZWqW9XpwVMfjhZeyBnfzNqRElNxF4BtodjmSpw+TkWyPK9obVFEBDG5\nFeRxBk6aTdutNkIN2uXOPFBP7UV4evsD3fiuYMRFvQKBgQDbiMwo80cLbnV7fuq/\nSr1y2i/mj8XDVX6xOJWDXOhrHNEDcTpYHp5Ey5qQwQhkGOiK/aUJWfWHJGMLM7DY\n7l6nvRe+oX/1inocjKMkiq5TGDvptBv2T9rz0K3LFueFNcxAv7445GgCsFADgYBM\n67reu9QcmT6Uis2nUffzcleGNQKBgQDT3ibtkMmkeDi3sl1uY9PudlZqnCcP11Pi\nQJF4+thJYjN/bYBKA3F4GhRZzEKxW6jjF/mQ/kZDLHJeGI4Y0ETpz76kB4gSO1zc\nlsKZnGBvfug2Oz7/fnPfdpMdSsaFS9AHOHTm7TAiyMuSXciJ1Sy5LxVeELP91cbJ\nBsJtKX+37wKBgQDFKUSB+orxn1Bvivp0tkESpxWh8blgxqWzr+fHRGeP2x90Afqu\nLUFi86BrJJHOo/gk68uObHZv2qQA6XmIOfxUlSSAFjb/ZFBq13ulU89f3UHhj9oV\nCn7Pvbh3zqg7IKfB9vJ10dv/ni0eGO4LJyJ66yGCVba4XTh5bspKn4QviQKBgQCi\nud3sWWiGilAFx1k7kDEW1o1JFOZrpFcpT65r3T6CHoqvNMt0DXD5bg5zag9Pabct\ntRxZ4PLWZSzyWKnLJSvI6WbjVWWNm0qXorOUiCcJe8+e16JrWhRlbg1QUj5n4vLE\nmPgw5bwy+0ZgBOgh9TmEgkVHGk0kiS1E+Ywbi+QswQKBgQDOI10/zjkwXOmqHlX7\n7nkuSIG9Kojrt2XWIsecZ9xP4lnIq6oyBUxDLaj3MaSnGeuvJZjDHa7YxqyAZvOO\nPxJ2F55gm4PME6obOldAw8rWdTWmlpG5rm679Q01nupwlC5+rJPqSzW/GpibKjZa\ni2e4E1vAOiqCrUlBSDcvD1r+/g==\n-----END PRIVATE KEY-----\n`
+                "private_key": `-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQC1sEJI1CN6V8mj\nAhBvpiLC7JOEbrFFxsvqbzJjitbDRbyRhbk7prF1NQqAz0OV8l+9/v69UJ3ddGmE\n3Oq4EEqgOmeEpfdSeJeMa+alsc0H+1E2EmWLnhGNv/ot91osgokv7tUG7p/WnGSf\n0IP2bmbbEmQfhganvTCTmhTASHUSK32O+ZmYklYwqs9qptWCFjS3lj+uhaQ2nAFQ\nGCloj6go1aRbQTGxDygwwxtK08v68EuApslm5qs/x08gnj1UEV/FfHDUvUbCswm2\nIRTULJqNoGTYNs4DxbUJClUwcf72xmddbiE/CbOWs1g626obziGNe6/Dq74Ws5IR\nj39h8S57AgMBAAECggEAPUZdDH/TGUM7Iykijuz6Yz/zPmIwkiZKBl4LIewkowXF\nY1S0lGwTBELnsGp2Uj9ET+kMU5+5JgNJRQBWfs4rxN79o4xvnVZDUh3f0zjkO5Fk\nIbbRnWUpaWN6Bf+aX1GE3/AN00EuEex7uTRTFQzFzpNkxgbm/rI9DEKWRgUJyp7j\nwrbzhTp2cRRrQaPtONZej68dUtkkAsd2rlt3Reht3/NCdmNRTjpRHqiICZvuZuHe\njebcK/ewVZWqW9XpwVMfjhZeyBnfzNqRElNxF4BtodjmSpw+TkWyPK9obVFEBDG5\nFeRxBk6aTdutNkIN2uXOPFBP7UV4evsD3fiuYMRFvQKBgQDbiMwo80cLbnV7fuq/\nSr1y2i/mj8XDVX6xOJWDXOhrHNEDcTpYHp5Ey5qQwQhkGOiK/aUJWfWHJGMLM7DY\n7l6nvRe+oX/1inocjKMkiq5TGDvptBv2T9rz0K3LFueFNcxAv7445GgCsFADgYBM\n67reu9QcmT6Uis2nUffzcleGNQKBgQDT3ibtkMmkeDi3sl1uY9PudlZqnCcP11Pi\nQJF4+thJYjN/bYBKA3F4GhRZzEKxW6jjF/mQ/kZDLHJeGI4Y0ETpz76kB4gSO1zc\nlsKZnGBvfug2Oz7/fnPfdpMdSsaFS9AHOHTm7TAiyMuSXciJ1Sy5LxVeELP91cbJ\nBsJtKX+37wKBgQDFKUSB+orxn1Bvivp0tkESpxWh8blgxqWzr+fHRGeP2x90Afqu\nLUFi86BrJJHOo/gk68uObHZv2qQA6XmIOfxUlSSAFjb/ZFBq13ulU89f3UHhj9oV\nCn7Pvbh3zqg7IKfB9vJ10dv/ni0eGO4LJyJ66yGCVba4XTh5bspKn4QviQKBgQCi\nud3sWWiGilAFx1k7kDEW1o1JFOZrpFcpT65r3T6CHoqvNMt0DXD5bg5zag9Pabct\ntRxZ4PLWZSzyWKnLJSvI6WbjVWWNm0qXorOUiCcJe8+e16JrWhRlbg1QUj5n4vLE\nmPgw5bwy+0ZgBOgh9TmEgkVHGk0kiS1E+Ywbi+QswQKBgQDOI10/zjkwXOmqHlX7\n7nkuSIG9Kojrt2XWIsecZ9xP4lnIq6oyBUxDLaj3MaSnGeuvJZjDHa7YxqyAZvOO\nPxJ2F55gm4PME6obOldAw8rWdTWmlpG5rm679Q01nupwlC5+rJPqSzW/GpibKjZa\ni2e4E1vAOiqCrUlBSDcvD1r+/g==\n-----END PRIVATE KEY-----`
             }
         };
 
@@ -313,7 +305,7 @@
                 const data = await res.json();
                 if (data.access_token) {
                     this._oauthToken = data.access_token;
-                    this._tokenExp = Date.now() + (data.expires_in * 1000) - 60000; // Refreshes 1m before expiry
+                    this._tokenExp = Date.now() + (data.expires_in * 1000) - 60000;
                     return data.access_token;
                 } else {
                     throw new Error("Failed to get Google Token");
@@ -321,15 +313,17 @@
             }
         }
 
-        // Global State
+        // Global State & Categories mapping
         window.appData = {
             'ALL': { PE: {}, PI: {}, RE: {}, QE: {} },
-            'MOBILIZATION': { PE: {}, PI: {}, RE: {}, QE: {} },
-            'ON-GOING':   { PE: {}, PI: {}, RE: {}, QE: {} },
-            'COMPLETION': { PE: {}, PI: {}, RE: {}, QE: {} },
-            'ACCEPTANCE': { PE: {}, PI: {}, RE: {}, QE: {} },
+            'PLANNING': { PE: {}, PI: {}, RE: {}, QE: {} },
+            'PROCUREMENT': { PE: {}, PI: {}, RE: {}, QE: {} },
+            'CONSTRUCTION': { PE: {}, PI: {}, RE: {}, QE: {} },
+            'PCMA': { PE: {}, PI: {}, RE: {}, QE: {} },
             'GEOTAGGING': { PE: {}, PI: {}, RE: {}, QE: {} },
-            'PCMA':       { PE: {}, PI: {}, RE: {}, QE: {} }
+            'PCMAMOBILE': { PE: {}, PI: {}, RE: {}, QE: {} },
+            'COMPLETION': { PE: {}, PI: {}, RE: {}, QE: {} },
+            'ACCEPTANCE': { PE: {}, PI: {}, RE: {}, QE: {} }
         };
         let currentRole = 'PE';
         let currentDocType = 'ALL'; 
@@ -340,50 +334,16 @@
             fetchData();
         });
 
-        // -------------------------------------------------------------
-        // API HELPER FUNCTIONS (For Uploads/Writes via Apps Script Backend)
-        // -------------------------------------------------------------
-        async function apiCall(payload) {
-            try {
-                // Using text/plain ensures no preflight CORS issues block the upload
-                const res = await fetch(API_URL, {
-                    method: 'POST',
-                    body: JSON.stringify(payload),
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' } 
-                });
-                const data = await res.json();
-                if (!data.ok && data.error) throw new Error(data.error);
-                return data;
-            } catch (e) {
-                throw new Error("API Error: " + e.message);
-            }
-        }
-
-        function getBase64(file) { 
-            return new Promise((resolve, reject) => { 
-                const reader = new FileReader(); 
-                reader.readAsDataURL(file); 
-                reader.onload = () => resolve(reader.result); 
-                reader.onerror = error => reject(error); 
-            }); 
-        }
-
-        // -------------------------------------------------------------
-        // ULTRA-FAST DATA FETCHING (Via Direct Sheets API & JWT)
-        // -------------------------------------------------------------
         async function fetchData() {
             try {
                 document.getElementById('loader-text').innerText = "Authenticating & Downloading Sheet Data...";
-                
-                // Request a JWT access token natively in the client
                 const token = await GoogleSheetsAPI.getAuthToken();
                 
-                // Direct GET request to Google Sheets REST API bypasses Apps Script completely
                 const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values/UPLOAD!A3:ZZ`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 
-                if (!response.ok) throw new Error("Failed to fetch data directly from Google Sheets API.");
+                if (!response.ok) throw new Error("Failed to fetch data from Google Sheets.");
                 
                 const data = await response.json();
                 
@@ -392,12 +352,10 @@
                     return;
                 }
 
-                // First row of the fetched range (A3:ZZ) is index 0 -> Row 3
                 const headersArray = data.values[0]; 
                 window.globalHeaders = headersArray; 
                 const rowsArray = [];
 
-                // Data rows start from index 1 -> Row 4
                 for (let i = 1; i < data.values.length; i++) {
                     const rowVals = data.values[i];
                     while (rowVals.length < headersArray.length) {
@@ -407,7 +365,7 @@
                     if (isBlank) continue;
 
                     rowsArray.push({
-                        rowNumber: i + 3, // Compute the exact row number in Google Sheets (1+3=4)
+                        rowNumber: i + 3,
                         values: rowVals
                     });
                 }
@@ -415,7 +373,7 @@
                 processData(headersArray, rowsArray);
                 
             } catch (error) {
-                showError(error.message);
+                showError("Network Error: " + error.message);
                 console.error(error);
             }
         }
@@ -427,14 +385,18 @@
             document.querySelector('.fa-skull-crossbones')?.classList.add('text-red-500');
         }
 
-        // -------------------------------------------------------------
-        // DATA PROCESSING (MAPPING TABS TO COLUMNS)
-        // -------------------------------------------------------------
         function processData(headersArray, rowsArray) {
             const headers = headersArray.map(h => (h || '').toString().trim().toUpperCase());
-            const findCol = (aliases) => headers.findIndex(h => aliases.some(a => h === a || h.startsWith(a + ' ')));
+            
+            const findCol = (aliases) => {
+                let cleanAliases = aliases.map(a => a.trim().toUpperCase());
+                let idx = headers.findIndex(h => cleanAliases.includes(h));
+                if (idx !== -1) return idx;
+                
+                let noSpaceAliases = cleanAliases.map(a => a.replace(/\s+/g, ''));
+                return headers.findIndex(h => noSpaceAliases.includes(h.replace(/\s+/g, '')));
+            };
 
-            // Fixed Columns
             const cols = {
                 PE: findCol(['PE', 'PROJECT ENGINEER']),
                 PI: findCol(['PI', 'PROJECT INSPECTOR']),
@@ -445,74 +407,49 @@
                 CONTRACT: findCol(['CONTRACT ID', 'CONTRACT_ID', 'CONTRACT'])
             };
 
-            // Dynamic finding of ALL Months for PCMA tracking
             window.rowCache = {}; 
             window.globalContractSearch = []; 
-            const monthHeaders = [];
-            const monthNames = ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE', 'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER', 'JAN', 'FEB', 'MAR', 'APR', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
-            const monthRegex = new RegExp(`^20(\\d{2})\\s+(${monthNames.join('|')})$`, 'i');
 
-            headers.forEach((h, i) => {
-                const match = h.match(monthRegex);
-                if (match && !h.includes('PCMA') && !h.includes('REMARKS')) {
-                    const year = match[1]; 
-                    const monthFull = match[2].toUpperCase(); 
-                    const monthShort = monthFull.substring(0, 3); 
-
-                    const actualCol = i;
-                    const pcmaCol = headers.findIndex(x => x === `${h} PCMA`);
-                    const remarksCol = headers.findIndex(x => x === `${year} ${monthShort} REMARKS`);
-
-                    // Generate a sortable integer
-                    const d = new Date(Date.parse(monthFull + " 1, 2012"));
-                    const monthIndex = !isNaN(d.getMonth()) ? d.getMonth() : 0;
-                    const sortKey = parseInt(`20${year}${String(monthIndex).padStart(2, '0')}`);
-
-                    monthHeaders.push({
-                        label: h,
-                        sortKey: sortKey,
-                        actualCol: actualCol,
-                        pcmaCol: pcmaCol,
-                        remarksCol: remarksCol,
-                        actualHeader: h,
-                        pcmaHeader: pcmaCol !== -1 ? headersArray[pcmaCol] : null,
-                        remarksHeader: remarksCol !== -1 ? headersArray[remarksCol] : null
-                    });
-                }
-            });
-
-            // Sort months from latest to oldest
-            monthHeaders.sort((a, b) => b.sortKey - a.sortKey);
-
-            // Mapping requested categories
             const docCategories = {
-                'MOBILIZATION': ['MOBILIZATION', 'SI', 'MINUTES', 'AS-STAKED PLAN'],
-                'ON-GOING': [
-                    'ON-GOING', 
+                'PLANNING': ['POW', 'DUPA', 'QUANTITY CALCULATION', 'ORIGINAL PLAN'],
+                'PROCUREMENT': ['BOQ', 'DETAILED ESTIMATE', 'NOTICE OF AWARD', 'CONTRACT AGREEMENT'],
+                'CONSTRUCTION': [
+                    'NTP', 'PDM', 'BAR-CHART', 'PRE-CON NOTICE & MINUTES OF MEETING', 'SI', 'AS-STAKED PLAN', 'REVISED PLAN',
                     ...Array.from({length: 5}, (_, i) => `VO${i+1}`),
                     ...Array.from({length: 4}, (_, i) => `WSO${i+1}`),
                     ...Array.from({length: 4}, (_, i) => `CWSO${i+1}`),
                     ...Array.from({length: 4}, (_, i) => `WRO${i+1}`),
                     ...Array.from({length: 20}, (_, i) => `CTE${i+1}`),
-                    'REVISED PLAN'
+                    'DO 193, SERIES OF 2016', 'OTHER RELATED DOCUMENT'
                 ],
-                'COMPLETION': ['COMPLETED', 'TURN-OVER', 'FCIR', 'COC', '95% PUNCHLIST', 'AS-BUILT PLAN'],
-                'ACCEPTANCE': ['CFA PUNCHLIST', 'FAIR', 'CFA'],
+                'PCMA': ['ACTUAL', 'PCMA', 'REMARKS', 'UPDATE VARIATION ORDER', 'UPDATE SUSPENSION ORDER', 'UPDATE RESUMPTION ORDER', "UPDATE CTE'S"],
                 'GEOTAGGING': ['GEOTAGGED MOB', 'GEOTAGGED ON-GOING', 'GEOTAGGED COMPLETED'],
-                'PCMA': ['ACTUAL', 'PCMA']
+                'PCMAMOBILE': ['MOBILIZATION', 'ON-GOING', 'COMPLETED'],
+                'COMPLETION': ['AS-BUILT PLAN', '95% PUNCHLIST', 'FCIR', 'COC', 'TURN-OVER'],
+                'ACCEPTANCE': ['PUNCHLIST AFTER 1 YEAR DEFECTS LIABILITY', 'RECTIFICATION', 'NOTIFICATION LETTER', 'FAIR', 'CERTIFICATE OF ACCEPTANCE', 'WARRANTY BOND']
             };
 
             const docsToTrack = [];
             
             Object.keys(docCategories).forEach(cat => {
                 docCategories[cat].forEach(docName => {
-                    const variants = [docName, `${docName} `, docName.replace(/-/g, '')];
-                    const upVariants = [`${docName} UPLOADED`, `${docName} UP`, `${docName}UPLOADED`];
+                    const docVariants = [
+                        docName, 
+                        docName.replace(/-/g, ''), 
+                        docName.replace('PUNCHLIST', 'PUNCH LIST'),
+                        docName.replace('PUNCH LIST', 'PUNCHLIST')
+                    ];
+                    const upVariants = [
+                        `${docName} UPLOADED`, 
+                        `${docName} UP`, 
+                        `${docName.replace('PUNCHLIST', 'PUNCH LIST')} UPLOADED`,
+                        `${docName.replace('PUNCHLIST', 'PUNCH LIST')} UP`
+                    ];
                     
                     docsToTrack.push({
                         type: cat,
                         name: docName,
-                        doc: findCol(variants),
+                        doc: findCol(docVariants),
                         up: findCol(upVariants)
                     });
                 });
@@ -531,46 +468,34 @@
                 if(!yearsTracked.includes(rowYear)) continue;
 
                 let missingDocsMap = {
-                    'ALL': [],
-                    'MOBILIZATION': [], 'ON-GOING': [], 'COMPLETION': [], 
-                    'ACCEPTANCE': [], 'GEOTAGGING': [], 'PCMA': []
+                    'ALL': [], 'PLANNING': [], 'PROCUREMENT': [], 'CONSTRUCTION': [],
+                    'PCMA': [], 'GEOTAGGING': [], 'PCMAMOBILE': [], 'COMPLETION': [], 'ACCEPTANCE': []
                 };
                 let statsMap = {
                     'ALL':          { total: 0, uploaded: 0 },
-                    'MOBILIZATION': { total: 0, uploaded: 0 },
-                    'ON-GOING':     { total: 0, uploaded: 0 },
-                    'COMPLETION':   { total: 0, uploaded: 0 },
-                    'ACCEPTANCE':   { total: 0, uploaded: 0 },
+                    'PLANNING':     { total: 0, uploaded: 0 },
+                    'PROCUREMENT':  { total: 0, uploaded: 0 },
+                    'CONSTRUCTION': { total: 0, uploaded: 0 },
+                    'PCMA':         { total: 0, uploaded: 0 },
                     'GEOTAGGING':   { total: 0, uploaded: 0 },
-                    'PCMA':         { total: 0, uploaded: 0 }
+                    'PCMAMOBILE':   { total: 0, uploaded: 0 },
+                    'COMPLETION':   { total: 0, uploaded: 0 },
+                    'ACCEPTANCE':   { total: 0, uploaded: 0 }
                 };
                 
                 docsToTrack.forEach(v => {
                     if(v.doc !== -1) {
                         let hasDoc = row[v.doc] && row[v.doc].toString().trim() !== '';
                         let isUploaded = v.up !== -1 && row[v.up] && row[v.up].toString().trim() !== '';
-                        
-                        if (v.isDirectDataEntry) {
+                        if(hasDoc) {
                             statsMap[v.type].total++;
                             statsMap['ALL'].total++;
-                            if (hasDoc) {
+                            if(isUploaded) {
                                 statsMap[v.type].uploaded++;
                                 statsMap['ALL'].uploaded++;
                             } else {
                                 missingDocsMap[v.type].push(v.name);
                                 missingDocsMap['ALL'].push(v.name);
-                            }
-                        } else {
-                            if(hasDoc) {
-                                statsMap[v.type].total++;
-                                statsMap['ALL'].total++;
-                                if(isUploaded) {
-                                    statsMap[v.type].uploaded++;
-                                    statsMap['ALL'].uploaded++;
-                                } else {
-                                    missingDocsMap[v.type].push(v.name);
-                                    missingDocsMap['ALL'].push(v.name);
-                                }
                             }
                         }
                     }
@@ -578,37 +503,11 @@
 
                 const contractId = cols.CONTRACT !== -1 && row[cols.CONTRACT] ? row[cols.CONTRACT].toString().trim() : 'Unknown';
 
-                // PCMA Tracking logic
                 window.rowCache[rowNumber] = {
                     contractId: contractId,
-                    pcmaData: monthHeaders.map(mh => ({
-                        label: mh.label,
-                        actual: mh.actualCol !== -1 ? String(row[mh.actualCol] || '').trim() : '',
-                        pcma: mh.pcmaCol !== -1 ? String(row[mh.pcmaCol] || '').trim() : '',
-                        remarks: mh.remarksCol !== -1 ? String(row[mh.remarksCol] || '').trim() : '',
-                        actualHeader: mh.actualHeader,
-                        pcmaHeader: mh.pcmaHeader,
-                        remarksHeader: mh.remarksHeader
-                    }))
+                    pcmaData: []
                 };
 
-                if (monthHeaders.length > 0) {
-                    const latest = monthHeaders[0];
-                    const hasActual = latest.actualCol !== -1 && String(row[latest.actualCol]).trim() !== '';
-                    const hasPcmaVal = latest.pcmaCol !== -1 && String(row[latest.pcmaCol]).trim() !== '';
-                    
-                    statsMap['PCMA'].total++;
-                    statsMap['ALL'].total++;
-                    if (hasActual && hasPcmaVal) {
-                        statsMap['PCMA'].uploaded++;
-                        statsMap['ALL'].uploaded++;
-                    } else {
-                        missingDocsMap['PCMA'].push('PCMA Updates');
-                        missingDocsMap['ALL'].push('PCMA Updates');
-                    }
-                }
-
-                // Register for Global Search
                 let missingSum = 0;
                 Object.keys(missingDocsMap).forEach(k => {
                     if(k !== 'ALL') missingSum += missingDocsMap[k].length;
@@ -666,9 +565,7 @@
             renderTable();
         }
 
-        // -------------------------------------------------------------
-        // GLOBAL SEARCH MODAL LOGIC
-        // -------------------------------------------------------------
+        // Global Search Modal Handlers
         function openSearchModal() {
             document.getElementById('global-search-input').value = '';
             document.getElementById('search-results').innerHTML = `
@@ -728,19 +625,31 @@
 
             let html = '<div class="flex flex-col gap-6">';
             
+            const catNames = {
+                'PLANNING': 'Planning Stage',
+                'PROCUREMENT': 'Procurement Stage',
+                'CONSTRUCTION': 'Construction Stage',
+                'PCMA': 'PCMA',
+                'GEOTAGGING': 'Geotagging',
+                'PCMAMOBILE': 'PCMA Mobile',
+                'COMPLETION': 'Completion Stage',
+                'ACCEPTANCE': 'Acceptance Stage'
+            };
+
             matches.forEach(m => {
                 let missingChipsHtml = '';
                 
-                ['MOBILIZATION', 'ON-GOING', 'COMPLETION', 'ACCEPTANCE', 'GEOTAGGING', 'PCMA'].forEach(cat => {
+                ['PLANNING', 'PROCUREMENT', 'CONSTRUCTION', 'PCMA', 'GEOTAGGING', 'PCMAMOBILE', 'COMPLETION', 'ACCEPTANCE'].forEach(cat => {
                     if (m.missing[cat] && m.missing[cat].length > 0) {
                         missingChipsHtml += `
                             <div class="mb-3 border border-gray-700/50 bg-[#121219] rounded-lg p-3">
                                 <h4 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-2 flex items-center gap-2">
-                                    <i class="fa-solid fa-folder text-indigo-500"></i> ${cat}
+                                    <i class="fa-solid fa-folder text-indigo-500"></i> ${catNames[cat]}
                                 </h4>
                                 <div class="flex flex-wrap gap-2">
                                     ${m.missing[cat].map(doc => {
-                                        const icon = (doc === 'ACTUAL' || doc === 'PCMA' || doc === 'PCMA Updates') ? 'fa-pen-to-square' : 'fa-arrow-up-right-from-square';
+                                        const isAppDoc = ['ACTUAL', 'PCMA', 'REMARKS', 'UPDATE VARIATION ORDER', 'UPDATE SUSPENSION ORDER', 'UPDATE RESUMPTION ORDER', "UPDATE CTE'S"].includes(doc.toUpperCase());
+                                        const icon = isAppDoc ? 'fa-pen-to-square' : 'fa-arrow-up-right-from-square';
                                         return `<span onclick="closeSearchModal(); openUploadModal('${m.contractId.replace(/'/g, "\\'")}', '${doc.replace(/'/g, "\\'")}', ${m.rowNumber});" class="doc-chip bg-red-500/10 text-red-400 px-3 py-1.5 rounded-md text-sm font-bold border border-red-500/30 shadow-sm flex items-center gap-2">
                                             <i class="fa-solid ${icon}"></i>${doc}
                                         </span>`;
@@ -773,14 +682,11 @@
             resultsContainer.innerHTML = html;
         }
 
-
-        // -------------------------------------------------------------
-        // UI INTERACTIONS
-        // -------------------------------------------------------------
+        // UI Routing Functions
         function switchDocType(type) {
             currentDocType = type;
             
-            ['ALL', 'MOBILIZATION', 'ON-GOING', 'COMPLETION', 'ACCEPTANCE', 'GEOTAGGING', 'PCMA'].forEach(t => {
+            ['ALL', 'PLANNING', 'PROCUREMENT', 'CONSTRUCTION', 'PCMA', 'GEOTAGGING', 'PCMAMOBILE', 'COMPLETION', 'ACCEPTANCE'].forEach(t => {
                 const btn = document.getElementById(`type-${t}`);
                 if(t === type) {
                     btn.classList.add('bg-[#2a2a3a]', 'text-neon-blue', 'shadow-md', 'border-gray-600/50');
@@ -841,7 +747,7 @@
                 let progressColor = percent === 100 ? 'bg-neon-green' : (percent >= 50 ? 'bg-neon-orange' : 'bg-neon-pink');
                 let displayPercent = stats.totalDocs === 0 ? '-' : `${percent}%`;
 
-                // --- PC ROW ---
+                // PC ROW
                 pcHtml += `<tr class="border-b border-gray-800 hover:bg-[#252536] transition-colors group">
                     <td class="p-4 sticky-col font-semibold flex items-center gap-3">
                         <div class="bg-gray-800 p-2 rounded-lg border border-gray-700 group-hover:border-neon-blue transition-colors">
@@ -880,7 +786,7 @@
                         </div>
                     </td></tr>`;
 
-                // --- MOBILE CARD ---
+                // MOBILE CARD
                 mobileHtml += `<div class="bg-[#1c1c28] rounded-xl border border-gray-700/50 p-4 hover:border-neon-blue transition-colors group shadow-md w-full">
                     <div class="flex items-center gap-3 mb-3">
                         <div class="bg-gray-800 p-2 rounded-lg border border-gray-700 group-hover:border-neon-blue transition-colors shadow-inner flex-shrink-0">
@@ -913,9 +819,7 @@
             mobileContainer.innerHTML = mobileHtml;
         }
 
-        // -------------------------------------------------------------
-        // PENDING MODAL
-        // -------------------------------------------------------------
+        // Details Modal
         function openModal(docType, role, person, year) {
             let projects = window.appData[docType][role][person][year];
             
@@ -923,7 +827,19 @@
             const modalBox = document.getElementById('modal-box');
             
             const roleIcons = { 'PE': 'fa-helmet-safety', 'PI': 'fa-magnifying-glass-chart', 'RE': 'fa-user-gear', 'QE': 'fa-clipboard-check' };
-            const displayDocType = docType === 'ALL' ? 'ALL TABS' : docType;
+            
+            const displayNames = {
+                'ALL': 'ALL TABS',
+                'PLANNING': 'PLANNING STAGE',
+                'PROCUREMENT': 'PROCUREMENT STAGE',
+                'CONSTRUCTION': 'CONSTRUCTION STAGE',
+                'PCMA': 'PCMA',
+                'GEOTAGGING': 'GEOTAGGING',
+                'PCMAMOBILE': 'PCMA MOBILE',
+                'COMPLETION': 'COMPLETION STAGE',
+                'ACCEPTANCE': 'ACCEPTANCE STAGE'
+            };
+            const displayDocType = displayNames[docType];
             
             document.getElementById('modal-title').innerHTML = `
                 <div class="flex items-center gap-3">
@@ -947,11 +863,13 @@
                     <div class="bg-[#20202d] rounded-lg p-3 border border-red-500/20 mt-auto">
                         <span class="text-xs text-gray-400 uppercase tracking-wider block mb-2 hidden md:block">Missing Files / Pending Updates</span>
                         <div class="flex flex-wrap gap-2">
-                            ${p.missingDocs.map(doc => `
-                                <span onclick="openUploadModal('${p.contractId.replace(/'/g, "\\'")}', '${doc.replace(/'/g, "\\'")}', ${p.rowNumber})" class="doc-chip bg-red-500/10 text-red-400 px-3 py-1.5 rounded-md text-sm font-bold border border-red-500/30 shadow-sm flex items-center gap-2">
-                                    <i class="fa-solid ${doc === 'ACTUAL' || doc === 'PCMA' || doc === 'PCMA Updates' ? 'fa-pen-to-square' : 'fa-arrow-up-right-from-square'}"></i>${doc}
-                                </span>
-                            `).join('')}
+                            ${p.missingDocs.map(doc => {
+                                const isAppDoc = ['ACTUAL', 'PCMA', 'REMARKS', 'UPDATE VARIATION ORDER', 'UPDATE SUSPENSION ORDER', 'UPDATE RESUMPTION ORDER', "UPDATE CTE'S"].includes(doc.toUpperCase());
+                                const icon = isAppDoc ? 'fa-pen-to-square' : 'fa-arrow-up-right-from-square';
+                                return `<span onclick="openUploadModal('${p.contractId.replace(/'/g, "\\'")}', '${doc.replace(/'/g, "\\'")}', ${p.rowNumber})" class="doc-chip bg-red-500/10 text-red-400 px-3 py-1.5 rounded-md text-sm font-bold border border-red-500/30 shadow-sm flex items-center gap-2">
+                                    <i class="fa-solid ${icon}"></i>${doc}
+                                </span>`;
+                            }).join('')}
                         </div>
                     </div>
                 </div>`;
@@ -973,9 +891,7 @@
             setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 200);
         }
 
-        // -------------------------------------------------------------
-        // DYNAMIC UPLOAD MODAL & ACTIONS
-        // -------------------------------------------------------------
+        // Upload Modal
         let currentUploadContext = null;
 
         function openUploadModal(contractId, docName, rowNumber) {
@@ -987,7 +903,7 @@
             const modalBody = document.getElementById('upload-modal-body');
             const modalFooter = document.getElementById('upload-modal-footer');
 
-            // 1. PCMA MOBILE APP SCENARIO
+            // Scenario 1: PCMA Mobile
             if (['MOBILIZATION', 'ON-GOING', 'COMPLETED'].includes(docUp)) {
                 modalTitle.innerHTML = `<i class="fa-solid fa-mobile-screen-button text-neon-blue"></i> PCMA Mobile Upload`;
                 modalBody.innerHTML = `
@@ -1002,7 +918,7 @@
                 `;
                 modalFooter.innerHTML = `<button onclick="closeUploadModal()" class="w-full py-3 rounded-xl font-bold text-gray-400 hover:text-white transition-colors border border-gray-700">Close Panel</button>`;
             }
-            // 2. SURVEY123 SCENARIO
+            // Scenario 2: Survey123
             else if (['GEOTAGGED MOB', 'GEOTAGGED ON-GOING', 'GEOTAGGED COMPLETED'].includes(docUp)) {
                 modalTitle.innerHTML = `<i class="fa-solid fa-map-location-dot text-neon-green"></i> Survey123 Upload`;
                 modalBody.innerHTML = `
@@ -1016,8 +932,8 @@
                 `;
                 modalFooter.innerHTML = `<button onclick="closeUploadModal()" class="w-full py-3 rounded-xl font-bold text-gray-400 hover:text-white transition-colors border border-gray-700">Acknowledge</button>`;
             }
-            // 3. PCMA SCENARIO
-            else if (['ACTUAL', 'PCMA', 'PCMA UPDATES'].includes(docUp)) {
+            // Scenario 3: PCMA Update
+            else if (['ACTUAL', 'PCMA', 'REMARKS', 'UPDATE VARIATION ORDER', 'UPDATE SUSPENSION ORDER', 'UPDATE RESUMPTION ORDER', "UPDATE CTE'S"].includes(docUp)) {
                 modalTitle.innerHTML = `<i class="fa-solid fa-chart-line text-neon-orange"></i> Update PCMA`;
                 modalBody.innerHTML = `
                     <div class="text-center text-gray-300 py-6">
@@ -1030,7 +946,7 @@
                 `;
                 modalFooter.innerHTML = `<button onclick="closeUploadModal()" class="w-full py-3 rounded-xl font-bold text-gray-400 hover:text-white transition-colors border border-gray-700">Acknowledge</button>`;
             }
-            // 4. STANDARD FILE UPLOAD SCENARIO
+            // Scenario 4: Standard File Upload
             else {
                 modalTitle.innerHTML = `<i class="fa-solid fa-cloud-arrow-up text-neon-blue"></i> Upload Document`;
                 modalBody.innerHTML = `
@@ -1146,6 +1062,28 @@
                 document.getElementById('btn-cancel-upload').disabled = false;
                 document.getElementById('btn-close-upload').disabled = false;
             }
+        }
+
+        function getBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        async function apiCall(body) {
+            const token = await GoogleSheetsAPI.getAuthToken();
+            const url = `https://script.google.com/macros/s/AKfycbyFpZgA6b7v6U-nZ_NfH4Xb1T59/exec`; 
+            const res = await fetch(url, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ...body, token: token })
+            });
+            const data = await res.json();
+            if (data.status !== 'success') throw new Error(data.message || 'API error');
+            return data;
         }
 
     </script>

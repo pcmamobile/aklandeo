@@ -213,7 +213,7 @@
     .pcma-mini-fill { 
       height: 100%; width: 0%; display: flex; align-items: center; justify-content: center; 
       font-size: 0.75rem; font-weight: 900; color: #fff; transition: width 1s cubic-bezier(0.34, 1.56, 0.64, 1); 
-      white-space: nowrap; padding: 0 8px; border-radius: 999px; 
+      white-space: nowrap; padding: 0 8px; border-radius: 999px; min-width: 65px; /* Ensures text like '0.00%' is never fully squished out of view */
       background-image: linear-gradient(45deg, rgba(255,255,255,0.3) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0.3) 75%, transparent 75%, transparent);
       background-size: 20px 20px;
       animation: candy-stripe 1s linear infinite;
@@ -229,6 +229,7 @@
     .pcma-progress-fill { 
       height: 100%; border-radius: 14px; text-align: center; line-height: 24px; font-weight: 900; color: #fff; 
       font-size: 0.9rem; width: 0%; transition: width 1.2s cubic-bezier(0.34, 1.56, 0.64, 1); white-space: nowrap; 
+      min-width: 65px;
       background-image: linear-gradient(45deg, rgba(255,255,255,0.3) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0.3) 75%, transparent 75%, transparent);
       background-size: 25px 25px;
       animation: candy-stripe 1s linear infinite;
@@ -519,9 +520,35 @@
 
     window.onload = init;
 
+    // UPGRADED FINDCOL: Prioritizes exact matches to prevent grabbing "Actual Start" when looking for "Actual"
     function findCol(...keys) {
-      const lowerKeys = keys.map(k => String(k).toLowerCase());
-      return currentHeaders.findIndex(h => lowerKeys.some(k => String(h || '').toLowerCase().includes(k)));
+      const lowerKeys = keys.map(k => String(k).toLowerCase().trim());
+      
+      // 1. Exact Match Priority
+      let exactIdx = currentHeaders.findIndex(h => {
+        const headerTrimmed = String(h || '').toLowerCase().trim();
+        return lowerKeys.includes(headerTrimmed);
+      });
+      if (exactIdx !== -1) return exactIdx;
+      
+      // 2. Starts With/Includes Match & Filter false positives (dates/targets)
+      let robustIdx = currentHeaders.findIndex(h => {
+        const headerStr = String(h || '').toLowerCase().trim();
+        const isDateCol = ['date', 'start', 'end', 'finish', 'target'].some(w => headerStr.includes(w));
+        const searchingDate = lowerKeys.some(k => ['date', 'start', 'end', 'finish', 'target'].some(w => k.includes(w)));
+        
+        // Prevent grabbing "Actual Start Date" when looking for just "Actual"
+        if (isDateCol && !searchingDate) return false;
+        
+        return lowerKeys.some(k => headerStr.includes(k));
+      });
+      if (robustIdx !== -1) return robustIdx;
+
+      // 3. Absolute fallback
+      return currentHeaders.findIndex(h => {
+        const headerStr = String(h || '').toLowerCase();
+        return lowerKeys.some(k => headerStr.includes(k));
+      });
     }
 
     function createPrimaryRow(label, value, isStatus, emoji) {
@@ -678,11 +705,13 @@
       const qeIdx = findCol('quantity engineer');
       const meIdx = findCol('materials engineer');
 
-      const schedIdx = findCol('sched');
-      const actualIdx= findCol('actual');
-      const slipIdx  = findCol('slip');
+      // Enhanced search targets
+      const schedIdx = findCol('sched', 'schedule');
+      const actualIdx= findCol('actual', 'actual %', 'actual accomplishment', 'accomp', 'accomplishment'); 
+      const slipIdx  = findCol('slip', 'slippage');
       const delayIdx = findCol('delay');
       let   progIdx  = findCol('progress');
+      
       if (progIdx < 0 && currentHeaders.length > 18) progIdx = 18;
 
       const currentCid = (cidIdx >= 0 ? String(row[cidIdx]).trim() : '');
@@ -834,9 +863,11 @@
       }
 
       // Progress & 3D Glowing Neon Energy Bars
-      const hasSched = schedIdx > -1 && row[schedIdx];
-      const hasActual= actualIdx > -1 && row[actualIdx];
-      const hasSlip  = slipIdx > -1 && row[slipIdx];
+      
+      // Fixed conditionals to not skip the value if it's technically a "0" or "0.00"
+      const hasSched = schedIdx > -1 && row[schedIdx] !== undefined && row[schedIdx] !== null && String(row[schedIdx]).trim() !== '';
+      const hasActual= actualIdx > -1 && row[actualIdx] !== undefined && row[actualIdx] !== null && String(row[actualIdx]).trim() !== '';
+      const hasSlip  = slipIdx > -1 && row[slipIdx] !== undefined && row[slipIdx] !== null && String(row[slipIdx]).trim() !== '';
 
       if (hasSched || hasActual || hasSlip) {
         const mini = document.createElement('div');
@@ -866,8 +897,8 @@
         if (hasActual) addMini('⚡ ACTUAL',   row[actualIdx], {bg: 'linear-gradient(90deg, #11998e, #38ef7d)', glow: '#38ef7d'}, false);
         if (hasSlip)   addMini('⚠️ SLIPPAGE', row[slipIdx],   null,      true);
 
-        const progRaw  = (progIdx > -1 && row[progIdx]) ? String(row[progIdx]).trim() : '';
-        const delayRaw = (delayIdx > -1 && row[delayIdx]) ? String(row[delayIdx]).trim() : '';
+        const progRaw  = (progIdx > -1 && row[progIdx] !== undefined && row[progIdx] !== null) ? String(row[progIdx]).trim() : '';
+        const delayRaw = (delayIdx > -1 && row[delayIdx] !== undefined && row[delayIdx] !== null) ? String(row[delayIdx]).trim() : '';
 
         if (progRaw) {
           const wrap  = document.createElement('div'); wrap.className = 'pcma-progress';

@@ -7,6 +7,9 @@
   
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- JWT Generation Library (Required for Secure Client-Side Data Fetching) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.5.27/jsrsasign-all-min.js"></script>
 
   <style>
     /* Global Box Sizing to prevent any overflow */
@@ -494,14 +497,14 @@
 </head>
 <body>
 
-  <div class="dashboard-wrapper">
-    <!-- View Mode Toggle -->
-    <div style="display: flex; justify-content: flex-end; margin-bottom: -10px;">
-      <button id="modeToggleBtn" class="mode-toggle-btn" title="View Mobile Mode">
-        <i class="fa-solid fa-mobile-screen"></i>
-      </button>
-    </div>
+  <!-- View Mode Toggle -->
+  <div style="display: flex; justify-content: flex-end; margin-bottom: 10px; margin-right: 30px; margin-top: 10px;">
+    <button id="modeToggleBtn" class="mode-toggle-btn" title="View Mobile Mode">
+      <i class="fa-solid fa-mobile-screen"></i>
+    </button>
+  </div>
 
+  <div class="dashboard-wrapper">
     <!-- TOP ROW: Meta Info Grid -->
     <section id="pdMetaSection" class="meta-grid">
       <div class="meta-card">
@@ -592,8 +595,51 @@
   </div>
 
   <script>
-    const SHEET_ID = "1LSYLZ7tfSeVupQMPsCOHG4SlnzPQqOAIe03QI1qRMr8";
-    const API_KEY = "AIzaSyCz6fNJr3ecn-M2HActqM1aCXbxqRLj2e8";
+    const API_CONFIG = {
+        SPREADSHEET_ID: "1LSYLZ7tfSeVupQMPsCOHG4SlnzPQqOAIe03QI1qRMr8",
+        SERVICE_ACCOUNT: {
+            "client_email": "pcma-mobile@gold-mode-473811-c6.iam.gserviceaccount.com",
+            "private_key": `-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQC1sEJI1CN6V8mj\nAhBvpiLC7JOEbrFFxsvqbzJjitbDRbyRhbk7prF1NQqAz0OV8l+9/v69UJ3ddGmE\n3Oq4EEqgOmeEpfdSeJeMa+alsc0H+1E2EmWLnhGNv/ot91osgokv7tUG7p/WnGSf\n0IP2bmbbEmQfhganvTCTmhTASHUSK32O+ZmYklYwqs9qptWCFjS3lj+uhaQ2nAFQ\nGCloj6go1aRbQTGxDygwwxtK08v68EuApslm5qs/x08gnj1UEV/FfHDUvUbCswm2\nIRTULJqNoGTYNs4DxbUJClUwcf72xmddbiE/CbOWs1g626obziGNe6/Dq74Ws5IR\nj39h8S57AgMBAAECggEAPUZdDH/TGUM7Iykijuz6Yz/zPmIwkiZKBl4LIewkowXF\nY1S0lGwTBELnsGp2Uj9ET+kMU5+5JgNJRQBWfs4rxN79o4xvnVZDUh3f0zjkO5Fk\nIbbRnWUpaWN6Bf+aX1GE3/AN00EuEex7uTRTFQzFzpNkxgbm/rI9DEKWRgUJyp7j\nwrbzhTp2cRRrQaPtONZej68dUtkkAsd2rlt3Reht3/NCdmNRTjpRHqiICZvuZuHe\njebcK/ewVZWqW9XpwVMfjhZeyBnfzNqRElNxF4BtodjmSpw+TkWyPK9obVFEBDG5\nFeRxBk6aTdutNkIN2uXOPFBP7UV4evsD3fiuYMRFvQKBgQDbiMwo80cLbnV7fuq/\nSr1y2i/mj8XDVX6xOJWDXOhrHNEDcTpYHp5Ey5qQwQhkGOiK/aUJWfWHJGMLM7DY\n7l6nvRe+oX/1inocjKMkiq5TGDvptBv2T9rz0K3LFueFNcxAv7445GgCsFADgYBM\n67reu9QcmT6Uis2nUffzcleGNQKBgQDT3ibtkMmkeDi3sl1uY9PudlZqnCcP11Pi\nQJF4+thJYjN/bYBKA3F4GhRZzEKxW6jjF/mQ/kZDLHJeGI4Y0ETpz76kB4gSO1zc\nlsKZnGBvfug2Oz7/fnPfdpMdSsaFS9AHOHTm7TAiyMuSXciJ1Sy5LxVeELP91cbJ\nBsJtKX+37wKBgQDFKUSB+orxn1Bvivp0tkESpxWh8blgxqWzr+fHRGeP2x90Afqu\nLUFi86BrJJHOo/gk68uObHZv2qQA6XmIOfxUlSSAFjb/ZFBq13ulU89f3UHhj9oV\nCn7Pvbh3zqg7IKfB9vJ10dv/ni0eGO4LJyJ66yGCVba4XTh5bspKn4QviQKBgQCi\nud3sWWiGilAFx1k7kDEW1o1JFOZrpFcpT65r3T6CHoqvNMt0DXD5bg5zag9Pabct\ntRxZ4PLWZSzyWKnLJSvI6WbjVWWNm0qXorOUiCcJe8+e16JrWhRlbg1QUj5n4vLE\nmPgw5bwy+0ZgBOgh9TmEgkVHGk0kiS1E+Ywbi+QswQKBgQDOI10/zjkwXOmqHlX7\n7nkuSIG9Kojrt2XWIsecZ9xP4lnIq6oyBUxDLaj3MaSnGeuvJZjDHa7YxqyAZvOO\nPxJ2F55gm4PME6obOldAw8rWdTWmlpG5rm679Q01nupwlC5+rJPqSzW/GpibKjZa\ni2e4E1vAOiqCrUlBSDcvD1r+/g==\n-----END PRIVATE KEY-----`
+        }
+    };
+
+    class GoogleSheetsAPI {
+        static _oauthToken = null;
+        static _tokenExp = 0;
+
+        static async getAuthToken() {
+            if (this._oauthToken && this._tokenExp > Date.now()) return this._oauthToken;
+            const header = { alg: "RS256", typ: "JWT" };
+            const now = Math.floor(Date.now() / 1000);
+            const claim = {
+                iss: API_CONFIG.SERVICE_ACCOUNT.client_email,
+                scope: "https://www.googleapis.com/auth/spreadsheets.readonly",
+                aud: "https://oauth2.googleapis.com/token",
+                exp: now + 3600,
+                iat: now
+            };
+
+            const sHeader = JSON.stringify(header);
+            const sClaim = JSON.stringify(claim);
+            const sJWS = KJUR.jws.JWS.sign("RS256", sHeader, sClaim, API_CONFIG.SERVICE_ACCOUNT.private_key);
+
+            const res = await fetch("https://oauth2.googleapis.com/token", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${sJWS}`
+            });
+            
+            const data = await res.json();
+            if (data.access_token) {
+                this._oauthToken = data.access_token;
+                this._tokenExp = Date.now() + (data.expires_in * 1000) - 60000;
+                return data.access_token;
+            } else {
+                throw new Error("Failed to get Google Token: " + (data.error_description || JSON.stringify(data)));
+            }
+        }
+    }
+
     let scurveChart = null;
 
     // A beautiful, reliable inline SVG 3D Gold Coin with Philippine Peso icon.
@@ -645,7 +691,8 @@
 
     document.addEventListener("DOMContentLoaded", () => {
       const params = new URLSearchParams(window.location.search);
-      const contractId = params.get('cid');
+      // ADDED: Fallback to 'contractId' if 'cid' is not present
+      const contractId = params.get('cid') || params.get('contractId');
       if (contractId) {
         document.getElementById("pdMetaCID").textContent = contractId;
         loadProjectDocsData(contractId);
@@ -813,21 +860,28 @@
 
     async function fetchValuesSafe(sheetName) {
       try {
+        const token = await GoogleSheetsAPI.getAuthToken();
         const range = encodeURIComponent(sheetName + "!A1:ZZ5000"); 
-        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?key=${API_KEY}`;
-        const res = await fetch(url);
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values/${range}`;
+        const res = await fetch(url, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
         if (!res.ok) return []; 
         const json = await res.json();
         return json.values || [];
       } catch (e) {
+        console.error("fetchValuesSafe Error:", e);
         return [];
       }
     }
 
     async function fetchBillingSheetSafe() {
       try {
-        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}?ranges=BILLING!A1:ZZ5000&fields=sheets(data(rowData(values(formattedValue,effectiveFormat.textFormat.foregroundColor))))&key=${API_KEY}`;
-        const res = await fetch(url);
+        const token = await GoogleSheetsAPI.getAuthToken();
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}?ranges=BILLING!A1:ZZ5000&fields=sheets(data(rowData(values(formattedValue,effectiveFormat.textFormat.foregroundColor))))`;
+        const res = await fetch(url, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
         if (!res.ok) return { values: [], colorGrid: [] };
         const json = await res.json();
 
@@ -853,6 +907,7 @@
         });
         return { values, colorGrid };
       } catch (e) {
+        console.error("fetchBillingSheetSafe Error:", e);
         return { values: [], colorGrid: [] };
       }
     }
@@ -971,13 +1026,14 @@
       return rows;
     }
 
-    function buildPcmaExtraRows(values, contractId) {
+function buildPcmaExtraRows(values, contractId) {
       if (!values || !values.length) return [];
       const { header, row } = findContractRow(values, contractId);
       if (!header || !row) return [];
       const monthColumns = [];
       header.forEach((title, colIndex) => {
         if (!title) return;
+        // UPDATED REGEX: Matches "2026 March PCMA" and extracts year/month
         const match = /^(\d{4})\s+([A-Za-z]+)\s+PCMA$/i.exec(title.toString().trim());
         if (match) {
           const year = match[1], monthName = match[2], shortMonth = monthName.slice(0, 3).toLowerCase();
