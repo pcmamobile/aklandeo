@@ -74,6 +74,24 @@
             }
             .print\:hidden { display: none !important; }
         }
+		
+	/* =========================================================
+           RESPONSIVE LAPTOP SCALING (Fix for 1280x1024 displays)
+           ========================================================= */
+        @media screen and (max-width: 1600px) {
+            html { font-size: 14px; } /* Shrinks the entire app by 12% on average laptops */
+        }
+        @media screen and (max-width: 1366px) {
+            html { font-size: 13px; } /* Shrinks the entire app by 18% on small laptops */
+        }
+        @media screen and (max-width: 1280px) {
+            html { font-size: 12px; } /* Shrinks the entire app by 25% on 1280x1024 monitors */
+        }
+        @media screen and (max-width: 768px) {
+            html { font-size: 16px; } /* Returns to normal for Mobile Phones for readability */
+        }	
+		
+		
     </style>
 </head>
 <body class="flex flex-col pb-20">
@@ -166,9 +184,12 @@
 <!-- Header Section -->
     <header class="bg-white/40 border-b border-white/50 backdrop-blur-lg sticky top-0 z-40 p-3 lg:p-4 flex items-center justify-between shadow-sm relative">
         
-        <!-- App Title Placeholder to balance flex layout -->
-        <div class="flex-1">
-            <span class="text-slate-500 font-black text-xs uppercase tracking-widest px-2 md:px-4"><i class="fa-solid fa-layer-group mr-1.5 text-blue-500"></i> SWA Tracker</span>
+        <!-- Left Section: Back Button & App Title -->
+        <div class="flex-1 flex items-center gap-2 md:gap-4 px-1 md:px-2">
+            <button onclick="handleAppBack()" class="w-10 h-10 rounded-full bg-white/70 border border-white/80 text-slate-600 flex items-center justify-center hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-all shadow-sm shrink-0" title="Back to Main Menu">
+                <i class="fa-solid fa-arrow-left text-sm"></i>
+            </button>
+            <span class="text-slate-500 font-black text-xs uppercase tracking-widest hidden sm:inline-block"><i class="fa-solid fa-layer-group mr-1.5 text-blue-500"></i> SWA Tracker</span>
         </div>
         
         <!-- Right Profile Section -->
@@ -187,8 +208,8 @@
     <main class="p-4 lg:p-6 2xl:p-10 flex-1 w-full mx-auto max-w-[1920px]">
         <div class="grid grid-cols-1 lg:grid-cols-12 xl:grid-cols-12 gap-6 xl:gap-8 items-start">
             
-            <!-- Left Panel: Configurations & Active Metrics -->
-            <div class="lg:col-span-4 xl:col-span-3 flex flex-col gap-5 lg:sticky lg:top-24">
+<!-- Left Panel: Configurations & Active Metrics -->
+            <div class="lg:col-span-4 xl:col-span-3 flex flex-col gap-5 lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto no-scrollbar pb-4">
                 
                 <!-- Contract Selector -->
                 <div class="bg-white/50 backdrop-blur-xl border border-white/60 rounded-3xl p-5 shadow-[0_8px_30px_rgba(0,0,0,0.05)] flex flex-col gap-3">
@@ -656,10 +677,23 @@
             }
         }
 
-        function executeParentBack() {
-            if (originalParentGoBack && window.parent && window.parent.PCMA) {
-                window.parent.PCMA.goBack = originalParentGoBack;
-                window.parent.PCMA.goBack();
+		function executeParentBack() {
+            try {
+                // Try to use the parent iframe routing if it exists
+                if (originalParentGoBack && window.parent && window.parent.PCMA) {
+                    window.parent.PCMA.goBack = originalParentGoBack;
+                    window.parent.PCMA.goBack();
+                    return;
+                }
+            } catch (e) {
+                // Ignore cross-origin frame blocks on local file:// execution
+            }
+            
+            // Fallback: Break out of the iframe to the TOP window to prevent nested iframe glitches
+            try {
+                window.top.location.href = 'index.html';
+            } catch (e) {
+                window.location.href = 'index.html';
             }
         }
 
@@ -2187,7 +2221,7 @@
             editorIsDirty = false;
         }
 
-        function saveItemsEditorChanges() {
+function saveItemsEditorChanges() {
             const tbody = document.getElementById('items-editor-table-body');
             const rows = tbody.querySelectorAll('tr');
             const rowNumber = appState.contractRowData.rowNumber;
@@ -2254,13 +2288,27 @@
                 workingParts[5] = String(toDate);
                 workingParts[6] = String(balance);
 
-                targetBuffer[cacheKey] = {
-                    colIndex: colIdx,
-                    colLetter: colToLetter(colIdx),
-                    rowNumber: rowNumber,
-                    headerName: appState.headers[colIdx] || `Item ${colIdx}`,
-                    parts: workingParts
-                };
+                // --- SMART COMPARISON (Only counts if you actually changed something) ---
+                const paddedCurrent = [...existingItem.parts];
+                while (paddedCurrent.length < expectedLength) paddedCurrent.push('0');
+
+                let isChanged = false;
+                for (let p = 0; p < expectedLength; p++) {
+                    if (String(workingParts[p]) !== String(paddedCurrent[p])) {
+                        isChanged = true;
+                        break;
+                    }
+                }
+
+                if (isChanged) {
+                    targetBuffer[cacheKey] = {
+                        colIndex: colIdx,
+                        colLetter: colToLetter(colIdx),
+                        rowNumber: rowNumber,
+                        headerName: appState.headers[colIdx] || `Item ${colIdx}`,
+                        parts: workingParts
+                    };
+                }
             }
 
             for (const key in targetBuffer) {
@@ -2273,7 +2321,12 @@
             renderItemsList();
 
             if (changesCount > 0) {
-                showToast("Items Updated", "Assigned item changes to local cache", "success");
+                showToast("Items Updated", "Preparing to synchronize changes...", "success");
+                setTimeout(() => {
+                    saveChanges();
+                }, 500);
+            } else {
+                showToast("No Changes", "No modifications were detected.", "success");
             }
         }
 
@@ -2327,7 +2380,7 @@
             return entries.map(e => `${e.name}|${e.date}`).join('|');
         }
 
-        async function saveChanges() {
+async function saveChanges() {
             const count = Object.keys(appState.modifiedCells).length;
             if (count === 0) return;
             
@@ -2341,11 +2394,41 @@
                 return;
             }
 
+            // --- SMART CHECK: Did they update the Monthly Quantity or Remarks? ---
+            let requiresRep = false;
+            let ntpOffset = 0;
+            if (appState.selectedContractId && appState.pdoLookupMap[appState.selectedContractId]) {
+                const ntpStr = appState.pdoLookupMap[appState.selectedContractId].ntp;
+                ntpOffset = parseNtpToOffset(ntpStr);
+            }
+            const monthDiff = appState.activeMonthOffset - ntpOffset;
+
+            for (const key in appState.modifiedCells) {
+                const item = appState.modifiedCells[key];
+                if (item.headerName === 'REMARKS') {
+                    requiresRep = true;
+                    break;
+                }
+                const originalVal = String(appState.contractRowData.values[item.colIndex] || '');
+                const originalParts = originalVal.split('|').map(p => p.trim());
+                if (monthDiff >= 0) {
+                    const targetIdx = 7 + monthDiff;
+                    const origQty = parseFloat(originalParts[targetIdx]) || 0;
+                    const newQty = parseFloat(item.parts[targetIdx]) || 0;
+                    // If the monthly quantity changed, we REQUIRE the representative
+                    if (origQty !== newQty) {
+                        requiresRep = true;
+                        break;
+                    }
+                }
+            }
+
             const nameSelector = document.getElementById('history-name-selector');
             const selectedName = nameSelector ? nameSelector.value : '';
 
-            if (!selectedName) {
-                showCustomAlert("Please select an Authorized Representative before synchronizing changes.");
+            // Block ONLY if monthly progress was updated but no rep is selected
+            if (requiresRep && !selectedName) {
+                showCustomAlert("Please select an Authorized Representative before synchronizing monthly progress (Qty) updates.");
                 return;
             }
 
@@ -2373,7 +2456,10 @@
                         const historyColLetter = colToLetter(historyColIdx);
                         const rowNum = appState.contractRowData.rowNumber;
                         const currentHistoryStr = appState.contractRowData.values[historyColIdx] || '';
-                        const updatedHistoryStr = getUpdatedHistoryString(currentHistoryStr, selectedName);
+                        
+                        // Use the logged in username in history if just updating structure without a rep
+                        const finalName = selectedName || appState.loggedInUser || 'System';
+                        const updatedHistoryStr = getUpdatedHistoryString(currentHistoryStr, finalName);
 
                         payload.push({
                             range: `SWA!${historyColLetter}${rowNum}`,

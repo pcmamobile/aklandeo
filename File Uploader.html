@@ -445,6 +445,12 @@
   <!-- FROZEN TOP NAVIGATION -->
   <div class="sticky-nav">
     <div class="header">
+      
+      <!-- Safe 3D Back Button -->
+      <button class="btn-3d" onclick="handleAppBack()" style="background: var(--primary-light); color: var(--text-primary); border: 2px solid var(--primary); padding: 10px 16px; font-size: 20px; box-shadow: 0 4px 0 var(--primary); border-radius: 16px; flex-shrink: 0;" title="Back to Main Menu">
+        ⬅️
+      </button>
+
       <img src="https://drive.google.com/thumbnail?id=1yMWBN28rT9vKGmMGxHNrexXVoYfayRTC&sz=s800" alt="Logo" class="hide-mobile">
       <div class="header-text">
         <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap; justify-content: inherit;">
@@ -1546,6 +1552,30 @@ i2e4E1vAOiqCrUlBSDcvD1r+/g==
     // --- REALTIME UPDATES ---
     let lastLogCount = -1;
     let pollInterval;
+
+
+/* ========================================================================= 
+     * SAFE NAVIGATION LOGIC
+     * ========================================================================= */
+    function handleAppBack() {
+      try {
+        // Try to use the parent iframe routing if it exists
+        if (window.parent && window.parent.PCMA && typeof window.parent.PCMA.goBack === 'function') {
+          window.parent.PCMA.goBack();
+          return;
+        }
+      } catch (e) {
+        // Ignore cross-origin frame blocks on local file:// execution
+      }
+      
+      // Fallback: Break out of the iframe to the TOP window to prevent nested iframe glitches
+      try {
+        window.top.location.href = 'index.html';
+      } catch (e) {
+        window.location.href = 'index.html';
+      }
+    }
+
 
     function forceReload() {
       document.getElementById('reloadBadge').classList.remove('show');

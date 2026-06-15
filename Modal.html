@@ -72,10 +72,20 @@
       border-bottom: 3px solid var(--pastel-purple-dark);
       box-shadow: 0 6px 15px rgba(192, 163, 230, 0.25);
     }
-    .pcma-modal-top > :not(.pcma-modal-top-cid):not(.view-toggle-btn) {
+.pcma-modal-top > :not(.pcma-modal-top-cid):not(.view-toggle-btn):not(.back-btn) {
       display: none !important;
     }
-    .pcma-modal-top-cid { 
+    .back-btn {
+      position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+      background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.5); border-radius: 8px;
+      color: white; width: 34px; height: 34px; padding: 4px;
+      display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;
+    }
+    .back-btn:hover { background: rgba(255,255,255,0.3); border-color: white; transform: translateY(-50%) scale(1.05); }
+    .back-btn:active { transform: translateY(-50%) scale(0.95); }
+    .back-btn svg { width: 22px; height: 22px; }
+
+    .pcma-modal-top-cid {
       flex: 1; text-align: center;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
       font-weight: 900; color: #fff; line-height: 1; 
@@ -369,8 +379,16 @@
 </head>
 <body>
 
+<body>
+
   <div class="pcma-modal-top">
+    <!-- Safe Back Button -->
+    <button class="back-btn" onclick="handleAppBack()" title="Back to Projects">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+    </button>
+
     <div id="pcmaModalCID" class="pcma-modal-top-cid">—</div>
+    
     <button id="viewToggleBtn" class="view-toggle-btn" onclick="toggleViewMode()" title="Toggle PC/Mobile View">
       <svg id="viewModeIcon" viewBox="0 0 24 24" fill="currentColor"></svg>
     </button>
@@ -967,6 +985,29 @@
         gridHtml += `</div>`;
         team.innerHTML = gridHtml;
         modalContent.appendChild(team);
+      }
+    }
+	
+	/* ========================================================================= 
+     * SAFE NAVIGATION LOGIC (RETURNS TO PROJECTS APP/FILTERS)
+     * ========================================================================= */
+    function handleAppBack() {
+      try {
+        // Safely send a message to index.html to go back to the Projects App.
+        // This completely bypasses the browser's local file:// security blocks!
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({ type: 'CLOSE_MODAL' }, '*');
+          return;
+        }
+      } catch (e) {
+        // Ignore cross-origin frame blocks
+      }
+      
+      // Fallback: If opened directly in a new browser tab instead of inside the app
+      try {
+        window.top.location.href = 'index.html';
+      } catch (e) {
+        window.location.href = 'index.html';
       }
     }
   </script>

@@ -125,10 +125,16 @@
 </head>
 <body class="p-4 md:p-8 min-h-screen flex flex-col items-center">
 
-    <!-- Header -->
-    <header class="w-full max-w-6xl text-center mb-4 md:mb-8 mt-4">
-        <h1 class="text-3xl md:text-6xl font-black mb-1 drop-shadow-lg text-transparent bg-clip-text bg-gradient-to-r from-neon-blue via-neon-purple to-neon-pink" style="filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));">
-            <i class="fa-solid fa-layer-group text-neon-blue mr-3"></i><span class="md:hidden">Monitoring</span><span class="hidden md:inline">Files to Upload</span>
+<!-- Header -->
+    <header class="w-full max-w-6xl mb-4 md:mb-8 mt-4 flex items-center justify-between px-2">
+        <!-- Safe 3D Back Button -->
+        <button onclick="handleAppBack()" class="btn-3d flex items-center justify-center w-12 h-12 md:w-14 md:h-14 bg-[#20202d] text-gray-400 hover:text-neon-pink hover:border-neon-pink transition-all shrink-0 z-10" title="Back to Main Menu">
+            <i class="fa-solid fa-arrow-left text-lg md:text-xl"></i>
+        </button>
+
+        <!-- Centered Title -->
+        <h1 class="text-3xl md:text-6xl font-black drop-shadow-lg text-transparent bg-clip-text bg-gradient-to-r from-neon-blue via-neon-purple to-neon-pink flex-1 text-center -ml-12 md:-ml-14" style="filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));">
+            <i class="fa-solid fa-layer-group text-neon-blue mr-3 hidden sm:inline-block"></i><span class="md:hidden">Monitoring</span><span class="hidden md:inline">Files to Upload</span>
         </h1>
     </header>
 
@@ -1085,6 +1091,29 @@
             if (data.status !== 'success') throw new Error(data.message || 'API error');
             return data;
         }
+
+		/* ========================================================================= 
+         * SAFE NAVIGATION LOGIC
+         * ========================================================================= */
+        function handleAppBack() {
+            try {
+                // Try to use the parent iframe routing if it exists
+                if (window.parent && window.parent.PCMA && typeof window.parent.PCMA.goBack === 'function') {
+                    window.parent.PCMA.goBack();
+                    return;
+                }
+            } catch (e) {
+                // Ignore cross-origin frame blocks on local file:// execution
+            }
+            
+            // Fallback: Break out of the iframe to the TOP window to prevent nested iframe glitches
+            try {
+                window.top.location.href = 'index.html';
+            } catch (e) {
+                window.location.href = 'index.html';
+            }
+        }
+
 
     </script>
 </body>

@@ -392,8 +392,20 @@
     <!--                UPLOAD VIEW                  -->
     <!-- ========================================== -->
     <div id="upload-view">
-      <div class="app-container">
-        <h2 class="app-title"><i class="fa-solid fa-cloud-arrow-up"></i> Upload Photos</h2>
+	<div class="app-container">
+        
+        <!-- Header Row with 3D Back Button -->
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 25px;">
+          <button onclick="handleAppBack()" class="btn-3d btn-grey" style="width: 42px; height: 42px; padding: 0; margin: 0; border-radius: 12px; flex-shrink: 0;" title="Back to Main Menu">
+            <i class="fa-solid fa-arrow-left" style="margin: 0; font-size: 18px;"></i>
+          </button>
+          
+          <h2 class="app-title" style="margin-bottom: 0; flex: 1; text-align: center; line-height: 1.1;">
+            <i class="fa-solid fa-cloud-arrow-up"></i> Upload Photos
+          </h2>
+          
+          <div style="width: 42px; flex-shrink: 0;"></div> <!-- Invisible Spacer for Perfect Centering -->
+        </div>
 
         <div class="input-group">
           <label for="cid">Contract ID:</label>
@@ -1060,6 +1072,29 @@
           return `<div class="photo-card"><a href="${f.url}" target="_blank" title="Click to view full size"><img src="${thumbUrl}" alt="${f.name}" class="photo-img" loading="lazy" onerror="this.src='https://via.placeholder.com/300?text=No+Preview'"></a><div class="photo-details"><div class="file-name" title="${f.name}"><i class="fa-regular fa-image icon-3d-purple"></i> ${f.name}</div><div class="actions"><a href="${f.url}" target="_blank" class="btn-view"><i class="fa-solid fa-eye"></i> View</a><a href="${f.downloadUrl}" class="btn-dl" download><i class="fa-solid fa-cloud-arrow-down"></i> Download</a></div></div></div>`;
         }).join('');
         return `<div class="category"><h3>${title}</h3><div class="photo-grid">${gridHtml}</div></div>`;
+      }
+	  
+/* ==========================================
+         SAFE NAVIGATION LOGIC (RETURNS TO MODAL)
+         ========================================== */
+      function handleAppBack() {
+        try {
+          // Safely send a message to index.html to close the upload screen 
+          // and return to the exact Modal you were just looking at!
+          if (window.parent && window.parent !== window) {
+            window.parent.postMessage({ type: 'CLOSE_MODAL' }, '*');
+            return;
+          }
+        } catch (e) {
+          // Ignore cross-origin frame blocks
+        }
+        
+        // Fallback: If opened directly in a new browser tab instead of inside the app
+        try {
+          window.top.location.href = 'index.html';
+        } catch (e) {
+          window.location.href = 'index.html';
+        }
       }
     </script>
   </body>
