@@ -715,19 +715,21 @@
         </div>
     </div>
 
-    <!-- WARNING MODAL (Appears on top of other modals) -->
+<!-- WARNING MODAL (Appears on top of other modals) -->
     <div id="warningModal" class="modal-overlay !z-[400]">
         <div class="box-3d bg-white/95 backdrop-blur-2xl w-full max-w-sm rounded-3xl flex flex-col border border-white/50 relative overflow-hidden transform scale-95 transition-transform duration-300" id="warningModalInner">
-            <div class="absolute -top-10 -right-10 w-32 h-32 bg-rose-500/10 rounded-bl-full pointer-events-none"></div>
+            <div id="warningModalBgDeco" class="absolute -top-10 -right-10 w-32 h-32 bg-rose-500/10 rounded-bl-full pointer-events-none"></div>
             <div class="p-6 sm:p-8 flex flex-col items-center text-center relative z-10">
-                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-rose-500 to-red-600 flex items-center justify-center shadow-lg shadow-rose-500/30 mb-4 animate-bounce">
+                <div id="warningModalIconContainer" class="w-16 h-16 rounded-2xl bg-gradient-to-br from-rose-500 to-red-600 flex items-center justify-center shadow-lg shadow-rose-500/30 mb-4 animate-bounce">
                     <i data-lucide="alert-triangle" class="w-8 h-8 text-white"></i>
                 </div>
-                <h2 class="font-black text-xl text-slate-800 dark:text-[#1e3a8a] tracking-tight mb-2">Attention Required</h2>
-                <p id="warningModalText" class="text-sm font-semibold text-slate-600 dark:text-[#ea580c] mb-6"></p>
-                <button type="button" onclick="closeWarningModal()" class="btn-3d w-full px-5 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-[#dbeafe] dark:hover:bg-[#93c5fd] text-slate-700 dark:text-[#1e3a8a] rounded-xl text-sm font-bold flex justify-center items-center gap-2 transition-colors focus:outline-none">
-                    <i data-lucide="x" class="w-4 h-4"></i> Close
-                </button>
+                <h2 id="warningModalTitle" class="font-black text-xl text-slate-800 dark:text-[#1e3a8a] tracking-tight mb-2">Attention Required</h2>
+                <div id="warningModalText" class="text-sm font-semibold text-slate-600 dark:text-[#ea580c] mb-6 w-full"></div>
+                <div id="warningModalBtnContainer" class="w-full flex gap-3">
+                    <button type="button" onclick="closeWarningModal()" class="btn-3d w-full px-5 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-[#dbeafe] dark:hover:bg-[#93c5fd] text-slate-700 dark:text-[#1e3a8a] rounded-xl text-sm font-bold flex justify-center items-center gap-2 transition-colors focus:outline-none">
+                        <i data-lucide="x" class="w-4 h-4"></i> Close
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -1031,10 +1033,44 @@
             lucide.createIcons();
         }
 
-        // === WARNING MODAL LOGIC ===
-        function showWarningModal(message) {
-            document.getElementById('warningModalText').textContent = message;
+// === WARNING MODAL LOGIC ===
+        let confirmCallback = null;
+
+        function showWarningModal(message, isConfirm = false, onConfirm = null) {
+            document.getElementById('warningModalText').innerHTML = message;
             const modal = document.getElementById('warningModal');
+            
+            const title = document.getElementById('warningModalTitle');
+            const iconContainer = document.getElementById('warningModalIconContainer');
+            const bgDeco = document.getElementById('warningModalBgDeco');
+            const btnContainer = document.getElementById('warningModalBtnContainer');
+
+            if (isConfirm) {
+                title.textContent = "Attention Required";
+                iconContainer.className = "w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30 mb-4 transform hover:scale-110 transition-transform";
+                iconContainer.innerHTML = '<i data-lucide="help-circle" class="w-8 h-8 text-white"></i>';
+                bgDeco.className = "absolute -top-10 -right-10 w-32 h-32 bg-indigo-500/10 rounded-bl-full pointer-events-none";
+                confirmCallback = onConfirm;
+                btnContainer.innerHTML = `
+                    <button type="button" onclick="closeWarningModal()" class="btn-3d flex-1 px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-[#dbeafe] dark:hover:bg-[#93c5fd] text-slate-700 dark:text-[#1e3a8a] rounded-xl text-sm font-bold flex justify-center items-center gap-2 transition-colors focus:outline-none">
+                        Cancel
+                    </button>
+                    <button type="button" onclick="executeWarningConfirm()" class="btn-3d flex-1 px-4 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl text-sm font-bold flex justify-center items-center gap-2 transition-colors focus:outline-none shadow-md">
+                        <i data-lucide="check-circle" class="w-4 h-4"></i> Confirm
+                    </button>
+                `;
+            } else {
+                title.textContent = "Attention Required";
+                iconContainer.className = "w-16 h-16 rounded-2xl bg-gradient-to-br from-rose-500 to-red-600 flex items-center justify-center shadow-lg shadow-rose-500/30 mb-4 animate-bounce";
+                iconContainer.innerHTML = '<i data-lucide="alert-triangle" class="w-8 h-8 text-white"></i>';
+                bgDeco.className = "absolute -top-10 -right-10 w-32 h-32 bg-rose-500/10 rounded-bl-full pointer-events-none";
+                btnContainer.innerHTML = `
+                    <button type="button" onclick="closeWarningModal()" class="btn-3d w-full px-5 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-[#dbeafe] dark:hover:bg-[#93c5fd] text-slate-700 dark:text-[#1e3a8a] rounded-xl text-sm font-bold flex justify-center items-center gap-2 transition-colors focus:outline-none">
+                        <i data-lucide="x" class="w-4 h-4"></i> Close
+                    </button>
+                `;
+            }
+
             modal.classList.add('show');
             const inner = document.getElementById('warningModalInner');
             if(inner) {
@@ -1042,6 +1078,14 @@
                 inner.classList.add('scale-100');
             }
             lucide.createIcons();
+        }
+
+        function executeWarningConfirm() {
+            closeWarningModal();
+            if (confirmCallback) {
+                // Wait for the modal close animation to finish smoothly
+                setTimeout(() => confirmCallback(), 300);
+            }
         }
 
         function closeWarningModal() {
@@ -2724,7 +2768,10 @@
             } 
         }
 
-        function submitModal() {
+function submitModal(isConfirmed = false) {
+            // Guard against the argument being passed as an Event object from UI clicks
+            if (typeof isConfirmed !== 'boolean') isConfirmed = false;
+
             const md = document.getElementById('modalMode').value;
             const cidEl = document.getElementById('f_contract_id');
             const cid = cidEl ? cidEl.value.trim() : ''; 
@@ -2739,6 +2786,43 @@
             
             if(md === 'ADD' && pdoRecords.some(p => p.id.toUpperCase() === cid.toUpperCase())) {
                 if(err) { err.innerHTML = `<i data-lucide="alert-octagon" class="w-4 h-4"></i> Contract ID already exists`; err.classList.remove('hidden'); lucide.createIcons(); }
+                return;
+            }
+
+            // --- CONFIRMATION MODAL INTERCEPT ---
+            if (!isConfirmed) {
+                const contractorEl = document.getElementById('f_contractor');
+                const peEl = document.getElementById('f_pe');
+                
+                const contractor = contractorEl ? contractorEl.value.trim() : 'N/A';
+                const pe = peEl ? peEl.value.trim() : 'N/A';
+                const projectName = nameEl.value.trim();
+
+                const actionText = md === 'ADD' ? 'save a new' : 'update this';
+
+                const confirmMsg = `
+                    <div class="mb-4 text-slate-700 dark:text-[#ea580c] font-bold text-center">Please verify if the record you are about to ${actionText} is correct:</div>
+                    <div class="text-left bg-slate-50 dark:bg-[#ffedd5]/80 p-4 rounded-xl border border-slate-200 dark:border-[#fdba74] space-y-3 text-sm shadow-inner overflow-hidden mb-2">
+                        <div>
+                            <span class="text-[10px] uppercase font-black text-indigo-500 tracking-widest flex items-center gap-1.5"><i data-lucide="fingerprint" class="w-3.5 h-3.5"></i> Contract ID</span>
+                            <div class="font-bold text-slate-800 dark:text-[#1e3a8a] pl-5">${cid}</div>
+                        </div>
+                        <div>
+                            <span class="text-[10px] uppercase font-black text-indigo-500 tracking-widest flex items-center gap-1.5"><i data-lucide="briefcase" class="w-3.5 h-3.5"></i> Project Name</span>
+                            <div class="font-bold text-slate-800 dark:text-[#1e3a8a] pl-5 line-clamp-2" title="${projectName}">${projectName}</div>
+                        </div>
+                        <div>
+                            <span class="text-[10px] uppercase font-black text-indigo-500 tracking-widest flex items-center gap-1.5"><i data-lucide="hard-hat" class="w-3.5 h-3.5"></i> Contractor</span>
+                            <div class="font-bold text-slate-800 dark:text-[#1e3a8a] pl-5 truncate" title="${contractor}">${contractor || '<span class="text-slate-400 italic">None Specified</span>'}</div>
+                        </div>
+                        <div>
+                            <span class="text-[10px] uppercase font-black text-indigo-500 tracking-widest flex items-center gap-1.5"><i data-lucide="user-cog" class="w-3.5 h-3.5"></i> Project Engineer (PE)</span>
+                            <div class="font-bold text-slate-800 dark:text-[#1e3a8a] pl-5 truncate" title="${pe}">${pe || '<span class="text-slate-400 italic">None Specified</span>'}</div>
+                        </div>
+                    </div>
+                `;
+                
+                showWarningModal(confirmMsg, true, () => submitModal(true));
                 return;
             }
             
