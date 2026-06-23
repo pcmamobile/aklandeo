@@ -51,6 +51,15 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
         
+        /* === GLOBAL RESPONSIVE SCALING FIX === 
+           This dynamically shrinks the interface on lower resolutions (1280x1024, etc.) 
+           so it mimics exactly what you see on your 2560x1600 monitor. */
+        @media (max-width: 1600px) { html { font-size: 15px; } }
+        @media (max-width: 1440px) { html { font-size: 14px; } }
+        @media (max-width: 1280px) { html { font-size: 13px; } }
+        @media (max-width: 1024px) { html { font-size: 12px; } }
+        /* ===================================== */
+
         :root { --brightness: 100%; }
         body { 
             filter: brightness(var(--brightness)); 
@@ -177,7 +186,7 @@
         }
         .flatpickr-calendar.arrowTop:before, .flatpickr-calendar.arrowTop:after,
         .flatpickr-calendar.arrowBottom:before, .flatpickr-calendar.arrowBottom:after {
-            display: none !important; /* Hide arrows for a cleaner floating look */
+            display: none !important;
         }
 
         /* Standard CSS Animations */
@@ -204,7 +213,7 @@
 </head>
 <body class="bg-slate-100 dark:bg-transparent text-slate-800 dark:text-[#1e3a8a] font-['Nunito'] min-h-screen relative overflow-x-hidden transition-colors duration-500">
 
-    <!-- Ambient 3D Animated Background (Hidden in Dark Mode to reveal the body gradient) -->
+    <!-- Ambient 3D Animated Background -->
     <div class="fixed inset-0 overflow-hidden pointer-events-none z-[-1] dark:opacity-0 transition-opacity duration-500">
         <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-purple-400/30 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
         <div class="absolute top-[20%] right-[-10%] w-96 h-96 bg-indigo-400/30 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob" style="animation-delay: 2s;"></div>
@@ -339,8 +348,9 @@
                 </div>
 
                 <!-- BOTTOM ROW: Filters & Record Count -->
+                <!-- CHANGED grid breakpoint from md: to lg: for better scaling on 1280px -->
                 <div class="flex items-center justify-between gap-6 border-t border-slate-200/50 dark:border-[#93c5fd]/50 pt-3">
-                    <div class="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                    <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
                         <div class="relative w-full group">
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
@@ -375,7 +385,7 @@
                     </div>
 
                     <!-- Record Badge -->
-                    <div class="shrink-0 hidden md:block">
+                    <div class="shrink-0 hidden lg:block">
                         <span id="rowCountBadge" class="flex items-center gap-1.5 text-xs font-bold bg-indigo-100 dark:bg-[#e0f2fe] text-indigo-700 dark:text-[#0284c7] px-4 py-2 rounded-xl shadow-inner border border-indigo-200 dark:border-[#7dd3fc]">
                             <i data-lucide="database" class="w-4 h-4"></i> 0 Records
                         </span>
@@ -436,6 +446,7 @@
             </div>
         </main>
     </div> <!-- END APP WRAPPER -->
+
 	<!-- Change Password Modal 3D -->
     <div id="passwordModal" class="modal-overlay">
         <div class="box-3d bg-white/95 backdrop-blur-2xl w-full max-w-md rounded-3xl flex flex-col border border-white/50 relative overflow-hidden transform scale-95 transition-transform duration-300" id="passModalInner">
@@ -545,7 +556,7 @@
                             <i data-lucide="file-badge-2" class="w-5 h-5 text-indigo-500"></i>
                             <span class="text-sm font-black text-indigo-600 dark:text-[#3b82f6] uppercase tracking-widest">Primary Data Outline</span>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                             <div class="flex flex-col gap-1.5 group">
                                 <label class="input-label text-indigo-600 dark:text-[#3b82f6]"><i data-lucide="hash" class="w-3.5 h-3.5"></i> Contract ID</label>
                                 <input type="text" id="f_contract_id" required class="input-field w-full text-lg text-indigo-700 dark:text-[#3b82f6]">
@@ -558,7 +569,7 @@
                                 <label class="input-label text-indigo-600 dark:text-[#3b82f6]"><i data-lucide="coins" class="w-3.5 h-3.5"></i> Contract Cost</label>
                                 <input type="text" id="f_cost" class="input-field w-full font-mono" onblur="this.value = toCurrencyFormat(this.value)">
                             </div>
-                            <div class="flex flex-col gap-1.5 md:col-span-2">
+                            <div class="flex flex-col gap-1.5 lg:col-span-2">
                                 <label class="input-label text-indigo-600 dark:text-[#3b82f6]"><i data-lucide="type" class="w-3.5 h-3.5"></i> Project Name</label>
                                 <input type="text" id="f_name" required class="input-field w-full text-base">
                             </div>
@@ -566,7 +577,7 @@
                                 <label class="input-label text-indigo-600 dark:text-[#3b82f6]"><i data-lucide="landmark" class="w-3.5 h-3.5"></i> ABC</label>
                                 <input type="text" id="f_abc" class="input-field w-full font-mono" onblur="this.value = toCurrencyFormat(this.value)">
                             </div>
-                            <div class="flex flex-col gap-1.5 md:col-span-3">
+                            <div class="flex flex-col gap-1.5 lg:col-span-3">
                                 <label class="input-label text-indigo-600 dark:text-[#3b82f6]"><i data-lucide="map-pin" class="w-3.5 h-3.5"></i> Location</label>
                                 <input type="text" id="f_location" class="input-field w-full">
                             </div>
@@ -581,8 +592,8 @@
                         </div>
 
                         <!-- Dropdowns -->
-                        <div class="pt-6 mt-2 border-t border-slate-200 dark:border-[#fdba74] grid grid-cols-2 md:grid-cols-4 gap-6">
-                            <div class="flex flex-col gap-1.5 md:col-span-2">
+                        <div class="pt-6 mt-2 border-t border-slate-200 dark:border-[#fdba74] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <div class="flex flex-col gap-1.5 lg:col-span-2">
                                 <label class="input-label text-indigo-600 dark:text-[#3b82f6]"><i data-lucide="hard-hat" class="w-3.5 h-3.5"></i> Contractor</label>
                                 <input type="text" id="f_contractor" list="dl_contractors" class="input-field w-full">
                             </div>
@@ -618,7 +629,7 @@
                         <div class="glass-panel p-6 sm:p-8 rounded-2xl relative overflow-hidden border-t-4 border-t-red-500 shadow-[0_8px_30px_rgba(239,68,68,0.1)] dark:shadow-[0_8px_30px_rgba(194,65,12,0.2)]">
                             <div class="absolute -right-10 -top-10 text-red-500/5 rotate-12 pointer-events-none"><i data-lucide="gavel" class="w-48 h-48"></i></div>
                             <span class="text-sm font-black text-red-600 dark:text-[#c2410c] uppercase tracking-widest block border-b border-red-200 dark:border-[#fb923c] pb-3 mb-6 flex items-center gap-2 relative z-10"><i data-lucide="gavel" class="w-5 h-5"></i> Bidding Timeline</span>
-                            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 relative z-10">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 relative z-10">
                                 <div class="flex flex-col gap-1.5"><label class="input-label text-red-600 dark:text-[#c2410c]"><i data-lucide="megaphone" class="w-3 h-3"></i> Date of Posting</label><input type="text" placeholder="MMMM DD, YYYY" id="d_posting" class="input-field w-full date-input border-red-200 dark:border-[#fb923c] focus:ring-red-500 bg-white/50"></div>
                                 <div class="flex flex-col gap-1.5"><label class="input-label text-red-600 dark:text-[#0284c7]"><i data-lucide="folder-open" class="w-3 h-3"></i> Date of Bid opening</label><input type="text" placeholder="MMMM DD, YYYY" id="d_opening" class="input-field w-full date-input border-red-200 dark:border-[#fb923c] focus:ring-red-500 bg-white/50"></div>
                                 <div class="flex flex-col gap-1.5"><label class="input-label text-red-600 dark:text-[#c2410c]"><i data-lucide="award" class="w-3 h-3"></i> Date of Award</label><input type="text" placeholder="MMMM DD, YYYY" id="d_award" class="input-field w-full date-input border-red-200 dark:border-[#fb923c] focus:ring-red-500 bg-white/50"></div>
@@ -629,7 +640,7 @@
                         <div class="glass-panel p-6 sm:p-8 rounded-2xl relative overflow-hidden border-t-4 border-t-emerald-500 shadow-[0_8px_30px_rgba(16,185,129,0.1)] dark:shadow-[0_8px_30px_rgba(16,185,129,0.2)]">
                             <div class="absolute -right-10 -top-10 text-emerald-500/5 rotate-12 pointer-events-none"><i data-lucide="check-circle-2" class="w-48 h-48"></i></div>
                             <span class="text-sm font-black text-emerald-600 dark:text-[#0284c7] uppercase tracking-widest block border-b border-emerald-200 dark:border-[#7dd3fc] pb-3 mb-6 flex items-center gap-2 relative z-10"><i data-lucide="check-circle-2" class="w-5 h-5"></i> Completion Milestones</span>
-                            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 relative z-10">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 relative z-10">
                                 <div class="flex flex-col gap-1.5"><label class="input-label text-emerald-700 dark:text-[#0284c7]"><i data-lucide="list-checks" class="w-3 h-3"></i> Punchlist (95%)</label><input type="text" placeholder="MMMM DD, YYYY" id="d_p95" class="input-field w-full date-input border-emerald-200 dark:border-[#7dd3fc] focus:ring-emerald-500 bg-white/50"></div>
                                 <div class="flex flex-col gap-1.5"><label class="input-label text-emerald-700 dark:text-[#0284c7]"><i data-lucide="file-check" class="w-3 h-3"></i> Cert Correction (95%)</label><input type="text" placeholder="MMMM DD, YYYY" id="d_c95" class="input-field w-full date-input border-emerald-200 dark:border-[#7dd3fc] focus:ring-emerald-500 bg-white/50"></div>
                                 <div class="flex flex-col gap-1.5"><label class="input-label text-emerald-700 dark:text-[#0284c7]"><i data-lucide="list-todo" class="w-3 h-3"></i> Punchlist (Comp)</label><input type="text" placeholder="MMMM DD, YYYY" id="d_pcomp" class="input-field w-full date-input border-emerald-200 dark:border-[#7dd3fc] focus:ring-emerald-500 bg-white/50"></div>
@@ -644,12 +655,12 @@
                         <div class="glass-panel p-6 sm:p-8 rounded-2xl relative overflow-hidden border-t-4 border-t-blue-500 shadow-[0_8px_30px_rgba(59,130,246,0.1)] dark:shadow-[0_8px_30px_rgba(59,130,246,0.2)]">
                             <div class="absolute -right-10 -top-10 text-blue-500/5 rotate-12 pointer-events-none"><i data-lucide="badge-check" class="w-48 h-48"></i></div>
                             <span class="text-sm font-black text-blue-600 dark:text-[#3b82f6] uppercase tracking-widest block border-b border-blue-200 dark:border-[#93c5fd] pb-3 mb-6 flex items-center gap-2 relative z-10"><i data-lucide="badge-check" class="w-5 h-5"></i> Acceptance & Turnover</span>
-                            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 relative z-10">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 relative z-10">
                                 <div class="flex flex-col gap-1.5">
                                     <label class="input-label text-blue-500 dark:text-[#3b82f6]"><i data-lucide="bell-ring" class="w-3 h-3"></i> Notification Letter</label>
                                     <input type="text" placeholder="MMMM DD, YYYY" id="d_notif" onchange="toggleFollowUpVisibility(this.value)" class="input-field w-full date-input border-blue-200 dark:border-[#93c5fd] focus:ring-blue-500 bg-white/50">
                                 </div>
-                                <div id="followUpWrapper" class="col-span-3 hidden bg-white/30 dark:bg-white/40 p-4 rounded-xl border border-blue-200/60 dark:border-[#93c5fd] shadow-inner">
+                                <div id="followUpWrapper" class="md:col-span-2 xl:col-span-3 hidden bg-white/30 dark:bg-white/40 p-4 rounded-xl border border-blue-200/60 dark:border-[#93c5fd] shadow-inner">
                                     <div class="flex items-center justify-between mb-3 border-b border-blue-100 dark:border-[#93c5fd] pb-2">
                                         <label class="input-label text-blue-600 dark:text-[#3b82f6] m-0"><i data-lucide="mails" class="w-3 h-3"></i> Follow Up Letters</label>
                                         <button type="button" onclick="addFollowUpRow()" class="btn-3d text-[10px] font-bold text-white bg-blue-500 hover:bg-blue-600 px-3 py-1 rounded-lg flex items-center gap-1"><i data-lucide="plus" class="w-3 h-3"></i> ADD DATE</button>
@@ -657,7 +668,7 @@
                                     <div id="followUpList" class="flex flex-wrap gap-3"></div>
                                 </div>
                                 <div class="flex flex-col gap-1.5"><label class="input-label text-blue-500 dark:text-[#3b82f6]"><i data-lucide="clipboard-list" class="w-3 h-3"></i> Punchlist (1Y DLP)</label><input type="text" placeholder="MMMM DD, YYYY" id="d_p1y" class="input-field w-full date-input border-blue-200 dark:border-[#93c5fd] focus:ring-blue-500 bg-white/50"></div>
-                                <div class="flex flex-col gap-1.5 col-span-2">
+                                <div class="flex flex-col gap-1.5 md:col-span-2 xl:col-span-2">
                                     <label class="input-label text-blue-500 dark:text-[#3b82f6]"><i data-lucide="message-square-dashed" class="w-3 h-3"></i> Remarks (With/Without Defects)</label>
                                     <div class="flex items-center gap-3">
                                         <select id="d_rem_opt" onchange="toggleRemarksVisibility(this.value, true)" class="input-field w-full md:w-1/3 border-blue-200 dark:border-[#93c5fd] focus:ring-blue-500">
@@ -707,16 +718,18 @@
     <!-- WARNING MODAL (Appears on top of other modals) -->
     <div id="warningModal" class="modal-overlay !z-[400]">
         <div class="box-3d bg-white/95 backdrop-blur-2xl w-full max-w-sm rounded-3xl flex flex-col border border-white/50 relative overflow-hidden transform scale-95 transition-transform duration-300" id="warningModalInner">
-            <div class="absolute -top-10 -right-10 w-32 h-32 bg-rose-500/10 rounded-bl-full pointer-events-none"></div>
+            <div id="warningModalBgDeco" class="absolute -top-10 -right-10 w-32 h-32 bg-rose-500/10 rounded-bl-full pointer-events-none"></div>
             <div class="p-6 sm:p-8 flex flex-col items-center text-center relative z-10">
-                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-rose-500 to-red-600 flex items-center justify-center shadow-lg shadow-rose-500/30 mb-4 animate-bounce">
+                <div id="warningModalIconContainer" class="w-16 h-16 rounded-2xl bg-gradient-to-br from-rose-500 to-red-600 flex items-center justify-center shadow-lg shadow-rose-500/30 mb-4 animate-bounce">
                     <i data-lucide="alert-triangle" class="w-8 h-8 text-white"></i>
                 </div>
-                <h2 class="font-black text-xl text-slate-800 dark:text-[#1e3a8a] tracking-tight mb-2">Attention Required</h2>
-                <p id="warningModalText" class="text-sm font-semibold text-slate-600 dark:text-[#ea580c] mb-6"></p>
-                <button type="button" onclick="closeWarningModal()" class="btn-3d w-full px-5 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-[#dbeafe] dark:hover:bg-[#93c5fd] text-slate-700 dark:text-[#1e3a8a] rounded-xl text-sm font-bold flex justify-center items-center gap-2 transition-colors focus:outline-none">
-                    <i data-lucide="x" class="w-4 h-4"></i> Close
-                </button>
+                <h2 id="warningModalTitle" class="font-black text-xl text-slate-800 dark:text-[#1e3a8a] tracking-tight mb-2">Attention Required</h2>
+                <div id="warningModalText" class="text-sm font-semibold text-slate-600 dark:text-[#ea580c] mb-6 w-full"></div>
+                <div id="warningModalBtnContainer" class="w-full flex gap-3">
+                    <button type="button" onclick="closeWarningModal()" class="btn-3d w-full px-5 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-[#dbeafe] dark:hover:bg-[#93c5fd] text-slate-700 dark:text-[#1e3a8a] rounded-xl text-sm font-bold flex justify-center items-center gap-2 transition-colors focus:outline-none">
+                        <i data-lucide="x" class="w-4 h-4"></i> Close
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -1021,9 +1034,43 @@
         }
 
         // === WARNING MODAL LOGIC ===
-        function showWarningModal(message) {
-            document.getElementById('warningModalText').textContent = message;
+        let confirmCallback = null;
+
+        function showWarningModal(message, isConfirm = false, onConfirm = null) {
+            document.getElementById('warningModalText').innerHTML = message;
             const modal = document.getElementById('warningModal');
+            
+            const title = document.getElementById('warningModalTitle');
+            const iconContainer = document.getElementById('warningModalIconContainer');
+            const bgDeco = document.getElementById('warningModalBgDeco');
+            const btnContainer = document.getElementById('warningModalBtnContainer');
+
+            if (isConfirm) {
+                title.textContent = "Attention Required";
+                iconContainer.className = "w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30 mb-4 transform hover:scale-110 transition-transform";
+                iconContainer.innerHTML = '<i data-lucide="help-circle" class="w-8 h-8 text-white"></i>';
+                bgDeco.className = "absolute -top-10 -right-10 w-32 h-32 bg-indigo-500/10 rounded-bl-full pointer-events-none";
+                confirmCallback = onConfirm;
+                btnContainer.innerHTML = `
+                    <button type="button" onclick="closeWarningModal()" class="btn-3d flex-1 px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-[#dbeafe] dark:hover:bg-[#93c5fd] text-slate-700 dark:text-[#1e3a8a] rounded-xl text-sm font-bold flex justify-center items-center gap-2 transition-colors focus:outline-none">
+                        Cancel
+                    </button>
+                    <button type="button" onclick="executeWarningConfirm()" class="btn-3d flex-1 px-4 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl text-sm font-bold flex justify-center items-center gap-2 transition-colors focus:outline-none shadow-md">
+                        <i data-lucide="check-circle" class="w-4 h-4"></i> Confirm
+                    </button>
+                `;
+            } else {
+                title.textContent = "Attention Required";
+                iconContainer.className = "w-16 h-16 rounded-2xl bg-gradient-to-br from-rose-500 to-red-600 flex items-center justify-center shadow-lg shadow-rose-500/30 mb-4 animate-bounce";
+                iconContainer.innerHTML = '<i data-lucide="alert-triangle" class="w-8 h-8 text-white"></i>';
+                bgDeco.className = "absolute -top-10 -right-10 w-32 h-32 bg-rose-500/10 rounded-bl-full pointer-events-none";
+                btnContainer.innerHTML = `
+                    <button type="button" onclick="closeWarningModal()" class="btn-3d w-full px-5 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-[#dbeafe] dark:hover:bg-[#93c5fd] text-slate-700 dark:text-[#1e3a8a] rounded-xl text-sm font-bold flex justify-center items-center gap-2 transition-colors focus:outline-none">
+                        <i data-lucide="x" class="w-4 h-4"></i> Close
+                    </button>
+                `;
+            }
+
             modal.classList.add('show');
             const inner = document.getElementById('warningModalInner');
             if(inner) {
@@ -1031,6 +1078,16 @@
                 inner.classList.add('scale-100');
             }
             lucide.createIcons();
+        }
+
+        function executeWarningConfirm() {
+            closeWarningModal();
+            if (confirmCallback) {
+                // Wait for the modal close animation to finish smoothly
+                setTimeout(() => {
+                    confirmCallback();
+                }, 300);
+            }
         }
 
         function closeWarningModal() {
@@ -1060,7 +1117,7 @@
                     
                     if (caDate < minCaDate) {
                         // Display the Warning Modal Popup
-                        showWarningModal("Date of CA is less than 1 year from Completion Date. Please verify the 1-Year Defects Liability Period.");
+                        showWarningModal("<div class='text-center mt-2'>Date of CA is less than 1 year from Completion Date. Please verify the 1-Year Defects Liability Period.</div>", false);
                         
                         // Visually highlight the Date of CA Input Field with Red Border
                         const caInput = document.getElementById('d_ca');
@@ -1420,11 +1477,11 @@
                     </div>
                     <div class="space-y-8">`;
                 for(let i=1; i<=5; i++) {
-                    voHTML += `<div id="vo_block_${i}" class="grid grid-cols-1 md:grid-cols-12 gap-6 p-5 bg-slate-50/50 dark:bg-white/40 rounded-xl border border-slate-100 dark:border-[#93c5fd] shadow-[inset_0_2px_4px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_2px_4px_rgba(30,58,138,0.05)] ${i>1 ? 'hidden' : ''}">
-                        <div class="flex flex-col gap-1.5 md:col-span-2"><label class="${CLS_LABEL}"><i data-lucide="hash" class="w-3 h-3"></i> VO${i}</label><input type="text" id="f_vo${i}" onblur="this.value = toCurrencyFormat(this.value)" class="${CLS_INPUT}"></div>
-                        <div class="flex flex-col gap-1.5 md:col-span-2"><label class="${CLS_LABEL}"><i data-lucide="calendar" class="w-3 h-3"></i> VO${i} Date</label><input type="text" placeholder="MMMM DD, YYYY" id="f_vo${i}_date" class="${CLS_INPUT} date-input bg-white/50"></div>
-                        <div class="flex flex-col gap-1.5 md:col-span-2"><label class="${CLS_LABEL}"><i data-lucide="clock-9" class="w-3 h-3"></i> VO${i} Add. Days</label><input type="number" id="f_vo${i}_days" class="${CLS_INPUT}"></div>
-                        <div class="flex flex-col gap-1.5 md:col-span-6"><label class="${CLS_LABEL}"><i data-lucide="message-square" class="w-3 h-3"></i> VO${i} Remarks</label><textarea id="f_vo${i}_rem" class="${CLS_INPUT} resize-y" rows="2"></textarea></div>
+                    voHTML += `<div id="vo_block_${i}" class="grid grid-cols-1 lg:grid-cols-12 gap-5 p-5 bg-slate-50/50 dark:bg-white/40 rounded-xl border border-slate-100 dark:border-[#93c5fd] shadow-[inset_0_2px_4px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_2px_4px_rgba(30,58,138,0.05)] ${i>1 ? 'hidden' : ''}">
+                        <div class="flex flex-col gap-1.5 lg:col-span-2"><label class="${CLS_LABEL}"><i data-lucide="hash" class="w-3 h-3"></i> VO${i}</label><input type="text" id="f_vo${i}" onblur="this.value = toCurrencyFormat(this.value)" class="${CLS_INPUT}"></div>
+                        <div class="flex flex-col gap-1.5 lg:col-span-2"><label class="${CLS_LABEL}"><i data-lucide="calendar" class="w-3 h-3"></i> VO${i} Date</label><input type="text" placeholder="MMMM DD, YYYY" id="f_vo${i}_date" class="${CLS_INPUT} date-input bg-white/50"></div>
+                        <div class="flex flex-col gap-1.5 lg:col-span-2"><label class="${CLS_LABEL}"><i data-lucide="clock-9" class="w-3 h-3"></i> VO${i} Add. Days</label><input type="number" id="f_vo${i}_days" class="${CLS_INPUT}"></div>
+                        <div class="flex flex-col gap-1.5 lg:col-span-6"><label class="${CLS_LABEL}"><i data-lucide="message-square" class="w-3 h-3"></i> VO${i} Remarks</label><textarea id="f_vo${i}_rem" class="${CLS_INPUT} resize-y" rows="2"></textarea></div>
                     </div>`;
                 }
                 voHTML += `</div><div class="pt-5 mt-2 border-t border-slate-200 dark:border-[#93c5fd]"><button type="button" id="btn_add_vo" onclick="unhideNextVO()" class="btn-3d text-[10px] font-bold text-white bg-indigo-500 hover:bg-indigo-600 px-4 py-2 rounded-lg flex items-center gap-1.5"><i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> ADD VARIATION ORDER</button></div></div>`;
@@ -1440,11 +1497,11 @@
                     </div>
                     <div class="space-y-8">`;
                 for(let i=1; i<=4; i++) {
-                    wsoHTML += `<div id="wso_block_${i}" class="grid grid-cols-1 md:grid-cols-12 gap-6 p-5 bg-amber-50/30 dark:bg-white/40 rounded-xl border border-amber-100 dark:border-[#93c5fd] shadow-[inset_0_2px_4px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_2px_4px_rgba(30,58,138,0.05)] ${i>1 ? 'hidden' : ''}">
-                        <div class="flex flex-col gap-1.5 md:col-span-2"><label class="${CLS_LABEL.replace('text-indigo-600', 'text-amber-600').replace('dark:text-[#3b82f6]', 'dark:text-[#d97706]')}"><i data-lucide="calendar-off" class="w-3 h-3"></i> WSO${i} Date</label><input type="text" placeholder="MMMM DD, YYYY" id="f_wso${i}_date" class="${CLS_INPUT} date-input bg-white/50 focus:ring-amber-500"></div>
-                        <div class="flex flex-col gap-1.5 md:col-span-6"><label class="${CLS_LABEL.replace('text-indigo-600', 'text-amber-600').replace('dark:text-[#3b82f6]', 'dark:text-[#d97706]')}"><i data-lucide="help-circle" class="w-3 h-3"></i> WSO${i} Reason</label><textarea id="f_wso${i}_rsn" class="${CLS_INPUT} focus:ring-amber-500 resize-y" rows="2"></textarea></div>
-                        <div class="flex flex-col gap-1.5 md:col-span-2"><label class="${CLS_LABEL.replace('text-indigo-600', 'text-emerald-600').replace('dark:text-[#3b82f6]', 'dark:text-[#0284c7]')}"><i data-lucide="calendar-check" class="w-3 h-3"></i> CWSO${i}a Date</label><input type="text" placeholder="MMMM DD, YYYY" id="f_cwso${i}a_date" class="${CLS_INPUT} date-input bg-white/50 focus:ring-emerald-500"></div>
-                        <div class="flex flex-col gap-1.5 md:col-span-2"><label class="${CLS_LABEL.replace('text-indigo-600', 'text-emerald-600').replace('dark:text-[#3b82f6]', 'dark:text-[#0284c7]')}"><i data-lucide="play-circle" class="w-3 h-3"></i> WRO${i} Date</label><input type="text" placeholder="MMMM DD, YYYY" id="f_wro${i}_date" class="${CLS_INPUT} date-input bg-white/50 focus:ring-emerald-500"></div>
+                    wsoHTML += `<div id="wso_block_${i}" class="grid grid-cols-1 lg:grid-cols-12 gap-5 p-5 bg-amber-50/30 dark:bg-white/40 rounded-xl border border-amber-100 dark:border-[#93c5fd] shadow-[inset_0_2px_4px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_2px_4px_rgba(30,58,138,0.05)] ${i>1 ? 'hidden' : ''}">
+                        <div class="flex flex-col gap-1.5 lg:col-span-2"><label class="${CLS_LABEL.replace('text-indigo-600', 'text-amber-600').replace('dark:text-[#3b82f6]', 'dark:text-[#d97706]')}"><i data-lucide="calendar-off" class="w-3 h-3"></i> WSO${i} Date</label><input type="text" placeholder="MMMM DD, YYYY" id="f_wso${i}_date" class="${CLS_INPUT} date-input bg-white/50 focus:ring-amber-500"></div>
+                        <div class="flex flex-col gap-1.5 lg:col-span-6"><label class="${CLS_LABEL.replace('text-indigo-600', 'text-amber-600').replace('dark:text-[#3b82f6]', 'dark:text-[#d97706]')}"><i data-lucide="help-circle" class="w-3 h-3"></i> WSO${i} Reason</label><textarea id="f_wso${i}_rsn" class="${CLS_INPUT} focus:ring-amber-500 resize-y" rows="2"></textarea></div>
+                        <div class="flex flex-col gap-1.5 lg:col-span-2"><label class="${CLS_LABEL.replace('text-indigo-600', 'text-emerald-600').replace('dark:text-[#3b82f6]', 'dark:text-[#0284c7]')}"><i data-lucide="calendar-check" class="w-3 h-3"></i> CWSO${i}a Date</label><input type="text" placeholder="MMMM DD, YYYY" id="f_cwso${i}a_date" class="${CLS_INPUT} date-input bg-white/50 focus:ring-emerald-500"></div>
+                        <div class="flex flex-col gap-1.5 lg:col-span-2"><label class="${CLS_LABEL.replace('text-indigo-600', 'text-emerald-600').replace('dark:text-[#3b82f6]', 'dark:text-[#0284c7]')}"><i data-lucide="play-circle" class="w-3 h-3"></i> WRO${i} Date</label><input type="text" placeholder="MMMM DD, YYYY" id="f_wro${i}_date" class="${CLS_INPUT} date-input bg-white/50 focus:ring-emerald-500"></div>
                     </div>`;
                 }
                 wsoHTML += `</div><div class="pt-5 mt-2 border-t border-slate-200 dark:border-[#93c5fd]"><button type="button" id="btn_add_wso" onclick="unhideNextWSO()" class="btn-3d text-[10px] font-bold text-white bg-amber-500 hover:bg-amber-600 px-4 py-2 rounded-lg flex items-center gap-1.5"><i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> ADD WSO</button></div></div>`;
@@ -1454,11 +1511,11 @@
                         <i data-lucide="timer" class="w-5 h-5 text-indigo-500"></i>
                         <span class="text-sm font-black text-indigo-600 dark:text-[#3b82f6] uppercase tracking-widest block">Contract Time Extensions (CTE)</span>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">`;
+                    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">`;
                 for(let i=1; i<=20; i++) {
-                    cteHTML += `<div id="cte_block_${i}" class="grid grid-cols-1 md:grid-cols-12 gap-4 p-4 bg-slate-50/50 dark:bg-white/40 rounded-xl border border-slate-100 dark:border-[#93c5fd] shadow-[inset_0_2px_4px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_2px_4px_rgba(30,58,138,0.05)] ${i>1 ? 'hidden' : ''}">
-                        <div class="flex flex-col gap-1.5 md:col-span-3"><label class="${CLS_LABEL}"><i data-lucide="plus-square" class="w-3 h-3"></i> CTE${i}</label><input type="text" id="f_cte${i}" class="${CLS_INPUT}"></div>
-                        <div class="flex flex-col gap-1.5 md:col-span-9"><label class="${CLS_LABEL}"><i data-lucide="message-square" class="w-3 h-3"></i> CTE${i} Remarks</label><textarea id="f_cte${i}_rem" class="${CLS_INPUT} resize-y" rows="2"></textarea></div>
+                    cteHTML += `<div id="cte_block_${i}" class="grid grid-cols-1 lg:grid-cols-12 gap-4 p-4 bg-slate-50/50 dark:bg-white/40 rounded-xl border border-slate-100 dark:border-[#93c5fd] shadow-[inset_0_2px_4px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_2px_4px_rgba(30,58,138,0.05)] ${i>1 ? 'hidden' : ''}">
+                        <div class="flex flex-col gap-1.5 lg:col-span-3"><label class="${CLS_LABEL}"><i data-lucide="plus-square" class="w-3 h-3"></i> CTE${i}</label><input type="text" id="f_cte${i}" class="${CLS_INPUT}"></div>
+                        <div class="flex flex-col gap-1.5 lg:col-span-9"><label class="${CLS_LABEL}"><i data-lucide="message-square" class="w-3 h-3"></i> CTE${i} Remarks</label><textarea id="f_cte${i}_rem" class="${CLS_INPUT} resize-y" rows="2"></textarea></div>
                     </div>`;
                 }
                 cteHTML += `</div><div class="pt-5 mt-2 border-t border-slate-200 dark:border-[#93c5fd]"><button type="button" id="btn_add_cte" onclick="unhideNextCTE()" class="btn-3d text-[10px] font-bold text-white bg-indigo-500 hover:bg-indigo-600 px-4 py-2 rounded-lg flex items-center gap-1.5"><i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> ADD CTE</button></div></div></div>`;
@@ -2224,18 +2281,18 @@
                         pcmaHTML += `
                             <div class="p-5 bg-white/50 dark:bg-white/40 rounded-xl border border-slate-200/60 dark:border-[#93c5fd] shadow-[inset_0_2px_4px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_2px_4px_rgba(30,58,138,0.05)]">
                                 <span class="text-[10px] font-black text-indigo-500 dark:text-[#3b82f6] uppercase tracking-[0.15em] block mb-4 flex items-center gap-1.5"><i data-lucide="calendar" class="w-3.5 h-3.5"></i> ${blockTitle}</span>
-                                <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
-                                    <div class="flex flex-col gap-1.5 md:col-span-3">
+                                <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+                                    <div class="flex flex-col gap-1.5 lg:col-span-3">
                                         <label class="${CLS_LABEL}" title="${h1}"><i data-lucide="percent" class="w-3 h-3"></i> ${h1}</label>
                                         <input type="text" data-header="${h1}" data-tab="pcma" value="${toPercentFormat(val1)}" onblur="this.value = toPercentFormat(this.value)" class="dyn-pcma ${CLS_INPUT} text-lg">
                                     </div>
                                     ${h2 ? `
-                                    <div class="flex flex-col gap-1.5 md:col-span-3">
+                                    <div class="flex flex-col gap-1.5 lg:col-span-3">
                                         <label class="${CLS_LABEL}" title="${h2}"><i data-lucide="percent" class="w-3 h-3"></i> ${h2}</label>
                                         <input type="text" data-header="${h2}" data-tab="pcma" value="${toPercentFormat(val2)}" onblur="this.value = toPercentFormat(this.value)" class="dyn-pcma ${CLS_INPUT} text-lg">
                                     </div>` : ''}
                                     ${h3 ? `
-                                    <div class="flex flex-col gap-1.5 md:col-span-6">
+                                    <div class="flex flex-col gap-1.5 lg:col-span-6">
                                         <label class="${CLS_LABEL}" title="${h3}"><i data-lucide="message-square" class="w-3 h-3"></i> ${h3}</label>
                                         <textarea data-header="${h3}" data-tab="pcma" class="dyn-pcma ${CLS_INPUT} text-base resize-y" rows="2">${val3}</textarea>
                                     </div>` : ''}
@@ -2317,21 +2374,21 @@
                         billHTML += `
                             <div class="p-5 bg-white/50 dark:bg-white/40 rounded-xl border border-slate-200/60 dark:border-[#93c5fd] shadow-[inset_0_2px_4px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_2px_4px_rgba(30,58,138,0.05)]">
                                 <span class="text-[10px] font-black text-teal-600 dark:text-[#0284c7] uppercase tracking-[0.15em] block mb-4 flex items-center gap-1.5"><i data-lucide="calendar" class="w-3.5 h-3.5"></i> ${blockTitle}</span>
-                                <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
-                                    <div class="flex flex-col gap-1.5 md:col-span-3">
+                                <div class="grid grid-cols-1 xl:grid-cols-12 gap-5 items-start">
+                                    <div class="flex flex-col gap-1.5 xl:col-span-3">
                                         <label class="${CLS_LABEL.replace('text-indigo-600', 'text-teal-600').replace('dark:text-[#3b82f6]', 'dark:text-[#0284c7]')}" title="${h1}"><i data-lucide="coins" class="w-3 h-3"></i> Net Amount</label>
                                         <input type="text" data-header="${h1}" data-tab="billing" value="${toCurrencyFormat(val1)}" onblur="this.value = toCurrencyFormat(this.value)" class="dyn-bill ${CLS_INPUT} font-mono text-base focus:ring-teal-500">
                                     </div>
                                     ${h2 ? `
-                                    <div class="flex flex-col gap-1.5 md:col-span-3">
+                                    <div class="flex flex-col gap-1.5 xl:col-span-3">
                                         <label class="${CLS_LABEL.replace('text-indigo-600', 'text-teal-600').replace('dark:text-[#3b82f6]', 'dark:text-[#0284c7]')}"><i data-lucide="calendar-check" class="w-3 h-3"></i> Date of SWA/Billing</label>
                                         <input type="text" placeholder="MMMM DD, YYYY" data-header="${h2}" data-tab="billing-swa" value="${formatDt(swaDate)}" class="dyn-bill-swa date-input ${CLS_INPUT} focus:ring-teal-500 text-sm bg-white/50">
                                     </div>
-                                    <div class="flex flex-col gap-1.5 md:col-span-3">
+                                    <div class="flex flex-col gap-1.5 xl:col-span-3">
                                         <label class="${CLS_LABEL.replace('text-indigo-600', 'text-teal-600').replace('dark:text-[#3b82f6]', 'dark:text-[#0284c7]')}"><i data-lucide="banknote" class="w-3 h-3"></i> Gross Amount</label>
                                         <input type="text" data-header="${h2}" data-tab="billing-gross" value="${toCurrencyFormat(grossAmt)}" onblur="this.value = toCurrencyFormat(this.value)" class="dyn-bill-gross ${CLS_INPUT} font-mono text-base focus:ring-teal-500">
                                     </div>
-                                    <div class="flex flex-col gap-1.5 md:col-span-3">
+                                    <div class="flex flex-col gap-1.5 xl:col-span-3">
                                         <label class="${CLS_LABEL.replace('text-indigo-600', 'text-teal-600').replace('dark:text-[#3b82f6]', 'dark:text-[#0284c7]')}" title="${h2} Remarks"><i data-lucide="message-square" class="w-3 h-3"></i> Remarks</label>
                                         <textarea data-header="${h2}" data-tab="billing-rem" class="dyn-bill-rem ${CLS_INPUT} text-base focus:ring-teal-500 resize-y" rows="2">${remText}</textarea>
                                     </div>` : ''}
@@ -2418,30 +2475,6 @@
             m.classList.add('show'); lucide.createIcons();
             
             setTimeout(() => { isFormDirty = false; dirtyTabs.clear(); }, 50); 
-        }
-
-        function closeModal() { 
-            if (isFormDirty) {
-                if (!confirm("You have unsaved changes.\n\nClick 'OK' to discard them and close, or 'Cancel' to keep editing.")) {
-                    return;
-                }
-            }
-            const textSpan = document.getElementById('reloadText');
-            if (textSpan) textSpan.classList.add('opacity-0');
-            if (typeof reloadInterval !== 'undefined') clearInterval(reloadInterval);
-
-            const inner = document.getElementById('mainModalInner');
-            if(inner) {
-                inner.classList.remove('scale-100');
-                inner.classList.add('scale-95');
-            }
-
-            setTimeout(() => {
-                const m = document.getElementById('projectModal');
-                if(m) m.classList.remove('show'); 
-                isFormDirty = false;
-                dirtyTabs.clear();
-            }, 200);
         }
 
         function loadDataToForm(cid) {
@@ -2713,7 +2746,10 @@
             } 
         }
 
-        function submitModal() {
+        function submitModal(isConfirmed = false) {
+            // Guard against the argument being passed as an Event object from UI clicks
+            if (typeof isConfirmed !== 'boolean') isConfirmed = false;
+
             const md = document.getElementById('modalMode').value;
             const cidEl = document.getElementById('f_contract_id');
             const cid = cidEl ? cidEl.value.trim() : ''; 
@@ -2730,6 +2766,44 @@
                 if(err) { err.innerHTML = `<i data-lucide="alert-octagon" class="w-4 h-4"></i> Contract ID already exists`; err.classList.remove('hidden'); lucide.createIcons(); }
                 return;
             }
+
+            // --- CONFIRMATION MODAL INTERCEPT ---
+            if (!isConfirmed) {
+                const contractorEl = document.getElementById('f_contractor');
+                const peEl = document.getElementById('f_pe');
+                
+                const contractor = contractorEl ? contractorEl.value.trim() : 'N/A';
+                const pe = peEl ? peEl.value.trim() : 'N/A';
+                const projectName = nameEl.value.trim();
+
+                const actionText = md === 'ADD' ? 'save a new' : 'update this';
+
+                const confirmMsg = `
+                    <div class="mb-4 text-slate-700 dark:text-[#ea580c] font-bold text-center">Please verify if the record you are about to ${actionText} is correct:</div>
+                    <div class="text-left bg-slate-50 dark:bg-[#ffedd5]/80 p-4 rounded-xl border border-slate-200 dark:border-[#fdba74] space-y-3 text-sm shadow-inner overflow-hidden mb-2">
+                        <div>
+                            <span class="text-[10px] uppercase font-black text-indigo-500 tracking-widest flex items-center gap-1.5"><i data-lucide="fingerprint" class="w-3.5 h-3.5"></i> Contract ID</span>
+                            <div class="font-bold text-slate-800 dark:text-[#1e3a8a] pl-5">${cid}</div>
+                        </div>
+                        <div>
+                            <span class="text-[10px] uppercase font-black text-indigo-500 tracking-widest flex items-center gap-1.5"><i data-lucide="briefcase" class="w-3.5 h-3.5"></i> Project Name</span>
+                            <div class="font-bold text-slate-800 dark:text-[#1e3a8a] pl-5 line-clamp-2" title="${projectName}">${projectName}</div>
+                        </div>
+                        <div>
+                            <span class="text-[10px] uppercase font-black text-indigo-500 tracking-widest flex items-center gap-1.5"><i data-lucide="hard-hat" class="w-3.5 h-3.5"></i> Contractor</span>
+                            <div class="font-bold text-slate-800 dark:text-[#1e3a8a] pl-5 truncate" title="${contractor}">${contractor || '<span class="text-slate-400 italic">None Specified</span>'}</div>
+                        </div>
+                        <div>
+                            <span class="text-[10px] uppercase font-black text-indigo-500 tracking-widest flex items-center gap-1.5"><i data-lucide="user-cog" class="w-3.5 h-3.5"></i> Project Engineer (PE)</span>
+                            <div class="font-bold text-slate-800 dark:text-[#1e3a8a] pl-5 truncate" title="${pe}">${pe || '<span class="text-slate-400 italic">None Specified</span>'}</div>
+                        </div>
+                    </div>
+                `;
+                
+                showWarningModal(confirmMsg, true, () => submitModal(true));
+                return;
+            }
+            // --- END CONFIRMATION MODAL INTERCEPT ---
             
             // --- BILLING DATE WARNING ---
             let missingBillingDate = false;
@@ -2753,7 +2827,7 @@
             });
 
             if (missingBillingDate) {
-                showWarningModal("A Billing amount was saved without a corresponding Date. Please double-check your billing entries.");
+                showWarningModal("<div class='text-center mt-2'>A Billing amount was saved without a corresponding Date. Please double-check your billing entries.</div>", false);
             }
             // --- END BILLING DATE WARNING ---
 
@@ -2765,8 +2839,7 @@
 
             if(btn) { btn.disabled = true; btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Syncing...'; }
             lucide.createIcons();
-
-            // Build payloads
+			// Build payloads
             const pdoHeaders = (serverData.PDO.headers || []).map(h => String(h||'').toUpperCase().trim());
             const pdoChanges = [];
             const addPdo = (fieldId, headerName, isDate=false, isMoney=false) => {
