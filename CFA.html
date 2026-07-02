@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Project Management App</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- JWT Generation Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.5.27/jsrsasign-all-min.js"></script>
+
+    <style>
+        body {
+            background-color: #f1f5f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Mobile App Container */
+        .app-container {
+            max-width: 480px;
+            margin: 0 auto;
+            background-color: #f4f8fb;
+            height: 100dvh; 
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        #main-app {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .scrollable-content {
+            flex: 1;
+            overflow-y: auto;
+            -ms-overflow-style: none;  
+            scrollbar-width: none;  
+        }
+        .scrollable-content::-webkit-scrollbar { display: none; }
+
+        /* Custom UI Elements */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+        }
+
+        .bottom-nav {
+            background: #ffffff;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0 24px 0;
+            border-radius: 20px 20px 0 0;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+            flex-shrink: 0; 
+            z-index: 50;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #94a3b8;
+            font-size: 11px;
+            gap: 4px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .nav-item.active {
+            color: #3b82f6;
+            font-weight: 700;
+        }
+        
+        .nav-item i { font-size: 20px; }
+
+        /* Year Filter Scroll */
+        .year-scroll {
+            display: flex;
+            overflow-x: auto;
+            gap: 12px;
+            padding: 4px 20px;
+            margin: 0 -20px;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .year-scroll::-webkit-scrollbar { display: none; }
+        
+        .year-chip {
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: #ffffff;
+            color: #64748b;
+            font-size: 14px;
+            font-weight: 600;
+            white-space: nowrap;
+            cursor: pointer;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s;
+        }
+        .year-chip.active {
+            background: #3b82f6;
+            color: #ffffff;
+            border-color: #3b82f6;
+        }
+
+        /* Task Filters */
+        .task-filter-container {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .task-filter-container::-webkit-scrollbar { display: none; }
+        
+        .task-filter-btn {
+            background: transparent;
+            color: #94a3b8;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 8px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .task-filter-btn.active {
+            background: #0ea5e9;
+            color: white;
+        }
+
+        /* Task Card Status Borders */
+        .border-inprogress { border-left: 5px solid #0284c7; }
+        .border-completed { border-left: 5px solid #10b981; }
+        .border-pending { border-left: 5px solid #f59e0b; }
+        .border-ontrack { border-left: 5px solid #94a3b8; }
+
+        .loading-spinner {
+            border: 4px solid rgba(59, 130, 246, 0.2);
+            border-left-color: #3b82f6;
+            border-radius: 50%;
+            width: 40px; height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <!-- LOGIN SCREEN -->
+        <div id="login-screen" class="flex flex-col items-center justify-center h-full p-8 bg-white z-50 absolute inset-0">
+            <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center text-blue-500 text-3xl mb-6 shadow-sm">
+                <i class="fa-solid fa-user-shield"></i>
+            </div>
+            <h1 class="text-2xl font-black text-slate-800 mb-2">Welcome Back!</h1>
+            <p class="text-slate-500 mb-8 text-center text-sm">Login with your PE, PI, RE, or QE name to view your dashboard.</p>
+            
+            <input type="text" id="username-input" placeholder="Enter Name (e.g., Ariel Fernandez)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 mb-4 text-slate-700 outline-none focus:border-blue-500">
+            <input type="password" id="password-input" placeholder="Password" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 mb-6 text-slate-700 outline-none focus:border-blue-500">
+            
+            <button onclick="handleLogin()" class="w-full bg-blue-600 text-white font-bold rounded-xl py-3 shadow-lg hover:bg-blue-700 transition-colors">Login</button>
+            
+            <div id="login-error" class="text-red-500 text-sm mt-4 hidden font-medium text-center"></div>
+        </div>
+
+        <!-- LOADING SCREEN -->
+        <div id="loading-screen" class="hidden flex-col items-center justify-center h-full bg-white z-40 absolute inset-0">
+            <div class="loading-spinner mb-4"></div>
+            <p class="text-slate-500 font-medium">Syncing Data...</p>
+        </div>
+
+        <!-- MAIN APP WRAPPER -->
+        <div id="main-app" class="hidden">
+            
+            <!-- ====== HOME TAB ====== -->
+            <div id="tab-home" class="scrollable-content p-5">
+                
+                <!-- Profile Header -->
+                <div class="flex justify-between items-center mb-8">
+                    <div class="flex items-center gap-3">
+                        <img id="user-image" src="" class="w-12 h-12 rounded-full object-cover shadow-sm border-2 border-white" alt="Profile">
+                        <div>
+                            <p class="text-xs text-slate-500 font-medium">Welcome Back!</p>
+                            <h2 id="user-name" class="text-lg font-black text-slate-800 capitalize">User</h2>
+                        </div>
+                    </div>
+                    <!-- Notification & Logout Buttons -->
+                    <div class="flex gap-2">
+                        <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm border border-slate-100 text-slate-700">
+                            <i class="fa-regular fa-bell"></i>
+                        </div>
+                        <div onclick="handleLogout()" class="w-10 h-10 bg-red-50 rounded-full flex items-center justify-center shadow-sm border border-red-100 text-red-500 cursor-pointer transition hover:bg-red-100" title="Logout">
+                            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4 Metrics Cards -->
+                <div class="grid grid-cols-2 gap-4 mb-8">
+                    <div class="glass-card p-4 flex flex-col justify-center overflow-hidden">
+                        <p class="text-xs text-slate-400 font-bold uppercase mb-1">Total Project</p>
+                        <h3 id="metric-total" class="text-xl font-black text-slate-800 flex items-center justify-between">
+                            <!-- Populated by JS -->
+                        </h3>
+                    </div>
+                    <div class="glass-card p-4 flex flex-col justify-center overflow-hidden">
+                        <p class="text-xs text-slate-400 font-bold uppercase mb-1">With CA</p>
+                        <h3 id="metric-with-ca" class="text-xl font-black text-slate-800 flex items-center justify-between">
+                            <!-- Populated by JS -->
+                        </h3>
+                    </div>
+                    <div class="glass-card p-4 flex flex-col justify-center overflow-hidden">
+                        <p class="text-xs text-slate-400 font-bold uppercase mb-1">Percentage</p>
+                        <h3 id="metric-percentage" class="text-xl font-black text-slate-800 flex items-center justify-between">
+                            <!-- Populated by JS -->
+                        </h3>
+                    </div>
+                    <div class="glass-card p-4 flex flex-col justify-center overflow-hidden">
+                        <p class="text-xs text-slate-400 font-bold uppercase mb-1">w/o CA</p>
+                        <h3 id="metric-without-ca" class="text-xl font-black text-slate-800 flex items-center justify-between">
+                            <!-- Populated by JS -->
+                        </h3>
+                    </div>
+                </div>
+
+                <!-- Year Filter -->
+                <div class="mb-6">
+                    <h3 class="text-base font-bold text-slate-800 mb-3">Choose Year</h3>
+                    <div class="year-scroll" id="year-filter-container">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Recent Activity List -->
+                <div>
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-base font-bold text-slate-800">Recent Activity</h3>
+                        <span class="text-xs font-semibold text-slate-400">View all</span>
+                    </div>
+                    <div id="recent-activity-list" class="space-y-3">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- ====== TASK TAB ====== -->
+            <div id="tab-tasks" class="hidden scrollable-content p-5">
+                
+                <div class="flex justify-between items-center mb-6 pt-2">
+                    <h1 class="text-2xl font-black text-slate-800">Task</h1>
+                    <div class="w-8 h-8 rounded-full border-2 border-slate-300 flex items-center justify-center text-slate-600">
+                        <i class="fa-solid fa-plus text-sm"></i>
+                    </div>
+                </div>
+
+                <!-- Task Filters -->
+                <div class="flex gap-2 mb-6 overflow-x-auto pb-2 task-filter-container" id="task-filter-container">
+                    <button class="task-filter-btn active" onclick="setTaskFilter('ALL')">All</button>
+                    <button class="task-filter-btn" onclick="setTaskFilter('Pending')">Pending</button>
+                    <button class="task-filter-btn" onclick="setTaskFilter('InProgress')">InProgress</button>
+                    <button class="task-filter-btn" onclick="setTaskFilter('On Track')">On Track</button>
+                    <button class="task-filter-btn" onclick="setTaskFilter('Completed')">Completed</button>
+                </div>
+
+                <!-- Task List -->
+                <div id="task-list" class="space-y-4">
+                    <!-- Populated by JS -->
+                </div>
+
+            </div>
+
+            <!-- ====== BOTTOM NAVIGATION ====== -->
+            <nav class="bottom-nav">
+                <div class="nav-item active" id="nav-home" onclick="switchTab('home')">
+                    <i class="fa-solid fa-house-chimney"></i>
+                    <span>Home</span>
+                </div>
+                <div class="nav-item" id="nav-tasks" onclick="switchTab('tasks')">
+                    <i class="fa-solid fa-list-check"></i>
+                    <span>Task</span>
+                </div>
+                <div class="nav-item">
+                    <i class="fa-regular fa-clock"></i>
+                    <span>Time Off</span>
+                </div>
+                <div class="nav-item">
+                    <i class="fa-regular fa-comment-dots"></i>
+                    <span>Chat</span>
+                </div>
+                <div class="nav-item">
+                    <i class="fa-solid fa-ellipsis"></i>
+                    <span>More</span>
+                </div>
+            </nav>
+
+        </div>
+    </div>
+
+    <script>
+        const API_CONFIG = {
+            SPREADSHEET_ID: "1LSYLZ7tfSeVupQMPsCOHG4SlnzPQqOAIe03QI1qRMr8", 
+            SERVICE_ACCOUNT: {
+                "client_email": "pcma-mobile@gold-mode-473811-c6.iam.gserviceaccount.com",
+                "private_key": `-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQC1sEJI1CN6V8mj\nAhBvpiLC7JOEbrFFxsvqbzJjitbDRbyRhbk7prF1NQqAz0OV8l+9/v69UJ3ddGmE\n3Oq4EEqgOmeEpfdSeJeMa+alsc0H+1E2EmWLnhGNv/ot91osgokv7tUG7p/WnGSf\n0IP2bmbbEmQfhganvTCTmhTASHUSK32O+ZmYklYwqs9qptWCFjS3lj+uhaQ2nAFQ\nGCloj6go1aRbQTGxDygwwxtK08v68EuApslm5qs/x08gnj1UEV/FfHDUvUbCswm2\nIRTULJqNoGTYNs4DxbUJClUwcf72xmddbiE/CbOWs1g626obziGNe6/Dq74Ws5IR\nj39h8S57AgMBAAECggEAPUZdDH/TGUM7Iykijuz6Yz/zPmIwkiZKBl4LIewkowXF\nY1S0lGwTBELnsGp2Uj9ET+kMU5+5JgNJRQBWfs4rxN79o4xvnVZDUh3f0zjkO5Fk\nIbbRnWUpaWN6Bf+aX1GE3/AN00EuEex7uTRTFQzFzpNkxgbm/rI9DEKWRgUJyp7j\nwrbzhTp2cRRrQaPtONZej68dUtkkAsd2rlt3Reht3/NCdmNRTjpRHqiICZvuZuHe\njebcK/ewVZWqW9XpwVMfjhZeyBnfzNqRElNxF4BtodjmSpw+TkWyPK9obVFEBDG5\nFeRxBk6aTdutNkIN2uXOPFBP7UV4evsD3fiuYMRFvQKBgQDbiMwo80cLbnV7fuq/\nSr1y2i/mj8XDVX6xOJWDXOhrHNEDcTpYHp5Ey5qQwQhkGOiK/aUJWfWHJGMLM7DY\n7l6nvRe+oX/1inocjKMkiq5TGDvptBv2T9rz0K3LFueFNcxAv7445GgCsFADgYBM\n67reu9QcmT6Uis2nUffzcleGNQKBgQDT3ibtkMmkeDi3sl1uY9PudlZqnCcP11Pi\nQJF4+thJYjN/bYBKA3F4GhRZzEKxW6jjF/mQ/kZDLHJeGI4Y0ETpz76kB4gSO1zc\lsKZnGBvfug2Oz7/fnPfdpMdSsaFS9AHOHTm7TAiyMuSXciJ1Sy5LxVeELP91cbJ\nBsJtKX+37wKBgQDFKUSB+orxn1Bvivp0tkESpxWh8blgxqWzr+fHRGeP2x90Afqu\nLUFi86BrJJHOo/gk68uObHZv2qQA6XmIOfxUlSSAFjb/ZFBq13ulU89f3UHhj9oV\nCn7Pvbh3zqg7IKfB9vJ10dv/ni0eGO4LJyJ66yGCVba4XTh5bspKn4QviQKBgQCi\nud3sWWiGilAFx1k7kDEW1o1JFOZrpFcpT65r3T6CHoqvNMt0DXD5bg5zag9Pabct\ntRxZ4PLWZSzyWKnLJSvI6WbjVWWNm0qXorOUiCcJe8+e16JrWhRlbg1QUj5n4vLE\nmPgw5bwy+0ZgBOgh9TmEgkVHGk0kiS1E+Ywbi+QswQKBgQDOI10/zjkwXOmqHlX7\n7nkuSIG9Kojrt2XWIsecZ9xP4lnIq6oyBUxDLaj3MaSnGeuvJZjDHa7YxqyAZvOO\nPxJ2F55gm4PME6obOldAw8rWdTWmlpG5rm679Q01nupwlC5+rJPqSzW/GpibKjZa\ni2e4E1vAOiqCrUlBSDcvD1r+/g==\n-----END PRIVATE KEY-----`
+            }
+        };
+
+        class GoogleSheetsAPI {
+            static _oauthToken = null;
+            static _tokenExp = 0;
+
+            static async getAuthToken() {
+                if (this._oauthToken && this._tokenExp > Date.now()) return this._oauthToken;
+                const header = { alg: "RS256", typ: "JWT" };
+                const now = Math.floor(Date.now() / 1000);
+                const claim = { iss: API_CONFIG.SERVICE_ACCOUNT.client_email, scope: "https://www.googleapis.com/auth/spreadsheets.readonly", aud: "https://oauth2.googleapis.com/token", exp: now + 3600, iat: now };
+                const sHeader = JSON.stringify(header);
+                const sClaim = JSON.stringify(claim);
+                const sJWS = KJUR.jws.JWS.sign("RS256", sHeader, sClaim, API_CONFIG.SERVICE_ACCOUNT.private_key);
+
+                const res = await fetch("https://oauth2.googleapis.com/token", {
+                    method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${sJWS}`
+                });
+                
+                const data = await res.json();
+                if (data.access_token) {
+                    this._oauthToken = data.access_token;
+                    this._tokenExp = Date.now() + (data.expires_in * 1000) - 60000;
+                    return data.access_token;
+                } else {
+                    throw new Error("Auth Failed");
+                }
+            }
+        }
+
+        let appState = {
+            currentUser: "",
+            userImage: "",
+            allProjects: [],
+            selectedYear: "All Years",
+            currentTaskFilter: "ALL"
+        };
+
+        // On Page Load: Check for saved login
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedUser = localStorage.getItem('loggedInUser');
+            if (savedUser) {
+                appState.currentUser = savedUser;
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('loading-screen').classList.remove('hidden');
+                document.getElementById('loading-screen').classList.add('flex');
+                fetchAllData();
+            }
+        });
+
+        function normalizeHeader(str) { return (str || "").toString().replace(/\s+/g, " ").trim().toLowerCase(); }
+
+        function parseDateObj(v) {
+            if (!v) return null;
+            if (!isNaN(v) && Number(v) > 20000) return new Date((Number(v) - (25567 + 2)) * 86400 * 1000);
+            const d = new Date(v);
+            return isNaN(d.getTime()) ? null : d;
+        }
+
+        function formatDateDisplay(d) {
+            if (!d) return "—";
+            return d.toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: '2-digit' });
+        }
+
+        function calculateDaysDiff(startDate, endDate) {
+            return Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+        }
+
+        async function handleLogin() {
+            const username = document.getElementById('username-input').value.trim();
+            const password = document.getElementById('password-input').value.trim();
+            const errDiv = document.getElementById('login-error');
+
+            if (!username) { errDiv.innerText = "Please enter your Name."; errDiv.classList.remove('hidden'); return; }
+            if (password !== "123") { errDiv.innerText = "Incorrect Password."; errDiv.classList.remove('hidden'); return; }
+
+            errDiv.classList.add('hidden');
+            appState.currentUser = username;
+            
+            localStorage.setItem('loggedInUser', username);
+
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('loading-screen').classList.remove('hidden');
+            document.getElementById('loading-screen').classList.add('flex');
+
+            await fetchAllData();
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('loggedInUser');
+            appState.currentUser = "";
+            appState.userImage = "";
+            
+            document.getElementById('main-app').classList.add('hidden');
+            
+            document.getElementById('login-screen').classList.remove('hidden');
+            document.getElementById('username-input').value = "";
+            document.getElementById('password-input').value = "";
+            
+            switchTab('home');
+        }
+
+        async function fetchAllData() {
+            try {
+                const token = await GoogleSheetsAPI.getAuthToken();
+                const headers = { Authorization: `Bearer ${token}` };
+
+                // =======================================================
+                // 1. FETCH IMAGE EXACTLY FROM THE "PE" SHEET (Tab name: PE)
+                // =======================================================
+                try {
+                    const peRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values/PE!A1:ZZ`, { headers });
+                    if (peRes.ok) {
+                        const peData = await peRes.json();
+                        if (peData.values) {
+                            for (let i = 0; i < peData.values.length; i++) {
+                                const row = peData.values[i];
+                                
+                                // Column B (Index 1) is the PE Name
+                                const nameInColB = row[1] ? String(row[1]).toLowerCase().trim() : "";
+                                
+                                if (nameInColB === appState.currentUser.toLowerCase()) {
+                                    // Column Z (Index 25) is the File ID
+                                    const imageId = row[25] ? String(row[25]).trim() : ""; 
+                                    
+                                    if (imageId) {
+                                        if (imageId.startsWith('http')) {
+                                            appState.userImage = imageId;
+                                        } else {
+                                            appState.userImage = `https://drive.google.com/uc?export=view&id=${imageId}`;
+                                        }
+                                    }
+                                    break; 
+                                }
+                            }
+                        }
+                    }
+                } catch (err) {
+                    console.warn("Could not load image from PE sheet:", err);
+                }
+
+                // =======================================================
+                // 2. FETCH PROJECT DATA FROM THE "DATE" SHEET
+                // =======================================================
+                const dateRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values/DATE!A1:ZZ`, { headers });
+                if (!dateRes.ok) throw new Error("Failed to fetch project data from DATE sheet.");
+                const dateData = await dateRes.json();
+                
+                processSheetData(dateData.values);
+                
+            } catch (error) {
+                document.getElementById('loading-screen').classList.add('hidden');
+                document.getElementById('login-screen').classList.remove('hidden');
+                document.getElementById('login-error').innerText = "Error syncing data. " + error.message;
+                document.getElementById('login-error').classList.remove('hidden');
+            }
+        }
+
+        function processSheetData(values) {
+            if (!values || values.length < 3) return;
+
+            const headers = values[2].map(normalizeHeader);
+            
+            let colPE = headers.findIndex(h => h === "pe" || h.includes("project engineer"));
+            let colPI = headers.findIndex(h => h === "pi" || h.includes("project inspector"));
+            let colRE = headers.findIndex(h => h === "re" || h.includes("resident engineer"));
+            let colQE = headers.findIndex(h => h === "qe" || h.includes("quantity engineer") || h.includes("materials"));
+            
+            if (colPE === -1) colPE = 1; 
+            if (colPI === -1) colPI = 2; 
+            if (colRE === -1) colRE = 3; 
+            if (colQE === -1) colQE = 4; 
+
+            const colID = headers.findIndex(h => h.includes("contract id") || h === "id");
+            const colName = headers.findIndex(h => h.includes("project name"));
+            const colDateCA = headers.findIndex(h => h.includes("date of ca") || h.includes("ca date") || h === "ca");
+            const colDateCOC = headers.findIndex(h => h.includes("date of coc") || h.includes("coc date") || h === "coc");
+            const colYear = headers.findIndex(h => h === "year");
+
+            appState.allProjects = [];
+            const now = new Date();
+            now.setHours(0,0,0,0);
+            
+            const userSearch = appState.currentUser.toLowerCase();
+
+            for (let i = 3; i < values.length; i++) {
+                const row = values[i];
+                if (!row || row.length === 0) continue; 
+
+                const peName = colPE >= 0 && row[colPE] ? String(row[colPE]).toLowerCase() : "";
+                const piName = colPI >= 0 && row[colPI] ? String(row[colPI]).toLowerCase() : "";
+                const reName = colRE >= 0 && row[colRE] ? String(row[colRE]).toLowerCase() : "";
+                const qeName = colQE >= 0 && row[colQE] ? String(row[colQE]).toLowerCase() : "";
+
+                const isAssigned = peName.includes(userSearch) || piName.includes(userSearch) || 
+                                   reName.includes(userSearch) || qeName.includes(userSearch);
+
+                if (!isAssigned) continue;
+
+                const cocRaw = colDateCOC >= 0 ? row[colDateCOC] : null;
+                const caRaw = colDateCA >= 0 ? row[colDateCA] : null;
+                const cocDate = parseDateObj(cocRaw);
+                const caDate = parseDateObj(caRaw);
+
+                if (!cocDate) continue;
+
+                const year = colYear >= 0 && row[colYear] ? String(row[colYear]).trim() : "—";
+                const contractId = colID >= 0 && row[colID] ? String(row[colID]).trim() : "Unknown ID";
+                const projectName = colName >= 0 && row[colName] ? String(row[colName]).trim() : "—";
+
+                let status = "";
+                let statusText = "";
+                
+                if (caDate) {
+                    status = "Completed";
+                    const diff = calculateDaysDiff(cocDate, caDate);
+                    statusText = `${diff} Days`;
+                } else {
+                    const lapseDate = new Date(cocDate);
+                    lapseDate.setFullYear(lapseDate.getFullYear() + 1);
+                    lapseDate.setHours(0,0,0,0);
+                    const daysToLapse = calculateDaysDiff(now, lapseDate);
+
+                    if (daysToLapse < 0) {
+                        status = "Pending";
+                        statusText = `${Math.abs(daysToLapse)} Days Overdue`;
+                    } else if (daysToLapse <= 92) {
+                        status = "InProgress";
+                        statusText = `${daysToLapse} Days left to 1 year`;
+                    } else {
+                        status = "On Track";
+                        statusText = `${daysToLapse} Days left`;
+                    }
+                }
+
+                let daysCAMinusCOC = "—";
+                if (caDate && cocDate) {
+                    daysCAMinusCOC = calculateDaysDiff(cocDate, caDate) + " Days";
+                } else if (!caDate) {
+                    daysCAMinusCOC = "Pending CA";
+                }
+
+                appState.allProjects.push({ contractId, projectName, cocDate, caDate, year, status, statusText, daysCAMinusCOC });
+            }
+
+            document.getElementById('loading-screen').classList.add('hidden');
+            document.getElementById('main-app').classList.remove('hidden');
+
+            initUI();
+        }
+
+        function initUI() {
+            document.getElementById('user-name').innerText = appState.currentUser;
+            
+            // Set User Image and add the FALLBACK just in case the Google Drive link fails
+            const imgElement = document.getElementById('user-image');
+            imgElement.src = appState.userImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(appState.currentUser)}&background=0D8ABC&color=fff`;
+            
+            imgElement.onerror = function() {
+                this.onerror = null; // prevent infinite loops
+                this.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(appState.currentUser)}&background=0D8ABC&color=fff`;
+            };
+
+            const yearsSet = new Set();
+            appState.allProjects.forEach(p => { if (p.year && p.year !== '—') yearsSet.add(p.year); });
+            const yearsArr = Array.from(yearsSet).sort((a,b) => b - a);
+            
+            let yearHtml = `<div class="year-chip active" onclick="setYear('All Years', this)">All Years</div>`;
+            yearsArr.forEach(y => { yearHtml += `<div class="year-chip" onclick="setYear('${y}', this)">${y}</div>`; });
+            document.getElementById('year-filter-container').innerHTML = yearHtml;
+
+            renderDashboard();
+        }
+
+        function setYear(year, element) {
+            document.querySelectorAll('.year-chip').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+            appState.selectedYear = year;
+            renderDashboard();
+        }
+
+        function setTaskFilter(filter) {
+            document.querySelectorAll('.task-filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.innerText.toLowerCase() === filter.toLowerCase() || (filter === 'ALL' && btn.innerText === 'All')) {
+                    btn.classList.add('active');
+                }
+            });
+            appState.currentTaskFilter = filter;
+            renderTasks();
+        }
+
+        function switchTab(tab) {
+            document.getElementById('tab-home').classList.add('hidden');
+            document.getElementById('tab-tasks').classList.add('hidden');
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+
+            if (tab === 'home') {
+                document.getElementById('tab-home').classList.remove('hidden');
+                document.getElementById('nav-home').classList.add('active');
+                renderDashboard();
+            } else if (tab === 'tasks') {
+                document.getElementById('tab-tasks').classList.remove('hidden');
+                document.getElementById('nav-tasks').classList.add('active');
+                renderTasks();
+            }
+        }
+
+        function getFilteredData() {
+            if (appState.selectedYear === 'All Years') return appState.allProjects;
+            return appState.allProjects.filter(p => p.year === appState.selectedYear);
+        }
+
+        function renderDashboard() {
+            const data = getFilteredData();
+            const totalProject = data.length; 
+            const withCA = data.filter(p => p.caDate !== null).length;
+            const withoutCA = totalProject - withCA;
+            const percentage = totalProject > 0 ? Math.round((withCA / totalProject) * 100) : 0;
+
+            document.getElementById('metric-total').innerHTML = `
+                <span class="flex items-baseline gap-1">${totalProject} <span class="text-[13px] font-bold text-slate-500">Projects</span></span> 
+                <i class="fa-solid fa-folder-open text-blue-400 text-lg ml-1"></i>`;
+                
+            document.getElementById('metric-with-ca').innerHTML = `
+                <span class="flex items-baseline gap-1">${withCA} <span class="text-[13px] font-bold text-slate-500">Projects</span></span> 
+                <i class="fa-solid fa-file-circle-check text-emerald-400 text-lg ml-1"></i>`;
+                
+            document.getElementById('metric-percentage').innerHTML = `
+                <span class="flex items-baseline gap-1">${percentage}% <span class="text-[13px] font-bold text-slate-500">Completed</span></span> 
+                <i class="fa-solid fa-chart-pie text-indigo-400 text-lg ml-1"></i>`;
+                
+            document.getElementById('metric-without-ca').innerHTML = `
+                <span class="flex items-baseline gap-1">${withoutCA} <span class="text-[13px] font-bold text-slate-500">Projects</span></span> 
+                <i class="fa-solid fa-file-circle-xmark text-red-400 text-lg ml-1"></i>`;
+
+            const recentData = [...data].sort((a, b) => {
+                const timeA = a.caDate ? a.caDate.getTime() : 0;
+                const timeB = b.caDate ? b.caDate.getTime() : 0;
+                return timeB - timeA;
+            });
+
+            const recentContainer = document.getElementById('recent-activity-list');
+            let html = '';
+
+            if (recentData.length === 0) {
+                html = `<p class="text-slate-400 text-sm text-center py-4">No data available.</p>`;
+            } else {
+                recentData.forEach(p => {
+                    const iconColor = p.caDate ? 'text-emerald-500 bg-emerald-100' : 'text-blue-500 bg-blue-100';
+                    html += `
+                        <div class="glass-card p-4 flex items-center justify-between gap-3">
+                            <div class="flex items-center gap-3 w-full">
+                                <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${iconColor}">
+                                    <i class="fa-regular ${p.caDate ? 'fa-file-lines' : 'fa-clock'} text-xl"></i>
+                                </div>
+                                <div class="flex-grow">
+                                    <div class="flex justify-between items-start mb-1">
+                                        <h4 class="font-bold text-slate-800 text-sm leading-tight line-clamp-1 pr-2">${p.contractId}</h4>
+                                        <span class="text-xs font-black ${p.caDate ? 'text-slate-700' : 'text-orange-500'} whitespace-nowrap">
+                                            ${p.caDate ? formatDateDisplay(p.caDate) : 'No CA'}
+                                        </span>
+                                    </div>
+                                    <div class="flex justify-between items-end text-xs text-slate-500">
+                                        <span>COC: ${formatDateDisplay(p.cocDate)}</span>
+                                        <span class="font-medium">${p.daysCAMinusCOC}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            recentContainer.innerHTML = html;
+            if (!document.getElementById('tab-tasks').classList.contains('hidden')) renderTasks();
+        }
+
+        function renderTasks() {
+            let data = getFilteredData();
+            if (appState.currentTaskFilter !== 'ALL') data = data.filter(p => p.status.toLowerCase() === appState.currentTaskFilter.toLowerCase());
+
+            const taskContainer = document.getElementById('task-list');
+            let html = '';
+
+            if (data.length === 0) {
+                html = `<div class="text-center py-10 text-slate-400"><i class="fa-solid fa-clipboard-list text-4xl mb-3"></i><p>No tasks found.</p></div>`;
+            } else {
+                data.forEach(p => {
+                    let badgeClass = "", borderClass = "", cocColorClass = "", dateOfCALine = "", rightText = "";
+                    let cocFormatted = p.cocDate ? formatDateDisplay(p.cocDate) : 'No COC';
+
+                    if (p.status === "Completed") { 
+                        badgeClass = "bg-emerald-500 text-white"; 
+                        borderClass = "border-completed"; 
+                        cocColorClass = "text-emerald-600";
+                        rightText = p.statusText;
+                        dateOfCALine = `<div class="text-xs text-slate-700 font-semibold mb-1">Date of CA: ${formatDateDisplay(p.caDate)}</div>`;
+                    } else if (p.status === "InProgress") { 
+                        badgeClass = "bg-blue-600 text-white"; 
+                        borderClass = "border-inprogress"; 
+                        cocColorClass = "text-blue-600";
+                        rightText = p.statusText; 
+                    } else if (p.status === "Pending") { 
+                        badgeClass = "bg-amber-500 text-white"; 
+                        borderClass = "border-pending"; 
+                        cocColorClass = "text-amber-600"; 
+                        rightText = p.statusText; 
+                    } else if (p.status === "On Track") {
+                        badgeClass = "bg-slate-500 text-white"; 
+                        borderClass = "border-ontrack"; 
+                        cocColorClass = "text-slate-600"; 
+                        rightText = p.statusText; 
+                    }
+
+                    html += `
+                        <div class="glass-card p-4 flex flex-col gap-1 ${borderClass}">
+                            <div class="flex justify-between items-start mb-2">
+                                <h4 class="font-bold text-slate-800 text-md pr-3">${p.contractId}</h4>
+                                <span class="text-xs font-semibold px-3 py-1 rounded-full shadow-sm whitespace-nowrap ${badgeClass}">${p.status}</span>
+                            </div>
+                            
+                            <div class="flex justify-between items-center text-xs mb-1">
+                                <div class="${cocColorClass} font-bold flex items-center gap-1.5 whitespace-nowrap">
+                                    <i class="fa-regular fa-calendar-check text-sm"></i> Date of COC: ${cocFormatted}
+                                </div>
+                                <span class="italic text-slate-500 font-medium whitespace-nowrap pl-2">${rightText}</span>
+                            </div>
+                            
+                            ${dateOfCALine}
+
+                            <p class="text-xs text-slate-600 font-medium mt-1 leading-relaxed line-clamp-2">
+                                ${p.projectName}
+                            </p>
+                        </div>
+                    `;
+                });
+            }
+            taskContainer.innerHTML = html;
+        }
+
+    </script>
+</body>
+</html>
