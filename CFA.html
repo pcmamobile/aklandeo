@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Project Management App</title>
     
     <!-- Tailwind CSS -->
@@ -15,7 +15,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.5.27/jsrsasign-all-min.js"></script>
 
     <style>
-        body {
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden; /* Prevents the whole page from scrolling */
             background-color: #f1f5f9;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             -webkit-tap-highlight-color: transparent;
@@ -23,16 +26,16 @@
             padding: 0;
         }
 
-        /* Mobile App Container */
+        /* Mobile App Container - Fixed to 100% of visible body */
         .app-container {
             max-width: 480px;
             margin: 0 auto;
             background-color: #f4f8fb;
-            height: 100dvh; 
+            height: 100%; 
             box-shadow: 0 0 20px rgba(0,0,0,0.1);
             display: flex;
             flex-direction: column;
-            overflow: hidden;
+            position: relative;
         }
 
         #main-app {
@@ -46,7 +49,8 @@
             flex: 1;
             overflow-y: auto;
             -ms-overflow-style: none;  
-            scrollbar-width: none;  
+            scrollbar-width: none; 
+            padding-bottom: 24px; /* Breathing room at the very bottom of the list */
         }
         .scrollable-content::-webkit-scrollbar { display: none; }
 
@@ -57,12 +61,14 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
         }
 
+        /* Bottom Nav - Added safe area padding to prevent Android overlap */
         .bottom-nav {
             background: #ffffff;
             border-top: 1px solid #e2e8f0;
             display: flex;
             justify-content: space-around;
-            padding: 12px 0 24px 0;
+            padding-top: 12px;
+            padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px)); /* Magic fix for system bars */
             border-radius: 20px 20px 0 0;
             box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
             flex-shrink: 0; 
@@ -422,9 +428,6 @@
                 const token = await GoogleSheetsAPI.getAuthToken();
                 const headers = { Authorization: `Bearer ${token}` };
 
-                // =======================================================
-                // 1. FETCH IMAGE EXACTLY FROM THE "PE" SHEET (Tab name: PE)
-                // =======================================================
                 try {
                     const peRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values/PE!A1:ZZ`, { headers });
                     if (peRes.ok) {
@@ -432,14 +435,10 @@
                         if (peData.values) {
                             for (let i = 0; i < peData.values.length; i++) {
                                 const row = peData.values[i];
-                                
-                                // Column B (Index 1) is the PE Name
                                 const nameInColB = row[1] ? String(row[1]).toLowerCase().trim() : "";
                                 
                                 if (nameInColB === appState.currentUser.toLowerCase()) {
-                                    // Column Z (Index 25) is the File ID
                                     const imageId = row[25] ? String(row[25]).trim() : ""; 
-                                    
                                     if (imageId) {
                                         if (imageId.startsWith('http')) {
                                             appState.userImage = imageId;
@@ -456,9 +455,6 @@
                     console.warn("Could not load image from PE sheet:", err);
                 }
 
-                // =======================================================
-                // 2. FETCH PROJECT DATA FROM THE "DATE" SHEET
-                // =======================================================
                 const dateRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values/DATE!A1:ZZ`, { headers });
                 if (!dateRes.ok) throw new Error("Failed to fetch project data from DATE sheet.");
                 const dateData = await dateRes.json();
@@ -569,12 +565,11 @@
         function initUI() {
             document.getElementById('user-name').innerText = appState.currentUser;
             
-            // Set User Image and add the FALLBACK just in case the Google Drive link fails
             const imgElement = document.getElementById('user-image');
             imgElement.src = appState.userImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(appState.currentUser)}&background=0D8ABC&color=fff`;
             
             imgElement.onerror = function() {
-                this.onerror = null; // prevent infinite loops
+                this.onerror = null; 
                 this.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(appState.currentUser)}&background=0D8ABC&color=fff`;
             };
 
