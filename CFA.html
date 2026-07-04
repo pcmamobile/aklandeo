@@ -177,8 +177,9 @@
             <h1 class="text-2xl font-black text-slate-800 mb-2">Welcome Back!</h1>
             <p class="text-slate-500 mb-8 text-center text-sm">Login with your PE, PI, RE, or QE name to view your dashboard.</p>
             
-            <input type="text" id="username-input" placeholder="Enter Name (e.g., Ariel Fernandez)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 mb-4 text-slate-700 outline-none focus:border-blue-500">
-            <input type="password" id="password-input" placeholder="Password" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 mb-6 text-slate-700 outline-none focus:border-blue-500">
+<select id="username-input" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 mb-6 text-slate-700 outline-none focus:border-blue-500 cursor-pointer">
+    <option value="" disabled selected>Loading names from database...</option>
+</select>
             
             <button onclick="handleLogin()" class="w-full bg-blue-600 text-white font-bold rounded-xl py-3 shadow-lg hover:bg-blue-700 transition-colors">Login</button>
             
@@ -372,7 +373,7 @@
         };
 
         // On Page Load: Check for saved login
-        document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => {
             const savedUser = localStorage.getItem('loggedInUser');
             if (savedUser) {
                 appState.currentUser = savedUser;
@@ -380,6 +381,9 @@
                 document.getElementById('loading-screen').classList.remove('hidden');
                 document.getElementById('loading-screen').classList.add('flex');
                 fetchAllData();
+            } else {
+                // If not logged in, fetch the list of names for the dropdown
+                loadDropdownNames();
             }
         });
 
@@ -401,13 +405,75 @@
             return Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
         }
 
-        async function handleLogin() {
+
+async function loadDropdownNames() {
+            try {
+                const token = await GoogleSheetsAPI.getAuthToken();
+                const headers = { Authorization: `Bearer ${token}` };
+                
+                // Fetch data from the DATE sheet
+                const dateRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values/DATE!A1:ZZ`, { headers });
+                
+                if (!dateRes.ok) return;
+                const dateData = await dateRes.json();
+                const values = dateData.values;
+                if (!values || values.length < 3) return;
+
+                const headersRow = values[2].map(normalizeHeader);
+                
+                // Find column numbers
+                let colPE = headersRow.findIndex(h => h === "pe" || h.includes("project engineer"));
+                let colPI = headersRow.findIndex(h => h === "pi" || h.includes("project inspector"));
+                let colRE = headersRow.findIndex(h => h === "re" || h.includes("resident engineer"));
+                let colQE = headersRow.findIndex(h => h === "qe" || h.includes("quantity engineer") || h.includes("materials"));
+
+                const peSet = new Set(), piSet = new Set(), reSet = new Set(), qeSet = new Set();
+
+                // Extract unique names
+                for (let i = 3; i < values.length; i++) {
+                    const row = values[i];
+                    if (colPE >= 0 && row[colPE] && row[colPE].trim() && row[colPE].trim() !== "—") peSet.add(row[colPE].trim());
+                    if (colPI >= 0 && row[colPI] && row[colPI].trim() && row[colPI].trim() !== "—") piSet.add(row[colPI].trim());
+                    if (colRE >= 0 && row[colRE] && row[colRE].trim() && row[colRE].trim() !== "—") reSet.add(row[colRE].trim());
+                    if (colQE >= 0 && row[colQE] && row[colQE].trim() && row[colQE].trim() !== "—") qeSet.add(row[colQE].trim());
+                }
+
+                // Build Dropdown HTML
+                let html = `<option value="" disabled selected>Select your name...</option>`;
+                
+                const buildOptGroup = (label, set) => {
+                    if (set.size === 0) return '';
+                    let groupHtml = `<optgroup label="${label}">`;
+                    Array.from(set).sort().forEach(name => {
+                        groupHtml += `<option value="${name}">${name}</option>`;
+                    });
+                    groupHtml += `</optgroup>`;
+                    return groupHtml;
+                };
+
+                html += buildOptGroup("PE (Project Engineer)", peSet);
+                html += buildOptGroup("PI (Project Inspector)", piSet);
+                html += buildOptGroup("RE (Resident Engineer)", reSet);
+                html += buildOptGroup("QE (Quantity Engineer)", qeSet);
+
+                document.getElementById('username-input').innerHTML = html;
+
+            } catch (err) {
+                console.error("Error loading names:", err);
+                document.getElementById('username-input').innerHTML = `<option value="" disabled selected>Error loading names. Please refresh.</option>`;
+            }
+        }
+
+
+async function handleLogin() {
             const username = document.getElementById('username-input').value.trim();
-            const password = document.getElementById('password-input').value.trim();
             const errDiv = document.getElementById('login-error');
 
-            if (!username) { errDiv.innerText = "Please enter your Name."; errDiv.classList.remove('hidden'); return; }
-            if (password !== "123") { errDiv.innerText = "Incorrect Password."; errDiv.classList.remove('hidden'); return; }
+            if (!username) { 
+                errDiv.innerText = "Please select your Name."; 
+                errDiv.classList.remove('hidden'); 
+                return; 
+            }
 
             errDiv.classList.add('hidden');
             appState.currentUser = username;
@@ -430,7 +496,7 @@
             
             document.getElementById('login-screen').classList.remove('hidden');
             document.getElementById('username-input').value = "";
-            document.getElementById('password-input').value = "";
+
             
             switchTab('home');
         }
@@ -481,7 +547,7 @@
             }
         }
 
-        function processSheetData(values) {
+function processSheetData(values) {
             if (!values || values.length < 3) return;
 
             const headers = values[2].map(normalizeHeader);
@@ -517,10 +583,14 @@
                 const reName = colRE >= 0 && row[colRE] ? String(row[colRE]).toLowerCase() : "";
                 const qeName = colQE >= 0 && row[colQE] ? String(row[colQE]).toLowerCase() : "";
 
-                const isAssigned = peName.includes(userSearch) || piName.includes(userSearch) || 
-                                   reName.includes(userSearch) || qeName.includes(userSearch);
+                // Detect what role the user plays in this specific project
+                let userRole = "";
+                if (peName.includes(userSearch)) userRole = "PE";
+                else if (piName.includes(userSearch)) userRole = "PI";
+                else if (reName.includes(userSearch)) userRole = "RE";
+                else if (qeName.includes(userSearch)) userRole = "QE";
 
-                if (!isAssigned) continue;
+                if (userRole === "") continue; // Skip if they are not assigned to this project
 
                 const cocRaw = colDateCOC >= 0 ? row[colDateCOC] : null;
                 const caRaw = colDateCA >= 0 ? row[colDateCA] : null;
@@ -565,7 +635,8 @@
                     daysCAMinusCOC = "Pending CA";
                 }
 
-                appState.allProjects.push({ contractId, projectName, cocDate, caDate, year, status, statusText, daysCAMinusCOC });
+                // Push the userRole to the list as well!
+                appState.allProjects.push({ contractId, projectName, cocDate, caDate, year, status, statusText, daysCAMinusCOC, userRole });
             }
 
             document.getElementById('loading-screen').classList.add('hidden');
@@ -699,7 +770,7 @@
             if (!document.getElementById('tab-tasks').classList.contains('hidden')) renderTasks();
         }
 
-        function renderTasks() {
+function renderTasks() {
             let data = getFilteredData();
             if (appState.currentTaskFilter !== 'ALL') data = data.filter(p => p.status.toLowerCase() === appState.currentTaskFilter.toLowerCase());
 
@@ -718,7 +789,15 @@
                         borderClass = "border-completed"; 
                         cocColorClass = "text-emerald-600";
                         rightText = p.statusText;
-                        dateOfCALine = `<div class="text-xs text-slate-700 font-semibold mb-1">Date of CA: ${formatDateDisplay(p.caDate)}</div>`;
+                        
+                        // New beautiful styling for Date of CA
+                        dateOfCALine = `
+                            <div class="flex justify-start items-center text-xs mb-1">
+                                <div class="text-indigo-600 font-bold flex items-center gap-1.5 whitespace-nowrap">
+                                    <i class="fa-solid fa-file-signature text-sm"></i> Date of CA: ${formatDateDisplay(p.caDate)}
+                                </div>
+                            </div>
+                        `;
                     } else if (p.status === "InProgress") { 
                         badgeClass = "bg-blue-600 text-white"; 
                         borderClass = "border-inprogress"; 
@@ -736,10 +815,20 @@
                         rightText = p.statusText; 
                     }
 
+                    // Dynamically colored 3D Role Box next to Contract ID
+                    let roleColorFrom = "from-sky-400", roleColorTo = "to-blue-600", roleShadow = "rgba(30,64,175,1)", roleBorder = "border-blue-500";
+                    if (p.userRole === "PI") { roleColorFrom = "from-purple-400"; roleColorTo = "to-purple-600"; roleShadow = "rgba(88,28,135,1)"; roleBorder = "border-purple-500"; }
+                    if (p.userRole === "RE") { roleColorFrom = "from-amber-400"; roleColorTo = "to-orange-600"; roleShadow = "rgba(154,52,18,1)"; roleBorder = "border-orange-500"; }
+                    if (p.userRole === "QE") { roleColorFrom = "from-rose-400"; roleColorTo = "to-red-600"; roleShadow = "rgba(153,27,27,1)"; roleBorder = "border-red-500"; }
+                    
+                    let roleBadge = p.userRole ? `<span class="ml-2 px-2 py-0.5 text-[10px] font-black text-white bg-gradient-to-b ${roleColorFrom} ${roleColorTo} rounded shadow-[0_2px_0_${roleShadow}] border ${roleBorder} align-middle inline-block transform -translate-y-[2px] tracking-widest">${p.userRole}</span>` : "";
+
                     html += `
                         <div class="glass-card p-4 flex flex-col gap-1 ${borderClass}">
                             <div class="flex justify-between items-start mb-2">
-                                <h4 class="font-bold text-slate-800 text-md pr-3">${p.contractId}</h4>
+                                <h4 class="font-bold text-slate-800 text-md pr-3 flex items-center">
+                                    ${p.contractId} ${roleBadge}
+                                </h4>
                                 <span class="text-xs font-semibold px-3 py-1 rounded-full shadow-sm whitespace-nowrap ${badgeClass}">${p.status}</span>
                             </div>
                             
