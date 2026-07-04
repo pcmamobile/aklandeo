@@ -600,15 +600,18 @@
             return isNaN(parsed) ? 0 : parsed;
         }
 
-        const MONTHS_LABELS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-        const START_YEAR = 2026;
-        const CURRENT_MONTH_OFFSET = 5; 
-        
-        let appState = {
-            loggedInUser: null,
-            registeredUsers: {},
-            activeTab: 'SWA',
-            activeMonthOffset: 5,
+const MONTHS_LABELS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const START_YEAR = 2026;
+
+// Calculate the current month dynamically based on today's date
+const _today = new Date();
+const CURRENT_MONTH_OFFSET = (_today.getFullYear() - START_YEAR) * 12 + _today.getMonth(); 
+
+let appState = {
+    loggedInUser: null,
+    registeredUsers: {},
+    activeTab: 'SWA',
+    activeMonthOffset: CURRENT_MONTH_OFFSET,
             contractsList: [],
             selectedContractId: null,
             headers: [],
@@ -714,15 +717,14 @@
             }
         });
 
-        function initializeMonthSlider() {
-            const container = document.getElementById('month-carousel');
-            container.innerHTML = '';
-            
-            const limitYear = 2026;
-            const limitMonthIdx = 5;
-            const maxOffset = (limitYear - START_YEAR) * 12 + limitMonthIdx; 
-            
-            for (let i = 0; i <= maxOffset; i++) {
+function initializeMonthSlider() {
+    const container = document.getElementById('month-carousel');
+    container.innerHTML = '';
+    
+    // Use the dynamic offset calculated globally
+    const maxOffset = CURRENT_MONTH_OFFSET; 
+    
+    for (let i = 0; i <= maxOffset; i++) {
                 const year = START_YEAR + Math.floor(i / 12);
                 const monthName = MONTHS_LABELS[i % 12];
                 const yearShort = String(year).slice(-2);
@@ -1141,15 +1143,14 @@
             document.getElementById('filter-month-modal').classList.remove('flex');
         }
 
-        function renderFilterMonthPills() {
-            const container = document.getElementById('filter-month-carousel');
-            container.innerHTML = '';
-            
-            const limitYear = 2026;
-            const limitMonthIdx = 5;
-            const maxOffset = (limitYear - START_YEAR) * 12 + limitMonthIdx;
-            
-            for (let i = 0; i <= maxOffset; i++) {
+function renderFilterMonthPills() {
+    const container = document.getElementById('filter-month-carousel');
+    container.innerHTML = '';
+    
+    // Use the dynamic offset
+    const maxOffset = CURRENT_MONTH_OFFSET;
+    
+    for (let i = 0; i <= maxOffset; i++) {
                 const label = getMonthLabel(i);
                 const btn = document.createElement('button');
                 btn.id = `filter-pill-${i}`;
@@ -1943,10 +1944,11 @@
         }
 
         function openItemsEditorModal() {
-            if (appState.activeMonthOffset < CURRENT_MONTH_OFFSET) {
-                showCustomAlert("Period Locked!\n\nThis month is historical and cannot be modified. Updating items is only allowed in the current month (Jun26).");
-                return;
-            }
+if (appState.activeMonthOffset < CURRENT_MONTH_OFFSET) {
+    const currentLabel = getMonthLabel(CURRENT_MONTH_OFFSET);
+    showCustomAlert(`Period Locked!\n\nThis month is historical and cannot be modified. Updating items is only allowed in the current month (${currentLabel}).`);
+    return;
+}
 
             if (!appState.contractRowData) {
                 showCustomAlert("Please select a Contract ID first.");
