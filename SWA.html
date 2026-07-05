@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <title>SWA Mobile Tracker</title>
     
     <!-- Tailwind CSS -->
@@ -158,13 +158,13 @@
             </button>
             <div class="flex flex-col sm:flex-row sm:items-center gap-0.5 sm:gap-2">
                 <span class="text-slate-500 font-black text-xs uppercase tracking-widest flex items-center"><i class="fa-solid fa-layer-group mr-1.5 text-blue-500 hidden sm:inline-block"></i> SWA</span>
-                <span id="header-contract-display" class="hidden px-2 py-0.5 bg-blue-100 text-blue-700 border border-blue-200 rounded-md text-[10px] font-black tracking-wider"></span>
+                <span id="header-contract-display" class="hidden px-2 py-0.5 bg-blue-100 text-blue-700 border border-blue-200 rounded-md text-[10px] font-black tracking-wider break-all leading-tight"></span>
             </div>
         </div>
         <div class="flex items-center justify-end gap-3 lg:gap-4 flex-1 relative z-20">
             <div class="text-right hidden sm:block">
                 <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest leading-none mb-1">User Profile</p>
-                <p id="header-username-display" class="text-xs font-black text-blue-700 uppercase leading-none truncate max-w-[120px]">---</p>
+                <p id="header-username-display" class="text-xs font-black text-blue-700 uppercase leading-none break-all max-w-[120px]">---</p>
             </div>
             <button onclick="logout()" class="w-10 h-10 rounded-full bg-white/70 border border-white/80 text-slate-600 flex items-center justify-center hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition-all shadow-sm shrink-0" title="Logout">
                 <i class="fa-solid fa-power-off text-sm"></i>
@@ -183,7 +183,7 @@
                     </button>
                 </div>
                 <button onclick="openContractSelectorModal()" class="w-full bg-[#fdf5f0] hover:bg-white border border-white/80 rounded-2xl py-3.5 px-4 text-left flex items-center justify-between transition-all shadow-inner focus:outline-none mt-1">
-                    <span id="selected-contract-display" class="font-black text-slate-600 text-sm">Select Contract ID...</span>
+                    <span id="selected-contract-display" class="font-bold text-slate-500 text-sm">Select Contract ID...</span>
                     <i class="fa-solid fa-chevron-down text-orange-500 text-sm"></i>
                 </button>
             </div>
@@ -191,8 +191,8 @@
             <div class="bg-[#fcefe6]/90 backdrop-blur-xl border border-white/60 rounded-3xl p-5 shadow-[0_8px_30px_rgba(0,0,0,0.05)] flex flex-col gap-3">
                 <label class="text-xs font-black text-purple-600 tracking-wider uppercase"><i class="fa-solid fa-user-tie mr-1.5"></i> Authorized Representative</label>
                 <div class="relative neon-border-glow rounded-2xl">
-                    <select id="history-name-selector" class="w-full bg-[#fdf5f0] border border-white/80 rounded-2xl py-3.5 px-4 text-slate-800 font-bold text-sm focus:outline-none shadow-inner appearance-none cursor-pointer">
-                        <option value="">-- Select Representative --</option>
+                    <select id="history-name-selector" class="w-full bg-[#fdf5f0] border border-white/80 rounded-2xl py-3 px-4 text-slate-800 font-bold text-xs sm:text-sm focus:outline-none shadow-inner appearance-none cursor-pointer">
+                        <option value="" class="text-xs font-bold">-- Select Representative --</option>
                     </select>
                     <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none text-purple-500 text-sm">
                         <i class="fa-solid fa-chevron-down"></i>
@@ -251,10 +251,10 @@
                         <div class="px-1">Slippage</div>
                     </div>
                     <div class="grid grid-cols-[35%_35%_15%_15%] bg-[#fff4eb] text-slate-800 font-black text-[10px] sm:text-[11px] py-2 text-center divide-x divide-orange-200 items-center">
-                        <div id="stat-amount" class="text-blue-700 truncate px-1">Php 0.00</div>
-                        <div id="stat-todate-amount" class="text-emerald-700 truncate px-1">Php 0.00</div>
-                        <div id="stat-actual-percent" class="text-purple-700 truncate px-0.5">0.00%</div>
-                        <div id="stat-slippage" class="text-rose-700 truncate px-0.5">-</div>
+                        <div id="stat-amount" class="text-blue-700 break-all leading-tight tracking-tighter px-0.5">Php 0.00</div>
+                        <div id="stat-todate-amount" class="text-emerald-700 break-all leading-tight tracking-tighter px-0.5">Php 0.00</div>
+                        <div id="stat-actual-percent" class="text-purple-700 break-all leading-tight tracking-tighter px-0.5">0.00%</div>
+                        <div id="stat-slippage" class="text-rose-700 break-all leading-tight tracking-tighter px-0.5">-</div>
                     </div>
                 </div>
             </div>
@@ -300,27 +300,26 @@
                     </button>
                 </div>
 
-                <!-- Compact Scheduled % (BarChart) Accordion (MOVED TO BOTTOM) -->
+                <!-- Compact Scheduled % (BarChart) Accordion -->
                 <div id="barchart-container" class="hidden flex-col border border-blue-200 bg-[#f0f7ff]/90 rounded-2xl overflow-hidden shadow-sm mt-2">
                     <div class="px-4 py-3 text-[11px] md:text-sm font-semibold text-slate-800 cursor-pointer hover:bg-blue-100/50 transition-colors flex justify-between items-center" onclick="toggleBarChartAccordion()">
-                        <div class="flex items-center gap-2 font-bold text-blue-700">
+                        <div class="flex items-center gap-2 font-bold text-blue-700 shrink-0 mr-2">
                             <i class="fa-solid fa-chevron-right text-[10px] transition-transform duration-300" id="icon-barchart"></i>
-                            <i class="fa-solid fa-chart-simple"></i> Scheduled % (BarChart)
+                            <i class="fa-solid fa-chart-simple"></i> BarChart
                         </div>
-                        <span id="barchart-preview" class="text-[10px] text-slate-500 font-bold truncate max-w-[200px]"></span>
+                        <span id="barchart-preview" class="text-[10px] text-slate-500 font-bold break-all leading-tight max-w-[50%] text-right"></span>
                     </div>
-                    <!-- The new dynamic table will be injected right here -->
                     <div id="detail-barchart" class="hidden flex-col bg-white border-t border-dashed border-blue-300 shadow-inner p-0"></div>
                 </div>
 
-                <!-- Compact Monthly Remarks Accordion (MOVED TO BOTTOM) -->
-                <div id="remarks-container" class="hidden flex-col border border-orange-200 bg-[#fff4eb]/90 rounded-2xl overflow-hidden shadow-sm">
+                <!-- Compact Monthly Remarks Accordion -->
+                <div id="remarks-container" class="hidden flex-col border border-orange-200 bg-[#fff4eb]/90 rounded-2xl overflow-hidden shadow-sm mt-0">
                     <div class="px-4 py-3 text-[11px] md:text-sm font-semibold text-slate-800 cursor-pointer hover:bg-orange-300/40 transition-colors flex justify-between items-center" onclick="toggleRemarksAccordion()">
-                        <div class="flex items-center gap-2 font-bold text-amber-700">
+                        <div class="flex items-center gap-2 font-bold text-amber-700 shrink-0 mr-2">
                             <i class="fa-solid fa-chevron-right text-[10px] transition-transform duration-300" id="icon-remarks"></i>
                             <i class="fa-solid fa-comment-dots"></i> Monthly Remarks
                         </div>
-                        <span id="remarks-preview" class="text-[10px] text-slate-500 truncate max-w-[200px] font-normal italic"></span>
+                        <span id="remarks-preview" class="text-[10px] text-slate-500 break-all line-clamp-2 max-w-[50%] text-right font-normal italic leading-tight"></span>
                     </div>
                     <div id="detail-remarks" class="hidden flex-col bg-white border-t border-dashed border-orange-300 p-4 gap-3 shadow-inner">
                         <textarea id="monthly-remarks" rows="2" oninput="onRemarksEdit(this)" class="w-full bg-white/70 border border-slate-300 rounded-xl p-3 text-slate-800 text-xs font-bold focus:outline-none focus:border-amber-400 placeholder-slate-400 transition-colors shadow-inner resize-none" placeholder="Enter remarks for the selected month..."></textarea>
@@ -980,7 +979,7 @@
             const cleaned = ntpStr.toLowerCase().trim();
             const monthNames = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
             let monthIdx = -1;
-            for (let i = 0; i < 12; i++) {
+            for (let i = 0; i < 12;i++) {
                 if (cleaned.includes(monthNames[i])) { monthIdx = i; break; }
             }
             if (monthIdx !== -1) {
@@ -1297,7 +1296,7 @@
             const selector = document.getElementById('history-name-selector');
             if (!selector) return;
             const currentValue = selector.value;
-            selector.innerHTML = '<option value="">-- Select Representative --</option>';
+            selector.innerHTML = '<option value="" class="text-xs font-bold">-- Select Representative --</option>';
             if (!contractId || !appState.pdoLookupMap[contractId]) return;
             const pdoData = appState.pdoLookupMap[contractId];
 
@@ -1430,7 +1429,7 @@
                 addBtn.innerHTML = `<i class="fa-solid fa-ban text-rose-500"></i> View-Only (Assigned to: ${contractLoginUser || 'None'})`;
             } else {
                 addBtn.onclick = openItemsEditorModal;
-                addBtn.className = "w-full py-4 border-2 border-dashed border-blue-400 hover:border-blue-500 bg-white/60 hover:bg-white/80 text-blue-700 rounded-2xl text-xs font-black tracking-widest uppercase transition-all flex items-center justify-center gap-2 mt-2 shadow-sm";
+                addBtn.className = "w-full py-4 bg-gradient-to-r from-blue-500 to-indigo-600 hover:bg-gradient-to-r hover:from-blue-600 hover:to-indigo-700 text-white rounded-2xl text-xs font-black tracking-widest uppercase transition-all flex items-center justify-center gap-2 mt-2 shadow-md shadow-blue-500/30";
                 addBtn.innerHTML = `<i class="fa-solid fa-gears"></i> Add/Edit/Update Items`;
             }
 
@@ -1466,8 +1465,8 @@
             const tableContainer = document.createElement('div');
             tableContainer.className = "w-full flex flex-col shadow-lg rounded-2xl overflow-hidden border border-slate-200/50 backdrop-blur-md bg-white/40";
             const headerRow = document.createElement('div');
-            headerRow.className = "grid grid-cols-4 bg-[#ee7d31] text-white font-bold py-3 text-[11px] md:text-sm uppercase tracking-wide border-b border-[#d97c3b] shadow-sm";
-            headerRow.innerHTML = `<div class="text-left px-3">Item No.</div><div class="text-right px-3">Previous</div><div class="text-right px-3">To Date</div><div class="text-right px-3">Balance</div>`;
+            headerRow.className = "grid grid-cols-[30%_23%_23%_24%] bg-[#ee7d31] text-white font-bold py-3 text-[11px] md:text-sm uppercase tracking-tight border-b border-[#d97c3b] shadow-sm";
+            headerRow.innerHTML = `<div class="text-left px-1.5 sm:px-3 leading-tight">Item No.</div><div class="text-right px-1.5 sm:px-3 leading-tight">Previous</div><div class="text-right px-1.5 sm:px-3 leading-tight">To Date</div><div class="text-right px-1.5 sm:px-3 leading-tight">Balance</div>`;
             tableContainer.appendChild(headerRow);
 
             const bodyContainer = document.createElement('div');
@@ -1506,17 +1505,17 @@
                 rowWrapper.dataset.rawItem = JSON.stringify(workingItem);
 
                 const masterRow = document.createElement('div');
-                masterRow.className = `grid grid-cols-4 py-3 text-[11px] md:text-sm font-semibold ${itemTextColor} cursor-pointer hover:bg-orange-300/40 transition-colors`;
+                masterRow.className = `grid grid-cols-[30%_23%_23%_24%] py-3 text-[11px] md:text-sm font-semibold ${itemTextColor} cursor-pointer hover:bg-orange-300/40 transition-colors`;
                 masterRow.onclick = () => toggleAccordion(index);
                 masterRow.innerHTML = `
-                    <div class="text-left px-3 flex items-center gap-1.5 font-bold">
-                        <i class="fa-solid fa-chevron-right text-[10px] text-orange-600 transition-transform duration-300" id="icon-${index}"></i>
-                        <span class="truncate">${metrics.itemNo}</span>
-                        ${isPending ? '<span class="text-[8px] bg-amber-500 text-white px-1.5 py-0.5 rounded ml-1 uppercase shadow-sm">P</span>' : ''}
+                    <div class="text-left px-1.5 sm:px-3 flex items-center gap-1 font-bold">
+                        <i class="fa-solid fa-chevron-right text-[10px] text-orange-600 transition-transform duration-300 shrink-0" id="icon-${index}"></i>
+                        <span class="break-all leading-tight tracking-tighter text-[10px] sm:text-sm">${metrics.itemNo}</span>
+                        ${isPending ? '<span class="text-[8px] bg-amber-500 text-white px-1 py-0.5 rounded uppercase shadow-sm shrink-0">P</span>' : ''}
                     </div>
-                    <div class="text-right px-3 text-slate-700" id="master-prev-${index}">${formatNum(metrics.previous)}</div>
-                    <div class="text-right px-3 ${toDateTextColor} font-black" id="master-todate-${index}">${formatNum(metrics.toDate)}</div>
-                    <div class="text-right px-3 text-rose-700" id="master-bal-${index}">${formatNum(metrics.balance)}</div>
+                    <div class="text-right px-1.5 sm:px-3 text-slate-700 tracking-tighter break-all text-[10px] sm:text-sm" id="master-prev-${index}">${formatNum(metrics.previous)}</div>
+                    <div class="text-right px-1.5 sm:px-3 ${toDateTextColor} font-black tracking-tighter break-all text-[10px] sm:text-sm" id="master-todate-${index}">${formatNum(metrics.toDate)}</div>
+                    <div class="text-right px-1.5 sm:px-3 text-rose-700 tracking-tighter break-all text-[10px] sm:text-sm" id="master-bal-${index}">${formatNum(metrics.balance)}</div>
                 `;
 
                 const detailRow = document.createElement('div');
@@ -1542,7 +1541,7 @@
                                     ${inputDisabledAttr}
                                     oninput="onItemEdit(this, ${index}, ${workingItem.colIndex}, ${workingItem.rowNumber})"
                                     placeholder="${inputPlaceholder}" 
-                                    class="w-full bg-transparent border-none outline-none text-xs font-black p-1.5 text-center focus:ring-0 ${hasUpdateThisPeriod ? 'text-blue-700' : 'text-slate-900'} ${isLocked ? 'cursor-not-allowed opacity-60' : ''}">
+                                    class="w-full bg-transparent border-none outline-none text-xs font-black p-1.5 text-center focus:ring-0 tracking-tighter ${hasUpdateThisPeriod ? 'text-blue-700' : 'text-slate-900'} ${isLocked ? 'cursor-not-allowed opacity-60' : ''}">
                             </div>
                         </div>
                     </div>
@@ -1715,7 +1714,7 @@
                                 value="${p}" 
                                 oninput="updateBarChartData()"
                                 ${isLocked ? 'disabled' : ''}
-                                class="w-20 bg-transparent outline-none text-right font-bold text-sm text-slate-900 focus:border-b focus:border-blue-600 ${isLocked ? 'cursor-not-allowed opacity-60' : ''}">
+                                class="w-20 bg-transparent outline-none text-right font-bold text-sm text-slate-900 focus:border-b focus:border-blue-600 tracking-tighter ${isLocked ? 'cursor-not-allowed opacity-60' : ''}">
                             <span class="font-bold text-sm text-slate-900 ml-1">%</span>
                             ${!isLocked && idx === parts.length - 1 && parts.length > 1 ? `<button onclick="removeBarChartRow()" class="text-rose-500 opacity-50 hover:opacity-100 ml-2" title="Remove Last Month"><i class="fa-solid fa-times"></i></button>` : '<span class="w-5 ml-2"></span>'}
                         </td>
@@ -1734,7 +1733,7 @@
                         <tr class="bg-white font-black text-black text-sm">
                             <td class="py-2 px-4">Total</td>
                             <td class="py-2 px-4 flex justify-end items-center">
-                                <span id="barchart-total-display" class="${total > 100 ? 'text-rose-600' : ''}">${total.toFixed(2)}</span>
+                                <span id="barchart-total-display" class="tracking-tighter ${total > 100 ? 'text-rose-600' : ''}">${total.toFixed(2)}</span>
                                 <span class="ml-1">%</span>
                                 <span class="w-5 ml-2"></span>
                             </td>
@@ -2090,10 +2089,10 @@
             if (slippage !== null && slippage !== undefined && amount > 0) {
                 const sign = slippage > 0 ? '+' : '';
                 slippageEl.innerText = `${sign}${slippage.toFixed(2)}%`;
-                slippageEl.className = slippage >= 0 ? "text-emerald-600 font-extrabold truncate px-0.5" : "text-rose-600 font-extrabold truncate px-0.5";
+                slippageEl.className = slippage >= 0 ? "text-emerald-600 font-extrabold break-all leading-tight tracking-tighter px-0.5" : "text-rose-600 font-extrabold break-all leading-tight tracking-tighter px-0.5";
             } else {
                 slippageEl.innerText = '-';
-                slippageEl.className = "text-rose-700 truncate px-0.5";
+                slippageEl.className = "text-rose-700 break-all leading-tight tracking-tighter px-0.5";
             }
         }
 
@@ -2175,13 +2174,13 @@
 
             tr.innerHTML = `
                 <td class="py-2 px-1.5 sm:px-3 align-middle border-r border-[#ee7d31]/20 overflow-hidden">
-                    <input type="text" value="${metrics.itemNo || ''}" oninput="editorIsDirty = true;" onkeydown="handleEditorEnter(event, this, 'editor-item-no')" placeholder="ID..." class="w-full bg-transparent border-0 outline-none text-slate-800 text-[11px] sm:text-sm font-bold focus:ring-0 text-left editor-item-no p-0">
+                    <input type="text" value="${metrics.itemNo || ''}" oninput="editorIsDirty = true;" onkeydown="handleEditorEnter(event, this, 'editor-item-no')" placeholder="ID..." class="w-full bg-transparent border-0 outline-none text-slate-800 text-[11px] sm:text-sm tracking-tighter font-bold focus:ring-0 text-left editor-item-no p-0">
                 </td>
                 <td class="py-2 px-1 sm:px-3 align-middle border-r border-[#ee7d31]/20 overflow-hidden">
-                    <input type="text" value="${qtyFormatted}" oninput="editorIsDirty = true;" onfocus="this.value = unformatNumStr(this.value); this.select();" onblur="this.value = formatNumStr(this.value);" onkeydown="handleEditorEnter(event, this, 'editor-qty')" placeholder="0.00" class="w-full bg-transparent border-0 outline-none text-slate-800 text-[11px] sm:text-sm font-bold focus:ring-0 text-right editor-qty p-0">
+                    <input type="text" value="${qtyFormatted}" oninput="editorIsDirty = true;" onfocus="this.value = unformatNumStr(this.value); this.select();" onblur="this.value = formatNumStr(this.value);" onkeydown="handleEditorEnter(event, this, 'editor-qty')" placeholder="0.00" class="w-full bg-transparent border-0 outline-none text-slate-800 text-[11px] sm:text-sm tracking-tighter font-bold focus:ring-0 text-right editor-qty p-0">
                 </td>
                 <td class="py-2 px-1 sm:px-3 align-middle border-r border-[#ee7d31]/20 overflow-hidden">
-                    <input type="text" value="${costFormatted}" oninput="editorIsDirty = true;" onfocus="this.value = unformatNumStr(this.value); this.select();" onblur="this.value = formatNumStr(this.value);" onkeydown="handleEditorEnter(event, this, 'editor-unit-cost')" placeholder="0.00" class="w-full bg-transparent border-0 outline-none text-slate-800 text-[11px] sm:text-sm font-bold focus:ring-0 text-right editor-unit-cost p-0">
+                    <input type="text" value="${costFormatted}" oninput="editorIsDirty = true;" onfocus="this.value = unformatNumStr(this.value); this.select();" onblur="this.value = formatNumStr(this.value);" onkeydown="handleEditorEnter(event, this, 'editor-unit-cost')" placeholder="0.00" class="w-full bg-transparent border-0 outline-none text-slate-800 text-[11px] sm:text-sm tracking-tighter font-bold focus:ring-0 text-right editor-unit-cost p-0">
                 </td>
                 <td class="py-2 px-0.5 sm:px-2 align-middle text-center">
                     <div class="flex justify-center items-center gap-1 sm:gap-2">
