@@ -16,7 +16,7 @@
 
     <style>
         /* =========================================================
-           GLOBAL UI & ANIMATED ANIME BACKGROUND (From index.html)
+           GLOBAL UI & ANIMATED ANIME BACKGROUND
            ========================================================= */
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800;900&display=swap');
         
@@ -24,7 +24,6 @@
             font-family: 'Nunito', sans-serif;
             margin: 0;
             color: #1e293b;
-            /* Stunning Pastel Anime Sky Background */
             background-image: url('https://images.unsplash.com/photo-1500964757637-c85e8a162699?q=80&w=2560&auto=format&fit=crop');
             background-size: cover;
             background-position: center;
@@ -34,7 +33,6 @@
             min-height: 100vh;
         }
 
-        /* Magic Color-Shifting Overlay */
         body::before {
             content: '';
             position: fixed;
@@ -51,7 +49,6 @@
             border-color: #3b82f6;
         }
 
-        /* Hide scrollbars but allow functional scrolling */
         .no-scrollbar::-webkit-scrollbar {
             display: none;
         }
@@ -60,7 +57,6 @@
             scrollbar-width: none;
         }
 
-        /* Print Specific Isolated Rules */
         @media print {
             body * { visibility: hidden; }
             body::before { display: none; }
@@ -75,28 +71,14 @@
             .print\:hidden { display: none !important; }
         }
 		
-	/* =========================================================
-           RESPONSIVE LAPTOP SCALING (Fix for 1280x1024 displays)
-           ========================================================= */
-        @media screen and (max-width: 1600px) {
-            html { font-size: 14px; } /* Shrinks the entire app by 12% on average laptops */
-        }
-        @media screen and (max-width: 1366px) {
-            html { font-size: 13px; } /* Shrinks the entire app by 18% on small laptops */
-        }
-        @media screen and (max-width: 1280px) {
-            html { font-size: 12px; } /* Shrinks the entire app by 25% on 1280x1024 monitors */
-        }
-        @media screen and (max-width: 768px) {
-            html { font-size: 16px; } /* Returns to normal for Mobile Phones for readability */
-        }	
-		
-		
+        @media screen and (max-width: 1600px) { html { font-size: 14px; } }
+        @media screen and (max-width: 1366px) { html { font-size: 13px; } }
+        @media screen and (max-width: 1280px) { html { font-size: 12px; } }
+        @media screen and (max-width: 768px) { html { font-size: 16px; } }	
     </style>
 </head>
 <body class="flex flex-col pb-20">
 
-    <!-- Toast Notification Tray -->
     <div id="toast-notification" class="fixed top-4 left-1/2 -translate-x-1/2 z-[200] max-w-sm w-[90%] transform -translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
         <div class="bg-white/90 backdrop-blur-md border rounded-xl p-4 shadow-2xl flex items-center gap-3" id="toast-box">
             <i id="toast-icon" class="fa-solid fa-circle-check text-xl"></i>
@@ -104,7 +86,6 @@
         </div>
     </div>
 
-    <!-- Reusable Custom Confirmation / Alert Modal Overlay -->
     <div id="confirm-modal" class="fixed inset-0 z-[250] bg-slate-900/60 backdrop-blur-md p-4 hidden flex-col justify-center items-center">
         <div class="bg-white/95 backdrop-blur-xl border border-white/80 rounded-3xl w-full max-w-sm overflow-hidden shadow-[0_10px_40px_rgba(0,0,0,0.3)] transform transition-transform duration-300 scale-95" id="confirm-modal-box">
             <div class="p-6 flex flex-col gap-4 text-center">
@@ -123,7 +104,6 @@
         </div>
     </div>
 
-    <!-- Login Portal Overlay -->
     <div id="login-modal" class="fixed inset-0 z-[150] bg-slate-900/40 backdrop-blur-md flex flex-col justify-center items-center p-4">
         <div class="bg-white/70 backdrop-blur-xl border border-white/80 rounded-[35px] w-full max-w-sm overflow-hidden shadow-[0_20px_50px_rgba(31,38,135,0.2)] p-8 flex flex-col gap-6">
             <div class="text-center">
@@ -133,9 +113,7 @@
                 <h2 class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 tracking-wider">SWA PORTAL</h2>
                 <p class="text-xs font-bold text-slate-500 mt-1 uppercase tracking-widest">Authentication Required</p>
             </div>
-            
             <div id="login-error" class="hidden bg-rose-50/90 border border-rose-200 text-rose-600 text-xs font-bold p-3 rounded-xl text-center uppercase tracking-wider shadow-inner"></div>
-            
             <div class="flex flex-col gap-4">
                 <div>
                     <label class="text-[10px] font-black text-slate-600 tracking-wider uppercase mb-1.5 block">Username</label>
@@ -152,26 +130,18 @@
                     </div>
                 </div>
             </div>
-            
             <div class="flex flex-col gap-3 mt-2">
-                <button onclick="attemptLogin()" class="w-full py-4 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-black text-xs uppercase tracking-widest shadow-lg shadow-blue-500/30 hover:scale-[1.02] transition-all">
-                    Verify & Login
-                </button>
-                
+                <button onclick="attemptLogin()" class="w-full py-4 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-black text-xs uppercase tracking-widest shadow-lg shadow-blue-500/30 hover:scale-[1.02] transition-all">Verify & Login</button>
                 <div class="relative flex items-center py-2">
                     <div class="flex-grow border-t border-slate-300/50"></div>
                     <span class="flex-shrink-0 mx-4 text-slate-400 text-[10px] font-bold uppercase tracking-widest">Or</span>
                     <div class="flex-grow border-t border-slate-300/50"></div>
                 </div>
-                
-                <button onclick="attemptGuestLogin()" class="w-full py-4 rounded-xl bg-white/60 text-slate-600 border border-white/80 font-black text-xs uppercase tracking-widest hover:bg-white/90 hover:shadow-md transition-all">
-                    Continue as Guest
-                </button>
+                <button onclick="attemptGuestLogin()" class="w-full py-4 rounded-xl bg-white/60 text-slate-600 border border-white/80 font-black text-xs uppercase tracking-widest hover:bg-white/90 hover:shadow-md transition-all">Continue as Guest</button>
             </div>
         </div>
     </div>
 
-    <!-- Loader Overlay -->
     <div id="loader" class="fixed inset-0 z-[200] bg-white/60 backdrop-blur-xl flex flex-col items-center justify-center">
         <div class="relative flex items-center justify-center mb-6">
             <div class="w-20 h-20 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin shadow-lg"></div>
@@ -181,18 +151,16 @@
         <p id="loader-text" class="text-sm font-bold text-slate-600 mt-2 text-center px-6">Validating credentials and retrieving live data...</p>
     </div>
 
-<!-- Header Section -->
     <header class="bg-white/40 border-b border-white/50 backdrop-blur-lg sticky top-0 z-40 p-3 lg:p-4 flex items-center justify-between shadow-sm relative">
-        
-        <!-- Left Section: Back Button & App Title -->
         <div class="flex-1 flex items-center gap-2 md:gap-4 px-1 md:px-2">
             <button onclick="handleAppBack()" class="w-10 h-10 rounded-full bg-white/70 border border-white/80 text-slate-600 flex items-center justify-center hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-all shadow-sm shrink-0" title="Back to Main Menu">
                 <i class="fa-solid fa-arrow-left text-sm"></i>
             </button>
-            <span class="text-slate-500 font-black text-xs uppercase tracking-widest hidden sm:inline-block"><i class="fa-solid fa-layer-group mr-1.5 text-blue-500"></i> SWA Tracker</span>
+            <div class="flex flex-col sm:flex-row sm:items-center gap-0.5 sm:gap-2">
+                <span class="text-slate-500 font-black text-xs uppercase tracking-widest flex items-center"><i class="fa-solid fa-layer-group mr-1.5 text-blue-500 hidden sm:inline-block"></i> SWA</span>
+                <span id="header-contract-display" class="hidden px-2 py-0.5 bg-blue-100 text-blue-700 border border-blue-200 rounded-md text-[10px] font-black tracking-wider"></span>
+            </div>
         </div>
-        
-        <!-- Right Profile Section -->
         <div class="flex items-center justify-end gap-3 lg:gap-4 flex-1 relative z-20">
             <div class="text-right hidden sm:block">
                 <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest leading-none mb-1">User Profile</p>
@@ -204,189 +172,189 @@
         </div>
     </header>
 
-    <!-- Main Navigation / Responsive Viewports -->
-    <main class="p-4 lg:p-6 2xl:p-10 flex-1 w-full mx-auto max-w-[1920px]">
-        <div class="grid grid-cols-1 lg:grid-cols-12 xl:grid-cols-12 gap-6 xl:gap-8 items-start">
-            
-<!-- Left Panel: Configurations & Active Metrics -->
-            <div class="lg:col-span-4 xl:col-span-3 flex flex-col gap-5 lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto no-scrollbar pb-4">
-                
-                <!-- Contract Selector -->
-                <div class="bg-white/50 backdrop-blur-xl border border-white/60 rounded-3xl p-5 shadow-[0_8px_30px_rgba(0,0,0,0.05)] flex flex-col gap-3">
-                    <div class="flex justify-between items-center">
-                        <label class="text-xs font-black text-orange-600 tracking-wider uppercase"><i class="fa-solid fa-file-contract mr-1.5"></i> Active Contract</label>
-                        <button onclick="openFilterMonthModal()" class="text-[10px] font-black tracking-widest uppercase bg-white/80 text-blue-600 border border-white shadow-sm px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors">
-                            <i class="fa-solid fa-filter"></i> Filter
-                        </button>
-                    </div>
-                    <button onclick="openContractSelectorModal()" class="w-full bg-white/60 hover:bg-white/90 border border-white/80 rounded-2xl py-3.5 px-4 text-left flex items-center justify-between transition-all shadow-inner focus:outline-none mt-1">
-                        <span id="selected-contract-display" class="font-black text-slate-600 text-sm">Select Contract ID...</span>
-                        <i class="fa-solid fa-chevron-down text-orange-500 text-sm"></i>
+    <main class="p-4 lg:p-6 flex-1 w-full mx-auto max-w-5xl">
+        
+        <div id="home-view" class="flex flex-col gap-5 w-full max-w-md mx-auto mt-4 md:mt-12 transition-all duration-500">
+            <div class="bg-[#fcefe6]/90 backdrop-blur-xl border border-white/60 rounded-3xl p-5 shadow-[0_8px_30px_rgba(0,0,0,0.05)] flex flex-col gap-3">
+                <div class="flex justify-between items-center">
+                    <label class="text-xs font-black text-[#e86a10] tracking-wider uppercase"><i class="fa-solid fa-file-contract mr-1.5"></i> Active Contract</label>
+                    <button onclick="openFilterView()" class="text-[10px] font-black tracking-widest uppercase bg-white/80 text-[#e86a10] border border-white shadow-sm px-3 py-1.5 rounded-lg hover:bg-orange-50 transition-colors">
+                        <i class="fa-solid fa-chart-line mr-1"></i> Accomplishment
                     </button>
                 </div>
-
-                <!-- Representative Selector -->
-                <div class="bg-white/50 backdrop-blur-xl border border-white/60 rounded-3xl p-5 shadow-[0_8px_30px_rgba(0,0,0,0.05)] flex flex-col gap-3">
-                    <label class="text-xs font-black text-purple-600 tracking-wider uppercase"><i class="fa-solid fa-user-tie mr-1.5"></i> Authorized Representative</label>
-                    <div class="relative neon-border-glow rounded-2xl">
-                        <select id="history-name-selector" class="w-full bg-white/60 border border-white/80 rounded-2xl py-3.5 px-4 text-slate-800 font-bold text-sm focus:outline-none shadow-inner appearance-none cursor-pointer">
-                            <option value="">-- Select Representative --</option>
-                        </select>
-                        <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none text-purple-500 text-sm">
-                            <i class="fa-solid fa-chevron-down"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Update History Timeline -->
-                <div class="bg-white/50 backdrop-blur-xl border border-white/60 rounded-3xl p-5 shadow-[0_8px_30px_rgba(0,0,0,0.05)] flex flex-col gap-3">
-                    <label class="text-xs font-black text-rose-600 tracking-wider uppercase"><i class="fa-solid fa-clock-rotate-left mr-1.5"></i> SWA Update Log</label>
-                    <div id="history-timeline-container" class="flex flex-col gap-2.5 max-h-40 overflow-y-auto no-scrollbar">
-                        <p class="text-xs text-slate-500 italic font-bold">No previous updates recorded.</p>
-                    </div>
-                </div>
-
-                <!-- Horizontal Scroll Month Picker -->
-                <div class="flex flex-col gap-2">
-                    <label class="text-xs font-black text-slate-600 tracking-wider uppercase px-2"><i class="fa-solid fa-calendar-days mr-1.5 text-blue-500"></i> Active Period</label>
-                    <div id="month-carousel" class="flex gap-2 overflow-x-auto no-scrollbar py-2 px-1">
-                        <!-- Dynamically injected months -->
-                    </div>
-                </div>
-
-                <!-- Contract Aggregated Stats Summary Grid -->
-                <div class="grid grid-cols-2 gap-3" id="stats-summary-grid">
-                    <div class="bg-blue-50/60 backdrop-blur-md border border-blue-200/60 rounded-2xl p-4 flex flex-col justify-between shadow-sm">
-                        <span class="text-[10px] text-blue-600 font-black uppercase tracking-wider">Amount</span>
-                        <span id="stat-amount" class="text-sm font-extrabold text-blue-900 mt-1">Php 0.00</span>
-                    </div>
-                    <div class="bg-emerald-50/60 backdrop-blur-md border border-emerald-200/60 rounded-2xl p-4 flex flex-col justify-between shadow-sm">
-                        <span class="text-[10px] text-emerald-600 font-black uppercase tracking-wider">To Date</span>
-                        <span id="stat-todate-amount" class="text-sm font-extrabold text-emerald-900 mt-1">Php 0.00</span>
-                    </div>
-                    <div class="bg-purple-50/60 backdrop-blur-md border border-purple-200/60 rounded-2xl p-4 flex flex-col justify-between shadow-sm">
-                        <span class="text-[10px] text-purple-600 font-black uppercase tracking-wider">Actual %</span>
-                        <span id="stat-actual-percent" class="text-sm font-extrabold text-purple-900 mt-1">0.00 %</span>
-                    </div>
-                    <div class="bg-rose-50/60 backdrop-blur-md border border-rose-200/60 rounded-2xl p-4 flex flex-col justify-between shadow-sm">
-                        <span class="text-[10px] text-rose-600 font-black uppercase tracking-wider">Slippage</span>
-                        <span id="stat-slippage" class="text-sm font-extrabold text-rose-900 mt-1">-</span>
-                    </div>
-                </div>
-
-                <!-- Monthly Remarks Container -->
-                <div id="remarks-container" class="hidden bg-white/50 backdrop-blur-xl border border-white/60 rounded-3xl p-5 shadow-[0_8px_30px_rgba(0,0,0,0.05)] flex-col gap-3">
-                    <div class="flex justify-between items-center">
-                        <label class="text-xs font-black text-amber-600 tracking-wider uppercase"><i class="fa-solid fa-comment-dots mr-1.5"></i> Monthly Remarks</label>
-                    </div>
-                    <textarea id="monthly-remarks" rows="3" oninput="onRemarksEdit(this)" class="w-full bg-white/70 border border-white/80 rounded-2xl p-4 text-slate-800 text-sm font-bold focus:outline-none focus:border-amber-400 placeholder-slate-400 transition-colors shadow-inner resize-none" placeholder="Enter remarks for the selected month..."></textarea>
-                </div>
-
+                <button onclick="openContractSelectorModal()" class="w-full bg-[#fdf5f0] hover:bg-white border border-white/80 rounded-2xl py-3.5 px-4 text-left flex items-center justify-between transition-all shadow-inner focus:outline-none mt-1">
+                    <span id="selected-contract-display" class="font-black text-slate-600 text-sm">Select Contract ID...</span>
+                    <i class="fa-solid fa-chevron-down text-orange-500 text-sm"></i>
+                </button>
             </div>
 
-            <!-- Right Panel: SWA Card Items Viewport -->
-            <div class="lg:col-span-8 xl:col-span-9 flex flex-col gap-4">
-                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 xl:gap-6" id="items-list-container">
-                    <div class="col-span-full text-center py-16 text-slate-500 bg-white/50 backdrop-blur-xl border border-white/60 rounded-[30px] shadow-sm">
+            <div class="bg-[#fcefe6]/90 backdrop-blur-xl border border-white/60 rounded-3xl p-5 shadow-[0_8px_30px_rgba(0,0,0,0.05)] flex flex-col gap-3">
+                <label class="text-xs font-black text-purple-600 tracking-wider uppercase"><i class="fa-solid fa-user-tie mr-1.5"></i> Authorized Representative</label>
+                <div class="relative neon-border-glow rounded-2xl">
+                    <select id="history-name-selector" class="w-full bg-[#fdf5f0] border border-white/80 rounded-2xl py-3.5 px-4 text-slate-800 font-bold text-sm focus:outline-none shadow-inner appearance-none cursor-pointer">
+                        <option value="">-- Select Representative --</option>
+                    </select>
+                    <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none text-purple-500 text-sm">
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-[#f4dede]/90 backdrop-blur-xl border border-white/60 rounded-3xl p-5 shadow-[0_8px_30px_rgba(0,0,0,0.05)] flex flex-col gap-3">
+                <label class="text-xs font-black text-rose-600 tracking-wider uppercase"><i class="fa-solid fa-clock-rotate-left mr-1.5"></i> SWA Update Log</label>
+                <div id="history-timeline-container" class="flex flex-col gap-2.5 max-h-40 overflow-y-auto no-scrollbar">
+                    <p class="text-xs text-slate-500 italic font-bold">No previous updates recorded.</p>
+                </div>
+            </div>
+
+            <button onclick="proceedToWorkspace()" id="btn-proceed" class="w-full mt-2 py-4 rounded-2xl bg-[#ee7d31] text-white font-black text-sm uppercase tracking-widest shadow-lg shadow-orange-500/30 hover:scale-[1.02] transition-all disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                Proceed to Items <i class="fa-solid fa-arrow-right ml-2"></i>
+            </button>
+        </div>
+
+        <div id="filter-view" class="fixed inset-0 z-[100] hidden flex-col w-full bg-slate-50/95 backdrop-blur-2xl p-6 md:p-12 overflow-y-auto">
+            <div class="flex justify-between items-center mb-4 border-b border-slate-200/80 pb-4">
+                <span class="font-black text-lg text-slate-800 tracking-wider uppercase"><i class="fa-solid fa-chart-line text-[#e86a10] mr-2"></i> Monthly Accomplishments</span>
+                <button onclick="closeFilterView()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-widest transition-colors"><i class="fa-solid fa-arrow-left mr-1"></i> Back</button>
+            </div>
+            <div class="flex flex-col gap-2 mb-4">
+                <label class="text-xs font-black text-slate-500 tracking-wider uppercase px-1">Select Month</label>
+                <div id="inline-filter-carousel" class="flex gap-2 overflow-x-auto no-scrollbar py-2 px-1"></div>
+            </div>
+            <div class="w-full overflow-x-auto rounded-xl border border-slate-200 shadow-sm flex-1 bg-white">
+                <table class="w-full text-left border-collapse min-w-[500px]">
+                    <thead>
+                        <tr class="bg-[#ee7d31] text-white font-bold text-sm tracking-wide">
+                            <th class="py-3 px-4 w-[25%]">Contract ID</th>
+                            <th class="py-3 px-4 w-[20%] text-center border-l border-[#d97c3b]">Percentage</th>
+                            <th class="py-3 px-4 w-[55%] border-l border-[#d97c3b]">Remarks</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inline-filter-table-body" class="divide-y divide-[#ee7d31]/20 bg-white"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ================= WORKSPACE VIEW ================= -->
+        <div id="workspace-view" class="hidden flex-col gap-4 w-full max-w-5xl mx-auto transition-all duration-500">
+            
+            <div class="flex flex-col gap-1.5 bg-white/50 backdrop-blur-xl border border-white/60 p-2.5 rounded-2xl shadow-sm">
+                <div id="month-carousel" class="flex gap-2 overflow-x-auto no-scrollbar pb-1"></div>
+            </div>
+
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="flex-1 flex flex-col border border-slate-200/50 bg-white/60 rounded-2xl overflow-hidden shadow-sm">
+                    <div class="grid grid-cols-[35%_35%_15%_15%] bg-[#ee7d31] text-white font-bold py-2 text-[9px] sm:text-[10px] uppercase tracking-wide text-center border-b border-[#d97c3b] leading-tight">
+                        <div class="px-1">Amount</div>
+                        <div class="px-1">To Date</div>
+                        <div class="px-1">Actual %</div>
+                        <div class="px-1">Slippage</div>
+                    </div>
+                    <div class="grid grid-cols-[35%_35%_15%_15%] bg-[#fff4eb] text-slate-800 font-black text-[10px] sm:text-[11px] py-2 text-center divide-x divide-orange-200 items-center">
+                        <div id="stat-amount" class="text-blue-700 truncate px-1">Php 0.00</div>
+                        <div id="stat-todate-amount" class="text-emerald-700 truncate px-1">Php 0.00</div>
+                        <div id="stat-actual-percent" class="text-purple-700 truncate px-0.5">0.00%</div>
+                        <div id="stat-slippage" class="text-rose-700 truncate px-0.5">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-4 relative mt-2">
+                
+                <!-- VIEW 1: Master-Detail List View (Default) -->
+                <div class="flex flex-col gap-4" id="items-list-container">
+                    <div class="w-full text-center py-16 text-slate-500 bg-white/50 backdrop-blur-xl border border-white/60 rounded-[30px] shadow-sm">
                         <i class="fa-solid fa-magnifying-glass text-5xl mb-4 opacity-30 text-blue-500"></i>
                         <p class="text-sm font-black">Please select a contract to view items.</p>
                     </div>
                 </div>
-            </div>
 
+                <!-- VIEW 2: Excel-Like Fast Editor View -->
+                <div class="hidden flex-col w-full bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden" id="items-editor-container">
+                    <div class="bg-white px-4 py-4 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                        <h2 class="text-xl font-extrabold text-slate-900 tracking-tight uppercase">ADD/EDIT/UPDATE ITEMS</h2>
+                        <div class="flex gap-2 w-full sm:w-auto">
+                            <button onclick="closeItemsEditorModal()" class="flex-1 sm:flex-none px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-black rounded-lg text-[11px] uppercase tracking-widest transition-colors shadow-sm border border-slate-200">Cancel</button>
+                            <button onclick="saveItemsEditorChanges()" class="flex-1 sm:flex-none px-4 py-2.5 bg-[#ee7d31] hover:bg-[#d97c3b] text-white font-black rounded-lg text-[11px] uppercase tracking-widest transition-all shadow-md shadow-orange-500/30">Apply Changes</button>
+                        </div>
+                    </div>
+                    
+                    <div class="w-full pb-4">
+                        <table class="w-full text-left border-collapse table-fixed">
+                            <thead>
+                                <tr class="bg-[#ee7d31] text-white font-bold text-[10px] sm:text-sm tracking-wide">
+                                    <th class="py-2.5 px-1.5 sm:px-3 w-[30%] sm:w-[35%] text-left">Item No.</th>
+                                    <th class="py-2.5 px-1 sm:px-3 w-[24%] text-right border-l border-[#d97c3b]">Quantity</th>
+                                    <th class="py-2.5 px-1 sm:px-3 w-[26%] text-right border-l border-[#d97c3b]">Unit Cost</th>
+                                    <th class="py-2.5 px-1 sm:px-2 w-[20%] text-center border-l border-[#d97c3b]">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="items-editor-table-body" class="divide-y divide-[#ee7d31]/20">
+                                <!-- Rows injected here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <button onclick="addEmptyRowInEditor()" class="w-full py-4 bg-[#fff4eb] hover:bg-[#ffebd6] text-[#ee7d31] font-black text-xs uppercase tracking-widest transition-colors border-t border-[#ee7d31]/30 flex justify-center items-center gap-2">
+                        <i class="fa-solid fa-plus-circle"></i> Add Row
+                    </button>
+                </div>
+
+                <!-- Compact Scheduled % (BarChart) Accordion (MOVED TO BOTTOM) -->
+                <div id="barchart-container" class="hidden flex-col border border-blue-200 bg-[#f0f7ff]/90 rounded-2xl overflow-hidden shadow-sm mt-2">
+                    <div class="px-4 py-3 text-[11px] md:text-sm font-semibold text-slate-800 cursor-pointer hover:bg-blue-100/50 transition-colors flex justify-between items-center" onclick="toggleBarChartAccordion()">
+                        <div class="flex items-center gap-2 font-bold text-blue-700">
+                            <i class="fa-solid fa-chevron-right text-[10px] transition-transform duration-300" id="icon-barchart"></i>
+                            <i class="fa-solid fa-chart-simple"></i> Scheduled % (BarChart)
+                        </div>
+                        <span id="barchart-preview" class="text-[10px] text-slate-500 font-bold truncate max-w-[200px]"></span>
+                    </div>
+                    <!-- The new dynamic table will be injected right here -->
+                    <div id="detail-barchart" class="hidden flex-col bg-white border-t border-dashed border-blue-300 shadow-inner p-0"></div>
+                </div>
+
+                <!-- Compact Monthly Remarks Accordion (MOVED TO BOTTOM) -->
+                <div id="remarks-container" class="hidden flex-col border border-orange-200 bg-[#fff4eb]/90 rounded-2xl overflow-hidden shadow-sm">
+                    <div class="px-4 py-3 text-[11px] md:text-sm font-semibold text-slate-800 cursor-pointer hover:bg-orange-300/40 transition-colors flex justify-between items-center" onclick="toggleRemarksAccordion()">
+                        <div class="flex items-center gap-2 font-bold text-amber-700">
+                            <i class="fa-solid fa-chevron-right text-[10px] transition-transform duration-300" id="icon-remarks"></i>
+                            <i class="fa-solid fa-comment-dots"></i> Monthly Remarks
+                        </div>
+                        <span id="remarks-preview" class="text-[10px] text-slate-500 truncate max-w-[200px] font-normal italic"></span>
+                    </div>
+                    <div id="detail-remarks" class="hidden flex-col bg-white border-t border-dashed border-orange-300 p-4 gap-3 shadow-inner">
+                        <textarea id="monthly-remarks" rows="2" oninput="onRemarksEdit(this)" class="w-full bg-white/70 border border-slate-300 rounded-xl p-3 text-slate-800 text-xs font-bold focus:outline-none focus:border-amber-400 placeholder-slate-400 transition-colors shadow-inner resize-none" placeholder="Enter remarks for the selected month..."></textarea>
+                    </div>
+                </div>
+
+            </div>
         </div>
     </main>
 
-    <!-- Floating Bottom Action Bar -->
-    <div class="fixed bottom-0 left-0 right-0 z-40 bg-white/80 border-t border-white/50 backdrop-blur-lg p-3 lg:p-4 flex items-center justify-center gap-3 shadow-[0_-4px_15px_rgba(0,0,0,0.05)] print:hidden">
+    <div id="action-bar" class="fixed bottom-0 left-0 right-0 z-40 bg-white/80 border-t border-white/50 backdrop-blur-lg p-3 lg:p-4 hidden items-center justify-center gap-3 shadow-[0_-4px_15px_rgba(0,0,0,0.05)] print:hidden">
         <button onclick="saveChanges()" id="sync-button" disabled class="w-1/2 max-w-[200px] justify-center bg-white/50 border border-white/60 text-slate-400 px-3 py-3 lg:px-5 lg:py-3.5 rounded-xl font-black text-xs transition-all flex items-center gap-1.5 cursor-not-allowed">
             <i class="fa-solid fa-cloud-arrow-up"></i> Save
             <span id="pending-changes-counter" class="hidden"></span>
         </button>
-        
         <button onclick="generateSWAReport()" id="print-report-button" disabled class="w-1/2 max-w-[200px] justify-center bg-white/50 border border-white/60 text-slate-400 px-3 py-3 lg:px-5 lg:py-3.5 rounded-xl font-black text-xs transition-all flex items-center gap-1.5 cursor-not-allowed">
             <i class="fa-solid fa-file-invoice"></i> Generate
         </button>
     </div>
 
-    <!-- Multi-Item Batch Editor Modal Overlay (Responsive Full-Screen on Mobile) -->
-    <div id="items-editor-modal" class="fixed inset-0 z-50 bg-slate-50 md:bg-slate-900/50 md:backdrop-blur-md md:p-4 hidden flex-col justify-center items-center">
-        <div class="bg-slate-50 md:bg-white/80 md:backdrop-blur-xl border-none md:border md:border-white/80 rounded-none md:rounded-[30px] w-full h-[100dvh] md:h-auto md:max-w-4xl overflow-hidden shadow-none md:shadow-[0_20px_50px_rgba(31,38,135,0.2)] flex flex-col md:max-h-[85vh]">
-            <div class="p-4 md:p-5 border-b border-slate-200 md:border-white/60 flex items-center justify-between bg-white md:bg-white/50 shadow-sm md:shadow-none z-10 shrink-0">
-                <span class="font-black text-sm md:text-base text-amber-600 tracking-wider uppercase">
-                    <i class="fa-solid fa-gears mr-2"></i> Add / Edit / Update Items
-                </span>
-                <button onclick="closeItemsEditorModal()" class="text-slate-400 hover:text-rose-500 text-2xl transition-colors">
-                    <i class="fa-solid fa-times-circle"></i>
-                </button>
-            </div>
-            <div class="p-3 md:p-5 overflow-y-auto flex-1 flex flex-col gap-3 md:gap-4" style="overflow-x: visible;">
-                <div class="overflow-x-auto no-scrollbar" style="overflow-x: visible;">
-                    <table class="w-full text-left table-fixed border-collapse text-xs md:text-sm min-w-[500px]">
-                        <thead>
-                            <tr class="border-b border-slate-200 md:border-white/60 text-slate-500 uppercase font-black tracking-wider text-[10px] md:text-[11px] bg-slate-100 md:bg-white/40">
-                                <th class="py-2 px-1 md:py-3 md:px-2 w-[45%]">Item No. & Description</th>
-                                <th class="py-2 px-1 md:py-3 md:px-2 w-[25%] text-right">Target Quantity</th>
-                                <th class="py-2 px-1 md:py-3 md:px-2 w-[30%] text-right">Unit Cost</th>
-                            </tr>
-                        </thead>
-                        <tbody id="items-editor-table-body" class="divide-y divide-slate-200 md:divide-white/50">
-                            <!-- Rows dynamically populated -->
-                        </tbody>
-                    </table>
-                </div>
-                <button onclick="addEmptyRowInEditor()" class="w-full py-3 md:py-3.5 border-2 border-dashed border-blue-300 hover:border-blue-500 bg-blue-50 md:bg-blue-50/50 text-blue-600 rounded-xl md:rounded-2xl text-xs md:text-sm font-black tracking-widest uppercase transition-all flex items-center justify-center gap-2 mt-2 shadow-sm md:shadow-none">
-                    <i class="fa-solid fa-plus-circle"></i> Add Row
-                </button>
-            </div>
-            <div class="p-4 md:p-5 border-t border-slate-200 md:border-white/60 bg-white md:bg-white/50 grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4 z-10 shrink-0">
-                <button onclick="closeItemsEditorModal()" class="w-full py-3 md:py-3.5 rounded-xl border border-slate-300 md:border-white/80 text-slate-600 bg-white md:bg-white/60 shadow-sm font-bold text-sm uppercase tracking-widest hover:bg-slate-50 md:hover:bg-white/90 transition-all">Cancel</button>
-                <button onclick="saveItemsEditorChanges()" class="w-full py-3 md:py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-black text-sm uppercase tracking-widest shadow-lg shadow-amber-500/30 hover:scale-[1.02] transition-all">Apply Changes</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Contract Finder Search Modal overlay -->
     <div id="contract-modal" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-md p-4 hidden flex-col justify-start pt-20">
         <div class="bg-white/80 backdrop-blur-xl border border-white/80 rounded-[30px] w-full max-w-md mx-auto max-h-[75vh] flex flex-col overflow-hidden shadow-[0_20px_50px_rgba(31,38,135,0.2)]">
             <div class="p-5 border-b border-white/60 flex items-center justify-between bg-white/50">
                 <span class="font-black text-base text-slate-800 tracking-wider uppercase"><i class="fa-solid fa-search mr-2 text-blue-500"></i> Find Contract ID</span>
                 <button onclick="closeContractSelectorModal()" class="text-slate-400 hover:text-rose-500 text-2xl transition-colors"><i class="fa-solid fa-times-circle"></i></button>
             </div>
-            
             <div class="p-5 border-b border-white/60">
                 <input type="text" id="contract-search-input" oninput="filterContractIds()" placeholder="Type to search contracts..." class="w-full bg-white/70 border border-white/80 rounded-2xl p-4 text-slate-800 focus:outline-none focus:border-blue-400 text-sm font-bold shadow-inner">
             </div>
-            <div id="contract-list-results" class="p-3 overflow-y-auto flex-1 flex flex-col gap-1.5 min-h-[30vh] no-scrollbar">
-                <!-- Sift results injected here -->
-            </div>
+            <div id="contract-list-results" class="p-3 overflow-y-auto flex-1 flex flex-col gap-1.5 min-h-[30vh] no-scrollbar"></div>
         </div>
     </div>
 
-    <!-- Dedicated Filter Month Modal overlay -->
-    <div id="filter-month-modal" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-md p-4 hidden flex-col justify-start pt-20">
-        <div class="bg-white/80 backdrop-blur-xl border border-white/80 rounded-[30px] w-full max-w-md mx-auto max-h-[75vh] flex flex-col overflow-hidden shadow-[0_20px_50px_rgba(31,38,135,0.2)]">
-            <div class="p-5 border-b border-white/60 flex items-center justify-between bg-white/50">
-                <span class="font-black text-base text-slate-800 tracking-wider uppercase"><i class="fa-solid fa-filter mr-2 text-blue-500"></i> Filter by Update Month</span>
-                <button onclick="closeFilterMonthModal()" class="text-slate-400 hover:text-rose-500 text-2xl transition-colors"><i class="fa-solid fa-times-circle"></i></button>
-            </div>
-            
-            <div class="px-4 pt-5 pb-3 flex flex-col gap-2 border-b border-white/60 bg-white/30">
-                <label class="text-xs font-black text-slate-500 tracking-wider uppercase px-2">Select Month</label>
-                <div id="filter-month-carousel" class="flex gap-2.5 overflow-x-auto no-scrollbar py-2 px-1">
-                    <!-- Pills injected dynamically -->
-                </div>
-            </div>
-
-            <div id="filter-month-results" class="p-3 overflow-y-auto flex-1 flex flex-col gap-1.5 min-h-[30vh] no-scrollbar">
-                <!-- Filtered Sift results injected here -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Printable SWA Report Overlay Modal -->
     <div id="print-report-modal" class="fixed inset-0 z-[300] bg-slate-900/60 backdrop-blur-md p-4 hidden flex-col justify-start overflow-y-auto">
-        <!-- Control Bar -->
         <div class="w-full max-w-6xl mx-auto mb-6 bg-white/80 backdrop-blur-xl border border-white/80 p-5 rounded-3xl flex items-center justify-between shadow-xl print:hidden shrink-0">
             <div class="flex items-center gap-3">
                 <i class="fa-solid fa-file-invoice text-blue-500 text-2xl"></i>
@@ -404,8 +372,6 @@
                 </button>
             </div>
         </div>
-
-        <!-- Printable Document Canvas -->
         <div class="w-full max-w-6xl mx-auto bg-white text-black p-8 md:p-12 rounded-3xl shadow-2xl print:shadow-none print:p-0 print:m-0 print:w-full print:max-w-none font-sans overflow-x-auto print:overflow-visible">
             <div class="min-w-[950px] print:min-w-0">
                 <div class="text-center mb-6">
@@ -414,7 +380,6 @@
                         <span contenteditable="true" id="print-active-period" class="outline-none border-b border-dashed border-slate-400 hover:bg-slate-100 focus:bg-slate-100 px-2 py-0.5 rounded print:border-none print:bg-transparent print:px-0 transition-colors cursor-text" title="Click to edit date">as of June 01, 2026</span>
                     </p>
                 </div>
-
                 <div class="grid grid-cols-1 gap-2 mb-6 text-xs font-semibold">
                     <div class="flex">
                         <span class="w-48 shrink-0 uppercase tracking-wider font-bold">PROJECT NAME</span>
@@ -432,7 +397,6 @@
                         <span id="print-contractor-name" class="font-bold underline uppercase">---</span>
                     </div>
                 </div>
-
                 <div class="overflow-x-visible">
                     <table class="w-full text-[9px] border-collapse border border-black text-black leading-tight font-sans">
                         <thead>
@@ -447,28 +411,21 @@
                                 <th rowspan="2" class="p-1 w-[5%]">%</th>
                             </tr>
                             <tr class="border-b border-black text-center font-bold bg-slate-50 print:bg-transparent">
-                                <!-- ORIGINAL CONTRACT -->
                                 <th class="border-r border-black p-1 w-[6%]">QUANTITY</th>
                                 <th class="border-r border-black p-1 w-[7%]">UNIT COST</th>
                                 <th class="border-r border-black p-1 w-[8%]">TOTAL COST</th>
-                                <!-- QUANTITY ACCOMPLISHMENT -->
                                 <th class="border-r border-black p-1 w-[5%]">PREVIOUS</th>
                                 <th class="border-r border-black p-1 w-[5%]">THIS PERIOD</th>
                                 <th class="border-r border-black p-1 w-[5%]">TO DATE</th>
                                 <th class="border-r border-black p-1 w-[5%]">BALANCE</th>
-                                <!-- AMOUNT ACCOMPLISHMENT -->
                                 <th class="border-r border-black p-1 w-[7%]">PREVIOUS</th>
                                 <th class="border-r border-black p-1 w-[7%]">THIS PERIOD</th>
                                 <th class="border-r border-black p-1 w-[7%]">TO DATE</th>
                                 <th class="border-r border-black p-1 w-[7%]">BALANCE</th>
                             </tr>
                         </thead>
-                        <tbody id="print-table-rows" class="divide-y divide-black/40">
-                            <!-- Injected dynamically -->
-                        </tbody>
-                        <tfoot>
-                            <!-- Injected dynamically -->
-                        </tfoot>
+                        <tbody id="print-table-rows" class="divide-y divide-black/40"></tbody>
+                        <tfoot></tfoot>
                     </table>
                 </div>
             </div>
@@ -525,7 +482,6 @@
             }
         }
 
-        // --- UNSAVED CHANGES PROTECTION STATE ---
         let editorIsDirty = false;
 
         function showConfirm(message, onConfirm, okText = "OK", cancelText = "Cancel") {
@@ -600,18 +556,32 @@
             return isNaN(parsed) ? 0 : parsed;
         }
 
-const MONTHS_LABELS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-const START_YEAR = 2026;
+        function formatNumStr(val) {
+            let num = parseFloat(String(val).replace(/[^0-9.-]+/g, ""));
+            return isNaN(num) ? '' : formatNum(num);
+        }
+        
+        function unformatNumStr(val) {
+            let num = parseFloat(String(val).replace(/[^0-9.-]+/g, ""));
+            return isNaN(num) ? '' : num;
+        }
 
-// Calculate the current month dynamically based on today's date
-const _today = new Date();
-const CURRENT_MONTH_OFFSET = (_today.getFullYear() - START_YEAR) * 12 + _today.getMonth(); 
+        function getOrdinal(n) {
+            const s = ["th", "st", "nd", "rd"];
+            const v = n % 100;
+            return n + (s[(v - 20) % 10] || s[v] || s[0]);
+        }
 
-let appState = {
-    loggedInUser: null,
-    registeredUsers: {},
-    activeTab: 'SWA',
-    activeMonthOffset: CURRENT_MONTH_OFFSET,
+        const MONTHS_LABELS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const START_YEAR = 2026;
+        const _today = new Date();
+        const CURRENT_MONTH_OFFSET = (_today.getFullYear() - START_YEAR) * 12 + _today.getMonth(); 
+
+        let appState = {
+            loggedInUser: null,
+            registeredUsers: {},
+            activeTab: 'SWA',
+            activeMonthOffset: CURRENT_MONTH_OFFSET,
             contractsList: [],
             selectedContractId: null,
             headers: [],
@@ -621,9 +591,9 @@ let appState = {
             itemsLookupMap: {},
             voLookupMap: {},
             pdoLookupMap: {},
+            editorAllocatedCols: [],
         };
 
-        // --- PARENT SPA BACK BUTTON INTERCEPTION ---
         let originalParentGoBack = null;
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -641,26 +611,38 @@ let appState = {
                         }
                     };
                 }
-            } catch(e) {
-                console.warn("Could not bind parent back button", e);
-            }
+            } catch(e) {}
         });
 
         window.handleAppBack = function() {
-            const isEditorOpen = !document.getElementById('items-editor-modal').classList.contains('hidden');
+            const isWorkspaceOpen = !document.getElementById('workspace-view').classList.contains('hidden');
+            const isEditorOpen = !document.getElementById('items-editor-container').classList.contains('hidden');
             
-            if (isEditorOpen && editorIsDirty) {
-                showConfirm(
-                    "You have unsaved inputs in the Items Editor.\n\nDo you want to save first or exit and discard changes?", 
-                    () => {
-                        closeItemsEditorModalForce();
-                        checkMainStateAndExit();
-                    }, 
-                    "Exit Without Saving", 
-                    "I want to save first"
-                );
+            if (isWorkspaceOpen) {
+                if (isEditorOpen && editorIsDirty) {
+                    showConfirm(
+                        "You have unsaved inputs in the Items Editor.\n\nDo you want to save first or exit and discard changes?", 
+                        () => {
+                            closeItemsEditorModalForce();
+                            returnToHome();
+                        }, 
+                        "Exit Without Saving", 
+                        "I want to save first"
+                    );
+                } else if (Object.keys(appState.modifiedCells).length > 0) {
+                    showConfirm(
+                        "You have un-synchronized SWA updates!\n\nDo you want to save your progress first or exit?", 
+                        () => {
+                            returnToHome();
+                        }, 
+                        "Exit Without Saving", 
+                        "I want to save first"
+                    );
+                } else {
+                    returnToHome();
+                }
             } else {
-                checkMainStateAndExit();
+                executeParentBack();
             }
         };
 
@@ -669,9 +651,7 @@ let appState = {
             if (hasMainChanges) {
                 showConfirm(
                     "You have un-synchronized SWA updates!\n\nDo you want to save your progress first or exit?", 
-                    () => {
-                        executeParentBack();
-                    }, 
+                    () => { executeParentBack(); }, 
                     "Exit Without Saving", 
                     "I want to save first"
                 );
@@ -682,30 +662,17 @@ let appState = {
 
 		function executeParentBack() {
             try {
-                // Try to use the parent iframe routing if it exists
                 if (originalParentGoBack && window.parent && window.parent.PCMA) {
                     window.parent.PCMA.goBack = originalParentGoBack;
                     window.parent.PCMA.goBack();
                     return;
                 }
-            } catch (e) {
-                // Ignore cross-origin frame blocks on local file:// execution
-            }
-            
-            // Fallback: Break out of the iframe to the TOP window to prevent nested iframe glitches
-            try {
-                window.top.location.href = 'index.html';
-            } catch (e) {
-                window.location.href = 'index.html';
-            }
+            } catch (e) {}
+            try { window.top.location.href = 'index.html'; } catch (e) { window.location.href = 'index.html'; }
         }
 
         window.addEventListener('unload', () => {
-            try {
-                if (originalParentGoBack && window.parent && window.parent.PCMA) {
-                    window.parent.PCMA.goBack = originalParentGoBack;
-                }
-            } catch(e){}
+            try { if (originalParentGoBack && window.parent && window.parent.PCMA) { window.parent.PCMA.goBack = originalParentGoBack; } } catch(e){}
         });
 
         window.addEventListener('beforeunload', (e) => {
@@ -717,14 +684,12 @@ let appState = {
             }
         });
 
-function initializeMonthSlider() {
-    const container = document.getElementById('month-carousel');
-    container.innerHTML = '';
-    
-    // Use the dynamic offset calculated globally
-    const maxOffset = CURRENT_MONTH_OFFSET; 
-    
-    for (let i = 0; i <= maxOffset; i++) {
+        function initializeMonthSlider() {
+            const container = document.getElementById('month-carousel');
+            container.innerHTML = '';
+            const maxOffset = CURRENT_MONTH_OFFSET; 
+            
+            for (let i = 0; i <= maxOffset; i++) {
                 const year = START_YEAR + Math.floor(i / 12);
                 const monthName = MONTHS_LABELS[i % 12];
                 const yearShort = String(year).slice(-2);
@@ -733,7 +698,7 @@ function initializeMonthSlider() {
                 const btn = document.createElement('button');
                 btn.id = `month-pill-${i}`;
                 btn.onclick = () => selectMonthOffset(i);
-                btn.className = `flex-shrink-0 px-5 py-2.5 rounded-xl text-xs font-black border transition-all shadow-sm ${
+                btn.className = `flex-shrink-0 px-4 py-2 rounded-lg text-[11px] font-black border transition-all shadow-sm ${
                     i === appState.activeMonthOffset 
                     ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white border-blue-400 scale-[1.05]' 
                     : 'bg-white/60 text-slate-600 border-white/80 hover:bg-white/90'
@@ -751,24 +716,18 @@ function initializeMonthSlider() {
         function selectMonthOffset(offset) {
             const oldPill = document.getElementById(`month-pill-${appState.activeMonthOffset}`);
             if (oldPill) {
-                oldPill.className = 'flex-shrink-0 px-5 py-2.5 rounded-xl text-xs font-black border transition-all shadow-sm bg-white/60 text-slate-600 border-white/80 hover:bg-white/90';
+                oldPill.className = 'flex-shrink-0 px-4 py-2 rounded-lg text-[11px] font-black border transition-all shadow-sm bg-white/60 text-slate-600 border-white/80 hover:bg-white/90';
             }
-            
             appState.activeMonthOffset = offset;
             
             const newPill = document.getElementById(`month-pill-${offset}`);
             if (newPill) {
-                newPill.className = 'flex-shrink-0 px-5 py-2.5 rounded-xl text-xs font-black border transition-all shadow-sm bg-gradient-to-r from-blue-500 to-indigo-500 text-white border-blue-400 scale-[1.05]';
+                newPill.className = 'flex-shrink-0 px-4 py-2 rounded-lg text-[11px] font-black border transition-all shadow-sm bg-gradient-to-r from-blue-500 to-indigo-500 text-white border-blue-400 scale-[1.05]';
                 newPill.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
             }
 
-            if (appState.selectedContractId) {
-                renderItemsList();
-            }
-
-            if (document.getElementById('contract-modal') && !document.getElementById('contract-modal').classList.contains('hidden')) {
-                filterContractIds();
-            }
+            if (appState.selectedContractId) renderItemsList();
+            if (document.getElementById('contract-modal') && !document.getElementById('contract-modal').classList.contains('hidden')) filterContractIds();
         }
 
         async function fetchSheetData() {
@@ -777,24 +736,16 @@ function initializeMonthSlider() {
                 const token = await GoogleSheetsAPI.getAuthToken();
                 const batchUrl = `https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values:batchGet?ranges=SWA!A3:ZZ&ranges=ITEMS!A3:ZZ&ranges=VO!A3:ZZ&ranges=PDO!A3:ZZ&ranges=REGISTRATION!A3:ZZ`;
                 
-                let response = await fetch(batchUrl, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-
+                let response = await fetch(batchUrl, { headers: { Authorization: `Bearer ${token}` } });
                 if (response.status === 503 || response.status === 429) {
                     await new Promise(r => setTimeout(r, 1000));
                     response = await fetch(batchUrl, { headers: { Authorization: `Bearer ${token}` } });
                 }
 
-                if (!response.ok) {
-                    throw new Error(`Google API Request Failed: ${response.status} ${response.statusText}`);
-                }
-
+                if (!response.ok) throw new Error(`Google API Request Failed: ${response.status} ${response.statusText}`);
                 const batchData = await response.json();
                 
-                if (!batchData.valueRanges || batchData.valueRanges.length < 5) {
-                    throw new Error("Incomplete dataset returned from Google Sheets.");
-                }
+                if (!batchData.valueRanges || batchData.valueRanges.length < 5) throw new Error("Incomplete dataset returned from Google Sheets.");
 
                 const dataSWA = batchData.valueRanges[0] || { values: [] };
                 const dataITEMS = batchData.valueRanges[1] || { values: [] };
@@ -807,9 +758,7 @@ function initializeMonthSlider() {
                 buildPdoLookupMap(dataPDO);
                 buildRegistrationMap(dataREGISTRATION);
 
-                if (!dataSWA.values || dataSWA.values.length < 2) {
-                    throw new Error("Target SWA tab possesses missing rows or invalid column structures.");
-                }
+                if (!dataSWA.values || dataSWA.values.length < 2) throw new Error("Target SWA tab possesses missing rows or invalid column structures.");
 
                 appState.headers = dataSWA.values[0];
                 appState.rows = [];
@@ -818,17 +767,11 @@ function initializeMonthSlider() {
                 
                 for (let i = 1; i < dataSWA.values.length; i++) {
                     const rowVals = dataSWA.values[i];
-                    while (rowVals.length < appState.headers.length) {
-                        rowVals.push('');
-                    }
+                    while (rowVals.length < appState.headers.length) rowVals.push('');
                     const contractId = rowVals[contractColIndex] ? String(rowVals[contractColIndex]).trim() : '';
                     if (!contractId) continue;
 
-                    appState.rows.push({
-                        rowNumber: i + 3, 
-                        contractId: contractId,
-                        values: rowVals
-                    });
+                    appState.rows.push({ rowNumber: i + 3, contractId: contractId, values: rowVals });
                 }
 
                 appState.contractsList = [...new Set(appState.rows.map(r => r.contractId))].sort();
@@ -852,37 +795,29 @@ function initializeMonthSlider() {
                     document.getElementById('login-modal').classList.remove('hidden');
                 } else {
                     document.getElementById('login-modal').classList.add('hidden');
-                    
                     if (appState.selectedContractId && appState.contractsList.includes(appState.selectedContractId)) {
                         loadContract(appState.selectedContractId);
                     } else {
                         resetContractDisplay();
                     }
                 }
-
             } catch (err) {
                 showGlobalError("System Failure", err.message);
-                console.error(err);
             }
         }
 
         function buildRegistrationMap(data) {
             appState.registeredUsers = {};
             if (!data.values || data.values.length < 1) return;
-
             const headers = data.values[0].map(h => String(h || '').toUpperCase().trim());
             const colUser = headers.findIndex(h => h === 'USERNAME');
             const colPass = headers.findIndex(h => h === 'PASSWORD');
-
             if (colUser === -1 || colPass === -1) return;
-
             for (let i = 1; i < data.values.length; i++) {
                 const row = data.values[i];
                 const u = row[colUser] ? String(row[colUser]).trim() : '';
                 const p = row[colPass] ? String(row[colPass]).trim() : '';
-                if (u) {
-                    appState.registeredUsers[u.toLowerCase()] = p;
-                }
+                if (u) appState.registeredUsers[u.toLowerCase()] = p;
             }
         }
 
@@ -898,13 +833,11 @@ function initializeMonthSlider() {
             }
 
             const storedPass = appState.registeredUsers[uInput.toLowerCase()];
-            
             if (storedPass !== undefined && storedPass === pInput) {
                 appState.loggedInUser = uInput;
                 localStorage.setItem('swa_loggedInUser', uInput); 
                 document.getElementById('header-username-display').innerText = uInput;
                 document.getElementById('header-username-display').classList.replace('text-slate-500', 'text-blue-700');
-                
                 document.getElementById('login-modal').classList.add('hidden');
                 errBox.classList.add('hidden');
                 document.getElementById('login-password').value = '';
@@ -924,10 +857,8 @@ function initializeMonthSlider() {
         function attemptGuestLogin() {
             appState.loggedInUser = 'Guest';
             localStorage.setItem('swa_loggedInUser', 'Guest'); 
-            
             document.getElementById('header-username-display').innerText = 'Guest (View Only)';
             document.getElementById('header-username-display').classList.replace('text-blue-700', 'text-slate-500');
-            
             document.getElementById('login-modal').classList.add('hidden');
             
             if (appState.selectedContractId && appState.contractsList.includes(appState.selectedContractId)) {
@@ -940,25 +871,12 @@ function initializeMonthSlider() {
 
         function logout() {
             const hasChanges = Object.keys(appState.modifiedCells).length > 0 || editorIsDirty;
-            
             if (hasChanges) {
-                showConfirm(
-                    "You have unsaved changes! Logging out will completely discard all your progress.\n\nWhat would you like to do?", 
-                    () => {
-                        performLogout();
-                    }, 
-                    "Exit & Logout", 
-                    "I want to save first"
-                );
+                showConfirm("You have unsaved changes! Logging out will completely discard all your progress.\n\nWhat would you like to do?", 
+                    () => { performLogout(); }, "Exit & Logout", "I want to save first");
             } else {
-                showConfirm(
-                    "Are you sure you want to log out and terminate this session?", 
-                    () => {
-                        performLogout();
-                    }, 
-                    "Logout", 
-                    "Cancel"
-                );
+                showConfirm("Are you sure you want to log out and terminate this session?", 
+                    () => { performLogout(); }, "Logout", "Cancel");
             }
         }
         
@@ -974,7 +892,6 @@ function initializeMonthSlider() {
         function buildItemsLookupMap(data) {
             appState.itemsLookupMap = {};
             if (!data.values || data.values.length < 1) return;
-
             const headers = data.values[0].map(h => String(h || '').toUpperCase().trim());
             const colItemNo = headers.findIndex(h => h === 'ITEM NO.' || h === 'ITEM NO' || h === 'ITEM_NO' || h === 'ITEM');
             const colDesc = headers.findIndex(h => h === 'DESCRIPTION' || h === 'DESC');
@@ -985,11 +902,9 @@ function initializeMonthSlider() {
                 const row = data.values[i];
                 const itemNo = colItemNo !== -1 && row[colItemNo] ? String(row[colItemNo]).trim() : '';
                 if (!itemNo) continue;
-
                 const description = colDesc !== -1 && row[colDesc] ? String(row[colDesc]).trim() : '';
                 const unit = colUnit !== -1 && row[colUnit] ? String(row[colUnit]).trim() : '';
                 const unitCost = colUnitCost !== -1 && row[colUnitCost] ? parseFloat(String(row[colUnitCost]).replace(/[^0-9.]/g, '')) || 0 : 0;
-
                 appState.itemsLookupMap[itemNo] = { description, unit, unitCost };
             }
         }
@@ -997,50 +912,37 @@ function initializeMonthSlider() {
         function buildVoLookupMap(data) {
             appState.voLookupMap = {};
             if (!data.values || data.values.length < 1) return;
-
             const headers = data.values[0].map(h => String(h || '').toUpperCase().trim());
             const colContractId = headers.findIndex(h => h.includes('CONTRACT'));
             const colRevCost = headers.findIndex(h => h === 'REV. CONTRACT COST' || h === 'REV_CONTRACT_COST' || h === 'REVISED CONTRACT COST');
             const colCost = headers.findIndex(h => h === 'CONTRACT COST' || h === 'CONTRACT_COST' || h === 'COST');
-
             const finalColContractId = colContractId !== -1 ? colContractId : 0;
 
             for (let i = 1; i < data.values.length; i++) {
                 const row = data.values[i];
                 const contractId = String(row[finalColContractId] || '').trim();
                 if (!contractId) continue;
-
                 const revCostStr = colRevCost !== -1 ? String(row[colRevCost] || '').trim() : '';
                 const costStr = colCost !== -1 ? String(row[colCost] || '').trim() : '';
-
                 let finalAmount = 0;
-                if (revCostStr !== '') {
-                    finalAmount = parseFloat(revCostStr.replace(/[^0-9.]/g, '')) || 0;
-                } else if (costStr !== '') {
-                    finalAmount = parseFloat(costStr.replace(/[^0-9.]/g, '')) || 0;
-                }
-
-                appState.voLookupMap[contractId] = {
-                    amount: finalAmount
-                };
+                if (revCostStr !== '') finalAmount = parseFloat(revCostStr.replace(/[^0-9.]/g, '')) || 0;
+                else if (costStr !== '') finalAmount = parseFloat(costStr.replace(/[^0-9.]/g, '')) || 0;
+                appState.voLookupMap[contractId] = { amount: finalAmount };
             }
         }
 
         function buildPdoLookupMap(data) {
             appState.pdoLookupMap = {};
             if (!data.values || data.values.length < 1) return;
-
             const headers = data.values[0].map(h => String(h || '').toUpperCase().trim());
             const cleanHeaders = headers.map(h => h.replace(/[\s\-_]/g, ''));
             
             let colContractId = cleanHeaders.findIndex(h => h.includes('CONTRACTID') || h === 'CONTRACT' || h.includes('CONTRACT'));
             if (colContractId === -1) colContractId = 0;
-
             const colContractor = headers.findIndex(h => h === 'CONTRACTOR');
             const colProjectName = headers.findIndex(h => h === 'PROJECT NAME' || h === 'PROJECT_NAME');
             const colLocation = headers.findIndex(h => h === 'LOCATION');
             const colNtp = headers.findIndex(h => h === 'NTP');
-
             const colPE = headers.findIndex(h => h === 'PROJECT ENGINEER (PE)' || h.includes('PROJECT ENGINEER'));
             const colPI = headers.findIndex(h => h === 'PROJECT INSPECTOR (PI)' || h.includes('PROJECT INSPECTOR'));
             const colRE = headers.findIndex(h => h === 'RESIDENT ENGINEER (RE)' || h.includes('RESIDENT ENGINEER'));
@@ -1050,20 +952,15 @@ function initializeMonthSlider() {
                 const row = data.values[i];
                 const contractId = String(row[colContractId] || '').trim();
                 if (!contractId) continue;
-
-                const contractor = colContractor !== -1 && row[colContractor] ? String(row[colContractor]).trim() : '';
-                const projectName = colProjectName !== -1 && row[colProjectName] ? String(row[colProjectName]).trim() : '';
-                const location = colLocation !== -1 && row[colLocation] ? String(row[colLocation]).trim() : '';
-                const ntp = colNtp !== -1 && row[colNtp] ? String(row[colNtp]).trim() : '';
-
-                const pe = colPE !== -1 && row[colPE] ? String(row[colPE]).trim() : '';
-                const pi = colPI !== -1 && row[colPI] ? String(row[colPI]).trim() : '';
-                const re = colRE !== -1 && row[colRE] ? String(row[colRE]).trim() : '';
-                const qe = colQE !== -1 && row[colQE] ? String(row[colQE]).trim() : '';
-
                 appState.pdoLookupMap[contractId] = { 
-                    contractor, projectName, location, ntp,
-                    pe, pi, re, qe
+                    contractor: colContractor !== -1 && row[colContractor] ? String(row[colContractor]).trim() : '',
+                    projectName: colProjectName !== -1 && row[colProjectName] ? String(row[colProjectName]).trim() : '',
+                    location: colLocation !== -1 && row[colLocation] ? String(row[colLocation]).trim() : '',
+                    ntp: colNtp !== -1 && row[colNtp] ? String(row[colNtp]).trim() : '',
+                    pe: colPE !== -1 && row[colPE] ? String(row[colPE]).trim() : '',
+                    pi: colPI !== -1 && row[colPI] ? String(row[colPI]).trim() : '',
+                    re: colRE !== -1 && row[colRE] ? String(row[colRE]).trim() : '',
+                    qe: colQE !== -1 && row[colQE] ? String(row[colQE]).trim() : ''
                 };
             }
         }
@@ -1081,37 +978,22 @@ function initializeMonthSlider() {
         function parseNtpToOffset(ntpStr) {
             if (!ntpStr) return 0;
             const cleaned = ntpStr.toLowerCase().trim();
-            
             const monthNames = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
             let monthIdx = -1;
             for (let i = 0; i < 12; i++) {
-                if (cleaned.includes(monthNames[i])) {
-                    monthIdx = i;
-                    break;
-                }
+                if (cleaned.includes(monthNames[i])) { monthIdx = i; break; }
             }
-
             if (monthIdx !== -1) {
                 const numMatches = cleaned.match(/\d+/g);
                 let year = START_YEAR;
                 if (numMatches && numMatches.length > 0) {
                     const lastNum = parseInt(numMatches[numMatches.length - 1]);
-                    if (lastNum < 100) {
-                        year = 2000 + lastNum;
-                    } else {
-                        year = lastNum;
-                    }
+                    year = lastNum < 100 ? 2000 + lastNum : lastNum;
                 }
                 return (year - START_YEAR) * 12 + monthIdx;
             }
-
             const d = new Date(ntpStr);
-            if (!isNaN(d.getTime())) {
-                const year = d.getFullYear();
-                const month = d.getMonth();
-                return (year - START_YEAR) * 12 + month;
-            }
-
+            if (!isNaN(d.getTime())) return (d.getFullYear() - START_YEAR) * 12 + d.getMonth();
             return 0; 
         }
 
@@ -1128,124 +1010,153 @@ function initializeMonthSlider() {
             document.getElementById('contract-modal').classList.remove('flex');
         }
 
-        let filterModalActiveMonth = 5;
+        let inlineFilterActiveMonth = CURRENT_MONTH_OFFSET;
 
-        function openFilterMonthModal() {
-            filterModalActiveMonth = appState.activeMonthOffset;
-            renderFilterMonthPills();
-            renderFilteredContracts();
-            document.getElementById('filter-month-modal').classList.remove('hidden');
-            document.getElementById('filter-month-modal').classList.add('flex');
+        function openFilterView() {
+            document.getElementById('home-view').classList.add('hidden');
+            document.getElementById('home-view').classList.remove('flex');
+            document.getElementById('filter-view').classList.remove('hidden');
+            document.getElementById('filter-view').classList.add('flex');
+            inlineFilterActiveMonth = appState.activeMonthOffset;
+            renderInlineFilterMonthPills();
+            renderInlineFilterTable();
         }
 
-        function closeFilterMonthModal() {
-            document.getElementById('filter-month-modal').classList.add('hidden');
-            document.getElementById('filter-month-modal').classList.remove('flex');
+        function closeFilterView() {
+            document.getElementById('filter-view').classList.add('hidden');
+            document.getElementById('filter-view').classList.remove('flex');
+            document.getElementById('home-view').classList.remove('hidden');
+            document.getElementById('home-view').classList.add('flex');
         }
 
-function renderFilterMonthPills() {
-    const container = document.getElementById('filter-month-carousel');
-    container.innerHTML = '';
-    
-    // Use the dynamic offset
-    const maxOffset = CURRENT_MONTH_OFFSET;
-    
-    for (let i = 0; i <= maxOffset; i++) {
+        function renderInlineFilterMonthPills() {
+            const container = document.getElementById('inline-filter-carousel');
+            container.innerHTML = '';
+            for (let i = 0; i <= CURRENT_MONTH_OFFSET; i++) {
                 const label = getMonthLabel(i);
                 const btn = document.createElement('button');
-                btn.id = `filter-pill-${i}`;
-                btn.onclick = () => selectFilterMonth(i);
-                btn.className = `flex-shrink-0 px-4 py-2 rounded-xl text-xs font-black border transition-all ${
-                    i === filterModalActiveMonth 
-                    ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white border-blue-400 shadow-md' 
-                    : 'bg-white/60 text-slate-600 border-white/80 hover:bg-white/90 shadow-sm'
+                btn.id = `inline-filter-pill-${i}`;
+                btn.onclick = () => {
+                    inlineFilterActiveMonth = i;
+                    renderInlineFilterMonthPills();
+                    renderInlineFilterTable();
+                };
+                btn.className = `flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-black border transition-all ${
+                    i === inlineFilterActiveMonth 
+                    ? 'bg-gradient-to-r from-[#ee7d31] to-[#d97c3b] text-white border-orange-400 shadow-md' 
+                    : 'bg-white/60 text-slate-600 border-slate-200 hover:bg-white/90 shadow-sm'
                 }`;
                 btn.innerText = label;
                 container.appendChild(btn);
             }
-
             setTimeout(() => {
-                const activePill = document.getElementById(`filter-pill-${filterModalActiveMonth}`);
+                const activePill = document.getElementById(`inline-filter-pill-${inlineFilterActiveMonth}`);
                 if (activePill) activePill.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-            }, 50);
+            }, 150);
         }
 
-        function selectFilterMonth(offset) {
-            filterModalActiveMonth = offset;
-            renderFilterMonthPills();
-            renderFilteredContracts();
-        }
+        function renderInlineFilterTable() {
+            const tbody = document.getElementById('inline-filter-table-body');
+            tbody.innerHTML = '';
+            const updatedContracts = [];
+            appState.contractsList.forEach(id => {
+                const data = getContractMonthData(id, inlineFilterActiveMonth);
+                if (data && data.isUpdated) updatedContracts.push({ id, data });
+            });
 
-        function renderFilteredContracts() {
-            const container = document.getElementById('filter-month-results');
-            container.innerHTML = '';
-
-            const filtered = appState.contractsList.filter(id => isContractUpdatedInMonth(id, filterModalActiveMonth));
-
-            if (filtered.length === 0) {
-                container.innerHTML = `<div class="text-center py-6 text-slate-500 font-bold text-sm">No projects updated in ${getMonthLabel(filterModalActiveMonth)}.</div>`;
+            if (updatedContracts.length === 0) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td colspan="3" class="py-10 text-center text-slate-500 font-bold text-sm bg-white"><i class="fa-solid fa-folder-open text-3xl text-slate-300 mb-2 block"></i> No accomplishments recorded for this month.</td>`;
+                tbody.appendChild(tr);
                 return;
             }
 
-            filtered.forEach(id => {
-                const btn = document.createElement('button');
-                btn.onclick = () => {
-                    selectMonthOffset(filterModalActiveMonth); 
-                    selectContract(id);
-                    closeFilterMonthModal();
+            updatedContracts.forEach((item, index) => {
+                const bgClass = index % 2 === 0 ? 'bg-[#ffebd6]/80' : 'bg-[#fff4eb]/80';
+                let percText = item.data.percentage > 0 ? `${item.data.percentage.toFixed(2)}%` : '0.00%';
+                let remText = item.data.remarks || '';
+                const tr = document.createElement('tr');
+                tr.className = `${bgClass} hover:bg-orange-300/40 transition-colors cursor-pointer`;
+                tr.title = "Double-click to generate SWA Report";
+                tr.ondblclick = () => {
+                    appState.activeMonthOffset = inlineFilterActiveMonth;
+                    appState.selectedContractId = item.id;
+                    appState.modifiedCells = {};
+                    loadContract(item.id);
+                    generateSWAReport();
                 };
-                btn.className = `w-full text-left p-3.5 rounded-xl text-sm font-bold transition-all shadow-sm ${
-                    id === appState.selectedContractId && filterModalActiveMonth === appState.activeMonthOffset
-                    ? 'bg-blue-100 text-blue-700 border border-blue-300' 
-                    : 'text-slate-700 bg-white/60 hover:bg-white/90 border border-white/80'
-                }`;
-                btn.innerText = id;
-                container.appendChild(btn);
+                tr.innerHTML = `
+                    <td class="py-3 px-3 text-xs font-extrabold text-slate-800 border-r border-[#ee7d31]/20">${item.id}</td>
+                    <td class="py-3 px-3 text-xs font-bold text-slate-700 text-center border-r border-[#ee7d31]/20">${percText}</td>
+                    <td class="py-3 px-3 text-[11px] font-semibold text-slate-700 leading-tight">${remText}</td>
+                `;
+                tbody.appendChild(tr);
             });
         }
 
-        function isContractUpdatedInMonth(contractId, targetMonthOffset) {
+        function getContractMonthData(contractId, monthOffset) {
             const record = appState.rows.find(r => r.contractId === contractId);
-            if (!record) return false;
-
+            if (!record) return null;
             const ntpStr = appState.pdoLookupMap[contractId] ? appState.pdoLookupMap[contractId].ntp : '';
             const ntpOffset = parseNtpToOffset(ntpStr);
-            const monthDiff = targetMonthOffset - ntpOffset;
-
-            if (monthDiff < 0) return false;
+            const monthDiff = monthOffset - ntpOffset;
+            if (monthDiff < 0) return { hasItemData: false, percentage: 0, remarks: "", isUpdated: false };
 
             const row = record.values;
             const headers = appState.headers;
             const contractColIndex = findContractHeaderCol(headers);
+            
+            let totalToDateAmount = 0;
+            let monthRemarks = '';
+            let hasItemData = false;
+            let isUpdatedThisMonth = false; 
+
+            let savedPercentage = null;
+            const monthlyPercColIdx = headers.findIndex(h => String(h || '').toUpperCase().replace(/\s/g, '') === 'MONTHLY(%)');
+            if (monthlyPercColIdx !== -1) {
+                const cellVal = String(row[monthlyPercColIdx] || '').trim();
+                const parts = cellVal.split('|').map(p => p.trim());
+                if (parts[monthDiff] !== undefined && parts[monthDiff].trim() !== '') {
+                    savedPercentage = parseFloat(parts[monthDiff]);
+                    isUpdatedThisMonth = true; 
+                }
+            }
 
             for (let c = 0; c < row.length; c++) {
                 if (c === contractColIndex) continue;
-                
                 const colHeader = String(headers[c] || '').trim();
-                if (colHeader.toUpperCase() === 'REMARKS') continue;
-
                 const cellVal = String(row[c] || '').trim();
                 
-                const cacheKey = `${c}_${record.rowNumber}`;
-                const isLocallyModified = appState.modifiedCells[cacheKey] !== undefined;
-
-                if ((colHeader.toUpperCase().startsWith('ITEM') && cellVal !== "" && cellVal.includes('|')) || isLocallyModified) {
-                    const item = appState.modifiedCells[cacheKey] || parseCellToItem(cellVal, colHeader, c, record.rowNumber);
-                    
-                    const val = parseFloat(item.parts[7 + monthDiff]) || 0;
-                    if (val !== 0) {
-                        return true;
+                if (colHeader.toUpperCase() === 'REMARKS') {
+                    const parts = cellVal.split('|').map(p => p.trim());
+                    if (parts[monthDiff] !== undefined && parts[monthDiff].trim() !== '') {
+                        monthRemarks = parts[monthDiff];
+                        isUpdatedThisMonth = true;
                     }
+                    continue;
+                }
+
+                if (colHeader.toUpperCase().startsWith('ITEM') && cellVal !== "" && cellVal.includes('|')) {
+                    hasItemData = true;
+                    const parsed = parseCellToItem(cellVal, colHeader, c, record.rowNumber);
+                    const metrics = calculateMetrics(parsed.parts, monthOffset, parsed.headerName);
+                    totalToDateAmount += metrics.toDate * metrics.unitCost;
+                    if (metrics.thisPeriod > 0) isUpdatedThisMonth = true;
                 }
             }
-            return false;
+
+            const contractVo = appState.voLookupMap[contractId] || { amount: 0 };
+            const contractAmount = contractVo.amount;
+            const calculatedPercentage = contractAmount > 0 ? (totalToDateAmount / contractAmount) * 100 : 0;
+            const percentage = savedPercentage !== null ? savedPercentage : calculatedPercentage;
+
+            return { hasItemData, percentage, remarks: monthRemarks, isUpdated: isUpdatedThisMonth };
         }
 
         function filterContractIds() {
             const query = document.getElementById('contract-search-input').value.toLowerCase().trim();
             const container = document.getElementById('contract-list-results');
             container.innerHTML = '';
-
             let filtered = appState.contractsList.filter(id => id.toLowerCase().includes(query));
 
             if (filtered.length === 0) {
@@ -1255,10 +1166,7 @@ function renderFilterMonthPills() {
 
             filtered.forEach(id => {
                 const btn = document.createElement('button');
-                btn.onclick = () => {
-                    selectContract(id);
-                    closeContractSelectorModal();
-                };
+                btn.onclick = () => { selectContract(id); closeContractSelectorModal(); };
                 btn.className = `w-full text-left p-3.5 rounded-xl text-sm font-bold transition-all shadow-sm ${
                     id === appState.selectedContractId 
                     ? 'bg-blue-100 text-blue-700 border border-blue-300' 
@@ -1271,17 +1179,13 @@ function renderFilterMonthPills() {
 
         function selectContract(id) {
             if (Object.keys(appState.modifiedCells).length > 0) {
-                showConfirm(
-                    "Unsaved localized updates exist. Switching contracts will wipe outstanding edits.\n\nWhat would you like to do?", 
+                showConfirm("Unsaved localized updates exist. Switching contracts will wipe outstanding edits.\n\nWhat would you like to do?", 
                     () => {
                         appState.selectedContractId = id;
                         appState.modifiedCells = {};
                         updatePendingBadge();
                         loadContract(id);
-                    }, 
-                    "Switch & Discard", 
-                    "I want to save first"
-                );
+                    }, "Switch & Discard", "I want to save first");
             } else {
                 appState.selectedContractId = id;
                 appState.modifiedCells = {};
@@ -1290,9 +1194,52 @@ function renderFilterMonthPills() {
             }
         }
 
+        function proceedToWorkspace() {
+            const repSelector = document.getElementById('history-name-selector');
+            if (!repSelector || repSelector.value.trim() === "") {
+                showCustomAlert("Please select an Authorized Representative before proceeding to Items.");
+                return;
+            }
+
+            document.getElementById('home-view').classList.add('hidden');
+            document.getElementById('home-view').classList.remove('flex');
+            document.getElementById('workspace-view').classList.remove('hidden');
+            document.getElementById('workspace-view').classList.add('flex'); 
+            
+            const actionBar = document.getElementById('action-bar');
+            if (actionBar) {
+                actionBar.classList.remove('hidden');
+                actionBar.classList.add('flex');
+            }
+
+            setTimeout(() => {
+                const activePill = document.getElementById(`month-pill-${appState.activeMonthOffset}`);
+                if (activePill) activePill.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+            }, 100);
+        }
+
+        function returnToHome() {
+            appState.modifiedCells = {};
+            editorIsDirty = false;
+            updatePendingBadge();
+            
+            document.getElementById('home-view').classList.remove('hidden');
+            document.getElementById('home-view').classList.add('flex');
+            document.getElementById('workspace-view').classList.add('hidden');
+            document.getElementById('workspace-view').classList.remove('flex');
+            
+            const actionBar = document.getElementById('action-bar');
+            if (actionBar) {
+                actionBar.classList.add('hidden');
+                actionBar.classList.remove('flex');
+            }
+        }
+
         function loadContract(id) {
             document.getElementById('selected-contract-display').innerText = id;
-            document.getElementById('selected-contract-display').className = "font-black text-orange-600 text-sm";
+            document.getElementById('selected-contract-display').className = "font-black text-[#e86a10] text-lg";
+            document.getElementById('header-contract-display').innerText = id;
+            document.getElementById('header-contract-display').classList.remove('hidden');
             
             const record = appState.rows.find(r => r.contractId === id);
             if (record) {
@@ -1302,75 +1249,64 @@ function renderFilterMonthPills() {
                 renderHistoryTimeline();
             }
             updatePrintButtonState();
+            document.getElementById('btn-proceed').disabled = false;
         }
 
         function resetContractDisplay() {
             appState.selectedContractId = null;
             appState.contractRowData = null;
+            
             document.getElementById('selected-contract-display').innerText = "Select Contract ID...";
             document.getElementById('selected-contract-display').className = "font-black text-slate-600 text-sm";
+            document.getElementById('header-contract-display').innerText = "";
+            document.getElementById('header-contract-display').classList.add('hidden');
             
+            const btnProceed = document.getElementById('btn-proceed');
+            if (btnProceed) btnProceed.disabled = true;
+
             const selector = document.getElementById('history-name-selector');
-            if (selector) {
-                selector.innerHTML = '<option value="">-- Select Representative --</option>';
-            }
+            if (selector) selector.innerHTML = '<option value="">-- Select Representative --</option>';
 
             const timelineContainer = document.getElementById('history-timeline-container');
-            if (timelineContainer) {
-                timelineContainer.innerHTML = '<p class="text-xs text-slate-500 italic font-bold">No previous updates recorded.</p>';
-            }
+            if (timelineContainer) timelineContainer.innerHTML = '<p class="text-xs text-slate-500 italic font-bold">No previous updates recorded.</p>';
 
             document.getElementById('items-list-container').innerHTML = `
-                <div class="col-span-full text-center py-16 text-slate-500 bg-white/50 backdrop-blur-xl border border-white/60 rounded-[30px] shadow-sm">
+                <div class="w-full text-center py-16 text-slate-500 bg-white/50 backdrop-blur-xl border border-white/60 rounded-[30px] shadow-sm">
                     <i class="fa-solid fa-magnifying-glass text-5xl mb-4 opacity-30 text-blue-500"></i>
                     <p class="text-sm font-black">Please select a contract to view items.</p>
                 </div>
             `;
-            updateGlobalStatsGrid(0, 0, 0);
+            updateGlobalStatsGrid(0, 0, 0, 0, null);
 
             const remarksContainer = document.getElementById('remarks-container');
             if (remarksContainer) {
                 remarksContainer.classList.add('hidden');
                 remarksContainer.classList.remove('flex');
             }
+            const barchartContainer = document.getElementById('barchart-container');
+            if (barchartContainer) {
+                barchartContainer.classList.add('hidden');
+                barchartContainer.classList.remove('flex');
+            }
 
+            returnToHome();
             updatePrintButtonState();
         }
 
         function populateRepresentativeDropdown(contractId) {
             const selector = document.getElementById('history-name-selector');
             if (!selector) return;
-
+            const currentValue = selector.value;
             selector.innerHTML = '<option value="">-- Select Representative --</option>';
-
             if (!contractId || !appState.pdoLookupMap[contractId]) return;
-
             const pdoData = appState.pdoLookupMap[contractId];
 
-            if (pdoData.pe) {
-                const opt = document.createElement('option');
-                opt.value = pdoData.pe;
-                opt.innerText = `${pdoData.pe} (PE)`;
-                selector.appendChild(opt);
-            }
-            if (pdoData.pi) {
-                const opt = document.createElement('option');
-                opt.value = pdoData.pi;
-                opt.innerText = `${pdoData.pi} (PI)`;
-                selector.appendChild(opt);
-            }
-            if (pdoData.re) {
-                const opt = document.createElement('option');
-                opt.value = pdoData.re;
-                opt.innerText = `${pdoData.re} (RE)`;
-                selector.appendChild(opt);
-            }
-            if (pdoData.qe) {
-                const opt = document.createElement('option');
-                opt.value = pdoData.qe;
-                opt.innerText = `${pdoData.qe} (QE)`;
-                selector.appendChild(opt);
-            }
+            if (pdoData.pe) selector.appendChild(new Option(`${pdoData.pe} (PE)`, pdoData.pe));
+            if (pdoData.pi) selector.appendChild(new Option(`${pdoData.pi} (PI)`, pdoData.pi));
+            if (pdoData.re) selector.appendChild(new Option(`${pdoData.re} (RE)`, pdoData.re));
+            if (pdoData.qe) selector.appendChild(new Option(`${pdoData.qe} (QE)`, pdoData.qe));
+
+            if (currentValue) selector.value = currentValue;
         }
 
         function getParsedHistory() {
@@ -1384,9 +1320,7 @@ function renderFilterMonthPills() {
             for (let i = 0; i < parts.length; i += 2) {
                 const name = parts[i] || '';
                 const date = parts[i+1] || '';
-                if (name || date) {
-                    entries.push({ name, date });
-                }
+                if (name || date) entries.push({ name, date });
             }
             return entries;
         }
@@ -1394,27 +1328,20 @@ function renderFilterMonthPills() {
         function renderHistoryTimeline() {
             const container = document.getElementById('history-timeline-container');
             if (!container) return;
-
             container.innerHTML = '';
-
             const entries = getParsedHistory();
             if (entries.length === 0) {
                 container.innerHTML = '<p class="text-xs text-slate-500 italic font-bold">No previous updates recorded.</p>';
                 return;
             }
-
             entries.forEach(e => {
                 const item = document.createElement('div');
                 item.className = "flex items-start gap-3 bg-white/60 p-3 rounded-xl border border-white/80 shadow-sm";
-
                 let formattedDate = e.date;
                 try {
                     const d = new Date(e.date);
-                    if (!isNaN(d.getTime())) {
-                        formattedDate = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-                    }
+                    if (!isNaN(d.getTime())) formattedDate = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
                 } catch (err) {}
-
                 item.innerHTML = `
                     <div class="w-2 h-2 rounded-full bg-rose-500 mt-1 shrink-0 animate-pulse"></div>
                     <div class="flex-1 min-w-0">
@@ -1424,6 +1351,48 @@ function renderFilterMonthPills() {
                 `;
                 container.appendChild(item);
             });
+        }
+
+        function toggleAccordion(index) {
+            const detail = document.getElementById(`detail-${index}`);
+            const icon = document.getElementById(`icon-${index}`);
+            if (detail.classList.contains('hidden')) {
+                detail.classList.remove('hidden');
+                detail.classList.add('flex');
+                icon.classList.add('rotate-90');
+            } else {
+                detail.classList.add('hidden');
+                detail.classList.remove('flex');
+                icon.classList.remove('rotate-90');
+            }
+        }
+
+        function toggleRemarksAccordion() {
+            const detail = document.getElementById('detail-remarks');
+            const icon = document.getElementById('icon-remarks');
+            if (detail.classList.contains('hidden')) {
+                detail.classList.remove('hidden');
+                detail.classList.add('flex');
+                icon.classList.add('rotate-90');
+            } else {
+                detail.classList.add('hidden');
+                detail.classList.remove('flex');
+                icon.classList.remove('rotate-90');
+            }
+        }
+        
+        function toggleBarChartAccordion() {
+            const detail = document.getElementById('detail-barchart');
+            const icon = document.getElementById('icon-barchart');
+            if (detail.classList.contains('hidden')) {
+                detail.classList.remove('hidden');
+                detail.classList.add('flex');
+                icon.classList.add('rotate-90');
+            } else {
+                detail.classList.add('hidden');
+                detail.classList.remove('flex');
+                icon.classList.remove('rotate-90');
+            }
         }
 
         function renderItemsList() {
@@ -1440,68 +1409,73 @@ function renderFilterMonthPills() {
             const loginColIndex = headers.findIndex(h => String(h || '').toUpperCase().trim() === 'LOGIN');
             const contractLoginUser = loginColIndex !== -1 && row[loginColIndex] ? String(row[loginColIndex]).trim() : '';
             
-            const isPastPeriod = appState.activeMonthOffset < CURRENT_MONTH_OFFSET;
-            const isAuthorized = appState.loggedInUser && appState.loggedInUser !== 'Guest' && contractLoginUser.toLowerCase() === appState.loggedInUser.toLowerCase();
+            const currentUser = String(appState.loggedInUser || '').trim().toLowerCase();
+            const isAdmin = (currentUser === 'admin'); 
+            
+            const isPastPeriod = isAdmin ? false : (appState.activeMonthOffset < CURRENT_MONTH_OFFSET);
+            const isAuthorized = isAdmin ? true : (currentUser !== 'guest' && contractLoginUser.toLowerCase() === currentUser);
             
             const isLocked = isPastPeriod || !isAuthorized;
 
             const validItems = [];
-
+            
             const addBtn = document.createElement('button');
             if (isPastPeriod) {
                 addBtn.disabled = true;
-                addBtn.className = "col-span-full py-4 border border-white/50 bg-white/40 text-slate-500 rounded-2xl text-xs font-black tracking-widest uppercase flex items-center justify-center gap-2 mb-2 cursor-not-allowed shadow-inner opacity-70";
+                addBtn.className = "w-full py-4 border border-white/50 bg-white/40 text-slate-500 rounded-2xl text-xs font-black tracking-widest uppercase flex items-center justify-center gap-2 mt-2 cursor-not-allowed shadow-inner opacity-70";
                 addBtn.innerHTML = `<i class="fa-solid fa-lock text-slate-500"></i> Locked (Past Period)`;
             } else if (!isAuthorized) {
                 addBtn.disabled = true;
-                addBtn.className = "col-span-full py-4 border border-rose-200 bg-rose-50/50 text-rose-500 rounded-2xl text-xs font-black tracking-widest uppercase flex items-center justify-center gap-2 mb-2 cursor-not-allowed shadow-inner";
+                addBtn.className = "w-full py-4 border border-rose-200 bg-rose-50/50 text-rose-500 rounded-2xl text-xs font-black tracking-widest uppercase flex items-center justify-center gap-2 mt-2 cursor-not-allowed shadow-inner";
                 addBtn.innerHTML = `<i class="fa-solid fa-ban text-rose-500"></i> View-Only (Assigned to: ${contractLoginUser || 'None'})`;
             } else {
                 addBtn.onclick = openItemsEditorModal;
-                addBtn.className = "col-span-full py-4 border-2 border-dashed border-blue-400 hover:border-blue-500 bg-white/60 hover:bg-white/80 text-blue-700 rounded-2xl text-xs font-black tracking-widest uppercase transition-all flex items-center justify-center gap-2 mb-2 shadow-sm";
+                addBtn.className = "w-full py-4 border-2 border-dashed border-blue-400 hover:border-blue-500 bg-white/60 hover:bg-white/80 text-blue-700 rounded-2xl text-xs font-black tracking-widest uppercase transition-all flex items-center justify-center gap-2 mt-2 shadow-sm";
                 addBtn.innerHTML = `<i class="fa-solid fa-gears"></i> Add/Edit/Update Items`;
             }
-            container.appendChild(addBtn);
 
             for (let c = 0; c < row.length; c++) {
                 if (c === contractColIndex) continue;
-                
                 const colHeader = String(headers[c] || '').trim();
-                if (colHeader.toUpperCase() === 'REMARKS') continue;
-
+                if (colHeader.toUpperCase() === 'REMARKS' || colHeader.toUpperCase() === 'BARCHART') continue;
                 const cellVal = String(row[c] || '').trim();
-                
                 const cacheKey = `${c}_${rowNumber}`;
                 const isLocallyAdded = appState.modifiedCells[cacheKey] !== undefined;
-
                 if ((colHeader.toUpperCase().startsWith('ITEM') && cellVal !== "" && cellVal.includes('|')) || isLocallyAdded) {
-                    const parsed = parseCellToItem(cellVal, colHeader, c, rowNumber);
-                    validItems.push(parsed);
+                    validItems.push(parseCellToItem(cellVal, colHeader, c, rowNumber));
                 }
             }
 
             if (validItems.length === 0) {
                 const emptyMsg = document.createElement('div');
-                emptyMsg.className = "col-span-full text-center py-16 text-slate-500 bg-white/50 backdrop-blur-xl border border-white/60 rounded-[30px] shadow-sm";
-                emptyMsg.innerHTML = `
-                    <i class="fa-solid fa-face-frown text-5xl mb-4 opacity-30 text-blue-500"></i>
-                    <p class="text-sm font-black">No SWA item records identified for this contract.</p>
-                `;
-                container.appendChild(emptyMsg);
+                emptyMsg.className = "w-full text-center py-16 text-slate-500 bg-white/50 backdrop-blur-xl border border-white/60 rounded-[30px] shadow-sm";
+                emptyMsg.innerHTML = `<i class="fa-solid fa-face-frown text-5xl mb-4 opacity-30 text-blue-500"></i><p class="text-sm font-black">No SWA item records identified for this contract.</p>`;
                 
-                const contractVo = appState.voLookupMap[appState.selectedContractId] || { amount: 0 };
-                updateGlobalStatsGrid(contractVo.amount, 0, 0);
+                container.appendChild(emptyMsg);
+                container.appendChild(addBtn); 
 
+                const contractVo = appState.voLookupMap[appState.selectedContractId] || { amount: 0 };
+                updateGlobalStatsGrid(contractVo.amount, 0, 0, 0, null);
+                
+                renderBarChart();
                 renderRemarks();
                 return;
             }
 
             let totalToDateAmount = 0;
+            const tableContainer = document.createElement('div');
+            tableContainer.className = "w-full flex flex-col shadow-lg rounded-2xl overflow-hidden border border-slate-200/50 backdrop-blur-md bg-white/40";
+            const headerRow = document.createElement('div');
+            headerRow.className = "grid grid-cols-4 bg-[#ee7d31] text-white font-bold py-3 text-[11px] md:text-sm uppercase tracking-wide border-b border-[#d97c3b] shadow-sm";
+            headerRow.innerHTML = `<div class="text-left px-3">Item No.</div><div class="text-right px-3">Previous</div><div class="text-right px-3">To Date</div><div class="text-right px-3">Balance</div>`;
+            tableContainer.appendChild(headerRow);
+
+            const bodyContainer = document.createElement('div');
+            bodyContainer.className = "flex flex-col w-full";
 
             validItems.forEach((item, index) => {
                 const cacheKey = `${item.colIndex}_${item.rowNumber}`;
                 const workingItem = appState.modifiedCells[cacheKey] || item;
-
                 const metrics = calculateMetrics(workingItem.parts, appState.activeMonthOffset, workingItem.headerName);
                 
                 const itemToDateAmount = metrics.toDate * metrics.unitCost;
@@ -1512,99 +1486,334 @@ function renderFilterMonthPills() {
                 const itemUnit = lookupInfo.unit;
 
                 const progressPercent = metrics.targetQuantity > 0 ? Math.min(100, Math.max(0, (metrics.toDate / metrics.targetQuantity) * 100)) : 0;
+                let progressColorClass = "bg-[#8bb4e6]";
+                if (progressPercent >= 100) progressColorClass = "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]";
+                else if (progressPercent >= 90) progressColorClass = "bg-blue-600 shadow-[0_0_8px_rgba(37,99,235,0.5)]";
+
+                const hasUpdateThisPeriod = metrics.thisPeriod > 0;
+                const isPending = appState.modifiedCells[cacheKey];
                 
-                let progressColor = "bg-blue-400";
-                if (progressPercent >= 100) progressColor = "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]";
-                else if (progressPercent >= 75) progressColor = "bg-purple-400 shadow-[0_0_8px_rgba(167,139,250,0.5)]";
-                else if (progressPercent <= 0) progressColor = "bg-slate-300";
+                let bgClass = index % 2 === 0 ? 'bg-[#ffebd6]/90' : 'bg-[#fff4eb]/90';
+                if (hasUpdateThisPeriod || isPending) bgClass = 'bg-amber-200/80 border-l-4 border-amber-500';
 
-                const card = document.createElement('div');
-                card.className = `backdrop-blur-md border rounded-2xl p-4 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1 ${
-                    appState.modifiedCells[cacheKey] 
-                    ? 'border-amber-400 bg-amber-50/70' 
-                    : 'bg-gradient-to-br from-white/70 to-white/40 border-white/60 hover:border-blue-300'
-                }`;
-
+                const itemTextColor = hasUpdateThisPeriod ? 'text-blue-700' : 'text-slate-800';
+                const toDateTextColor = hasUpdateThisPeriod ? 'text-blue-600' : 'text-emerald-800';
                 const inputDisabledAttr = isLocked ? "disabled" : "";
-                const inputClass = isLocked 
-                    ? "w-full bg-transparent border-0 outline-none text-xs text-slate-500 font-bold py-1.5 cursor-not-allowed focus:ring-0" 
-                    : "w-full bg-transparent border-0 outline-none text-xs text-slate-800 font-black py-1.5 placeholder-slate-400 focus:ring-0";
-                const iconClass = isPastPeriod 
-                    ? "fa-solid fa-lock text-slate-400 text-xs mr-2 animate-pulse" 
-                    : (!isAuthorized ? "fa-solid fa-ban text-rose-500 text-xs mr-2" : "fa-solid fa-pen-nib text-blue-500 text-xs mr-2");
                 const inputPlaceholder = isLocked ? "-" : "0.00";
 
-                card.innerHTML = `
-                    <div class="flex items-center justify-between border-b border-white/60 pb-2 mb-2">
-                        <span class="text-sm font-extrabold text-slate-800 tracking-wider flex items-center gap-2">
-                            ${metrics.itemNo}
-                            ${appState.modifiedCells[cacheKey] ? '<span class="text-[9px] bg-amber-100 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-md font-black uppercase">PENDING</span>' : ''}
-                        </span>
-                        ${itemUnit ? `<span class="text-[10px] font-black text-blue-700 bg-blue-100 px-2.5 py-0.5 rounded-lg border border-blue-200 uppercase">${itemUnit}</span>` : ''}
+                const rowWrapper = document.createElement('div');
+                rowWrapper.className = `flex flex-col border-b border-[#ee7d31]/20 last:border-0 ${bgClass}`;
+                rowWrapper.dataset.rawItem = JSON.stringify(workingItem);
+
+                const masterRow = document.createElement('div');
+                masterRow.className = `grid grid-cols-4 py-3 text-[11px] md:text-sm font-semibold ${itemTextColor} cursor-pointer hover:bg-orange-300/40 transition-colors`;
+                masterRow.onclick = () => toggleAccordion(index);
+                masterRow.innerHTML = `
+                    <div class="text-left px-3 flex items-center gap-1.5 font-bold">
+                        <i class="fa-solid fa-chevron-right text-[10px] text-orange-600 transition-transform duration-300" id="icon-${index}"></i>
+                        <span class="truncate">${metrics.itemNo}</span>
+                        ${isPending ? '<span class="text-[8px] bg-amber-500 text-white px-1.5 py-0.5 rounded ml-1 uppercase shadow-sm">P</span>' : ''}
                     </div>
+                    <div class="text-right px-3 text-slate-700" id="master-prev-${index}">${formatNum(metrics.previous)}</div>
+                    <div class="text-right px-3 ${toDateTextColor} font-black" id="master-todate-${index}">${formatNum(metrics.toDate)}</div>
+                    <div class="text-right px-3 text-rose-700" id="master-bal-${index}">${formatNum(metrics.balance)}</div>
+                `;
 
-                    ${itemDescription ? `<p class="text-xs text-slate-600 italic mb-3 leading-tight px-1 font-bold">${itemDescription}</p>` : ''}
-
-                    <div class="flex justify-between items-end mb-1 text-[10px] text-slate-500 font-black px-1">
-                        <span>Completion Progress</span>
-                        <span class="text-slate-700 text-xs font-extrabold">${progressPercent.toFixed(1)}%</span>
-                    </div>
-
-                    <div class="w-full bg-white/60 rounded-full h-2 mb-4 border border-white/60 overflow-hidden shadow-inner">
-                        <div class="${progressColor} h-2 rounded-full transition-all duration-300" style="width: ${progressPercent}%"></div>
-                    </div>
-
-                    <div class="grid grid-cols-3 gap-2 text-center bg-white/50 border border-white/50 p-3 rounded-xl mb-3.5 shadow-inner">
-                        <div>
-                            <span class="text-[9px] text-slate-500 font-black uppercase tracking-wider block">Previous</span>
-                            <span class="text-xs font-black text-slate-700 block mt-0.5" id="prev-display-${index}">${formatNum(metrics.previous)}</span>
+                const detailRow = document.createElement('div');
+                detailRow.id = `detail-${index}`;
+                detailRow.className = "hidden flex-col bg-white border-t border-dashed border-orange-300 p-2.5 gap-2 shadow-inner";
+                detailRow.innerHTML = `
+                    ${itemDescription ? `<p class="text-[10px] md:text-xs text-slate-600 italic leading-tight px-1 font-semibold">${itemDescription}</p>` : ''}
+                    <div class="flex items-center justify-between gap-3 px-1 mt-0.5">
+                        <div class="flex-1 flex flex-col gap-1">
+                            <div class="flex justify-between items-end text-[9px] text-slate-500 font-black tracking-wide uppercase">
+                                <span>Target: <span class="text-slate-800">${formatNum(metrics.targetQuantity)} ${itemUnit || 'l.s.'}</span></span>
+                                <span id="progress-text-${index}" class="text-slate-800">${progressPercent.toFixed(2)}%</span>
+                            </div>
+                            <div class="w-full bg-slate-100 border border-slate-200 h-2 rounded-full overflow-hidden shadow-inner">
+                                <div class="${progressColorClass} h-full transition-all duration-300" id="progress-bar-${index}" style="width: ${progressPercent}%"></div>
+                            </div>
                         </div>
-                        <div>
-                            <span class="text-[9px] text-slate-500 font-black uppercase tracking-wider block">To Date</span>
-                            <span class="text-xs font-black text-emerald-600 block mt-0.5" id="todate-display-${index}">${formatNum(metrics.toDate)}</span>
-                        </div>
-                        <div>
-                            <span class="text-[9px] text-slate-500 font-black uppercase tracking-wider block">Balance</span>
-                            <span class="text-xs font-black text-rose-500 block mt-0.5" id="bal-display-${index}">${formatNum(metrics.balance)}</span>
-                        </div>
-                    </div>
-
-                    <div class="flex flex-col gap-2 border-t border-white/60 pt-3">
-                        <div class="flex justify-between items-center px-1 text-[9px] font-black text-slate-500 uppercase tracking-wider">
-                            <span>Qty for ${getMonthLabel(appState.activeMonthOffset)} ${isLocked ? '(VIEW ONLY)' : ''}</span>
-                            <span class="text-slate-400">Target: ${formatNum(metrics.targetQuantity)}</span>
-                        </div>
-                        <div class="flex gap-2">
-                            <div class="relative w-full flex items-center bg-white/80 border border-white/60 shadow-inner rounded-xl px-3 py-0.5">
-                                <i class="${iconClass}"></i>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <span class="text-[9px] text-slate-500 font-black uppercase tracking-wider hidden sm:block">Update:</span>
+                            <div class="relative w-24 bg-[#d1e4ff] border border-blue-300 rounded-md flex items-center shadow-inner overflow-hidden">
                                 <input type="number" step="any" min="0" 
                                     value="${metrics.thisPeriod === 0 ? '' : metrics.thisPeriod}" 
                                     ${inputDisabledAttr}
                                     oninput="onItemEdit(this, ${index}, ${workingItem.colIndex}, ${workingItem.rowNumber})"
                                     placeholder="${inputPlaceholder}" 
-                                    class="${inputClass}">
+                                    class="w-full bg-transparent border-none outline-none text-xs font-black p-1.5 text-center focus:ring-0 ${hasUpdateThisPeriod ? 'text-blue-700' : 'text-slate-900'} ${isLocked ? 'cursor-not-allowed opacity-60' : ''}">
                             </div>
                         </div>
                     </div>
                 `;
-                
-                card.dataset.rawItem = JSON.stringify(workingItem);
-                container.appendChild(card);
+
+                rowWrapper.appendChild(masterRow);
+                rowWrapper.appendChild(detailRow);
+                bodyContainer.appendChild(rowWrapper);
             });
+
+            tableContainer.appendChild(bodyContainer);
+            container.appendChild(tableContainer);
+            container.appendChild(addBtn); 
 
             const contractVo = appState.voLookupMap[appState.selectedContractId] || { amount: 0 };
             const contractAmount = contractVo.amount;
             const actualPercent = contractAmount > 0 ? (totalToDateAmount / contractAmount) * 100 : 0;
+            
+            const barchartColIdx = appState.headers.findIndex(h => String(h || '').toUpperCase().trim() === 'BARCHART');
+            const hasBarchart = barchartColIdx !== -1;
+            let slippage = null;
+            let scheduledPercent = 0;
 
-            updateGlobalStatsGrid(contractAmount, totalToDateAmount, actualPercent);
+            if (hasBarchart) {
+                scheduledPercent = calculateScheduledPercentage();
+                slippage = actualPercent - scheduledPercent;
+            }
 
+            updateGlobalStatsGrid(contractAmount, totalToDateAmount, actualPercent, scheduledPercent, slippage);
+            
+            renderBarChart();
             renderRemarks();
+        }
+
+        function calculateScheduledPercentage() {
+            if (!appState.contractRowData) return 0;
+            const headers = appState.headers;
+            const barchartColIdx = headers.findIndex(h => String(h || '').toUpperCase().trim() === 'BARCHART');
+            if (barchartColIdx === -1) return 0;
+
+            let ntpOffset = 0;
+            if (appState.selectedContractId && appState.pdoLookupMap[appState.selectedContractId]) {
+                ntpOffset = parseNtpToOffset(appState.pdoLookupMap[appState.selectedContractId].ntp);
+            }
+
+            if (appState.activeMonthOffset < ntpOffset) return 0;
+
+            const rowNumber = appState.contractRowData.rowNumber;
+            const cacheKey = `${barchartColIdx}_${rowNumber}`;
+            let barchartParts = [];
+            if (appState.modifiedCells[cacheKey]) {
+                barchartParts = [...appState.modifiedCells[cacheKey].parts];
+            } else {
+                const cellVal = String(appState.contractRowData.values[barchartColIdx] || '');
+                barchartParts = cellVal ? cellVal.split('|').map(p => p.trim()) : [];
+            }
+
+            const today = new Date();
+            const todayMonthOffset = (today.getFullYear() - START_YEAR) * 12 + today.getMonth();
+            const todayDay = today.getDate();
+            const targetMonthOffset = appState.activeMonthOffset;
+
+            let totalScheduled = 0;
+
+            for (let i = ntpOffset; i <= targetMonthOffset; i++) {
+                const monthDiff = i - ntpOffset;
+                const monthPerc = parseFloat(barchartParts[monthDiff]) || 0;
+
+                if (i < targetMonthOffset) {
+                    totalScheduled += monthPerc; 
+                } else if (i === targetMonthOffset) {
+                    if (targetMonthOffset === todayMonthOffset) {
+                        const year = START_YEAR + Math.floor(i / 12);
+                        const month = i % 12;
+                        const daysInMonth = new Date(year, month + 1, 0).getDate();
+                        totalScheduled += (monthPerc / daysInMonth) * todayDay;
+                    } else {
+                        totalScheduled += monthPerc;
+                    }
+                }
+            }
+
+            return totalScheduled;
+        }
+
+        function renderBarChart() {
+            const container = document.getElementById('barchart-container');
+            if (!container) return;
+            if (!appState.contractRowData) {
+                container.classList.add('hidden');
+                container.classList.remove('flex');
+                return;
+            }
+            
+            const headers = appState.headers;
+            const barchartColIdx = headers.findIndex(h => String(h || '').toUpperCase().trim() === 'BARCHART');
+            if (barchartColIdx === -1) {
+                container.classList.add('hidden');
+                container.classList.remove('flex');
+                return;
+            }
+            
+            container.classList.remove('hidden');
+            container.classList.add('flex');
+            
+            const row = appState.contractRowData.values;
+            const rowNumber = appState.contractRowData.rowNumber;
+            const loginColIndex = headers.findIndex(h => String(h || '').toUpperCase().trim() === 'LOGIN');
+            const contractLoginUser = loginColIndex !== -1 && row[loginColIndex] ? String(row[loginColIndex]).trim() : '';
+            
+            const currentUser = String(appState.loggedInUser || '').trim().toLowerCase();
+            const isAdmin = (currentUser === 'admin'); 
+            const isPastPeriod = isAdmin ? false : (appState.activeMonthOffset < CURRENT_MONTH_OFFSET);
+            const isAuthorized = isAdmin ? true : (currentUser !== 'guest' && contractLoginUser.toLowerCase() === currentUser);
+            const isLocked = isPastPeriod || !isAuthorized;
+            
+            let ntpOffset = 0;
+            if (appState.selectedContractId && appState.pdoLookupMap[appState.selectedContractId]) {
+                ntpOffset = parseNtpToOffset(appState.pdoLookupMap[appState.selectedContractId].ntp);
+            }
+            
+            const cacheKey = `${barchartColIdx}_${rowNumber}`;
+            let barchartParts = [];
+            if (appState.modifiedCells[cacheKey]) {
+                barchartParts = [...appState.modifiedCells[cacheKey].parts];
+            } else {
+                const cellVal = String(row[barchartColIdx] || '');
+                barchartParts = cellVal ? cellVal.split('|').map(p => p.trim()) : [];
+            }
+            
+            if (barchartParts.length === 0) barchartParts = [''];
+
+            const detailContainer = document.getElementById('detail-barchart');
+            detailContainer.dataset.parts = JSON.stringify(barchartParts);
+            detailContainer.dataset.isLocked = isLocked;
+            detailContainer.dataset.colIndex = barchartColIdx;
+            detailContainer.dataset.rowNumber = rowNumber;
+            
+            buildBarChartTable();
+        }
+
+        function buildBarChartTable() {
+            const detailContainer = document.getElementById('detail-barchart');
+            const parts = JSON.parse(detailContainer.dataset.parts || '[]');
+            const isLocked = detailContainer.dataset.isLocked === 'true';
+            
+            let html = `
+                <table class="w-full text-left border-collapse table-fixed">
+                    <thead>
+                        <tr class="bg-[#ed7d31] text-black font-extrabold text-sm tracking-wide">
+                            <th class="py-2 px-4 w-[50%]">Month</th>
+                            <th class="py-2 px-4 w-[50%] text-right">Percentage</th>
+                        </tr>
+                    </thead>
+                    <tbody id="barchart-tbody">
+            `;
+            
+            let total = 0;
+            parts.forEach((p, idx) => {
+                const val = parseFloat(p) || 0;
+                total += val;
+                const bgClass = idx % 2 === 0 ? 'bg-[#fce4d6]' : 'bg-[#f8cbad]';
+                const ordinal = getOrdinal(idx + 1);
+                
+                html += `
+                    <tr class="${bgClass} border-b border-orange-200/50">
+                        <td class="py-2 px-4 text-slate-800 font-bold text-sm">${ordinal} month</td>
+                        <td class="py-1 px-4 flex justify-end items-center group">
+                            <input type="number" step="any" min="0" max="100" 
+                                value="${p}" 
+                                oninput="updateBarChartData()"
+                                ${isLocked ? 'disabled' : ''}
+                                class="w-20 bg-transparent outline-none text-right font-bold text-sm text-slate-900 focus:border-b focus:border-blue-600 ${isLocked ? 'cursor-not-allowed opacity-60' : ''}">
+                            <span class="font-bold text-sm text-slate-900 ml-1">%</span>
+                            ${!isLocked && idx === parts.length - 1 && parts.length > 1 ? `<button onclick="removeBarChartRow()" class="text-rose-500 opacity-50 hover:opacity-100 ml-2" title="Remove Last Month"><i class="fa-solid fa-times"></i></button>` : '<span class="w-5 ml-2"></span>'}
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                    </tbody>
+                    <tfoot>
+                        <tr class="bg-white">
+                            <td colspan="2" class="py-2.5 px-4 border-b border-slate-200">
+                                ${!isLocked ? `<button onclick="addBarChartRow()" class="text-black font-black italic hover:text-blue-600 transition-colors">+ Add Month</button>` : `<span class="text-slate-400 italic text-xs">Locked (Read-Only)</span>`}
+                            </td>
+                        </tr>
+                        <tr class="bg-white font-black text-black text-sm">
+                            <td class="py-2 px-4">Total</td>
+                            <td class="py-2 px-4 flex justify-end items-center">
+                                <span id="barchart-total-display" class="${total > 100 ? 'text-rose-600' : ''}">${total.toFixed(2)}</span>
+                                <span class="ml-1">%</span>
+                                <span class="w-5 ml-2"></span>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            `;
+            
+            detailContainer.innerHTML = html;
+            
+            const scheduledPercent = calculateScheduledPercentage();
+            document.getElementById('barchart-preview').innerText = `Scheduled To Date: ${scheduledPercent.toFixed(2)}%`;
+        }
+
+        function updateBarChartData() {
+            const detailContainer = document.getElementById('detail-barchart');
+            const inputs = detailContainer.querySelectorAll('#barchart-tbody input');
+            
+            let parts = [];
+            let total = 0;
+            
+            inputs.forEach(input => {
+                const v = input.value;
+                parts.push(v);
+                total += (parseFloat(v) || 0);
+            });
+            
+            const totalDisplay = document.getElementById('barchart-total-display');
+            totalDisplay.innerText = `${total.toFixed(2)}`;
+            if (total > 100) totalDisplay.classList.add('text-rose-600');
+            else totalDisplay.classList.remove('text-rose-600');
+            
+            detailContainer.dataset.parts = JSON.stringify(parts);
+            commitBarChartToState(parts);
+        }
+
+        function addBarChartRow() {
+            const detailContainer = document.getElementById('detail-barchart');
+            const parts = JSON.parse(detailContainer.dataset.parts || '[]');
+            parts.push('');
+            detailContainer.dataset.parts = JSON.stringify(parts);
+            buildBarChartTable();
+            commitBarChartToState(parts);
+        }
+
+        function removeBarChartRow() {
+            const detailContainer = document.getElementById('detail-barchart');
+            const parts = JSON.parse(detailContainer.dataset.parts || '[]');
+            if (parts.length > 1) {
+                parts.pop();
+                detailContainer.dataset.parts = JSON.stringify(parts);
+                buildBarChartTable();
+                commitBarChartToState(parts);
+            }
+        }
+
+        function commitBarChartToState(workingParts) {
+            const inputContainer = document.getElementById('detail-barchart');
+            const colIdx = parseInt(inputContainer.dataset.colIndex);
+            const rowNumber = parseInt(inputContainer.dataset.rowNumber);
+            const cacheKey = `${colIdx}_${rowNumber}`;
+            
+            appState.modifiedCells[cacheKey] = {
+                colIndex: colIdx, colLetter: colToLetter(colIdx), rowNumber: rowNumber, headerName: 'BARCHART', parts: workingParts
+            };
+            
+            const originalVal = String(appState.contractRowData.values[colIdx] || '');
+            if (originalVal === workingParts.join('|')) delete appState.modifiedCells[cacheKey];
+            
+            const scheduledPercent = calculateScheduledPercentage();
+            document.getElementById('barchart-preview').innerText = `Scheduled To Date: ${scheduledPercent.toFixed(2)}%`;
+            
+            updatePendingBadge();
+            recalculateAggregatedTotals();
         }
 
         function renderRemarks() {
             const container = document.getElementById('remarks-container');
             if (!container) return;
-            
             if (!appState.contractRowData) {
                 container.classList.add('hidden');
                 container.classList.remove('flex');
@@ -1624,28 +1833,29 @@ function renderFilterMonthPills() {
             
             const row = appState.contractRowData.values;
             const rowNumber = appState.contractRowData.rowNumber;
-            
             const loginColIndex = headers.findIndex(h => String(h || '').toUpperCase().trim() === 'LOGIN');
             const contractLoginUser = loginColIndex !== -1 && row[loginColIndex] ? String(row[loginColIndex]).trim() : '';
             
-            const isPastPeriod = appState.activeMonthOffset < CURRENT_MONTH_OFFSET;
-            const isAuthorized = appState.loggedInUser && appState.loggedInUser !== 'Guest' && contractLoginUser.toLowerCase() === appState.loggedInUser.toLowerCase();
+            const currentUser = String(appState.loggedInUser || '').trim().toLowerCase();
+            const isAdmin = (currentUser === 'admin'); 
+            const isPastPeriod = isAdmin ? false : (appState.activeMonthOffset < CURRENT_MONTH_OFFSET);
+            const isAuthorized = isAdmin ? true : (currentUser !== 'guest' && contractLoginUser.toLowerCase() === currentUser);
             const isLocked = isPastPeriod || !isAuthorized;
             
             let ntpOffset = 0;
             if (appState.selectedContractId && appState.pdoLookupMap[appState.selectedContractId]) {
-                const ntpStr = appState.pdoLookupMap[appState.selectedContractId].ntp;
-                ntpOffset = parseNtpToOffset(ntpStr);
+                ntpOffset = parseNtpToOffset(appState.pdoLookupMap[appState.selectedContractId].ntp);
             }
             const monthDiff = appState.activeMonthOffset - ntpOffset;
-            
             const textarea = document.getElementById('monthly-remarks');
+            const preview = document.getElementById('remarks-preview');
             
             if (monthDiff < 0) {
                 textarea.value = "";
                 textarea.placeholder = "Selected month is before NTP.";
                 textarea.disabled = true;
                 textarea.classList.add('cursor-not-allowed', 'opacity-60');
+                preview.innerText = "Locked (Before NTP)";
                 return;
             }
             
@@ -1653,24 +1863,19 @@ function renderFilterMonthPills() {
             
             const cacheKey = `${remarksColIdx}_${rowNumber}`;
             let remarksStr = '';
-            
             if (appState.modifiedCells[cacheKey]) {
-                const parts = appState.modifiedCells[cacheKey].parts;
-                remarksStr = parts[monthDiff] || '';
+                remarksStr = appState.modifiedCells[cacheKey].parts[monthDiff] || '';
             } else {
                 const cellVal = String(row[remarksColIdx] || '');
-                const parts = cellVal.split('|');
-                remarksStr = parts[monthDiff] || '';
+                remarksStr = cellVal.split('|')[monthDiff] || '';
             }
             
             textarea.value = remarksStr;
+            preview.innerText = remarksStr ? remarksStr : "Click to add/edit...";
             
             textarea.disabled = isLocked;
-            if (isLocked) {
-                textarea.classList.add('cursor-not-allowed', 'opacity-60');
-            } else {
-                textarea.classList.remove('cursor-not-allowed', 'opacity-60');
-            }
+            if (isLocked) textarea.classList.add('cursor-not-allowed', 'opacity-60');
+            else textarea.classList.remove('cursor-not-allowed', 'opacity-60');
             
             textarea.dataset.colIndex = remarksColIdx;
             textarea.dataset.rowNumber = rowNumber;
@@ -1678,34 +1883,16 @@ function renderFilterMonthPills() {
 
         function parseCellToItem(cellVal, colHeader, colIdx, rowNum) {
             let parts = cellVal.split('|').map(p => p.trim());
-            
             if (parts.length < 7 || !cellVal.includes('|')) {
-                parts = [
-                    parts[0] || '',  
-                    parts[1] || '0', 
-                    parts[2] || '0', 
-                    '0',             
-                    '0',             
-                    '0',             
-                    '0',             
-                    '0'              
-                ];
+                parts = [ parts[0] || '', parts[1] || '0', parts[2] || '0', '0', '0', '0', '0', '0' ];
             }
-
-            return {
-                colIndex: colIdx,
-                colLetter: colToLetter(colIdx),
-                rowNumber: rowNum,
-                headerName: colHeader,
-                parts: parts
-            };
+            return { colIndex: colIdx, colLetter: colToLetter(colIdx), rowNumber: rowNum, headerName: colHeader, parts: parts };
         }
 
         function calculateMetrics(parts, activeMonthOffset, fallbackItemNo) {
             const itemNo = parts[0] || fallbackItemNo || '';
-            const targetQuantity = parseFloat(parts[1]) || 0; 
-
-            let unitCost = parseFloat(parts[2]) || 0;
+            const targetQuantity = parseEditVal(parts[1]); 
+            let unitCost = parseEditVal(parts[2]);
             if (unitCost === 0) {
                 const lookupInfo = appState.itemsLookupMap[itemNo] || { description: '', unit: '', unitCost: 0 };
                 unitCost = lookupInfo.unitCost || 0;
@@ -1713,63 +1900,35 @@ function renderFilterMonthPills() {
 
             let ntpOffset = 0;
             if (appState.selectedContractId && appState.pdoLookupMap[appState.selectedContractId]) {
-                const ntpStr = appState.pdoLookupMap[appState.selectedContractId].ntp;
-                ntpOffset = parseNtpToOffset(ntpStr);
+                ntpOffset = parseNtpToOffset(appState.pdoLookupMap[appState.selectedContractId].ntp);
             }
-            
             const monthDiff = activeMonthOffset - ntpOffset;
-
             const expectedLength = 7 + Math.max(0, monthDiff) + 1;
             const workingParts = [...parts];
-            while (workingParts.length < expectedLength) {
-                workingParts.push('0');
-            }
+            while (workingParts.length < expectedLength) workingParts.push('0');
 
-            let previous = 0;
-            let thisPeriod = 0;
-
+            let previous = 0, thisPeriod = 0;
             if (monthDiff >= 0) {
-                for (let i = 7; i < 7 + monthDiff; i++) {
-                    previous += parseFloat(workingParts[i]) || 0;
-                }
-                thisPeriod = parseFloat(workingParts[7 + monthDiff]) || 0;
-            } else {
-                previous = 0;
-                thisPeriod = 0;
+                for (let i = 7; i < 7 + monthDiff; i++) previous += parseEditVal(workingParts[i]);
+                thisPeriod = parseEditVal(workingParts[7 + monthDiff]);
             }
-
             const toDate = previous + thisPeriod;
-            const balance = targetQuantity - toDate;
-
-            return {
-                itemNo,
-                targetQuantity,
-                unitCost,
-                previous,
-                thisPeriod,
-                toDate,
-                balance
-            };
+            return { itemNo, targetQuantity, unitCost, previous, thisPeriod, toDate, balance: targetQuantity - toDate };
         }
 
         function onItemEdit(inputEl, cardIndex, colIdx, rowNumber) {
             if (inputEl.disabled) return;
-
-            const card = inputEl.closest('[data-raw-item]');
-            if (!card) return;
-
-            const baseItem = JSON.parse(card.dataset.rawItem);
+            const rowWrapper = inputEl.closest('[data-raw-item]');
+            if (!rowWrapper) return;
+            const baseItem = JSON.parse(rowWrapper.dataset.rawItem);
             const cacheKey = `${colIdx}_${rowNumber}`;
-            
             let val = parseFloat(inputEl.value);
             if (isNaN(val) || val < 0) val = 0;
 
             const workingParts = [...baseItem.parts];
-            
             let ntpOffset = 0;
             if (appState.selectedContractId && appState.pdoLookupMap[appState.selectedContractId]) {
-                const ntpStr = appState.pdoLookupMap[appState.selectedContractId].ntp;
-                ntpOffset = parseNtpToOffset(ntpStr);
+                ntpOffset = parseNtpToOffset(appState.pdoLookupMap[appState.selectedContractId].ntp);
             }
             const monthDiff = appState.activeMonthOffset - ntpOffset;
 
@@ -1780,33 +1939,28 @@ function renderFilterMonthPills() {
             }
 
             const requiredIndex = 7 + monthDiff;
-            while (workingParts.length <= requiredIndex) {
-                workingParts.push('0');
-            }
-
+            while (workingParts.length <= requiredIndex) workingParts.push('0');
             workingParts[requiredIndex] = String(val);
 
             let previous = 0;
-            for (let i = 7; i < 7 + monthDiff; i++) {
-                previous += parseFloat(workingParts[i]) || 0;
-            }
+            for (let i = 7; i < 7 + monthDiff; i++) previous += parseEditVal(workingParts[i]);
             const thisPeriod = val;
             const toDate = previous + thisPeriod;
-            const original = parseFloat(workingParts[1]) || 0;
+            const original = parseEditVal(workingParts[1]);
             const balance = original - toDate;
 
             if (balance < 0) {
                 showToast("Quantity Limit Exceeded", "Input rejected. Remaining balance cannot be negative.", "error");
                 inputEl.value = ""; 
-                
                 delete appState.modifiedCells[cacheKey];
-                card.className = 'backdrop-blur-md border rounded-2xl p-4 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1 bg-gradient-to-br from-white/70 to-white/40 border-white/60 hover:border-blue-300';
-                
                 const rollbackMetrics = calculateMetrics(baseItem.parts, appState.activeMonthOffset, baseItem.headerName);
-                document.getElementById(`prev-display-${cardIndex}`).innerText = formatNum(rollbackMetrics.previous);
-                document.getElementById(`todate-display-${cardIndex}`).innerText = formatNum(rollbackMetrics.toDate);
-                document.getElementById(`bal-display-${cardIndex}`).innerText = formatNum(rollbackMetrics.balance);
+                document.getElementById(`master-prev-${cardIndex}`).innerText = formatNum(rollbackMetrics.previous);
+                document.getElementById(`master-todate-${cardIndex}`).innerText = formatNum(rollbackMetrics.toDate);
+                document.getElementById(`master-bal-${cardIndex}`).innerText = formatNum(rollbackMetrics.balance);
                 
+                let originalBg = cardIndex % 2 === 0 ? 'bg-[#ffebd6]/90' : 'bg-[#fff4eb]/90';
+                if (rollbackMetrics.thisPeriod > 0) originalBg = 'bg-amber-200/80 border-l-4 border-amber-500';
+                rowWrapper.className = `flex flex-col border-b border-[#ee7d31]/20 last:border-0 ${originalBg}`;
                 updatePendingBadge();
                 recalculateAggregatedTotals();
                 return;
@@ -1817,100 +1971,91 @@ function renderFilterMonthPills() {
             workingParts[5] = String(toDate);
             workingParts[6] = String(balance);
 
-            appState.modifiedCells[cacheKey] = {
-                ...baseItem,
-                parts: workingParts
-            };
+            appState.modifiedCells[cacheKey] = { ...baseItem, parts: workingParts };
 
-            document.getElementById(`prev-display-${cardIndex}`).innerText = formatNum(previous);
-            document.getElementById(`todate-display-${cardIndex}`).innerText = formatNum(toDate);
-            document.getElementById(`bal-display-${cardIndex}`).innerText = formatNum(balance);
+            document.getElementById(`master-prev-${cardIndex}`).innerText = formatNum(previous);
+            document.getElementById(`master-todate-${cardIndex}`).innerText = formatNum(toDate);
+            document.getElementById(`master-bal-${cardIndex}`).innerText = formatNum(balance);
+            
+            const progressPercent = original > 0 ? Math.min(100, Math.max(0, (toDate / original) * 100)) : 0;
+            const pBar = document.getElementById(`progress-bar-${cardIndex}`);
+            if (pBar) {
+                pBar.style.width = `${progressPercent}%`;
+                pBar.classList.remove('bg-[#8bb4e6]', 'bg-green-500', 'bg-blue-600', 'shadow-[0_0_8px_rgba(34,197,94,0.5)]', 'shadow-[0_0_8px_rgba(37,99,235,0.5)]');
+                if (progressPercent >= 100) pBar.classList.add('bg-green-500', 'shadow-[0_0_8px_rgba(34,197,94,0.5)]');
+                else if (progressPercent >= 90) pBar.classList.add('bg-blue-600', 'shadow-[0_0_8px_rgba(37,99,235,0.5)]');
+                else pBar.classList.add('bg-[#8bb4e6]');
+            }
+            
+            const pText = document.getElementById(`progress-text-${cardIndex}`);
+            if (pText) pText.innerText = `${progressPercent.toFixed(2)}%`;
 
             if (inputEl.value === '') {
                 const baseMetrics = calculateMetrics(baseItem.parts, appState.activeMonthOffset, baseItem.headerName);
                 if (baseMetrics.thisPeriod === 0) {
                     delete appState.modifiedCells[cacheKey];
-                    card.className = 'backdrop-blur-md border rounded-2xl p-4 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1 bg-gradient-to-br from-white/70 to-white/40 border-white/60 hover:border-blue-300';
-                }
-            } else {
-                card.className = 'backdrop-blur-md border border-amber-400 bg-amber-50/70 rounded-2xl p-4 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1';
-            }
+                    let originalBg = cardIndex % 2 === 0 ? 'bg-[#ffebd6]/90' : 'bg-[#fff4eb]/90';
+                    rowWrapper.className = `flex flex-col border-b border-[#ee7d31]/20 last:border-0 ${originalBg}`;
+                } else rowWrapper.className = 'flex flex-col border-b border-[#ee7d31]/20 last:border-0 bg-amber-200/80 border-l-4 border-amber-500 transition-colors duration-300';
+            } else rowWrapper.className = 'flex flex-col border-b border-[#ee7d31]/20 last:border-0 bg-amber-200/80 border-l-4 border-amber-500 transition-colors duration-300';
 
             updatePendingBadge();
             recalculateAggregatedTotals();
         }
-
+		
         function onRemarksEdit(textarea) {
             if (textarea.disabled) return;
-            
             const colIdx = parseInt(textarea.dataset.colIndex);
             const rowNumber = parseInt(textarea.dataset.rowNumber);
             const cacheKey = `${colIdx}_${rowNumber}`;
-            
             let ntpOffset = 0;
             if (appState.selectedContractId && appState.pdoLookupMap[appState.selectedContractId]) {
-                const ntpStr = appState.pdoLookupMap[appState.selectedContractId].ntp;
-                ntpOffset = parseNtpToOffset(ntpStr);
+                ntpOffset = parseNtpToOffset(appState.pdoLookupMap[appState.selectedContractId].ntp);
             }
             const monthDiff = appState.activeMonthOffset - ntpOffset;
-            
             if (monthDiff < 0) return;
             
-            let val = textarea.value;
-            val = val.replace(/\|/g, '-'); 
-            
-            let workingParts = [];
-            if (appState.modifiedCells[cacheKey]) {
-                workingParts = [...appState.modifiedCells[cacheKey].parts];
-            } else {
-                const cellVal = String(appState.contractRowData.values[colIdx] || '');
-                if (cellVal !== '') {
-                    workingParts = cellVal.split('|');
-                }
-            }
-            
-            while (workingParts.length <= monthDiff) {
-                workingParts.push('');
-            }
-            
+            let val = textarea.value.replace(/\|/g, '-'); 
+            let workingParts = appState.modifiedCells[cacheKey] ? [...appState.modifiedCells[cacheKey].parts] : String(appState.contractRowData.values[colIdx] || '').split('|');
+            while (workingParts.length <= monthDiff) workingParts.push('');
             workingParts[monthDiff] = val;
             
             appState.modifiedCells[cacheKey] = {
-                colIndex: colIdx,
-                colLetter: colToLetter(colIdx),
-                rowNumber: rowNumber,
-                headerName: 'REMARKS',
-                parts: workingParts
+                colIndex: colIdx, colLetter: colToLetter(colIdx), rowNumber: rowNumber, headerName: 'REMARKS', parts: workingParts
             };
+            document.getElementById('remarks-preview').innerText = val ? val : "Click to add/edit...";
             
             const originalVal = String(appState.contractRowData.values[colIdx] || '');
-            if (originalVal === workingParts.join('|')) {
-                delete appState.modifiedCells[cacheKey];
-            }
-            
+            if (originalVal === workingParts.join('|')) delete appState.modifiedCells[cacheKey];
             updatePendingBadge();
         }
 
         function recalculateAggregatedTotals() {
             const container = document.getElementById('items-list-container');
             const cards = container.querySelectorAll('[data-raw-item]');
-            
             let totalToDateAmount = 0;
-
             cards.forEach((card) => {
                 const baseItem = JSON.parse(card.dataset.rawItem);
                 const cacheKey = `${baseItem.colIndex}_${baseItem.rowNumber}`;
                 const workingItem = appState.modifiedCells[cacheKey] || baseItem;
-                
                 const metrics = calculateMetrics(workingItem.parts, appState.activeMonthOffset, workingItem.headerName);
                 totalToDateAmount += (metrics.toDate * metrics.unitCost);
             });
-
             const contractVo = appState.voLookupMap[appState.selectedContractId] || { amount: 0 };
             const contractAmount = contractVo.amount;
             const actualPercent = contractAmount > 0 ? (totalToDateAmount / contractAmount) * 100 : 0;
+            
+            const barchartColIdx = appState.headers.findIndex(h => String(h || '').toUpperCase().trim() === 'BARCHART');
+            const hasBarchart = barchartColIdx !== -1;
+            let slippage = null;
+            let scheduledPercent = 0;
 
-            updateGlobalStatsGrid(contractAmount, totalToDateAmount, actualPercent);
+            if (hasBarchart) {
+                scheduledPercent = calculateScheduledPercentage();
+                slippage = actualPercent - scheduledPercent;
+            }
+
+            updateGlobalStatsGrid(contractAmount, totalToDateAmount, actualPercent, scheduledPercent, slippage);
         }
 
         function updatePendingBadge() {
@@ -1936,20 +2081,27 @@ function renderFilterMonthPills() {
             }
         }
 
-        function updateGlobalStatsGrid(amount, toDateAmount, actualPercent) {
+        function updateGlobalStatsGrid(amount, toDateAmount, actualPercent, scheduledPercent, slippage) {
             document.getElementById('stat-amount').innerText = amount > 0 ? formatCurrency(amount) : 'Php 0.00';
             document.getElementById('stat-todate-amount').innerText = toDateAmount > 0 ? formatCurrency(toDateAmount) : 'Php 0.00';
-            document.getElementById('stat-actual-percent').innerText = amount > 0 ? `${actualPercent.toFixed(2)} %` : '0.00 %';
-            document.getElementById('stat-slippage').innerText = '-'; 
+            document.getElementById('stat-actual-percent').innerText = amount > 0 ? `${actualPercent.toFixed(2)}%` : '0.00%';
+            
+            const slippageEl = document.getElementById('stat-slippage');
+            if (slippage !== null && slippage !== undefined && amount > 0) {
+                const sign = slippage > 0 ? '+' : '';
+                slippageEl.innerText = `${sign}${slippage.toFixed(2)}%`;
+                slippageEl.className = slippage >= 0 ? "text-emerald-600 font-extrabold truncate px-0.5" : "text-rose-600 font-extrabold truncate px-0.5";
+            } else {
+                slippageEl.innerText = '-';
+                slippageEl.className = "text-rose-700 truncate px-0.5";
+            }
         }
 
         function openItemsEditorModal() {
-if (appState.activeMonthOffset < CURRENT_MONTH_OFFSET) {
-    const currentLabel = getMonthLabel(CURRENT_MONTH_OFFSET);
-    showCustomAlert(`Period Locked!\n\nThis month is historical and cannot be modified. Updating items is only allowed in the current month (${currentLabel}).`);
-    return;
-}
-
+            if (appState.activeMonthOffset < CURRENT_MONTH_OFFSET) {
+                showCustomAlert(`Period Locked!\n\nThis month is historical and cannot be modified. Updating items is only allowed in the current month (${getMonthLabel(CURRENT_MONTH_OFFSET)}).`);
+                return;
+            }
             if (!appState.contractRowData) {
                 showCustomAlert("Please select a Contract ID first.");
                 return;
@@ -1957,7 +2109,11 @@ if (appState.activeMonthOffset < CURRENT_MONTH_OFFSET) {
 
             const loginColIndex = appState.headers.findIndex(h => String(h||'').toUpperCase().trim() === 'LOGIN');
             const contractLoginUser = loginColIndex !== -1 && appState.contractRowData.values[loginColIndex] ? String(appState.contractRowData.values[loginColIndex]).trim() : '';
-            if (!appState.loggedInUser || appState.loggedInUser === 'Guest' || contractLoginUser.toLowerCase() !== appState.loggedInUser.toLowerCase()) {
+            const currentUser = String(appState.loggedInUser || '').trim().toLowerCase();
+            const isAdmin = (currentUser === 'admin');
+            const isAuthorized = isAdmin ? true : (currentUser !== 'guest' && contractLoginUser.toLowerCase() === currentUser);
+
+            if (!isAuthorized) {
                 showCustomAlert(`Unauthorized!\n\nYou are in Read-Only mode. This contract is assigned to "${contractLoginUser || 'None'}".`);
                 return;
             }
@@ -1972,224 +2128,124 @@ if (appState.activeMonthOffset < CURRENT_MONTH_OFFSET) {
 
             let hasItems = false;
             editorIsDirty = false; 
+            
+            appState.editorAllocatedCols = [];
 
             for (let c = 0; c < rowValues.length; c++) {
                 if (c === contractColIndex) continue;
-
                 const colHeader = String(headers[c] || '').trim();
-                if (colHeader.toUpperCase() === 'REMARKS') continue;
-
+                if (colHeader.toUpperCase() === 'REMARKS' || colHeader.toUpperCase() === 'BARCHART') continue;
                 const cellVal = String(rowValues[c] || '').trim();
-
                 const cacheKey = `${c}_${rowNumber}`;
                 const isLocallyAdded = appState.modifiedCells[cacheKey] !== undefined;
 
                 if ((colHeader.toUpperCase().startsWith('ITEM') && cellVal !== "" && cellVal.includes('|')) || isLocallyAdded) {
                     hasItems = true;
+                    appState.editorAllocatedCols.push(c);
                     const item = appState.modifiedCells[cacheKey] || parseCellToItem(cellVal, colHeader, c, rowNumber);
-                    const metrics = calculateMetrics(item.parts, appState.activeMonthOffset, item.headerName);
-
-                    appendEditorRow(c, metrics.itemNo, metrics.targetQuantity, metrics.unitCost);
+                    appendEditorRow(item);
                 }
             }
 
-            if (!hasItems) {
-                addEmptyRowInEditor();
-            }
+            if (!hasItems) addEmptyRowInEditor();
 
-            document.getElementById('items-editor-modal').classList.remove('hidden');
-            document.getElementById('items-editor-modal').classList.add('flex');
+            restripeEditorRows(); 
+
+            document.getElementById('items-list-container').classList.add('hidden');
+            document.getElementById('items-list-container').classList.remove('flex');
+            document.getElementById('items-editor-container').classList.remove('hidden');
+            document.getElementById('items-editor-container').classList.add('flex');
         }
 
-        function appendEditorRow(colIndex, itemNo, qty, unitCost) {
+        function restripeEditorRows() {
+            const rows = document.getElementById('items-editor-table-body').children;
+            for (let i = 0; i < rows.length; i++) {
+                rows[i].className = `hover:bg-orange-300/40 transition-colors ${i % 2 === 0 ? 'bg-[#ffebd6]/80' : 'bg-[#fff4eb]/80'}`;
+            }
+        }
+
+        function appendEditorRow(item) {
             const tbody = document.getElementById('items-editor-table-body');
             const tr = document.createElement('tr');
-            tr.className = "hover:bg-white/50 transition-colors";
-            tr.dataset.colIndex = colIndex;
-
-            const currentItemInfo = appState.itemsLookupMap[itemNo];
-            const initialLabel = itemNo 
-                ? `${itemNo} - ${(currentItemInfo && currentItemInfo.description) ? currentItemInfo.description : ''}` 
-                : '-- Select --';
-
-            let dropdownItemsHtml = `<button type="button" onclick="selectDropdownOption(this, '', '-- Select --')" class="w-full text-left p-2 md:p-3 rounded-md md:rounded-lg text-xs md:text-sm text-slate-500 hover:bg-slate-100 font-bold tracking-wide">-- Select --</button>`;
-
-            const hasSelected = Object.keys(appState.itemsLookupMap).includes(itemNo);
-            if (!hasSelected && itemNo) {
-                dropdownItemsHtml += `<button type="button" onclick="selectDropdownOption(this, '${itemNo}', '${initialLabel}')" class="w-full text-left p-2 md:p-3 rounded-md md:rounded-lg text-xs md:text-sm text-blue-700 bg-blue-50 hover:bg-slate-100 font-bold tracking-wide dropdown-item-option" data-search-text="${itemNo.toLowerCase()}">${initialLabel}</button>`;
-            }
-
-            for (const key in appState.itemsLookupMap) {
-                const desc = appState.itemsLookupMap[key].description || '';
-                const optionLabel = `${key} - ${desc}`;
-                const isSelected = (key === itemNo);
-                const activeClass = isSelected ? 'text-blue-700 bg-blue-100 dropdown-selected-highlight' : 'text-slate-600 hover:bg-slate-100';
-                
-                dropdownItemsHtml += `
-                    <button type="button" 
-                        onclick="selectDropdownOption(this, '${key}', '${key} - ${desc.replace(/'/g, "\\'")}')" 
-                        class="w-full text-left p-2 md:p-3 rounded-md md:rounded-lg text-xs md:text-sm font-bold tracking-wide dropdown-item-option ${activeClass}" 
-                        data-search-text="${key.toLowerCase()} ${desc.toLowerCase()}">
-                        ${optionLabel}
-                    </button>`;
-            }
-
-            const qtyFormatted = qty ? formatNum(qty) : '';
-            const costFormatted = unitCost ? 'P ' + formatNum(unitCost) : '';
+            const metrics = calculateMetrics(item.parts, appState.activeMonthOffset, item.headerName);
+            
+            tr.dataset.rawParts = JSON.stringify(item.parts); 
+            const qtyFormatted = metrics.targetQuantity ? formatNum(metrics.targetQuantity) : '';
+            const costFormatted = metrics.unitCost ? formatNum(metrics.unitCost) : '';
 
             tr.innerHTML = `
-                <td class="py-2 md:py-3 px-1 md:px-2 w-[45%] relative align-top">
-                    <div class="relative dropdown-container">
-                        <button type="button" onclick="toggleDropdown(this)" class="w-full text-left bg-white/90 md:bg-white/70 border border-slate-200 md:border-white/80 shadow-sm md:shadow-inner rounded-lg md:rounded-xl px-2.5 md:px-4 py-2 md:py-3 text-slate-800 text-xs md:text-sm font-bold focus:outline-none focus:border-blue-400 flex justify-between items-center dropdown-btn">
-                            <span class="truncate dropdown-selected-label">${initialLabel}</span>
-                            <i class="fa-solid fa-chevron-down text-slate-400 text-[10px] md:text-xs ml-1 md:ml-2 shrink-0"></i>
-                        </button>
-                        <input type="hidden" value="${itemNo || ''}" class="editor-item-no">
-                        
-                        <div class="absolute left-0 z-[100] w-[280px] sm:w-[500px] md:w-[650px] max-w-[85vw] mt-1.5 md:mt-2 bg-white md:bg-white/95 backdrop-blur-none md:backdrop-blur-xl border border-slate-200 md:border-white/80 rounded-xl md:rounded-2xl shadow-xl md:shadow-2xl hidden flex-col dropdown-menu">
-                            <div class="p-2 md:p-4 border-b border-slate-100 bg-slate-50 md:bg-slate-50/50 rounded-t-xl md:rounded-t-2xl">
-                                <input type="text" oninput="filterDropdownOptions(this)" placeholder="Search item or description..." class="w-full bg-white border border-slate-200 shadow-sm rounded-lg md:rounded-xl px-3 md:px-4 py-2 md:py-3 text-slate-800 text-xs md:text-sm font-bold focus:outline-none focus:border-blue-400 dropdown-search">
-                            </div>
-                            <div class="max-h-[45vh] md:max-h-[55vh] overflow-y-auto p-1.5 md:p-3 flex flex-col gap-1 md:gap-1.5 dropdown-list no-scrollbar">
-                                ${dropdownItemsHtml}
-                            </div>
-                        </div>
+                <td class="py-2 px-1.5 sm:px-3 align-middle border-r border-[#ee7d31]/20 overflow-hidden">
+                    <input type="text" value="${metrics.itemNo || ''}" oninput="editorIsDirty = true;" onkeydown="handleEditorEnter(event, this, 'editor-item-no')" placeholder="ID..." class="w-full bg-transparent border-0 outline-none text-slate-800 text-[11px] sm:text-sm font-bold focus:ring-0 text-left editor-item-no p-0">
+                </td>
+                <td class="py-2 px-1 sm:px-3 align-middle border-r border-[#ee7d31]/20 overflow-hidden">
+                    <input type="text" value="${qtyFormatted}" oninput="editorIsDirty = true;" onfocus="this.value = unformatNumStr(this.value); this.select();" onblur="this.value = formatNumStr(this.value);" onkeydown="handleEditorEnter(event, this, 'editor-qty')" placeholder="0.00" class="w-full bg-transparent border-0 outline-none text-slate-800 text-[11px] sm:text-sm font-bold focus:ring-0 text-right editor-qty p-0">
+                </td>
+                <td class="py-2 px-1 sm:px-3 align-middle border-r border-[#ee7d31]/20 overflow-hidden">
+                    <input type="text" value="${costFormatted}" oninput="editorIsDirty = true;" onfocus="this.value = unformatNumStr(this.value); this.select();" onblur="this.value = formatNumStr(this.value);" onkeydown="handleEditorEnter(event, this, 'editor-unit-cost')" placeholder="0.00" class="w-full bg-transparent border-0 outline-none text-slate-800 text-[11px] sm:text-sm font-bold focus:ring-0 text-right editor-unit-cost p-0">
+                </td>
+                <td class="py-2 px-0.5 sm:px-2 align-middle text-center">
+                    <div class="flex justify-center items-center gap-1 sm:gap-2">
+                        <button onclick="moveEditorRowUp(this)" class="text-slate-400 hover:text-blue-500 transition-colors text-[10px] sm:text-sm p-1 shrink-0" title="Move Up"><i class="fa-solid fa-arrow-up"></i></button>
+                        <button onclick="moveEditorRowDown(this)" class="text-slate-400 hover:text-blue-500 transition-colors text-[10px] sm:text-sm p-1 shrink-0" title="Move Down"><i class="fa-solid fa-arrow-down"></i></button>
+                        <button onclick="deleteEditorRow(this)" class="text-slate-400 hover:text-rose-500 transition-colors text-[10px] sm:text-sm p-1 shrink-0" title="Delete Row"><i class="fa-solid fa-trash"></i></button>
                     </div>
-                </td>
-                <td class="py-2 md:py-3 px-1 md:px-2 w-[25%] align-top">
-                    <input type="text" 
-                        value="${qtyFormatted}" 
-                        data-raw="${qty || ''}"
-                        oninput="editorIsDirty = true;"
-                        onfocus="this.value = this.dataset.raw"
-                        onblur="let v = parseEditVal(this.value); this.dataset.raw = this.value === '' ? '' : v; this.value = this.value === '' ? '' : formatNum(v);"
-                        placeholder="0.00" 
-                        class="w-full bg-white/90 md:bg-white/70 border border-slate-200 md:border-white/80 shadow-sm md:shadow-inner rounded-lg md:rounded-xl px-2.5 md:px-4 py-2 md:py-3 text-slate-800 text-xs md:text-sm font-bold focus:outline-none focus:border-blue-400 text-right editor-qty">
-                </td>
-                <td class="py-2 md:py-3 px-1 md:px-2 w-[30%] align-top">
-                    <input type="text" 
-                        value="${costFormatted}" 
-                        data-raw="${unitCost || ''}"
-                        oninput="editorIsDirty = true;"
-                        onfocus="this.value = this.dataset.raw"
-                        onblur="let v = parseEditVal(this.value); this.dataset.raw = this.value === '' ? '' : v; this.value = this.value === '' ? '' : 'P ' + formatNum(v);"
-                        placeholder="P 0.00" 
-                        class="w-full bg-white/90 md:bg-white/70 border border-slate-200 md:border-white/80 shadow-sm md:shadow-inner rounded-lg md:rounded-xl px-2.5 md:px-4 py-2 md:py-3 text-slate-800 text-xs md:text-sm font-bold focus:outline-none focus:border-blue-400 text-right editor-unit-cost">
                 </td>
             `;
             tbody.appendChild(tr);
         }
 
-        function toggleDropdown(btn) {
-            const container = btn.closest('.dropdown-container');
-            const menu = container.querySelector('.dropdown-menu');
-            const searchInput = container.querySelector('.dropdown-search');
-            
-            document.querySelectorAll('.dropdown-menu').forEach(m => {
-                if (m !== menu) {
-                    m.classList.add('hidden');
-                    m.classList.remove('flex');
-                    if (m.closest('tr')) {
-                        m.closest('tr').style.zIndex = '';
-                        m.closest('tr').style.position = '';
-                    }
-                }
-            });
-
-            const isHidden = menu.classList.contains('hidden');
+        function moveEditorRowUp(btn) {
             const tr = btn.closest('tr');
-
-            if (isHidden) {
-                menu.classList.remove('hidden');
-                menu.classList.add('flex');
-                
-                if (tr) {
-                    tr.style.position = 'relative';
-                    tr.style.zIndex = '50';
-                }
-
-                searchInput.value = '';
-                filterDropdownOptions(searchInput);
-                searchInput.focus();
-
-                setTimeout(() => {
-                    const selected = menu.querySelector('.dropdown-selected-highlight');
-                    if (selected) {
-                        selected.scrollIntoView({ behavior: 'auto', block: 'nearest' });
-                    }
-                }, 10);
-            } else {
-                menu.classList.add('hidden');
-                menu.classList.remove('flex');
-                
-                if (tr) {
-                    tr.style.zIndex = '';
-                    tr.style.position = '';
-                }
+            if (tr.previousElementSibling) {
+                tr.parentNode.insertBefore(tr, tr.previousElementSibling);
+                editorIsDirty = true;
+                restripeEditorRows();
             }
         }
 
-        function selectDropdownOption(optionBtn, itemNo, label) {
-            const container = optionBtn.closest('.dropdown-container');
-            const hiddenInput = container.querySelector('.editor-item-no');
-            const displayLabel = container.querySelector('.dropdown-selected-label');
-            const menu = container.querySelector('.dropdown-menu');
-            const tr = optionBtn.closest('tr');
+        function moveEditorRowDown(btn) {
+            const tr = btn.closest('tr');
+            if (tr.nextElementSibling) {
+                tr.parentNode.insertBefore(tr.nextElementSibling, tr);
+                editorIsDirty = true;
+                restripeEditorRows();
+            }
+        }
 
-            hiddenInput.value = itemNo;
-            displayLabel.innerText = label;
-
+        function deleteEditorRow(btn) {
+            const tr = btn.closest('tr');
+            tr.remove();
             editorIsDirty = true;
-
-            container.querySelectorAll('.dropdown-item-option').forEach(btn => {
-                btn.className = "w-full text-left p-2 md:p-3 rounded-md md:rounded-lg text-xs md:text-sm font-bold tracking-wide dropdown-item-option text-slate-600 hover:bg-slate-100";
-            });
-            if (itemNo) {
-                optionBtn.className = "w-full text-left p-2 md:p-3 rounded-md md:rounded-lg text-xs md:text-sm font-bold tracking-wide dropdown-item-option text-blue-800 bg-blue-100 dropdown-selected-highlight";
-            }
-
-            menu.classList.add('hidden');
-            menu.classList.remove('flex');
-            
-            if (tr) {
-                tr.style.zIndex = '';
-                tr.style.position = '';
-            }
-
-            if (tr) {
-                const costInput = tr.querySelector('.editor-unit-cost');
-                if (costInput && itemNo && appState.itemsLookupMap[itemNo]) {
-                    const cost = appState.itemsLookupMap[itemNo].unitCost || 0;
-                    costInput.dataset.raw = cost;
-                    costInput.value = cost ? 'P ' + formatNum(cost) : '';
-                }
+            if (document.getElementById('items-editor-table-body').children.length === 0) {
+                addEmptyRowInEditor();
+            } else {
+                restripeEditorRows();
             }
         }
 
-        function filterDropdownOptions(inputEl) {
-            const query = inputEl.value.toLowerCase().trim();
-            const container = inputEl.closest('.dropdown-container');
-            const options = container.querySelectorAll('.dropdown-item-option');
-
-            options.forEach(opt => {
-                const searchText = opt.dataset.searchText || '';
-                if (searchText.includes(query)) {
-                    opt.style.display = 'block';
-                } else {
-                    opt.style.display = 'none';
+        function handleEditorEnter(e, currentInput, colClass) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                currentInput.blur();
+                const inputs = Array.from(document.querySelectorAll('.' + colClass));
+                const idx = inputs.indexOf(currentInput);
+                if (idx !== -1 && idx < inputs.length - 1) inputs[idx + 1].focus();
+                else if (idx === inputs.length - 1) {
+                    addEmptyRowInEditor();
+                    setTimeout(() => {
+                        const newInputs = Array.from(document.querySelectorAll('.' + colClass));
+                        if (newInputs.length > 0) newInputs[newInputs.length - 1].focus();
+                    }, 50);
                 }
-            });
+            }
         }
 
         function addEmptyRowInEditor() {
             const headers = appState.headers;
-            const tbody = document.getElementById('items-editor-table-body');
-            const existingColIndices = Array.from(tbody.querySelectorAll('tr')).map(tr => parseInt(tr.dataset.colIndex));
-
             let emptyColIdx = -1;
             for (let c = 0; c < headers.length; c++) {
                 const header = String(headers[c] || '').toUpperCase().trim();
-                if (header.startsWith('ITEM') && !existingColIndices.includes(c)) {
+                if (header.startsWith('ITEM') && !appState.editorAllocatedCols.includes(c)) {
                     emptyColIdx = c;
                     break;
                 }
@@ -2200,114 +2256,96 @@ if (appState.activeMonthOffset < CURRENT_MONTH_OFFSET) {
                 return;
             }
 
+            appState.editorAllocatedCols.push(emptyColIdx);
             editorIsDirty = true;
-            appendEditorRow(emptyColIdx, '', '', '');
+            
+            const blankItem = { parts: ['', '', '', '0', '0', '0', '0'] };
+            appendEditorRow(blankItem);
+            restripeEditorRows();
         }
 
         function closeItemsEditorModal() {
             if (editorIsDirty) {
-                showConfirm(
-                    "You have unsaved inputs in the Items Editor.\n\nDo you want to save first or exit without saving?", 
-                    closeItemsEditorModalForce, 
-                    "Exit Without Saving", 
-                    "I want to save first"
-                );
-            } else {
-                closeItemsEditorModalForce();
-            }
+                showConfirm("You have unsaved inputs in the Items Editor.\n\nDo you want to save first or exit without saving?", 
+                    closeItemsEditorModalForce, "Exit Without Saving", "I want to save first");
+            } else closeItemsEditorModalForce();
         }
 
         function closeItemsEditorModalForce() {
-            document.getElementById('items-editor-modal').classList.add('hidden');
-            document.getElementById('items-editor-modal').classList.remove('flex');
+            document.getElementById('items-editor-container').classList.add('hidden');
+            document.getElementById('items-editor-container').classList.remove('flex');
+            document.getElementById('items-list-container').classList.remove('hidden');
+            document.getElementById('items-list-container').classList.add('flex');
             editorIsDirty = false;
         }
 
-function saveItemsEditorChanges() {
+        function saveItemsEditorChanges() {
             const tbody = document.getElementById('items-editor-table-body');
             const rows = tbody.querySelectorAll('tr');
             const rowNumber = appState.contractRowData.rowNumber;
 
+            appState.editorAllocatedCols.sort((a,b) => a - b);
+            const validRows = Array.from(rows).filter(tr => tr.querySelector('.editor-item-no').value.trim() !== '');
+
             let changesCount = 0;
             let targetBuffer = {};
 
-            for (let i = 0; i < rows.length; i++) {
-                const tr = rows[i];
-                const colIdx = parseInt(tr.dataset.colIndex);
-                const itemNoInput = tr.querySelector('.editor-item-no').value.trim();
+            for (let i = 0; i < appState.editorAllocatedCols.length; i++) {
+                const targetColIdx = appState.editorAllocatedCols[i];
+                const cacheKey = `${targetColIdx}_${rowNumber}`;
+                let workingParts = [];
                 
-                const qtyInput = parseEditVal(tr.querySelector('.editor-qty').value);
-                const costInput = parseEditVal(tr.querySelector('.editor-unit-cost').value);
-
-                if (!itemNoInput) continue;
-
-                const cacheKey = `${colIdx}_${rowNumber}`;
-                const rowValues = appState.contractRowData.values;
-                const cellVal = String(rowValues[colIdx] || '').trim();
-
-                const existingItem = appState.modifiedCells[cacheKey] || parseCellToItem(cellVal, appState.headers[colIdx], colIdx, rowNumber);
-                const workingParts = [...existingItem.parts];
-
-                while (workingParts.length < 7) {
-                    workingParts.push('0');
-                }
-
-                workingParts[0] = itemNoInput;
-                workingParts[1] = String(qtyInput);
-                workingParts[2] = String(costInput);
-
-                let ntpOffset = 0;
-                if (appState.selectedContractId && appState.pdoLookupMap[appState.selectedContractId]) {
-                    const ntpStr = appState.pdoLookupMap[appState.selectedContractId].ntp;
-                    ntpOffset = parseNtpToOffset(ntpStr);
-                }
-                const monthDiff = appState.activeMonthOffset - ntpOffset;
-
-                const expectedLength = 7 + Math.max(0, monthDiff) + 1;
-                while (workingParts.length < expectedLength) {
-                    workingParts.push('0');
-                }
-
-                let previous = 0;
-                let thisPeriod = 0;
-                if (monthDiff >= 0) {
-                    for (let x = 7; x < 7 + monthDiff; x++) {
-                        previous += parseFloat(workingParts[x]) || 0;
+                if (i < validRows.length) {
+                    const tr = validRows[i];
+                    const itemNoInput = tr.querySelector('.editor-item-no').value.trim();
+                    const qtyInput = parseEditVal(tr.querySelector('.editor-qty').value);
+                    const costInput = parseEditVal(tr.querySelector('.editor-unit-cost').value);
+                    
+                    const baseParts = JSON.parse(tr.dataset.rawParts); 
+                    workingParts = [...baseParts];
+                    
+                    while (workingParts.length < 7) workingParts.push('0');
+                    
+                    workingParts[0] = itemNoInput;
+                    workingParts[1] = String(qtyInput);
+                    workingParts[2] = String(costInput);
+                    
+                    let ntpOffset = 0;
+                    if (appState.selectedContractId && appState.pdoLookupMap[appState.selectedContractId]) {
+                        ntpOffset = parseNtpToOffset(appState.pdoLookupMap[appState.selectedContractId].ntp);
                     }
-                    thisPeriod = parseFloat(workingParts[7 + monthDiff]) || 0;
-                }
+                    const monthDiff = appState.activeMonthOffset - ntpOffset;
 
-                const toDate = previous + thisPeriod;
-                const balance = qtyInput - toDate;
+                    const expectedLength = 7 + Math.max(0, monthDiff) + 1;
+                    while (workingParts.length < expectedLength) workingParts.push('0');
 
-                if (balance < 0) {
-                    showCustomAlert(`Save Blocked!\n\nItem [ ${itemNoInput} ] yields a negative Balance of ${formatNum(balance)} (Original: ${formatNum(qtyInput)} | To Date Accomplished: ${formatNum(toDate)}).\n\nPlease correct the Quantity value.`);
-                    return; 
-                }
-
-                workingParts[3] = String(previous);
-                workingParts[4] = String(thisPeriod);
-                workingParts[5] = String(toDate);
-                workingParts[6] = String(balance);
-
-                // --- SMART COMPARISON (Only counts if you actually changed something) ---
-                const paddedCurrent = [...existingItem.parts];
-                while (paddedCurrent.length < expectedLength) paddedCurrent.push('0');
-
-                let isChanged = false;
-                for (let p = 0; p < expectedLength; p++) {
-                    if (String(workingParts[p]) !== String(paddedCurrent[p])) {
-                        isChanged = true;
-                        break;
+                    let previous = 0, thisPeriod = 0;
+                    if (monthDiff >= 0) {
+                        for (let x = 7; x < 7 + monthDiff; x++) previous += parseEditVal(workingParts[x]);
+                        thisPeriod = parseEditVal(workingParts[7 + monthDiff]);
                     }
-                }
 
-                if (isChanged) {
+                    const toDate = previous + thisPeriod;
+                    const balance = qtyInput - toDate;
+
+                    if (balance < 0) {
+                        showCustomAlert(`Save Blocked!\n\nItem [ ${itemNoInput} ] yields a negative Balance of ${formatNum(balance)} (Original: ${formatNum(qtyInput)} | To Date Accomplished: ${formatNum(toDate)}).\n\nPlease correct the Quantity value.`);
+                        return; 
+                    }
+
+                    workingParts[3] = String(previous);
+                    workingParts[4] = String(thisPeriod);
+                    workingParts[5] = String(toDate);
+                    workingParts[6] = String(balance);
+                }
+                
+                const originalVal = String(appState.contractRowData.values[targetColIdx] || '').trim();
+                const updatedVal = workingParts.join('|');
+                
+                if (updatedVal !== originalVal) {
                     targetBuffer[cacheKey] = {
-                        colIndex: colIdx,
-                        colLetter: colToLetter(colIdx),
-                        rowNumber: rowNumber,
-                        headerName: appState.headers[colIdx] || `Item ${colIdx}`,
+                        colIndex: targetColIdx, colLetter: colToLetter(targetColIdx), rowNumber: rowNumber,
+                        headerName: appState.headers[targetColIdx] || `Item ${targetColIdx}`,
                         parts: workingParts
                     };
                 }
@@ -2320,16 +2358,12 @@ function saveItemsEditorChanges() {
 
             closeItemsEditorModalForce();
             updatePendingBadge();
-            renderItemsList();
+            renderItemsList(); 
 
             if (changesCount > 0) {
                 showToast("Items Updated", "Preparing to synchronize changes...", "success");
-                setTimeout(() => {
-                    saveChanges();
-                }, 500);
-            } else {
-                showToast("No Changes", "No modifications were detected.", "success");
-            }
+                setTimeout(() => { saveChanges(); }, 500);
+            } else showToast("No Changes", "No modifications were detected.", "success");
         }
 
         function getUpdatedHistoryString(currentHistoryStr, selectedName) {
@@ -2338,14 +2372,11 @@ function saveItemsEditorChanges() {
             for (let i = 0; i < parts.length; i += 2) {
                 const name = parts[i] || '';
                 const date = parts[i+1] || '';
-                if (name || date) {
-                    entries.push({ name, date });
-                }
+                if (name || date) entries.push({ name, date });
             }
 
             const periodYear = START_YEAR + Math.floor(appState.activeMonthOffset / 12);
             const periodMonth = (appState.activeMonthOffset % 12); 
-
             const today = new Date();
             const yyyy = today.getFullYear();
             const mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -2356,71 +2387,50 @@ function saveItemsEditorChanges() {
             for (let i = 0; i < entries.length; i++) {
                 const entryDateParts = entries[i].date.split('-');
                 if (entryDateParts.length >= 2) {
-                    const entryYear = parseInt(entryDateParts[0]);
-                    const entryMonth = parseInt(entryDateParts[1]) - 1; 
-                    if (entryYear === periodYear && entryMonth === periodMonth) {
-                        matchIndex = i;
-                        break;
-                    }
+                    if (parseInt(entryDateParts[0]) === periodYear && (parseInt(entryDateParts[1]) - 1) === periodMonth) matchIndex = i;
                 } else {
                     const d = new Date(entries[i].date);
-                    if (!isNaN(d.getTime())) {
-                        if (d.getFullYear() === periodYear && d.getMonth() === periodMonth) {
-                            matchIndex = i;
-                            break;
-                        }
-                    }
+                    if (!isNaN(d.getTime()) && d.getFullYear() === periodYear && d.getMonth() === periodMonth) matchIndex = i;
                 }
             }
 
-            if (matchIndex !== -1) {
-                entries[matchIndex] = { name: selectedName, date: currentDateStr };
-            } else {
-                entries.push({ name: selectedName, date: currentDateStr });
-            }
+            if (matchIndex !== -1) entries[matchIndex] = { name: selectedName, date: currentDateStr };
+            else entries.push({ name: selectedName, date: currentDateStr });
 
             return entries.map(e => `${e.name}|${e.date}`).join('|');
         }
 
-async function saveChanges() {
+        async function saveChanges() {
             const count = Object.keys(appState.modifiedCells).length;
-            if (count === 0) return;
-            
-            if (!appState.contractRowData) return;
+            if (count === 0 || !appState.contractRowData) return;
 
             const loginColIndex = appState.headers.findIndex(h => String(h || '').toUpperCase().trim() === 'LOGIN');
             const contractLoginUser = loginColIndex !== -1 && appState.contractRowData.values[loginColIndex] ? String(appState.contractRowData.values[loginColIndex]).trim() : '';
+            const currentUser = String(appState.loggedInUser || '').trim().toLowerCase();
+            const isAdmin = (currentUser === 'admin');
+            const isAuthorized = isAdmin ? true : (currentUser !== 'guest' && contractLoginUser.toLowerCase() === currentUser);
             
-            if (!appState.loggedInUser || appState.loggedInUser === 'Guest' || contractLoginUser.toLowerCase() !== appState.loggedInUser.toLowerCase()) {
+            if (!isAuthorized) {
                 showCustomAlert(`Sync Rejected.\n\nYou do not possess authorization to commit modifications to this contract. This contract belongs to ${contractLoginUser || 'None'}.`);
                 return;
             }
 
-            // --- SMART CHECK: Did they update the Monthly Quantity or Remarks? ---
             let requiresRep = false;
             let ntpOffset = 0;
             if (appState.selectedContractId && appState.pdoLookupMap[appState.selectedContractId]) {
-                const ntpStr = appState.pdoLookupMap[appState.selectedContractId].ntp;
-                ntpOffset = parseNtpToOffset(ntpStr);
+                ntpOffset = parseNtpToOffset(appState.pdoLookupMap[appState.selectedContractId].ntp);
             }
             const monthDiff = appState.activeMonthOffset - ntpOffset;
 
             for (const key in appState.modifiedCells) {
                 const item = appState.modifiedCells[key];
-                if (item.headerName === 'REMARKS') {
-                    requiresRep = true;
-                    break;
-                }
+                if (item.headerName === 'REMARKS' || item.headerName === 'BARCHART') { requiresRep = true; break; }
                 const originalVal = String(appState.contractRowData.values[item.colIndex] || '');
                 const originalParts = originalVal.split('|').map(p => p.trim());
                 if (monthDiff >= 0) {
                     const targetIdx = 7 + monthDiff;
-                    const origQty = parseFloat(originalParts[targetIdx]) || 0;
-                    const newQty = parseFloat(item.parts[targetIdx]) || 0;
-                    // If the monthly quantity changed, we REQUIRE the representative
-                    if (origQty !== newQty) {
-                        requiresRep = true;
-                        break;
+                    if (parseEditVal(originalParts[targetIdx]) !== parseEditVal(item.parts[targetIdx])) {
+                        requiresRep = true; break;
                     }
                 }
             }
@@ -2428,9 +2438,8 @@ async function saveChanges() {
             const nameSelector = document.getElementById('history-name-selector');
             const selectedName = nameSelector ? nameSelector.value : '';
 
-            // Block ONLY if monthly progress was updated but no rep is selected
             if (requiresRep && !selectedName) {
-                showCustomAlert("Please select an Authorized Representative before synchronizing monthly progress (Qty) updates.");
+                showCustomAlert("Please select an Authorized Representative before synchronizing monthly progress or settings updates.");
                 return;
             }
 
@@ -2444,54 +2453,37 @@ async function saveChanges() {
 
                     for (const key in appState.modifiedCells) {
                         const item = appState.modifiedCells[key];
-                        const newValueString = item.parts.join('|');
-                        const cellRange = `SWA!${item.colLetter}${item.rowNumber}`;
-
-                        payload.push({
-                            range: cellRange,
-                            values: [[newValueString]]
-                        });
+                        payload.push({ range: `SWA!${item.colLetter}${item.rowNumber}`, values: [[item.parts.join('|')]] });
                     }
 
                     const historyColIdx = findHistoryHeaderCol(appState.headers);
                     if (historyColIdx !== -1) {
-                        const historyColLetter = colToLetter(historyColIdx);
-                        const rowNum = appState.contractRowData.rowNumber;
                         const currentHistoryStr = appState.contractRowData.values[historyColIdx] || '';
-                        
-                        // Use the logged in username in history if just updating structure without a rep
-                        const finalName = selectedName || appState.loggedInUser || 'System';
-                        const updatedHistoryStr = getUpdatedHistoryString(currentHistoryStr, finalName);
+                        const updatedHistoryStr = getUpdatedHistoryString(currentHistoryStr, selectedName || appState.loggedInUser || 'System');
+                        payload.push({ range: `SWA!${colToLetter(historyColIdx)}${appState.contractRowData.rowNumber}`, values: [[updatedHistoryStr]] });
+                    }
 
-                        payload.push({
-                            range: `SWA!${historyColLetter}${rowNum}`,
-                            values: [[updatedHistoryStr]]
-                        });
+                    const monthlyPercColIdx = appState.headers.findIndex(h => String(h || '').toUpperCase().replace(/\s/g, '') === 'MONTHLY(%)');
+                    if (monthlyPercColIdx !== -1 && monthDiff >= 0) {
+                        const actualPercentNum = parseFloat(document.getElementById('stat-actual-percent').innerText) || 0;
+                        const percParts = (appState.contractRowData.values[monthlyPercColIdx] || '').split('|').map(p => p.trim());
+                        while (percParts.length <= monthDiff) percParts.push('');
+                        percParts[monthDiff] = actualPercentNum.toFixed(2);
+                        payload.push({ range: `SWA!${colToLetter(monthlyPercColIdx)}${appState.contractRowData.rowNumber}`, values: [[percParts.join('|')]] });
                     }
 
                     const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values:batchUpdate`, {
                         method: 'POST',
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            valueInputOption: 'USER_ENTERED',
-                            data: payload
-                        })
+                        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ valueInputOption: 'USER_ENTERED', data: payload })
                     });
 
-                    if (!response.ok) {
-                        const errorText = await response.text();
-                        throw new Error(`Write operation failed: ${errorText}`);
-                    }
+                    if (!response.ok) throw new Error(`Write operation failed: ${await response.text()}`);
 
                     appState.modifiedCells = {};
                     updatePendingBadge();
                     showToast("Synchronization Successful!", "SWA database updated successfully", "success");
-
                     await fetchSheetData();
-
                 } catch (err) {
                     document.getElementById('loader').classList.add('hidden');
                     showToast("Sync Error", err.message, "error");
@@ -2509,9 +2501,7 @@ async function saveChanges() {
 
         function getMonthLabel(offset) {
             const year = START_YEAR + Math.floor(offset / 12);
-            const monthName = MONTHS_LABELS[offset % 12];
-            const yearShort = String(year).slice(-2);
-            return `${monthName}${yearShort}`;
+            return `${MONTHS_LABELS[offset % 12]}${String(year).slice(-2)}`;
         }
 
         function colToLetter(colIndex) {
@@ -2533,13 +2523,10 @@ async function saveChanges() {
         function showGlobalError(title, subtitle) {
             const loader = document.getElementById('loader');
             loader.classList.remove('hidden');
-            
             const spinner = loader.querySelector('.animate-spin');
             if (spinner) spinner.classList.remove('animate-spin');
-            
             const icon = loader.querySelector('.fa-cube');
             if (icon) icon.className = "fa-solid fa-triangle-exclamation text-5xl text-rose-500 drop-shadow-md";
-
             document.getElementById('loader-title').innerText = title;
             document.getElementById('loader-title').className = "text-2xl font-black text-rose-600 tracking-wider";
             document.getElementById('loader-text').innerHTML = `<span class="text-slate-700 font-bold">${subtitle}</span><br><br><button onclick="window.location.reload()" class="mt-6 px-8 py-3 bg-gradient-to-r from-rose-500 to-red-600 text-white shadow-lg text-xs font-black rounded-xl uppercase tracking-widest hover:scale-[1.02] transition-transform">Re-Initialize</button>`;
@@ -2552,16 +2539,11 @@ async function saveChanges() {
             const text = document.getElementById('toast-text');
 
             text.innerHTML = `<span class="text-slate-800 block font-black leading-tight">${title}</span><span class="text-[10px] text-slate-500 block font-bold mt-0.5">${subtitle}</span>`;
-            
-            box.className = "bg-white/95 backdrop-blur-md border rounded-2xl p-4 shadow-2xl flex items-center gap-4 w-full " + 
-                (type === 'success' ? 'border-emerald-200' : 'border-rose-200');
-
-            icon.className = "fa-solid text-2xl " + 
-                (type === 'success' ? 'fa-circle-check text-emerald-500 drop-shadow-sm' : 'fa-circle-exclamation text-rose-500 drop-shadow-sm');
+            box.className = "bg-white/95 backdrop-blur-md border rounded-2xl p-4 shadow-2xl flex items-center gap-4 w-full " + (type === 'success' ? 'border-emerald-200' : 'border-rose-200');
+            icon.className = "fa-solid text-2xl " + (type === 'success' ? 'fa-circle-check text-emerald-500 drop-shadow-sm' : 'fa-circle-exclamation text-rose-500 drop-shadow-sm');
 
             toast.classList.remove('pointer-events-none', 'opacity-0', '-translate-y-20');
             toast.classList.add('opacity-100', 'translate-y-0');
-
             setTimeout(() => {
                 toast.classList.add('pointer-events-none', 'opacity-0', '-translate-y-20');
                 toast.classList.remove('opacity-100', 'translate-y-0');
@@ -2584,7 +2566,6 @@ async function saveChanges() {
                 const projectName = appState.pdoLookupMap[appState.selectedContractId].projectName;
                 if (projectName) return projectName;
             }
-
             const headers = appState.headers;
             const index = headers.findIndex(h => {
                 const clean = String(h || '').toUpperCase();
@@ -2598,12 +2579,8 @@ async function saveChanges() {
                 const location = appState.pdoLookupMap[appState.selectedContractId].location;
                 if (location) return location;
             }
-
             const headers = appState.headers;
-            const index = headers.findIndex(h => {
-                const clean = String(h || '').toUpperCase();
-                return clean.includes('LOCATION');
-            });
+            const index = headers.findIndex(h => String(h || '').toUpperCase().includes('LOCATION'));
             return index !== -1 && rowValues[index] ? rowValues[index] : 'Ibajay, Aklan';
         }
 
@@ -2612,7 +2589,6 @@ async function saveChanges() {
                 const contractor = appState.pdoLookupMap[appState.selectedContractId].contractor;
                 if (contractor) return contractor;
             }
-
             const headers = appState.headers;
             const index = headers.findIndex(h => {
                 const clean = String(h || '').toUpperCase();
@@ -2632,31 +2608,22 @@ async function saveChanges() {
             const headers = appState.headers;
             const contractColIndex = findContractHeaderCol(headers);
 
-            const projectName = getProjectName(row);
-            const locationName = getLocationName(row);
-            const contractorName = getContractorName(row);
-
-            document.getElementById('print-project-name').innerText = projectName || 'N/A';
-            document.getElementById('print-location-name').innerText = locationName || 'N/A';
-            document.getElementById('print-contractor-name').innerText = contractorName || 'N/A';
+            document.getElementById('print-project-name').innerText = getProjectName(row) || 'N/A';
+            document.getElementById('print-location-name').innerText = getLocationName(row) || 'N/A';
+            document.getElementById('print-contractor-name').innerText = getContractorName(row) || 'N/A';
             
             const today = new Date();
             const monthNamesLong = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-            const mmmm = monthNamesLong[today.getMonth()];
-            const dd = String(today.getDate()).padStart(2, '0');
-            const yyyy = today.getFullYear();
-            
-            document.getElementById('print-active-period').innerText = `as of ${mmmm} ${dd}, ${yyyy}`;
+            document.getElementById('print-active-period').innerText = `as of ${monthNamesLong[today.getMonth()]} ${String(today.getDate()).padStart(2, '0')}, ${today.getFullYear()}`;
 
             const tbody = document.getElementById('print-table-rows');
             tbody.innerHTML = '';
-
             const validItems = [];
 
             for (let c = 0; c < row.length; c++) {
                 if (c === contractColIndex) continue;
                 const colHeader = String(headers[c] || '').trim();
-                if (colHeader.toUpperCase() === 'REMARKS') continue;
+                if (colHeader.toUpperCase() === 'REMARKS' || colHeader.toUpperCase() === 'BARCHART') continue;
 
                 const cellVal = String(row[c] || '').trim();
                 const cacheKey = `${c}_${rowNumber}`;
@@ -2664,8 +2631,7 @@ async function saveChanges() {
 
                 if ((colHeader.toUpperCase().startsWith('ITEM') && cellVal !== "" && cellVal.includes('|')) || isLocallyAdded) {
                     const parsed = parseCellToItem(cellVal, colHeader, c, rowNumber);
-                    const workingItem = appState.modifiedCells[cacheKey] || parsed;
-                    validItems.push(workingItem);
+                    validItems.push(appState.modifiedCells[cacheKey] || parsed);
                 }
             }
 
@@ -2679,23 +2645,11 @@ async function saveChanges() {
                 const metrics = calculateMetrics(item.parts, appState.activeMonthOffset, item.headerName);
                 const originalCost = metrics.targetQuantity * metrics.unitCost;
                 totalOriginalCost += originalCost;
-
                 const lookupInfo = appState.itemsLookupMap[metrics.itemNo] || { description: '', unit: '' };
-
-                return {
-                    metrics,
-                    description: lookupInfo.description || '',
-                    unit: lookupInfo.unit || '',
-                    originalCost
-                };
+                return { metrics, description: lookupInfo.description || '', unit: lookupInfo.unit || '', originalCost };
             });
 
-            let sumRelativeWeight = 0;
-            let sumPrevAmount = 0;
-            let sumThisPeriodAmount = 0;
-            let sumToDateAmount = 0;
-            let sumBalanceAmount = 0;
-            let sumPercentage = 0;
+            let sumRelativeWeight = 0, sumPrevAmount = 0, sumThisPeriodAmount = 0, sumToDateAmount = 0, sumBalanceAmount = 0, sumPercentage = 0;
 
             calculatedRows.forEach(row => {
                 const relativeWeight = totalOriginalCost > 0 ? (row.originalCost / totalOriginalCost) * 100 : 0;
@@ -2705,10 +2659,9 @@ async function saveChanges() {
                 const thisPeriodAmount = row.metrics.thisPeriod * row.metrics.unitCost;
                 const toDateAmount = row.metrics.toDate * row.metrics.unitCost;
                 const balanceAmount = row.metrics.balance * row.metrics.unitCost;
-                
                 const percentage = totalOriginalCost > 0 ? (toDateAmount / totalOriginalCost) * 100 : 0;
+                
                 sumPercentage += percentage;
-
                 sumPrevAmount += prevAmount;
                 sumThisPeriodAmount += thisPeriodAmount;
                 sumToDateAmount += toDateAmount;
@@ -2720,23 +2673,18 @@ async function saveChanges() {
                     <td class="border-r border-black/40 p-1 font-bold text-center">${row.metrics.itemNo}</td>
                     <td class="border-r border-black/40 p-1 text-left font-semibold">${row.description || '---'}</td>
                     <td class="border-r border-black/40 p-1 text-center font-semibold">${row.unit || '---'}</td>
-                    
                     <td class="border-r border-black/40 p-1 text-right font-medium">${formatPrintNum(row.metrics.targetQuantity)}</td>
                     <td class="border-r border-black/40 p-1 text-right font-medium">${formatPrintNum(row.metrics.unitCost)}</td>
                     <td class="border-r border-black/40 p-1 text-right font-bold">${formatPrintNum(row.originalCost)}</td>
-                    
                     <td class="border-r border-black/40 p-1 text-right font-bold">${formatPrintNum(relativeWeight)}%</td>
-                    
                     <td class="border-r border-black/40 p-1 text-right font-medium">${formatPrintNum(row.metrics.previous)}</td>
                     <td class="border-r border-black/40 p-1 text-right font-medium">${formatPrintNum(row.metrics.thisPeriod)}</td>
                     <td class="border-r border-black/40 p-1 text-right font-bold">${formatPrintNum(row.metrics.toDate)}</td>
                     <td class="border-r border-black/40 p-1 text-right font-medium">${formatPrintNum(row.metrics.balance)}</td>
-                    
                     <td class="border-r border-black/40 p-1 text-right font-medium">${formatPrintNum(prevAmount)}</td>
                     <td class="border-r border-black/40 p-1 text-right font-medium">${formatPrintNum(thisPeriodAmount)}</td>
                     <td class="border-r border-black/40 p-1 text-right font-bold">${formatPrintNum(toDateAmount)}</td>
                     <td class="border-r border-black/40 p-1 text-right font-medium">${formatPrintNum(balanceAmount)}</td>
-                    
                     <td class="p-1 text-right font-bold">${formatPrintNum(percentage)}%</td>
                 `;
                 tbody.appendChild(tr);
