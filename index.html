@@ -498,16 +498,6 @@
       border-radius: 0;
     }
 
-    .pcma-modal-arrow{ position:fixed; top:50%; transform:translateY(-50%); background:rgba(255,255,255,.05); backdrop-filter: blur(2px); border:1px solid rgba(255,255,255,0.15); width:50px; height:80px; border-radius:999px; display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:11500; box-shadow: 0 4px 15px rgba(0,0,0,0.05);}
-    #pcmaModalPrev{ left:15px; }
-    #pcmaModalNext{ right:15px; }
-    .pcma-modal-arrow svg{ width:30px; height:30px; stroke:#1e293b; }
-    
-    @media (max-width:768px){ 
-      .pcma-modal-arrow{ width:40px; height:65px; }
-      #pcmaModalPrev{ left:8px; }
-      #pcmaModalNext{ right:8px; left:auto; } 
-    }
 
     /* =========================================================
        FLOATING CHAT APP BUTTON
@@ -729,16 +719,6 @@
 
 <!-- 3. MODAL VIEW (Single Window) -->
 <main id="modalView" class="hidden fullscreen-view">
-  <button id="pcmaModalPrev" class="pcma-modal-arrow" aria-label="Previous">
-    <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-      <polyline points="15 18 9 12 15 6"></polyline>
-    </svg>
-  </button>
-  <button id="pcmaModalNext" class="pcma-modal-arrow" aria-label="Next">
-    <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-      <polyline points="9 18 15 12 9 6"></polyline>
-    </svg>
-  </button>
   <iframe id="pcmaModalFrame" class="full-iframe" src="" title="Project Details"></iframe>
 </main>
 
@@ -1474,10 +1454,6 @@
         }
     };
 
-    const modalPrevFloat = document.getElementById('pcmaModalPrev');
-    const modalNextFloat = document.getElementById('pcmaModalNext');
-    if (modalPrevFloat) modalPrevFloat.addEventListener('click', (e) => { e.stopPropagation(); goModal(-1); });
-    if (modalNextFloat) modalNextFloat.addEventListener('click', (e) => { e.stopPropagation(); goModal(1); });
   })();
 
 </script>

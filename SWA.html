@@ -720,10 +720,16 @@
 
                 appState.contractsList = [...new Set(appState.rows.map(r => r.contractId))].sort();
 
-// 1. Auto-login as Admin (grants edit access immediately)
-                appState.loggedInUser = 'Admin';
-                document.getElementById('header-username-display').innerText = 'Admin Mode';
-                document.getElementById('header-username-display').classList.replace('text-slate-500', 'text-blue-700');
+// 1. Fetch user from the main app login
+                const currentUser = localStorage.getItem('pcma_logged_in_user') || 'Guest';
+                const currentFullName = localStorage.getItem('pcma_logged_in_fullname') || '';
+                appState.loggedInUser = currentUser;
+                appState.loggedFullName = currentFullName;
+                
+                document.getElementById('header-username-display').innerText = currentUser;
+                if(currentUser !== 'Guest') {
+                    document.getElementById('header-username-display').classList.replace('text-slate-500', 'text-blue-700');
+                }
                 
                 document.getElementById('loader').classList.add('hidden');
                 
@@ -1346,8 +1352,13 @@ function loadContract(id) {
             const currentUser = String(appState.loggedInUser || '').trim().toLowerCase();
             const isAdmin = (currentUser === 'admin'); 
             
-            const isPastPeriod = isAdmin ? false : (appState.activeMonthOffset < CURRENT_MONTH_OFFSET);
-            const isAuthorized = isAdmin ? true : (currentUser !== 'guest' && contractLoginUser.toLowerCase() === currentUser);
+const isPastPeriod = (appState.activeMonthOffset < CURRENT_MONTH_OFFSET);
+let isAuthorized = isAdmin;
+            if (!isAdmin && currentUser !== 'guest' && appState.loggedFullName) {
+                const pdo = appState.pdoLookupMap[appState.selectedContractId] || {};
+                const personnel = [String(pdo.pe||'').toLowerCase(), String(pdo.pi||'').toLowerCase(), String(pdo.re||'').toLowerCase(), String(pdo.qe||'').toLowerCase()];
+                isAuthorized = personnel.some(p => p.includes(appState.loggedFullName.toLowerCase()));
+            }
             
             const isLocked = isPastPeriod || !isAuthorized;
 
@@ -1589,8 +1600,13 @@ function loadContract(id) {
             
             const currentUser = String(appState.loggedInUser || '').trim().toLowerCase();
             const isAdmin = (currentUser === 'admin'); 
-            const isPastPeriod = isAdmin ? false : (appState.activeMonthOffset < CURRENT_MONTH_OFFSET);
-            const isAuthorized = isAdmin ? true : (currentUser !== 'guest' && contractLoginUser.toLowerCase() === currentUser);
+const isPastPeriod = (appState.activeMonthOffset < CURRENT_MONTH_OFFSET);
+let isAuthorized = isAdmin;
+            if (!isAdmin && currentUser !== 'guest' && appState.loggedFullName) {
+                const pdo = appState.pdoLookupMap[appState.selectedContractId] || {};
+                const personnel = [String(pdo.pe||'').toLowerCase(), String(pdo.pi||'').toLowerCase(), String(pdo.re||'').toLowerCase(), String(pdo.qe||'').toLowerCase()];
+                isAuthorized = personnel.some(p => p.includes(appState.loggedFullName.toLowerCase()));
+            }
             const isLocked = isPastPeriod || !isAuthorized;
             
             let ntpOffset = 0;
@@ -1772,8 +1788,13 @@ function loadContract(id) {
             
             const currentUser = String(appState.loggedInUser || '').trim().toLowerCase();
             const isAdmin = (currentUser === 'admin'); 
-            const isPastPeriod = isAdmin ? false : (appState.activeMonthOffset < CURRENT_MONTH_OFFSET);
-            const isAuthorized = isAdmin ? true : (currentUser !== 'guest' && contractLoginUser.toLowerCase() === currentUser);
+const isPastPeriod = (appState.activeMonthOffset < CURRENT_MONTH_OFFSET);
+let isAuthorized = isAdmin;
+            if (!isAdmin && currentUser !== 'guest' && appState.loggedFullName) {
+                const pdo = appState.pdoLookupMap[appState.selectedContractId] || {};
+                const personnel = [String(pdo.pe||'').toLowerCase(), String(pdo.pi||'').toLowerCase(), String(pdo.re||'').toLowerCase(), String(pdo.qe||'').toLowerCase()];
+                isAuthorized = personnel.some(p => p.includes(appState.loggedFullName.toLowerCase()));
+            }
             const isLocked = isPastPeriod || !isAuthorized;
             
             let ntpOffset = 0;
@@ -2045,7 +2066,12 @@ function loadContract(id) {
             const contractLoginUser = loginColIndex !== -1 && appState.contractRowData.values[loginColIndex] ? String(appState.contractRowData.values[loginColIndex]).trim() : '';
             const currentUser = String(appState.loggedInUser || '').trim().toLowerCase();
             const isAdmin = (currentUser === 'admin');
-            const isAuthorized = isAdmin ? true : (currentUser !== 'guest' && contractLoginUser.toLowerCase() === currentUser);
+let isAuthorized = isAdmin;
+            if (!isAdmin && currentUser !== 'guest' && appState.loggedFullName) {
+                const pdo = appState.pdoLookupMap[appState.selectedContractId] || {};
+                const personnel = [String(pdo.pe||'').toLowerCase(), String(pdo.pi||'').toLowerCase(), String(pdo.re||'').toLowerCase(), String(pdo.qe||'').toLowerCase()];
+                isAuthorized = personnel.some(p => p.includes(appState.loggedFullName.toLowerCase()));
+            }
 
             if (!isAuthorized) {
                 showCustomAlert(`Unauthorized!\n\nYou are in Read-Only mode. This contract is assigned to "${contractLoginUser || 'None'}".`);
@@ -2342,7 +2368,12 @@ function loadContract(id) {
             const contractLoginUser = loginColIndex !== -1 && appState.contractRowData.values[loginColIndex] ? String(appState.contractRowData.values[loginColIndex]).trim() : '';
             const currentUser = String(appState.loggedInUser || '').trim().toLowerCase();
             const isAdmin = (currentUser === 'admin');
-            const isAuthorized = isAdmin ? true : (currentUser !== 'guest' && contractLoginUser.toLowerCase() === currentUser);
+let isAuthorized = isAdmin;
+            if (!isAdmin && currentUser !== 'guest' && appState.loggedFullName) {
+                const pdo = appState.pdoLookupMap[appState.selectedContractId] || {};
+                const personnel = [String(pdo.pe||'').toLowerCase(), String(pdo.pi||'').toLowerCase(), String(pdo.re||'').toLowerCase(), String(pdo.qe||'').toLowerCase()];
+                isAuthorized = personnel.some(p => p.includes(appState.loggedFullName.toLowerCase()));
+            }
             
             if (!isAuthorized) {
                 showCustomAlert(`Sync Rejected.\n\nYou do not possess authorization to commit modifications to this contract. This contract belongs to ${contractLoginUser || 'None'}.`);
@@ -2369,7 +2400,7 @@ function loadContract(id) {
                 }
             }
 
-const selectedName = 'Admin';
+const selectedName = appState.loggedFullName || appState.loggedInUser || 'System';
 
             showConfirm(`Commit ${count} modified SWA entries directly to the Google Sheet?`, async () => {
                 setLoaderStatus("Synchronizing Data...", "Writing updates directly to secure Google cloud database");
