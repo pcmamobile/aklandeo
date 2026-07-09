@@ -72,7 +72,7 @@
       border-bottom: 3px solid var(--pastel-purple-dark);
       box-shadow: 0 6px 15px rgba(192, 163, 230, 0.25);
     }
-.pcma-modal-top > :not(.pcma-modal-top-cid):not(.view-toggle-btn):not(.back-btn) {
+    .pcma-modal-top > :not(.pcma-modal-top-cid):not(.view-toggle-btn):not(.back-btn) {
       display: none !important;
     }
     .back-btn {
@@ -182,7 +182,7 @@
 
     /* Action Buttons - Horizonally Aligned */
     .pcma-action-buttons {
-      display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; width: 100%;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 12px; width: 100%;
     }
     .modal-btn-3d {
       padding: 10px 14px; border-radius: 16px; font-size: 0.9rem; border: none; cursor: pointer;
@@ -211,6 +211,13 @@
     }
     .btn-upload-3d:active { transform: translateY(6px); box-shadow: 0 0 0 #73aada, 0 4px 8px rgba(115, 170, 218, 0.3); }
     .btn-upload-3d svg { animation: float 3.5s ease-in-out infinite 0.5s; }
+
+    .btn-swa-3d { 
+      background: linear-gradient(145deg, var(--pastel-green), #9cf5b6); color: #005c24; 
+      border: 2px solid #8ce6a3; box-shadow: 0 6px 0 #6bd687, 0 10px 15px rgba(107, 214, 135, 0.3); 
+    }
+    .btn-swa-3d:active { transform: translateY(6px); box-shadow: 0 0 0 #6bd687, 0 4px 8px rgba(107, 214, 135, 0.3); }
+    .btn-swa-3d svg { animation: float 3s ease-in-out infinite 0.2s; }
 
     /* Awesome 3D Energy Mini Bars */
     .pcma-mini-bars { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; background: linear-gradient(135deg, var(--dpwh-pastel-orange), var(--dpwh-pastel-blue)); padding: 10px; border-radius: 20px; box-shadow: 0 6px 15px rgba(0,0,0,0.1), 0 4px 0 #cbd5e1; border: 3px solid #ffffff; backdrop-filter: blur(5px);}
@@ -371,14 +378,13 @@
     }
     body.is-mobile-view .btn-docs-3d svg,
     body.is-mobile-view .btn-upload-3d svg,
+    body.is-mobile-view .btn-swa-3d svg,
     body.is-mobile-view .btn-mini-icon svg,
     body.is-mobile-view .btn-main-photo svg {
       animation: none !important; /* Stops SVGs from continuously floating/pulsing */
     }
   </style>
 </head>
-<body>
-
 <body>
 
   <div class="pcma-modal-top">
@@ -507,10 +513,8 @@
     function updateViewIcon() {
         const icon = document.getElementById('viewModeIcon');
         if (document.body.classList.contains('is-mobile-view')) {
-            // If in mobile mode, display PC icon to suggest switching back
             icon.innerHTML = svgPC;
         } else {
-            // If in PC mode, display Mobile icon to suggest switching back
             icon.innerHTML = svgMobile;
         }
     }
@@ -542,27 +546,23 @@
     function findCol(...keys) {
       const lowerKeys = keys.map(k => String(k).toLowerCase().trim());
       
-      // 1. Exact Match Priority
       let exactIdx = currentHeaders.findIndex(h => {
         const headerTrimmed = String(h || '').toLowerCase().trim();
         return lowerKeys.includes(headerTrimmed);
       });
       if (exactIdx !== -1) return exactIdx;
       
-      // 2. Starts With/Includes Match & Filter false positives (dates/targets)
       let robustIdx = currentHeaders.findIndex(h => {
         const headerStr = String(h || '').toLowerCase().trim();
         const isDateCol = ['date', 'start', 'end', 'finish', 'target'].some(w => headerStr.includes(w));
         const searchingDate = lowerKeys.some(k => ['date', 'start', 'end', 'finish', 'target'].some(w => k.includes(w)));
         
-        // Prevent grabbing "Actual Start Date" when looking for just "Actual"
         if (isDateCol && !searchingDate) return false;
         
         return lowerKeys.some(k => headerStr.includes(k));
       });
       if (robustIdx !== -1) return robustIdx;
 
-      // 3. Absolute fallback
       return currentHeaders.findIndex(h => {
         const headerStr = String(h || '').toLowerCase();
         return lowerKeys.some(k => headerStr.includes(k));
@@ -629,7 +629,6 @@
       requestAnimationFrame(step);
     }
 
-    // New configuration for energetic 3D glowing bars
     const slipColor = (num) => {
       if (num > 0) return { bg: 'linear-gradient(90deg, #0ba360, #3cb0fd)', text: '#fff', glow: '#0ba360', sad: false };
       if (num <= 0 && num > -5)  return { bg: 'linear-gradient(90deg, #f6d365, #fda085)', text: '#fff', glow: '#f6d365', sad: false };
@@ -723,7 +722,6 @@
       const qeIdx = findCol('quantity engineer');
       const meIdx = findCol('materials engineer');
 
-      // Enhanced search targets
       const schedIdx = findCol('sched', 'schedule');
       const actualIdx= findCol('actual', 'actual %', 'actual accomplishment', 'accomp', 'accomplishment'); 
       const slipIdx  = findCol('slip', 'slippage');
@@ -753,10 +751,13 @@
         modalContent.appendChild(wrap);
       }
 
-      // --- Buttons (More Details & Upload Photos) placed AFTER hero image ---
+      // =========================================================================
+      // --- ACTION BUTTONS & SECURITY VALIDATION ---
+      // =========================================================================
       const actionBtns = document.createElement('div');
       actionBtns.className = 'pcma-action-buttons';
 
+      // 1. Docs Button (Always unlocked)
       let docsBtn = document.createElement('button');
       docsBtn.id = 'projectDocsBtn';
       docsBtn.type = 'button';
@@ -766,24 +767,69 @@
         window.parent.postMessage({ type: 'OPEN_DOCS', cid: currentCid }, '*');
       };
       actionBtns.appendChild(docsBtn);
+
+      // --- Security Validation for Current Project ---
+      const currentUser = localStorage.getItem('pcma_logged_in_user') || 'Guest';
+      const currentFullName = localStorage.getItem('pcma_logged_in_fullname') || '';
+      const isAdmin = (currentUser === 'Admin');
+
+      let isAuthorized = isAdmin;
+      if (!isAdmin && currentUser !== 'Guest' && currentFullName) {
+          const personnel = [
+              peIdx > -1 ? String(row[peIdx] || '').toLowerCase() : '',
+              piIdx > -1 ? String(row[piIdx] || '').toLowerCase() : '',
+              reIdx > -1 ? String(row[reIdx] || '').toLowerCase() : '',
+              qeIdx > -1 ? String(row[qeIdx] || '').toLowerCase() : '',
+              meIdx > -1 ? String(row[meIdx] || '').toLowerCase() : ''
+          ];
+          isAuthorized = personnel.some(p => p.includes(currentFullName.toLowerCase()));
+      }
+
+      // 2. SWA Tracker Button (Locked if not authorized)
+      let swaBtn = document.createElement('button');
+      swaBtn.id = 'swaTrackerBtn';
+      swaBtn.type = 'button';
       
+      if (isAuthorized) {
+          swaBtn.innerHTML = '<svg viewBox="0 0 100 100" fill="none" style="width:38px; height:38px; z-index:2; flex-shrink:0; filter:drop-shadow(0 4px 6px rgba(0,0,0,0.15));"><rect x="20" y="50" width="15" height="30" rx="4" fill="#3b82f6"/><rect x="42.5" y="30" width="15" height="50" rx="4" fill="#3b82f6"/><rect x="65" y="10" width="15" height="70" rx="4" fill="#3b82f6"/></svg><span>SWA Tracker</span>';
+          swaBtn.className = 'modal-btn-3d btn-swa-3d';
+          swaBtn.onclick = () => { window.location.href = `SWA.html?cid=${encodeURIComponent(currentCid)}`; };
+      } else {
+          swaBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:34px; height:34px; z-index:2; flex-shrink:0;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg><span>SWA Locked</span>';
+          swaBtn.className = 'modal-btn-3d';
+          swaBtn.style.background = 'linear-gradient(145deg, #f1f5f9, #cbd5e1)';
+          swaBtn.style.color = '#64748b';
+          swaBtn.style.borderColor = '#94a3b8';
+          swaBtn.onclick = () => alert("Locked! You are not assigned to this project.");
+      }
+      actionBtns.appendChild(swaBtn);
+      
+      // 3. Upload Photos Button (Locked if not authorized)
       if (uploadCol > -1) {
         const link = String(row[uploadCol] || '').trim();
         if (link && isValidUrl(link)) {
           let uploadBtn = document.createElement('button');
           uploadBtn.id = 'pcmaUploadBtn';
           uploadBtn.type = 'button';
-          uploadBtn.innerHTML = document.getElementById('svg-upload').innerHTML + '<span>Upload Photos</span>';
-          uploadBtn.className = 'modal-btn-3d btn-upload-3d';
-          uploadBtn.onclick = () => { 
-            window.parent.postMessage({ type: 'OPEN_UPLOAD', cid: currentCid, link: link }, '*');
-          };
+          
+          if (isAuthorized) {
+              uploadBtn.innerHTML = document.getElementById('svg-upload').innerHTML + '<span>Upload Photos</span>';
+              uploadBtn.className = 'modal-btn-3d btn-upload-3d';
+              uploadBtn.onclick = () => { window.parent.postMessage({ type: 'OPEN_UPLOAD', cid: currentCid, link: link }, '*'); };
+          } else {
+              uploadBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:34px; height:34px; z-index:2; flex-shrink:0;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg><span>Upload Locked</span>';
+              uploadBtn.className = 'modal-btn-3d';
+              uploadBtn.style.background = 'linear-gradient(145deg, #f1f5f9, #cbd5e1)';
+              uploadBtn.style.color = '#64748b';
+              uploadBtn.style.borderColor = '#94a3b8';
+              uploadBtn.onclick = () => alert("Locked! You are not assigned to this project.");
+          }
           actionBtns.appendChild(uploadBtn);
         }
       }
       modalContent.appendChild(actionBtns);
 
-      // --- Primary Data Container placed AFTER action buttons ---
+      // --- Primary Data Container ---
       const primary = document.createElement('div');
       primary.className = 'pcma-primary';
 
@@ -851,12 +897,15 @@
             html += `<div style="margin-top: 6px;">`;
             html += `<div class="photo-section-title">${p.label}</div>`;
             html += `<div class="pcma-photo-grid">`;
+            
             ids.forEach(id => {
                 const thumbUrl = `https://drive.google.com/thumbnail?id=${id}&sz=s800`;
                 const fullUrl = `https://drive.google.com/file/d/${id}/view`;
-                html += `
-                  <div class="pcma-photo-card">
-                    <img src="${thumbUrl}" loading="lazy" onerror="this.src='${LOGO_FALLBACK}'" onclick="window.open('${fullUrl}', '_blank', 'noopener')" />
+                
+                // Hide the buttons if the user is not authorized
+                let setBtnsHtml = '';
+                if (isAuthorized) {
+                    setBtnsHtml = `
                     <div class="pcma-photo-set-btns">
                       <button class="action-btn-3d btn-mini-icon" onclick="setPhotoToSheet('${currentCid}', 'Image 1', '${id}', this)">
                         ${wandSvg}
@@ -867,6 +916,13 @@
                         <span>Main Photo</span>
                       </button>
                     </div>
+                    `;
+                }
+
+                html += `
+                  <div class="pcma-photo-card">
+                    <img src="${thumbUrl}" loading="lazy" onerror="this.src='${LOGO_FALLBACK}'" onclick="window.open('${fullUrl}', '_blank', 'noopener')" />
+                    ${setBtnsHtml}
                   </div>
                 `;
             });
@@ -881,8 +937,6 @@
       }
 
       // Progress & 3D Glowing Neon Energy Bars
-      
-      // Fixed conditionals to not skip the value if it's technically a "0" or "0.00"
       const hasSched = schedIdx > -1 && row[schedIdx] !== undefined && row[schedIdx] !== null && String(row[schedIdx]).trim() !== '';
       const hasActual= actualIdx > -1 && row[actualIdx] !== undefined && row[actualIdx] !== null && String(row[actualIdx]).trim() !== '';
       const hasSlip  = slipIdx > -1 && row[slipIdx] !== undefined && row[slipIdx] !== null && String(row[slipIdx]).trim() !== '';
@@ -905,7 +959,6 @@
           }
           
           fill.style.background = cfg.bg;
-          // Apply vibrant inner glow & box-shadow matching the custom energy gradient color
           fill.style.boxShadow = `inset 0 2px 4px rgba(255,255,255,0.5), 0 0 10px ${cfg.glow}`;
 
           animateBar(fill, num, 800, v => `${v.toFixed(2)}%${isSlippage && cfg.sad && v <= -10 ? ' ☹️' : ''}`);
@@ -988,22 +1041,14 @@
       }
     }
 	
-	/* ========================================================================= 
-     * SAFE NAVIGATION LOGIC (RETURNS TO PROJECTS APP/FILTERS)
-     * ========================================================================= */
     function handleAppBack() {
       try {
-        // Safely send a message to index.html to go back to the Projects App.
-        // This completely bypasses the browser's local file:// security blocks!
         if (window.parent && window.parent !== window) {
           window.parent.postMessage({ type: 'CLOSE_MODAL' }, '*');
           return;
         }
-      } catch (e) {
-        // Ignore cross-origin frame blocks
-      }
+      } catch (e) {}
       
-      // Fallback: If opened directly in a new browser tab instead of inside the app
       try {
         window.top.location.href = 'index.html';
       } catch (e) {

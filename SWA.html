@@ -104,43 +104,7 @@
         </div>
     </div>
 
-    <div id="login-modal" class="fixed inset-0 z-[150] bg-slate-900/40 backdrop-blur-md flex flex-col justify-center items-center p-4">
-        <div class="bg-white/70 backdrop-blur-xl border border-white/80 rounded-[35px] w-full max-w-sm overflow-hidden shadow-[0_20px_50px_rgba(31,38,135,0.2)] p-8 flex flex-col gap-6">
-            <div class="text-center">
-                <div class="mx-auto w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 border-2 border-white rounded-full flex items-center justify-center text-blue-600 text-3xl mb-4 shadow-lg shadow-blue-500/20">
-                    <i class="fa-solid fa-user-lock"></i>
-                </div>
-                <h2 class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 tracking-wider">SWA PORTAL</h2>
-                <p class="text-xs font-bold text-slate-500 mt-1 uppercase tracking-widest">Authentication Required</p>
-            </div>
-            <div id="login-error" class="hidden bg-rose-50/90 border border-rose-200 text-rose-600 text-xs font-bold p-3 rounded-xl text-center uppercase tracking-wider shadow-inner"></div>
-            <div class="flex flex-col gap-4">
-                <div>
-                    <label class="text-[10px] font-black text-slate-600 tracking-wider uppercase mb-1.5 block">Username</label>
-                    <div class="relative neon-border-glow rounded-xl">
-                        <i class="fa-solid fa-user absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
-                        <input type="text" id="login-username" class="w-full bg-white/70 border border-white/60 rounded-xl pl-10 pr-4 py-3.5 text-slate-800 text-sm font-bold focus:outline-none focus:bg-white shadow-inner transition-colors placeholder-slate-400" placeholder="Enter ID">
-                    </div>
-                </div>
-                <div>
-                    <label class="text-[10px] font-black text-slate-600 tracking-wider uppercase mb-1.5 block">Password</label>
-                    <div class="relative neon-border-glow rounded-xl">
-                        <i class="fa-solid fa-key absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
-                        <input type="password" id="login-password" onkeypress="if(event.key === 'Enter') attemptLogin()" class="w-full bg-white/70 border border-white/60 rounded-xl pl-10 pr-4 py-3.5 text-slate-800 text-sm font-bold focus:outline-none focus:bg-white shadow-inner transition-colors placeholder-slate-400" placeholder="••••••••">
-                    </div>
-                </div>
-            </div>
-            <div class="flex flex-col gap-3 mt-2">
-                <button onclick="attemptLogin()" class="w-full py-4 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-black text-xs uppercase tracking-widest shadow-lg shadow-blue-500/30 hover:scale-[1.02] transition-all">Verify & Login</button>
-                <div class="relative flex items-center py-2">
-                    <div class="flex-grow border-t border-slate-300/50"></div>
-                    <span class="flex-shrink-0 mx-4 text-slate-400 text-[10px] font-bold uppercase tracking-widest">Or</span>
-                    <div class="flex-grow border-t border-slate-300/50"></div>
-                </div>
-                <button onclick="attemptGuestLogin()" class="w-full py-4 rounded-xl bg-white/60 text-slate-600 border border-white/80 font-black text-xs uppercase tracking-widest hover:bg-white/90 hover:shadow-md transition-all">Continue as Guest</button>
-            </div>
-        </div>
-    </div>
+
 
     <div id="loader" class="fixed inset-0 z-[200] bg-white/60 backdrop-blur-xl flex flex-col items-center justify-center">
         <div class="relative flex items-center justify-center mb-6">
@@ -166,51 +130,12 @@
                 <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest leading-none mb-1">User Profile</p>
                 <p id="header-username-display" class="text-xs font-black text-blue-700 uppercase leading-none break-all max-w-[120px]">---</p>
             </div>
-            <button onclick="logout()" class="w-10 h-10 rounded-full bg-white/70 border border-white/80 text-slate-600 flex items-center justify-center hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition-all shadow-sm shrink-0" title="Logout">
-                <i class="fa-solid fa-power-off text-sm"></i>
-            </button>
         </div>
     </header>
 
     <main class="p-4 lg:p-6 flex-1 w-full mx-auto max-w-5xl">
         
-        <div id="home-view" class="flex flex-col gap-5 w-full max-w-md mx-auto mt-4 md:mt-12 transition-all duration-500">
-            <div class="bg-[#fcefe6]/90 backdrop-blur-xl border border-white/60 rounded-3xl p-5 shadow-[0_8px_30px_rgba(0,0,0,0.05)] flex flex-col gap-3">
-                <div class="flex justify-between items-center">
-                    <label class="text-xs font-black text-[#e86a10] tracking-wider uppercase"><i class="fa-solid fa-file-contract mr-1.5"></i> Active Contract</label>
-                    <button onclick="openFilterView()" class="text-[10px] font-black tracking-widest uppercase bg-white/80 text-[#e86a10] border border-white shadow-sm px-3 py-1.5 rounded-lg hover:bg-orange-50 transition-colors">
-                        <i class="fa-solid fa-chart-line mr-1"></i> Accomplishment
-                    </button>
-                </div>
-                <button onclick="openContractSelectorModal()" class="w-full bg-[#fdf5f0] hover:bg-white border border-white/80 rounded-2xl py-3.5 px-4 text-left flex items-center justify-between transition-all shadow-inner focus:outline-none mt-1">
-                    <span id="selected-contract-display" class="font-bold text-slate-500 text-sm">Select Contract ID...</span>
-                    <i class="fa-solid fa-chevron-down text-orange-500 text-sm"></i>
-                </button>
-            </div>
 
-            <div class="bg-[#fcefe6]/90 backdrop-blur-xl border border-white/60 rounded-3xl p-5 shadow-[0_8px_30px_rgba(0,0,0,0.05)] flex flex-col gap-3">
-                <label class="text-xs font-black text-purple-600 tracking-wider uppercase"><i class="fa-solid fa-user-tie mr-1.5"></i> Authorized Representative</label>
-                <div class="relative neon-border-glow rounded-2xl">
-                    <select id="history-name-selector" class="w-full bg-[#fdf5f0] border border-white/80 rounded-2xl py-3 px-4 text-slate-800 font-bold text-xs sm:text-sm focus:outline-none shadow-inner appearance-none cursor-pointer">
-                        <option value="" class="text-xs font-bold">-- Select Representative --</option>
-                    </select>
-                    <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none text-purple-500 text-sm">
-                        <i class="fa-solid fa-chevron-down"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-[#f4dede]/90 backdrop-blur-xl border border-white/60 rounded-3xl p-5 shadow-[0_8px_30px_rgba(0,0,0,0.05)] flex flex-col gap-3">
-                <label class="text-xs font-black text-rose-600 tracking-wider uppercase"><i class="fa-solid fa-clock-rotate-left mr-1.5"></i> SWA Update Log</label>
-                <div id="history-timeline-container" class="flex flex-col gap-2.5 max-h-40 overflow-y-auto no-scrollbar">
-                    <p class="text-xs text-slate-500 italic font-bold">No previous updates recorded.</p>
-                </div>
-            </div>
-
-            <button onclick="proceedToWorkspace()" id="btn-proceed" class="w-full mt-2 py-4 rounded-2xl bg-[#ee7d31] text-white font-black text-sm uppercase tracking-widest shadow-lg shadow-orange-500/30 hover:scale-[1.02] transition-all disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-                Proceed to Items <i class="fa-solid fa-arrow-right ml-2"></i>
-            </button>
-        </div>
 
         <div id="filter-view" class="fixed inset-0 z-[100] hidden flex-col w-full bg-slate-50/95 backdrop-blur-2xl p-6 md:p-12 overflow-y-auto">
             <div class="flex justify-between items-center mb-4 border-b border-slate-200/80 pb-4">
@@ -379,19 +304,24 @@
                         <span contenteditable="true" id="print-active-period" class="outline-none border-b border-dashed border-slate-400 hover:bg-slate-100 focus:bg-slate-100 px-2 py-0.5 rounded print:border-none print:bg-transparent print:px-0 transition-colors cursor-text" title="Click to edit date">as of June 01, 2026</span>
                     </p>
                 </div>
-                <div class="grid grid-cols-1 gap-2 mb-6 text-xs font-semibold">
+<div class="flex flex-col gap-1 mb-6 text-xs font-semibold leading-tight">
                     <div class="flex">
-                        <span class="w-48 shrink-0 uppercase tracking-wider font-bold">PROJECT NAME</span>
+                        <span class="w-36 shrink-0 uppercase tracking-wider font-bold">CONTRACT ID</span>
+                        <span class="mr-2 font-bold">:</span>
+                        <span id="print-contract-id" class="font-bold underline uppercase">---</span>
+                    </div>
+                    <div class="flex">
+                        <span class="w-36 shrink-0 uppercase tracking-wider font-bold">PROJECT NAME</span>
                         <span class="mr-2 font-bold">:</span>
                         <span id="print-project-name" class="font-bold underline uppercase">---</span>
                     </div>
                     <div class="flex">
-                        <span class="w-48 shrink-0 uppercase tracking-wider font-bold">LOCATION</span>
+                        <span class="w-36 shrink-0 uppercase tracking-wider font-bold">LOCATION</span>
                         <span class="mr-2 font-bold">:</span>
                         <span id="print-location-name" class="font-bold underline uppercase">---</span>
                     </div>
                     <div class="flex">
-                        <span class="w-48 shrink-0 uppercase tracking-wider font-bold">CONTRACTOR</span>
+                        <span class="w-36 shrink-0 uppercase tracking-wider font-bold">CONTRACTOR</span>
                         <span class="mr-2 font-bold">:</span>
                         <span id="print-contractor-name" class="font-bold underline uppercase">---</span>
                     </div>
@@ -423,10 +353,25 @@
                                 <th class="border-r border-black p-1 w-[7%]">BALANCE</th>
                             </tr>
                         </thead>
-                        <tbody id="print-table-rows" class="divide-y divide-black/40"></tbody>
+<tbody id="print-table-rows" class="divide-y divide-black/40"></tbody>
                         <tfoot></tfoot>
                     </table>
                 </div>
+
+                <!-- SIGNATURE BLOCK -->
+                <div class="mt-12 flex justify-between items-start text-xs font-sans px-8 pb-8">
+                    <div class="flex flex-col text-left">
+                        <span class="mb-8 font-semibold">Prepared by:</span>
+                        <span id="print-pe-name" class="font-black uppercase underline decoration-1 underline-offset-4 text-sm">---</span>
+                        <span class="font-semibold mt-1">Project Engineer</span>
+                    </div>
+                    <div class="flex flex-col text-left mr-12">
+                        <span class="mb-8 font-semibold">Approved by:</span>
+                        <span class="font-black uppercase underline decoration-1 underline-offset-4 text-sm">JEROLD P. SENATIN</span>
+                        <span class="font-semibold mt-1">Chief, Construction Section</span>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
@@ -775,30 +720,37 @@
 
                 appState.contractsList = [...new Set(appState.rows.map(r => r.contractId))].sort();
 
-                const savedUser = localStorage.getItem('swa_loggedInUser');
-                if (savedUser) {
-                    if (savedUser === 'Guest') {
-                        appState.loggedInUser = 'Guest';
-                        document.getElementById('header-username-display').innerText = 'Guest (View Only)';
-                        document.getElementById('header-username-display').classList.replace('text-blue-700', 'text-slate-500');
-                    } else if (appState.registeredUsers[savedUser.toLowerCase()] !== undefined) {
-                        appState.loggedInUser = savedUser;
-                        document.getElementById('header-username-display').innerText = savedUser;
-                        document.getElementById('header-username-display').classList.replace('text-slate-500', 'text-blue-700');
-                    }
-                }
-
+// 1. Auto-login as Admin (grants edit access immediately)
+                appState.loggedInUser = 'Admin';
+                document.getElementById('header-username-display').innerText = 'Admin Mode';
+                document.getElementById('header-username-display').classList.replace('text-slate-500', 'text-blue-700');
+                
                 document.getElementById('loader').classList.add('hidden');
                 
-                if (!appState.loggedInUser) {
-                    document.getElementById('login-modal').classList.remove('hidden');
-                } else {
-                    document.getElementById('login-modal').classList.add('hidden');
-                    if (appState.selectedContractId && appState.contractsList.includes(appState.selectedContractId)) {
-                        loadContract(appState.selectedContractId);
-                    } else {
-                        resetContractDisplay();
+                // 2. Fetch Contract ID pushed from Modal.html
+                const urlParams = new URLSearchParams(window.location.search);
+                const urlCid = urlParams.get('cid');
+                
+                if (urlCid && appState.contractsList.includes(urlCid)) {
+                    appState.selectedContractId = urlCid;
+                    loadContract(urlCid);
+                    
+                    // 3. Immediately display the Workspace (skipping the Home view)
+                    document.getElementById('workspace-view').classList.remove('hidden');
+                    document.getElementById('workspace-view').classList.add('flex'); 
+                    
+                    const actionBar = document.getElementById('action-bar');
+                    if (actionBar) {
+                        actionBar.classList.remove('hidden');
+                        actionBar.classList.add('flex');
                     }
+                    
+                    setTimeout(() => {
+                        const activePill = document.getElementById(`month-pill-${appState.activeMonthOffset}`);
+                        if (activePill) activePill.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                    }, 100);
+                } else {
+                    showCustomAlert("Contract ID not found in database.");
                 }
             } catch (err) {
                 showGlobalError("System Failure", err.message);
@@ -1217,26 +1169,12 @@
             }, 100);
         }
 
-        function returnToHome() {
-            appState.modifiedCells = {};
-            editorIsDirty = false;
-            updatePendingBadge();
-            
-            document.getElementById('home-view').classList.remove('hidden');
-            document.getElementById('home-view').classList.add('flex');
-            document.getElementById('workspace-view').classList.add('hidden');
-            document.getElementById('workspace-view').classList.remove('flex');
-            
-            const actionBar = document.getElementById('action-bar');
-            if (actionBar) {
-                actionBar.classList.add('hidden');
-                actionBar.classList.remove('flex');
-            }
+function returnToHome() {
+            // Because we skipped the home view, going back will simply return to Modal.html
+            window.history.back();
         }
 
-        function loadContract(id) {
-            document.getElementById('selected-contract-display').innerText = id;
-            document.getElementById('selected-contract-display').className = "font-black text-[#e86a10] text-lg";
+function loadContract(id) {
             document.getElementById('header-contract-display').innerText = id;
             document.getElementById('header-contract-display').classList.remove('hidden');
             
@@ -1244,11 +1182,8 @@
             if (record) {
                 appState.contractRowData = record;
                 renderItemsList();
-                populateRepresentativeDropdown(id);
-                renderHistoryTimeline();
             }
             updatePrintButtonState();
-            document.getElementById('btn-proceed').disabled = false;
         }
 
         function resetContractDisplay() {
@@ -2434,13 +2369,7 @@
                 }
             }
 
-            const nameSelector = document.getElementById('history-name-selector');
-            const selectedName = nameSelector ? nameSelector.value : '';
-
-            if (requiresRep && !selectedName) {
-                showCustomAlert("Please select an Authorized Representative before synchronizing monthly progress or settings updates.");
-                return;
-            }
+const selectedName = 'Admin';
 
             showConfirm(`Commit ${count} modified SWA entries directly to the Google Sheet?`, async () => {
                 setLoaderStatus("Synchronizing Data...", "Writing updates directly to secure Google cloud database");
@@ -2607,9 +2536,18 @@
             const headers = appState.headers;
             const contractColIndex = findContractHeaderCol(headers);
 
+document.getElementById('print-contract-id').innerText = appState.selectedContractId || 'N/A';
             document.getElementById('print-project-name').innerText = getProjectName(row) || 'N/A';
             document.getElementById('print-location-name').innerText = getLocationName(row) || 'N/A';
             document.getElementById('print-contractor-name').innerText = getContractorName(row) || 'N/A';
+            
+            // Fetch PE Name from PDO Lookup
+            let peName = '_______________________';
+            if (appState.selectedContractId && appState.pdoLookupMap[appState.selectedContractId]) {
+                const pdoPE = appState.pdoLookupMap[appState.selectedContractId].pe;
+                if (pdoPE) peName = pdoPE;
+            }
+            document.getElementById('print-pe-name').innerText = peName;
             
             const today = new Date();
             const monthNamesLong = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];

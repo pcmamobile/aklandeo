@@ -214,7 +214,6 @@
 
     /* Pastel Theme Colors per Button */
     .btn-projects { background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%); --btn-shadow: #7ca1d8; color: #1e3a8a;}
-    .btn-accomplishment { background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%); --btn-shadow: #83c78d; color: #14532d;}
     .btn-data { background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%); --btn-shadow: #c298c8; color: #4c1d95;}
     .btn-uploadmon { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); --btn-shadow: #d97880; color: #9f1239;}
     .btn-tracker { background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%); --btn-shadow: #a992d1; color: #4c1d95;}
@@ -246,7 +245,6 @@
     }
 
     .btn-projects .emoji-icon { animation-delay: 0s; }
-    .btn-accomplishment .emoji-icon { animation-delay: 0.1s; }
     .btn-data .emoji-icon { animation-delay: 0.2s; }
     .btn-tracker .emoji-icon { animation-delay: 0.4s; }
     .btn-uploadmon .emoji-icon { animation-delay: 0.6s; }
@@ -581,6 +579,34 @@
 </head>
 <body>
 
+<!-- LOGIN & PROFILE OVERLAYS -->
+<div id="loginOverlay" style="position:fixed; inset:0; z-index:999999; background:rgba(15,23,42,0.6); backdrop-filter:blur(10px); display:flex; align-items:center; justify-content:center;">
+  <div style="background:rgba(255,255,255,0.85); padding:40px; border-radius:30px; width:90%; max-width:400px; text-align:center; box-shadow:0 20px 50px rgba(0,0,0,0.2); border:2px solid #fff;">
+    <div style="font-size: 3rem; margin-bottom: 10px;">🔒</div>
+    <h2 style="margin-top:0; color:#1e3a8a; font-weight:900; font-size:2rem;">PCMA Auth</h2>
+    <p style="color:#64748b; font-weight:800; font-size:0.9rem; margin-bottom:25px;">Log in to securely access your projects.</p>
+    <div id="loginError" class="hidden" style="color:#ef4444; font-weight:800; margin-bottom:15px; background:#fee2e2; padding:10px; border-radius:10px;"></div>
+    
+    <div style="text-align: left; margin-bottom: 15px;">
+        <label style="font-size: 0.75rem; font-weight: 900; color: #475569; text-transform: uppercase; margin-left: 10px;">First Name</label>
+        <input id="loginUser" type="text" placeholder="e.g. Ariel" style="width:100%; padding:15px; border-radius:15px; border:2px solid #cbd5e1; font-weight:800; font-family:'Nunito', sans-serif; outline:none; font-size:1rem; margin-top: 5px;">
+    </div>
+    
+    <div style="text-align: left; margin-bottom: 25px;">
+        <label style="font-size: 0.75rem; font-weight: 900; color: #475569; text-transform: uppercase; margin-left: 10px;">Last Name</label>
+        <input id="loginPass" type="password" placeholder="e.g. Fernandez" style="width:100%; padding:15px; border-radius:15px; border:2px solid #cbd5e1; font-weight:800; font-family:'Nunito', sans-serif; outline:none; font-size:1rem; margin-top: 5px;" onkeypress="if(event.key === 'Enter') attemptLogin()">
+    </div>
+    
+    <button onclick="attemptLogin()" style="width:100%; padding:15px; border-radius:15px; border:none; background:linear-gradient(135deg, #2563eb, #4f46e5); color:#fff; font-weight:900; font-size:1.1rem; cursor:pointer; margin-bottom:15px; box-shadow:0 8px 15px rgba(37,99,235,0.3);">Login</button>
+    <button onclick="guestLogin()" style="width:100%; padding:15px; border-radius:15px; border:2px solid #cbd5e1; background:transparent; color:#64748b; font-weight:900; font-size:1rem; cursor:pointer;">Continue as Guest</button>
+  </div>
+</div>
+
+<div id="userProfileBar" class="hidden" style="position:fixed; top:15px; left:15px; z-index:10000; background:rgba(255,255,255,0.85); backdrop-filter:blur(10px); padding:8px 15px; border-radius:20px; font-weight:900; color:#1e293b; border:2px solid #fff; box-shadow:0 6px 15px rgba(0,0,0,0.1); display:flex; align-items:center; gap:10px;">
+  <span id="userNameDisplay">Welcome, User</span>
+  <button onclick="logoutApp()" style="background:#ef4444; color:#fff; border:none; border-radius:8px; padding:6px 12px; font-weight:900; cursor:pointer; font-size:0.75rem; text-transform:uppercase;">Logout</button>
+</div>
+
 <div id="version-tag">Version 8.1</div>
 
 <!-- FLOATING CHAT BUTTON -->
@@ -605,10 +631,6 @@
     <button class="btn-3d btn-projects" id="btnGoProjects">
       <span class="emoji-icon">🗂️</span>
       <span>Projects</span>
-    </button>
-    <button type="button" class="btn-3d btn-accomplishment" data-src="SWA.html">
-      <span class="emoji-icon">📈</span>
-      <span>Accomplishment</span>
     </button>
     <button type="button" class="btn-3d btn-data" data-src="DataBase.html">
       <span class="emoji-icon">📊</span>
@@ -859,6 +881,8 @@
   // BUTTON LISTENERS
   // =========================================================
   document.addEventListener("DOMContentLoaded", () => {
+    window.checkAuthStatus(); // Run initial auth check immediately on page load
+
     const btnGoProjects = document.getElementById("btnGoProjects");
 
     if (btnGoProjects) {
@@ -992,9 +1016,7 @@
 
           if (colContractId >= 0) {
             const cid = String(r[colContractId] || "").trim();
-            if (!cid) {
-              continue; 
-            }
+            if (!cid) continue; 
           }
           
           if (colProjName >= 0) {
@@ -1007,8 +1029,31 @@
         
         PCMA.state.records = validRecords;
 
+        // --- AUTHENTICATION PARSER ---
+        window.validPersonnel = new Set();
+        const colPE = PCMA.state.headers.findIndex(h => h.includes("project engineer"));
+        const colPI = PCMA.state.headers.findIndex(h => h.includes("project inspector"));
+        const colRE = PCMA.state.headers.findIndex(h => h.includes("resident engineer"));
+        const colQE = PCMA.state.headers.findIndex(h => h.includes("quantity engineer"));
+        const colME = PCMA.state.headers.findIndex(h => h.includes("materials engineer"));
+
+        validRecords.forEach(r => {
+            [colPE, colPI, colRE, colQE, colME].forEach(col => {
+                if (col >= 0 && r[col]) window.validPersonnel.add(String(r[col]).trim());
+            });
+        });
+
         populateFilterOptions();
         restoreFilterState();
+
+        // Auto-filter for logged-in user on initial load
+        const currentUser = localStorage.getItem('pcma_logged_in_user');
+        const currentFullName = localStorage.getItem('pcma_logged_in_fullname');
+        if (currentUser && currentUser !== 'Admin' && currentUser !== 'Guest' && currentFullName) {
+            if (!el.filterCombo.value) { 
+                el.filterCombo.value = currentFullName;
+            }
+        }
 
         const combo = el.filterCombo.value || "";
         const y = (el.filterYear.value || "").toLowerCase();
@@ -1019,7 +1064,6 @@
 
         renderGrid(filtered);
         
-        // Ensure grid unhides safely without checking appView here
         el.grid.classList.remove("hidden");
         el.resultInfo.textContent = `${filtered.length} results`;
         el.resultInfo.classList.remove("hidden");
@@ -1032,6 +1076,87 @@
     }
     
     window.PCMA.reload = loadData;
+
+    // --- LOGIN ENGINE FUNCTIONS ---
+    window.checkAuthStatus = function() {
+        const currentUser = localStorage.getItem('pcma_logged_in_user');
+        const fullName = localStorage.getItem('pcma_logged_in_fullname');
+        
+        if (!currentUser) {
+            document.getElementById('loginOverlay').classList.remove('hidden');
+            document.getElementById('userProfileBar').classList.add('hidden');
+        } else {
+            document.getElementById('loginOverlay').classList.add('hidden');
+            document.getElementById('userProfileBar').classList.remove('hidden');
+            document.getElementById('userNameDisplay').innerText = `Welcome, ${currentUser}`;
+        }
+    };
+
+    window.attemptLogin = function() {
+        const u = document.getElementById('loginUser').value.trim().toLowerCase();
+        const p = document.getElementById('loginPass').value.trim().toLowerCase();
+        const err = document.getElementById('loginError');
+        
+        if (!u || !p) {
+            err.innerText = "Please enter both First Name and Last Name.";
+            err.classList.remove('hidden');
+            return;
+        }
+        
+        // Admin Master Override
+        if (u === 'admin' && p === 'jps') {
+            localStorage.setItem('pcma_logged_in_user', 'Admin');
+            localStorage.setItem('pcma_logged_in_fullname', 'Administrator');
+            window.checkAuthStatus();
+            return;
+        }
+        
+        // Wait for data load if needed
+        if (!window.validPersonnel || window.validPersonnel.size === 0) {
+            err.innerText = "Database is still loading... Please try again in 2 seconds.";
+            err.classList.remove('hidden');
+            return;
+        }
+
+        // Scan against loaded database personnel
+        let matchedName = null;
+        for (let person of window.validPersonnel) {
+            const personLower = person.toLowerCase();
+            if (personLower.includes(u) && personLower.includes(p)) {
+                matchedName = person;
+                break;
+            }
+        }
+        
+        if (matchedName) {
+            localStorage.setItem('pcma_logged_in_user', u.charAt(0).toUpperCase() + u.slice(1));
+            localStorage.setItem('pcma_logged_in_fullname', matchedName);
+            window.checkAuthStatus();
+            
+            // Auto filter if grid is open
+            if (PCMA.state && PCMA.state.records.length > 0 && el.filterCombo) {
+                 el.filterCombo.value = matchedName;
+                 el.filterCombo.dispatchEvent(new Event('input'));
+            }
+        } else {
+            err.innerText = "Credentials not found in project database.";
+            err.classList.remove('hidden');
+        }
+    };
+
+    window.guestLogin = function() {
+        localStorage.setItem('pcma_logged_in_user', 'Guest');
+        localStorage.setItem('pcma_logged_in_fullname', 'Guest User');
+        window.checkAuthStatus();
+    };
+
+    window.logoutApp = function() {
+        localStorage.removeItem('pcma_logged_in_user');
+        localStorage.removeItem('pcma_logged_in_fullname');
+        el.filterCombo.value = ''; 
+        location.reload();
+    };
+
 
     function populateFilterOptions() {
       const { headers, records } = PCMA.state;
