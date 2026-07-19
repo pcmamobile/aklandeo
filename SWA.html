@@ -104,8 +104,6 @@
         </div>
     </div>
 
-
-
     <div id="loader" class="fixed inset-0 z-[200] bg-white/60 backdrop-blur-xl flex flex-col items-center justify-center">
         <div class="relative flex items-center justify-center mb-6">
             <div class="w-20 h-20 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin shadow-lg"></div>
@@ -135,8 +133,6 @@
 
     <main class="p-4 lg:p-6 flex-1 w-full mx-auto max-w-5xl">
         
-
-
         <div id="filter-view" class="fixed inset-0 z-[100] hidden flex-col w-full bg-slate-50/95 backdrop-blur-2xl p-6 md:p-12 overflow-y-auto">
             <div class="flex justify-between items-center mb-4 border-b border-slate-200/80 pb-4">
                 <span class="font-black text-lg text-slate-800 tracking-wider uppercase"><i class="fa-solid fa-chart-line text-[#e86a10] mr-2"></i> Monthly Accomplishments</span>
@@ -165,6 +161,8 @@
             
             <div class="flex flex-col gap-1.5 bg-white/50 backdrop-blur-xl border border-white/60 p-2.5 rounded-2xl shadow-sm">
                 <div id="month-carousel" class="flex gap-2 overflow-x-auto no-scrollbar pb-1"></div>
+                <!-- WEEK SLIDER -->
+                <div id="week-carousel" class="flex gap-2 overflow-x-auto no-scrollbar pt-2 border-t border-slate-300/50 hidden"></div>
             </div>
 
             <div class="flex flex-col md:flex-row gap-4">
@@ -209,7 +207,7 @@
                             <thead>
                                 <tr class="bg-[#ee7d31] text-white font-bold text-[10px] sm:text-sm tracking-wide">
                                     <th class="py-2.5 px-1.5 sm:px-3 w-[30%] sm:w-[35%] text-left">Item No.</th>
-                                    <th class="py-2.5 px-1 sm:px-3 w-[24%] text-right border-l border-[#d97c3b]">Quantity</th>
+                                    <th class="py-2.5 px-1 sm:px-3 w-[24%] text-right border-l border-[#d97c3b]">Target Qty</th>
                                     <th class="py-2.5 px-1 sm:px-3 w-[26%] text-right border-l border-[#d97c3b]">Unit Cost</th>
                                     <th class="py-2.5 px-1 sm:px-2 w-[20%] text-center border-l border-[#d97c3b]">Action</th>
                                 </tr>
@@ -220,9 +218,24 @@
                         </table>
                     </div>
                     
-                    <button onclick="addEmptyRowInEditor()" class="w-full py-4 bg-[#fff4eb] hover:bg-[#ffebd6] text-[#ee7d31] font-black text-xs uppercase tracking-widest transition-colors border-t border-[#ee7d31]/30 flex justify-center items-center gap-2">
-                        <i class="fa-solid fa-plus-circle"></i> Add Row
-                    </button>
+<div class="flex w-full border-t border-[#ee7d31]/30">
+                        <button onclick="addEmptyRowInEditor()" class="flex-1 py-4 bg-[#fff4eb] hover:bg-[#ffebd6] text-[#ee7d31] font-black text-xs uppercase tracking-widest transition-colors flex justify-center items-center gap-2">
+                            <i class="fa-solid fa-plus-circle"></i> Add Row
+                        </button>
+                        <div class="relative flex-1 flex">
+                            <button onclick="toggleVoDropdown()" class="w-full py-4 bg-amber-50 hover:bg-amber-100 text-amber-600 font-black text-xs uppercase tracking-widest transition-colors flex justify-center items-center gap-2 border-l border-[#ee7d31]/30">
+                                <i class="fa-solid fa-file-contract"></i> Add/Edit VO
+                            </button>
+                            <div id="vo-dropdown-menu" class="hidden absolute bottom-full mb-1 left-0 w-full bg-white border border-slate-200 shadow-xl rounded-xl overflow-hidden flex-col z-[100]">
+                                <button onclick="openVoEditor(1, 'VO 1')" class="py-3 px-4 text-xs font-bold text-slate-700 hover:bg-slate-100 text-left border-b border-slate-100">Variation Order 1</button>
+                                <button onclick="openVoEditor(2, 'VO 2')" class="py-3 px-4 text-xs font-bold text-slate-700 hover:bg-slate-100 text-left border-b border-slate-100">Variation Order 2</button>
+                                <button onclick="openVoEditor(3, 'VO 3')" class="py-3 px-4 text-xs font-bold text-slate-700 hover:bg-slate-100 text-left border-b border-slate-100">Variation Order 3</button>
+                                <button onclick="openVoEditor(4, 'VO 4')" class="py-3 px-4 text-xs font-bold text-slate-700 hover:bg-slate-100 text-left border-b border-slate-100">Variation Order 4</button>
+                                <button onclick="openVoEditor(5, 'VO 5')" class="py-3 px-4 text-xs font-bold text-slate-700 hover:bg-slate-100 text-left border-b border-slate-100">Variation Order 5</button>
+                                <button onclick="openVoEditor(6, 'Final VO')" class="py-3 px-4 text-xs font-bold text-slate-700 hover:bg-slate-100 text-left">Final VO (FVO)</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Compact Scheduled % (BarChart) Accordion -->
@@ -278,6 +291,31 @@
         </div>
     </div>
 
+<div id="vo-editor-modal" class="fixed inset-0 z-[280] bg-slate-900/60 backdrop-blur-md p-4 hidden flex-col justify-center items-center">
+        <div class="bg-white rounded-3xl w-full max-w-4xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+            <div class="bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-4 flex justify-between items-center text-white">
+                <h2 id="vo-editor-title" class="text-sm md:text-base font-black tracking-widest uppercase"><i class="fa-solid fa-file-contract mr-2"></i> EDIT VARIATION ORDER</h2>
+                <div class="flex gap-2">
+                    <button onclick="closeVoEditor()" class="px-4 py-2.5 bg-white/20 hover:bg-white/30 text-white font-bold rounded-xl text-[11px] uppercase transition-colors">Cancel</button>
+                    <button onclick="saveVoEditor()" class="px-4 py-2.5 bg-white text-amber-600 hover:bg-slate-100 font-black rounded-xl text-[11px] uppercase transition-colors shadow-sm">Apply VO</button>
+                </div>
+            </div>
+            <div class="overflow-y-auto w-full p-4 bg-slate-50 flex-1">
+                <p class="text-xs text-slate-500 font-bold mb-3 italic px-1">Note: Edit the Revised Qty/Cost. If left blank or untouched, it defaults to the Original value.</p>
+                <div class="w-full text-left border-collapse table-fixed bg-white shadow-sm border border-slate-200 rounded-xl overflow-hidden">
+                    <div class="grid grid-cols-[26%_17%_17%_20%_20%] bg-slate-200 text-slate-700 font-extrabold text-[10px] sm:text-[11px] tracking-wide uppercase">
+                        <div class="py-2.5 px-3">Item No.</div>
+                        <div class="py-2.5 px-2 text-right border-l border-slate-300">Orig Qty</div>
+                        <div class="py-2.5 px-2 text-right border-l border-slate-300">Orig Cost</div>
+                        <div class="py-2.5 px-2 text-right border-l border-amber-300 bg-amber-100 text-amber-800">Rev Qty</div>
+                        <div class="py-2.5 px-2 text-right border-l border-amber-300 bg-amber-100 text-amber-800">Rev Cost</div>
+                    </div>
+                    <div id="vo-editor-tbody" class="flex flex-col divide-y divide-slate-200"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="print-report-modal" class="fixed inset-0 z-[300] bg-slate-900/60 backdrop-blur-md p-4 hidden flex-col justify-start overflow-y-auto">
         <div class="w-full max-w-6xl mx-auto mb-6 bg-white/80 backdrop-blur-xl border border-white/80 p-5 rounded-3xl flex items-center justify-between shadow-xl print:hidden shrink-0">
             <div class="flex items-center gap-3">
@@ -326,36 +364,11 @@
                         <span id="print-contractor-name" class="font-bold underline uppercase">---</span>
                     </div>
                 </div>
-                <div class="overflow-x-visible">
-                    <table class="w-full text-[9px] border-collapse border border-black text-black leading-tight font-sans">
-                        <thead>
-                            <tr class="border-b border-black text-center font-bold bg-slate-50 print:bg-transparent">
-                                <th rowspan="2" class="border-r border-black p-1 w-[7%]">ITEM NO.</th>
-                                <th rowspan="2" class="border-r border-black p-1 w-[21%]">DESCRIPTION</th>
-                                <th rowspan="2" class="border-r border-black p-1 w-[4%]">UNIT</th>
-                                <th colspan="3" class="border-r border-black p-1">ORIGINAL CONTRACT</th>
-                                <th rowspan="2" class="border-r border-black p-1 w-[5%]">%</th>
-                                <th colspan="4" class="border-r border-black p-1">QUANTITY ACCOMPLISHMENT</th>
-                                <th colspan="4" class="border-r border-black p-1">AMOUNT ACCOMPLISHMENT</th>
-                                <th rowspan="2" class="p-1 w-[5%]">%</th>
-                            </tr>
-                            <tr class="border-b border-black text-center font-bold bg-slate-50 print:bg-transparent">
-                                <th class="border-r border-black p-1 w-[6%]">QUANTITY</th>
-                                <th class="border-r border-black p-1 w-[7%]">UNIT COST</th>
-                                <th class="border-r border-black p-1 w-[8%]">TOTAL COST</th>
-                                <th class="border-r border-black p-1 w-[5%]">PREVIOUS</th>
-                                <th class="border-r border-black p-1 w-[5%]">THIS PERIOD</th>
-                                <th class="border-r border-black p-1 w-[5%]">TO DATE</th>
-                                <th class="border-r border-black p-1 w-[5%]">BALANCE</th>
-                                <th class="border-r border-black p-1 w-[7%]">PREVIOUS</th>
-                                <th class="border-r border-black p-1 w-[7%]">THIS PERIOD</th>
-                                <th class="border-r border-black p-1 w-[7%]">TO DATE</th>
-                                <th class="border-r border-black p-1 w-[7%]">BALANCE</th>
-                            </tr>
-                        </thead>
-<tbody id="print-table-rows" class="divide-y divide-black/40"></tbody>
-                        <tfoot></tfoot>
-                    </table>
+<div id="print-table-container" class="overflow-x-visible w-full pb-4"></div>
+
+                <!-- REMARKS BLOCK -->
+                <div id="print-remarks-container" class="mt-1.5 hidden text-[11px] md:text-xs font-sans text-black">
+                    <span class="font-bold italic">Remarks:</span> <span id="print-remarks-text" class="italic"></span>
                 </div>
 
                 <!-- SIGNATURE BLOCK -->
@@ -500,6 +513,19 @@
             return isNaN(parsed) ? 0 : parsed;
         }
 
+        function parseAccomplishmentVal(val) {
+            if (!val) return 0;
+            const str = String(val).trim();
+            if (str.includes(',')) {
+                return str.split(',').reduce((sum, p) => {
+                    const parsed = parseFloat(p.trim().replace(/[^0-9.-]+/g, ""));
+                    return sum + (isNaN(parsed) ? 0 : parsed);
+                }, 0);
+            }
+            const parsed = parseFloat(str.replace(/[^0-9.-]+/g, ""));
+            return isNaN(parsed) ? 0 : parsed;
+        }
+
         function formatNumStr(val) {
             let num = parseFloat(String(val).replace(/[^0-9.-]+/g, ""));
             return isNaN(num) ? '' : formatNum(num);
@@ -516,16 +542,21 @@
             return n + (s[(v - 20) % 10] || s[v] || s[0]);
         }
 
+        // TIME AND DATE CONSTANTS
         const MONTHS_LABELS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const WEEK_LABELS = ["Wk1 (1-7)", "Wk2 (8-14)", "Wk3 (15-21)", "Wk4 (22+)"];
         const START_YEAR = 2026;
         const _today = new Date();
         const CURRENT_MONTH_OFFSET = (_today.getFullYear() - START_YEAR) * 12 + _today.getMonth(); 
+        const _day = _today.getDate();
+        const CURRENT_WEEK_INDEX = _day <= 7 ? 0 : _day <= 14 ? 1 : _day <= 21 ? 2 : 3;
 
         let appState = {
             loggedInUser: null,
             registeredUsers: {},
             activeTab: 'SWA',
             activeMonthOffset: CURRENT_MONTH_OFFSET,
+            activeWeekIndex: CURRENT_WEEK_INDEX, // Default to current week
             contractsList: [],
             selectedContractId: null,
             headers: [],
@@ -655,6 +686,46 @@
                 const activePill = document.getElementById(`month-pill-${appState.activeMonthOffset}`);
                 if (activePill) activePill.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
             }, 300);
+
+            // Setup Week Slider underneath
+            renderWeekSlider();
+        }
+
+        function renderWeekSlider() {
+            const container = document.getElementById('week-carousel');
+            if (!container) return;
+            container.innerHTML = '';
+            container.classList.remove('hidden');
+            
+            let maxWeek = 3;
+            // If the user selected the CURRENT month, limit to current week. 
+            // If past month, show all 4 weeks.
+            if (appState.activeMonthOffset === CURRENT_MONTH_OFFSET) {
+                maxWeek = CURRENT_WEEK_INDEX;
+            }
+            
+            // If activeWeekIndex is out of bounds (e.g. they were on Wk4 of a past month and clicked current month), reset it.
+            if (appState.activeWeekIndex > maxWeek) {
+                appState.activeWeekIndex = maxWeek;
+            }
+
+            for (let i = 0; i <= maxWeek; i++) {
+                const btn = document.createElement('button');
+                btn.id = `week-pill-${i}`;
+                btn.onclick = () => selectWeekIndex(i);
+                btn.className = `flex-shrink-0 px-4 py-1.5 rounded-lg text-[10px] font-black border transition-all shadow-sm ${
+                    i === appState.activeWeekIndex 
+                    ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-emerald-400 scale-[1.05]' 
+                    : 'bg-white/60 text-slate-600 border-white/80 hover:bg-white/90'
+                }`;
+                btn.innerHTML = `<i class="fa-solid fa-calendar-week mr-1"></i> ${WEEK_LABELS[i]}`;
+                container.appendChild(btn);
+            }
+
+            setTimeout(() => {
+                const activePill = document.getElementById(`week-pill-${appState.activeWeekIndex}`);
+                if (activePill) activePill.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+            }, 150);
         }
 
         function selectMonthOffset(offset) {
@@ -664,14 +735,27 @@
             }
             appState.activeMonthOffset = offset;
             
+            if (offset === CURRENT_MONTH_OFFSET) {
+                appState.activeWeekIndex = CURRENT_WEEK_INDEX;
+            } else {
+                appState.activeWeekIndex = 3;
+            }
+            
             const newPill = document.getElementById(`month-pill-${offset}`);
             if (newPill) {
                 newPill.className = 'flex-shrink-0 px-4 py-2 rounded-lg text-[11px] font-black border transition-all shadow-sm bg-gradient-to-r from-blue-500 to-indigo-500 text-white border-blue-400 scale-[1.05]';
                 newPill.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
             }
 
+            renderWeekSlider();
             if (appState.selectedContractId) renderItemsList();
             if (document.getElementById('contract-modal') && !document.getElementById('contract-modal').classList.contains('hidden')) filterContractIds();
+        }
+
+        function selectWeekIndex(index) {
+            appState.activeWeekIndex = index;
+            renderWeekSlider();
+            if (appState.selectedContractId) renderItemsList();
         }
 
         async function fetchSheetData() {
@@ -720,7 +804,6 @@
 
                 appState.contractsList = [...new Set(appState.rows.map(r => r.contractId))].sort();
 
-// 1. Fetch user from the main app login
                 const currentUser = localStorage.getItem('pcma_logged_in_user') || 'Guest';
                 const currentFullName = localStorage.getItem('pcma_logged_in_fullname') || '';
                 appState.loggedInUser = currentUser;
@@ -733,7 +816,6 @@
                 
                 document.getElementById('loader').classList.add('hidden');
                 
-                // 2. Fetch Contract ID pushed from Modal.html
                 const urlParams = new URLSearchParams(window.location.search);
                 const urlCid = urlParams.get('cid');
                 
@@ -741,7 +823,6 @@
                     appState.selectedContractId = urlCid;
                     loadContract(urlCid);
                     
-                    // 3. Immediately display the Workspace (skipping the Home view)
                     document.getElementById('workspace-view').classList.remove('hidden');
                     document.getElementById('workspace-view').classList.add('flex'); 
                     
@@ -1175,12 +1256,12 @@
             }, 100);
         }
 
-function returnToHome() {
+        function returnToHome() {
             // Because we skipped the home view, going back will simply return to Modal.html
             window.history.back();
         }
 
-function loadContract(id) {
+        function loadContract(id) {
             document.getElementById('header-contract-display').innerText = id;
             document.getElementById('header-contract-display').classList.remove('hidden');
             
@@ -1352,20 +1433,23 @@ function loadContract(id) {
             const currentUser = String(appState.loggedInUser || '').trim().toLowerCase();
             const isAdmin = (currentUser === 'admin'); 
             
-const isPastPeriod = (appState.activeMonthOffset < CURRENT_MONTH_OFFSET);
-let isAuthorized = isAdmin;
+            const isPastMonth = (appState.activeMonthOffset < CURRENT_MONTH_OFFSET);
+            let isAuthorized = isAdmin;
             if (!isAdmin && currentUser !== 'guest' && appState.loggedFullName) {
                 const pdo = appState.pdoLookupMap[appState.selectedContractId] || {};
                 const personnel = [String(pdo.pe||'').toLowerCase(), String(pdo.pi||'').toLowerCase(), String(pdo.re||'').toLowerCase(), String(pdo.qe||'').toLowerCase()];
                 isAuthorized = personnel.some(p => p.includes(appState.loggedFullName.toLowerCase()));
             }
             
+            // This applies to the individual week boxes
+            const isPastPeriod = (appState.activeMonthOffset < CURRENT_MONTH_OFFSET) || 
+                                 (appState.activeMonthOffset === CURRENT_MONTH_OFFSET && appState.activeWeekIndex < CURRENT_WEEK_INDEX);
             const isLocked = isPastPeriod || !isAuthorized;
 
             const validItems = [];
             
             const addBtn = document.createElement('button');
-            if (isPastPeriod) {
+            if (isPastMonth) {
                 addBtn.disabled = true;
                 addBtn.className = "w-full py-4 border border-white/50 bg-white/40 text-slate-500 rounded-2xl text-xs font-black tracking-widest uppercase flex items-center justify-center gap-2 mt-2 cursor-not-allowed shadow-inner opacity-70";
                 addBtn.innerHTML = `<i class="fa-solid fa-lock text-slate-500"></i> Locked (Past Period)`;
@@ -1435,19 +1519,28 @@ let isAuthorized = isAdmin;
                 if (progressPercent >= 100) progressColorClass = "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]";
                 else if (progressPercent >= 90) progressColorClass = "bg-blue-600 shadow-[0_0_8px_rgba(37,99,235,0.5)]";
 
-                const hasUpdateThisPeriod = metrics.thisPeriod > 0;
-                const isPending = appState.modifiedCells[cacheKey];
+                // Highlights now dynamically shift depending on which week is selected in the UI
+                const activeWeekValRaw = metrics.thisPeriodWeeks[appState.activeWeekIndex];
+                const activeWeekValParsed = parseFloat(activeWeekValRaw);
+                const hasUpdateThisWeek = !isNaN(activeWeekValParsed) && activeWeekValParsed > 0;
+                const isPending = appState.modifiedCells[cacheKey] !== undefined;
                 
                 let bgClass = index % 2 === 0 ? 'bg-[#ffebd6]/90' : 'bg-[#fff4eb]/90';
-                if (hasUpdateThisPeriod || isPending) bgClass = 'bg-amber-200/80 border-l-4 border-amber-500';
+                if (hasUpdateThisWeek) bgClass = 'bg-amber-200/80 border-l-4 border-amber-500';
 
-                const itemTextColor = hasUpdateThisPeriod ? 'text-blue-700' : 'text-slate-800';
-                const toDateTextColor = hasUpdateThisPeriod ? 'text-blue-600' : 'text-emerald-800';
+                const itemTextColor = hasUpdateThisWeek ? 'text-blue-700' : 'text-slate-800';
+                const toDateTextColor = hasUpdateThisWeek ? 'text-blue-600' : 'text-emerald-800';
                 const inputDisabledAttr = isLocked ? "disabled" : "";
-                const inputPlaceholder = isLocked ? "-" : "0.00";
+                
+                const w1 = metrics.thisPeriodWeeks[0] !== '' ? formatNum(metrics.thisPeriodWeeks[0]) : '-';
+                const w2 = metrics.thisPeriodWeeks[1] !== '' ? formatNum(metrics.thisPeriodWeeks[1]) : '-';
+                const w3 = metrics.thisPeriodWeeks[2] !== '' ? formatNum(metrics.thisPeriodWeeks[2]) : '-';
+                const w4 = metrics.thisPeriodWeeks[3] !== '' ? formatNum(metrics.thisPeriodWeeks[3]) : '-';
+                
+                const activeWeekVal = metrics.thisPeriodWeeks[appState.activeWeekIndex] !== '' ? metrics.thisPeriodWeeks[appState.activeWeekIndex] : '';
 
                 const rowWrapper = document.createElement('div');
-                rowWrapper.className = `flex flex-col border-b border-[#ee7d31]/20 last:border-0 ${bgClass}`;
+                rowWrapper.className = `flex flex-col border-b border-[#ee7d31]/20 last:border-0 ${bgClass} transition-colors duration-300`;
                 rowWrapper.dataset.rawItem = JSON.stringify(workingItem);
 
                 const masterRow = document.createElement('div');
@@ -1469,8 +1562,8 @@ let isAuthorized = isAdmin;
                 detailRow.className = "hidden flex-col bg-white border-t border-dashed border-orange-300 p-2.5 gap-2 shadow-inner";
                 detailRow.innerHTML = `
                     ${itemDescription ? `<p class="text-[10px] md:text-xs text-slate-600 italic leading-tight px-1 font-semibold">${itemDescription}</p>` : ''}
-                    <div class="flex items-center justify-between gap-3 px-1 mt-0.5">
-                        <div class="flex-1 flex flex-col gap-1">
+                    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-2 px-1 mt-0.5">
+                        <div class="flex-1 flex flex-col gap-1 w-full">
                             <div class="flex justify-between items-end text-[9px] text-slate-500 font-black tracking-wide uppercase">
                                 <span>Target: <span class="text-slate-800">${formatNum(metrics.targetQuantity)} ${itemUnit || 'l.s.'}</span></span>
                                 <span id="progress-text-${index}" class="text-slate-800">${progressPercent.toFixed(2)}%</span>
@@ -1479,15 +1572,16 @@ let isAuthorized = isAdmin;
                                 <div class="${progressColorClass} h-full transition-all duration-300" id="progress-bar-${index}" style="width: ${progressPercent}%"></div>
                             </div>
                         </div>
-                        <div class="flex items-center gap-2 shrink-0">
-                            <span class="text-[9px] text-slate-500 font-black uppercase tracking-wider hidden sm:block">Update:</span>
-                            <div class="relative w-24 bg-[#d1e4ff] border border-blue-300 rounded-md flex items-center shadow-inner overflow-hidden">
-                                <input type="number" step="any" min="0" 
-                                    value="${metrics.thisPeriod === 0 ? '' : metrics.thisPeriod}" 
-                                    ${inputDisabledAttr}
-                                    oninput="onItemEdit(this, ${index}, ${workingItem.colIndex}, ${workingItem.rowNumber})"
-                                    placeholder="${inputPlaceholder}" 
-                                    class="w-full bg-transparent border-none outline-none text-xs font-black p-1.5 text-center focus:ring-0 tracking-tighter ${hasUpdateThisPeriod ? 'text-blue-700' : 'text-slate-900'} ${isLocked ? 'cursor-not-allowed opacity-60' : ''}">
+                        <div class="flex items-center gap-1 sm:gap-3 shrink-0 w-full md:w-auto justify-between md:justify-end mt-2 md:mt-0">
+                            <div class="flex gap-2.5 text-[9px] text-slate-500 font-bold mr-1">
+                                <div class="flex flex-col items-center"><span class="uppercase text-[7px] tracking-wider mb-0.5">Wk1</span><span class="text-slate-800 font-black">${w1}</span></div>
+                                <div class="flex flex-col items-center"><span class="uppercase text-[7px] tracking-wider mb-0.5">Wk2</span><span class="text-slate-800 font-black">${w2}</span></div>
+                                <div class="flex flex-col items-center"><span class="uppercase text-[7px] tracking-wider mb-0.5">Wk3</span><span class="text-slate-800 font-black">${w3}</span></div>
+                                <div class="flex flex-col items-center"><span class="uppercase text-[7px] tracking-wider mb-0.5">Wk4</span><span class="text-slate-800 font-black">${w4}</span></div>
+                            </div>
+                            <div class="flex flex-col items-center border-l border-orange-200 pl-3">
+                                <span class="text-[8px] ${isLocked ? 'text-slate-400' : 'text-blue-600'} font-black uppercase mb-0.5 tracking-wider">Update Wk${appState.activeWeekIndex + 1}</span>
+                                <input type="number" step="any" min="0" value="${activeWeekVal}" ${inputDisabledAttr} oninput="onItemSingleWeeklyEdit(this, ${index}, ${workingItem.colIndex}, ${workingItem.rowNumber})" placeholder="${isLocked ? '-' : '0.00'}" class="w-16 sm:w-20 bg-[#d1e4ff] border border-blue-300 rounded p-1.5 text-[11px] text-center font-black outline-none focus:border-blue-500 text-slate-900 ${isLocked?'opacity-60 cursor-not-allowed':''}">
                             </div>
                         </div>
                     </div>
@@ -1600,8 +1694,8 @@ let isAuthorized = isAdmin;
             
             const currentUser = String(appState.loggedInUser || '').trim().toLowerCase();
             const isAdmin = (currentUser === 'admin'); 
-const isPastPeriod = (appState.activeMonthOffset < CURRENT_MONTH_OFFSET);
-let isAuthorized = isAdmin;
+            const isPastPeriod = (appState.activeMonthOffset < CURRENT_MONTH_OFFSET);
+            let isAuthorized = isAdmin;
             if (!isAdmin && currentUser !== 'guest' && appState.loggedFullName) {
                 const pdo = appState.pdoLookupMap[appState.selectedContractId] || {};
                 const personnel = [String(pdo.pe||'').toLowerCase(), String(pdo.pi||'').toLowerCase(), String(pdo.re||'').toLowerCase(), String(pdo.qe||'').toLowerCase()];
@@ -1788,8 +1882,8 @@ let isAuthorized = isAdmin;
             
             const currentUser = String(appState.loggedInUser || '').trim().toLowerCase();
             const isAdmin = (currentUser === 'admin'); 
-const isPastPeriod = (appState.activeMonthOffset < CURRENT_MONTH_OFFSET);
-let isAuthorized = isAdmin;
+            const isPastPeriod = (appState.activeMonthOffset < CURRENT_MONTH_OFFSET);
+            let isAuthorized = isAdmin;
             if (!isAdmin && currentUser !== 'guest' && appState.loggedFullName) {
                 const pdo = appState.pdoLookupMap[appState.selectedContractId] || {};
                 const personnel = [String(pdo.pe||'').toLowerCase(), String(pdo.pi||'').toLowerCase(), String(pdo.re||'').toLowerCase(), String(pdo.qe||'').toLowerCase()];
@@ -1844,11 +1938,36 @@ let isAuthorized = isAdmin;
             return { colIndex: colIdx, colLetter: colToLetter(colIdx), rowNumber: rowNum, headerName: colHeader, parts: parts };
         }
 
+function parseVoVal(valStr) {
+            const parts = String(valStr || '').split(',');
+            return parts.map(p => {
+                if (p.trim() === '') return '';
+                const parsed = parseFloat(String(p).replace(/[^0-9.-]+/g, ""));
+                return isNaN(parsed) ? 0 : parsed;
+            });
+        }
+
+        function getLatestVo(valStr) {
+            const arr = parseVoVal(valStr);
+            let activeIdx = 0;
+            let activeVal = arr[0] || 0;
+            for(let i=1; i<arr.length; i++) {
+                if (arr[i] !== '') {
+                    activeIdx = i;
+                    activeVal = arr[i];
+                }
+            }
+            return { val: activeVal === '' ? 0 : activeVal, idx: activeIdx, arr: arr };
+        }
+
         function calculateMetrics(parts, activeMonthOffset, fallbackItemNo) {
             const itemNo = parts[0] || fallbackItemNo || '';
-            const targetQuantity = parseEditVal(parts[1]); 
-            let unitCost = parseEditVal(parts[2]);
-            if (unitCost === 0) {
+            const qtyData = getLatestVo(parts[1]);
+            const costData = getLatestVo(parts[2]);
+            const targetQuantity = qtyData.val;
+            let unitCost = costData.val;
+            
+            if (unitCost === 0 && costData.arr[0] === 0) {
                 const lookupInfo = appState.itemsLookupMap[itemNo] || { description: '', unit: '', unitCost: 0 };
                 unitCost = lookupInfo.unitCost || 0;
             }
@@ -1863,22 +1982,58 @@ let isAuthorized = isAdmin;
             while (workingParts.length < expectedLength) workingParts.push('0');
 
             let previous = 0, thisPeriod = 0;
+            let thisPeriodWeeks = ['', '', '', ''];
+
             if (monthDiff >= 0) {
-                for (let i = 7; i < 7 + monthDiff; i++) previous += parseEditVal(workingParts[i]);
-                thisPeriod = parseEditVal(workingParts[7 + monthDiff]);
+                for (let i = 7; i < 7 + monthDiff; i++) previous += parseAccomplishmentVal(workingParts[i]);
+                const tpStr = String(workingParts[7 + monthDiff] || '');
+                thisPeriod = parseAccomplishmentVal(tpStr);
+                
+                if (tpStr.includes(',')) {
+                    const sp = tpStr.split(',');
+                    for(let i=0; i<4; i++) {
+                        if(sp[i] && sp[i].trim() !== '') {
+                            const parsed = parseFloat(sp[i].trim().replace(/[^0-9.-]+/g, ""));
+                            thisPeriodWeeks[i] = isNaN(parsed) ? '' : parsed;
+                        } else {
+                            thisPeriodWeeks[i] = '';
+                        }
+                    }
+                } else {
+                    if(tpStr && tpStr.trim() !== '' && tpStr.trim() !== '0') {
+                        const parsed = parseFloat(tpStr.replace(/[^0-9.-]+/g, ""));
+                        thisPeriodWeeks[0] = isNaN(parsed) ? '' : parsed;
+                    }
+                }
             }
-            const toDate = previous + thisPeriod;
-            return { itemNo, targetQuantity, unitCost, previous, thisPeriod, toDate, balance: targetQuantity - toDate };
+const toDate = previous + thisPeriod;
+            return { itemNo, targetQuantity, unitCost, previous, thisPeriod, toDate, balance: targetQuantity - toDate, thisPeriodWeeks, qtyData, costData };
         }
 
-        function onItemEdit(inputEl, cardIndex, colIdx, rowNumber) {
+        function onItemSingleWeeklyEdit(inputEl, cardIndex, colIdx, rowNumber) {
             if (inputEl.disabled) return;
             const rowWrapper = inputEl.closest('[data-raw-item]');
             if (!rowWrapper) return;
             const baseItem = JSON.parse(rowWrapper.dataset.rawItem);
             const cacheKey = `${colIdx}_${rowNumber}`;
-            let val = parseFloat(inputEl.value);
-            if (isNaN(val) || val < 0) val = 0;
+            
+            let v = parseFloat(inputEl.value);
+            const newVal = (isNaN(v) || v < 0) ? '' : v;
+
+            const metrics = calculateMetrics(baseItem.parts, appState.activeMonthOffset, baseItem.headerName);
+            let wVals = [...metrics.thisPeriodWeeks];
+            
+            wVals[appState.activeWeekIndex] = newVal;
+            
+            let lastValid = -1;
+            for(let i=3; i>=0; i--) {
+                if(wVals[i] !== '') { lastValid = i; break; }
+            }
+            
+            let valStr = '';
+            if(lastValid !== -1) {
+                valStr = wVals.slice(0, lastValid + 1).map(x => x === '' ? '0' : x).join(',');
+            }
 
             const workingParts = [...baseItem.parts];
             let ntpOffset = 0;
@@ -1895,11 +2050,12 @@ let isAuthorized = isAdmin;
 
             const requiredIndex = 7 + monthDiff;
             while (workingParts.length <= requiredIndex) workingParts.push('0');
-            workingParts[requiredIndex] = String(val);
+            workingParts[requiredIndex] = valStr;
 
             let previous = 0;
-            for (let i = 7; i < 7 + monthDiff; i++) previous += parseEditVal(workingParts[i]);
-            const thisPeriod = val;
+            for (let i = 7; i < 7 + monthDiff; i++) previous += parseAccomplishmentVal(workingParts[i]);
+            
+            const thisPeriod = parseAccomplishmentVal(valStr);
             const toDate = previous + thisPeriod;
             const original = parseEditVal(workingParts[1]);
             const balance = original - toDate;
@@ -1945,14 +2101,26 @@ let isAuthorized = isAdmin;
             const pText = document.getElementById(`progress-text-${cardIndex}`);
             if (pText) pText.innerText = `${progressPercent.toFixed(2)}%`;
 
-            if (inputEl.value === '') {
+            const bDownContainers = inputEl.parentElement.parentElement.querySelectorAll('.flex.gap-2\\.5 span.text-slate-800');
+            if (bDownContainers && bDownContainers.length === 4) {
+                bDownContainers[appState.activeWeekIndex].innerText = newVal !== '' ? formatNum(newVal) : '-';
+            }
+
+            if (valStr === '') {
                 const baseMetrics = calculateMetrics(baseItem.parts, appState.activeMonthOffset, baseItem.headerName);
                 if (baseMetrics.thisPeriod === 0) {
                     delete appState.modifiedCells[cacheKey];
-                    let originalBg = cardIndex % 2 === 0 ? 'bg-[#ffebd6]/90' : 'bg-[#fff4eb]/90';
-                    rowWrapper.className = `flex flex-col border-b border-[#ee7d31]/20 last:border-0 ${originalBg}`;
-                } else rowWrapper.className = 'flex flex-col border-b border-[#ee7d31]/20 last:border-0 bg-amber-200/80 border-l-4 border-amber-500 transition-colors duration-300';
-            } else rowWrapper.className = 'flex flex-col border-b border-[#ee7d31]/20 last:border-0 bg-amber-200/80 border-l-4 border-amber-500 transition-colors duration-300';
+                }
+            }
+
+            // Highlighting updates properly when entering data dynamically
+            const hasUpdateThisWeek = !isNaN(parseFloat(newVal)) && parseFloat(newVal) > 0;
+            if (hasUpdateThisWeek) {
+                rowWrapper.className = 'flex flex-col border-b border-[#ee7d31]/20 last:border-0 bg-amber-200/80 border-l-4 border-amber-500 transition-colors duration-300';
+            } else {
+                let originalBg = cardIndex % 2 === 0 ? 'bg-[#ffebd6]/90' : 'bg-[#fff4eb]/90';
+                rowWrapper.className = `flex flex-col border-b border-[#ee7d31]/20 last:border-0 ${originalBg}`;
+            }
 
             updatePendingBadge();
             recalculateAggregatedTotals();
@@ -2066,7 +2234,7 @@ let isAuthorized = isAdmin;
             const contractLoginUser = loginColIndex !== -1 && appState.contractRowData.values[loginColIndex] ? String(appState.contractRowData.values[loginColIndex]).trim() : '';
             const currentUser = String(appState.loggedInUser || '').trim().toLowerCase();
             const isAdmin = (currentUser === 'admin');
-let isAuthorized = isAdmin;
+            let isAuthorized = isAdmin;
             if (!isAdmin && currentUser !== 'guest' && appState.loggedFullName) {
                 const pdo = appState.pdoLookupMap[appState.selectedContractId] || {};
                 const personnel = [String(pdo.pe||'').toLowerCase(), String(pdo.pi||'').toLowerCase(), String(pdo.re||'').toLowerCase(), String(pdo.qe||'').toLowerCase()];
@@ -2261,14 +2429,18 @@ let isAuthorized = isAdmin;
                     const qtyInput = parseEditVal(tr.querySelector('.editor-qty').value);
                     const costInput = parseEditVal(tr.querySelector('.editor-unit-cost').value);
                     
-                    const baseParts = JSON.parse(tr.dataset.rawParts); 
+const baseParts = JSON.parse(tr.dataset.rawParts); 
                     workingParts = [...baseParts];
-                    
                     while (workingParts.length < 7) workingParts.push('0');
                     
+                    const qtyData = getLatestVo(workingParts[1]);
+                    const costData = getLatestVo(workingParts[2]);
+                    qtyData.arr[qtyData.idx] = qtyInput;
+                    costData.arr[costData.idx] = costInput;
+                    
                     workingParts[0] = itemNoInput;
-                    workingParts[1] = String(qtyInput);
-                    workingParts[2] = String(costInput);
+                    workingParts[1] = qtyData.arr.join(',');
+                    workingParts[2] = costData.arr.join(',');
                     
                     let ntpOffset = 0;
                     if (appState.selectedContractId && appState.pdoLookupMap[appState.selectedContractId]) {
@@ -2281,8 +2453,8 @@ let isAuthorized = isAdmin;
 
                     let previous = 0, thisPeriod = 0;
                     if (monthDiff >= 0) {
-                        for (let x = 7; x < 7 + monthDiff; x++) previous += parseEditVal(workingParts[x]);
-                        thisPeriod = parseEditVal(workingParts[7 + monthDiff]);
+                        for (let x = 7; x < 7 + monthDiff; x++) previous += parseAccomplishmentVal(workingParts[x]);
+                        thisPeriod = parseAccomplishmentVal(workingParts[7 + monthDiff]);
                     }
 
                     const toDate = previous + thisPeriod;
@@ -2368,7 +2540,7 @@ let isAuthorized = isAdmin;
             const contractLoginUser = loginColIndex !== -1 && appState.contractRowData.values[loginColIndex] ? String(appState.contractRowData.values[loginColIndex]).trim() : '';
             const currentUser = String(appState.loggedInUser || '').trim().toLowerCase();
             const isAdmin = (currentUser === 'admin');
-let isAuthorized = isAdmin;
+            let isAuthorized = isAdmin;
             if (!isAdmin && currentUser !== 'guest' && appState.loggedFullName) {
                 const pdo = appState.pdoLookupMap[appState.selectedContractId] || {};
                 const personnel = [String(pdo.pe||'').toLowerCase(), String(pdo.pi||'').toLowerCase(), String(pdo.re||'').toLowerCase(), String(pdo.qe||'').toLowerCase()];
@@ -2400,7 +2572,7 @@ let isAuthorized = isAdmin;
                 }
             }
 
-const selectedName = appState.loggedFullName || appState.loggedInUser || 'System';
+            const selectedName = appState.loggedFullName || appState.loggedInUser || 'System';
 
             showConfirm(`Commit ${count} modified SWA entries directly to the Google Sheet?`, async () => {
                 setLoaderStatus("Synchronizing Data...", "Writing updates directly to secure Google cloud database");
@@ -2567,7 +2739,7 @@ const selectedName = appState.loggedFullName || appState.loggedInUser || 'System
             const headers = appState.headers;
             const contractColIndex = findContractHeaderCol(headers);
 
-document.getElementById('print-contract-id').innerText = appState.selectedContractId || 'N/A';
+            document.getElementById('print-contract-id').innerText = appState.selectedContractId || 'N/A';
             document.getElementById('print-project-name').innerText = getProjectName(row) || 'N/A';
             document.getElementById('print-location-name').innerText = getLocationName(row) || 'N/A';
             document.getElementById('print-contractor-name').innerText = getContractorName(row) || 'N/A';
@@ -2584,15 +2756,11 @@ document.getElementById('print-contract-id').innerText = appState.selectedContra
             const monthNamesLong = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
             document.getElementById('print-active-period').innerText = `as of ${monthNamesLong[today.getMonth()]} ${String(today.getDate()).padStart(2, '0')}, ${today.getFullYear()}`;
 
-            const tbody = document.getElementById('print-table-rows');
-            tbody.innerHTML = '';
-            const validItems = [];
-
+const validItems = [];
             for (let c = 0; c < row.length; c++) {
                 if (c === contractColIndex) continue;
                 const colHeader = String(headers[c] || '').trim();
                 if (colHeader.toUpperCase() === 'REMARKS' || colHeader.toUpperCase() === 'BARCHART') continue;
-
                 const cellVal = String(row[c] || '').trim();
                 const cacheKey = `${c}_${rowNumber}`;
                 const isLocallyAdded = appState.modifiedCells[cacheKey] !== undefined;
@@ -2608,83 +2776,196 @@ document.getElementById('print-contract-id').innerText = appState.selectedContra
                 return;
             }
 
-            let totalOriginalCost = 0;
-            const calculatedRows = validItems.map(item => {
+let maxVoIdx = 0;
+            validItems.forEach(item => {
                 const metrics = calculateMetrics(item.parts, appState.activeMonthOffset, item.headerName);
-                const originalCost = metrics.targetQuantity * metrics.unitCost;
-                totalOriginalCost += originalCost;
-                const lookupInfo = appState.itemsLookupMap[metrics.itemNo] || { description: '', unit: '' };
-                return { metrics, description: lookupInfo.description || '', unit: lookupInfo.unit || '', originalCost };
+                if (metrics.qtyData && metrics.qtyData.idx > maxVoIdx) maxVoIdx = metrics.qtyData.idx;
+                if (metrics.costData && metrics.costData.idx > maxVoIdx) maxVoIdx = metrics.costData.idx;
             });
 
-            let sumRelativeWeight = 0, sumPrevAmount = 0, sumThisPeriodAmount = 0, sumToDateAmount = 0, sumBalanceAmount = 0, sumPercentage = 0;
+            // CHECK FOR ACTUAL CHANGES: 
+            // Compare the active VO quantities and costs against the Original Contract
+            let hasActualChanges = false;
+            if (maxVoIdx > 0) {
+                for (let item of validItems) {
+                    const metrics = calculateMetrics(item.parts, appState.activeMonthOffset, item.headerName);
+                    const origQty = parseFloat(metrics.qtyData.arr[0] || 0);
+                    const origCost = parseFloat(metrics.costData.arr[0] || 0);
+                    
+                    let revQty = origQty;
+                    let revCost = origCost;
+                    
+                    if (metrics.qtyData.arr[maxVoIdx] !== undefined && metrics.qtyData.arr[maxVoIdx] !== '') {
+                        revQty = parseFloat(metrics.qtyData.arr[maxVoIdx]);
+                    }
+                    if (metrics.costData.arr[maxVoIdx] !== undefined && metrics.costData.arr[maxVoIdx] !== '') {
+                        revCost = parseFloat(metrics.costData.arr[maxVoIdx]);
+                    }
+                    
+                    // If any item increased, decreased, was deleted (qty=0), or added (orig=0, rev>0)
+                    if (revQty !== origQty || revCost !== origCost) {
+                        hasActualChanges = true;
+                        break; // We found a change, no need to check further
+                    }
+                }
+            }
 
-            calculatedRows.forEach(row => {
-                const relativeWeight = totalOriginalCost > 0 ? (row.originalCost / totalOriginalCost) * 100 : 0;
-                sumRelativeWeight += relativeWeight;
+            // If no actual changes are detected, fall back to Original Contract view
+            if (!hasActualChanges) {
+                maxVoIdx = 0; 
+            }
 
-                const prevAmount = row.metrics.previous * row.metrics.unitCost;
-                const thisPeriodAmount = row.metrics.thisPeriod * row.metrics.unitCost;
-                const toDateAmount = row.metrics.toDate * row.metrics.unitCost;
-                const balanceAmount = row.metrics.balance * row.metrics.unitCost;
-                const percentage = totalOriginalCost > 0 ? (toDateAmount / totalOriginalCost) * 100 : 0;
-                
-                sumPercentage += percentage;
-                sumPrevAmount += prevAmount;
-                sumThisPeriodAmount += thisPeriodAmount;
-                sumToDateAmount += toDateAmount;
-                sumBalanceAmount += balanceAmount;
+            const voName = maxVoIdx === 6 ? 'FINAL VO' : `VARIATION ORDER NO. ${maxVoIdx}`;
 
-                const tr = document.createElement('tr');
-                tr.className = "text-center align-middle font-sans text-black border-b border-black/30";
-                tr.innerHTML = `
-                    <td class="border-r border-black/40 p-1 font-bold text-center">${row.metrics.itemNo}</td>
-                    <td class="border-r border-black/40 p-1 text-left font-semibold">${row.description || '---'}</td>
-                    <td class="border-r border-black/40 p-1 text-center font-semibold">${row.unit || '---'}</td>
-                    <td class="border-r border-black/40 p-1 text-right font-medium">${formatPrintNum(row.metrics.targetQuantity)}</td>
-                    <td class="border-r border-black/40 p-1 text-right font-medium">${formatPrintNum(row.metrics.unitCost)}</td>
-                    <td class="border-r border-black/40 p-1 text-right font-bold">${formatPrintNum(row.originalCost)}</td>
-                    <td class="border-r border-black/40 p-1 text-right font-bold">${formatPrintNum(relativeWeight)}%</td>
-                    <td class="border-r border-black/40 p-1 text-right font-medium">${formatPrintNum(row.metrics.previous)}</td>
-                    <td class="border-r border-black/40 p-1 text-right font-medium">${formatPrintNum(row.metrics.thisPeriod)}</td>
-                    <td class="border-r border-black/40 p-1 text-right font-bold">${formatPrintNum(row.metrics.toDate)}</td>
-                    <td class="border-r border-black/40 p-1 text-right font-medium">${formatPrintNum(row.metrics.balance)}</td>
-                    <td class="border-r border-black/40 p-1 text-right font-medium">${formatPrintNum(prevAmount)}</td>
-                    <td class="border-r border-black/40 p-1 text-right font-medium">${formatPrintNum(thisPeriodAmount)}</td>
-                    <td class="border-r border-black/40 p-1 text-right font-bold">${formatPrintNum(toDateAmount)}</td>
-                    <td class="border-r border-black/40 p-1 text-right font-medium">${formatPrintNum(balanceAmount)}</td>
-                    <td class="p-1 text-right font-bold">${formatPrintNum(percentage)}%</td>
-                `;
-                tbody.appendChild(tr);
-            });
-
-            const tfoot = document.createElement('tr');
-            tfoot.className = "text-center font-black border-t-2 border-black bg-slate-100 print:bg-transparent text-black uppercase";
-            tfoot.innerHTML = `
-                <td colspan="3" class="border-r border-black p-2 font-black text-center text-xs tracking-wider">TOTAL</td>
-                <td class="border-r border-black p-2"></td>
-                <td class="border-r border-black p-2"></td>
-                <td class="border-r border-black p-2 text-right font-black text-[10px]">${formatPrintNum(totalOriginalCost)}</td>
-                <td class="border-r border-black p-2 text-right font-black text-[10px]">${formatPrintNum(sumRelativeWeight)}%</td>
-                <td class="border-r border-black p-2"></td>
-                <td class="border-r border-black p-2"></td>
-                <td class="border-r border-black p-2"></td>
-                <td class="border-r border-black p-2"></td>
-                <td class="border-r border-black p-2 text-right font-black text-[10px]">${formatPrintNum(sumPrevAmount)}</td>
-                <td class="border-r border-black p-2 text-right font-black text-[10px]">${formatPrintNum(sumThisPeriodAmount)}</td>
-                <td class="border-r border-black p-2 text-right font-black text-[10px]">${formatPrintNum(sumToDateAmount)}</td>
-                <td class="border-r border-black p-2 text-right font-black text-[10px]">${formatPrintNum(sumBalanceAmount)}</td>
-                <td class="p-2 text-right font-black text-[10px]">${formatPrintNum(sumPercentage)}%</td>
+            let tableHTML = `
+                <table class="w-full text-[9px] md:text-[10px] border-collapse border border-black text-black leading-tight font-sans">
+                    <thead>
+                        <tr class="border-b border-black text-center font-bold bg-slate-50 print:bg-transparent">
+                            <th rowspan="2" class="border-r border-black p-1 w-[7%]">ITEM NO.</th>
+                            <th rowspan="2" class="border-r border-black p-1 w-[18%]">DESCRIPTION</th>
+                            <th rowspan="2" class="border-r border-black p-1 w-[4%]">UNIT</th>
+                            <th colspan="3" class="border-r border-black p-1">ORIGINAL CONTRACT</th>
+                            ${maxVoIdx > 0 ? `<th colspan="3" class="border-r border-black p-1 bg-amber-50 print:bg-transparent">${voName}</th>` : ''}
+                            <th rowspan="2" class="border-r border-black p-1 w-[5%] leading-tight">REL.<br>WT.</th>
+                            <th colspan="4" class="border-r border-black p-1">QTY ACCOMPLISHMENT</th>
+                            <th colspan="4" class="border-r border-black p-1">AMOUNT ACCOMPLISHMENT</th>
+                            <th rowspan="2" class="p-1 w-[4%]">%</th>
+                        </tr>
+                        <tr class="border-b border-black text-center font-bold bg-slate-50 print:bg-transparent">
+                            <th class="border-r border-black p-1 w-[5%]">QTY</th>
+                            <th class="border-r border-black p-1 w-[6%]">UNIT COST</th>
+                            <th class="border-r border-black p-1 w-[7%]">TOTAL COST</th>
+                            ${maxVoIdx > 0 ? `
+                            <th class="border-r border-black p-1 w-[5%] bg-amber-50 print:bg-transparent">REV QTY</th>
+                            <th class="border-r border-black p-1 w-[6%] bg-amber-50 print:bg-transparent">UNIT COST</th>
+                            <th class="border-r border-black p-1 w-[7%] bg-amber-50 print:bg-transparent">REV COST</th>
+                            ` : ''}
+                            <th class="border-r border-black p-1 w-[4%]">PREV</th>
+                            <th class="border-r border-black p-1 w-[4%]">THIS</th>
+                            <th class="border-r border-black p-1 w-[4%]">TO DATE</th>
+                            <th class="border-r border-black p-1 w-[4%]">BAL</th>
+                            <th class="border-r border-black p-1 w-[6%]">PREV</th>
+                            <th class="border-r border-black p-1 w-[6%]">THIS</th>
+                            <th class="border-r border-black p-1 w-[6%]">TO DATE</th>
+                            <th class="border-r border-black p-1 w-[6%]">BAL</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-black/40">
             `;
 
-            const tableElement = document.querySelector('#print-report-modal table');
-            let tfootElement = tableElement.querySelector('tfoot');
-            if (!tfootElement) {
-                tfootElement = document.createElement('tfoot');
-                tableElement.appendChild(tfootElement);
+            let totalOriginalCost = 0, totalRevCost = 0;
+            let sumRelativeWeight = 0, sumPrevAmount = 0, sumThisPeriodAmount = 0, sumToDateAmount = 0, sumBalanceAmount = 0, sumPercentage = 0;
+
+            const calculatedRows = validItems.map(item => {
+                const metrics = calculateMetrics(item.parts, appState.activeMonthOffset, item.headerName);
+                const origQty = metrics.qtyData.arr[0] || 0;
+                const origCost = metrics.costData.arr[0] || 0;
+                const originalTotal = origQty * origCost;
+                totalOriginalCost += originalTotal;
+
+                let revQty = origQty, revCost = origCost, revTotal = originalTotal;
+                if (maxVoIdx > 0) {
+                    revQty = metrics.qtyData.arr[maxVoIdx] !== undefined && metrics.qtyData.arr[maxVoIdx] !== '' ? metrics.qtyData.arr[maxVoIdx] : origQty;
+                    revCost = metrics.costData.arr[maxVoIdx] !== undefined && metrics.costData.arr[maxVoIdx] !== '' ? metrics.costData.arr[maxVoIdx] : origCost;
+                    revTotal = revQty * revCost;
+                    totalRevCost += revTotal;
+                } else {
+                    totalRevCost += originalTotal;
+                }
+
+                const lookupInfo = appState.itemsLookupMap[metrics.itemNo] || { description: '', unit: '' };
+                return { metrics, origQty, origCost, originalTotal, revQty, revCost, revTotal, description: lookupInfo.description || '', unit: lookupInfo.unit || '' };
+            });
+
+            const activeTotalCost = maxVoIdx > 0 ? totalRevCost : totalOriginalCost;
+
+            calculatedRows.forEach(row => {
+                const relativeWeight = activeTotalCost > 0 ? (row.revTotal / activeTotalCost) * 100 : 0;
+                sumRelativeWeight += relativeWeight;
+                const prevAmount = row.metrics.previous * row.revCost;
+                const thisPeriodAmount = row.metrics.thisPeriod * row.revCost;
+                const toDateAmount = row.metrics.toDate * row.revCost;
+                const balanceAmount = row.metrics.balance * row.revCost;
+                const percentage = activeTotalCost > 0 ? (toDateAmount / activeTotalCost) * 100 : 0;
+                
+                sumPercentage += percentage; sumPrevAmount += prevAmount; sumThisPeriodAmount += thisPeriodAmount; sumToDateAmount += toDateAmount; sumBalanceAmount += balanceAmount;
+
+                tableHTML += `
+                    <tr class="text-center align-middle font-sans text-black border-b border-black/30 bg-white">
+                        <td class="border-r border-black/40 p-1 font-bold text-center">${row.metrics.itemNo}</td>
+                        <td class="border-r border-black/40 p-1 text-left font-semibold text-[8px]">${row.description || '---'}</td>
+                        <td class="border-r border-black/40 p-1 text-center font-semibold text-[8px]">${row.unit || '---'}</td>
+                        <td class="border-r border-black/40 p-1 text-right font-medium">${formatPrintNum(row.origQty)}</td>
+                        <td class="border-r border-black/40 p-1 text-right font-medium">${formatPrintNum(row.origCost)}</td>
+                        <td class="border-r border-black/40 p-1 text-right font-bold">${formatPrintNum(row.originalTotal)}</td>
+                        ${maxVoIdx > 0 ? `
+                        <td class="border-r border-black/40 p-1 text-right font-medium bg-amber-50/50 print:bg-transparent text-amber-900 print:text-black">${formatPrintNum(row.revQty)}</td>
+                        <td class="border-r border-black/40 p-1 text-right font-medium bg-amber-50/50 print:bg-transparent text-amber-900 print:text-black">${formatPrintNum(row.revCost)}</td>
+                        <td class="border-r border-black/40 p-1 text-right font-bold bg-amber-50/50 print:bg-transparent text-amber-900 print:text-black">${formatPrintNum(row.revTotal)}</td>
+                        ` : ''}
+                        <td class="border-r border-black/40 p-1 text-right font-bold text-[8px]">${formatPrintNum(relativeWeight)}%</td>
+                        <td class="border-r border-black/40 p-1 text-right font-medium">${formatPrintNum(row.metrics.previous)}</td>
+                        <td class="border-r border-black/40 p-1 text-right font-medium">${formatPrintNum(row.metrics.thisPeriod)}</td>
+                        <td class="border-r border-black/40 p-1 text-right font-bold">${formatPrintNum(row.metrics.toDate)}</td>
+                        <td class="border-r border-black/40 p-1 text-right font-medium">${formatPrintNum(row.metrics.balance)}</td>
+                        <td class="border-r border-black/40 p-1 text-right font-medium">${formatPrintNum(prevAmount)}</td>
+                        <td class="border-r border-black/40 p-1 text-right font-medium">${formatPrintNum(thisPeriodAmount)}</td>
+                        <td class="border-r border-black/40 p-1 text-right font-bold">${formatPrintNum(toDateAmount)}</td>
+                        <td class="border-r border-black/40 p-1 text-right font-medium">${formatPrintNum(balanceAmount)}</td>
+                        <td class="p-1 text-right font-bold text-[8px]">${formatPrintNum(percentage)}%</td>
+                    </tr>
+                `;
+            });
+
+            tableHTML += `
+                    </tbody>
+                    <tfoot>
+                        <tr class="text-center font-black border-t-2 border-black bg-slate-100 print:bg-transparent text-black uppercase">
+                            <td colspan="3" class="border-r border-black p-2 font-black text-center text-xs tracking-wider">TOTAL</td>
+                            <td class="border-r border-black p-2"></td><td class="border-r border-black p-2"></td>
+                            <td class="border-r border-black p-2 text-right font-black text-[10px]">${formatPrintNum(totalOriginalCost)}</td>
+                            ${maxVoIdx > 0 ? `
+                            <td class="border-r border-black p-2 bg-amber-100 print:bg-transparent"></td><td class="border-r border-black p-2 bg-amber-100 print:bg-transparent"></td>
+                            <td class="border-r border-black p-2 text-right font-black text-[10px] bg-amber-100 print:bg-transparent">${formatPrintNum(totalRevCost)}</td>
+                            ` : ''}
+                            <td class="border-r border-black p-2 text-right font-black text-[9px]">${formatPrintNum(sumRelativeWeight)}%</td>
+                            <td class="border-r border-black p-2"></td><td class="border-r border-black p-2"></td><td class="border-r border-black p-2"></td><td class="border-r border-black p-2"></td>
+                            <td class="border-r border-black p-2 text-right font-black text-[9px]">${formatPrintNum(sumPrevAmount)}</td>
+                            <td class="border-r border-black p-2 text-right font-black text-[9px]">${formatPrintNum(sumThisPeriodAmount)}</td>
+                            <td class="border-r border-black p-2 text-right font-black text-[9px]">${formatPrintNum(sumToDateAmount)}</td>
+                            <td class="border-r border-black p-2 text-right font-black text-[9px]">${formatPrintNum(sumBalanceAmount)}</td>
+                            <td class="p-2 text-right font-black text-[9px]">${formatPrintNum(sumPercentage)}%</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            `;
+
+            document.getElementById('print-table-container').innerHTML = tableHTML;
+
+            const remarksColIdx = headers.findIndex(h => String(h || '').toUpperCase().trim() === 'REMARKS');
+            let ntpOffset = 0;
+            if (appState.selectedContractId && appState.pdoLookupMap[appState.selectedContractId]) {
+                ntpOffset = parseNtpToOffset(appState.pdoLookupMap[appState.selectedContractId].ntp);
             }
-            tfootElement.innerHTML = '';
-            tfootElement.appendChild(tfoot);
+            const monthDiff = appState.activeMonthOffset - ntpOffset;
+            
+            let remarkText = '';
+            if (remarksColIdx !== -1 && monthDiff >= 0) {
+                const cacheKey = `${remarksColIdx}_${rowNumber}`;
+                if (appState.modifiedCells[cacheKey]) {
+                    remarkText = appState.modifiedCells[cacheKey].parts[monthDiff] || '';
+                } else {
+                    const cellVal = String(row[remarksColIdx] || '');
+                    remarkText = cellVal.split('|')[monthDiff] || '';
+                }
+            }
+            const remarksContainer = document.getElementById('print-remarks-container');
+            if (remarkText.trim() !== '') {
+                document.getElementById('print-remarks-text').innerText = remarkText.trim();
+                remarksContainer.classList.remove('hidden');
+            } else {
+                remarksContainer.classList.add('hidden');
+            }
 
             document.getElementById('print-report-modal').classList.remove('hidden');
             document.getElementById('print-report-modal').classList.add('flex');
@@ -2699,6 +2980,110 @@ document.getElementById('print-contract-id').innerText = appState.selectedContra
             if (!num || isNaN(num) || num === 0) return '-';
             return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num);
         }
+		let currentVoIndex = 0;
+
+        function toggleVoDropdown() {
+            const menu = document.getElementById('vo-dropdown-menu');
+            menu.classList.toggle('hidden');
+            menu.classList.toggle('flex');
+        }
+
+        function openVoEditor(idx, name) {
+            toggleVoDropdown();
+            currentVoIndex = idx;
+            document.getElementById('vo-editor-title').innerHTML = `<i class="fa-solid fa-file-contract mr-2"></i> EDIT ${name}`;
+            
+            const tbody = document.getElementById('vo-editor-tbody');
+            tbody.innerHTML = '';
+            
+            const mainRows = document.getElementById('items-editor-table-body').querySelectorAll('tr');
+            
+            mainRows.forEach(tr => {
+                const itemNo = tr.querySelector('.editor-item-no').value.trim();
+                if (!itemNo) return;
+                
+                const baseParts = JSON.parse(tr.dataset.rawParts);
+                const qtyData = getLatestVo(baseParts[1]);
+                const costData = getLatestVo(baseParts[2]);
+                
+                const origQty = qtyData.arr[0] !== undefined && qtyData.arr[0] !== '' ? qtyData.arr[0] : 0;
+                const origCost = costData.arr[0] !== undefined && costData.arr[0] !== '' ? costData.arr[0] : 0;
+                
+                let revQty = qtyData.arr[idx] !== undefined && qtyData.arr[idx] !== '' ? qtyData.arr[idx] : origQty;
+                let revCost = costData.arr[idx] !== undefined && costData.arr[idx] !== '' ? costData.arr[idx] : origCost;
+                
+                const newTr = document.createElement('div');
+                newTr.className = "grid grid-cols-[26%_17%_17%_20%_20%] items-center hover:bg-slate-50 transition-colors";
+                newTr.dataset.rawParts = tr.dataset.rawParts;
+                newTr.dataset.mainRowIndex = Array.from(tr.parentNode.children).indexOf(tr); 
+                
+                newTr.innerHTML = `
+                    <div class="py-2.5 px-3 font-bold text-[11px] text-slate-800 break-all">${itemNo}</div>
+                    <div class="py-2.5 px-2 text-right text-[11px] text-slate-500 border-l border-slate-200">${formatNum(origQty)}</div>
+                    <div class="py-2.5 px-2 text-right text-[11px] text-slate-500 border-l border-slate-200">${formatNum(origCost)}</div>
+                    <div class="py-1.5 px-1.5 bg-amber-50/50 border-l border-amber-200">
+                        <input type="text" value="${formatNumStr(revQty)}" onfocus="this.value = unformatNumStr(this.value); this.select();" onblur="this.value = formatNumStr(this.value);" class="w-full bg-white border border-amber-300 rounded-md px-1.5 py-1.5 text-right text-[11px] font-bold outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 vo-rev-qty shadow-inner">
+                    </div>
+                    <div class="py-1.5 px-1.5 bg-amber-50/50 border-l border-amber-200">
+                        <input type="text" value="${formatNumStr(revCost)}" onfocus="this.value = unformatNumStr(this.value); this.select();" onblur="this.value = formatNumStr(this.value);" class="w-full bg-white border border-amber-300 rounded-md px-1.5 py-1.5 text-right text-[11px] font-bold outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 vo-rev-cost shadow-inner">
+                    </div>
+                `;
+                tbody.appendChild(newTr);
+            });
+            
+            document.getElementById('vo-editor-modal').classList.remove('hidden');
+            document.getElementById('vo-editor-modal').classList.add('flex');
+        }
+        
+        function closeVoEditor() {
+            document.getElementById('vo-editor-modal').classList.add('hidden');
+            document.getElementById('vo-editor-modal').classList.remove('flex');
+        }
+        
+        function saveVoEditor() {
+            const rows = document.getElementById('vo-editor-tbody').children;
+            const mainRows = document.getElementById('items-editor-table-body').children;
+            
+            Array.from(rows).forEach(tr => {
+                const mainIdx = parseInt(tr.dataset.mainRowIndex);
+                const mainTr = mainRows[mainIdx];
+                
+                const revQtyInput = parseEditVal(tr.querySelector('.vo-rev-qty').value);
+                const revCostInput = parseEditVal(tr.querySelector('.vo-rev-cost').value);
+                
+                const baseParts = JSON.parse(mainTr.dataset.rawParts);
+                const qtyData = getLatestVo(baseParts[1]);
+                const costData = getLatestVo(baseParts[2]);
+                
+                while (qtyData.arr.length <= currentVoIndex) qtyData.arr.push('');
+                while (costData.arr.length <= currentVoIndex) costData.arr.push('');
+                
+                qtyData.arr[currentVoIndex] = revQtyInput;
+                costData.arr[currentVoIndex] = revCostInput;
+                
+                baseParts[1] = qtyData.arr.join(',');
+                baseParts[2] = costData.arr.join(',');
+                
+                mainTr.dataset.rawParts = JSON.stringify(baseParts);
+                
+                mainTr.querySelector('.editor-qty').value = formatNum(revQtyInput);
+                mainTr.querySelector('.editor-unit-cost').value = formatNum(revCostInput);
+            });
+            
+            editorIsDirty = true;
+            closeVoEditor();
+            showToast("VO Configured", "Variation Order temporarily applied. Click 'Apply Changes' in the main editor to save.", "success");
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            const menu = document.getElementById('vo-dropdown-menu');
+            if (menu && !menu.classList.contains('hidden') && !e.target.closest('.relative.flex-1.flex')) {
+                menu.classList.add('hidden');
+                menu.classList.remove('flex');
+            }
+        });
+		
     </script>
 </body>
 </html>
