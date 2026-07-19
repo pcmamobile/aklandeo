@@ -249,6 +249,18 @@
                     </div>
                     <div id="detail-barchart" class="hidden flex-col bg-white border-t border-dashed border-blue-300 shadow-inner p-0"></div>
                 </div>
+				
+				<!-- Compact Suspension / Resume Accordion -->
+                <div id="suspension-container" class="hidden flex-col border border-rose-200 bg-[#fff5f5]/90 rounded-2xl overflow-hidden shadow-sm mt-2">
+                    <div class="px-4 py-3 text-[11px] md:text-sm font-semibold text-slate-800 cursor-pointer hover:bg-rose-100/50 transition-colors flex justify-between items-center" onclick="toggleSuspensionAccordion()">
+                        <div class="flex items-center gap-2 font-bold text-rose-700 shrink-0 mr-2">
+                            <i class="fa-solid fa-chevron-right text-[10px] transition-transform duration-300" id="icon-suspension"></i>
+                            <i class="fa-solid fa-pause-circle"></i> Suspension & Resume
+                        </div>
+                        <span id="suspension-preview" class="text-[10px] text-slate-500 font-bold break-all leading-tight max-w-[50%] text-right">No interruptions</span>
+                    </div>
+                    <div id="detail-suspension" class="hidden flex-col bg-white border-t border-dashed border-rose-300 shadow-inner p-4 gap-3"></div>
+                </div>
 
                 <!-- Compact Monthly Remarks Accordion -->
                 <div id="remarks-container" class="hidden flex-col border border-orange-200 bg-[#fff4eb]/90 rounded-2xl overflow-hidden shadow-sm mt-0">
@@ -1610,21 +1622,34 @@
                 slippage = actualPercent - scheduledPercent;
             }
 
-            updateGlobalStatsGrid(contractAmount, totalToDateAmount, actualPercent, scheduledPercent, slippage);
+updateGlobalStatsGrid(contractAmount, totalToDateAmount, actualPercent, scheduledPercent, slippage);
             
             renderBarChart();
             renderRemarks();
+            renderSuspensions();
         }
 
-        function calculateScheduledPercentage() {
+function calculateScheduledPercentage() {
             if (!appState.contractRowData) return 0;
             const headers = appState.headers;
             const barchartColIdx = headers.findIndex(h => String(h || '').toUpperCase().trim() === 'BARCHART');
             if (barchartColIdx === -1) return 0;
 
-            let ntpOffset = 0;
+            let ntpStr = '';
             if (appState.selectedContractId && appState.pdoLookupMap[appState.selectedContractId]) {
-                ntpOffset = parseNtpToOffset(appState.pdoLookupMap[appState.selectedContractId].ntp);
+                ntpStr = appState.pdoLookupMap[appState.selectedContractId].ntp;
+            }
+
+            // Advanced NTP Date Parser
+            let ntpDate = new Date(ntpStr);
+            let ntpOffset = 0;
+            if (isNaN(ntpDate.getTime())) {
+                ntpOffset = parseNtpToOffset(ntpStr);
+                const y = START_YEAR + Math.floor(ntpOffset / 12);
+                const m = ntpOffset % 12;
+                ntpDate = new Date(y, m, 1);
+            } else {
+                ntpOffset = (ntpDate.getFullYear() - START_YEAR) * 12 + ntpDate.getMonth();
             }
 
             if (appState.activeMonthOffset < ntpOffset) return 0;
@@ -1639,32 +1664,69 @@
                 barchartParts = cellVal ? cellVal.split('|').map(p => p.trim()) : [];
             }
 
-            const today = new Date();
-            const todayMonthOffset = (today.getFullYear() - START_YEAR) * 12 + today.getMonth();
-            const todayDay = today.getDate();
-            const targetMonthOffset = appState.activeMonthOffset;
-
-            let totalScheduled = 0;
-
-            for (let i = ntpOffset; i <= targetMonthOffset; i++) {
-                const monthDiff = i - ntpOffset;
-                const monthPerc = parseFloat(barchartParts[monthDiff]) || 0;
-
-                if (i < targetMonthOffset) {
-                    totalScheduled += monthPerc; 
-                } else if (i === targetMonthOffset) {
-                    if (targetMonthOffset === todayMonthOffset) {
-                        const year = START_YEAR + Math.floor(i / 12);
-                        const month = i % 12;
-                        const daysInMonth = new Date(year, month + 1, 0).getDate();
-                        totalScheduled += (monthPerc / daysInMonth) * todayDay;
-                    } else {
-                        totalScheduled += monthPerc;
-                    }
+            // Extract Suspensions securely
+            const suspColIdx = headers.findIndex(h => String(h || '').toUpperCase().trim() === 'SUSPENSION');
+            let suspensions = [];
+            if (suspColIdx !== -1) {
+                const suspCacheKey = `${suspColIdx}_${rowNumber}`;
+                let suspStr = appState.modifiedCells[suspCacheKey] ? (appState.modifiedCells[suspCacheKey].parts[0] || '') : String(appState.contractRowData.values[suspColIdx] || '');
+                if (suspStr) {
+                    suspensions = suspStr.split(',').map(s => {
+                        const parts = s.split('|');
+                        return { suspend: parts[0] ? new Date(parts[0]) : null, resume: parts[1] ? new Date(parts[1]) : null };
+                    }).filter(s => s.suspend && !isNaN(s.suspend.getTime()));
                 }
             }
 
-            return totalScheduled;
+            // Calculate Target Evaluation Date
+            const today = new Date();
+            const todayMonthOffset = (today.getFullYear() - START_YEAR) * 12 + today.getMonth();
+            let evalDate = new Date();
+            
+            if (appState.activeMonthOffset < todayMonthOffset) {
+                const targetY = START_YEAR + Math.floor(appState.activeMonthOffset / 12);
+                const targetM = appState.activeMonthOffset % 12;
+                evalDate = new Date(targetY, targetM + 1, 0); 
+            } else if (appState.activeMonthOffset === todayMonthOffset) {
+                evalDate = new Date();
+            } else {
+                const targetY = START_YEAR + Math.floor(appState.activeMonthOffset / 12);
+                const targetM = appState.activeMonthOffset % 12;
+                evalDate = new Date(targetY, targetM, 1);
+            }
+
+            // Freeze Clock Logic - Count Suspended Days BEFORE Evaluation Date
+            let totalSuspendedMs = 0;
+            suspensions.forEach(s => {
+                const start = s.suspend > ntpDate ? s.suspend : ntpDate;
+                let end = evalDate;
+                if (s.resume && s.resume < evalDate) end = s.resume;
+                
+                if (start < end && start <= evalDate) {
+                    totalSuspendedMs += (end.getTime() - start.getTime());
+                }
+            });
+
+            // Derive the resulting Effective Project Date by pushing backwards mathematically
+            const effectiveDate = new Date(evalDate.getTime() - totalSuspendedMs);
+            const effectiveMonthOffset = (effectiveDate.getFullYear() - START_YEAR) * 12 + effectiveDate.getMonth();
+            
+            let totalScheduled = 0;
+            for (let i = ntpOffset; i <= effectiveMonthOffset; i++) {
+                const monthDiff = i - ntpOffset;
+                const monthPerc = parseFloat(barchartParts[monthDiff]) || 0;
+
+                if (i < effectiveMonthOffset) {
+                    totalScheduled += monthPerc; 
+                } else if (i === effectiveMonthOffset) {
+                    const year = START_YEAR + Math.floor(i / 12);
+                    const month = i % 12;
+                    const daysInMonth = new Date(year, month + 1, 0).getDate();
+                    totalScheduled += (monthPerc / daysInMonth) * effectiveDate.getDate();
+                }
+            }
+
+            return Math.min(100, totalScheduled);
         }
 
         function renderBarChart() {
@@ -3083,6 +3145,144 @@ let maxVoIdx = 0;
                 menu.classList.remove('flex');
             }
         });
+		
+		function toggleSuspensionAccordion() {
+            const detail = document.getElementById('detail-suspension');
+            const icon = document.getElementById('icon-suspension');
+            if (detail.classList.contains('hidden')) {
+                detail.classList.remove('hidden'); detail.classList.add('flex');
+                icon.classList.add('rotate-90');
+            } else {
+                detail.classList.add('hidden'); detail.classList.remove('flex');
+                icon.classList.remove('rotate-90');
+            }
+        }
+
+        function renderSuspensions() {
+            const container = document.getElementById('suspension-container');
+            if (!container) return;
+            if (!appState.contractRowData) {
+                container.classList.add('hidden'); container.classList.remove('flex'); return;
+            }
+
+            const headers = appState.headers;
+            const suspColIdx = headers.findIndex(h => String(h || '').toUpperCase().trim() === 'SUSPENSION');
+            container.classList.remove('hidden');
+            container.classList.add('flex');
+            const detailContainer = document.getElementById('detail-suspension');
+            
+            if (suspColIdx === -1) {
+                detailContainer.innerHTML = `<div class="p-4 bg-rose-50 text-rose-700 rounded-xl text-xs font-bold text-center border border-rose-200"><i class="fa-solid fa-circle-info mb-2 text-xl"></i><br>To use the <b>Suspension/Resume</b> engine, please add a new column named <b>SUSPENSION</b> to your SWA database in Google Sheets.</div>`;
+                document.getElementById('suspension-preview').innerText = 'Unavailable';
+                return;
+            }
+
+            const rowNumber = appState.contractRowData.rowNumber;
+            const cacheKey = `${suspColIdx}_${rowNumber}`;
+            let suspStr = appState.modifiedCells[cacheKey] ? (appState.modifiedCells[cacheKey].parts[0] || '') : String(appState.contractRowData.values[suspColIdx] || '');
+            
+            detailContainer.dataset.colIndex = suspColIdx;
+            detailContainer.dataset.rowNumber = rowNumber;
+            detailContainer.dataset.parts = suspStr; 
+            buildSuspensionTable();
+        }
+
+        function buildSuspensionTable() {
+            const detailContainer = document.getElementById('detail-suspension');
+            const suspStr = detailContainer.dataset.parts || '';
+            let html = `<div class="flex flex-col gap-3">`;
+            
+            let pairs = [];
+            if (suspStr) pairs = suspStr.split(',').map(s => { const p = s.split('|'); return { suspend: p[0] || '', resume: p[1] || '' }; });
+            
+            let isSuspended = false;
+            let totalDays = 0;
+
+            if (pairs.length === 0) {
+                html += `<p class="text-xs text-slate-500 italic font-bold text-center">No suspensions recorded.</p>`;
+            } else {
+                pairs.forEach((pair, idx) => {
+                    if (pair.suspend && !pair.resume) isSuspended = true;
+                    let daysText = '';
+                    if (pair.suspend) {
+                        const d1 = new Date(pair.suspend); 
+                        const d2 = pair.resume ? new Date(pair.resume) : new Date();
+                        if (!isNaN(d1) && !isNaN(d2)) {
+                            const diffTime = Math.max(0, d2 - d1);
+                            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                            daysText = pair.resume ? `${diffDays} days` : `${diffDays} days (ongoing)`;
+                            totalDays += diffDays;
+                        }
+                    }
+
+                    html += `
+                    <div class="flex flex-col md:flex-row items-center gap-2 bg-rose-50 p-2.5 rounded-xl border border-rose-200 relative">
+                        <div class="flex-1 w-full flex items-center gap-2">
+                            <span class="text-[10px] font-black text-rose-700 uppercase w-[60px]">Suspend:</span>
+                            <input type="date" value="${pair.suspend}" onchange="updateSuspensionData()" class="susp-start-input flex-1 bg-white border border-rose-300 rounded-lg p-2 text-[11px] font-bold outline-none focus:border-rose-500 shadow-inner">
+                        </div>
+                        <div class="flex-1 w-full flex items-center gap-2">
+                            <span class="text-[10px] font-black text-emerald-700 uppercase w-[60px]">Resume:</span>
+                            <input type="date" value="${pair.resume}" onchange="updateSuspensionData()" class="susp-end-input flex-1 bg-white border border-emerald-300 rounded-lg p-2 text-[11px] font-bold outline-none focus:border-emerald-500 shadow-inner">
+                        </div>
+                        <button onclick="removeSuspensionRow(${idx})" class="text-rose-400 hover:text-rose-600 transition-colors p-2" title="Remove"><i class="fa-solid fa-trash"></i></button>
+                        ${daysText ? `<div class="absolute -top-2 -right-2 bg-rose-600 text-white text-[9px] font-black px-2 py-0.5 rounded shadow-sm border border-rose-700 z-10">${daysText}</div>` : ''}
+                    </div>`;
+                });
+            }
+            html += `<button onclick="addSuspensionRow()" class="w-full py-2.5 bg-white border border-dashed border-rose-300 text-rose-600 rounded-xl text-[11px] font-black hover:bg-rose-50 transition-colors shadow-sm"><i class="fa-solid fa-plus mr-1"></i> Add Suspension Event</button></div>`;
+            
+            detailContainer.innerHTML = html;
+            const preview = document.getElementById('suspension-preview');
+            if (isSuspended) preview.innerHTML = `<span class="text-rose-600 font-extrabold animate-pulse tracking-wide"><i class="fa-solid fa-triangle-exclamation"></i> PROJECT SUSPENDED</span>`;
+            else if (pairs.length > 0) preview.innerHTML = `<span class="text-slate-600">${pairs.length} event(s) • ${totalDays}d frozen</span>`;
+            else preview.innerText = "No interruptions";
+        }
+        
+        function addSuspensionRow() {
+            const detailContainer = document.getElementById('detail-suspension');
+            let suspStr = detailContainer.dataset.parts || '';
+            detailContainer.dataset.parts = suspStr ? suspStr + ',|' : '|';
+            buildSuspensionTable();
+            commitSuspensionToState();
+        }
+        
+        function removeSuspensionRow(idx) {
+            const detailContainer = document.getElementById('detail-suspension');
+            let pairs = (detailContainer.dataset.parts || '').split(',');
+            pairs.splice(idx, 1);
+            detailContainer.dataset.parts = pairs.join(',');
+            buildSuspensionTable();
+            commitSuspensionToState();
+        }
+        
+        function updateSuspensionData() {
+            const detailContainer = document.getElementById('detail-suspension');
+            const starts = detailContainer.querySelectorAll('.susp-start-input');
+            const ends = detailContainer.querySelectorAll('.susp-end-input');
+            let pairs = [];
+            for(let i=0; i<starts.length; i++) pairs.push(`${starts[i].value}|${ends[i].value}`);
+            detailContainer.dataset.parts = pairs.join(',');
+            buildSuspensionTable();
+            commitSuspensionToState();
+        }
+        
+        function commitSuspensionToState() {
+            const detailContainer = document.getElementById('detail-suspension');
+            const colIdx = parseInt(detailContainer.dataset.colIndex);
+            const rowNumber = parseInt(detailContainer.dataset.rowNumber);
+            const cacheKey = `${colIdx}_${rowNumber}`;
+            const newStr = detailContainer.dataset.parts;
+            
+            appState.modifiedCells[cacheKey] = {
+                colIndex: colIdx, colLetter: colToLetter(colIdx), rowNumber: rowNumber, headerName: 'SUSPENSION', parts: [newStr]
+            };
+            const originalVal = String(appState.contractRowData.values[colIdx] || '');
+            if (originalVal === newStr) delete appState.modifiedCells[cacheKey];
+            
+            updatePendingBadge();
+            recalculateAggregatedTotals();
+        }
 		
     </script>
 </body>
