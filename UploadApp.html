@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>Contractor Document Portal</title>
+    
+    <!-- FontAwesome for Beautiful Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- PDF-Lib for creating and merging multiple PDFs and Images -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Arial:wght@400;700;900&display=swap');
+
+        body { margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f0f0f0; display: flex; justify-content: center; min-height: 100vh; }
+        .app-container { width: 100%; max-width: 600px; background-color: white; min-height: 100vh; display: flex; flex-direction: column; box-shadow: 0 0 20px rgba(0,0,0,0.1); position: relative; }
+
+        .gradient-header { background: linear-gradient(to bottom, #f28b40 0%, #ffb473 40%, #f28b40 100%); color: black; font-weight: 900; font-size: 22px; text-align: center; padding: 12px 0; border-bottom: 2px solid white; text-transform: uppercase; }
+        .tabs-container { display: flex; width: 100%; }
+        .tab-btn { flex: 1; padding: 10px 0; text-align: center; font-weight: 900; font-size: 18px; cursor: pointer; border: none; text-transform: uppercase; }
+        .tab-active { background: linear-gradient(to bottom, #f0893a 0%, #fdc18e 40%, #f0893a 100%); color: black; border-right: 2px solid white; }
+        .tab-inactive { background: linear-gradient(to bottom, #b3b3b3 0%, #e0e0e0 40%, #b3b3b3 100%); color: black; border-right: 2px solid white; }
+        .gradient-blue-bar { background: linear-gradient(to bottom, #497bc3 0%, #9cbdf2 40%, #497bc3 100%); color: black; font-weight: 900; font-size: 22px; text-align: center; padding: 8px 0; border-bottom: 2px solid white; position: relative; }
+        .doc-list { display: flex; flex-direction: column; width: 100%; }
+        .doc-item { display: flex; flex-direction: column; width: 100%; }
+        .doc-row { display: flex; width: 100%; min-height: 55px; border-bottom: 1px solid #497bc3; box-sizing: border-box; align-items: stretch; }
+        .doc-row.row-odd { background: linear-gradient(to bottom, #7da5e2 0%, #bad0f5 40%, #7da5e2 100%); }
+        .doc-row.row-even { background: linear-gradient(to bottom, #c6d9f7 0%, #e8f0fc 40%, #c6d9f7 100%); }
+        .col-name-wrapper { flex: 1; display: flex; color: black; font-size: 20px; }
+        .col-index { width: 35px; display: flex; align-items: center; justify-content: center; font-weight: 400; flex-shrink: 0; }
+        .col-name-text { flex: 1; display: flex; align-items: center; justify-content: flex-start; padding: 5px; font-weight: 900; font-style: italic; text-align: left; word-wrap: break-word; line-height: 1.1; }
+        .btn-cell { flex: none; width: 55px; display: flex; align-items: center; justify-content: center; padding: 5px; }
+
+        /* 3D SPHERE ICONS */
+        .btn-3d-sphere { width: 44px; height: 44px; border-radius: 50%; border: 2px solid #a33800; background: radial-gradient(circle at 50% 15%, #fffaaa 0%, #ff9d00 40%, #b83100 100%); box-shadow: inset 0px -4px 5px rgba(0,0,0,0.5), inset 0px 4px 5px rgba(255,255,255,0.8), 2px 2px 4px rgba(0,0,0,0.4); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; cursor: pointer; text-shadow: 0px 1px 2px rgba(0,0,0,0.6); padding: 0; transition: 0.1s; }
+        .btn-3d-sphere:active { transform: scale(0.92); box-shadow: inset 0px 2px 8px rgba(0,0,0,0.8); }
+        .btn-3d-sphere .fa-arrow-up { font-size: 18px; margin-top: 3px; }
+        .btn-3d-sphere .upload-text { font-size: 8px; font-weight: bold; font-family: Arial, sans-serif; margin-top: 0px; letter-spacing: 0.5px; }
+        .btn-3d-sphere .fa-camera { font-size: 22px; }
+        .btn-3d-sphere.view-btn { background: radial-gradient(circle at 50% 15%, #d1fca4 0%, #7ac734 40%, #2e7300 100%); border: 2px solid #205200; width: 44px; height: 44px; }
+        .btn-3d-sphere.view-btn .fa-eye { font-size: 22px; }
+
+        .accordion-body { display: none; width: 100%; border-left: 3px solid #1a4f8f; border-right: 3px solid #1a4f8f; border-bottom: 3px solid #1a4f8f; box-sizing: border-box; background: white; margin-top: -2px; margin-bottom: 2px; }
+        .accordion-body.open { display: block; }
+        .accordion-iframe { width: 100%; height: 450px; border: none; display: block; }
+
+        /* Utilities & Search */
+        .overlay { position: absolute; inset: 0; background: rgba(255,255,255,0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 2000; }
+        .hidden { display: none !important; }
+        .spinner { width: 50px; height: 50px; border: 5px solid #ccc; border-top-color: #f28b40; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .search-screen { display: flex; flex-direction: column; padding: 20px; gap: 15px; margin-top: 50px; }
+        .search-input { padding: 12px; font-size: 18px; text-align: center; border: 2px solid #497bc3; border-radius: 8px; outline: none; font-weight: bold; }
+        .search-btn { padding: 12px; font-size: 18px; font-weight: bold; background: #f28b40; color: white; border: none; border-radius: 8px; cursor: pointer; }
+        .back-btn { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: transparent; border: none; font-size: 20px; cursor: pointer; color: black; }
+
+        /* CUSTOM IN-APP CAMERA STYLES */
+        #customCameraUI { position: fixed; inset: 0; background: #000; z-index: 1000; display: flex; flex-direction: column; }
+        #camVideo { width: 100%; height: 100%; object-fit: cover; }
+        
+        .cam-top-bar { position: absolute; top: 0; left: 0; width: 100%; padding: 15px; box-sizing: border-box; background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); display: flex; justify-content: space-between; align-items: center; z-index: 10; }
+        .cam-close-btn { color: white; background: none; border: none; font-size: 28px; cursor: pointer; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+        .cam-title { color: white; font-weight: bold; font-size: 16px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+
+        .cam-filter-bar { position: absolute; top: 60px; left: 0; width: 100%; display: flex; justify-content: center; gap: 10px; z-index: 10; }
+        .filter-btn { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.5); border-radius: 20px; padding: 5px 15px; font-size: 14px; backdrop-filter: blur(5px); cursor: pointer; }
+        .filter-btn.active { background: white; color: black; font-weight: bold; }
+
+        .cam-zoom-bar { position: absolute; bottom: 130px; width: 100%; display: flex; justify-content: center; gap: 15px; z-index: 10; }
+        .zoom-btn { background: rgba(0,0,0,0.6); color: white; border: 1px solid rgba(255,255,255,0.3); border-radius: 50%; width: 40px; height: 40px; font-size: 12px; font-weight: bold; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .zoom-btn.active { background: #f28b40; border-color: #f28b40; color: black; }
+
+        .cam-bottom-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 110px; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; box-sizing: border-box; z-index: 10; }
+        .cam-gallery-preview { width: 50px; height: 50px; border-radius: 8px; background: #333; position: relative; border: 2px solid white; background-size: cover; background-position: center; }
+        .cam-badge { position: absolute; top: -8px; right: -8px; background: #f28b40; color: black; font-weight: bold; font-size: 12px; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; border: 2px solid white; }
+        .cam-shutter { width: 70px; height: 70px; border-radius: 50%; background: white; border: 4px solid #aaa; outline: 3px solid white; outline-offset: 2px; cursor: pointer; }
+        .cam-shutter:active { transform: scale(0.95); background: #eee; }
+        .cam-save-btn { color: white; font-weight: bold; font-size: 16px; background: none; border: none; cursor: pointer; text-shadow: 0 2px 4px rgba(0,0,0,0.8); width: 50px; text-align: right; }
+
+        /* Filter Classes */
+        .filter-none { filter: none; }
+        .filter-bw { filter: grayscale(100%) contrast(1.2); }
+        .filter-enhanced { filter: contrast(1.3) saturate(1.4) brightness(1.1); }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- LOADER OVERLAY -->
+        <div id="loader" class="overlay hidden">
+            <div class="spinner"></div>
+            <h3 id="loaderText" style="margin:0; color:#333; text-align: center;">Syncing Database...</h3>
+        </div>
+
+        <!-- SCREEN 1: SEARCH / LOGIN -->
+        <div id="searchScreen" style="height: 100%;">
+            <div class="gradient-header">CONTRACTOR PORTAL</div>
+            <div class="gradient-blue-bar" style="font-size: 16px;">ENTER CONTRACT ID</div>
+            <div class="search-screen">
+                <input type="text" id="contractIdInput" class="search-input" placeholder="e.g. 26GA0161" onkeyup="if(event.key === 'Enter') fetchContractData()">
+                <button class="search-btn" onclick="fetchContractData()"><i class="fa-solid fa-magnifying-glass"></i> Access Documents</button>
+            </div>
+        </div>
+
+        <!-- SCREEN 2: MAIN UI -->
+        <div id="mainScreen" class="hidden" style="height: 100%; display: flex; flex-direction: column;">
+            
+            <div class="gradient-header">UPLOAD DOCUMENTS</div>
+            
+            <div class="tabs-container">
+                <button id="tab-upload" class="tab-btn tab-active" onclick="switchTab('upload')">UPLOAD</button>
+                <button id="tab-uploaded" class="tab-btn tab-inactive" onclick="switchTab('uploaded')">UPLOADED</button>
+            </div>
+
+            <div class="gradient-blue-bar">
+                <button class="back-btn" onclick="goBack()"><i class="fa-solid fa-arrow-left"></i></button>
+                <span id="displayContractId">26GA0161</span>
+            </div>
+
+            <div class="doc-list" id="docListContainer" style="border: 2px solid #497bc3; border-top: none; box-sizing: border-box;">
+                <!-- Rows dynamically injected here -->
+            </div>
+        </div>
+
+        <input type="file" id="pdfUploader" accept=".pdf,image/*" multiple class="hidden">
+        
+        <!-- CUSTOM MULTI-CAPTURE CAMERA INTERFACE -->
+        <div id="customCameraUI" class="hidden">
+            <video id="camVideo" autoplay playsinline class="filter-none"></video>
+            <canvas id="camCanvas" hidden></canvas>
+            
+            <div class="cam-top-bar">
+                <button class="cam-close-btn" onclick="closeCamera()"><i class="fa-solid fa-xmark"></i></button>
+                <div class="cam-title" id="camTitle">Document Name</div>
+                <div style="width: 28px;"></div>
+            </div>
+
+            <div class="cam-filter-bar">
+                <button class="filter-btn active" id="f-none" onclick="setCameraFilter('none')">Original</button>
+                <button class="filter-btn" id="f-bw" onclick="setCameraFilter('bw')">B&W</button>
+                <button class="filter-btn" id="f-enhanced" onclick="setCameraFilter('enhanced')">Enhanced</button>
+            </div>
+
+            <div class="cam-zoom-bar" id="zoomControls" style="display: none;">
+                <button class="zoom-btn active" id="z-1" onclick="setZoom(1)">1X</button>
+                <button class="zoom-btn" id="z-2" onclick="setZoom(2)">2X</button>
+                <button class="zoom-btn" id="z-3" onclick="setZoom(3)">3X</button>
+            </div>
+
+            <div class="cam-bottom-bar">
+                <div class="cam-gallery-preview" id="camGalleryThumb" style="visibility: hidden;">
+                    <div class="cam-badge" id="camBadge">0</div>
+                </div>
+                <button class="cam-shutter" onclick="takeSnapshot()"></button>
+                <button class="cam-save-btn" id="camSaveBtn" style="visibility: hidden;" onclick="saveCapturedImages()">Done</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const SPREADSHEET_ID = "1LSYLZ7tfSeVupQMPsCOHG4SlnzPQqOAIe03QI1qRMr8";
+        const API_KEY = "AIzaSyCz6fNJr3ecn-M2HActqM1aCXbxqRLj2e8";
+        const UPLOAD_API_URL = "https://script.google.com/macros/s/AKfycbxhb3G0bcXXlPQQ7-jeRxoNdOcxHWfa3pKMmQc5nLnvZxwltI7RVxuw7pWs5r_7vP1FgQ/exec";
+
+        const SERVICE_ACCOUNT = {
+            "client_email": "pcma-mobile@gold-mode-473811-c6.iam.gserviceaccount.com",
+            "private_key": `-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQC1sEJI1CN6V8mj\nAhBvpiLC7JOEbrFFxsvqbzJjitbDRbyRhbk7prF1NQqAz0OV8l+9/v69UJ3ddGmE\n3Oq4EEqgOmeEpfdSeJeMa+alsc0H+1E2EmWLnhGNv/ot91osgokv7tUG7p/WnGSf\n0IP2bmbbEmQfhganvTCTmhTASHUSK32O+ZmYklYwqs9qptWCFjS3lj+uhaQ2nAFQ\nGCloj6go1aRbQTGxDygwwxtK08v68EuApslm5qs/x08gnj1UEV/FfHDUvUbCswm2\nIRTULJqNoGTYNs4DxbUJClUwcf72xmddbiE/CbOWs1g626obziGNe6/Dq74Ws5IR\nj39h8S57AgMBAAECggEAPUZdDH/TGUM7Iykijuz6Yz/zPmIwkiZKBl4LIewkowXF\nY1S0lGwTBELnsGp2Uj9ET+kMU5+5JgNJRQBWfs4rxN79o4xvnVZDUh3f0zjkO5Fk\nIbbRnWUpaWN6Bf+aX1GE3/AN00EuEex7uTRTFQzFzpNkxgbm/rI9DEKWRgUJyp7j\nwrbzhTp2cRRrQaPtONZej68dUtkkAsd2rlt3Reht3/NCdmNRTjpRHqiICZvuZuHe\njebcK/ewVZWqW9XpwVMfjhZeyBnfzNqRElNxF4BtodjmSpw+TkWyPK9obVFEBDG5\nFeRxBk6aTdutNkIN2uXOPFBP7UV4evsD3fiuYMRFvQKBgQDbiMwo80cLbnV7fuq/\nSr1y2i/mj8XDVX6xOJWDXOhrHNEDcTpYHp5Ey5qQwQhkGOiK/aUJWfWHJGMLM7DY\n7l6nvRe+oX/1inocjKMkiq5TGDvptBv2T9rz0K3LFueFNcxAv7445GgCsFADgYBM\n67reu9QcmT6Uis2nUffzcleGNQKBgQDT3ibtkMmkeDi3sl1uY9PudlZqnCcP11Pi\nQJF4+thJYjN/bYBKA3F4GhRZzEKxW6jjF/mQ/kZDLHJeGI4Y0ETpz76kB4gSO1zc\nlsKZnGBvfug2Oz7/fnPfdpMdSsaFS9AHOHTm7TAiyMuSXciJ1Sy5LxVeELP91cbJ\nBsJtKX+37wKBgQDFKUSB+orxn1Bvivp0tkESpxWh8blgxqWzr+fHRGeP2x90Afqu\nLUFi86BrJJHOo/gk68uObHZv2qQA6XmIOfxUlSSAFjb/ZFBq13ulU89f3UHhj9oV\nCn7Pvbh3zqg7IKfB9vJ10dv/ni0eGO4LJyJ66yGCVba4XTh5bspKn4QviQKBgQCi\nud3sWWiGilAFx1k7kDEW1o1JFOZrpFcpT65r3T6CHoqvNMt0DXD5bg5zag9Pabct\ntRxZ4PLWZSzyWKnLJSvI6WbjVWWNm0qXorOUiCcJe8+e16JrWhRlbg1QUj5n4vLE\nmPgw5bwy+0ZgBOgh9TmEgkVHGk0kiS1E+Ywbi+QswQKBgQDOI10/zjkwXOmqHlX7\n7nkuSIG9Kojrt2XWIsecZ9xP4lnIq6oyBUxDLaj3MaSnGeuvJZjDHa7YxqyAZvOO\nPxJ2F55gm4PME6obOldAw8rWdTWmlpG5rm679Q01nupwlC5+rJPqSzW/GpibKjZa\ni2e4E1vAOiqCrUlBSDcvD1r+/g==\n-----END PRIVATE KEY-----`
+        };
+
+        let currentTab = 'upload';
+        let contractId = '';
+        let contractRowNumber = -1;
+        let currentContractDocs = [];
+        let pendingUploadDocType = null; 
+        
+        // Auto-load Contract ID from URL
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const cid = urlParams.get('cid');
+            if (cid) {
+                document.getElementById('contractIdInput').value = cid;
+                fetchContractData();
+            }
+        });
+
+        async function getAccessToken() {
+            if (window._cachedToken && window._tokenExpiry > Date.now()) return window._cachedToken;
+            const header = { alg: "RS256", typ: "JWT" };
+            const now = Math.floor(Date.now() / 1000);
+            const claim = { iss: SERVICE_ACCOUNT.client_email, scope: "https://www.googleapis.com/auth/spreadsheets", aud: "https://oauth2.googleapis.com/token", exp: now + 3600, iat: now };
+            const b64url = (str) => btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+            const encHeader = b64url(JSON.stringify(header));
+            const encClaim = b64url(JSON.stringify(claim));
+            const unsignedToken = `${encHeader}.${encClaim}`;
+            let pemContents = SERVICE_ACCOUNT.private_key.replace("-----BEGIN PRIVATE KEY-----", "").replace("-----END PRIVATE KEY-----", "").replace(/\n/g, '').replace(/\r/g, '');
+            const binaryDerString = window.atob(pemContents);
+            const binaryDer = new Uint8Array(binaryDerString.length);
+            for (let i = 0; i < binaryDerString.length; i++) binaryDer[i] = binaryDerString.charCodeAt(i);
+            const key = await window.crypto.subtle.importKey("pkcs8", binaryDer.buffer, { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["sign"]);
+            const signature = await window.crypto.subtle.sign("RSASSA-PKCS1-v1_5", key, new TextEncoder().encode(unsignedToken));
+            const encSignature = b64url(String.fromCharCode(...new Uint8Array(signature)));
+            const jwt = `${unsignedToken}.${encSignature}`;
+            const res = await fetch("https://oauth2.googleapis.com/token", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: `grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=${jwt}` });
+            const data = await res.json();
+            if (data.access_token) {
+                window._cachedToken = data.access_token; window._tokenExpiry = Date.now() + (data.expires_in * 1000) - 60000;
+                return data.access_token;
+            } else throw new Error("Auth Failed");
+        }
+
+        function showLoader(msg) { document.getElementById('loaderText').innerText = msg; document.getElementById('loader').classList.remove('hidden'); }
+        function hideLoader() { document.getElementById('loader').classList.add('hidden'); }
+
+        async function fetchContractData() {
+            const inputId = document.getElementById('contractIdInput').value.trim().toUpperCase();
+            if(!inputId) { alert("Please enter a Contract ID."); return; }
+            contractId = inputId; showLoader("Searching Database...");
+
+            try {
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/UPLOAD!A3:ZZ?key=${API_KEY}`;
+                const response = await fetch(url); const json = await response.json();
+                if (!json.values || json.values.length === 0) throw new Error("No data found.");
+                
+                const rawHeaders = json.values[0].map(h => String(h).trim());
+                const headersUpper = rawHeaders.map(h => h.toUpperCase());
+                const idColIndex = headersUpper.indexOf("CONTRACT ID");
+                if (idColIndex === -1) throw new Error("Format Error: 'CONTRACT ID' column not found.");
+                window._globalHeaders = headersUpper; 
+
+                let documentHeaders = [];
+                headersUpper.forEach((h, index) => {
+                    if (h.endsWith(" UPLOADED")) {
+                        let baseNameUpper = h.replace(" UPLOADED", "").trim();
+                        let baseIndex = headersUpper.indexOf(baseNameUpper);
+                        if (baseIndex !== -1) documentHeaders.push({ name: rawHeaders[baseIndex], baseIndex: baseIndex, uploadIndex: index });
+                    }
+                });
+
+                let targetRowIndex = -1;
+                for (let i = 1; i < json.values.length; i++) {
+                    if (String(json.values[i][idColIndex]).trim().toUpperCase() === contractId) { targetRowIndex = i; break; }
+                }
+
+                if (targetRowIndex === -1) { hideLoader(); alert("Contract ID not found in the matrix. Please verify."); return; }
+                contractRowNumber = targetRowIndex + 3;
+
+                const rowData = json.values[targetRowIndex];
+                currentContractDocs = [];
+                documentHeaders.forEach(doc => {
+                    let baseVal = rowData[doc.baseIndex] ? String(rowData[doc.baseIndex]).trim() : "";
+                    let uploadVal = rowData[doc.uploadIndex] ? String(rowData[doc.uploadIndex]).trim() : "";
+                    if (baseVal !== "") currentContractDocs.push({ name: doc.name, uploadVal: uploadVal });
+                });
+
+                document.getElementById('displayContractId').innerText = contractId;
+                document.getElementById('searchScreen').style.display = 'none';
+                document.getElementById('mainScreen').classList.remove('hidden');
+                document.getElementById('mainScreen').style.display = 'flex';
+                
+                hideLoader(); renderList();
+            } catch(e) { hideLoader(); alert("Error: " + e.message); }
+        }
+
+        // ==========================================
+        // SMART BACK NAVIGATION 
+        // ==========================================
+        function goBack() {
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            // If there's a CID in the URL, it means the user came from an external link (like Modal.html)
+            if (urlParams.has('cid')) {
+                window.history.back(); // Take them back to where they came from
+            } else {
+                // If they searched manually from the search screen, take them back to the search screen
+                document.getElementById('mainScreen').classList.add('hidden'); 
+                document.getElementById('mainScreen').style.display = 'none';
+                document.getElementById('searchScreen').style.display = 'flex'; 
+                document.getElementById('contractIdInput').value = '';
+            }
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            document.getElementById('tab-upload').className = tab === 'upload' ? 'tab-btn tab-active' : 'tab-btn tab-inactive';
+            document.getElementById('tab-uploaded').className = tab === 'uploaded' ? 'tab-btn tab-active' : 'tab-btn tab-inactive';
+            renderList();
+        }
+
+        // AUTO-FORMAT SI DOCUMENTS
+        function formatDocName(name) {
+            const match = name.match(/^SI\s*(\d+)$/i);
+            if (match) {
+                return `Site Instruction ${match[1]} (SI ${match[1]})`;
+            }
+            return name;
+        }
+
+        function renderList() {
+            const container = document.getElementById('docListContainer');
+            container.innerHTML = ''; let rowIndex = 1;
+
+            currentContractDocs.forEach((doc, idx) => {
+                const isUploaded = doc.uploadVal !== "";
+                if (currentTab === 'upload' && isUploaded) return; 
+                if (currentTab === 'uploaded' && !isUploaded) return; 
+
+                const rowClass = rowIndex % 2 !== 0 ? 'row-odd' : 'row-even';
+                const formattedName = formatDocName(doc.name);
+
+                let rowHtml = `
+                    <div class="doc-item">
+                        <div class="doc-row ${rowClass}">
+                            <div class="col-name-wrapper"><div class="col-index">${rowIndex}</div><div class="col-name-text">${formattedName}</div></div>
+                `;
+
+                if (currentTab === 'upload') {
+                    rowHtml += `
+                        <div class="btn-cell">
+                            <button class="btn-3d-sphere" title="Upload File" onclick="triggerFilePicker('${doc.name}')">
+                                <i class="fa-solid fa-arrow-up"></i><span class="upload-text">Upload</span>
+                            </button>
+                        </div>
+                        <div class="btn-cell">
+                            <button class="btn-3d-sphere" title="Use Custom Camera" onclick="openCustomCamera('${doc.name}')">
+                                <i class="fa-solid fa-camera"></i>
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    rowHtml += `
+                        <div class="btn-cell">
+                            <button class="btn-3d-sphere view-btn" title="View Document" onclick="toggleView('view-${idx}')">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
+                    `;
+                }
+
+                rowHtml += `</div>`; 
+
+                if (currentTab === 'uploaded') {
+                    let fileId = doc.uploadVal.split('|')[0].trim();
+                    let embedUrl = fileId.startsWith('http') ? fileId : `https://drive.google.com/file/d/${fileId}/preview`;
+                    rowHtml += `<div id="view-${idx}" class="accordion-body"><iframe class="accordion-iframe" data-src="${embedUrl}"></iframe></div>`;
+                }
+                rowHtml += `</div>`; 
+                container.innerHTML += rowHtml; rowIndex++;
+            });
+
+            if (rowIndex === 1) container.innerHTML = `<div style="text-align:center; padding: 20px; font-weight:bold; color:#666;">No documents found for this view.</div>`;
+        }
+
+        function toggleView(id) {
+            const el = document.getElementById(id); const iframe = el.querySelector('iframe');
+            if (el.classList.contains('open')) el.classList.remove('open');
+            else { if (!iframe.src) iframe.src = iframe.getAttribute('data-src'); el.classList.add('open'); }
+        }
+
+        function triggerFilePicker(docName) {
+            pendingUploadDocType = docName;
+            document.getElementById('pdfUploader').click();
+        }
+
+        document.getElementById('pdfUploader').addEventListener('change', async function(event) {
+            const files = event.target.files; if (!files || files.length === 0) return;
+            const docType = pendingUploadDocType;
+            showLoader(`Processing ${files.length} file(s)...`);
+            try {
+                const { PDFDocument } = window.PDFLib; const mergedPdf = await PDFDocument.create();
+
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    if (file.type === 'application/pdf') {
+                        const arrayBuffer = await file.arrayBuffer();
+                        const pdf = await PDFDocument.load(arrayBuffer);
+                        const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
+                        copiedPages.forEach((page) => mergedPdf.addPage(page));
+                    } else if (file.type.startsWith('image/')) {
+                        const dataUrl = await new Promise((res, rej) => { const r = new FileReader(); r.onload=e=>res(e.target.result); r.readAsDataURL(file); });
+                        const compressed = await compressImage(dataUrl, 1200); 
+                        const b64 = compressed.dataUrl.split(',')[1];
+                        const imageBytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+                        const image = await mergedPdf.embedJpg(imageBytes);
+                        const page = mergedPdf.addPage([compressed.width, compressed.height]);
+                        page.drawImage(image, { x: 0, y: 0, width: compressed.width, height: compressed.height });
+                    }
+                }
+                const finalPdfBase64 = await mergedPdf.saveAsBase64();
+                await executeUpload(finalPdfBase64, `${contractId} - ${docType}.pdf`, docType);
+            } catch (err) { hideLoader(); alert("Error: " + err.message); } finally { event.target.value = ""; }
+        });
+
+        let camStream = null;
+        let camTrack = null;
+        let capturedImages = []; 
+        let currentFilter = 'none';
+        
+        async function openCustomCamera(docName) {
+            pendingUploadDocType = docName;
+            const formattedName = formatDocName(docName);
+            document.getElementById('camTitle').innerText = formattedName;
+            document.getElementById('customCameraUI').classList.remove('hidden');
+            capturedImages = []; updateGalleryUI(); setCameraFilter('none');
+            
+            try {
+                camStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } } });
+                const video = document.getElementById('camVideo');
+                video.srcObject = camStream;
+                camTrack = camStream.getVideoTracks()[0];
+
+                const capabilities = camTrack.getCapabilities();
+                if (capabilities.zoom) document.getElementById('zoomControls').style.display = 'flex';
+                else document.getElementById('zoomControls').style.display = 'none';
+            } catch(err) {
+                alert("Camera access denied or unavailable: " + err.message);
+                closeCamera();
+            }
+        }
+
+        function closeCamera() {
+            if (camStream) { camStream.getTracks().forEach(track => track.stop()); camStream = null; }
+            document.getElementById('customCameraUI').classList.add('hidden');
+        }
+
+        function setCameraFilter(filterName) {
+            currentFilter = filterName;
+            const video = document.getElementById('camVideo');
+            video.className = `filter-${filterName}`; 
+            
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('f-' + filterName).classList.add('active');
+        }
+
+        function setZoom(level) {
+            if (!camTrack) return;
+            try {
+                camTrack.applyConstraints({ advanced: [{ zoom: level }] });
+                document.querySelectorAll('.zoom-btn').forEach(b => b.classList.remove('active'));
+                document.getElementById('z-' + level).classList.add('active');
+            } catch(e) { console.log("Zoom not supported", e); }
+        }
+
+        function takeSnapshot() {
+            const video = document.getElementById('camVideo');
+            const canvas = document.getElementById('camCanvas');
+            canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            
+            if (currentFilter === 'bw') ctx.filter = 'grayscale(100%) contrast(1.2)';
+            else if (currentFilter === 'enhanced') ctx.filter = 'contrast(1.3) saturate(1.4) brightness(1.1)';
+            else ctx.filter = 'none';
+
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+            capturedImages.push(dataUrl);
+            
+            const ui = document.getElementById('customCameraUI');
+            ui.style.background = 'white'; setTimeout(() => ui.style.background = 'black', 100);
+
+            updateGalleryUI();
+        }
+
+        function updateGalleryUI() {
+            const thumb = document.getElementById('camGalleryThumb');
+            const badge = document.getElementById('camBadge');
+            const saveBtn = document.getElementById('camSaveBtn');
+
+            if (capturedImages.length > 0) {
+                thumb.style.visibility = 'visible'; saveBtn.style.visibility = 'visible';
+                badge.innerText = capturedImages.length;
+                thumb.style.backgroundImage = `url(${capturedImages[capturedImages.length - 1]})`;
+            } else {
+                thumb.style.visibility = 'hidden'; saveBtn.style.visibility = 'hidden';
+            }
+        }
+
+        async function saveCapturedImages() {
+            if (capturedImages.length === 0) return;
+            const docType = pendingUploadDocType;
+            closeCamera();
+            showLoader(`Merging ${capturedImages.length} page(s) to PDF...`);
+
+            try {
+                const { PDFDocument } = window.PDFLib;
+                const mergedPdf = await PDFDocument.create();
+
+                for (let i = 0; i < capturedImages.length; i++) {
+                    const dataUrl = capturedImages[i];
+                    const compressed = await compressImage(dataUrl, 1200); 
+                    const b64 = compressed.dataUrl.split(',')[1];
+                    const imageBytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+                    
+                    const image = await mergedPdf.embedJpg(imageBytes);
+                    const page = mergedPdf.addPage([compressed.width, compressed.height]);
+                    page.drawImage(image, { x: 0, y: 0, width: compressed.width, height: compressed.height });
+                }
+
+                showLoader("Uploading to Server...");
+                const finalPdfBase64 = await mergedPdf.saveAsBase64();
+                await executeUpload(finalPdfBase64, `${contractId} - ${docType}.pdf`, docType);
+            } catch(err) { hideLoader(); alert("Error processing camera captures: " + err.message); }
+        }
+
+        function compressImage(imgData, maxDim) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => {
+                    let w = img.width; let h = img.height;
+                    if (w > maxDim || h > maxDim) {
+                        if (w > h) { h = Math.round((h * maxDim) / w); w = maxDim; } 
+                        else { w = Math.round((w * maxDim) / h); h = maxDim; }
+                    }
+                    const canvas = document.createElement('canvas'); canvas.width = w; canvas.height = h;
+                    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                    resolve({ dataUrl: canvas.toDataURL('image/jpeg', 0.8), width: w, height: h }); 
+                };
+                img.onerror = reject; img.src = imgData;
+            });
+        }
+
+        async function executeUpload(base64Data, fileName, docType) {
+            try {
+                const driveRes = await fetch(UPLOAD_API_URL, { method: 'POST', body: JSON.stringify({ base64Data, fileName, contractId }) });
+                const driveData = await driveRes.json();
+                if (!driveData.success) throw new Error(driveData.error);
+                
+                showLoader("Syncing Database...");
+                await updateSheetCell(docType.toUpperCase() + " UPLOADED", driveData.fileId);
+
+                let targetDoc = currentContractDocs.find(d => d.name === docType);
+                if (targetDoc) targetDoc.uploadVal = driveData.fileId; 
+                
+                alert("Upload Successful!"); hideLoader(); switchTab('uploaded');
+            } catch(error) { hideLoader(); alert("Upload failed: " + error.message); }
+        }
+
+        function columnToLetter(column) {
+            let temp, letter = '';
+            while (column > 0) { temp = (column - 1) % 26; letter = String.fromCharCode(temp + 65) + letter; column = (column - temp - 1) / 26; }
+            return letter;
+        }
+
+        async function updateSheetCell(colName, newVal) {
+            const token = await getAccessToken();
+            const colIndex = window._globalHeaders.indexOf(colName);
+            if (colIndex < 0) throw new Error(`Column "${colName}" not found.`);
+            const colLetter = columnToLetter(colIndex + 1);
+            const range = `UPLOAD!${colLetter}${contractRowNumber}`;
+
+            const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${range}?valueInputOption=USER_ENTERED`, {
+                method: "PUT", headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+                body: JSON.stringify({ range: range, majorDimension: "ROWS", values: [[newVal]] })
+            });
+            if (!res.ok) { const err = await res.json(); throw new Error(err.error.message); } return true;
+        }
+    </script>
+</body>
+</html>
