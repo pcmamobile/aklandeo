@@ -89,7 +89,7 @@
 <body class="flex flex-col items-center pt-4 pb-20 px-2">
 
     <!-- Login Screen Overlay -->
-    <div id="login-screen" class="fixed inset-0 z-[200] bg-[#fce4c8] flex flex-col items-center justify-center hidden">
+    <div id="login-screen" class="fixed inset-0 z-[9999] bg-[#fce4c8] flex flex-col items-center justify-center hidden">
         <div class="bg-white p-6 rounded-lg shadow-2xl w-80 flex flex-col gap-4 border-2 border-orange-500">
             <div class="flex justify-center mb-2">
                 <i class="fa-solid fa-lock text-4xl text-orange-500"></i>
@@ -108,7 +108,7 @@
     </div>
 
     <!-- Loader -->
-    <div id="loader" class="fixed inset-0 z-[100] bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center hidden">
+    <div id="loader" class="fixed inset-0 z-[9000] bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center hidden">
         <div class="spinner mb-4"></div>
         <h2 class="text-xl font-black text-slate-800 tracking-wider">Accessing SWA Database...</h2>
         <p class="text-sm font-bold text-slate-600 mt-2 text-center">Calculating global slippages & fetching live data</p>
@@ -118,18 +118,24 @@
     <div id="main-app" class="w-full max-w-2xl bg-transparent hidden">
         
         <!-- Top Navigation Bar (Hamburger + Tabs/Home) -->
-        <div class="flex w-full mb-1 relative">
+        <div class="flex w-full mb-1 relative z-[5000]">
             
             <!-- Hamburger Button -->
-            <button onclick="toggleSidebar()" class="w-12 flex-shrink-0 bg-[#4472c4] border-2 border-blue-900 shadow-md text-white flex items-center justify-center hover:bg-blue-700 transition-colors z-20 relative">
+            <button id="hamburger-btn" onclick="toggleSidebar()" class="w-12 flex-shrink-0 bg-[#4472c4] border-2 border-blue-900 shadow-md text-white flex items-center justify-center hover:bg-blue-700 transition-colors z-20 relative">
                 <i class="fa-solid fa-bars text-3xl"></i>
+            </button>
+            
+            <!-- Back Button -->
+            <button id="back-btn" onclick="switchMainView('home')" class="w-12 ml-1 flex-shrink-0 bg-slate-600 border-2 border-slate-800 shadow-md text-white hidden items-center justify-center hover:bg-slate-500 transition-colors z-20 relative" title="Back to Home">
+                <i class="fa-solid fa-arrow-left text-2xl"></i>
             </button>
 
             <!-- Dropdown Menu -->
-            <div id="sidebar-menu" class="hidden absolute top-full left-0 mt-[2px] w-[300px] bg-[#4472c4] border border-blue-900 shadow-2xl z-[90] text-white font-black text-lg flex flex-col p-3 tracking-wide">
-                <div class="cursor-pointer hover:bg-white/20 p-1 rounded" onclick="switchMainView('home')">HOME</div>
+            <div id="sidebar-menu" class="hidden absolute top-full left-0 mt-[2px] w-[300px] bg-[#4472c4] border border-blue-900 shadow-2xl z-[5050] text-white font-black text-lg flex flex-col p-3 tracking-wide">
+                <a href="index.html" class="block cursor-pointer hover:bg-white/20 p-1 rounded text-white no-underline">BACK TO MAIN PAGE</a>
+                <div class="cursor-pointer hover:bg-white/20 p-1 rounded leading-tight mt-1" onclick="switchMainView('home')">HOME</div>
                 <div class="cursor-pointer hover:bg-white/20 p-1 rounded leading-tight mt-1" onclick="switchMainView('monitoring')">SLIPPAGE, WEEKLY, BILLING</div>
-                <div class="cursor-pointer hover:bg-white/20 p-1 rounded leading-tight mt-1" onclick="switchMainView('monthly_cfa')">MONTHLY, CFA</div>
+                <div class="cursor-pointer hover:bg-white/20 p-1 rounded leading-tight mt-1" onclick="switchMainView('monthly_cfa')">MONTHLY, ACCEPTANCE</div>
                 
                 <div class="border-t-2 border-blue-900/50 my-2"></div>
                 
@@ -139,15 +145,15 @@
                 </div>
             </div>
 
-            <!-- Header Area: Home Title (Visible on Home view) -->
-            <div id="home-header" class="flex flex-1">
+            <!-- Header Area: Home Title -->
+            <div id="home-header" class="flex flex-1 ml-1">
                 <div class="flex-1 py-1 md:py-2 font-black text-xl md:text-2xl text-black bg-gradient-to-b from-orange-400 to-orange-500 shadow-md border border-orange-600 flex items-center justify-center tracking-widest uppercase">
                     Home
                 </div>
             </div>
 
-            <!-- Header Area: Monitoring Tabs (Hidden by default) -->
-            <div id="monitoring-tabs" class="flex flex-1 hidden">
+            <!-- Header Area: Monitoring Tabs -->
+            <div id="monitoring-tabs" class="flex flex-1 ml-1 hidden">
                 <button id="tab-slippage" onclick="switchTab('slippage')" class="flex-1 py-1 md:py-2 font-black text-sm md:text-lg text-black transition-all bg-gradient-to-b from-orange-400 to-orange-500 shadow-md tab-btn border border-orange-600">
                     SLIPPAGE
                 </button>
@@ -159,13 +165,13 @@
                 </button>
             </div>
 
-            <!-- Header Area: Monthly / CFA Tabs (Hidden by default) -->
-            <div id="monthly-tabs" class="flex flex-1 hidden">
+            <!-- Header Area: Monthly / ACCEPTANCE Tabs -->
+            <div id="monthly-tabs" class="flex flex-1 ml-1 hidden">
                 <button id="tab-monthly" onclick="switchTab('monthly')" class="flex-1 py-1 md:py-2 font-black text-sm md:text-lg text-black transition-all bg-gradient-to-b from-orange-400 to-orange-500 shadow-md tab-btn border border-orange-600">
                     MONTHLY
                 </button>
                 <button id="tab-cfa" onclick="switchTab('cfa')" class="flex-1 py-1 md:py-2 font-black text-sm md:text-lg text-black transition-all bg-gradient-to-b from-gray-300 to-gray-400 border border-gray-500 shadow-inner opacity-80">
-                    CFA
+                    ACCEPTANCE
                 </button>
             </div>
             
@@ -177,7 +183,7 @@
         </div>
 
         <!-- Data Container -->
-        <div id="data-container" class="flex flex-col gap-6">
+        <div id="data-container" class="flex flex-col gap-6 relative z-10">
             <!-- Dynamic Tables will be injected here -->
         </div>
 
@@ -185,8 +191,10 @@
 
     <script>
         // ====================================================================
-        // AUTHENTICATION LOGIC
+        // AUTHENTICATION LOGIC & STARTUP
         // ====================================================================
+        let isDataFetched = false; 
+
         function checkAuth() {
             const isAuth = localStorage.getItem('swa_auth');
             if (isAuth === 'true') {
@@ -222,11 +230,33 @@
             document.getElementById('main-app').classList.remove('hidden');
             const options = { month: 'long', day: 'numeric', year: 'numeric' };
             document.getElementById('current-date-display').innerText = _today.toLocaleDateString('en-US', options);
-            fetchDataAndProcess();
+            
+            if (!isDataFetched) {
+                fetchDataAndProcess();
+            } else {
+                renderView();
+            }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             checkAuth();
+        });
+        
+        window.addEventListener('pageshow', (event) => {
+            if (event.persisted) {
+                checkAuth();
+                document.getElementById('sidebar-menu').classList.add('hidden');
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            const sidebar = document.getElementById('sidebar-menu');
+            const hamburger = document.getElementById('hamburger-btn');
+            if (sidebar && !sidebar.classList.contains('hidden')) {
+                if (!sidebar.contains(e.target) && !hamburger.contains(e.target)) {
+                    sidebar.classList.add('hidden');
+                }
+            }
         });
 
         // ====================================================================
@@ -324,40 +354,42 @@
         let monthlyDataGlobal = []; 
         let homeSummary = {};
         
-        // Excluded Billings Mapping (Contract ID -> true)
+        // ACCEPTANCE TAB Data States
+        let acceptanceSubTab = 'coc'; 
+        let acceptanceCocSummary = {}; 
+        let acceptanceCfaSummary = {}; 
+        let acceptanceCocData = []; 
+        let acceptanceCfaData = []; 
+
         let excludedBillingContracts = new Set();
         let othersSheetMeta = { contractColIdx: 0, billingColIdx: 1, map: {}, nextRow: 4 };
 
         let globalPcmaColIdx = -1;
         let globalRemarksColIdx = -1;
 
-        // Undo History Stack
         let editHistory = []; 
         
-        // Navigation States
         let mainView = 'home'; 
         let activeTab = 'slippage'; 
         
-        // Grouping & Filters
         let generalGroupMode = 'pe'; 
         let billingGroupMode = 'contractor'; 
         
-        // WEEKLY specific filter
-        let weeklySelectedMonthOffset = -1; // Will initialize dynamically
+        let weeklySelectedMonthOffset = -1;
 
-        // MONTHLY specific filters & search
         let monthlyViewMode = 'standard'; 
-        let monthlyFilterYear = '2026'; 
+        let monthlyFilterYear = 'All'; 
         let monthlyFilterPe = 'All';
         let monthlyFilterStatus = 'All';
         let monthlySearchQuery = '';
+        let searchDebounceTimer = null; 
         
-        // Three Checkboxes for specific Pending filtering
+        let cfaFilterYear = 'All';
+
         let monthlyFilterPendingPCMA = false; 
         let monthlyFilterPendingActual = false; 
         let monthlyFilterPendingRemarks = false; 
         
-        // Independent Month Navigators
         let navYear = _today.getFullYear();
         let navMonth = _today.getMonth(); 
         
@@ -379,7 +411,6 @@
             2024: { head: "bg-gradient-to-b from-emerald-300 to-emerald-500", border: "border-emerald-600", rowOdd: "bg-[#e6ffe6]", rowEven: "bg-[#b3ffcc]" }
         };
 
-
         // ====================================================================
         // DATA FETCHING & PROCESSING
         // ====================================================================
@@ -388,7 +419,7 @@
                 document.getElementById('loader').classList.remove('hidden');
 
                 const token = await GoogleSheetsAPI.getAuthToken();
-                const batchUrl = `https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values:batchGet?ranges=SWA!A3:ZZ&ranges=ITEMS!A3:ZZ&ranges=VO!A3:ZZ&ranges=PDO!A3:ZZ`;
+                const batchUrl = `https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values:batchGet?ranges=SWA!A3:ZZ&ranges=ITEMS!A3:ZZ&ranges=VO!A3:ZZ&ranges=PDO!A3:ZZ&ranges=DATE!A3:ZZ`;
                 const othersUrl = `https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values/Others!A1:ZZ`;
                 
                 const [batchData, billingSheet, othersRes] = await Promise.all([
@@ -401,13 +432,13 @@
                 const dataITEMS = batchData.valueRanges[1] || { values: [] };
                 const dataVO = batchData.valueRanges[2] || { values: [] };
                 const dataPDO = batchData.valueRanges[3] || { values: [] };
+                const dataDATE = batchData.valueRanges[4] || { values: [] };
                 const dataOthers = othersRes || { values: [] };
 
                 const itemsLookup = buildItemsLookupMap(dataITEMS);
                 const voLookup = buildVoLookupMap(dataVO);
                 const pdoLookup = buildPdoLookupMap(dataPDO);
 
-                // Initialize Excluded Billings Data from "Others" Sheet
                 excludedBillingContracts.clear();
                 othersSheetMeta = { contractColIdx: 0, billingColIdx: 1, map: {}, nextRow: 4 };
 
@@ -423,7 +454,7 @@
                         const row = dataOthers.values[i];
                         const cid = String(row[othersSheetMeta.contractColIdx] || '').trim();
                         if (cid) {
-                            othersSheetMeta.map[cid] = i + 1; // 1-based sheet row indexing
+                            othersSheetMeta.map[cid] = i + 1; 
                             const billVal = String(row[othersSheetMeta.billingColIdx] || '').trim().toUpperCase();
                             if (billVal === 'X') {
                                 excludedBillingContracts.add(cid);
@@ -451,8 +482,12 @@
                 monitoringData = []; 
                 billingDataGlobal = []; 
                 monthlyDataGlobal = [];
+                
+                acceptanceCocSummary = {};
+                acceptanceCfaSummary = {};
+                acceptanceCocData = [];
+                acceptanceCfaData = [];
 
-                // 1. GENERATE HOME SUMMARY
                 const targetYears = [2026, 2025, 2024];
                 homeSummary = {};
                 
@@ -494,7 +529,6 @@
                     }
                 });
 
-                // 2. PROCESS SWA DATA
                 for (let i = 1; i < dataSWA.values.length; i++) {
                     const row = dataSWA.values[i];
                     while (row.length < headers.length) row.push('');
@@ -518,7 +552,6 @@
                     const schedulePercent = calculateSchedulePercent(row, headers, contractId, pdoLookup);
                     const slippage = actualPercent - schedulePercent;
                     
-                    // Pre-calculate Weekly History for ALL months up to current
                     const weeklyHistory = {};
                     if (is2026 && hasLogin) {
                         for (let mOffset = 0; mOffset <= CURRENT_MONTH_OFFSET; mOffset++) {
@@ -552,7 +585,6 @@
                     });
                 }
 
-                // 3. PROCESS BILLING DATA
                 const bValues = billingSheet.values;
                 const bColors = billingSheet.colorGrid;
 
@@ -638,8 +670,159 @@
                     }
                 }
 
+                const dateLookup = {};
+                if (dataDATE.values && dataDATE.values.length > 0) {
+                    const headersDATE = dataDATE.values[0].map(h => String(h || '').toUpperCase().trim());
+                    const colContractId = headersDATE.findIndex(h => h.includes('CONTRACTID') || h === 'CONTRACT' || h.includes('CONTRACT ID') || h.includes('CONTRACT'));
+                    const colCOC = headersDATE.findIndex(h => h.includes('DATE OF COC'));
+                    const colPunchlist = headersDATE.findIndex(h => h.includes('REMARKS YES/NO'));
+                    const colCFA = headersDATE.findIndex(h => h.includes('DATE OF CA'));
+                    const colCompletion = headersDATE.findIndex(h => h.includes('DATE OF COMPLETION') || h === 'COMPLETION');
+
+                    for (let i = 1; i < dataDATE.values.length; i++) {
+                        const row = dataDATE.values[i];
+                        const contractId = colContractId !== -1 && row[colContractId] ? String(row[colContractId]).trim() : '';
+                        if (!contractId) continue;
+                        dateLookup[contractId] = {
+                            coc: colCOC !== -1 && row[colCOC] ? String(row[colCOC]).trim() : '',
+                            ca: colCFA !== -1 && row[colCFA] ? String(row[colCFA]).trim() : '',
+                            punchlist: colPunchlist !== -1 && row[colPunchlist] ? String(row[colPunchlist]).trim() : '',
+                            completion: colCompletion !== -1 && row[colCompletion] ? String(row[colCompletion]).trim() : ''
+                        };
+                    }
+                }
+
+                // Calculate ACCEPTANCE Summaries (COC and CFA)
+                Object.keys(pdoLookup).forEach(contractId => {
+                    const pdo = pdoLookup[contractId];
+                    const year = parseInt(pdo.year);
+                    if (isNaN(year)) return;
+
+                    const fundStr = (pdo.fund || '').toUpperCase();
+                    if (fundStr.includes('MAINT')) return;
+
+                    if (!acceptanceCocSummary[year]) acceptanceCocSummary[year] = { total: 0, completed: 0, withCoc: 0, woCoc: 0 };
+                    if (!acceptanceCfaSummary[year]) acceptanceCfaSummary[year] = { total: 0, coc: 0, withCfa: 0, woCfa: 0 };
+
+                    acceptanceCocSummary[year].total++;
+                    acceptanceCfaSummary[year].total++;
+                    
+                    const statusStr = (pdo.status || '').toUpperCase();
+                    const dInfo = dateLookup[contractId] || {};
+                    
+                    const hasCOC = dInfo.coc && dInfo.coc !== '-' && !dInfo.coc.toLowerCase().includes('n/a');
+                    const hasCA = dInfo.ca && dInfo.ca !== '-' && !dInfo.ca.toLowerCase().includes('n/a');
+                    
+                    // Summarize COC logic (only for Completed)
+                    if (statusStr.includes('COMPLETED')) {
+                        acceptanceCocSummary[year].completed++;
+                        if (hasCOC) acceptanceCocSummary[year].withCoc++;
+                        else acceptanceCocSummary[year].woCoc++; 
+                    }
+
+                    // Summarize CFA logic (only for projects with COC)
+                    if (hasCOC) {
+                        acceptanceCfaSummary[year].coc++;
+                        if (hasCA) acceptanceCfaSummary[year].withCfa++;
+                        else acceptanceCfaSummary[year].woCfa++;
+                    }
+                });
+
+                const todayMs = new Date(_today.getFullYear(), _today.getMonth(), _today.getDate()).getTime();
+
+                // Calculate Detailed Table Data (COC and CFA)
+                Object.keys(dateLookup).forEach(contractId => {
+                    const dInfo = dateLookup[contractId];
+                    const pdoInfo = pdoLookup[contractId] || {};
+                    const fundStr = (pdoInfo.fund || '').toUpperCase();
+                    
+                    if (fundStr.includes('MAINT')) return;
+
+                    const statusStr = pdoInfo.status || '';
+
+                    let hasCompletionDate = dInfo.completion && dInfo.completion !== '-' && !dInfo.completion.toLowerCase().includes('n/a');
+                    let hasCOC = dInfo.coc && dInfo.coc !== '-' && !dInfo.coc.toLowerCase().includes('n/a');
+                    let hasCA = dInfo.ca && dInfo.ca !== '-' && !dInfo.ca.toLowerCase().includes('n/a');
+
+					// Push to COC Tab (Show only projects without COC)
+                    if (statusStr.toUpperCase().includes('COMPLETED') && !hasCOC) {
+                        let displayCompletion = '-';
+                        let displayCOC = '-';
+                        let daysLapsed = '-';
+                        
+                        if (hasCompletionDate) {
+                            let compDate = new Date(dInfo.completion);
+                            if (!isNaN(compDate.getTime())) {
+                                const compMs = new Date(compDate.getFullYear(), compDate.getMonth(), compDate.getDate()).getTime();
+                                daysLapsed = Math.round((todayMs - compMs) / 86400000);
+                                displayCompletion = `${compDate.getMonth() + 1}/${compDate.getDate()}/${compDate.getFullYear()}`;
+                            }
+                        }
+
+                        if (hasCOC) {
+                            let cocDate = new Date(dInfo.coc);
+                            if (!isNaN(cocDate.getTime())) {
+                                displayCOC = `${cocDate.getMonth() + 1}/${cocDate.getDate()}/${cocDate.getFullYear()}`;
+                            }
+                        }
+
+                        acceptanceCocData.push({
+                            contractId,
+                            status: statusStr,
+                            completedDate: displayCompletion,
+                            coc: displayCOC,
+                            lapsed: daysLapsed,
+                            year: String(pdoInfo.year || ''),
+                            pe: pdoInfo.pe || 'Unassigned',
+                            projectName: pdoInfo.projectName || '',
+                            location: pdoInfo.location || '',
+                            contractor: pdoInfo.contractor || '',
+                            contractAmount: voLookup[contractId] ? voLookup[contractId].amount : 0,
+                            ntp: pdoInfo.ntp || '-',
+                            expiry: pdoInfo.expiry || '-'
+                        });
+                    }
+
+                    // Push to CFA Tab (Projects with COC but no CA)
+                    if (hasCOC && !hasCA) {
+                        let displayCOC = '-';
+                        let daysRemaining = '-';
+                        
+                        let cocDate = new Date(dInfo.coc);
+                        if (!isNaN(cocDate.getTime())) {
+                            let targetDate = new Date(cocDate);
+                            targetDate.setFullYear(targetDate.getFullYear() + 1);
+                            const targetMs = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate()).getTime();
+                            daysRemaining = Math.round((targetMs - todayMs) / 86400000);
+                            displayCOC = `${cocDate.getMonth() + 1}/${cocDate.getDate()}/${cocDate.getFullYear()}`;
+                        }
+
+                        let punchlistRaw = (dInfo.punchlist || '').trim();
+                        let punchlistClean = '-';
+                        if (punchlistRaw.match(/^yes/i)) punchlistClean = 'Yes';
+                        else if (punchlistRaw.match(/^no/i)) punchlistClean = 'No';
+
+                        acceptanceCfaData.push({
+                            contractId,
+                            coc: displayCOC,
+                            punchlist: punchlistClean,
+                            cfa: '-',
+                            days: daysRemaining,
+                            year: String(pdoInfo.year || ''),
+                            pe: pdoInfo.pe || 'Unassigned',
+                            projectName: pdoInfo.projectName || '',
+                            location: pdoInfo.location || '',
+                            contractor: pdoInfo.contractor || '',
+                            contractAmount: voLookup[contractId] ? voLookup[contractId].amount : 0,
+                            ntp: pdoInfo.ntp || '-',
+                            expiry: pdoInfo.expiry || '-'
+                        });
+                    }
+                });
+
+                isDataFetched = true; 
                 document.getElementById('loader').classList.add('hidden');
-                renderView();
+                switchMainView(mainView); 
 
             } catch (err) {
                 console.error(err);
@@ -758,10 +941,9 @@
 
         window.toggleBillingExclusion = async function(contractId, checkboxEl) {
             const isChecked = checkboxEl.checked;
-            const isExcluded = !isChecked; // checked = computed; unchecked = 'X' = excluded
+            const isExcluded = !isChecked; 
             const val = isExcluded ? 'X' : '';
 
-            // Update UI State optimistically for immediate rendering
             if (isExcluded) excludedBillingContracts.add(contractId);
             else excludedBillingContracts.delete(contractId);
             
@@ -781,7 +963,6 @@
                 let url, body;
 
                 if (isNewRow) {
-                    // Create enough array spaces to fit Contract ID and BILLING columns
                     const maxCol = Math.max(othersSheetMeta.contractColIdx, othersSheetMeta.billingColIdx);
                     const rowData = new Array(maxCol + 1).fill('');
                     rowData[othersSheetMeta.contractColIdx] = contractId;
@@ -805,14 +986,12 @@
 
                 if (!res.ok) {
                     console.error("Failed to update Others sheet exclusion state.");
-                    // Revert locally if request fails
                     if (isExcluded) excludedBillingContracts.delete(contractId);
                     else excludedBillingContracts.add(contractId);
                     renderView();
                 }
             } catch (e) {
                 console.error("Error updating exclusion state:", e);
-                // Revert locally if request fails
                 if (isExcluded) excludedBillingContracts.delete(contractId);
                 else excludedBillingContracts.add(contractId);
                 renderView();
@@ -1013,16 +1192,30 @@
             document.getElementById('home-header').classList.add('hidden');
             document.getElementById('monitoring-tabs').classList.add('hidden');
             document.getElementById('monthly-tabs').classList.add('hidden');
+            
+            const backBtn = document.getElementById('back-btn');
 
             if (view === 'home') {
                 document.getElementById('home-header').classList.remove('hidden');
-                renderView();
+                if (backBtn) {
+                    backBtn.classList.add('hidden');
+                    backBtn.classList.remove('flex');
+                }
+                requestAnimationFrame(() => renderView());
             } else if (view === 'monitoring') {
                 document.getElementById('monitoring-tabs').classList.remove('hidden');
-                switchTab('slippage'); 
+                if (backBtn) {
+                    backBtn.classList.remove('hidden');
+                    backBtn.classList.add('flex');
+                }
+                requestAnimationFrame(() => switchTab('slippage'));
             } else if (view === 'monthly_cfa') {
                 document.getElementById('monthly-tabs').classList.remove('hidden');
-                switchTab('monthly'); 
+                if (backBtn) {
+                    backBtn.classList.remove('hidden');
+                    backBtn.classList.add('flex');
+                }
+                requestAnimationFrame(() => switchTab('monthly'));
             }
         }
 
@@ -1040,7 +1233,7 @@
                     }
                 }
             });
-            renderView();
+            requestAnimationFrame(() => renderView());
         }
 
         function changeBillingGroupMode(mode) { billingGroupMode = mode; renderView(); }
@@ -1060,16 +1253,29 @@
             if (type === 'pendingRemarks') monthlyFilterPendingRemarks = val;
             renderView();
         }
+        
+        function changeCfaFilter(type, val) {
+            if (type === 'year') cfaFilterYear = val;
+            renderView();
+        }
 
         function changeMonthlyViewMode(val) {
             monthlyViewMode = val;
             renderView();
         }
-
-        function changeMonthlySearch(val) {
-            monthlySearchQuery = val;
+        
+        window.switchAcceptanceSubTab = function(tab) {
+            acceptanceSubTab = tab;
             renderView();
-        }
+        };
+
+        window.debounceMonthlySearch = function(val) {
+            if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
+            searchDebounceTimer = setTimeout(() => {
+                monthlySearchQuery = val;
+                renderView();
+            }, 300);
+        };
         
         function navMonthBack() { navMonth--; if (navMonth < 0) { navMonth = 11; navYear--; } renderView(); }
         function navMonthForward() { navMonth++; if (navMonth > 11) { navMonth = 0; navYear++; } renderView(); }
@@ -1119,6 +1325,21 @@
             return `<span class="text-rose-600 font-extrabold text-lg">✘</span>`;
         }
 
+        function resizeTextareasSmoothly() {
+            const textareas = Array.from(document.querySelectorAll('textarea')).filter(ta => ta.value && ta.value !== '-');
+            if (textareas.length === 0) return;
+            
+            requestAnimationFrame(() => {
+                textareas.forEach(ta => ta.style.height = 'auto');
+                requestAnimationFrame(() => {
+                    const heights = textareas.map(ta => ta.scrollHeight);
+                    requestAnimationFrame(() => {
+                        textareas.forEach((ta, i) => ta.style.height = heights[i] + 'px');
+                    });
+                });
+            });
+        }
+
         function renderView() {
             const activeElemId = document.activeElement ? document.activeElement.id : null;
             const container = document.getElementById('data-container');
@@ -1144,7 +1365,6 @@
                         sumTerminated += homeSummary[year][f].terminated;
                     });
 
-                    // Only display the Year Block if there is actual data inside it
                     if (sumTotal > 0) {
                         let sumDenominator = sumTotal - sumNys - sumTerminated;
                         let sumPct = '0%';
@@ -1186,7 +1406,6 @@
                         funds.forEach((f) => {
                             const data = homeSummary[year][f];
                             
-                            // Only display specific funds if they have data
                             if (data.total > 0) {
                                 const rowColor = visibleIdx % 2 === 0 ? theme.rowOdd : theme.rowEven;
                                 visibleIdx++;
@@ -1236,7 +1455,6 @@
                 const groupedData = {};
                 
                 filteredBills.forEach(b => {
-                    // Check exclusion based on "Others" sheet mapping
                     const isExcluded = excludedBillingContracts.has(b.contractId);
 
                     if (!isExcluded) {
@@ -1279,7 +1497,6 @@
 
                 html += `
                     <div class="w-full flex flex-col gap-4 mb-6 font-black text-[#0f3b75] drop-shadow-sm">
-                        <!-- BLOCK 1: TOTAL -->
                         <div class="flex w-full">
                             <div class="w-[35%] bg-[#a9d18e] px-3 py-1.5 md:py-2 flex justify-between items-center text-base md:text-lg border-2 border-white">
                                 <span>TOTAL</span><span>=</span>
@@ -1289,7 +1506,6 @@
                             </div>
                         </div>
 
-                        <!-- BLOCK 2: PRIOR & CURRENT -->
                         <div class="flex flex-col w-full">
                             <div class="flex w-full">
                                 <div class="w-[35%] bg-[#ffd966] px-3 py-1.5 md:py-2 flex justify-between items-center text-base md:text-lg border-2 border-white">
@@ -1309,7 +1525,6 @@
                             </div>
                         </div>
 
-                        <!-- BLOCK 3: DAR & MAINT -->
                         <div class="flex flex-col w-full">
                             <div class="flex w-full">
                                 <div class="w-[35%] bg-[#9bc2e6] px-3 py-1.5 md:py-2 flex justify-between items-center text-base md:text-lg border-2 border-white">
@@ -1412,7 +1627,6 @@
                     if (activeTab === 'slippage') {
                         if (project.slippage <= -5.00) filteredData.push(project);
                     } else if (activeTab === 'weekly') {
-                        // Display all active login projects for the weekly tracking list
                         if (project.is2026 && project.hasLogin) filteredData.push(project);
                     }
                 });
@@ -1436,7 +1650,6 @@
                     </div>
                 `;
 
-                // Render dynamic month tabs specifically for Weekly Tab
                 if (activeTab === 'weekly') {
                     html += `<div class="w-full flex overflow-x-auto shadow-sm border-y border-yellow-600 mb-4 bg-[#fff2cc] no-scrollbar">`;
                     for(let m = 0; m <= CURRENT_MONTH_OFFSET; m++) {
@@ -1528,11 +1741,214 @@
             }
 
             // -------------------------------------------------------------
-            // MONTHLY & CFA VIEW (MONTHLY TAB)
+            // MONTHLY & ACCEPTANCE VIEW
             // -------------------------------------------------------------
             else if (mainView === 'monthly_cfa') {
                 if (activeTab === 'cfa') {
-                    container.innerHTML = `<div class="text-center py-10 font-black text-slate-500 opacity-60"><i class="fa-solid fa-person-digging text-4xl mb-3 block"></i> CFA Module in progress...</div>`;
+                    const allYears = [...new Set([...Object.keys(acceptanceCocSummary), ...Object.keys(acceptanceCfaSummary)])].sort().reverse();
+                    
+                    let html = `
+                        <div class="w-full mb-4 bg-white border-[3px] border-red-600 shadow-sm relative group overflow-hidden">
+                            <select onchange="changeCfaFilter('year', this.value)" class="w-full text-center text-xl md:text-2xl font-black text-[#0f3b75] py-1.5 outline-none cursor-pointer bg-transparent appearance-none relative z-10">
+                                <option value="All" ${cfaFilterYear === 'All' ? 'selected' : ''}>All Years</option>
+                                ${allYears.map(y => `<option value="${y}" ${cfaFilterYear === String(y) ? 'selected' : ''}>${y}</option>`).join('')}
+                            </select>
+                            <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none z-0">
+                                <i class="fa-solid fa-chevron-down text-red-600 text-lg group-hover:translate-y-0.5 transition-transform"></i>
+                            </div>
+                        </div>
+                    `;
+
+                    let displayYears = cfaFilterYear === 'All' ? allYears : [cfaFilterYear];
+                    
+                    let cocTabClass = acceptanceSubTab === 'coc' 
+                        ? "py-1.5 border-b-2 border-orange-500 bg-gradient-to-b from-orange-300 to-orange-500 text-black font-black text-base md:text-xl tracking-wider cursor-pointer shadow-inner" 
+                        : "py-1.5 border-b-2 border-r-2 border-gray-400 bg-gradient-to-b from-gray-200 to-gray-300 text-black font-black text-base md:text-xl tracking-wider cursor-pointer hover:brightness-95";
+                        
+                    let cfaTabClass = acceptanceSubTab === 'cfa' 
+                        ? "py-1.5 border-b-2 border-orange-500 bg-gradient-to-b from-orange-300 to-orange-500 text-black font-black text-base md:text-xl tracking-wider cursor-pointer shadow-inner" 
+                        : "py-1.5 border-b-2 border-l-2 border-gray-400 bg-gradient-to-b from-gray-200 to-gray-300 text-black font-black text-base md:text-xl tracking-wider cursor-pointer hover:brightness-95";
+
+                    html += `
+                        <table class="w-full text-center border-collapse text-sm md:text-base font-bold text-[#0f3b75] bg-white shadow-md mb-6">
+                            <thead>
+                                <tr>
+                                    <th colspan="3" class="${cocTabClass}" onclick="switchAcceptanceSubTab('coc')">COC</th>
+                                    <th colspan="2" class="${cfaTabClass}" onclick="switchAcceptanceSubTab('cfa')">CFA</th>
+                                </tr>
+                    `;
+
+                    if (acceptanceSubTab === 'coc') {
+                        html += `
+                                <tr class="italic text-[11px] md:text-sm border-b border-red-500 bg-[#f8f9fa]">
+                                    <th class="py-2 px-1 md:px-2 border-r border-dotted border-red-500 font-extrabold w-[16%]">Year</th>
+                                    <th class="py-2 px-1 md:px-2 border-r border-dotted border-red-500 font-extrabold w-[21%]">Total</th>
+                                    <th class="py-2 px-1 md:px-2 border-r border-dotted border-red-500 font-extrabold w-[21%]">Completed</th>
+                                    <th class="py-2 px-1 md:px-2 border-r border-dotted border-red-500 font-extrabold w-[21%]">with COC</th>
+                                    <th class="py-2 px-1 md:px-2 font-extrabold w-[21%]">w/o COC</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                        `;
+                    } else {
+                        html += `
+                                <tr class="italic text-[11px] md:text-sm border-b border-red-500 bg-[#f8f9fa]">
+                                    <th class="py-2 px-1 md:px-2 border-r border-dotted border-red-500 font-extrabold w-[16%]">Year</th>
+                                    <th class="py-2 px-1 md:px-2 border-r border-dotted border-red-500 font-extrabold w-[21%]">Total</th>
+                                    <th class="py-2 px-1 md:px-2 border-r border-dotted border-red-500 font-extrabold w-[21%]">COC</th>
+                                    <th class="py-2 px-1 md:px-2 border-r border-dotted border-red-500 font-extrabold w-[21%]">with CFA</th>
+                                    <th class="py-2 px-1 md:px-2 font-extrabold w-[21%]">w/o CFA</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                        `;
+                    }
+                    
+                    let grandTotal = 0;
+                    let grandCompletedOrCoc = 0;
+                    let grandWith = 0;
+                    let grandWo = 0;
+
+                    displayYears.forEach(y => {
+                        if (acceptanceSubTab === 'coc') {
+                            const sum = acceptanceCocSummary[y] || { total: 0, completed: 0, withCoc: 0, woCoc: 0 };
+                            grandTotal += sum.total;
+                            grandCompletedOrCoc += sum.completed;
+                            grandWith += sum.withCoc;
+                            grandWo += sum.woCoc;
+
+                            html += `
+                                <tr class="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                                    <td class="py-1.5 px-1 md:px-2 border-r border-dotted border-red-500 font-black text-lg md:text-xl text-[#0f3b75]">${y}</td>
+                                    <td class="py-1.5 px-1 md:px-2 border-r border-dotted border-red-500 text-base md:text-lg">${sum.total > 0 ? sum.total : '-'}</td>
+                                    <td class="py-1.5 px-1 md:px-2 border-r border-dotted border-red-500 text-base md:text-lg">${sum.completed > 0 ? sum.completed : '-'}</td>
+                                    <td class="py-1.5 px-1 md:px-2 border-r border-dotted border-red-500 text-base md:text-lg">${sum.withCoc > 0 ? sum.withCoc : '-'}</td>
+                                    <td class="py-1.5 px-1 md:px-2 text-base md:text-lg">${sum.woCoc > 0 ? sum.woCoc : '-'}</td>
+                                </tr>
+                            `;
+                        } else {
+                            const sum = acceptanceCfaSummary[y] || { total: 0, coc: 0, withCfa: 0, woCfa: 0 };
+                            grandTotal += sum.total;
+                            grandCompletedOrCoc += sum.coc;
+                            grandWith += sum.withCfa;
+                            grandWo += sum.woCfa;
+
+                            html += `
+                                <tr class="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                                    <td class="py-1.5 px-1 md:px-2 border-r border-dotted border-red-500 font-black text-lg md:text-xl text-[#0f3b75]">${y}</td>
+                                    <td class="py-1.5 px-1 md:px-2 border-r border-dotted border-red-500 text-base md:text-lg">${sum.total > 0 ? sum.total : '-'}</td>
+                                    <td class="py-1.5 px-1 md:px-2 border-r border-dotted border-red-500 text-base md:text-lg">${sum.coc > 0 ? sum.coc : '-'}</td>
+                                    <td class="py-1.5 px-1 md:px-2 border-r border-dotted border-red-500 text-base md:text-lg">${sum.withCfa > 0 ? sum.withCfa : '-'}</td>
+                                    <td class="py-1.5 px-1 md:px-2 text-base md:text-lg">${sum.woCfa > 0 ? sum.woCfa : '-'}</td>
+                                </tr>
+                            `;
+                        }
+                    });
+
+                    if (cfaFilterYear === 'All') {
+                        html += `
+                            <tr class="bg-gradient-to-b from-[#ffcccc] to-[#ffb3b3] border-t-2 border-red-600 shadow-inner">
+                                <td class="py-1.5 px-1 md:px-2 border-r border-dotted border-red-500 font-black text-base md:text-xl text-red-800 uppercase tracking-wider">Total</td>
+                                <td class="py-1.5 px-1 md:px-2 border-r border-dotted border-red-500 font-black text-base md:text-xl text-red-900">${grandTotal > 0 ? grandTotal : '-'}</td>
+                                <td class="py-1.5 px-1 md:px-2 border-r border-dotted border-red-500 font-black text-base md:text-xl text-red-900">${grandCompletedOrCoc > 0 ? grandCompletedOrCoc : '-'}</td>
+                                <td class="py-1.5 px-1 md:px-2 border-r border-dotted border-red-500 font-black text-base md:text-xl text-red-900">${grandWith > 0 ? grandWith : '-'}</td>
+                                <td class="py-1.5 px-1 md:px-2 font-black text-base md:text-xl text-red-900">${grandWo > 0 ? grandWo : '-'}</td>
+                            </tr>
+                        `;
+                    }
+                    
+                    html += `</tbody></table>`;
+
+                    const dataToRender = acceptanceSubTab === 'coc' ? acceptanceCocData : acceptanceCfaData;
+                    const filteredData = dataToRender.filter(item => cfaFilterYear === 'All' || item.year === cfaFilterYear);
+
+                    if (filteredData.length === 0) {
+                        html += `<div class="text-center py-10 font-black text-slate-500 opacity-60"><i class="fa-solid fa-check-circle text-4xl mb-3 block"></i> No projects to show in this view!</div>`;
+                    } else {
+                        const grouped = {};
+                        filteredData.forEach(item => {
+                            if (!grouped[item.pe]) grouped[item.pe] = [];
+                            grouped[item.pe].push(item);
+                        });
+
+                        const sortedPEs = Object.keys(grouped).sort();
+                        
+                        sortedPEs.forEach((pe, index) => {
+                            const theme = PE_THEMES[index % PE_THEMES.length];
+                            const projects = grouped[pe];
+
+                            html += `
+                                <div class="w-full flex flex-col shadow-md mb-6">
+                                    <div class="${theme.header} px-4 py-1.5 font-black text-lg md:text-xl tracking-tight shadow-sm z-10 relative flex justify-between items-center">
+                                        <span>${pe}</span>
+                                        <span class="text-red-600 drop-shadow-[0_1px_1px_rgba(255,255,255,0.7)] text-xl md:text-2xl">${projects.length}</span>
+                                    </div>
+                                    <table class="w-full text-center border-collapse text-sm font-bold text-black bg-white">
+                                        <thead>
+                                            <tr class="bg-[#fff9f2] italic text-xs md:text-sm">
+                            `;
+
+                            if (acceptanceSubTab === 'coc') {
+                                html += `
+                                                <th class="py-1.5 px-2 dotted-border font-extrabold text-black w-[25%]">Contract ID</th>
+                                                <th class="py-1.5 px-2 dotted-border font-extrabold text-black w-[22%]">Status</th>
+                                                <th class="py-1.5 px-2 dotted-border font-extrabold text-black w-[22%]">Completed</th>
+                                                <th class="py-1.5 px-2 dotted-border font-extrabold text-black w-[15%]">COC</th>
+                                                <th class="py-1.5 px-2 font-extrabold text-black w-[16%]">Lapsed</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                `;
+                            } else {
+                                html += `
+                                                <th class="py-1.5 px-2 dotted-border font-extrabold text-black w-[25%]">Contract ID</th>
+                                                <th class="py-1.5 px-2 dotted-border font-extrabold text-black w-[22%]">COC</th>
+                                                <th class="py-1.5 px-2 dotted-border font-extrabold text-black w-[22%]">PUNCHLIST</th>
+                                                <th class="py-1.5 px-2 dotted-border font-extrabold text-black w-[15%]">CFA</th>
+                                                <th class="py-1.5 px-2 font-extrabold text-black w-[16%]">Days</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                `;
+                            }
+
+                            projects.forEach((p, idx) => {
+                                const rowColor = idx % 2 === 0 ? theme.rowOdd : theme.rowEven;
+                                const uniqueId = `acc-details-${index}-${idx}`;
+                                
+                                html += `<tr class="${rowColor} border-t border-gray-300/50 cursor-pointer hover:brightness-95 transition-all" onclick="toggleDetails('${uniqueId}')">`;
+                                
+                                if (acceptanceSubTab === 'coc') {
+                                    let lapsedColor = p.lapsed === '-' ? 'text-gray-500' : 'text-red-600';
+                                    html += `
+                                        <td class="py-1.5 px-2 dotted-border font-extrabold text-sm md:text-base tracking-wider">${p.contractId}</td>
+                                        <td class="py-1.5 px-2 dotted-border font-extrabold text-xs md:text-sm text-black">${p.status}</td>
+                                        <td class="py-1.5 px-2 dotted-border font-extrabold text-xs md:text-sm text-black">${p.completedDate}</td>
+                                        <td class="py-1.5 px-2 dotted-border font-extrabold text-sm md:text-base text-black">${p.coc}</td>
+                                        <td class="py-1.5 px-2 font-black text-sm md:text-base ${lapsedColor}">${p.lapsed}</td>
+                                    `;
+                                } else {
+                                    let daysColor = p.days === '-' ? 'text-gray-500' : (p.days < 0 ? 'text-red-600' : 'text-emerald-500');
+                                    let daysDisplay = p.days === '-' ? '-' : (p.days < 0 ? `- ${Math.abs(p.days)}` : `${p.days}`);
+                                    let punchlistColor = p.punchlist === 'Yes' ? 'text-red-600' : 'text-black';
+                                    
+                                    html += `
+                                        <td class="py-1.5 px-2 dotted-border font-extrabold text-sm md:text-base tracking-wider">${p.contractId}</td>
+                                        <td class="py-1.5 px-2 dotted-border font-extrabold text-xs md:text-sm">${p.coc}</td>
+                                        <td class="py-1.5 px-2 dotted-border font-extrabold text-xs md:text-sm ${punchlistColor}">${p.punchlist}</td>
+                                        <td class="py-1.5 px-2 dotted-border font-extrabold text-sm md:text-base">${p.cfa}</td>
+                                        <td class="py-1.5 px-2 font-black text-sm md:text-base ${daysColor}">${daysDisplay}</td>
+                                    `;
+                                }
+
+                                html += `</tr>${generateDetailsRow(uniqueId, 5, p)}`;
+                            });
+                            
+                            html += `</tbody></table></div>`;
+                        });
+                    }
+                    container.innerHTML = html;
+
                 } else {
                     const targetMonthOffset = (monthlyNavYear - START_YEAR) * 12 + monthlyNavMonth;
                     
@@ -1547,13 +1963,12 @@
 
                     let html = `
                         <div class="w-full flex flex-col gap-2 mb-4">
-                            <!-- Search Bar -->
                             <div class="relative w-full">
                                 <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                                <input type="text" id="monthly-search" placeholder="Search Contract ID, Project, Contractor..." value="${monthlySearchQuery}" class="w-full border-2 border-orange-500 pl-10 pr-3 py-1.5 rounded-md text-sm md:text-base font-bold outline-none text-slate-700 shadow-sm" onkeyup="changeMonthlySearch(this.value)">
+                                <!-- Using Debounce for the keyup to prevent lag -->
+                                <input type="text" id="monthly-search" placeholder="Search Contract ID, Project, Contractor..." value="${monthlySearchQuery}" class="w-full border-2 border-orange-500 pl-10 pr-3 py-1.5 rounded-md text-sm md:text-base font-bold outline-none text-slate-700 shadow-sm" onkeyup="debounceMonthlySearch(this.value)">
                             </div>
 
-                            <!-- View Mode Selector (Trend / History Mode) -->
                             <div class="w-full">
                                 <select onchange="changeMonthlyViewMode(this.value)" class="w-full border-2 border-[#4472c4] text-[#0f3b75] font-black text-center py-1.5 text-sm md:text-base outline-none cursor-pointer shadow-sm bg-[#e6f0ff] rounded-md transition-colors hover:bg-[#d9e6ff]">
                                     <option value="standard" ${monthlyViewMode === 'standard' ? 'selected' : ''}>Standard Mode (Current Month)</option>
@@ -1562,7 +1977,6 @@
                                 </select>
                             </div>
 
-                            <!-- Filters & Undo Row -->
                             <div class="flex flex-col md:flex-row gap-2">
                                 <select onchange="changeMonthlyFilter('year', this.value)" class="flex-1 border-2 border-orange-500 text-[#0f3b75] font-black text-center py-1.5 text-sm md:text-base outline-none cursor-pointer shadow-sm bg-white rounded-md">
                                     <option value="All" ${monthlyFilterYear === 'All' ? 'selected' : ''}>All Years</option>
@@ -1577,13 +1991,11 @@
                                     ${allStatuses.map(s => `<option value="${s}" ${monthlyFilterStatus===s?'selected':''}>${s}</option>`).join('')}
                                 </select>
 
-                                <!-- Undo Button -->
                                 <button onclick="undoLastEdit()" id="undo-btn" class="${undoBtnClass} text-white font-black text-center py-1.5 px-4 text-sm md:text-base outline-none shadow-sm rounded-md transition-all flex items-center justify-center gap-2 active:scale-95" ${undoBtnState}>
                                     <i class="fa-solid fa-rotate-left"></i> UNDO
                                 </button>
                             </div>
 
-                            <!-- Monthly Navigation -->
                             <div class="flex items-center justify-center gap-6 text-[#0f3b75] font-black mt-3 mb-1">
                                 <button onclick="navMonthlyBack()" class="hover:scale-110 active:scale-95 transition-transform"><i class="fa-solid fa-arrow-left text-[#3b5998] text-3xl drop-shadow-md"></i></button>
                                 <span class="w-40 text-center text-xl tracking-tight">${monthsArr[monthlyNavMonth]} ${monthlyNavYear}</span>
@@ -1592,7 +2004,6 @@
                         </div>
                     `;
 
-                    // Process dynamic monthly view data 
                     let filteredMonthly = monthlyDataGlobal.map(item => {
                         const ntpOffset = parseNtpToOffset(item.ntp);
                         const monthDiff = targetMonthOffset - ntpOffset;
@@ -1606,7 +2017,6 @@
                         let isPcmaUpdated = false;
                         let isRemarksUpdated = false;
 
-                        // Pre-calculate 4-month trend data
                         let trendData = [];
                         for (let i = 0; i < 4; i++) {
                             let colOffset = targetMonthOffset - 3 + i; 
@@ -1622,7 +2032,6 @@
                                 const mParts = (item.monthlyRaw || '').split('|').map(p => p.trim());
                                 actualVal = cleanActualVal(mParts[itemMonthDiff] || '');
 
-                                // Calculate Trend Indicator
                                 let prevMonthDiff = itemMonthDiff - 1;
                                 let prevActualVal = prevMonthDiff >= 0 ? cleanActualVal(mParts[prevMonthDiff] || '') : '-';
                                 
@@ -1669,7 +2078,6 @@
                         const matchPe = monthlyFilterPe === 'All' || item.pe === monthlyFilterPe;
                         const matchStatus = monthlyFilterStatus === 'All' || item.status === monthlyFilterStatus;
                         
-                        // New individual Pending logic matching checkboxes
                         const matchPendingPcma = !monthlyFilterPendingPCMA || (!item.isPcmaUpdated && !item.isBeforeNTP);
                         const matchPendingActual = !monthlyFilterPendingActual || (!item.isActualUpdated && !item.isBeforeNTP);
                         const matchPendingRemarks = !monthlyFilterPendingRemarks || (!item.isRemarksUpdated && !item.isBeforeNTP);
@@ -1704,10 +2112,8 @@
 
                             html += `<div class="w-full flex flex-col shadow-md mb-6">`;
 
-                            // TABLE HEADER GENERATION BASED ON VIEW MODE
                             if (monthlyViewMode === 'standard') {
                                 html += `
-                                    <!-- STANDARD CUSTOM HEADER WITH CHECKBOXES -->
                                     <div class="${theme.head} ${theme.border} border flex font-black text-xl tracking-tight shadow-sm text-black">
                                         <div class="w-[25%] px-2 md:px-4 py-1.5 flex items-center whitespace-nowrap">CY ${yearGrp}</div>
                                         <div class="w-[20%] py-1.5 flex justify-center items-center">
@@ -1733,10 +2139,8 @@
                                         <tbody>
                                 `;
                             } else {
-                                // TREND HEADER
                                 const titleColor = monthlyViewMode === 'pcma' ? 'text-red-600' : 'text-blue-700';
                                 html += `
-                                    <!-- TREND CUSTOM HEADER -->
                                     <div class="${theme.head} ${theme.border} border flex font-black text-xl tracking-tight shadow-sm text-black">
                                         <div class="w-[25%] px-2 md:px-4 py-1.5 flex items-center whitespace-nowrap">CY ${yearGrp}</div>
                                         <div class="w-[75%] py-1.5 flex justify-center items-center ${titleColor} uppercase tracking-widest font-black text-2xl md:text-3xl drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)]">
@@ -1766,7 +2170,6 @@
                                         <tr class="${rowColor} border-t border-gray-300/50 cursor-pointer hover:brightness-95 transition-all text-black" onclick="toggleDetails('${uniqueId}')">
                                             <td class="py-2 px-1 dotted-border text-center font-extrabold md:text-lg tracking-wider overflow-hidden">${p.contractId}</td>
                                             
-                                            <!-- Editable PCMA Column -->
                                             <td class="py-1 px-1 dotted-border text-center">
                                                 ${p.isBeforeNTP ? '<span class="text-xs text-gray-500 font-bold italic">Before NTP</span>' : `
                                                 <div class="w-full" onclick="event.stopPropagation()">
@@ -1780,14 +2183,12 @@
                                                 `}
                                             </td>
 
-                                            <!-- Actual Month Display -->
                                             <td class="py-2 px-1 dotted-border font-black text-center text-[13px] md:text-base">
                                                 ${p.isBeforeNTP ? '<span class="text-xs text-gray-500 font-bold italic">Before NTP</span>' : `
                                                 <span>${p.displayActual}</span>
                                                 `}
                                             </td>
                                             
-                                            <!-- Editable Remarks Column -->
                                             <td class="py-1 px-1 text-center">
                                                 ${p.isBeforeNTP ? '<span class="text-xs text-gray-500 font-bold italic">Before NTP</span>' : `
                                                 <div class="w-full" onclick="event.stopPropagation()">
@@ -1827,7 +2228,6 @@
                                                 </div>
                                             `;
                                         } else {
-                                            // Actual view with indicators
                                             let iconHtml = '';
                                             if (t.indicator === 'up') {
                                                 iconHtml = `<i class="fa-solid fa-arrow-up text-[#34d399] text-[13px] md:text-[15px]" style="-webkit-text-stroke: 1px #064e3b;"></i>`;
@@ -1857,7 +2257,6 @@
                                     html += `</tr>`;
                                 }
 
-                                // Shared Expanded Details View for both modes
                                 html += `
                                     <tr id="${uniqueId}" class="hidden bg-white shadow-inner text-xs md:text-sm text-black">
                                         <td colspan="${monthlyViewMode === 'standard' ? '4' : '5'}" class="px-2 py-2">
@@ -1892,15 +2291,9 @@
                     }
                     container.innerHTML = html;
 
-                    // Automatically resize all textareas to fit their initial content immediately after rendering
+                    // FAST-DOM Call to smoothly resize all textareas exactly once without freezing the UI
                     if (monthlyViewMode === 'standard') {
-                        setTimeout(() => {
-                            const textareas = document.querySelectorAll('textarea');
-                            textareas.forEach(ta => {
-                                ta.style.height = 'auto';
-                                ta.style.height = ta.scrollHeight + 'px';
-                            });
-                        }, 10);
+                        resizeTextareasSmoothly();
                     }
                 }
             }
