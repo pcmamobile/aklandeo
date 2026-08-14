@@ -1542,7 +1542,12 @@
 
                 const itemTextColor = hasUpdateThisWeek ? 'text-blue-700' : 'text-slate-800';
                 const toDateTextColor = hasUpdateThisWeek ? 'text-blue-600' : 'text-emerald-800';
-                const inputDisabledAttr = isLocked ? "disabled" : "";
+                
+                // NEW: Logic that locks inputs if Target Quantity is zero
+                const isItemLocked = isLocked || metrics.targetQuantity <= 0;
+                const inputDisabledAttr = isItemLocked ? "disabled" : "";
+                const inputPlaceholder = metrics.targetQuantity <= 0 ? "VO=0" : (isLocked ? "-" : "0.00");
+                const lockClass = isItemLocked ? "opacity-60 cursor-not-allowed" : "";
                 
                 const w1 = metrics.thisPeriodWeeks[0] !== '' ? formatNum(metrics.thisPeriodWeeks[0]) : '-';
                 const w2 = metrics.thisPeriodWeeks[1] !== '' ? formatNum(metrics.thisPeriodWeeks[1]) : '-';
@@ -1592,8 +1597,8 @@
                                 <div class="flex flex-col items-center"><span class="uppercase text-[7px] tracking-wider mb-0.5">Wk4</span><span class="text-slate-800 font-black">${w4}</span></div>
                             </div>
                             <div class="flex flex-col items-center border-l border-orange-200 pl-3">
-                                <span class="text-[8px] ${isLocked ? 'text-slate-400' : 'text-blue-600'} font-black uppercase mb-0.5 tracking-wider">Update Wk${appState.activeWeekIndex + 1}</span>
-                                <input type="number" step="any" min="0" value="${activeWeekVal}" ${inputDisabledAttr} oninput="onItemSingleWeeklyEdit(this, ${index}, ${workingItem.colIndex}, ${workingItem.rowNumber})" placeholder="${isLocked ? '-' : '0.00'}" class="w-16 sm:w-20 bg-[#d1e4ff] border border-blue-300 rounded p-1.5 text-[11px] text-center font-black outline-none focus:border-blue-500 text-slate-900 ${isLocked?'opacity-60 cursor-not-allowed':''}">
+                                <span class="text-[8px] ${isItemLocked ? 'text-slate-400' : 'text-blue-600'} font-black uppercase mb-0.5 tracking-wider">Update Wk${appState.activeWeekIndex + 1}</span>
+                                <input type="number" step="any" min="0" value="${activeWeekVal}" ${inputDisabledAttr} oninput="onItemSingleWeeklyEdit(this, ${index}, ${workingItem.colIndex}, ${workingItem.rowNumber})" placeholder="${inputPlaceholder}" class="w-16 sm:w-20 bg-[#d1e4ff] border border-blue-300 rounded p-1.5 text-[11px] text-center font-black outline-none focus:border-blue-500 text-slate-900 ${lockClass}">
                             </div>
                         </div>
                     </div>
@@ -1622,14 +1627,14 @@
                 slippage = actualPercent - scheduledPercent;
             }
 
-updateGlobalStatsGrid(contractAmount, totalToDateAmount, actualPercent, scheduledPercent, slippage);
+            updateGlobalStatsGrid(contractAmount, totalToDateAmount, actualPercent, scheduledPercent, slippage);
             
             renderBarChart();
             renderRemarks();
             renderSuspensions();
         }
 
-function calculateScheduledPercentage() {
+        function calculateScheduledPercentage() {
             if (!appState.contractRowData) return 0;
             const headers = appState.headers;
             const barchartColIdx = headers.findIndex(h => String(h || '').toUpperCase().trim() === 'BARCHART');
@@ -2125,11 +2130,13 @@ function calculateScheduledPercentage() {
             previous = Math.round(previous * 100) / 100;
             const thisPeriod = Math.round(parseAccomplishmentVal(valStr) * 100) / 100;
             const toDate = Math.round((previous + thisPeriod) * 100) / 100;
-            const original = parseEditVal(workingParts[1]);
-            const balance = Math.round((original - toDate) * 100) / 100;
+            
+            // Fix: Re-verify against the Latest target Quantity from VO
+            const targetQty = getLatestVo(workingParts[1]).val;
+            const balance = Math.round((targetQty - toDate) * 100) / 100;
 
             if (balance < 0) {
-                showToast("Quantity Limit Exceeded", "Input rejected. Remaining balance cannot be negative.", "error");
+                showToast("Quantity Limit Exceeded", `Input rejected. Remaining balance cannot be negative (Target: ${formatNum(targetQty)}).`, "error");
                 inputEl.value = ""; 
                 delete appState.modifiedCells[cacheKey];
                 const rollbackMetrics = calculateMetrics(baseItem.parts, appState.activeMonthOffset, baseItem.headerName);
@@ -2156,7 +2163,7 @@ function calculateScheduledPercentage() {
             document.getElementById(`master-todate-${cardIndex}`).innerText = formatNum(toDate);
             document.getElementById(`master-bal-${cardIndex}`).innerText = formatNum(balance);
             
-            const progressPercent = original > 0 ? Math.min(100, Math.max(0, (toDate / original) * 100)) : 0;
+            const progressPercent = targetQty > 0 ? Math.min(100, Math.max(0, (toDate / targetQty) * 100)) : 0;
             const pBar = document.getElementById(`progress-bar-${cardIndex}`);
             if (pBar) {
                 pBar.style.width = `${progressPercent}%`;
@@ -2531,7 +2538,7 @@ function calculateScheduledPercentage() {
                     const balance = Math.round((qtyInput - toDate) * 100) / 100;
 
                     if (balance < 0) {
-                        showCustomAlert(`Save Blocked!\n\nItem [ ${itemNoInput} ] yields a negative Balance of ${formatNum(balance)} (Original: ${formatNum(qtyInput)} | To Date Accomplished: ${formatNum(toDate)}).\n\nPlease correct the Quantity value.`);
+                        showCustomAlert(`Save Blocked!\n\nItem [ ${itemNoInput} ] yields a negative Balance of ${formatNum(balance)} (Target: ${formatNum(qtyInput)} | To Date Accomplished: ${formatNum(toDate)}).\n\nPlease correct the Quantity value.`);
                         return; 
                     }
 
