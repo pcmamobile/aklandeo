@@ -218,7 +218,7 @@
                         </table>
                     </div>
                     
-<div class="flex w-full border-t border-[#ee7d31]/30">
+                    <div class="flex w-full border-t border-[#ee7d31]/30">
                         <button onclick="addEmptyRowInEditor()" class="flex-1 py-4 bg-[#fff4eb] hover:bg-[#ffebd6] text-[#ee7d31] font-black text-xs uppercase tracking-widest transition-colors flex justify-center items-center gap-2">
                             <i class="fa-solid fa-plus-circle"></i> Add Row
                         </button>
@@ -303,7 +303,7 @@
         </div>
     </div>
 
-<div id="vo-editor-modal" class="fixed inset-0 z-[280] bg-slate-900/60 backdrop-blur-md p-4 hidden flex-col justify-center items-center">
+    <div id="vo-editor-modal" class="fixed inset-0 z-[280] bg-slate-900/60 backdrop-blur-md p-4 hidden flex-col justify-center items-center">
         <div class="bg-white rounded-3xl w-full max-w-4xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
             <div class="bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-4 flex justify-between items-center text-white">
                 <h2 id="vo-editor-title" class="text-sm md:text-base font-black tracking-widest uppercase"><i class="fa-solid fa-file-contract mr-2"></i> EDIT VARIATION ORDER</h2>
@@ -354,7 +354,7 @@
                         <span contenteditable="true" id="print-active-period" class="outline-none border-b border-dashed border-slate-400 hover:bg-slate-100 focus:bg-slate-100 px-2 py-0.5 rounded print:border-none print:bg-transparent print:px-0 transition-colors cursor-text" title="Click to edit date">as of June 01, 2026</span>
                     </p>
                 </div>
-<div class="flex flex-col gap-1 mb-6 text-xs font-semibold leading-tight">
+                <div class="flex flex-col gap-1 mb-6 text-xs font-semibold leading-tight">
                     <div class="flex">
                         <span class="w-36 shrink-0 uppercase tracking-wider font-bold">CONTRACT ID</span>
                         <span class="mr-2 font-bold">:</span>
@@ -376,7 +376,7 @@
                         <span id="print-contractor-name" class="font-bold underline uppercase">---</span>
                     </div>
                 </div>
-<div id="print-table-container" class="overflow-x-visible w-full pb-4"></div>
+                <div id="print-table-container" class="overflow-x-visible w-full pb-4"></div>
 
                 <!-- REMARKS BLOCK -->
                 <div id="print-remarks-container" class="mt-1.5 hidden text-[11px] md:text-xs font-sans text-black">
@@ -2000,7 +2000,7 @@ function calculateScheduledPercentage() {
             return { colIndex: colIdx, colLetter: colToLetter(colIdx), rowNumber: rowNum, headerName: colHeader, parts: parts };
         }
 
-function parseVoVal(valStr) {
+        function parseVoVal(valStr) {
             const parts = String(valStr || '').split(',');
             return parts.map(p => {
                 if (p.trim() === '') return '';
@@ -2068,8 +2068,13 @@ function parseVoVal(valStr) {
                     }
                 }
             }
-const toDate = previous + thisPeriod;
-            return { itemNo, targetQuantity, unitCost, previous, thisPeriod, toDate, balance: targetQuantity - toDate, thisPeriodWeeks, qtyData, costData };
+            
+            previous = Math.round(previous * 100) / 100;
+            thisPeriod = Math.round(thisPeriod * 100) / 100;
+            const toDate = Math.round((previous + thisPeriod) * 100) / 100;
+            const balance = Math.round((targetQuantity - toDate) * 100) / 100;
+
+            return { itemNo, targetQuantity, unitCost, previous, thisPeriod, toDate, balance, thisPeriodWeeks, qtyData, costData };
         }
 
         function onItemSingleWeeklyEdit(inputEl, cardIndex, colIdx, rowNumber) {
@@ -2117,10 +2122,11 @@ const toDate = previous + thisPeriod;
             let previous = 0;
             for (let i = 7; i < 7 + monthDiff; i++) previous += parseAccomplishmentVal(workingParts[i]);
             
-            const thisPeriod = parseAccomplishmentVal(valStr);
-            const toDate = previous + thisPeriod;
+            previous = Math.round(previous * 100) / 100;
+            const thisPeriod = Math.round(parseAccomplishmentVal(valStr) * 100) / 100;
+            const toDate = Math.round((previous + thisPeriod) * 100) / 100;
             const original = parseEditVal(workingParts[1]);
-            const balance = original - toDate;
+            const balance = Math.round((original - toDate) * 100) / 100;
 
             if (balance < 0) {
                 showToast("Quantity Limit Exceeded", "Input rejected. Remaining balance cannot be negative.", "error");
@@ -2491,7 +2497,7 @@ const toDate = previous + thisPeriod;
                     const qtyInput = parseEditVal(tr.querySelector('.editor-qty').value);
                     const costInput = parseEditVal(tr.querySelector('.editor-unit-cost').value);
                     
-const baseParts = JSON.parse(tr.dataset.rawParts); 
+                    const baseParts = JSON.parse(tr.dataset.rawParts); 
                     workingParts = [...baseParts];
                     while (workingParts.length < 7) workingParts.push('0');
                     
@@ -2518,9 +2524,11 @@ const baseParts = JSON.parse(tr.dataset.rawParts);
                         for (let x = 7; x < 7 + monthDiff; x++) previous += parseAccomplishmentVal(workingParts[x]);
                         thisPeriod = parseAccomplishmentVal(workingParts[7 + monthDiff]);
                     }
-
-                    const toDate = previous + thisPeriod;
-                    const balance = qtyInput - toDate;
+                    
+                    previous = Math.round(previous * 100) / 100;
+                    thisPeriod = Math.round(thisPeriod * 100) / 100;
+                    const toDate = Math.round((previous + thisPeriod) * 100) / 100;
+                    const balance = Math.round((qtyInput - toDate) * 100) / 100;
 
                     if (balance < 0) {
                         showCustomAlert(`Save Blocked!\n\nItem [ ${itemNoInput} ] yields a negative Balance of ${formatNum(balance)} (Original: ${formatNum(qtyInput)} | To Date Accomplished: ${formatNum(toDate)}).\n\nPlease correct the Quantity value.`);
@@ -2665,7 +2673,7 @@ const baseParts = JSON.parse(tr.dataset.rawParts);
                         payload.push({ range: `SWA!${colToLetter(monthlyPercColIdx)}${appState.contractRowData.rowNumber}`, values: [[percParts.join('|')]] });
                     }
 
-// --- NEW LOGIC: Save the dynamically computed Schedule % ---
+                    // --- NEW LOGIC: Save the dynamically computed Schedule % ---
                     const scheduleColIdx = appState.headers.findIndex(h => String(h || '').toUpperCase().trim() === 'SCHEDULE');
                     if (scheduleColIdx !== -1 && monthDiff >= 0) {
                         const scheduledPercentNum = calculateScheduledPercentage(); // Calls the math engine that factors in Suspensions
@@ -2828,7 +2836,7 @@ const baseParts = JSON.parse(tr.dataset.rawParts);
             const monthNamesLong = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
             document.getElementById('print-active-period').innerText = `as of ${monthNamesLong[today.getMonth()]} ${String(today.getDate()).padStart(2, '0')}, ${today.getFullYear()}`;
 
-const validItems = [];
+            const validItems = [];
             for (let c = 0; c < row.length; c++) {
                 if (c === contractColIndex) continue;
                 const colHeader = String(headers[c] || '').trim();
@@ -2848,7 +2856,7 @@ const validItems = [];
                 return;
             }
 
-let maxVoIdx = 0;
+            let maxVoIdx = 0;
             validItems.forEach(item => {
                 const metrics = calculateMetrics(item.parts, appState.activeMonthOffset, item.headerName);
                 if (metrics.qtyData && metrics.qtyData.idx > maxVoIdx) maxVoIdx = metrics.qtyData.idx;
