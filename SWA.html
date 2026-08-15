@@ -1272,51 +1272,46 @@ const tableContainer = document.createElement('div');
                     ${itemDescription ? `<p class="text-[13px] md:text-[15px] text-black italic leading-tight px-1 font-serif mb-1">${itemDescription}</p>` : ''}
                     
                    
-<div class="grid grid-cols-[max-content_max-content] gap-x-6 md:gap-x-8 gap-y-4 px-1 mt-2 items-center overflow-x-auto no-scrollbar pb-2">
+
+<div class="flex flex-col gap-3 px-1 mt-2 w-full pb-2">
                         
-                        <!-- Row 1, Col 1: Target -->
-                        <div class="flex items-center gap-2 md:gap-3">
+                        <!-- Row 1: Target and Progress Bar -->
+                        <div class="flex items-center gap-2 w-full">
                             <span class="font-extrabold text-black text-[15px] md:text-[18px] tracking-wide shrink-0">TARGET:</span>
-                            <div class="bg-gradient-to-r from-[#eef7ee] to-[#f5fbf5] border border-[#d9d9d9] px-3 py-0.5 shadow-inner min-w-[70px] text-center shrink-0">
+                            <div class="bg-gradient-to-r from-[#eef7ee] to-[#f5fbf5] border border-[#d9d9d9] px-2 md:px-3 py-0.5 shadow-inner min-w-[60px] text-center shrink-0">
                                 <span class="text-red-600 font-extrabold text-[15px] md:text-[19px] drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)]">${formatNum(metrics.targetQuantity)}</span>
                             </div>
                             <span class="font-extrabold text-black text-[15px] md:text-[18px] shrink-0">${itemUnit || 'l.s.'}</span>
-                        </div>
-                        
-                        <!-- Row 1, Col 2: Progress Bar -->
-                       
-<!-- Row 1, Col 2: Progress Bar -->
-                        <div class="relative w-full h-6 md:h-7 bg-gradient-to-b from-[#e6e6e6] to-[#ffffff] border border-[#2e75b6] flex items-center justify-center overflow-hidden shrink-0">
-                            <!-- Blue Fill -->
-                            <div class="absolute left-0 top-0 bottom-0 bg-gradient-to-b from-[#40c0cb] to-[#0070c0] transition-all duration-300 ${progressPercent > 0 ? 'border-r border-[#003366]' : ''}" id="progress-bar-${index}" style="width: ${progressPercent}%"></div>
-                            <!-- Centered Text -->
-                            <span id="progress-text-${index}" class="relative z-10 text-black font-extrabold text-[12px] md:text-[13px] tracking-tight drop-shadow-[0_0_3px_rgba(255,255,255,1)]">
-                                ${progressPercent > 0 ? progressPercent.toFixed(2) + '%' : ''}
-                            </span>
+                            
+                            <div class="relative flex-1 h-6 md:h-7 bg-gradient-to-b from-[#e6e6e6] to-[#ffffff] border border-[#2e75b6] flex items-center justify-center overflow-hidden shrink-0 ml-1 md:ml-2">
+                                <!-- Blue Fill -->
+                                <div class="absolute left-0 top-0 bottom-0 bg-gradient-to-b from-[#40c0cb] to-[#0070c0] transition-all duration-300 ${progressPercent > 0 ? 'border-r border-[#003366]' : ''}" id="progress-bar-${index}" style="width: ${progressPercent}%"></div>
+                                <!-- Centered Text -->
+                                <span id="progress-text-${index}" class="relative z-10 text-black font-extrabold text-[12px] md:text-[13px] tracking-tight drop-shadow-[0_0_3px_rgba(255,255,255,1)]">
+                                    ${progressPercent > 0 ? progressPercent.toFixed(2) + '%' : ''}
+                                </span>
+                            </div>
                         </div>
 
-
-                        <!-- Row 2, Col 1: Weeks Section -->
-                        <div class="flex justify-between w-full text-center text-gray-500 font-bold px-1 md:px-2">
+                        <!-- Row 2: Weeks Section (Centered below Row 1) -->
+                        <div class="flex justify-between w-full text-center text-gray-500 font-bold px-4 md:px-8 mt-1">
                             <div class="flex flex-col items-center"><span class="uppercase text-[12px] md:text-[14px] mb-0.5">WK1</span><span id="wk-val-${index}-0" class="text-black text-[14px] md:text-[16px] font-extrabold">${w1}</span></div>
                             <div class="flex flex-col items-center"><span class="uppercase text-[12px] md:text-[14px] mb-0.5">WK2</span><span id="wk-val-${index}-1" class="text-black text-[14px] md:text-[16px] font-extrabold">${w2}</span></div>
                             <div class="flex flex-col items-center"><span class="uppercase text-[12px] md:text-[14px] mb-0.5">WK3</span><span id="wk-val-${index}-2" class="text-black text-[14px] md:text-[16px] font-extrabold">${w3}</span></div>
                             <div class="flex flex-col items-center"><span class="uppercase text-[12px] md:text-[14px] mb-0.5">WK4</span><span id="wk-val-${index}-3" class="text-black text-[14px] md:text-[16px] font-extrabold">${w4}</span></div>
                         </div>
                         
-                        <!-- Row 2, Col 2: Update, Save & Undo Actions -->
-                        <div class="flex items-center gap-4 md:gap-6 shrink-0">
-                            <!-- Input -->
-                            <div class="flex items-center gap-2 md:gap-3">
-                                <div class="flex flex-col text-center">
-                                    <span class="text-[12px] md:text-[14px] text-[#0070c0] font-extrabold uppercase leading-tight tracking-wide">UPDATE<br>WEEK ${appState.activeWeekIndex + 1}</span>
-                                </div>
-                                <input type="number" step="any" min="0" value="${activeWeekVal}" ${inputDisabledAttr} oninput="onItemSingleWeeklyEdit(this, ${index}, ${workingItem.colIndex}, ${workingItem.rowNumber})" placeholder="${inputPlaceholder}" class="w-24 md:w-28 h-10 md:h-12 bg-gradient-to-b from-[#ebf5fb] to-[#d6eaf8] border border-[#a2c4e6] p-2 text-lg md:text-xl text-center font-black text-[#00b050] outline-none focus:border-[#0070c0] shadow-inner ${lockClass}">
+                        <!-- Row 3: Update, Input, Save, Undo Actions -->
+                        <div class="flex items-center justify-between w-full gap-2 mt-2">
+                            
+                            <div class="flex flex-col text-left shrink-0">
+                                <span class="text-[12px] md:text-[14px] text-[#0070c0] font-extrabold uppercase leading-tight tracking-wide">UPDATE<br>WEEK ${appState.activeWeekIndex + 1}</span>
                             </div>
                             
-                            <!-- Buttons -->
+                            <input type="number" step="any" min="0" value="${activeWeekVal}" ${inputDisabledAttr} oninput="onItemSingleWeeklyEdit(this, ${index}, ${workingItem.colIndex}, ${workingItem.rowNumber})" placeholder="${inputPlaceholder}" class="flex-1 w-20 max-w-[160px] h-10 md:h-12 bg-gradient-to-b from-[#ebf5fb] to-[#d6eaf8] border border-[#a2c4e6] p-2 text-lg md:text-xl text-center font-black text-[#00b050] outline-none focus:border-[#0070c0] shadow-inner mx-1 md:mx-4 ${lockClass}">
+                            
                             ${!isItemLocked ? `
-                            <div class="flex items-center gap-4 md:gap-6 pl-1 md:pl-2">
+                            <div class="flex items-center gap-4 md:gap-6 shrink-0">
                                 <button onclick="..." class="flex flex-col items-center justify-center group focus:outline-none cursor-default" title="Status">
                                     <span class="text-[12px] md:text-[14px] font-extrabold uppercase mb-0.5 text-black tracking-wide">SAVE</span>
                                     <i id="save-icon-${index}" class="${saveIconClass} text-2xl md:text-4xl drop-shadow-md"></i>
@@ -1326,10 +1321,11 @@ const tableContainer = document.createElement('div');
                                     <i class="fa-solid fa-reply text-[#5b9bd5] group-hover:text-[#0070c0] text-2xl md:text-4xl transition-colors drop-shadow-md transform -scale-x-100"></i>
                                 </button>
                             </div>
-                            ` : ''}
+                            ` : '<div class="w-[80px]"></div>'}
+                            
                         </div>
-
                     </div>
+
                 `;
 
 
