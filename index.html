@@ -1307,7 +1307,7 @@
         projDiv.style.marginTop = "2px";
         content.appendChild(projDiv);
 
-        const statusDiv = document.createElement("div");
+const statusDiv = document.createElement("div");
         const statusText = (colStatus >= 0 && r[colStatus] ? String(r[colStatus]) : "").trim();
         const tt = statusText.toLowerCase();
         let bg = "#777";
@@ -1315,6 +1315,9 @@
         else if (tt === "completed") bg = "#16a34a";
         else if (tt === "on-going") bg = "#f97316";
         else if (tt === "100%") bg = "#14b8a6";
+        else if (tt === "suspended") bg = "#dc2626"; /* Red */
+        else if (tt === "nys") bg = "#9333ea";       /* Purple */
+        else if (tt === "terminated") bg = "#000000"; /* Black */
         statusDiv.innerHTML = `<span class="status" style="background:${bg}">${statusText}</span>`;
         content.appendChild(statusDiv);
 
