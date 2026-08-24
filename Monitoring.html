@@ -136,6 +136,7 @@
                 <div class="cursor-pointer hover:bg-white/20 p-1 rounded leading-tight mt-1" onclick="switchMainView('home')">HOME</div>
                 <div class="cursor-pointer hover:bg-white/20 p-1 rounded leading-tight mt-1" onclick="switchMainView('monitoring')">SLIPPAGE, WEEKLY, BILLING</div>
                 <div class="cursor-pointer hover:bg-white/20 p-1 rounded leading-tight mt-1" onclick="switchMainView('monthly_cfa')">MONTHLY, ACCEPTANCE</div>
+                <div class="cursor-pointer hover:bg-white/20 p-1 rounded leading-tight mt-1" onclick="switchMainView('documents')">DOCUMENTS</div>
                 
                 <div class="border-t-2 border-blue-900/50 my-2"></div>
                 
@@ -172,6 +173,19 @@
                 </button>
                 <button id="tab-cfa" onclick="switchTab('cfa')" class="flex-1 py-1 md:py-2 font-black text-sm md:text-lg text-black transition-all bg-gradient-to-b from-gray-300 to-gray-400 border border-gray-500 shadow-inner opacity-80">
                     ACCEPTANCE
+                </button>
+            </div>
+            
+            <!-- Header Area: Documents Tabs -->
+            <div id="documents-tabs" class="flex flex-1 ml-1 hidden">
+                <button id="tab-planning" onclick="switchDocTab('planning')" class="flex-1 py-1 md:py-2 font-black text-xs md:text-sm lg:text-lg text-black transition-all bg-gradient-to-b from-orange-400 to-orange-500 shadow-md tab-btn border border-orange-600">
+                    PLANNING
+                </button>
+                <button id="tab-procurement" onclick="switchDocTab('procurement')" class="flex-1 py-1 md:py-2 font-black text-xs md:text-sm lg:text-lg text-black transition-all bg-gradient-to-b from-gray-300 to-gray-400 border border-gray-500 shadow-inner opacity-80">
+                    PROCUREMENT
+                </button>
+                <button id="tab-construction" onclick="switchDocTab('construction')" class="flex-1 py-1 md:py-2 font-black text-xs md:text-sm lg:text-lg text-black transition-all bg-gradient-to-b from-gray-300 to-gray-400 border border-gray-500 shadow-inner opacity-80">
+                    CONSTRUCTION
                 </button>
             </div>
             
@@ -390,6 +404,14 @@
         let monthlyFilterPendingActual = false; 
         let monthlyFilterPendingRemarks = false; 
         
+        let documentSubTab = 'planning';
+        let docFilterYear = 'All';
+        let docFilterPe = 'All';
+        let docFilterStatus = 'All';
+		let docSearchQuery = '';
+        let docSearchDebounceTimer = null;
+        let docHideCompletePE = {}; // Changed to Object to store state per PE
+        
         let navYear = _today.getFullYear();
         let navMonth = _today.getMonth(); 
         
@@ -419,7 +441,7 @@
                 document.getElementById('loader').classList.remove('hidden');
 
                 const token = await GoogleSheetsAPI.getAuthToken();
-                const batchUrl = `https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values:batchGet?ranges=SWA!A3:ZZ&ranges=ITEMS!A3:ZZ&ranges=VO!A3:ZZ&ranges=PDO!A3:ZZ&ranges=DATE!A3:ZZ`;
+                const batchUrl = `https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values:batchGet?ranges=SWA!A3:ZZ&ranges=ITEMS!A3:ZZ&ranges=VO!A3:ZZ&ranges=PDO!A3:ZZ&ranges=DATE!A3:ZZ&ranges=UPLOAD!A1:ZZ`;
                 const othersUrl = `https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values/Others!A1:ZZ`;
                 
                 const [batchData, billingSheet, othersRes] = await Promise.all([
@@ -433,6 +455,7 @@
                 const dataVO = batchData.valueRanges[2] || { values: [] };
                 const dataPDO = batchData.valueRanges[3] || { values: [] };
                 const dataDATE = batchData.valueRanges[4] || { values: [] };
+                const dataUPLOAD = batchData.valueRanges[5] || { values: [] };
                 const dataOthers = othersRes || { values: [] };
 
                 const itemsLookup = buildItemsLookupMap(dataITEMS);
@@ -820,13 +843,47 @@
                     }
                 });
 
+                // Calculate Document UPLOAD matrix
+                const docsLookup = {};
+                if (dataUPLOAD.values && dataUPLOAD.values.length > 0) {
+                    let headerRowIndex = dataUPLOAD.values.findIndex(row => row.some(cell => String(cell || '').trim().toUpperCase() === 'CONTRACT ID'));
+                    if (headerRowIndex !== -1) {
+                        const upHeaders = dataUPLOAD.values[headerRowIndex].map(h => String(h || '').toUpperCase().trim());
+                        const idCol = upHeaders.indexOf('CONTRACT ID');
+
+                        for (let i = headerRowIndex + 1; i < dataUPLOAD.values.length; i++) {
+                            const row = dataUPLOAD.values[i];
+                            const cId = row[idCol] ? String(row[idCol]).trim() : '';
+                            if (!cId) continue;
+
+                            docsLookup[cId] = {};
+                            upHeaders.forEach((h, idx) => {
+                                if (h.endsWith(' UPLOADED')) {
+                                    const baseName = h.replace(' UPLOADED', '').trim();
+                                    const baseIdx = upHeaders.indexOf(baseName);
+                                    if (baseIdx !== -1) {
+                                        const baseVal = row[baseIdx] ? String(row[baseIdx]).trim() : '';
+                                        const uploadVal = row[idx] ? String(row[idx]).trim() : '';
+                                        docsLookup[cId][baseName] = { required: baseVal !== '', uploaded: uploadVal !== '' };
+                                    }
+                                }
+                            });
+                        }
+                    }
+                }
+                
+                // Merge docs into monthlyDataGlobal (our main database object)
+                monthlyDataGlobal.forEach(item => {
+                    item.docs = docsLookup[item.contractId] || {};
+                });
+
                 isDataFetched = true; 
                 document.getElementById('loader').classList.add('hidden');
                 switchMainView(mainView); 
 
             } catch (err) {
                 console.error(err);
-                alert("Failed to load monitoring data. Please refresh.");
+                alert("Failed to load data. Please refresh.");
             }
         }
 
@@ -1192,6 +1249,7 @@
             document.getElementById('home-header').classList.add('hidden');
             document.getElementById('monitoring-tabs').classList.add('hidden');
             document.getElementById('monthly-tabs').classList.add('hidden');
+            document.getElementById('documents-tabs').classList.add('hidden');
             
             const backBtn = document.getElementById('back-btn');
 
@@ -1216,6 +1274,13 @@
                     backBtn.classList.add('flex');
                 }
                 requestAnimationFrame(() => switchTab('monthly'));
+            } else if (view === 'documents') {
+                document.getElementById('documents-tabs').classList.remove('hidden');
+                if (backBtn) {
+                    backBtn.classList.remove('hidden');
+                    backBtn.classList.add('flex');
+                }
+                requestAnimationFrame(() => switchDocTab('planning'));
             }
         }
 
@@ -1258,6 +1323,43 @@
             if (type === 'year') cfaFilterYear = val;
             renderView();
         }
+
+        function changeDocFilter(type, val) {
+            if (type === 'year') docFilterYear = val;
+            if (type === 'pe') docFilterPe = val;
+            if (type === 'status') docFilterStatus = val;
+            renderView();
+        }
+        
+        window.debounceDocSearch = function(val) {
+            if (docSearchDebounceTimer) clearTimeout(docSearchDebounceTimer);
+            docSearchDebounceTimer = setTimeout(() => {
+                docSearchQuery = val;
+                renderView();
+            }, 300);
+        };
+        
+		window.toggleDocHideComplete = function(pe, checked) {
+            docHideCompletePE[pe] = checked;
+            renderView();
+        };
+		
+        window.switchDocTab = function(tabName) {
+            documentSubTab = tabName;
+            const allTabs = ['planning', 'procurement', 'construction'];
+            
+            allTabs.forEach(t => {
+                const btn = document.getElementById('tab-' + t);
+                if (btn) {
+                    if (t === documentSubTab) {
+                        btn.className = "flex-1 py-1 md:py-2 font-black text-xs md:text-sm lg:text-lg text-black transition-all bg-gradient-to-b from-orange-400 to-orange-500 shadow-md tab-btn border border-orange-600";
+                    } else {
+                        btn.className = "flex-1 py-1 md:py-2 font-black text-xs md:text-sm lg:text-lg text-black transition-all bg-gradient-to-b from-gray-200 to-gray-400 border border-gray-500 shadow-inner opacity-60";
+                    }
+                }
+            });
+            requestAnimationFrame(() => renderView());
+        };
 
         function changeMonthlyViewMode(val) {
             monthlyViewMode = val;
@@ -2296,6 +2398,183 @@
                         resizeTextareasSmoothly();
                     }
                 }
+            }
+
+            // -------------------------------------------------------------
+            // DOCUMENTS VIEW
+            // -------------------------------------------------------------
+            else if (mainView === 'documents') {
+                const allYears = [...new Set(monthlyDataGlobal.map(item => item.year))].filter(Boolean).sort().reverse();
+                const allPEs = [...new Set(monthlyDataGlobal.map(item => item.pe))].filter(Boolean).sort();
+                const allStatuses = [...new Set(monthlyDataGlobal.map(item => item.status))].filter(Boolean).sort();
+
+                let html = `
+                    <div class="w-full flex flex-col gap-2 mb-4">
+                        <div class="relative w-full">
+                            <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <input type="text" placeholder="Search Contract ID, Project, Contractor..." value="${docSearchQuery}" class="w-full border-2 border-orange-500 pl-10 pr-3 py-1.5 rounded-md text-sm md:text-base font-bold outline-none text-slate-700 shadow-sm" onkeyup="debounceDocSearch(this.value)">
+                        </div>
+
+                        <div class="flex flex-col md:flex-row gap-2">
+                            <select onchange="changeDocFilter('year', this.value)" class="flex-1 border-2 border-orange-500 text-[#0f3b75] font-black text-center py-1.5 text-sm md:text-base outline-none cursor-pointer shadow-sm bg-white rounded-md">
+                                <option value="All" ${docFilterYear === 'All' ? 'selected' : ''}>All Years</option>
+                                ${allYears.map(y => `<option value="${y}" ${docFilterYear === String(y) ? 'selected' : ''}>${y}</option>`).join('')}
+                            </select>
+                            <select onchange="changeDocFilter('pe', this.value)" class="flex-1 border-2 border-orange-500 text-[#0f3b75] font-black text-center py-1.5 text-sm md:text-base outline-none cursor-pointer shadow-sm bg-white rounded-md">
+                                <option value="All">All PEs</option>
+                                ${allPEs.map(pe => `<option value="${pe}" ${docFilterPe===pe?'selected':''}>${pe}</option>`).join('')}
+                            </select>
+                            <select onchange="changeDocFilter('status', this.value)" class="flex-1 border-2 border-orange-500 text-[#0f3b75] font-black text-center py-1.5 text-sm md:text-base outline-none cursor-pointer shadow-sm bg-white rounded-md">
+                                <option value="All">All Status</option>
+                                ${allStatuses.map(s => `<option value="${s}" ${docFilterStatus===s?'selected':''}>${s}</option>`).join('')}
+                            </select>
+                        </div>
+                    </div>
+                `;
+
+                let filteredDocs = monthlyDataGlobal.filter(item => {
+                    const matchYear = docFilterYear === 'All' || item.year === docFilterYear;
+                    const matchPe = docFilterPe === 'All' || item.pe === docFilterPe;
+                    const matchStatus = docFilterStatus === 'All' || item.status === docFilterStatus;
+                    let matchSearch = true;
+                    if (docSearchQuery) {
+                        const sq = docSearchQuery.toLowerCase();
+                        matchSearch = (item.contractId && item.contractId.toLowerCase().includes(sq)) ||
+                                      (item.projectName && item.projectName.toLowerCase().includes(sq)) ||
+                                      (item.contractor && item.contractor.toLowerCase().includes(sq));
+                    }
+                    return matchYear && matchPe && matchStatus && matchSearch;
+                });
+
+                if (filteredDocs.length === 0) {
+                    html += `<div class="text-center py-10 font-black text-slate-500 opacity-60"><i class="fa-solid fa-folder-open text-4xl mb-3 block"></i> No projects found matching this criteria!</div>`;
+                } else {
+                    const groupedDocs = {};
+                    filteredDocs.forEach(item => {
+                        if(!groupedDocs[item.pe]) groupedDocs[item.pe] = [];
+                        groupedDocs[item.pe].push(item);
+                    });
+
+                    const sortedPEs = Object.keys(groupedDocs).sort();
+                    
+                    let docCols = [];
+                    if (documentSubTab === 'planning') {
+                        docCols = [{k: 'POW', l: 'POW'}, {k: 'DUPA', l: 'DUPA'}, {k: 'QUANTITY CALCULATION', l: 'Q.C.'}, {k: 'ORIGINAL PLAN', l: 'Orig. Plan'}];
+                    } else if (documentSubTab === 'procurement') {
+                        docCols = [{k: 'BOQ', l: 'BOQ'}, {k: 'DETAILED ESTIMATE', l: 'Estimate'}, {k: 'NOTICE OF AWARD', l: 'NOA'}, {k: 'CONTRACT AGREEMENT', l: 'Contract'}];
+                    } else {
+                        docCols = [{k: 'NTP', l: 'NTP'}, {k: 'PDM', l: 'PDM'}, {k: 'BAR-CHART', l: 'B. Chart'}, {k: 'PRE-CON NOTICE & MINUTES OF MEETING', l: 'Pre-con'}];
+                    }
+
+ 
+	sortedPEs.forEach((pe, index) => {
+                        const theme = PE_THEMES[index % PE_THEMES.length];
+                        const items = groupedDocs[pe];
+
+                        // Check specific state for this PE (defaults to false if undefined)
+                        const isHideComplete = docHideCompletePE[pe] || false;
+
+                        // Calculate totals for progress bar (Status)
+                        let peTotalReq = 0;
+                        let peTotalChecks = 0;
+
+                        items.forEach(p => {
+                            let projReq = 0;
+                            let projChecks = 0;
+                            docCols.forEach(col => {
+                                const docStatus = p.docs ? p.docs[col.k] : null;
+                                if (docStatus && docStatus.required) {
+                                    projReq++;
+                                    if (docStatus.uploaded) projChecks++;
+                                }
+                            });
+                            p._docReq = projReq;
+                            p._docChecks = projChecks;
+                            peTotalReq += projReq;
+                            peTotalChecks += projChecks;
+                        });
+
+                        // Filter items if Hide Checkbox is true FOR THIS SPECIFIC PE
+                        let visibleItems = items;
+                        if (isHideComplete) {
+                            // Hide if all required documents are checked, or if completely N.A.
+                            visibleItems = items.filter(p => p._docReq > 0 && p._docChecks < p._docReq);
+                        }
+
+                        // Hide the whole PE container if no items are left visible and it's set to hide
+                        if (visibleItems.length === 0 && isHideComplete) return;
+
+                        // Calculate percentage format for Progress Bar
+                        let percent = 0;
+                        if (peTotalReq > 0) percent = (peTotalChecks / peTotalReq) * 100;
+                        const percentStr = peTotalReq > 0 ? percent.toFixed(2) : '0.00';
+                        
+                        const peEscaped = pe.replace(/"/g, '&quot;'); // Escape to safely pass into the HTML string
+
+                        html += `
+                            <div class="w-full flex flex-col shadow-md mb-6">
+                                <div class="${theme.header} px-4 py-1.5 font-black text-lg md:text-xl tracking-tight shadow-sm z-10 relative flex justify-between items-center">
+                                    <span>${pe}</span>
+                                    <div class="flex items-center gap-2 md:gap-4 text-sm md:text-base font-bold text-black">
+                                        <label class="flex items-center gap-1 cursor-pointer hover:opacity-80">
+                                            <span class="text-xs md:text-sm tracking-wide font-medium">Hide</span>
+                                            <input type="checkbox" onchange="toggleDocHideComplete(this.getAttribute('data-pe'), this.checked)" data-pe="${peEscaped}" ${isHideComplete ? 'checked' : ''} class="w-4 h-4 md:w-5 md:h-5 accent-[#4472c4] cursor-pointer shadow-inner">
+                                        </label>
+                                        <span class="text-red-600 drop-shadow-[0_1px_1px_rgba(255,255,255,0.7)] text-xl md:text-2xl ml-1">${items.length}</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- STATUS PROGRESS BAR -->
+                                <div class="flex items-center px-2 py-1.5 bg-[#e0e8f5] border-b-2 border-white shadow-inner">
+                                    <span class="font-extrabold text-[#5c2d91] mr-2 text-sm md:text-base tracking-wide drop-shadow-sm">Status :</span>
+                                    <div class="flex-1 bg-[#b0bec5] rounded-full h-[18px] md:h-[22px] relative overflow-hidden shadow-[inset_0px_2px_4px_rgba(0,0,0,0.3)] border border-gray-400 flex">
+                                        <div class="bg-gradient-to-b from-[#ff4d4d] to-[#cc0000] h-full transition-all duration-500 ease-out" style="width: ${percent}%;"></div>
+                                        <div class="absolute inset-0 flex items-center justify-center text-white font-black text-[11px] md:text-sm drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] pointer-events-none tracking-widest">
+                                            ${percentStr}% &nbsp;&nbsp; ${peTotalChecks} | ${peTotalReq}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <table class="w-full text-center border-collapse text-sm font-bold text-black bg-white">
+                                    <thead>
+                                        <tr class="bg-[#fff9f2] italic text-[11px] md:text-sm border-b border-orange-200">
+                                            <th class="py-2 px-1 dotted-border font-extrabold text-black w-[24%]">Contract ID</th>
+                        `;
+                        docCols.forEach(col => {
+                            html += `<th class="py-2 px-1 dotted-border font-extrabold text-black w-[19%]">${col.l}</th>`;
+                        });
+                        html += `</tr></thead><tbody>`;
+
+                        visibleItems.forEach((p, idx) => {
+                            const rowColor = idx % 2 === 0 ? theme.rowOdd : theme.rowEven;
+                            const uniqueId = `doc-details-${index}-${idx}`;
+                            html += `
+                                <tr class="${rowColor} border-t border-gray-300/50 cursor-pointer hover:brightness-95 transition-all text-black" onclick="toggleDetails('${uniqueId}')">
+                                    <td class="py-2 px-1 dotted-border font-extrabold tracking-wider text-[12px] md:text-base">${p.contractId}</td>
+                            `;
+                            
+                            docCols.forEach(col => {
+                                const docStatus = p.docs ? p.docs[col.k] : null;
+                                let iconHtml = '';
+                                if (!docStatus || !docStatus.required) {
+                                    iconHtml = '<span class="text-purple-700 font-extrabold text-sm md:text-lg drop-shadow-sm" style="font-family: serif; letter-spacing:-0.5px;">N.A</span>';
+                                } else if (docStatus.uploaded) {
+                                    iconHtml = '<i class="fa-solid fa-check text-emerald-500 text-lg md:text-xl font-black drop-shadow-sm"></i>';
+                                } else {
+                                    iconHtml = '<i class="fa-solid fa-xmark text-red-600 text-lg md:text-xl font-black drop-shadow-sm"></i>';
+                                }
+                                html += `<td class="py-2 px-1 dotted-border">${iconHtml}</td>`;
+                            });
+
+                            html += `</tr>${generateDetailsRow(uniqueId, 5, p)}`;
+                        });
+                        html += `</tbody></table></div>`;
+                    });
+
+               
+
+			   }
+                container.innerHTML = html;
             }
 
             if (activeElemId) {
