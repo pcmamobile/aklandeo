@@ -34,16 +34,6 @@
             box-shadow: inset 0 -3px 5px rgba(0,0,0,0.1);
         }
 
-        /* Loader Animation */
-        .spinner {
-            width: 60px; height: 60px;
-            border: 5px solid rgba(59, 130, 246, 0.3);
-            border-top-color: #3b82f6;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
         select {
             text-align-last: center;
         }
@@ -57,7 +47,24 @@
             scrollbar-width: none;
         }
 
-        /* Custom Billing Checkbox */
+        /* Custom Fund Checkbox (Blue Style) */
+        .fund-checkbox {
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            border: 2px solid #203864; /* Dark blue border */
+            background-color: transparent; 
+            cursor: pointer;
+            position: relative;
+            flex-shrink: 0;
+            transition: all 0.1s;
+        }
+        .fund-checkbox:checked {
+            background-color: #5b8cd6; /* Solid inner blue */
+            border: 2px solid #203864;
+        }
+
+        /* Custom Billing Exclusion Checkbox */
         .billing-checkbox {
             appearance: none;
             width: 22px;
@@ -107,11 +114,64 @@
         </div>
     </div>
 
-    <!-- Loader -->
-    <div id="loader" class="fixed inset-0 z-[9000] bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center hidden">
-        <div class="spinner mb-4"></div>
-        <h2 class="text-xl font-black text-slate-800 tracking-wider">Accessing SWA Database...</h2>
-        <p class="text-sm font-bold text-slate-600 mt-2 text-center">Calculating global slippages & fetching live data</p>
+    <!-- Awesome 3D Red Loading Screen -->
+    <div id="loader" class="fixed inset-0 z-[9000] bg-white/95 backdrop-blur-md flex flex-col items-center justify-center hidden transition-opacity duration-300">
+        <div class="relative w-[260px] h-[260px] flex items-center justify-center mb-6">
+            <svg class="absolute inset-0 w-full h-full drop-shadow-[0_15px_15px_rgba(0,0,0,0.35)]" viewBox="0 0 200 200">
+                <defs>
+                    <filter id="inset-shadow" x="-50%" y="-50%" width="200%" height="200%">
+                        <feOffset dx="3" dy="5"/>
+                        <feGaussianBlur stdDeviation="4" result="offset-blur"/>
+                        <feComposite operator="out" in="SourceGraphic" in2="offset-blur" result="inverse"/>
+                        <feFlood flood-color="black" flood-opacity="0.65" result="color"/>
+                        <feComposite operator="in" in="color" in2="inverse" result="shadow"/>
+                        <feComposite operator="over" in="shadow" in2="SourceGraphic"/>
+                    </filter>
+                    <linearGradient id="red-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#ff4b4b" />
+                        <stop offset="100%" stop-color="#a00000" />
+                    </linearGradient>
+                    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#f8f8f8" />
+                        <stop offset="100%" stop-color="#d0d0d0" />
+                    </linearGradient>
+                </defs>
+                <circle cx="100" cy="100" r="75" fill="none" stroke="url(#bg-grad)" stroke-width="36" filter="url(#inset-shadow)" />
+                <circle id="progress-circle" cx="100" cy="100" r="75" fill="none" stroke="url(#red-grad)" stroke-width="36" stroke-linecap="round" filter="url(#inset-shadow)"
+                        stroke-dasharray="471.24" stroke-dashoffset="471.24" transform="rotate(-90 100 100)" style="transition: stroke-dashoffset 0.3s ease-out;" />
+            </svg>
+            <div id="progress-text" class="absolute font-black text-6xl text-[#da1111] tracking-tighter" style="font-family: Arial, sans-serif; text-shadow: 2px 2px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff, 3px 4px 6px rgba(0,0,0,0.5);">
+                0%
+            </div>
+        </div>
+        <h2 class="text-[2.75rem] font-black tracking-widest text-[#da1111] uppercase" style="font-family: Arial, sans-serif; text-shadow: 2px 2px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff, 3px 5px 8px rgba(0,0,0,0.5);">
+            LOADING...
+        </h2>
+    </div>
+
+    <!-- Payment Modal Overlay -->
+    <div id="payment-modal" class="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center hidden">
+        <div class="bg-[#fce4c8] p-4 border-4 border-orange-400 shadow-2xl w-80 max-w-[95%] rounded flex flex-col relative font-serif text-black">
+            <h2 class="text-3xl font-black text-center tracking-widest text-shadow mb-1" style="font-family: Georgia, serif; text-shadow: 2px 2px 0px #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff; letter-spacing: 2px;">BILLING</h2>
+            <div id="pm-remarks" class="text-center text-xl italic font-bold mb-2 text-gray-800 leading-tight">Retention</div>
+            <div id="pm-amount" class="text-center text-2xl font-black mb-1 text-gray-900 tracking-tight">₱ 1,312,761.77</div>
+            <div id="pm-status-text" class="text-center text-lg font-bold mb-4 text-gray-700">(On-process)</div>
+
+            <div class="flex items-center justify-between bg-white/50 border border-orange-300 p-2 rounded mb-5 shadow-sm">
+                <span class="italic font-bold text-sm">Month & Year Paid :</span>
+                <div class="flex gap-1">
+                    <select id="pm-month" class="bg-gradient-to-b from-gray-200 to-gray-300 font-bold px-1 py-0.5 rounded shadow border border-gray-400 text-sm outline-none cursor-pointer">
+                    </select>
+                    <select id="pm-year" class="bg-gradient-to-b from-gray-200 to-gray-300 font-bold px-1 py-0.5 rounded shadow border border-gray-400 text-sm outline-none cursor-pointer">
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex justify-between gap-3 mt-2">
+                <button onclick="closePaymentModal()" class="flex-1 bg-gradient-to-b from-red-500 to-red-700 text-white font-black text-lg py-2 rounded-full border-2 border-red-900 shadow-[inset_0px_-3px_5px_rgba(0,0,0,0.3)] hover:brightness-110 active:scale-95 transition-all">CANCEL</button>
+                <button id="pm-save-btn" onclick="savePaymentModal()" class="flex-1 bg-gradient-to-b from-[#8fd64d] to-[#68a332] text-white font-black text-lg py-2 rounded-xl border-2 border-green-800 shadow-[inset_0px_-3px_5px_rgba(0,0,0,0.3)] hover:brightness-110 active:scale-95 transition-all">PAID</button>
+            </div>
+        </div>
     </div>
 
     <!-- Main Dashboard Container -->
@@ -274,6 +334,52 @@
         });
 
         // ====================================================================
+        // PROGRESS LOADER LOGIC
+        // ====================================================================
+        let loadProgress = 0;
+        let loadInterval = null;
+
+        function updateProgress(percent) {
+            const pCircle = document.getElementById('progress-circle');
+            const pText = document.getElementById('progress-text');
+            if(!pCircle || !pText) return;
+            const totalLength = 471.24; 
+            const offset = totalLength - (percent / 100) * totalLength;
+            pCircle.style.strokeDashoffset = offset;
+            pText.textContent = Math.floor(percent) + '%';
+        }
+
+        function startLoading() {
+            const loader = document.getElementById('loader');
+            loader.classList.remove('hidden');
+            loader.style.opacity = '1';
+            
+            loadProgress = 0;
+            updateProgress(0);
+            
+            if (loadInterval) clearInterval(loadInterval);
+            loadInterval = setInterval(() => {
+                loadProgress += Math.random() * 12 + 5; 
+                if (loadProgress >= 95) loadProgress = 95; 
+                updateProgress(loadProgress);
+            }, 250);
+        }
+
+        function stopLoading(callback) {
+            if (loadInterval) clearInterval(loadInterval);
+            updateProgress(100);
+            
+            setTimeout(() => {
+                const loader = document.getElementById('loader');
+                loader.style.opacity = '0'; 
+                setTimeout(() => {
+                    loader.classList.add('hidden');
+                    if(callback) callback();
+                }, 300); 
+            }, 350); 
+        }
+
+        // ====================================================================
         // SYSTEM CONFIGURATION & API
         // ====================================================================
         const API_CONFIG = {
@@ -325,12 +431,14 @@
 
         async function fetchBillingSheetSafe(token) {
             try {
-                const url = `https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}?ranges=BILLING!A1:ZZ5000&fields=sheets(data(rowData(values(formattedValue,effectiveFormat.textFormat.foregroundColor))))`;
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}?ranges=BILLING!A1:ZZ5000&fields=sheets(properties/sheetId,data(rowData(values(formattedValue,effectiveFormat.textFormat.foregroundColor))))`;
                 const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
-                if (!res.ok) return { values: [], colorGrid: [] };
+                if (!res.ok) return { values: [], colorGrid: [], sheetId: 0 };
                 const json = await res.json();
                 
                 const sheet = json.sheets && json.sheets[0];
+                const sheetId = (sheet && sheet.properties && sheet.properties.sheetId) ? sheet.properties.sheetId : 0;
+                
                 const data = sheet && sheet.data && sheet.data[0];
                 const rowData = (data && data.rowData) || [];
                 const values = [];
@@ -349,10 +457,10 @@
                     values.push(rowValues);
                     colorGrid.push(rowColors);
                 });
-                return { values, colorGrid };
+                return { values, colorGrid, sheetId };
             } catch (e) {
                 console.error("fetchBillingSheetSafe Error:", e);
-                return { values: [], colorGrid: [] };
+                return { values: [], colorGrid: [], sheetId: 0 };
             }
         }
 
@@ -368,6 +476,21 @@
         let monthlyDataGlobal = []; 
         let homeSummary = {};
         
+        let globalBillingSheetId = 0;
+        let globalBillingHeaders = [];
+        let globalBillingValues = [];
+        let currentPaymentBill = null;
+        let expandedRowIds = new Set(); 
+
+        let billingFundFilters = {
+            'GAA': true,
+            'DepEd': true,
+            'DA': true,
+            'SF': true,
+            'DAR': true,
+            'Maint': true
+        };
+
         // ACCEPTANCE TAB Data States
         let acceptanceSubTab = 'coc'; 
         let acceptanceCocSummary = {}; 
@@ -410,7 +533,7 @@
         let docFilterStatus = 'All';
 		let docSearchQuery = '';
         let docSearchDebounceTimer = null;
-        let docHideCompletePE = {}; // Changed to Object to store state per PE
+        let docHideCompletePE = {}; 
         
         let navYear = _today.getFullYear();
         let navMonth = _today.getMonth(); 
@@ -419,6 +542,7 @@
         let monthlyNavMonth = _today.getMonth(); 
 
         const monthsArr = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        const monthOrderMap = { "Jan":1, "Feb":2, "Mar":3, "Apr":4, "May":5, "Jun":6, "Jul":7, "Aug":8, "Sep":9, "Oct":10, "Nov":11, "Dec":12 };
 
         const PE_THEMES = [
             { header: "bg-gradient-to-b from-orange-400 to-orange-500 border border-orange-600 text-black", rowEven: "bg-[#ffd9b3]", rowOdd: "bg-[#ffe5cc]" },
@@ -438,7 +562,7 @@
         // ====================================================================
         async function fetchDataAndProcess() {
             try {
-                document.getElementById('loader').classList.remove('hidden');
+                startLoading();
 
                 const token = await GoogleSheetsAPI.getAuthToken();
                 const batchUrl = `https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values:batchGet?ranges=SWA!A3:ZZ&ranges=ITEMS!A3:ZZ&ranges=VO!A3:ZZ&ranges=PDO!A3:ZZ&ranges=DATE!A3:ZZ&ranges=UPLOAD!A1:ZZ`;
@@ -608,12 +732,16 @@
                     });
                 }
 
+                globalBillingSheetId = billingSheet.sheetId;
                 const bValues = billingSheet.values;
+                globalBillingValues = bValues;
                 const bColors = billingSheet.colorGrid;
 
                 if (bValues.length >= 3) {
                     const billHeader = bValues[2]; 
+                    globalBillingHeaders = billHeader;
                     const billContractColIndex = findContractHeaderCol(billHeader);
+                    let revExpiryColIndex = billHeader.findIndex(h => h && h.toUpperCase().includes('REV. EXPIRY'));
                     
                     for (let r = 3; r < bValues.length; r++) {
                         const row = bValues[r] || [];
@@ -629,12 +757,13 @@
                         const ntp = pdoInfo.ntp || '-';
                         const expiry = pdoInfo.expiry || '-';
                         const contractAmount = voLookup[contractId] ? voLookup[contractId].amount : 0;
+                        const revExpiry = revExpiryColIndex >= 0 ? String(row[revExpiryColIndex] || '').trim() : '-';
                         
                         const fundAndProject = ((pdoInfo.fund || '') + ' ' + (pdoInfo.projectName || '')).toUpperCase();
                         const isDar = fundAndProject.includes('DAR');
                         const isMaint = fundAndProject.includes('MAINT');
                         
-                        let fCategory = '';
+                        let fCategory = 'GAA';
                         if (fundAndProject.includes('DEPED')) fCategory = 'DepEd';
                         else if (fundAndProject.includes('MAINT')) fCategory = 'Maint';
                         else if (fundAndProject.includes('DAR')) fCategory = 'DAR';
@@ -684,9 +813,10 @@
                                     contractId: contractId, contractor: contractor, pe: peName,
                                     fundCategory: fCategory, 
                                     isDar: isDar, isMaint: isMaint, projectYear: projectYear,
-                                    amount: parsedAmount, remarks: cleanedRemarks,
-                                    projectName, location, ntp, expiry, contractAmount,
-                                    isPaid: isRed, billingYear: parseInt(year), billingMonthName: monthName
+                                    amount: parsedAmount, remarks: cleanedRemarks, fullRemarks: remarksText,
+                                    projectName, location, ntp, expiry, contractAmount, revExpiry,
+                                    isPaid: isRed, billingYear: parseInt(year), billingMonthName: monthName,
+                                    sheetRowIdx: r, amountColIndex: colIndex, remarksColIndex: remarksColIndex
                                 });
                             }
                         });
@@ -736,14 +866,14 @@
                     const hasCOC = dInfo.coc && dInfo.coc !== '-' && !dInfo.coc.toLowerCase().includes('n/a');
                     const hasCA = dInfo.ca && dInfo.ca !== '-' && !dInfo.ca.toLowerCase().includes('n/a');
                     
-                    // Summarize COC logic (only for Completed)
+                    // Summarize COC logic
                     if (statusStr.includes('COMPLETED')) {
                         acceptanceCocSummary[year].completed++;
                         if (hasCOC) acceptanceCocSummary[year].withCoc++;
                         else acceptanceCocSummary[year].woCoc++; 
                     }
 
-                    // Summarize CFA logic (only for projects with COC)
+                    // Summarize CFA logic
                     if (hasCOC) {
                         acceptanceCfaSummary[year].coc++;
                         if (hasCA) acceptanceCfaSummary[year].withCfa++;
@@ -767,7 +897,6 @@
                     let hasCOC = dInfo.coc && dInfo.coc !== '-' && !dInfo.coc.toLowerCase().includes('n/a');
                     let hasCA = dInfo.ca && dInfo.ca !== '-' && !dInfo.ca.toLowerCase().includes('n/a');
 
-					// Push to COC Tab (Show only projects without COC)
                     if (statusStr.toUpperCase().includes('COMPLETED') && !hasCOC) {
                         let displayCompletion = '-';
                         let displayCOC = '-';
@@ -781,7 +910,6 @@
                                 displayCompletion = `${compDate.getMonth() + 1}/${compDate.getDate()}/${compDate.getFullYear()}`;
                             }
                         }
-
                         if (hasCOC) {
                             let cocDate = new Date(dInfo.coc);
                             if (!isNaN(cocDate.getTime())) {
@@ -806,7 +934,6 @@
                         });
                     }
 
-                    // Push to CFA Tab (Projects with COC but no CA)
                     if (hasCOC && !hasCA) {
                         let displayCOC = '-';
                         let daysRemaining = '-';
@@ -872,23 +999,25 @@
                     }
                 }
                 
-                // Merge docs into monthlyDataGlobal (our main database object)
                 monthlyDataGlobal.forEach(item => {
                     item.docs = docsLookup[item.contractId] || {};
                 });
 
                 isDataFetched = true; 
-                document.getElementById('loader').classList.add('hidden');
-                switchMainView(mainView); 
+                stopLoading(() => {
+                    switchMainView(mainView); 
+                });
 
             } catch (err) {
                 console.error(err);
+                if (loadInterval) clearInterval(loadInterval);
+                document.getElementById('loader').classList.add('hidden');
                 alert("Failed to load data. Please refresh.");
             }
         }
 
         // ====================================================================
-        // BACKGROUND SAVE & UNDO 
+        // BACKGROUND SAVE & UI LOGIC
         // ====================================================================
         function colIndexToLetter(index) {
             let letter = '';
@@ -898,6 +1027,181 @@
             }
             return letter;
         }
+
+        window.openPaymentModal = function(contractId, amountColIdx) {
+            currentPaymentBill = billingDataGlobal.find(b => b.contractId === contractId && b.amountColIndex === amountColIdx);
+            if (!currentPaymentBill) return;
+
+            document.getElementById('pm-remarks').innerText = currentPaymentBill.remarks;
+            document.getElementById('pm-amount').innerText = `₱ ${formatCurrency(currentPaymentBill.amount)}`;
+            document.getElementById('pm-status-text').innerText = currentPaymentBill.isPaid ? "(Paid)" : "(On-process)";
+
+            const btn = document.getElementById('pm-save-btn');
+            if (currentPaymentBill.isPaid) {
+                btn.innerText = "UNPAID";
+                btn.className = "flex-1 bg-gradient-to-b from-rose-500 to-rose-700 text-white font-black text-lg py-2 rounded-xl border-2 border-rose-900 shadow-[inset_0px_-3px_5px_rgba(0,0,0,0.3)] hover:brightness-110 active:scale-95 transition-all";
+            } else {
+                btn.innerText = "PAID";
+                btn.className = "flex-1 bg-gradient-to-b from-[#8fd64d] to-[#68a332] text-white font-black text-lg py-2 rounded-xl border-2 border-green-800 shadow-[inset_0px_-3px_5px_rgba(0,0,0,0.3)] hover:brightness-110 active:scale-95 transition-all";
+            }
+
+            const monthSelect = document.getElementById('pm-month');
+            monthSelect.innerHTML = monthsArr.map(m => `<option value="${m}" ${currentPaymentBill.billingMonthName.toLowerCase().startsWith(m.substring(0,3).toLowerCase()) ? 'selected' : ''}>${m.substring(0,3)}</option>`).join('');
+
+            const yearSelect = document.getElementById('pm-year');
+            let yearsHtml = '';
+            for(let y=2024; y<=2034; y++) {
+                yearsHtml += `<option value="${y}" ${y === currentPaymentBill.billingYear ? 'selected' : ''}>${y}</option>`;
+            }
+            yearSelect.innerHTML = yearsHtml;
+
+            document.getElementById('payment-modal').classList.remove('hidden');
+        };
+
+        window.closePaymentModal = function() {
+            document.getElementById('payment-modal').classList.add('hidden');
+            currentPaymentBill = null;
+        };
+
+        window.savePaymentModal = async function() {
+            if (!currentPaymentBill) return;
+
+            const targetMonth = document.getElementById('pm-month').value; 
+            const targetYear = parseInt(document.getElementById('pm-year').value); 
+            const willBePaid = !currentPaymentBill.isPaid;
+
+            let targetAmountColIdx = -1;
+            let targetRemarksColIdx = -1;
+
+            // Find target columns
+            for (let j = 0; j < globalBillingHeaders.length; j++) {
+                const h = String(globalBillingHeaders[j]).trim();
+                const match = /^(\d{4})\s+([A-Za-z]+)$/.exec(h);
+                if (match && parseInt(match[1]) === targetYear && match[2].toLowerCase() === targetMonth.toLowerCase()) {
+                    targetAmountColIdx = j;
+                }
+                const remarksHeader = targetYear + " " + targetMonth + " Remarks";
+                if (h.toUpperCase() === remarksHeader.toUpperCase()) {
+                    targetRemarksColIdx = j;
+                } else if (h.toLowerCase().includes(String(targetYear).toLowerCase()) && h.toLowerCase().includes(targetMonth.slice(0,3).toLowerCase()) && h.toLowerCase().includes("remarks")) {
+                    targetRemarksColIdx = j;
+                }
+            }
+
+            if (targetAmountColIdx === -1 || targetRemarksColIdx === -1) {
+                alert("Error: Target columns for this Month/Year were not found in the BILLING sheet.");
+                return;
+            }
+
+            const isMoving = (targetAmountColIdx !== currentPaymentBill.amountColIndex);
+            const rIdx = currentPaymentBill.sheetRowIdx;
+
+            if (isMoving) {
+                const rowData = globalBillingValues[rIdx] || [];
+                const existingAmount = String(rowData[targetAmountColIdx] || '').trim();
+                const existingRemarks = String(rowData[targetRemarksColIdx] || '').trim();
+                if (existingAmount || existingRemarks) {
+                    alert("Warning: Data already exists in the selected month. Please choose another month.");
+                    return;
+                }
+            }
+
+            // Close Modal Immediately
+            document.getElementById('payment-modal').classList.add('hidden');
+
+            // Save old state for potential rollback
+            const oldState = {
+                amountColIndex: currentPaymentBill.amountColIndex,
+                remarksColIndex: currentPaymentBill.remarksColIndex,
+                billingMonthName: currentPaymentBill.billingMonthName,
+                billingYear: currentPaymentBill.billingYear,
+                isPaid: currentPaymentBill.isPaid
+            };
+
+            // Update Optimistically
+            currentPaymentBill.amountColIndex = targetAmountColIdx;
+            currentPaymentBill.remarksColIndex = targetRemarksColIdx;
+            currentPaymentBill.billingMonthName = targetMonth;
+            currentPaymentBill.billingYear = targetYear;
+            currentPaymentBill.isPaid = willBePaid;
+
+            if (isMoving) {
+                if(!globalBillingValues[rIdx]) globalBillingValues[rIdx] = [];
+                globalBillingValues[rIdx][targetAmountColIdx] = currentPaymentBill.amount;
+                globalBillingValues[rIdx][targetRemarksColIdx] = currentPaymentBill.fullRemarks;
+                globalBillingValues[rIdx][oldState.amountColIndex] = "";
+                globalBillingValues[rIdx][oldState.remarksColIndex] = "";
+            }
+
+            // Re-render UI Instantly
+            renderView();
+
+            // Perform Background Sync
+            try {
+                const token = await GoogleSheetsAPI.getAuthToken();
+
+                if (isMoving) {
+                    const valuesBody = {
+                        valueInputOption: "USER_ENTERED",
+                        data: [
+                            { range: `BILLING!${colIndexToLetter(targetAmountColIdx)}${rIdx + 1}`, values: [[ currentPaymentBill.amount ]] },
+                            { range: `BILLING!${colIndexToLetter(targetRemarksColIdx)}${rIdx + 1}`, values: [[ currentPaymentBill.fullRemarks ]] },
+                            { range: `BILLING!${colIndexToLetter(oldState.amountColIndex)}${rIdx + 1}`, values: [[ "" ]] },
+                            { range: `BILLING!${colIndexToLetter(oldState.remarksColIndex)}${rIdx + 1}`, values: [[ "" ]] }
+                        ]
+                    };
+                    const vRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values:batchUpdate`, {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                        body: JSON.stringify(valuesBody)
+                    });
+                    if (!vRes.ok) throw new Error("Failed to move values");
+                }
+
+                const color = willBePaid ? {red: 1, green: 0, blue: 0} : {red: 0, green: 0, blue: 0};
+                const formatBody = {
+                    requests: [{
+                        repeatCell: {
+                            range: {
+                                sheetId: globalBillingSheetId,
+                                startRowIndex: rIdx,
+                                endRowIndex: rIdx + 1,
+                                startColumnIndex: targetAmountColIdx,
+                                endColumnIndex: targetAmountColIdx + 1
+                            },
+                            cell: { userEnteredFormat: { textFormat: { foregroundColor: color } } },
+                            fields: "userEnteredFormat.textFormat.foregroundColor"
+                        }
+                    }]
+                };
+
+                const fRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}:batchUpdate`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formatBody)
+                });
+                if (!fRes.ok) throw new Error("Failed to format color");
+
+            } catch (e) {
+                console.error(e);
+                alert("An error occurred syncing data. Reverting changes on screen.");
+                
+                // Rollback if the API fails
+                currentPaymentBill.amountColIndex = oldState.amountColIndex;
+                currentPaymentBill.remarksColIndex = oldState.remarksColIndex;
+                currentPaymentBill.billingMonthName = oldState.billingMonthName;
+                currentPaymentBill.billingYear = oldState.billingYear;
+                currentPaymentBill.isPaid = oldState.isPaid;
+
+                if (isMoving) {
+                    globalBillingValues[rIdx][oldState.amountColIndex] = currentPaymentBill.amount;
+                    globalBillingValues[rIdx][oldState.remarksColIndex] = currentPaymentBill.fullRemarks;
+                    globalBillingValues[rIdx][targetAmountColIdx] = "";
+                    globalBillingValues[rIdx][targetRemarksColIdx] = "";
+                }
+                renderView();
+            }
+        };
 
         function renderUndoButtonState() {
             const btn = document.getElementById('undo-btn');
@@ -1074,7 +1378,7 @@
         function formatDateReadable(dStr) {
             if (!dStr || dStr === '-') return '-';
             let d = new Date(dStr);
-            if (!isNaN(d.getTime())) return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+            if (!isNaN(d.getTime())) return d.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
             return dStr;
         }
 
@@ -1304,6 +1608,11 @@
         function changeBillingGroupMode(mode) { billingGroupMode = mode; renderView(); }
         function changeGeneralGroupMode(mode) { generalGroupMode = mode; renderView(); }
         
+        window.toggleBillingFund = function(fund, isChecked) {
+            billingFundFilters[fund] = isChecked;
+            renderView();
+        };
+
         window.changeWeeklyMonth = function(mOffset) {
             weeklySelectedMonthOffset = mOffset;
             renderView();
@@ -1385,7 +1694,17 @@
         function navMonthlyBack() { monthlyNavMonth--; if (monthlyNavMonth < 0) { monthlyNavMonth = 11; monthlyNavYear--; } renderView(); }
         function navMonthlyForward() { monthlyNavMonth++; if (monthlyNavMonth > 11) { monthlyNavMonth = 0; monthlyNavYear++; } renderView(); }
         
-        window.toggleDetails = function(id) { const el = document.getElementById(id); if(el) el.classList.toggle('hidden'); };
+        window.toggleDetails = function(id) { 
+            const el = document.getElementById(id); 
+            if(el) {
+                el.classList.toggle('hidden');
+                if (el.classList.contains('hidden')) {
+                    expandedRowIds.delete(id);
+                } else {
+                    expandedRowIds.add(id);
+                }
+            }
+        };
 
         function generateDetailsRow(id, colSpan, data) {
             return `
@@ -1414,6 +1733,90 @@
                                 <span>${formatDateReadable(data.ntp)}</span><span class="font-bold text-xs">to</span><span>${formatDateReadable(data.expiry)}</span>
                             </div>
                         </div>
+                    </div>
+                </td>
+            </tr>
+            `;
+        }
+
+        function generateBillingDetailsRow(id, b) {
+            const allBills = billingDataGlobal.filter(x => x.contractId === b.contractId);
+
+            allBills.sort((a, b) => {
+                if (a.billingYear !== b.billingYear) return a.billingYear - b.billingYear;
+                return monthOrderMap[a.billingMonthName.substring(0,3)] - monthOrderMap[b.billingMonthName.substring(0,3)];
+            });
+
+            let billsHtml = '';
+            allBills.forEach(bill => {
+                const dateStr = bill.billingMonthName.substring(0,3) + ' ' + bill.billingYear;
+                const iconHtml = bill.isPaid
+                    ? `<i class="fa-solid fa-check-circle text-green-600 text-2xl cursor-pointer hover:scale-110 active:scale-95 transition-transform drop-shadow" onclick="openPaymentModal('${bill.contractId}', ${bill.amountColIndex})"></i>`
+                    : `<i class="fa-solid fa-rotate text-[#f89500] text-2xl cursor-pointer hover:scale-110 active:scale-95 transition-transform drop-shadow" onclick="openPaymentModal('${bill.contractId}', ${bill.amountColIndex})"></i>`;
+
+                billsHtml += `
+                    <tr class="border-b border-orange-200/50 hover:bg-orange-100 transition-colors">
+                        <td class="py-1.5 px-2 font-bold text-right text-gray-800 tracking-tight text-sm">Billing : ₱ ${formatCurrency(bill.amount)}</td>
+                        <td class="py-1.5 px-2 font-medium text-center text-gray-800 text-sm">${dateStr}</td>
+                        <td class="py-1.5 px-2 font-medium text-left text-gray-800 leading-tight text-sm break-words">${bill.remarks}</td>
+                        <td class="py-1.5 px-2 text-center">${iconHtml}</td>
+                    </tr>
+                `;
+            });
+
+            const revStr = (b.revExpiry && b.revExpiry !== '-') ? b.revExpiry : '-';
+            const origStr = (b.expiry && b.expiry !== '-') ? formatDateReadable(b.expiry) : '-';
+            const ntpStr = (b.ntp && b.ntp !== '-') ? formatDateReadable(b.ntp) : '-';
+
+            let durationHtml = `<span>${ntpStr}</span><span class="font-bold text-xs mx-2">to</span><span>${origStr} (orig.)</span>`;
+            if (revStr !== '-') {
+                durationHtml += `<span class="mx-2 font-black text-lg leading-none">/</span><span>${revStr} (rev.)</span>`;
+            }
+
+            return `
+            <tr id="${id}" class="hidden text-left bg-gradient-to-b from-[#fffbe6] to-[#ffea99] border-b-[3px] border-orange-300 shadow-inner">
+                <td colspan="3" class="px-2 py-2 text-xs md:text-sm text-black relative outline outline-2 outline-blue-600 outline-dashed outline-offset-[-2px]">
+                    <div class="flex flex-col text-left py-1 w-full max-w-full">
+                        <div class="flex gap-2">
+                            <div class="w-[85px] md:w-[100px] font-bold italic shrink-0 text-slate-800 tracking-wide">Name :</div>
+                            <div class="text-gray-900 leading-snug break-words">${b.projectName}</div>
+                        </div>
+                        <div class="flex gap-2 border-t border-dotted border-[#c68936] mt-1.5 pt-1.5">
+                            <div class="w-[85px] md:w-[100px] font-bold italic shrink-0 text-slate-800 tracking-wide">Location :</div>
+                            <div class="text-gray-900 leading-snug break-words">${b.location}</div>
+                        </div>
+                        <div class="flex gap-2 border-t border-dotted border-[#c68936] mt-1.5 pt-1.5">
+                            <div class="w-[85px] md:w-[100px] font-bold italic shrink-0 text-slate-800 tracking-wide">Contractor :</div>
+                            <div class="text-gray-900">${b.contractor}</div>
+                        </div>
+                        <div class="flex gap-2 border-t border-dotted border-[#c68936] mt-1.5 pt-1.5">
+                            <div class="w-[85px] md:w-[100px] font-bold italic shrink-0 text-slate-800 tracking-wide">Amount :</div>
+                            <div class="text-gray-900 font-medium">₱ ${formatCurrency(b.contractAmount)}</div>
+                        </div>
+                        <div class="flex gap-2 border-t border-dotted border-[#c68936] mt-1.5 pt-1.5">
+                            <div class="w-[85px] md:w-[100px] font-bold italic shrink-0 text-slate-800 tracking-wide">Duration :</div>
+                            <div class="text-gray-900 flex flex-wrap w-full justify-start items-center">
+                                ${durationHtml}
+                            </div>
+                        </div>
+                        <div class="flex gap-2 border-t border-dotted border-[#c68936] mt-1.5 pt-1.5 pb-2">
+                            <div class="w-[85px] md:w-[100px] font-bold italic shrink-0 text-slate-800 tracking-wide">PE:</div>
+                            <div class="text-red-600 font-black">${b.pe}</div>
+                        </div>
+
+                        <table class="w-full mt-1 border-t-2 border-[#c68936] bg-[#fffae6]/70 shadow-sm rounded-sm">
+                            <thead>
+                                <tr class="italic text-slate-900 border-b-2 border-orange-300 text-[11px] md:text-sm">
+                                    <th class="py-1.5 px-2 text-right">Amount</th>
+                                    <th class="py-1.5 px-2 text-center">Date Paid</th>
+                                    <th class="py-1.5 px-2 text-left">Remarks</th>
+                                    <th class="py-1.5 px-2 text-center">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${billsHtml}
+                            </tbody>
+                        </table>
                     </div>
                 </td>
             </tr>
@@ -1559,6 +1962,7 @@
                 filteredBills.forEach(b => {
                     const isExcluded = excludedBillingContracts.has(b.contractId);
 
+                    // Compute totals irrespective of the fund checkbox toggles, but respect excluded logic
                     if (!isExcluded) {
                         if (b.isDar) totalDar += b.amount;
                         else if (b.isMaint) totalMaint += b.amount;
@@ -1569,9 +1973,12 @@
                         }
                     }
 
-                    const groupKey = (billingGroupMode === 'pe') ? b.pe : b.contractor;
-                    if (!groupedData[groupKey]) groupedData[groupKey] = [];
-                    groupedData[groupKey].push(b);
+                    // Only push into rendering group if the specific fund is checked
+                    if (billingFundFilters[b.fundCategory]) {
+                        const groupKey = (billingGroupMode === 'pe') ? b.pe : b.contractor;
+                        if (!groupedData[groupKey]) groupedData[groupKey] = [];
+                        groupedData[groupKey].push(b);
+                    }
                 });
 
                 const renderAmount = (amount) => amount > 0 ? `PHP ${formatCurrency(amount)}` : '';
@@ -1598,7 +2005,7 @@
                 html += `</div>`; 
 
                 html += `
-                    <div class="w-full flex flex-col gap-4 mb-6 font-black text-[#0f3b75] drop-shadow-sm">
+                    <div class="w-full flex flex-col gap-4 mb-2 font-black text-[#0f3b75] drop-shadow-sm">
                         <div class="flex w-full">
                             <div class="w-[35%] bg-[#a9d18e] px-3 py-1.5 md:py-2 flex justify-between items-center text-base md:text-lg border-2 border-white">
                                 <span>TOTAL</span><span>=</span>
@@ -1648,6 +2055,39 @@
                     </div>
                 `;
 
+                html += `
+                    <div class="flex flex-col items-center gap-2 mt-3 mb-6 font-black text-[#0f3b75] text-[15px] md:text-lg w-full">
+                        <div class="flex flex-wrap justify-center items-center gap-x-4 md:gap-x-6 gap-y-2">
+                            <label class="flex items-center gap-1.5 cursor-pointer hover:opacity-80">
+                                <input type="checkbox" onchange="toggleBillingFund('GAA', this.checked)" ${billingFundFilters['GAA'] ? 'checked' : ''} class="fund-checkbox">
+                                <span>GAA</span>
+                            </label>
+                            <label class="flex items-center gap-1.5 cursor-pointer hover:opacity-80">
+                                <input type="checkbox" onchange="toggleBillingFund('DepEd', this.checked)" ${billingFundFilters['DepEd'] ? 'checked' : ''} class="fund-checkbox">
+                                <span>DepEd</span>
+                            </label>
+                            <label class="flex items-center gap-1.5 cursor-pointer hover:opacity-80">
+                                <input type="checkbox" onchange="toggleBillingFund('DA', this.checked)" ${billingFundFilters['DA'] ? 'checked' : ''} class="fund-checkbox">
+                                <span>DA</span>
+                            </label>
+                            <label class="flex items-center gap-1.5 cursor-pointer hover:opacity-80">
+                                <input type="checkbox" onchange="toggleBillingFund('SF', this.checked)" ${billingFundFilters['SF'] ? 'checked' : ''} class="fund-checkbox">
+                                <span>SF</span>
+                            </label>
+                        </div>
+                        <div class="flex flex-wrap justify-center items-center gap-x-4 md:gap-x-6 gap-y-2">
+                            <label class="flex items-center gap-1.5 cursor-pointer hover:opacity-80">
+                                <input type="checkbox" onchange="toggleBillingFund('DAR', this.checked)" ${billingFundFilters['DAR'] ? 'checked' : ''} class="fund-checkbox">
+                                <span>DAR</span>
+                            </label>
+                            <label class="flex items-center gap-1.5 cursor-pointer hover:opacity-80">
+                                <input type="checkbox" onchange="toggleBillingFund('Maint', this.checked)" ${billingFundFilters['Maint'] ? 'checked' : ''} class="fund-checkbox">
+                                <span>MAINT</span>
+                            </label>
+                        </div>
+                    </div>
+                `;
+
                 const sortedKeys = Object.keys(groupedData).sort();
                 if (sortedKeys.length === 0) {
                     html += `<div class="text-center py-10 font-black text-slate-500 opacity-60"><i class="fa-solid fa-check-circle text-4xl mb-3 block"></i> No billings found for this selection!</div>`;
@@ -1684,10 +2124,10 @@
                             if (displayId === '"') {
                                 contractCellHtml = `<div class="w-full text-center font-extrabold text-black text-sm md:text-lg">"</div>`;
                             } else {
-                                let fundText = (b.fundCategory && b.fundCategory !== 'GAA') ? b.fundCategory : '';
+                                let fundText = b.fundCategory || 'GAA';
                                 contractCellHtml = `
                                     <div class="flex items-center relative w-full">
-                                        <span class="absolute left-0 text-[10px] md:text-xs font-normal text-black">${fundText}</span>
+                                        <span class="absolute left-0 text-[10px] md:text-xs font-black text-[#0f3b75] leading-none">${fundText}</span>
                                         <span class="w-full text-center font-extrabold text-black text-sm md:text-lg">${displayId}</span>
                                     </div>
                                 `;
@@ -1710,7 +2150,7 @@
                                             </div>
                                         </td>
                                     </tr>
-                                    ${generateDetailsRow(uniqueId, 3, b)}
+                                    ${generateBillingDetailsRow(uniqueId, b)}
                             `;
                         });
 
@@ -2067,7 +2507,6 @@
                         <div class="w-full flex flex-col gap-2 mb-4">
                             <div class="relative w-full">
                                 <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                                <!-- Using Debounce for the keyup to prevent lag -->
                                 <input type="text" id="monthly-search" placeholder="Search Contract ID, Project, Contractor..." value="${monthlySearchQuery}" class="w-full border-2 border-orange-500 pl-10 pr-3 py-1.5 rounded-md text-sm md:text-base font-bold outline-none text-slate-700 shadow-sm" onkeyup="debounceMonthlySearch(this.value)">
                             </div>
 
@@ -2393,7 +2832,6 @@
                     }
                     container.innerHTML = html;
 
-                    // FAST-DOM Call to smoothly resize all textareas exactly once without freezing the UI
                     if (monthlyViewMode === 'standard') {
                         resizeTextareasSmoothly();
                     }
@@ -2466,15 +2904,12 @@
                         docCols = [{k: 'NTP', l: 'NTP'}, {k: 'PDM', l: 'PDM'}, {k: 'BAR-CHART', l: 'B. Chart'}, {k: 'PRE-CON NOTICE & MINUTES OF MEETING', l: 'Pre-con'}];
                     }
 
- 
-	sortedPEs.forEach((pe, index) => {
+                    sortedPEs.forEach((pe, index) => {
                         const theme = PE_THEMES[index % PE_THEMES.length];
                         const items = groupedDocs[pe];
 
-                        // Check specific state for this PE (defaults to false if undefined)
                         const isHideComplete = docHideCompletePE[pe] || false;
 
-                        // Calculate totals for progress bar (Status)
                         let peTotalReq = 0;
                         let peTotalChecks = 0;
 
@@ -2494,22 +2929,18 @@
                             peTotalChecks += projChecks;
                         });
 
-                        // Filter items if Hide Checkbox is true FOR THIS SPECIFIC PE
                         let visibleItems = items;
                         if (isHideComplete) {
-                            // Hide if all required documents are checked, or if completely N.A.
                             visibleItems = items.filter(p => p._docReq > 0 && p._docChecks < p._docReq);
                         }
 
-                        // Hide the whole PE container if no items are left visible and it's set to hide
                         if (visibleItems.length === 0 && isHideComplete) return;
 
-                        // Calculate percentage format for Progress Bar
                         let percent = 0;
                         if (peTotalReq > 0) percent = (peTotalChecks / peTotalReq) * 100;
                         const percentStr = peTotalReq > 0 ? percent.toFixed(2) : '0.00';
                         
-                        const peEscaped = pe.replace(/"/g, '&quot;'); // Escape to safely pass into the HTML string
+                        const peEscaped = pe.replace(/"/g, '&quot;'); 
 
                         html += `
                             <div class="w-full flex flex-col shadow-md mb-6">
@@ -2524,7 +2955,6 @@
                                     </div>
                                 </div>
                                 
-                                <!-- STATUS PROGRESS BAR -->
                                 <div class="flex items-center px-2 py-1.5 bg-[#e0e8f5] border-b-2 border-white shadow-inner">
                                     <span class="font-extrabold text-[#5c2d91] mr-2 text-sm md:text-base tracking-wide drop-shadow-sm">Status :</span>
                                     <div class="flex-1 bg-[#b0bec5] rounded-full h-[18px] md:h-[22px] relative overflow-hidden shadow-[inset_0px_2px_4px_rgba(0,0,0,0.3)] border border-gray-400 flex">
@@ -2571,9 +3001,7 @@
                         html += `</tbody></table></div>`;
                     });
 
-               
-
-			   }
+               }
                 container.innerHTML = html;
             }
 
@@ -2587,6 +3015,12 @@
                     }
                 }
             }
+
+            // Restore expanded state of details rows automatically
+            expandedRowIds.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.remove('hidden');
+            });
         }
 
         // ====================================================================
