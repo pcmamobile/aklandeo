@@ -16,7 +16,7 @@
 
     <style>
         /* =========================================================
-           GLOBAL UI & ANIMATED ANIME BACKGROUND
+           GLOBAL UI & ANIMATED BACKGROUND
            ========================================================= */
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800;900&display=swap');
         
@@ -37,16 +37,11 @@
             content: '';
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: linear-gradient(45deg, rgba(255, 154, 158, 0.4), rgba(254, 207, 239, 0.4), rgba(161, 196, 253, 0.4));
+            background: linear-gradient(45deg, rgba(224, 242, 254, 0.6), rgba(199, 210, 254, 0.6), rgba(254, 215, 170, 0.6));
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
             z-index: -1;
             pointer-events: none;
-        }
-
-        .neon-border-glow:focus-within {
-            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
-            border-color: #3b82f6;
         }
 
         .no-scrollbar::-webkit-scrollbar {
@@ -55,6 +50,47 @@
         .no-scrollbar {
             -ms-overflow-style: none;
             scrollbar-width: none;
+        }
+
+        /* 3D Button Press Effect */
+        .btn-3d {
+            transition: all 0.1s ease-in-out;
+        }
+        .btn-3d:active {
+            transform: translateY(4px);
+            border-bottom-width: 1px !important;
+            margin-top: 4px; 
+        }
+
+        /* Animated 3D Arrow (Float up and down) */
+        @keyframes float-up {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        .animate-float-up {
+            animation: float-up 1.2s ease-in-out infinite;
+        }
+
+        /* Active Item Highlighting Rules */
+        .item-active-wrapper {
+            background-color: #f8fafc !important;
+            border-left: 5px solid #0ea5e9 !important;
+            border-right: 5px solid #0ea5e9 !important;
+            border-radius: 12px !important;
+            margin: 12px 0 !important;
+            box-shadow: 0 10px 25px rgba(14, 165, 233, 0.25) !important;
+            z-index: 30;
+        }
+        .item-active-master {
+            background: linear-gradient(135deg, #1e3a8a 0%, #0284c7 100%) !important;
+            border-radius: 6px 6px 0 0 !important;
+            padding-top: 16px !important;
+            padding-bottom: 16px !important;
+        }
+        .item-active-master * {
+            color: #ffffff !important;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.4) !important;
+            font-size: 105%;
         }
 
         @media print {
@@ -80,16 +116,17 @@
 <body class="flex flex-col pb-20">
 
     <div id="toast-notification" class="fixed top-4 left-1/2 -translate-x-1/2 z-[200] max-w-sm w-[90%] transform -translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
-        <div class="bg-white/90 backdrop-blur-md border rounded-xl p-4 shadow-2xl flex items-center gap-3" id="toast-box">
+        <div class="bg-white/95 backdrop-blur-md border border-b-4 rounded-xl p-4 shadow-xl flex items-center gap-3" id="toast-box">
             <i id="toast-icon" class="fa-solid fa-circle-check text-xl"></i>
             <span id="toast-text" class="text-sm font-bold"></span>
         </div>
     </div>
 
-    <div id="confirm-modal" class="fixed inset-0 z-[250] bg-slate-900/60 backdrop-blur-md p-4 hidden flex-col justify-center items-center">
-        <div class="bg-white/95 backdrop-blur-xl border border-white/80 rounded-3xl w-full max-w-sm overflow-hidden shadow-[0_10px_40px_rgba(0,0,0,0.3)] transform transition-transform duration-300 scale-95" id="confirm-modal-box">
+    <!-- Confirmation Modal -->
+    <div id="confirm-modal" class="fixed inset-0 z-[250] bg-slate-900/70 backdrop-blur-md p-4 hidden flex-col justify-center items-center">
+        <div class="bg-white/95 border-t-4 border-cyan-500 rounded-3xl w-full max-w-sm overflow-hidden shadow-xl transform transition-transform duration-300 scale-95" id="confirm-modal-box">
             <div class="p-6 flex flex-col gap-4 text-center">
-                <div class="mx-auto w-16 h-16 bg-blue-50 border border-blue-200 shadow-inner rounded-full flex items-center justify-center text-blue-500 text-3xl">
+                <div class="mx-auto w-16 h-16 bg-cyan-50 border border-cyan-200 shadow-inner rounded-full flex items-center justify-center text-cyan-500 text-3xl">
                     <i class="fa-solid fa-circle-question" id="confirm-modal-icon"></i>
                 </div>
                 <div>
@@ -98,51 +135,86 @@
                 </div>
             </div>
             <div class="p-4 bg-slate-50/50 border-t border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-3" id="confirm-modal-actions">
-                <button id="confirm-btn-cancel" class="w-full py-3 rounded-xl border border-slate-300 text-slate-600 bg-white shadow-sm font-black text-xs uppercase tracking-widest hover:bg-slate-50 hover:shadow-md transition-all">Cancel</button>
-                <button id="confirm-btn-ok" class="w-full py-3 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-black text-xs uppercase tracking-widest shadow-md shadow-blue-500/30 hover:scale-[1.02] transition-all">OK</button>
+                <button id="confirm-btn-cancel" class="btn-3d w-full py-3 rounded-xl border-b-4 border-slate-300 text-slate-600 bg-white font-black text-xs uppercase tracking-widest hover:bg-slate-50 shadow-sm">Cancel</button>
+                <button id="confirm-btn-ok" class="btn-3d w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 border-b-4 border-blue-800 text-white font-black text-xs uppercase tracking-widest shadow-md">OK</button>
             </div>
         </div>
     </div>
 
-    <div id="loader" class="fixed inset-0 z-[200] bg-white/60 backdrop-blur-xl flex flex-col items-center justify-center">
-        <div class="relative flex items-center justify-center mb-6">
-            <div class="w-20 h-20 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin shadow-lg"></div>
-            <i class="fa-solid fa-cube text-3xl text-blue-600 absolute"></i>
+    <!-- Password Lock Modal for Past Weeks/Months (Admin Only) -->
+    <div id="password-modal" class="fixed inset-0 z-[350] bg-slate-900/70 backdrop-blur-md p-4 hidden flex-col justify-center items-center">
+        <div class="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-xl border-t-4 border-orange-500">
+            <div class="p-6 flex flex-col gap-4 text-center">
+                <div class="mx-auto w-16 h-16 bg-orange-50 border border-orange-200 rounded-full flex items-center justify-center text-orange-500 text-3xl shadow-inner">
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+                <h3 class="text-lg font-black text-slate-800 tracking-wider">Admin History Unlock</h3>
+                <p class="text-xs text-slate-500 font-bold mb-1">Enter Admin password to edit past data.</p>
+                <input type="password" id="history-password-input" placeholder="Enter Password" onkeydown="if(event.key === 'Enter') verifyHistoryPassword()" class="w-full bg-slate-100 border-2 border-slate-300 rounded-xl p-3 text-slate-800 text-center font-bold focus:outline-none focus:border-orange-500 shadow-inner">
+                <p id="password-error" class="text-xs text-rose-500 font-bold hidden">Incorrect password!</p>
+            </div>
+            <div class="p-4 bg-slate-50 border-t border-slate-200 flex gap-3">
+                <button onclick="closePasswordModal()" class="btn-3d flex-1 py-3 rounded-xl border-b-4 border-slate-300 text-slate-600 bg-white font-black text-xs uppercase tracking-widest shadow-sm">Cancel</button>
+                <button onclick="verifyHistoryPassword()" class="btn-3d flex-1 py-3 rounded-xl border-b-4 border-orange-700 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black text-xs uppercase tracking-widest shadow-md">Unlock</button>
+            </div>
         </div>
-        <h2 class="text-2xl font-black text-slate-800 tracking-wider" id="loader-title">Loading SWA System</h2>
-        <p id="loader-text" class="text-sm font-bold text-slate-600 mt-2 text-center px-6">Validating credentials and retrieving live data...</p>
     </div>
 
-    <!-- UPDATED HEADER WITH CUSTOM BACK ARROW AND PROJECT INFO -->
-    <header class="bg-[#c8deef]/95 border-b border-white/50 backdrop-blur-lg sticky top-0 z-40 px-3 py-2 flex items-start gap-2 shadow-sm relative">
-        <button onclick="handleAppBack()" class="relative flex items-center justify-center shrink-0 w-[90px] h-[36px] overflow-visible group mt-0.5" title="Back to Main Menu">
-            <svg class="absolute inset-0 w-full h-full text-[#81bc4c] group-hover:text-[#6a9e3e] transition-colors drop-shadow" viewBox="0 0 100 40" preserveAspectRatio="none">
-                <polygon points="0,20 25,0 25,10 100,10 100,30 25,30 25,40" fill="currentColor" stroke="#1f2937" stroke-width="2"/>
-            </svg>
-            <span class="relative z-10 text-white font-black text-[12px] tracking-widest pl-3 mt-[1px]">BACK</span>
+    <!-- VIBRANT 3D LOADING SCREEN (0% TO 100%) -->
+    <div id="loader" class="fixed inset-0 z-[500] bg-white/90 backdrop-blur-md hidden flex-col items-center justify-center overflow-hidden">
+        <!-- 3D Hourglass -->
+        <div class="relative w-28 h-28 mb-6 animate-pulse flex items-center justify-center">
+            <i class="fa-solid fa-hourglass-half text-7xl text-blue-500 drop-shadow-[0_10px_15px_rgba(59,130,246,0.6)]"></i>
+            <i class="fa-solid fa-clock absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white text-xl drop-shadow-sm opacity-50"></i>
+        </div>
+        
+        <!-- Progress Bar Container -->
+        <div class="w-[80%] max-w-[300px] h-10 bg-slate-200 rounded-full border-4 border-blue-600 shadow-[inset_0_4px_8px_rgba(0,0,0,0.3)] relative overflow-hidden flex items-center">
+            <!-- Filling Bar -->
+            <div id="loader-progress-bar" class="absolute top-0 left-0 bottom-0 bg-gradient-to-r from-cyan-400 to-blue-600 w-[0%] transition-all duration-300 shadow-[inset_0_-2px_5px_rgba(0,0,0,0.3)]">
+                <!-- Glossy Highlight -->
+                <div class="absolute top-1 left-2 right-2 h-2 bg-white/40 rounded-full blur-[1px]"></div>
+            </div>
+        </div>
+        
+        <!-- Text Percentage & Status -->
+        <div class="flex items-end gap-2 mt-4 text-blue-800 drop-shadow-sm">
+            <span class="text-4xl font-black tracking-tighter" id="loader-percentage">0%</span>
+        </div>
+        <h2 class="text-xl font-black text-blue-900 mt-2 tracking-widest uppercase drop-shadow-sm" id="loader-title">LOADING...</h2>
+        <p id="loader-text" class="text-xs font-bold text-slate-500 mt-1 text-center px-6 italic">Connecting to Google Sheets Database</p>
+    </div>
+
+    <!-- VIBRANT PERFECT CENTERED HEADER -->
+    <header class="bg-gradient-to-r from-blue-700 to-indigo-900 border-b-4 border-indigo-950 sticky top-0 z-40 p-2 shadow-lg flex items-center gap-3">
+        <!-- Vibrant Green 3D Back Arrow -->
+        <button onclick="handleAppBack()" class="btn-3d shrink-0 bg-gradient-to-b from-[#8bc34a] to-[#689f38] border-b-[4px] border-[#33691e] rounded-xl px-4 py-2.5 flex items-center justify-center shadow-[0_4px_10px_rgba(0,0,0,0.3)]">
+            <i class="fa-solid fa-caret-left text-white text-xl drop-shadow-md mr-1.5"></i>
+            <span class="text-white font-black text-xs tracking-widest drop-shadow-md">BACK</span>
         </button>
-        <div class="flex flex-col flex-1 min-w-0">
-            <div class="flex flex-wrap items-baseline gap-x-3 gap-y-0 text-left">
-                <span class="text-[#f52212] font-black text-2xl sm:text-3xl uppercase tracking-wider leading-none">SWA</span>
-                <span id="header-contract-display" class="text-black font-black text-xl sm:text-2xl uppercase leading-none hidden"></span>
+        
+        <!-- Fully Centered Project Info -->
+        <div class="flex-1 flex flex-col items-center justify-center text-center overflow-hidden">
+            <div class="flex items-center justify-center gap-2 w-full">
+                <span class="text-[#4ade80] font-black text-2xl md:text-3xl drop-shadow-md tracking-wider">SWA</span>
+                <span id="header-contract-display" class="text-white font-black text-xl md:text-2xl drop-shadow-md tracking-widest truncate hidden">---</span>
             </div>
-            <div id="header-project-info" class="hidden flex-col mt-1 mb-1 border-t border-blue-300/50 pt-1">
-                <div id="ws-proj-name" class="font-black text-[11px] sm:text-[13px] text-slate-900 leading-tight"></div>
-                <div id="ws-proj-loc" class="font-bold text-[10px] sm:text-[11px] text-slate-800 leading-tight mt-0.5"></div>
+            <div id="header-project-info" class="flex flex-col w-full px-1 hidden mt-0.5 border-t border-white/20 pt-0.5">
+                <div id="ws-proj-name" class="font-bold text-[11px] md:text-[13px] text-white truncate drop-shadow-sm leading-tight"></div>
+                <div id="ws-proj-loc" class="font-semibold text-[9px] md:text-[11px] text-blue-200 truncate leading-tight mt-0.5"></div>
             </div>
         </div>
-        <div class="text-right hidden sm:block shrink-0 mt-1">
-            <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest leading-none mb-1">User Profile</p>
-            <p id="header-username-display" class="text-xs font-black text-blue-700 uppercase leading-none break-all max-w-[120px]">---</p>
-        </div>
+        
+        <!-- Balancer for exact centering -->
+        <div class="w-[85px] hidden sm:block shrink-0"></div> 
     </header>
 
-    <main class="p-4 lg:p-6 flex-1 w-full mx-auto max-w-5xl">
+    <main class="p-3 lg:p-6 flex-1 w-full mx-auto max-w-5xl">
         
         <div id="filter-view" class="fixed inset-0 z-[100] hidden flex-col w-full bg-slate-50/95 backdrop-blur-2xl p-6 md:p-12 overflow-y-auto">
             <div class="flex justify-between items-center mb-4 border-b border-slate-200/80 pb-4">
                 <span class="font-black text-lg text-slate-800 tracking-wider uppercase"><i class="fa-solid fa-chart-line text-[#e86a10] mr-2"></i> Monthly Accomplishments</span>
-                <button onclick="closeFilterView()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-widest transition-colors"><i class="fa-solid fa-arrow-left mr-1"></i> Back</button>
+                <button onclick="closeFilterView()" class="btn-3d bg-slate-100 hover:bg-slate-200 text-slate-600 px-4 py-2 rounded-xl border-b-4 border-slate-300 font-bold text-xs uppercase tracking-widest transition-colors"><i class="fa-solid fa-arrow-left mr-1"></i> Back</button>
             </div>
             <div class="flex flex-col gap-2 mb-4">
                 <label class="text-xs font-black text-slate-500 tracking-wider uppercase px-1">Select Month</label>
@@ -151,104 +223,107 @@
             <div class="w-full overflow-x-auto rounded-xl border border-slate-200 shadow-sm flex-1 bg-white">
                 <table class="w-full text-left border-collapse min-w-[500px]">
                     <thead>
-                        <tr class="bg-[#ee7d31] text-white font-bold text-sm tracking-wide">
+                        <tr class="bg-gradient-to-r from-[#0ea5e9] to-[#2563eb] text-white font-bold text-sm tracking-wide">
                             <th class="py-3 px-4 w-[25%]">Contract ID</th>
-                            <th class="py-3 px-4 w-[20%] text-center border-l border-[#d97c3b]">Percentage</th>
-                            <th class="py-3 px-4 w-[55%] border-l border-[#d97c3b]">Remarks</th>
+                            <th class="py-3 px-4 w-[20%] text-center border-l border-white/30">Percentage</th>
+                            <th class="py-3 px-4 w-[55%] border-l border-white/30">Remarks</th>
                         </tr>
                     </thead>
-                    <tbody id="inline-filter-table-body" class="divide-y divide-[#ee7d31]/20 bg-white"></tbody>
+                    <tbody id="inline-filter-table-body" class="divide-y divide-[#0ea5e9]/20 bg-white"></tbody>
                 </table>
             </div>
         </div>
 
         <!-- ================= WORKSPACE VIEW ================= -->
-        <div id="workspace-view" class="hidden flex-col gap-4 w-full max-w-5xl mx-auto transition-all duration-500">
+        <div id="workspace-view" class="hidden flex-col gap-3 w-full max-w-5xl mx-auto">
             
-            <div class="flex flex-col gap-1.5 bg-white/50 backdrop-blur-xl border border-white/60 p-2.5 rounded-2xl shadow-sm mt-1">
-                <div id="month-carousel" class="flex gap-2 overflow-x-auto no-scrollbar pb-1"></div>
-                <!-- WEEK SLIDER -->
-                <div id="week-carousel" class="flex gap-2 overflow-x-auto no-scrollbar pt-2 border-t border-slate-300/50 hidden"></div>
+            <!-- MONTH & WEEK SLIDERS (Equally Distributed) -->
+            <div class="flex flex-col gap-2 bg-white/80 backdrop-blur-xl border border-slate-200 p-2.5 rounded-2xl shadow-sm mt-1">
+                <!-- Months: Fixed to show 4 items exactly -->
+                <div id="month-carousel" class="flex gap-2 overflow-x-auto no-scrollbar pb-1 snap-x snap-mandatory"></div>
+                <!-- Weeks: Flex-1 to stretch equally -->
+                <div id="week-carousel" class="flex gap-2 w-full pt-2 border-t border-slate-300/50 hidden"></div>
             </div>
 
-            <div class="flex flex-col md:flex-row gap-4">
-                <div class="flex-1 flex flex-col border border-slate-200/50 bg-white/60 rounded-2xl overflow-hidden shadow-sm">
-                    <div class="grid grid-cols-[35%_35%_15%_15%] bg-[#ee7d31] text-white font-bold py-2 text-[9px] sm:text-[10px] uppercase tracking-wide text-center border-b border-[#d97c3b] leading-tight">
-                        <div class="px-1">Amount</div>
-                        <div class="px-1">To Date</div>
-                        <div class="px-1">Actual %</div>
-                        <div class="px-1">Slippage</div>
-                    </div>
-                    <div class="grid grid-cols-[35%_35%_15%_15%] bg-[#fff4eb] text-slate-800 font-black text-[10px] sm:text-[11px] py-2 text-center divide-x divide-orange-200 items-center">
-                        <div id="stat-amount" class="text-blue-700 break-all leading-tight tracking-tighter px-0.5">Php 0.00</div>
-                        <div id="stat-todate-amount" class="text-emerald-700 break-all leading-tight tracking-tighter px-0.5">Php 0.00</div>
-                        <div id="stat-actual-percent" class="text-purple-700 break-all leading-tight tracking-tighter px-0.5">0.00%</div>
-                        <div id="stat-slippage" class="text-rose-700 break-all leading-tight tracking-tighter px-0.5">-</div>
-                    </div>
+            <!-- ENHANCED STATS GRID (Amount, To Date, Actual %, Slippage) -->
+            <div class="flex flex-col border-2 border-[#ea580c] bg-white rounded-2xl overflow-hidden shadow-md">
+                <div class="grid grid-cols-[30%_30%_18%_22%] bg-gradient-to-b from-[#f97316] to-[#c2410c] text-white font-bold py-2 text-[9px] sm:text-[11px] uppercase tracking-wide text-center border-b-2 border-[#9a3412] shadow-inner drop-shadow-sm">
+                    <div class="px-1 border-r border-white/30">Amount</div>
+                    <div class="px-1 border-r border-white/30">To Date</div>
+                    <div class="px-1 border-r border-white/30">Actual %</div>
+                    <div class="px-1">Slippage</div>
+                </div>
+                <div class="grid grid-cols-[30%_30%_18%_22%] bg-[#fff7ed] text-slate-800 font-black text-[10px] sm:text-[12px] py-2.5 text-center divide-x divide-orange-200 items-center">
+                    <div id="stat-amount" class="text-blue-700 break-all leading-tight tracking-tighter px-0.5">Php 0.00</div>
+                    <div id="stat-todate-amount" class="text-[#059669] break-all leading-tight tracking-tighter px-0.5">Php 0.00</div>
+                    <div id="stat-actual-percent" class="text-purple-700 break-all leading-tight tracking-tighter px-0.5">0.00%</div>
+                    <div id="stat-slippage" class="text-rose-700 break-all leading-tight tracking-tighter px-0.5 flex flex-col items-center justify-center gap-0.5">-</div>
                 </div>
             </div>
 
-            <div class="flex flex-col gap-4 relative mt-2">
+            <div class="flex flex-col gap-3 relative mt-1">
                 
                 <!-- VIEW 1: Master-Detail List View (Default) -->
-                <div class="flex flex-col gap-4" id="items-list-container">
-                    <div class="w-full text-center py-16 text-slate-500 bg-white/50 backdrop-blur-xl border border-white/60 rounded-[30px] shadow-sm">
-                        <i class="fa-solid fa-magnifying-glass text-5xl mb-4 opacity-30 text-blue-500"></i>
+                <div class="flex flex-col gap-3" id="items-list-container">
+                    <div class="w-full text-center py-16 text-slate-500 bg-white/60 backdrop-blur-xl border border-slate-200 rounded-[30px] shadow-sm">
+                        <i class="fa-solid fa-magnifying-glass text-5xl mb-4 opacity-30 text-cyan-500"></i>
                         <p class="text-sm font-black">Please select a contract to view items.</p>
                     </div>
                 </div>
 
-                <!-- VIEW 2: Excel-Like Fast Editor View -->
-                <div class="hidden flex-col w-full bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden" id="items-editor-container">
-                    <div class="bg-white px-4 py-4 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                        <h2 class="text-xl font-extrabold text-slate-900 tracking-tight uppercase">ADD/EDIT/UPDATE ITEMS</h2>
+                <!-- VIEW 2: Excel-Like Fast Editor View (VIBRANT & 3D) -->
+                <div class="hidden flex-col w-full bg-gradient-to-b from-slate-50 to-slate-200 rounded-2xl shadow-lg border-2 border-cyan-300 overflow-hidden" id="items-editor-container">
+                    <div class="bg-gradient-to-r from-[#0ea5e9] to-[#1d4ed8] px-4 py-4 border-b-4 border-blue-900 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shadow-md">
+                        <h2 class="text-xl font-extrabold text-white tracking-wider uppercase drop-shadow-md">ADD/EDIT/UPDATE ITEMS</h2>
                         <div class="flex gap-2 w-full sm:w-auto">
-                            <button onclick="closeItemsEditorModal()" class="flex-1 sm:flex-none px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-black rounded-lg text-[11px] uppercase tracking-widest transition-colors shadow-sm border border-slate-200">Cancel</button>
-                            <button onclick="saveItemsEditorChanges()" class="flex-1 sm:flex-none px-4 py-2.5 bg-[#ee7d31] hover:bg-[#d97c3b] text-white font-black rounded-lg text-[11px] uppercase tracking-widest transition-all shadow-md shadow-orange-500/30">Apply Changes</button>
+                            <button onclick="closeItemsEditorModal()" class="btn-3d flex-1 sm:flex-none px-4 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-800 font-black rounded-xl text-[11px] uppercase tracking-widest border-b-4 border-slate-400 shadow-sm">Cancel</button>
+                            <button onclick="saveItemsEditorChanges()" class="btn-3d flex-1 sm:flex-none px-4 py-2.5 bg-gradient-to-b from-[#34d399] to-[#059669] text-white font-black rounded-xl text-[11px] uppercase tracking-widest border-b-4 border-[#065f46] shadow-md">Apply Changes</button>
                         </div>
                     </div>
                     
-                    <div class="w-full pb-4">
-                        <table class="w-full text-left border-collapse table-fixed">
-                            <thead>
-                                <tr class="bg-[#ee7d31] text-white font-bold text-[10px] sm:text-sm tracking-wide">
-                                    <th class="py-2.5 px-1.5 sm:px-3 w-[30%] sm:w-[35%] text-left">Item No.</th>
-                                    <th class="py-2.5 px-1 sm:px-3 w-[24%] text-right border-l border-[#d97c3b]">Target Qty</th>
-                                    <th class="py-2.5 px-1 sm:px-3 w-[26%] text-right border-l border-[#d97c3b]">Unit Cost</th>
-                                    <th class="py-2.5 px-1 sm:px-2 w-[20%] text-center border-l border-[#d97c3b]">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody id="items-editor-table-body" class="divide-y divide-[#ee7d31]/20">
-                                <!-- Rows injected here -->
-                            </tbody>
-                        </table>
+                    <div class="w-full pb-2 pt-2 px-2">
+                        <div class="rounded-xl border-2 border-slate-300 overflow-hidden shadow-sm bg-white">
+                            <table class="w-full text-left border-collapse table-fixed">
+                                <thead>
+                                    <tr class="bg-slate-200 text-slate-700 font-black text-[10px] sm:text-xs tracking-widest uppercase border-b-2 border-slate-300 shadow-inner">
+                                        <th class="py-2.5 px-1.5 sm:px-3 w-[30%] sm:w-[35%] text-left">Item No.</th>
+                                        <th class="py-2.5 px-1 sm:px-3 w-[24%] text-right border-l border-slate-300">Target Qty</th>
+                                        <th class="py-2.5 px-1 sm:px-3 w-[26%] text-right border-l border-slate-300">Unit Cost</th>
+                                        <th class="py-2.5 px-1 sm:px-2 w-[20%] text-center border-l border-slate-300">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="items-editor-table-body" class="divide-y divide-slate-200 bg-slate-50">
+                                    <!-- Rows injected here -->
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                     
-                    <div class="flex w-full border-t border-[#ee7d31]/30">
-                        <button onclick="addEmptyRowInEditor()" class="flex-1 py-4 bg-[#fff4eb] hover:bg-[#ffebd6] text-[#ee7d31] font-black text-xs uppercase tracking-widest transition-colors flex justify-center items-center gap-2">
-                            <i class="fa-solid fa-plus-circle"></i> Add Row
+                    <div class="flex w-full border-t-2 border-cyan-300 bg-white">
+                        <button onclick="addEmptyRowInEditor()" class="btn-3d flex-1 py-4 bg-gradient-to-r from-cyan-100 to-blue-100 text-blue-800 font-black text-xs uppercase tracking-widest flex justify-center items-center gap-2 border-r-2 border-cyan-200">
+                            <i class="fa-solid fa-plus-circle text-lg"></i> Add Row
                         </button>
                         <div class="relative flex-1 flex">
-                            <button onclick="toggleVoDropdown()" class="w-full py-4 bg-amber-50 hover:bg-amber-100 text-amber-600 font-black text-xs uppercase tracking-widest transition-colors flex justify-center items-center gap-2 border-l border-[#ee7d31]/30">
-                                <i class="fa-solid fa-file-contract"></i> Add/Edit VO
+                            <button onclick="toggleVoDropdown()" class="btn-3d w-full py-4 bg-gradient-to-r from-amber-100 to-orange-100 text-orange-800 font-black text-xs uppercase tracking-widest flex justify-center items-center gap-2">
+                                <i class="fa-solid fa-file-contract text-lg"></i> Add/Edit VO
                             </button>
-                            <div id="vo-dropdown-menu" class="hidden absolute bottom-full mb-1 left-0 w-full bg-white border border-slate-200 shadow-xl rounded-xl overflow-hidden flex-col z-[100]">
-                                <button onclick="openVoEditor(1, 'VO 1')" class="py-3 px-4 text-xs font-bold text-slate-700 hover:bg-slate-100 text-left border-b border-slate-100">Variation Order 1</button>
-                                <button onclick="openVoEditor(2, 'VO 2')" class="py-3 px-4 text-xs font-bold text-slate-700 hover:bg-slate-100 text-left border-b border-slate-100">Variation Order 2</button>
-                                <button onclick="openVoEditor(3, 'VO 3')" class="py-3 px-4 text-xs font-bold text-slate-700 hover:bg-slate-100 text-left border-b border-slate-100">Variation Order 3</button>
-                                <button onclick="openVoEditor(4, 'VO 4')" class="py-3 px-4 text-xs font-bold text-slate-700 hover:bg-slate-100 text-left border-b border-slate-100">Variation Order 4</button>
-                                <button onclick="openVoEditor(5, 'VO 5')" class="py-3 px-4 text-xs font-bold text-slate-700 hover:bg-slate-100 text-left border-b border-slate-100">Variation Order 5</button>
-                                <button onclick="openVoEditor(6, 'Final VO')" class="py-3 px-4 text-xs font-bold text-slate-700 hover:bg-slate-100 text-left">Final VO (FVO)</button>
+                            <div id="vo-dropdown-menu" class="hidden absolute bottom-full mb-2 left-0 w-full bg-white border-2 border-slate-300 shadow-2xl rounded-xl overflow-hidden flex-col z-[100]">
+                                <button onclick="openVoEditor(1, 'VO 1')" class="py-3 px-4 text-xs font-bold text-slate-700 hover:bg-blue-50 text-left border-b border-slate-100">Variation Order 1</button>
+                                <button onclick="openVoEditor(2, 'VO 2')" class="py-3 px-4 text-xs font-bold text-slate-700 hover:bg-blue-50 text-left border-b border-slate-100">Variation Order 2</button>
+                                <button onclick="openVoEditor(3, 'VO 3')" class="py-3 px-4 text-xs font-bold text-slate-700 hover:bg-blue-50 text-left border-b border-slate-100">Variation Order 3</button>
+                                <button onclick="openVoEditor(4, 'VO 4')" class="py-3 px-4 text-xs font-bold text-slate-700 hover:bg-blue-50 text-left border-b border-slate-100">Variation Order 4</button>
+                                <button onclick="openVoEditor(5, 'VO 5')" class="py-3 px-4 text-xs font-bold text-slate-700 hover:bg-blue-50 text-left border-b border-slate-100">Variation Order 5</button>
+                                <button onclick="openVoEditor(6, 'Final VO')" class="py-3 px-4 text-xs font-bold text-slate-700 hover:bg-blue-50 text-left">Final VO (FVO)</button>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Compact Scheduled % (BarChart) Accordion -->
-                <div id="barchart-container" class="hidden flex-col border border-blue-200 bg-[#f0f7ff]/90 rounded-2xl overflow-hidden shadow-sm mt-2">
-                    <div class="px-4 py-3 text-[11px] md:text-sm font-semibold text-slate-800 cursor-pointer hover:bg-blue-100/50 transition-colors flex justify-between items-center" onclick="toggleBarChartAccordion()">
+                <div id="barchart-container" class="hidden flex-col border border-blue-300 bg-gradient-to-r from-[#f0f7ff] to-white rounded-2xl overflow-hidden shadow-sm mt-1">
+                    <div class="px-4 py-3 text-[11px] md:text-sm font-semibold text-slate-800 cursor-pointer hover:bg-blue-100/50 flex justify-between items-center" onclick="toggleBarChartAccordion()">
                         <div class="flex items-center gap-2 font-bold text-blue-700 shrink-0 mr-2">
-                            <i class="fa-solid fa-chevron-right text-[10px] transition-transform duration-300" id="icon-barchart"></i>
+                            <i class="fa-solid fa-chevron-right text-[10px]" id="icon-barchart"></i>
                             <i class="fa-solid fa-chart-simple"></i> BarChart
                         </div>
                         <span id="barchart-preview" class="text-[10px] text-slate-500 font-bold break-all leading-tight max-w-[50%] text-right"></span>
@@ -257,10 +332,10 @@
                 </div>
 				
 				<!-- Compact Suspension / Resume Accordion -->
-                <div id="suspension-container" class="hidden flex-col border border-rose-200 bg-[#fff5f5]/90 rounded-2xl overflow-hidden shadow-sm mt-2">
-                    <div class="px-4 py-3 text-[11px] md:text-sm font-semibold text-slate-800 cursor-pointer hover:bg-rose-100/50 transition-colors flex justify-between items-center" onclick="toggleSuspensionAccordion()">
+                <div id="suspension-container" class="hidden flex-col border border-rose-300 bg-gradient-to-r from-[#fff5f5] to-white rounded-2xl overflow-hidden shadow-sm mt-1">
+                    <div class="px-4 py-3 text-[11px] md:text-sm font-semibold text-slate-800 cursor-pointer hover:bg-rose-100/50 flex justify-between items-center" onclick="toggleSuspensionAccordion()">
                         <div class="flex items-center gap-2 font-bold text-rose-700 shrink-0 mr-2">
-                            <i class="fa-solid fa-chevron-right text-[10px] transition-transform duration-300" id="icon-suspension"></i>
+                            <i class="fa-solid fa-chevron-right text-[10px]" id="icon-suspension"></i>
                             <i class="fa-solid fa-pause-circle"></i> Suspension & Resume
                         </div>
                         <span id="suspension-preview" class="text-[10px] text-slate-500 font-bold break-all leading-tight max-w-[50%] text-right">No interruptions</span>
@@ -269,16 +344,16 @@
                 </div>
 
                 <!-- Compact Monthly Remarks Accordion -->
-                <div id="remarks-container" class="hidden flex-col border border-orange-200 bg-[#fff4eb]/90 rounded-2xl overflow-hidden shadow-sm mt-0">
-                    <div class="px-4 py-3 text-[11px] md:text-sm font-semibold text-slate-800 cursor-pointer hover:bg-orange-300/40 transition-colors flex justify-between items-center" onclick="toggleRemarksAccordion()">
+                <div id="remarks-container" class="hidden flex-col border border-orange-300 bg-gradient-to-r from-[#fff4eb] to-white rounded-2xl overflow-hidden shadow-sm mt-1">
+                    <div class="px-4 py-3 text-[11px] md:text-sm font-semibold text-slate-800 cursor-pointer hover:bg-orange-100/50 flex justify-between items-center" onclick="toggleRemarksAccordion()">
                         <div class="flex items-center gap-2 font-bold text-amber-700 shrink-0 mr-2">
-                            <i class="fa-solid fa-chevron-right text-[10px] transition-transform duration-300" id="icon-remarks"></i>
+                            <i class="fa-solid fa-chevron-right text-[10px]" id="icon-remarks"></i>
                             <i class="fa-solid fa-comment-dots"></i> Monthly Remarks
                         </div>
                         <span id="remarks-preview" class="text-[10px] text-slate-500 break-all line-clamp-2 max-w-[50%] text-right font-normal italic leading-tight"></span>
                     </div>
                     <div id="detail-remarks" class="hidden flex-col bg-white border-t border-dashed border-orange-300 p-4 gap-3 shadow-inner">
-                        <textarea id="monthly-remarks" rows="2" oninput="onRemarksEdit(this)" class="w-full bg-white/70 border border-slate-300 rounded-xl p-3 text-slate-800 text-xs font-bold focus:outline-none focus:border-amber-400 placeholder-slate-400 transition-colors shadow-inner resize-none" placeholder="Enter remarks for the selected month..."></textarea>
+                        <textarea id="monthly-remarks" rows="2" oninput="onRemarksEdit(this)" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-slate-800 text-xs font-bold focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/30 placeholder-slate-400 shadow-inner resize-none transition-all" placeholder="Enter remarks for the selected month..."></textarea>
                     </div>
                 </div>
 
@@ -286,48 +361,49 @@
         </div>
     </main>
 
-    <div id="action-bar" class="fixed bottom-0 left-0 right-0 z-40 bg-white/80 border-t border-white/50 backdrop-blur-lg p-3 lg:p-4 hidden items-center justify-center gap-3 shadow-[0_-4px_15px_rgba(0,0,0,0.05)] print:hidden">
-        <button onclick="saveChanges()" id="sync-button" disabled class="w-1/2 max-w-[200px] justify-center bg-white/50 border border-white/60 text-slate-400 px-3 py-3 lg:px-5 lg:py-3.5 rounded-xl font-black text-xs transition-all flex items-center gap-1.5 cursor-not-allowed">
+    <div id="action-bar" class="fixed bottom-0 left-0 right-0 z-40 bg-white/90 border-t-2 border-slate-200 backdrop-blur-xl p-3 lg:p-4 hidden items-center justify-center gap-3 shadow-[0_-5px_15px_rgba(0,0,0,0.1)] print:hidden">
+        <button onclick="saveChanges()" id="sync-button" disabled class="btn-3d w-1/2 max-w-[200px] justify-center bg-white/50 border border-white/60 text-slate-400 px-3 py-3 lg:px-5 lg:py-3.5 rounded-xl font-black text-xs flex items-center gap-1.5 cursor-not-allowed">
             <i class="fa-solid fa-cloud-arrow-up"></i> Save
             <span id="pending-changes-counter" class="hidden"></span>
         </button>
-        <button onclick="generateSWAReport()" id="print-report-button" disabled class="w-1/2 max-w-[200px] justify-center bg-white/50 border border-white/60 text-slate-400 px-3 py-3 lg:px-5 lg:py-3.5 rounded-xl font-black text-xs transition-all flex items-center gap-1.5 cursor-not-allowed">
+        <button onclick="generateSWAReport()" id="print-report-button" disabled class="btn-3d w-1/2 max-w-[200px] justify-center bg-white/50 border border-white/60 text-slate-400 px-3 py-3 lg:px-5 lg:py-3.5 rounded-xl font-black text-xs flex items-center gap-1.5 cursor-not-allowed">
             <i class="fa-solid fa-file-invoice"></i> Generate
         </button>
     </div>
 
     <!-- Modals -->
-    <div id="contract-modal" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-md p-4 hidden flex-col justify-start pt-20">
-        <div class="bg-white/80 backdrop-blur-xl border border-white/80 rounded-[30px] w-full max-w-md mx-auto max-h-[75vh] flex flex-col overflow-hidden shadow-[0_20px_50px_rgba(31,38,135,0.2)]">
-            <div class="p-5 border-b border-white/60 flex items-center justify-between bg-white/50">
-                <span class="font-black text-base text-slate-800 tracking-wider uppercase"><i class="fa-solid fa-search mr-2 text-blue-500"></i> Find Contract ID</span>
-                <button onclick="closeContractSelectorModal()" class="text-slate-400 hover:text-rose-500 text-2xl transition-colors"><i class="fa-solid fa-times-circle"></i></button>
+    <div id="contract-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-md p-4 hidden flex-col justify-start pt-20">
+        <div class="bg-white/95 backdrop-blur-xl border-t-4 border-cyan-500 rounded-[30px] w-full max-w-md mx-auto max-h-[75vh] flex flex-col overflow-hidden shadow-xl">
+            <div class="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+                <span class="font-black text-base text-slate-800 tracking-wider uppercase"><i class="fa-solid fa-search mr-2 text-cyan-500"></i> Find Contract ID</span>
+                <button onclick="closeContractSelectorModal()" class="text-slate-400 hover:text-rose-500 text-2xl"><i class="fa-solid fa-times-circle"></i></button>
             </div>
-            <div class="p-5 border-b border-white/60">
-                <input type="text" id="contract-search-input" oninput="filterContractIds()" placeholder="Type to search contracts..." class="w-full bg-white/70 border border-white/80 rounded-2xl p-4 text-slate-800 focus:outline-none focus:border-blue-400 text-sm font-bold shadow-inner">
+            <div class="p-5 border-b border-slate-200">
+                <input type="text" id="contract-search-input" oninput="filterContractIds()" placeholder="Type to search contracts..." class="w-full bg-white border border-slate-300 rounded-2xl p-4 text-slate-800 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 text-sm font-bold shadow-inner">
             </div>
             <div id="contract-list-results" class="p-3 overflow-y-auto flex-1 flex flex-col gap-1.5 min-h-[30vh] no-scrollbar"></div>
         </div>
     </div>
 
-    <div id="vo-editor-modal" class="fixed inset-0 z-[280] bg-slate-900/60 backdrop-blur-md p-4 hidden flex-col justify-center items-center">
-        <div class="bg-white rounded-3xl w-full max-w-4xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
-            <div class="bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-4 flex justify-between items-center text-white">
-                <h2 id="vo-editor-title" class="text-sm md:text-base font-black tracking-widest uppercase"><i class="fa-solid fa-file-contract mr-2"></i> EDIT VARIATION ORDER</h2>
+    <!-- VO EDITOR MODAL with TextBox Styling -->
+    <div id="vo-editor-modal" class="fixed inset-0 z-[280] bg-slate-900/70 backdrop-blur-md p-4 hidden flex-col justify-center items-center">
+        <div class="bg-white border-t-4 border-amber-500 rounded-3xl w-full max-w-4xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+            <div class="bg-gradient-to-r from-amber-500 to-orange-600 px-6 py-4 flex justify-between items-center text-white shadow-md">
+                <h2 id="vo-editor-title" class="text-sm md:text-base font-black tracking-widest uppercase drop-shadow-md"><i class="fa-solid fa-file-contract mr-2"></i> EDIT VARIATION ORDER</h2>
                 <div class="flex gap-2">
-                    <button onclick="closeVoEditor()" class="px-4 py-2.5 bg-white/20 hover:bg-white/30 text-white font-bold rounded-xl text-[11px] uppercase transition-colors">Cancel</button>
-                    <button onclick="saveVoEditor()" class="px-4 py-2.5 bg-white text-amber-600 hover:bg-slate-100 font-black rounded-xl text-[11px] uppercase transition-colors shadow-sm">Apply VO</button>
+                    <button onclick="closeVoEditor()" class="btn-3d px-4 py-2.5 bg-black/20 hover:bg-black/30 text-white font-bold rounded-xl text-[11px] uppercase border-b-4 border-black/30">Cancel</button>
+                    <button onclick="saveVoEditor()" class="btn-3d px-4 py-2.5 bg-white text-orange-700 hover:bg-slate-100 font-black rounded-xl text-[11px] uppercase border-b-4 border-slate-300 shadow-sm">Apply VO</button>
                 </div>
             </div>
-            <div class="overflow-y-auto w-full p-4 bg-slate-50 flex-1">
-                <p class="text-xs text-slate-500 font-bold mb-3 italic px-1">Note: Edit the Revised Qty/Cost. If left blank or untouched, it defaults to the Original value.</p>
-                <div class="w-full text-left border-collapse table-fixed bg-white shadow-sm border border-slate-200 rounded-xl overflow-hidden">
-                    <div class="grid grid-cols-[26%_17%_17%_20%_20%] bg-slate-200 text-slate-700 font-extrabold text-[10px] sm:text-[11px] tracking-wide uppercase">
+            <div class="overflow-y-auto w-full p-4 bg-slate-100 flex-1 shadow-inner">
+                <p class="text-xs text-slate-500 font-bold mb-3 italic px-1">Note: Enter the specific Quantity and Unit Cost directly inside the text boxes.</p>
+                <div class="w-full text-left border-collapse table-fixed bg-white shadow-md border-2 border-slate-300 rounded-xl overflow-hidden">
+                    <div class="grid grid-cols-[26%_17%_17%_20%_20%] bg-slate-200 text-slate-700 font-extrabold text-[10px] sm:text-[11px] tracking-wide uppercase shadow-sm z-10 relative border-b-2 border-slate-300">
                         <div class="py-2.5 px-3">Item No.</div>
                         <div class="py-2.5 px-2 text-right border-l border-slate-300">Orig Qty</div>
                         <div class="py-2.5 px-2 text-right border-l border-slate-300">Orig Cost</div>
-                        <div class="py-2.5 px-2 text-right border-l border-amber-300 bg-amber-100 text-amber-800">Rev Qty</div>
-                        <div class="py-2.5 px-2 text-right border-l border-amber-300 bg-amber-100 text-amber-800">Rev Cost</div>
+                        <div class="py-2.5 px-2 text-center border-l border-slate-300 bg-amber-100 text-amber-800">Rev Qty</div>
+                        <div class="py-2.5 px-2 text-center border-l border-slate-300 bg-amber-100 text-amber-800">Rev Cost</div>
                     </div>
                     <div id="vo-editor-tbody" class="flex flex-col divide-y divide-slate-200"></div>
                 </div>
@@ -336,19 +412,19 @@
     </div>
 
     <div id="print-report-modal" class="fixed inset-0 z-[300] bg-slate-900/60 backdrop-blur-md p-4 hidden flex-col justify-start overflow-y-auto">
-        <div class="w-full max-w-6xl mx-auto mb-6 bg-white/80 backdrop-blur-xl border border-white/80 p-5 rounded-3xl flex items-center justify-between shadow-xl print:hidden shrink-0">
+        <div class="w-full max-w-6xl mx-auto mb-6 bg-white/95 backdrop-blur-xl border-t-4 border-cyan-500 p-5 rounded-3xl flex items-center justify-between shadow-xl print:hidden shrink-0">
             <div class="flex items-center gap-3">
-                <i class="fa-solid fa-file-invoice text-blue-500 text-2xl"></i>
+                <i class="fa-solid fa-file-invoice text-cyan-500 text-3xl drop-shadow-sm"></i>
                 <div>
                     <h3 class="text-base font-black text-slate-800 uppercase tracking-wide">SWA Report Generator</h3>
                     <p class="text-xs font-bold text-slate-500">Review layout before exporting or printing</p>
                 </div>
             </div>
             <div class="flex items-center gap-3">
-                <button onclick="window.print()" class="bg-gradient-to-r from-emerald-500 to-teal-500 hover:scale-[1.02] text-white font-black text-xs uppercase tracking-widest px-5 py-3 rounded-xl flex items-center gap-2 transition-all shadow-lg shadow-emerald-500/30">
+                <button onclick="window.print()" class="btn-3d bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-black text-xs uppercase tracking-widest px-5 py-3 rounded-xl border-b-4 border-teal-800 flex items-center gap-2 shadow-md">
                     <i class="fa-solid fa-print"></i> Print / Save PDF
                 </button>
-                <button onclick="closePrintReportModal()" class="bg-white/60 hover:bg-white/90 text-slate-700 font-bold text-xs uppercase tracking-widest px-5 py-3 rounded-xl border border-white/80 shadow-sm transition-colors">
+                <button onclick="closePrintReportModal()" class="btn-3d bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs uppercase tracking-widest px-5 py-3 rounded-xl border-b-4 border-slate-300">
                     Close Preview
                 </button>
             </div>
@@ -358,7 +434,7 @@
                 <div class="text-center mb-6">
                     <h2 class="text-lg font-black tracking-wide uppercase font-sans">STATEMENT OF WORK ACCOMPLISHMENT</h2>
                     <p class="text-sm font-bold text-slate-700 mt-1 flex justify-center items-center gap-1">
-                        <span contenteditable="true" id="print-active-period" class="outline-none border-b border-dashed border-slate-400 hover:bg-slate-100 focus:bg-slate-100 px-2 py-0.5 rounded print:border-none print:bg-transparent print:px-0 transition-colors cursor-text" title="Click to edit date">as of June 01, 2026</span>
+                        <span contenteditable="true" id="print-active-period" class="outline-none border-b border-dashed border-slate-400 hover:bg-slate-100 focus:bg-slate-100 px-2 py-0.5 rounded print:border-none print:bg-transparent print:px-0 cursor-text" title="Click to edit date">as of June 01, 2026</span>
                     </p>
                 </div>
                 <div class="flex flex-col gap-1 mb-6 text-xs font-semibold leading-tight">
@@ -460,6 +536,40 @@
 
         let editorIsDirty = false;
         let autoSaveTimers = {};
+        
+        let loadingProgress = 0;
+        let loadingInterval;
+
+        function startLoading() {
+            loadingProgress = 0;
+            const loader = document.getElementById('loader');
+            loader.classList.remove('hidden');
+            loader.classList.add('flex');
+            
+            document.getElementById('loader-progress-bar').style.width = '0%';
+            document.getElementById('loader-percentage').innerText = '0%';
+
+            loadingInterval = setInterval(() => {
+                if(loadingProgress < 90) {
+                    loadingProgress += Math.floor(Math.random() * 8) + 2; 
+                    if(loadingProgress > 90) loadingProgress = 90;
+                    document.getElementById('loader-progress-bar').style.width = loadingProgress + '%';
+                    document.getElementById('loader-percentage').innerText = loadingProgress + '%';
+                }
+            }, 250);
+        }
+
+        function finishLoading() {
+            clearInterval(loadingInterval);
+            loadingProgress = 100;
+            document.getElementById('loader-progress-bar').style.width = '100%';
+            document.getElementById('loader-percentage').innerText = '100%';
+            setTimeout(() => {
+                const loader = document.getElementById('loader');
+                loader.classList.add('hidden');
+                loader.classList.remove('flex');
+            }, 500);
+        }
 
         function showConfirm(message, onConfirm, okText = "OK", cancelText = "Cancel") {
             const modal = document.getElementById('confirm-modal');
@@ -470,14 +580,14 @@
             const btnCancel = document.getElementById('confirm-btn-cancel');
 
             titleBox.innerText = "Warning / Confirmation";
-            iconBox.className = "fa-solid fa-circle-exclamation text-blue-500";
+            iconBox.className = "fa-solid fa-circle-exclamation text-cyan-500 drop-shadow-sm";
             textBox.innerText = message;
             
             btnOk.innerText = okText;
             btnCancel.innerText = cancelText;
             
             btnCancel.classList.remove('hidden');
-            btnOk.className = "w-full py-3 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-black text-xs uppercase tracking-widest shadow-md shadow-blue-500/30 hover:scale-[1.02] transition-all";
+            btnOk.className = "btn-3d w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 border-b-4 border-blue-800 text-white font-black text-xs uppercase tracking-widest shadow-md";
 
             modal.classList.remove('hidden');
             modal.classList.add('flex');
@@ -508,12 +618,12 @@
             const btnCancel = document.getElementById('confirm-btn-cancel');
 
             titleBox.innerText = "Warning Alert";
-            iconBox.className = "fa-solid fa-triangle-exclamation text-rose-500";
+            iconBox.className = "fa-solid fa-triangle-exclamation text-rose-500 drop-shadow-sm";
             textBox.innerText = message;
             
             btnOk.innerText = "OK";
             btnCancel.classList.add('hidden');
-            btnOk.className = "col-span-1 sm:col-span-2 w-full py-3 rounded-xl bg-gradient-to-r from-rose-500 to-red-600 text-white font-black text-xs uppercase tracking-widest shadow-md shadow-rose-500/30 hover:scale-[1.02] transition-all";
+            btnOk.className = "btn-3d col-span-1 sm:col-span-2 w-full py-3 rounded-xl bg-gradient-to-r from-rose-500 to-red-600 border-b-4 border-red-800 text-white font-black text-xs uppercase tracking-widest shadow-md";
 
             modal.classList.remove('hidden');
             modal.classList.add('flex');
@@ -525,6 +635,36 @@
                 modal.classList.add('hidden');
                 modal.classList.remove('flex');
             });
+        }
+
+        function promptUnlockHistory() {
+            document.getElementById('history-password-input').value = "";
+            document.getElementById('password-error').classList.add('hidden');
+            const modal = document.getElementById('password-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => document.getElementById('history-password-input').focus(), 100);
+        }
+
+        function closePasswordModal() {
+            const modal = document.getElementById('password-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function verifyHistoryPassword() {
+            const input = document.getElementById('history-password-input');
+            const error = document.getElementById('password-error');
+            if (input.value === 'senatin123') {
+                appState.unlockedHistory = true;
+                closePasswordModal();
+                showToast("Historical Editing Unlocked", "Admin mode enabled for past records.", "success");
+                renderItemsList();
+            } else {
+                error.classList.remove('hidden');
+                input.value = "";
+                input.focus();
+            }
         }
 
         function parseEditVal(val) {
@@ -609,6 +749,7 @@
             activeTab: 'SWA',
             activeMonthOffset: CURRENT_MONTH_OFFSET,
             activeWeekIndex: CURRENT_WEEK_INDEX,
+            unlockedHistory: false, // For Admin password
             contractsList: [],
             selectedContractId: null,
             headers: [],
@@ -710,6 +851,9 @@
         function initializeMonthSlider() {
             const container = document.getElementById('month-carousel');
             container.innerHTML = '';
+            // Force container to show EXACTLY 4 months based on strict sizing
+            container.className = "flex gap-2 overflow-x-auto no-scrollbar pb-1 snap-x snap-mandatory w-full";
+            
             const maxOffset = CURRENT_MONTH_OFFSET; 
             
             for (let i = 0; i <= maxOffset; i++) {
@@ -721,10 +865,11 @@
                 const btn = document.createElement('button');
                 btn.id = `month-pill-${i}`;
                 btn.onclick = () => selectMonthOffset(i);
-                btn.className = `flex-shrink-0 px-4 py-2 rounded-lg text-[11px] font-black border transition-all shadow-sm ${
+                // Math: 25% width minus the gap to fit perfectly 4
+                btn.className = `snap-center w-[calc(25%-6px)] shrink-0 px-1 py-2 rounded-xl text-[10px] md:text-xs font-black transition-all shadow-sm ${
                     i === appState.activeMonthOffset 
-                    ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white border-blue-400 scale-[1.05]' 
-                    : 'bg-white/60 text-slate-600 border-white/80 hover:bg-white/90'
+                    ? 'bg-gradient-to-r from-cyan-500 to-blue-500 border-b-[3px] border-blue-700 text-white scale-[1.05] z-10' 
+                    : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 border-b-2'
                 }`;
                 btn.innerText = label;
                 container.appendChild(btn);
@@ -757,10 +902,10 @@
                 const btn = document.createElement('button');
                 btn.id = `week-pill-${i}`;
                 btn.onclick = () => selectWeekIndex(i);
-                btn.className = `flex-shrink-0 px-4 py-1.5 rounded-lg text-[10px] font-black border transition-all shadow-sm ${
+                btn.className = `flex-1 px-1 py-1.5 rounded-xl text-[9px] sm:text-[10px] font-black transition-all shadow-sm ${
                     i === appState.activeWeekIndex 
-                    ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-emerald-400 scale-[1.05]' 
-                    : 'bg-white/60 text-slate-600 border-white/80 hover:bg-white/90'
+                    ? 'bg-gradient-to-r from-[#34d399] to-[#059669] border-b-[3px] border-[#065f46] text-white scale-[1.02]' 
+                    : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 border-b-2'
                 }`;
                 btn.innerHTML = `<i class="fa-solid fa-calendar-week mr-1"></i> ${WEEK_LABELS[i]}`;
                 container.appendChild(btn);
@@ -775,7 +920,7 @@
         function selectMonthOffset(offset) {
             const oldPill = document.getElementById(`month-pill-${appState.activeMonthOffset}`);
             if (oldPill) {
-                oldPill.className = 'flex-shrink-0 px-4 py-2 rounded-lg text-[11px] font-black border transition-all shadow-sm bg-white/60 text-slate-600 border-white/80 hover:bg-white/90';
+                oldPill.className = 'snap-center w-[calc(25%-6px)] shrink-0 px-1 py-2 rounded-xl text-[10px] md:text-xs font-black transition-all shadow-sm bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 border-b-2';
             }
             appState.activeMonthOffset = offset;
             
@@ -787,7 +932,7 @@
             
             const newPill = document.getElementById(`month-pill-${offset}`);
             if (newPill) {
-                newPill.className = 'flex-shrink-0 px-4 py-2 rounded-lg text-[11px] font-black border transition-all shadow-sm bg-gradient-to-r from-blue-500 to-indigo-500 text-white border-blue-400 scale-[1.05]';
+                newPill.className = 'snap-center w-[calc(25%-6px)] shrink-0 px-1 py-2 rounded-xl text-[10px] md:text-xs font-black transition-all shadow-sm bg-gradient-to-r from-cyan-500 to-blue-500 border-b-[3px] border-blue-700 text-white scale-[1.05] z-10';
                 newPill.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
             }
 
@@ -803,7 +948,7 @@
         }
 
         async function fetchSheetData() {
-            setLoaderStatus("Accessing Google Sheets...", "Downloading SWA, ITEMS, VO, PDO and REGISTRATION databases...");
+            startLoading();
             try {
                 const token = await GoogleSheetsAPI.getAuthToken();
                 const batchUrl = `https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values:batchGet?ranges=SWA!A3:ZZ&ranges=ITEMS!A3:ZZ&ranges=VO!A3:ZZ&ranges=PDO!A3:ZZ&ranges=REGISTRATION!A3:ZZ`;
@@ -853,12 +998,7 @@
                 appState.loggedInUser = currentUser;
                 appState.loggedFullName = currentFullName;
                 
-                document.getElementById('header-username-display').innerText = currentUser;
-                if(currentUser !== 'Guest') {
-                    document.getElementById('header-username-display').classList.replace('text-slate-500', 'text-blue-700');
-                }
-                
-                document.getElementById('loader').classList.add('hidden');
+                finishLoading();
                 
                 const urlParams = new URLSearchParams(window.location.search);
                 const urlCid = urlParams.get('cid');
@@ -884,6 +1024,7 @@
                     showCustomAlert("Contract ID not found in database.");
                 }
             } catch (err) {
+                finishLoading();
                 showGlobalError("System Failure", err.message);
             }
         }
@@ -1051,8 +1192,8 @@
             document.getElementById('header-project-info').classList.remove('flex');
 
             document.getElementById('items-list-container').innerHTML = `
-                <div class="w-full text-center py-16 text-slate-500 bg-white/50 backdrop-blur-xl border border-white/60 rounded-[30px] shadow-sm">
-                    <i class="fa-solid fa-magnifying-glass text-5xl mb-4 opacity-30 text-blue-500"></i>
+                <div class="w-full text-center py-16 text-slate-500 bg-white/60 backdrop-blur-xl border border-slate-200 rounded-[30px] shadow-sm">
+                    <i class="fa-solid fa-magnifying-glass text-5xl mb-4 opacity-30 text-cyan-500"></i>
                     <p class="text-sm font-black">Please select a contract to view items.</p>
                 </div>
             `;
@@ -1076,14 +1217,28 @@
         function toggleAccordion(index) {
             const detail = document.getElementById(`detail-${index}`);
             const icon = document.getElementById(`icon-${index}`);
+            const wrapper = document.getElementById(`item-wrapper-${index}`);
+            const master = document.getElementById(`master-row-${index}`);
+            const itemText = document.getElementById(`master-itemno-text-${index}`);
+
             if (detail.classList.contains('hidden')) {
+                // Open
                 detail.classList.remove('hidden');
                 detail.classList.add('flex');
-                icon.classList.add('rotate-90');
+                if(icon) icon.classList.add('rotate-90');
+                
+                // Add vibrant static highlighting (NO CPU/GPU LAG)
+                wrapper.classList.add('item-active-wrapper');
+                master.classList.add('item-active-master');
             } else {
+                // Close
                 detail.classList.add('hidden');
                 detail.classList.remove('flex');
-                icon.classList.remove('rotate-90');
+                if(icon) icon.classList.remove('rotate-90');
+                
+                // Remove highlight
+                wrapper.classList.remove('item-active-wrapper');
+                master.classList.remove('item-active-master');
             }
         }
 
@@ -1132,7 +1287,6 @@
             const currentUser = String(appState.loggedInUser || '').trim().toLowerCase();
             const isAdmin = (currentUser === 'admin'); 
             
-            const isPastMonth = (appState.activeMonthOffset < CURRENT_MONTH_OFFSET);
             let isAuthorized = isAdmin;
             if (!isAdmin && currentUser !== 'guest' && appState.loggedFullName) {
                 const pdo = appState.pdoLookupMap[appState.selectedContractId] || {};
@@ -1142,23 +1296,30 @@
             
             const isPastPeriod = (appState.activeMonthOffset < CURRENT_MONTH_OFFSET) || 
                                  (appState.activeMonthOffset === CURRENT_MONTH_OFFSET && appState.activeWeekIndex < CURRENT_WEEK_INDEX);
-            const isLocked = isPastPeriod || !isAuthorized;
+            
+            let isLocked = (isPastPeriod && !appState.unlockedHistory) || !isAuthorized;
 
             const validItems = [];
             
             const addBtn = document.createElement('button');
-            if (isPastMonth) {
+            if (!isAuthorized) {
                 addBtn.disabled = true;
-                addBtn.className = "w-full py-4 border border-white/50 bg-white/40 text-slate-500 rounded-2xl text-xs font-black tracking-widest uppercase flex items-center justify-center gap-2 mt-2 cursor-not-allowed shadow-inner opacity-70";
-                addBtn.innerHTML = `<i class="fa-solid fa-lock text-slate-500"></i> Locked (Past Period)`;
-            } else if (!isAuthorized) {
-                addBtn.disabled = true;
-                addBtn.className = "w-full py-4 border border-rose-200 bg-rose-50/50 text-rose-500 rounded-2xl text-xs font-black tracking-widest uppercase flex items-center justify-center gap-2 mt-2 cursor-not-allowed shadow-inner";
-                addBtn.innerHTML = `<i class="fa-solid fa-ban text-rose-500"></i> View-Only (Assigned to: ${contractLoginUser || 'None'})`;
+                addBtn.className = "w-full py-4 border border-rose-300 bg-rose-50/70 text-rose-600 rounded-2xl text-xs font-black tracking-widest uppercase flex items-center justify-center gap-2 mt-2 cursor-not-allowed shadow-inner backdrop-blur-sm";
+                addBtn.innerHTML = `<i class="fa-solid fa-ban text-rose-500 drop-shadow-sm"></i> View-Only (Assigned to: ${contractLoginUser || 'None'})`;
+            } else if (isPastPeriod && !appState.unlockedHistory) {
+                if (isAdmin) {
+                    addBtn.onclick = () => promptUnlockHistory();
+                    addBtn.className = "btn-3d w-full py-4 border-b-4 border-orange-800 bg-gradient-to-r from-orange-500 to-amber-600 text-white rounded-2xl text-xs font-black tracking-widest uppercase flex items-center justify-center gap-2 mt-2 shadow-md cursor-pointer";
+                    addBtn.innerHTML = `<i class="fa-solid fa-lock text-white drop-shadow-sm"></i> Admin Edit (Locked) - Click to Unlock`;
+                } else {
+                    addBtn.disabled = true;
+                    addBtn.className = "w-full py-4 border border-slate-300 bg-slate-100 text-slate-500 rounded-2xl text-xs font-black tracking-widest uppercase flex items-center justify-center gap-2 mt-2 cursor-not-allowed shadow-inner";
+                    addBtn.innerHTML = `<i class="fa-solid fa-lock text-slate-400"></i> Locked (Past Period)`;
+                }
             } else {
                 addBtn.onclick = openItemsEditorModal;
-                addBtn.className = "w-full py-4 bg-gradient-to-r from-blue-500 to-indigo-600 hover:bg-gradient-to-r hover:from-blue-600 hover:to-indigo-700 text-white rounded-2xl text-xs font-black tracking-widest uppercase transition-all flex items-center justify-center gap-2 mt-2 shadow-md shadow-blue-500/30";
-                addBtn.innerHTML = `<i class="fa-solid fa-gears"></i> Add/Edit/Update Items`;
+                addBtn.className = "btn-3d w-full py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-2xl text-xs font-black tracking-widest uppercase border-b-4 border-blue-800 flex items-center justify-center gap-2 mt-2 shadow-md";
+                addBtn.innerHTML = `<i class="fa-solid fa-gears drop-shadow-sm"></i> Add/Edit/Update Items`;
             }
 
             for (let c = 0; c < row.length; c++) {
@@ -1175,8 +1336,8 @@
 
             if (validItems.length === 0) {
                 const emptyMsg = document.createElement('div');
-                emptyMsg.className = "w-full text-center py-16 text-slate-500 bg-white/50 backdrop-blur-xl border border-white/60 rounded-[30px] shadow-sm";
-                emptyMsg.innerHTML = `<i class="fa-solid fa-face-frown text-5xl mb-4 opacity-30 text-blue-500"></i><p class="text-sm font-black">No SWA item records identified for this contract.</p>`;
+                emptyMsg.className = "w-full text-center py-16 text-slate-500 bg-white/60 backdrop-blur-xl border border-slate-200 rounded-[30px] shadow-sm";
+                emptyMsg.innerHTML = `<i class="fa-solid fa-face-frown text-5xl mb-4 opacity-30 text-cyan-500"></i><p class="text-sm font-black">No SWA item records identified for this contract.</p>`;
                 
                 container.appendChild(emptyMsg);
                 container.appendChild(addBtn); 
@@ -1191,12 +1352,11 @@
 
             let totalToDateAmount = 0;
             
-			
-const tableContainer = document.createElement('div');
-            tableContainer.className = "w-full flex flex-col overflow-hidden border border-[#5cb85c] bg-white shadow-[0_0_15px_rgba(0,0,0,0.1)]";
+            const tableContainer = document.createElement('div');
+            tableContainer.className = "w-full flex flex-col overflow-hidden rounded-xl bg-white shadow-sm border border-slate-300";
             
             const headerRow = document.createElement('div');
-            headerRow.className = "grid grid-cols-[28%_24%_24%_24%] bg-gradient-to-b from-[#38e053] to-[#00a651] text-white font-black py-2 md:py-3 text-[15px] md:text-[19px] tracking-wide divide-x divide-white/50 border-b border-[#009040]";
+            headerRow.className = "grid grid-cols-[28%_24%_24%_24%] bg-gradient-to-b from-[#1e40af] to-[#1e3a8a] text-white font-black py-2 md:py-3 text-[15px] md:text-[19px] tracking-wide divide-x divide-white/20 shadow-md";
             headerRow.innerHTML = `
                 <div class="text-center px-1 md:px-2 drop-shadow-md">Item No.</div>
                 <div class="text-center px-1 md:px-2 drop-shadow-md">Previous</div>
@@ -1232,7 +1392,7 @@ const tableContainer = document.createElement('div');
                 const isItemLocked = isLocked || metrics.targetQuantity <= 0;
                 const inputDisabledAttr = isItemLocked ? "disabled" : "";
                 const inputPlaceholder = metrics.targetQuantity <= 0 ? "VO=0" : (isLocked ? "-" : "0.00");
-                const lockClass = isItemLocked ? "opacity-60 cursor-not-allowed" : "";
+                const lockClass = isItemLocked ? "opacity-60 cursor-not-allowed bg-slate-100 border-slate-300" : "bg-white border-cyan-400 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/30";
                 
                 const w1 = metrics.thisPeriodWeeks[0] !== '' ? formatNum(metrics.thisPeriodWeeks[0]) : '-';
                 const w2 = metrics.thisPeriodWeeks[1] !== '' ? formatNum(metrics.thisPeriodWeeks[1]) : '-';
@@ -1241,84 +1401,97 @@ const tableContainer = document.createElement('div');
                 
                 const activeWeekVal = metrics.thisPeriodWeeks[appState.activeWeekIndex] !== '' ? metrics.thisPeriodWeeks[appState.activeWeekIndex] : '';
 
-                const bgClass = index % 2 === 0 ? 'bg-[#e2f0d9]' : 'bg-[#a9d18e]';
+                // Implementing EXACT colors from image 3 (#b5d684 and #dcebbf)
+                const bgClass = index % 2 === 0 ? 'bg-[#b5d684]' : 'bg-[#dcebbf]';
+                
                 const rowWrapper = document.createElement('div');
-                rowWrapper.className = `flex flex-col border-b border-white last:border-0 ${bgClass} transition-colors duration-300`;
-                if (hasUpdateThisWeek) rowWrapper.classList.add('ring-2', 'ring-amber-400', 'z-10');
+                rowWrapper.id = `item-wrapper-${index}`;
+                rowWrapper.className = `flex flex-col border-b border-[#a3c966] last:border-0 relative rounded-sm ${bgClass}`;
+                
+                if (hasUpdateThisWeek) {
+                    rowWrapper.dataset.hasUpdate = 'true';
+                } else {
+                    rowWrapper.dataset.hasUpdate = 'false';
+                }
                 rowWrapper.dataset.rawItem = JSON.stringify(workingItem);
 
                 const masterRow = document.createElement('div');
-                masterRow.className = `grid grid-cols-[28%_24%_24%_24%] py-2.5 text-[15px] md:text-[20px] font-black cursor-pointer hover:brightness-95 transition-all items-center`;
+                masterRow.id = `master-row-${index}`;
+                masterRow.className = `master-row grid grid-cols-[28%_24%_24%_24%] py-3 text-[15px] md:text-[20px] font-black cursor-pointer transition-all items-center hover:brightness-95 relative`;
                 masterRow.onclick = () => toggleAccordion(index);
+                
+                // Colors matched to Image 3: Item=Blue, Prev=Blue, ToDate=Green, Balance=Purple
                 masterRow.innerHTML = `
-                    <div class="text-center px-1 flex justify-center items-center gap-1 text-[#0070c0]">
-                        <span class="break-all leading-tight tracking-tighter drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)]">${metrics.itemNo}</span>
-                        ${isPending ? '<span class="text-[9px] bg-amber-500 text-white px-1.5 py-0.5 rounded uppercase shadow-sm shrink-0 ml-1">P</span>' : ''}
+                    <div class="relative text-center px-1 flex justify-center items-center text-[#0055a4]" id="master-itemno-container-${index}">
+                        ${hasUpdateThisWeek ? `<div class="absolute left-1 md:left-4 top-1/2 -translate-y-1/2 animate-float-up"><i class="fa-solid fa-arrow-up text-[#ff007f] text-xl md:text-2xl drop-shadow-[0_2px_2px_rgba(0,0,0,0.4)]"></i></div>` : ''}
+                        <span class="break-all leading-tight tracking-tighter z-10" id="master-itemno-text-${index}">${metrics.itemNo}</span>
+                        ${isPending ? '<span class="text-[9px] bg-gradient-to-r from-amber-500 to-orange-500 text-white px-1.5 py-0.5 rounded uppercase shadow-sm shrink-0 ml-1 z-10">P</span>' : ''}
                     </div>
-                    <div class="text-center px-1 text-[#0070c0] tracking-tighter break-all drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)]" id="master-prev-${index}">${metrics.previous === 0 ? '-' : formatNum(metrics.previous)}</div>
-                    <div class="text-center px-1 text-[#00b050] tracking-tighter break-all drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)]" id="master-todate-${index}">${metrics.toDate === 0 ? '-' : formatNum(metrics.toDate)}</div>
-                    <div class="text-center px-1 text-[#7030a0] tracking-tighter break-all drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)]" id="master-bal-${index}">${metrics.balance === 0 ? '-' : formatNum(metrics.balance)}</div>
+                    <div class="text-center px-1 text-[#0055a4] tracking-tighter break-all" id="master-prev-${index}">${metrics.previous === 0 ? '-' : formatNum(metrics.previous)}</div>
+                    <div class="text-center px-1 text-[#00a651] tracking-tighter break-all" id="master-todate-${index}">${metrics.toDate === 0 ? '-' : formatNum(metrics.toDate)}</div>
+                    <div class="text-center px-1 text-[#7030a0] tracking-tighter break-all" id="master-bal-${index}">${metrics.balance === 0 ? '-' : formatNum(metrics.balance)}</div>
                 `;
 
-                let saveIconClass = "fa-solid fa-check text-[#00b050]";
-                if (isSynced) saveIconClass = "fa-solid fa-check text-[#00b050] drop-shadow-sm";
-                else if (isPending) saveIconClass = "fa-solid fa-pen text-amber-500 drop-shadow-sm";
+                let saveIconClass = "fa-solid fa-check text-white"; 
+                if (isSynced) saveIconClass = "fa-solid fa-check text-white drop-shadow-[0_2px_4px_rgba(255,255,255,0.5)]";
+                else if (isPending) saveIconClass = "fa-solid fa-pen text-yellow-300 drop-shadow-sm";
 
                 const detailRow = document.createElement('div');
                 detailRow.id = `detail-${index}`;
-                detailRow.className = "hidden flex-col bg-white p-2 md:p-3 gap-1 border-t border-dotted border-[#00b050]";
+                // Lively updating area background
+                detailRow.className = "hidden flex-col bg-gradient-to-br from-indigo-50 to-cyan-50 p-3 md:p-4 gap-2 rounded-b-xl border-t-4 border-[#0ea5e9] shadow-inner";
                 
                 detailRow.innerHTML = `
-                    ${itemDescription ? `<p class="text-[13px] md:text-[15px] text-black italic leading-tight px-1 font-serif mb-1">${itemDescription}</p>` : ''}
+                    ${itemDescription ? `<p class="text-[13px] md:text-[15px] text-indigo-800 italic font-black leading-tight px-1 mb-2 drop-shadow-sm">${itemDescription}</p>` : ''}
                     
-                   
-
-<div class="flex flex-col gap-3 px-1 mt-2 w-full pb-2">
+                    <div class="flex flex-col gap-4 px-1 mt-1 w-full pb-2">
                         
-                        <!-- Row 1: Target and Progress Bar -->
-                        <div class="flex items-center gap-2 w-full">
-                            <span class="font-extrabold text-black text-[15px] md:text-[18px] tracking-wide shrink-0">TARGET:</span>
-                            <div class="bg-gradient-to-r from-[#eef7ee] to-[#f5fbf5] border border-[#d9d9d9] px-2 md:px-3 py-0.5 shadow-inner min-w-[60px] text-center shrink-0">
-                                <span class="text-red-600 font-extrabold text-[15px] md:text-[19px] drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)]">${formatNum(metrics.targetQuantity)}</span>
+                        <!-- Row 1: Target and Progress Bar EXACTLY IN 1 ROW -->
+                        <div class="flex flex-row items-center gap-2 w-full flex-nowrap">
+                            <!-- 3D Target Block -->
+                            <div class="bg-gradient-to-b from-indigo-600 to-indigo-800 border-b-[3px] border-indigo-950 rounded-lg p-1.5 flex flex-col items-center justify-center min-w-[70px] shrink-0 shadow-sm">
+                                <span class="text-[9px] text-indigo-200 font-black tracking-wider uppercase leading-none">Target</span>
+                                <span class="text-white font-black text-sm drop-shadow-md leading-none mt-1">${formatNum(metrics.targetQuantity)}</span>
+                                <span class="text-[9px] text-indigo-300 font-bold mt-0.5 leading-none">${itemUnit || 'l.s.'}</span>
                             </div>
-                            <span class="font-extrabold text-black text-[15px] md:text-[18px] shrink-0">${itemUnit || 'l.s.'}</span>
                             
-                            <div class="relative flex-1 h-6 md:h-7 bg-gradient-to-b from-[#e6e6e6] to-[#ffffff] border border-[#2e75b6] flex items-center justify-center overflow-hidden shrink-0 ml-1 md:ml-2">
-                                <!-- Blue Fill -->
-                                <div class="absolute left-0 top-0 bottom-0 bg-gradient-to-b from-[#40c0cb] to-[#0070c0] transition-all duration-300 ${progressPercent > 0 ? 'border-r border-[#003366]' : ''}" id="progress-bar-${index}" style="width: ${progressPercent}%"></div>
-                                <!-- Centered Text -->
-                                <span id="progress-text-${index}" class="relative z-10 text-black font-extrabold text-[12px] md:text-[13px] tracking-tight drop-shadow-[0_0_3px_rgba(255,255,255,1)]">
-                                    ${progressPercent > 0 ? progressPercent.toFixed(2) + '%' : ''}
-                                </span>
+                            <!-- 3D Progress Bar -->
+                            <div class="flex-1 flex flex-col justify-center bg-white border border-slate-300 rounded-lg p-2 shadow-sm min-w-0">
+                                <div class="w-full bg-slate-200 rounded-full h-6 border-inner shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)] relative overflow-hidden">
+                                    <div class="absolute top-0 left-0 bottom-0 bg-gradient-to-b from-cyan-400 to-blue-600 rounded-full flex items-center justify-end px-2 ${progressPercent > 0 ? 'border-r border-[#003366]' : ''}" id="progress-bar-${index}" style="width: ${progressPercent}%">
+                                        <span id="progress-text-${index}" class="text-white font-black text-[10px] drop-shadow-md">${progressPercent > 0 ? progressPercent.toFixed(1) + '%' : ''}</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        <!-- Row 2: Weeks Section (Centered below Row 1) -->
-                        <div class="flex justify-between w-full text-center text-gray-500 font-bold px-4 md:px-8 mt-1">
-                            <div class="flex flex-col items-center"><span class="uppercase text-[12px] md:text-[14px] mb-0.5">WK1</span><span id="wk-val-${index}-0" class="text-black text-[14px] md:text-[16px] font-extrabold">${w1}</span></div>
-                            <div class="flex flex-col items-center"><span class="uppercase text-[12px] md:text-[14px] mb-0.5">WK2</span><span id="wk-val-${index}-1" class="text-black text-[14px] md:text-[16px] font-extrabold">${w2}</span></div>
-                            <div class="flex flex-col items-center"><span class="uppercase text-[12px] md:text-[14px] mb-0.5">WK3</span><span id="wk-val-${index}-2" class="text-black text-[14px] md:text-[16px] font-extrabold">${w3}</span></div>
-                            <div class="flex flex-col items-center"><span class="uppercase text-[12px] md:text-[14px] mb-0.5">WK4</span><span id="wk-val-${index}-3" class="text-black text-[14px] md:text-[16px] font-extrabold">${w4}</span></div>
+                        <!-- Row 2: Weeks Section (3D Cards) -->
+                        <div class="grid grid-cols-4 gap-2 w-full mt-1">
+                            ${[w1,w2,w3,w4].map((w, i) => `
+                            <div class="bg-gradient-to-b from-white to-slate-50 border border-slate-200 border-b-[3px] rounded-xl flex flex-col items-center justify-center py-2 shadow-sm ${appState.activeWeekIndex === i ? 'border-b-cyan-500 bg-cyan-50' : 'border-b-slate-300'}">
+                                <span class="uppercase text-[10px] font-black ${appState.activeWeekIndex === i ? 'text-cyan-600' : 'text-slate-400'}">WK${i+1}</span>
+                                <span id="wk-val-${index}-${i}" class="text-slate-800 text-[13px] md:text-[15px] font-black mt-1 tracking-tighter">${w}</span>
+                            </div>
+                            `).join('')}
                         </div>
                         
-                        <!-- Row 3: Update, Input, Save, Undo Actions -->
-                        <div class="flex items-center justify-between w-full gap-2 mt-2">
+                        <!-- Row 3: Update Input and Actions (3D container) -->
+                        <div class="flex items-stretch gap-3 w-full bg-cyan-100/50 p-3 rounded-xl border border-cyan-300 shadow-inner mt-2">
                             
-                            <div class="flex flex-col text-left shrink-0">
-                                <span class="text-[12px] md:text-[14px] text-[#0070c0] font-extrabold uppercase leading-tight tracking-wide">UPDATE<br>WEEK ${appState.activeWeekIndex + 1}</span>
+                            <div class="flex flex-col flex-1 justify-center relative">
+                                <span class="absolute -top-5 left-2 bg-indigo-600 text-white text-[9px] font-black px-2 py-0.5 rounded border border-indigo-800 shadow-sm">UPDATE WK${appState.activeWeekIndex + 1}</span>
+                                <input type="number" step="any" min="0" value="${activeWeekVal}" ${inputDisabledAttr} oninput="onItemSingleWeeklyEdit(this, ${index}, ${workingItem.colIndex}, ${workingItem.rowNumber})" placeholder="${inputPlaceholder}" class="w-full border-2 rounded-xl p-3 text-xl font-black text-center text-indigo-700 shadow-[inset_0_3px_6px_rgba(0,0,0,0.1)] outline-none transition-all ${lockClass}">
                             </div>
-                            
-                            <input type="number" step="any" min="0" value="${activeWeekVal}" ${inputDisabledAttr} oninput="onItemSingleWeeklyEdit(this, ${index}, ${workingItem.colIndex}, ${workingItem.rowNumber})" placeholder="${inputPlaceholder}" class="flex-1 w-20 max-w-[160px] h-10 md:h-12 bg-gradient-to-b from-[#ebf5fb] to-[#d6eaf8] border border-[#a2c4e6] p-2 text-lg md:text-xl text-center font-black text-[#00b050] outline-none focus:border-[#0070c0] shadow-inner mx-1 md:mx-4 ${lockClass}">
                             
                             ${!isItemLocked ? `
-                            <div class="flex items-center gap-4 md:gap-6 shrink-0">
-                                <button onclick="..." class="flex flex-col items-center justify-center group focus:outline-none cursor-default" title="Status">
-                                    <span class="text-[12px] md:text-[14px] font-extrabold uppercase mb-0.5 text-black tracking-wide">SAVE</span>
-                                    <i id="save-icon-${index}" class="${saveIconClass} text-2xl md:text-4xl drop-shadow-md"></i>
+                            <div class="flex gap-2 shrink-0">
+                                <button onclick="..." class="btn-3d bg-gradient-to-b from-[#34d399] to-[#059669] border-b-[4px] border-[#064e3b] text-white rounded-xl w-16 sm:w-20 flex flex-col items-center justify-center">
+                                    <i id="save-icon-${index}" class="${saveIconClass} text-xl mb-1 drop-shadow-md"></i>
+                                    <span class="text-[9px] font-black uppercase tracking-wider">Save</span>
                                 </button>
-                                <button onclick="undoItemEdit(${index}, ${workingItem.colIndex}, ${workingItem.rowNumber})" class="flex flex-col items-center justify-center group focus:outline-none" title="Undo to Original">
-                                    <span class="text-[12px] md:text-[14px] font-extrabold uppercase mb-0.5 text-black group-hover:text-blue-600 transition-colors tracking-wide">UNDO</span>
-                                    <i class="fa-solid fa-reply text-[#5b9bd5] group-hover:text-[#0070c0] text-2xl md:text-4xl transition-colors drop-shadow-md transform -scale-x-100"></i>
+                                <button onclick="undoItemEdit(${index}, ${workingItem.colIndex}, ${workingItem.rowNumber})" class="btn-3d bg-gradient-to-b from-[#fb923c] to-[#ea580c] border-b-[4px] border-[#9a3412] text-white rounded-xl w-16 sm:w-20 flex flex-col items-center justify-center">
+                                    <i class="fa-solid fa-reply text-xl mb-1 drop-shadow-md transform -scale-x-100"></i>
+                                    <span class="text-[9px] font-black uppercase tracking-wider">Undo</span>
                                 </button>
                             </div>
                             ` : '<div class="w-[80px]"></div>'}
@@ -1328,13 +1501,10 @@ const tableContainer = document.createElement('div');
 
                 `;
 
-
                 rowWrapper.appendChild(masterRow);
                 rowWrapper.appendChild(detailRow);
                 bodyContainer.appendChild(rowWrapper);
             });
-
-
 
             tableContainer.appendChild(bodyContainer);
             container.appendChild(tableContainer);
@@ -1490,7 +1660,7 @@ const tableContainer = document.createElement('div');
                 const personnel = [String(pdo.pe||'').toLowerCase(), String(pdo.pi||'').toLowerCase(), String(pdo.re||'').toLowerCase(), String(pdo.qe||'').toLowerCase()];
                 isAuthorized = personnel.some(p => p.includes(appState.loggedFullName.toLowerCase()));
             }
-            const isLocked = isPastPeriod || !isAuthorized;
+            const isLocked = (isPastPeriod && !appState.unlockedHistory) || !isAuthorized;
             
             let ntpOffset = 0;
             if (appState.selectedContractId && appState.pdoLookupMap[appState.selectedContractId]) {
@@ -1525,9 +1695,9 @@ const tableContainer = document.createElement('div');
             let html = `
                 <table class="w-full text-left border-collapse table-fixed">
                     <thead>
-                        <tr class="bg-[#ed7d31] text-black font-extrabold text-sm tracking-wide">
-                            <th class="py-2 px-4 w-[50%]">Month</th>
-                            <th class="py-2 px-4 w-[50%] text-right">Percentage</th>
+                        <tr class="bg-gradient-to-r from-[#ed7d31] to-[#e89154] text-black font-extrabold text-sm tracking-wide shadow-inner">
+                            <th class="py-2 px-4 w-[50%] drop-shadow-sm">Month</th>
+                            <th class="py-2 px-4 w-[50%] text-right drop-shadow-sm">Percentage</th>
                         </tr>
                     </thead>
                     <tbody id="barchart-tbody">
@@ -1542,13 +1712,13 @@ const tableContainer = document.createElement('div');
                 
                 html += `
                     <tr class="${bgClass} border-b border-orange-200/50">
-                        <td class="py-2 px-4 text-slate-800 font-bold text-sm">${ordinal} month</td>
+                        <td class="py-2 px-4 text-slate-800 font-bold text-sm drop-shadow-sm">${ordinal} month</td>
                         <td class="py-1 px-4 flex justify-end items-center group">
                             <input type="number" step="any" min="0" max="100" 
                                 value="${p}" 
                                 oninput="updateBarChartData()"
                                 ${isLocked ? 'disabled' : ''}
-                                class="w-20 bg-transparent outline-none text-right font-bold text-sm text-slate-900 focus:border-b focus:border-blue-600 tracking-tighter ${isLocked ? 'cursor-not-allowed opacity-60' : ''}">
+                                class="w-20 bg-white/50 border border-transparent outline-none text-right font-bold text-sm text-slate-900 focus:border-blue-600 focus:ring-1 focus:ring-blue-500 rounded tracking-tighter ${isLocked ? 'cursor-not-allowed opacity-60' : ''}">
                             <span class="font-bold text-sm text-slate-900 ml-1">%</span>
                             ${!isLocked && idx === parts.length - 1 && parts.length > 1 ? `<button onclick="removeBarChartRow()" class="text-rose-500 opacity-50 hover:opacity-100 ml-2" title="Remove Last Month"><i class="fa-solid fa-times"></i></button>` : '<span class="w-5 ml-2"></span>'}
                         </td>
@@ -1559,15 +1729,15 @@ const tableContainer = document.createElement('div');
             html += `
                     </tbody>
                     <tfoot>
-                        <tr class="bg-white">
+                        <tr class="bg-slate-50">
                             <td colspan="2" class="py-2.5 px-4 border-b border-slate-200">
-                                ${!isLocked ? `<button onclick="addBarChartRow()" class="text-black font-black italic hover:text-blue-600 transition-colors">+ Add Month</button>` : `<span class="text-slate-400 italic text-xs">Locked (Read-Only)</span>`}
+                                ${!isLocked ? `<button onclick="addBarChartRow()" class="text-black font-black italic hover:text-cyan-500 transition-colors"><i class="fa-solid fa-plus-circle"></i> Add Month</button>` : `<span class="text-slate-400 italic text-xs">Locked (Read-Only)</span>`}
                             </td>
                         </tr>
                         <tr class="bg-white font-black text-black text-sm">
                             <td class="py-2 px-4">Total</td>
                             <td class="py-2 px-4 flex justify-end items-center">
-                                <span id="barchart-total-display" class="tracking-tighter ${total > 100 ? 'text-rose-600' : ''}">${total.toFixed(2)}</span>
+                                <span id="barchart-total-display" class="tracking-tighter drop-shadow-sm ${total > 100 ? 'text-rose-600' : ''}">${total.toFixed(2)}</span>
                                 <span class="ml-1">%</span>
                                 <span class="w-5 ml-2"></span>
                             </td>
@@ -1678,7 +1848,7 @@ const tableContainer = document.createElement('div');
                 const personnel = [String(pdo.pe||'').toLowerCase(), String(pdo.pi||'').toLowerCase(), String(pdo.re||'').toLowerCase(), String(pdo.qe||'').toLowerCase()];
                 isAuthorized = personnel.some(p => p.includes(appState.loggedFullName.toLowerCase()));
             }
-            const isLocked = isPastPeriod || !isAuthorized;
+            const isLocked = (isPastPeriod && !appState.unlockedHistory) || !isAuthorized;
             
             let ntpOffset = 0;
             if (appState.selectedContractId && appState.pdoLookupMap[appState.selectedContractId]) {
@@ -1688,7 +1858,7 @@ const tableContainer = document.createElement('div');
             const textarea = document.getElementById('monthly-remarks');
             const preview = document.getElementById('remarks-preview');
             
-            if (monthDiff < 0) {
+            if (monthDiff < 0 && !appState.unlockedHistory) {
                 textarea.value = "";
                 textarea.placeholder = "Selected month is before NTP.";
                 textarea.disabled = true;
@@ -1702,18 +1872,18 @@ const tableContainer = document.createElement('div');
             const cacheKey = `${remarksColIdx}_${rowNumber}`;
             let remarksStr = '';
             if (appState.modifiedCells[cacheKey]) {
-                remarksStr = appState.modifiedCells[cacheKey].parts[monthDiff] || '';
+                remarksStr = appState.modifiedCells[cacheKey].parts[Math.max(0, monthDiff)] || '';
             } else {
                 const cellVal = String(row[remarksColIdx] || '');
-                remarksStr = cellVal.split('|')[monthDiff] || '';
+                remarksStr = cellVal.split('|')[Math.max(0, monthDiff)] || '';
             }
             
             textarea.value = remarksStr;
             preview.innerText = remarksStr ? remarksStr : "Click to add/edit...";
             
             textarea.disabled = isLocked;
-            if (isLocked) textarea.classList.add('cursor-not-allowed', 'opacity-60');
-            else textarea.classList.remove('cursor-not-allowed', 'opacity-60');
+            if (isLocked) textarea.classList.add('cursor-not-allowed', 'opacity-60', 'bg-slate-100');
+            else textarea.classList.remove('cursor-not-allowed', 'opacity-60', 'bg-slate-100');
             
             textarea.dataset.colIndex = remarksColIdx;
             textarea.dataset.rowNumber = rowNumber;
@@ -1773,9 +1943,10 @@ const tableContainer = document.createElement('div');
             let previous = 0, thisPeriod = 0;
             let thisPeriodWeeks = ['', '', '', ''];
 
-            if (monthDiff >= 0) {
-                for (let i = 7; i < 7 + monthDiff; i++) previous += parseAccomplishmentVal(workingParts[i]);
-                const tpStr = String(workingParts[7 + monthDiff] || '');
+            if (monthDiff >= 0 || appState.unlockedHistory) {
+                let actualDiff = Math.max(0, monthDiff);
+                for (let i = 7; i < 7 + actualDiff; i++) previous += parseAccomplishmentVal(workingParts[i]);
+                const tpStr = String(workingParts[7 + actualDiff] || '');
                 thisPeriod = parseAccomplishmentVal(tpStr);
                 
                 if (tpStr.includes(',')) {
@@ -1806,7 +1977,7 @@ const tableContainer = document.createElement('div');
 
         function onItemSingleWeeklyEdit(inputEl, cardIndex, colIdx, rowNumber) {
             if (inputEl.disabled) return;
-            const rowWrapper = inputEl.closest('[data-raw-item]');
+            const rowWrapper = document.getElementById(`item-wrapper-${cardIndex}`);
             if (!rowWrapper) return;
             const baseItem = JSON.parse(rowWrapper.dataset.rawItem);
             const cacheKey = `${colIdx}_${rowNumber}`;
@@ -1835,17 +2006,18 @@ const tableContainer = document.createElement('div');
             }
             const monthDiff = appState.activeMonthOffset - ntpOffset;
 
-            if (monthDiff < 0) {
+            if (monthDiff < 0 && !appState.unlockedHistory) {
                 inputEl.value = "";
                 return;
             }
 
-            const requiredIndex = 7 + monthDiff;
+            const actualDiff = Math.max(0, monthDiff);
+            const requiredIndex = 7 + actualDiff;
             while (workingParts.length <= requiredIndex) workingParts.push('0');
             workingParts[requiredIndex] = valStr;
 
             let previous = 0;
-            for (let i = 7; i < 7 + monthDiff; i++) previous += parseAccomplishmentVal(workingParts[i]);
+            for (let i = 7; i < 7 + actualDiff; i++) previous += parseAccomplishmentVal(workingParts[i]);
             
             previous = Math.round(previous * 100) / 100;
             const thisPeriod = Math.round(parseAccomplishmentVal(valStr) * 100) / 100;
@@ -1863,9 +2035,7 @@ const tableContainer = document.createElement('div');
                 document.getElementById(`master-todate-${cardIndex}`).innerText = formatNum(rollbackMetrics.toDate);
                 document.getElementById(`master-bal-${cardIndex}`).innerText = formatNum(rollbackMetrics.balance);
                 
-                let originalBg = cardIndex % 2 === 0 ? 'bg-[#ffebd6]/90' : 'bg-[#fff4eb]/90';
-                if (rollbackMetrics.thisPeriod > 0) originalBg = 'bg-amber-200/80 border-l-4 border-amber-500';
-                rowWrapper.className = `flex flex-col border-b border-[#ee7d31]/20 last:border-0 ${originalBg}`;
+                rowWrapper.dataset.hasUpdate = (rollbackMetrics.thisPeriod > 0) ? 'true' : 'false';
                 updatePendingBadge();
                 recalculateAggregatedTotals();
                 return;
@@ -1879,12 +2049,12 @@ const tableContainer = document.createElement('div');
             appState.modifiedCells[cacheKey] = { ...baseItem, parts: workingParts, synced: false };
 
            
-document.getElementById(`master-prev-${cardIndex}`).innerText = previous === 0 ? '-' : formatNum(previous);
+            document.getElementById(`master-prev-${cardIndex}`).innerText = previous === 0 ? '-' : formatNum(previous);
             document.getElementById(`master-todate-${cardIndex}`).innerText = formatNum(toDate);
             document.getElementById(`master-bal-${cardIndex}`).innerText = formatNum(balance);
             
             
-const progressPercent = targetQty > 0 ? Math.min(100, Math.max(0, (toDate / targetQty) * 100)) : 0;
+            const progressPercent = targetQty > 0 ? Math.min(100, Math.max(0, (toDate / targetQty) * 100)) : 0;
             const pBar = document.getElementById(`progress-bar-${cardIndex}`);
             if (pBar) {
                 pBar.style.width = `${progressPercent}%`;
@@ -1897,22 +2067,26 @@ const progressPercent = targetQty > 0 ? Math.min(100, Math.max(0, (toDate / targ
             
             const pText = document.getElementById(`progress-text-${cardIndex}`);
             if (pText) {
-                pText.innerText = progressPercent > 0 ? `${progressPercent.toFixed(2)}%` : '';
+                pText.innerText = progressPercent > 0 ? `${progressPercent.toFixed(1)}%` : '';
             }
-
 
             const wkSpan = document.getElementById(`wk-val-${cardIndex}-${appState.activeWeekIndex}`);
             if (wkSpan) {
                 wkSpan.innerText = newVal !== '' ? formatNum(newVal) : '-';
             }
 
-           
-const hasUpdateThisWeek = !isNaN(parseFloat(newVal)) && parseFloat(newVal) > 0;
-            const bgClass = cardIndex % 2 === 0 ? 'bg-[#e2f0d9]' : 'bg-[#a9d18e]';
+            const hasUpdateThisWeek = !isNaN(parseFloat(newVal)) && parseFloat(newVal) > 0;
+            const itemNoContainer = document.querySelector(`#master-row-${cardIndex} div:first-child`);
+            let arrow = itemNoContainer.querySelector('.fa-arrow-up');
+            
             if (hasUpdateThisWeek) {
-                rowWrapper.className = `flex flex-col border-b border-white last:border-0 ${bgClass} transition-colors duration-300 ring-2 ring-amber-400 z-10`;
+                rowWrapper.dataset.hasUpdate = 'true';
+                if (!arrow) {
+                    itemNoContainer.insertAdjacentHTML('afterbegin', '<div class="absolute left-1 md:left-4 top-1/2 -translate-y-1/2 animate-float-up"><i class="fa-solid fa-arrow-up text-cyan-500 text-xl md:text-2xl drop-shadow-[0_2px_2px_rgba(0,0,0,0.4)]"></i></div>');
+                }
             } else {
-                rowWrapper.className = `flex flex-col border-b border-white last:border-0 ${bgClass} transition-colors duration-300`;
+                rowWrapper.dataset.hasUpdate = 'false';
+                if (arrow) arrow.parentNode.remove();
             }
 
 
@@ -1921,7 +2095,7 @@ const hasUpdateThisWeek = !isNaN(parseFloat(newVal)) && parseFloat(newVal) > 0;
 
             const icon = document.getElementById(`save-icon-${cardIndex}`);
             if (icon) {
-                icon.className = "fa-solid fa-pen text-amber-500 text-2xl md:text-3xl drop-shadow-sm transition-colors";
+                icon.className = "fa-solid fa-pen text-yellow-300 text-xl mb-1 drop-shadow-md transition-colors";
             }
 
             if (autoSaveTimers[cacheKey]) clearTimeout(autoSaveTimers[cacheKey]);
@@ -1947,7 +2121,7 @@ const hasUpdateThisWeek = !isNaN(parseFloat(newVal)) && parseFloat(newVal) > 0;
             }
 
             const icon = document.getElementById(`save-icon-${cardIndex}`);
-            if (icon) icon.className = "fa-solid fa-circle-notch fa-spin text-blue-500 text-lg";
+            if (icon) icon.className = "fa-solid fa-circle-notch fa-spin text-white text-xl mb-1";
 
             try {
                 const token = await GoogleSheetsAPI.getAuthToken();
@@ -1965,20 +2139,22 @@ const hasUpdateThisWeek = !isNaN(parseFloat(newVal)) && parseFloat(newVal) > 0;
                 recalculateAggregatedTotals();
 
                 const monthlyPercColIdx = appState.headers.findIndex(h => String(h || '').toUpperCase().replace(/\s/g, '') === 'MONTHLY(%)');
-                if (monthlyPercColIdx !== -1 && monthDiff >= 0) {
+                if (monthlyPercColIdx !== -1 && (monthDiff >= 0 || appState.unlockedHistory)) {
+                    const actualDiff = Math.max(0, monthDiff);
                     const actualPercentNum = parseFloat(document.getElementById('stat-actual-percent').innerText) || 0;
                     const percParts = (appState.contractRowData.values[monthlyPercColIdx] || '').split('|').map(p => p.trim());
-                    while (percParts.length <= monthDiff) percParts.push('');
-                    percParts[monthDiff] = actualPercentNum.toFixed(2);
+                    while (percParts.length <= actualDiff) percParts.push('');
+                    percParts[actualDiff] = actualPercentNum.toFixed(2);
                     payload.push({ range: `SWA!${colToLetter(monthlyPercColIdx)}${rowNumber}`, values: [[percParts.join('|')]] });
                 }
 
                 const scheduleColIdx = appState.headers.findIndex(h => String(h || '').toUpperCase().trim() === 'SCHEDULE');
-                if (scheduleColIdx !== -1 && monthDiff >= 0) {
+                if (scheduleColIdx !== -1 && (monthDiff >= 0 || appState.unlockedHistory)) {
+                    const actualDiff = Math.max(0, monthDiff);
                     const scheduledPercentNum = calculateScheduledPercentage(); 
                     const schedParts = (appState.contractRowData.values[scheduleColIdx] || '').split('|').map(p => p.trim());
-                    while (schedParts.length <= monthDiff) schedParts.push('');
-                    schedParts[monthDiff] = scheduledPercentNum.toFixed(2);
+                    while (schedParts.length <= actualDiff) schedParts.push('');
+                    schedParts[actualDiff] = scheduledPercentNum.toFixed(2);
                     payload.push({ range: `SWA!${colToLetter(scheduleColIdx)}${rowNumber}`, values: [[schedParts.join('|')]] });
                 }
 
@@ -1998,9 +2174,8 @@ const hasUpdateThisWeek = !isNaN(parseFloat(newVal)) && parseFloat(newVal) > 0;
 
                 if (!response.ok) throw new Error("Auto-save failed");
 
-
-if (icon) {
-                    icon.className = "fa-solid fa-check text-[#00b050] text-2xl md:text-3xl drop-shadow-md transition-all";
+                if (icon) {
+                    icon.className = "fa-solid fa-check text-white text-xl mb-1 drop-shadow-[0_2px_4px_rgba(255,255,255,0.5)] scale-110 transition-transform";
                 }
                 
                 if (item) {
@@ -2010,7 +2185,7 @@ if (icon) {
 
             } catch (err) {
                 console.error(err);
-                if (icon) icon.className = "fa-solid fa-xmark text-rose-500 text-xl transition-colors";
+                if (icon) icon.className = "fa-solid fa-xmark text-red-300 text-xl mb-1 transition-colors";
                 if (item) item.synced = false;
                 updatePendingBadge();
             }
@@ -2022,7 +2197,7 @@ if (icon) {
             
             delete appState.modifiedCells[cacheKey];
             
-            const rowWrapper = document.querySelectorAll('[data-raw-item]')[cardIndex];
+            const rowWrapper = document.getElementById(`item-wrapper-${cardIndex}`);
             const headerName = appState.headers[colIdx];
             const originalParts = originalValStr.split('|').map(p => p.trim());
             
@@ -2033,14 +2208,11 @@ if (icon) {
             
             const metrics = calculateMetrics(originalParts, appState.activeMonthOffset, headerName);
             
-          
-
-document.getElementById(`master-prev-${cardIndex}`).innerText = metrics.previous === 0 ? '-' : formatNum(metrics.previous);
+            document.getElementById(`master-prev-${cardIndex}`).innerText = metrics.previous === 0 ? '-' : formatNum(metrics.previous);
             document.getElementById(`master-todate-${cardIndex}`).innerText = formatNum(metrics.toDate);
             document.getElementById(`master-bal-${cardIndex}`).innerText = formatNum(metrics.balance);
             
-            
-const progressPercent = metrics.targetQuantity > 0 ? Math.min(100, Math.max(0, (metrics.toDate / metrics.targetQuantity) * 100)) : 0;
+            const progressPercent = metrics.targetQuantity > 0 ? Math.min(100, Math.max(0, (metrics.toDate / metrics.targetQuantity) * 100)) : 0;
             const pBar = document.getElementById(`progress-bar-${cardIndex}`);
             if (pBar) {
                 pBar.style.width = `${progressPercent}%`;
@@ -2052,7 +2224,7 @@ const progressPercent = metrics.targetQuantity > 0 ? Math.min(100, Math.max(0, (
             }
             const pText = document.getElementById(`progress-text-${cardIndex}`);
             if (pText) {
-                pText.innerText = progressPercent > 0 ? `${progressPercent.toFixed(2)}%` : '';
+                pText.innerText = progressPercent > 0 ? `${progressPercent.toFixed(1)}%` : '';
             }
 
             
@@ -2069,13 +2241,18 @@ const progressPercent = metrics.targetQuantity > 0 ? Math.min(100, Math.max(0, (
                 }
             }
             
-         
-const hasUpdateThisWeek = !isNaN(parseFloat(inputEl.value)) && parseFloat(inputEl.value) > 0;
-            const bgClass = cardIndex % 2 === 0 ? 'bg-[#e2f0d9]' : 'bg-[#a9d18e]';
+            const hasUpdateThisWeek = !isNaN(parseFloat(inputEl.value)) && parseFloat(inputEl.value) > 0;
+            const itemNoContainer = document.querySelector(`#master-row-${cardIndex} div:first-child`);
+            let arrow = itemNoContainer.querySelector('.fa-arrow-up');
+            
             if (hasUpdateThisWeek) {
-                rowWrapper.className = `flex flex-col border-b border-white last:border-0 ${bgClass} transition-colors duration-300 ring-2 ring-amber-400 z-10`;
+                rowWrapper.dataset.hasUpdate = 'true';
+                if (!arrow) {
+                    itemNoContainer.insertAdjacentHTML('afterbegin', '<div class="absolute left-1 md:left-4 top-1/2 -translate-y-1/2 animate-float-up"><i class="fa-solid fa-arrow-up text-cyan-500 text-xl md:text-2xl drop-shadow-[0_2px_2px_rgba(0,0,0,0.4)]"></i></div>');
+                }
             } else {
-                rowWrapper.className = `flex flex-col border-b border-white last:border-0 ${bgClass} transition-colors duration-300`;
+                rowWrapper.dataset.hasUpdate = 'false';
+                if (arrow) arrow.parentNode.remove();
             }
 
 
@@ -2089,7 +2266,7 @@ const hasUpdateThisWeek = !isNaN(parseFloat(inputEl.value)) && parseFloat(inputE
 
         async function executeUndoAutoSave(colIdx, rowNumber, originalValStr, cardIndex) {
             const icon = document.getElementById(`save-icon-${cardIndex}`);
-            if (icon) icon.className = "fa-solid fa-circle-notch fa-spin text-blue-500 text-lg";
+            if (icon) icon.className = "fa-solid fa-circle-notch fa-spin text-white text-xl mb-1";
 
             try {
                 const token = await GoogleSheetsAPI.getAuthToken();
@@ -2107,20 +2284,22 @@ const hasUpdateThisWeek = !isNaN(parseFloat(inputEl.value)) && parseFloat(inputE
                 recalculateAggregatedTotals();
                 
                 const monthlyPercColIdx = appState.headers.findIndex(h => String(h || '').toUpperCase().replace(/\s/g, '') === 'MONTHLY(%)');
-                if (monthlyPercColIdx !== -1 && monthDiff >= 0) {
+                if (monthlyPercColIdx !== -1 && (monthDiff >= 0 || appState.unlockedHistory)) {
+                    const actualDiff = Math.max(0, monthDiff);
                     const actualPercentNum = parseFloat(document.getElementById('stat-actual-percent').innerText) || 0;
                     const percParts = (appState.contractRowData.values[monthlyPercColIdx] || '').split('|').map(p => p.trim());
-                    while (percParts.length <= monthDiff) percParts.push('');
-                    percParts[monthDiff] = actualPercentNum.toFixed(2);
+                    while (percParts.length <= actualDiff) percParts.push('');
+                    percParts[actualDiff] = actualPercentNum.toFixed(2);
                     payload.push({ range: `SWA!${colToLetter(monthlyPercColIdx)}${rowNumber}`, values: [[percParts.join('|')]] });
                 }
 
                 const scheduleColIdx = appState.headers.findIndex(h => String(h || '').toUpperCase().trim() === 'SCHEDULE');
-                if (scheduleColIdx !== -1 && monthDiff >= 0) {
+                if (scheduleColIdx !== -1 && (monthDiff >= 0 || appState.unlockedHistory)) {
+                    const actualDiff = Math.max(0, monthDiff);
                     const scheduledPercentNum = calculateScheduledPercentage(); 
                     const schedParts = (appState.contractRowData.values[scheduleColIdx] || '').split('|').map(p => p.trim());
-                    while (schedParts.length <= monthDiff) schedParts.push('');
-                    schedParts[monthDiff] = scheduledPercentNum.toFixed(2);
+                    while (schedParts.length <= actualDiff) schedParts.push('');
+                    schedParts[actualDiff] = scheduledPercentNum.toFixed(2);
                     payload.push({ range: `SWA!${colToLetter(scheduleColIdx)}${rowNumber}`, values: [[schedParts.join('|')]] });
                 }
 
@@ -2141,11 +2320,11 @@ const hasUpdateThisWeek = !isNaN(parseFloat(inputEl.value)) && parseFloat(inputE
                 if (!response.ok) throw new Error("Undo auto-save failed");
 
 
-if (icon) {
-                    icon.className = "fa-solid fa-check text-[#00b050] text-2xl md:text-3xl drop-shadow-md";
+                if (icon) {
+                    icon.className = "fa-solid fa-check text-white text-xl mb-1 drop-shadow-[0_2px_4px_rgba(255,255,255,0.5)]";
                     setTimeout(() => {
                         if (icon.classList.contains('fa-check')) {
-                            icon.className = "fa-solid fa-check text-[#00b050] text-2xl md:text-3xl transition-colors";
+                            icon.className = "fa-solid fa-check text-white text-xl mb-1 transition-transform";
                         }
                     }, 3000);
                 }
@@ -2153,7 +2332,7 @@ if (icon) {
                 updatePendingBadge();
             } catch(e) {
                 console.error(e);
-                if (icon) icon.className = "fa-solid fa-xmark text-rose-500 text-xl";
+                if (icon) icon.className = "fa-solid fa-xmark text-red-300 text-xl mb-1";
             }
         }
 
@@ -2167,12 +2346,13 @@ if (icon) {
                 ntpOffset = parseNtpToOffset(appState.pdoLookupMap[appState.selectedContractId].ntp);
             }
             const monthDiff = appState.activeMonthOffset - ntpOffset;
-            if (monthDiff < 0) return;
+            if (monthDiff < 0 && !appState.unlockedHistory) return;
             
+            const actualDiff = Math.max(0, monthDiff);
             let val = textarea.value.replace(/\|/g, '-'); 
             let workingParts = appState.modifiedCells[cacheKey] ? [...appState.modifiedCells[cacheKey].parts] : String(appState.contractRowData.values[colIdx] || '').split('|');
-            while (workingParts.length <= monthDiff) workingParts.push('');
-            workingParts[monthDiff] = val;
+            while (workingParts.length <= actualDiff) workingParts.push('');
+            workingParts[actualDiff] = val;
             
             appState.modifiedCells[cacheKey] = {
                 colIndex: colIdx, colLetter: colToLetter(colIdx), rowNumber: rowNumber, headerName: 'REMARKS', parts: workingParts, synced: false
@@ -2186,10 +2366,12 @@ if (icon) {
 
         function recalculateAggregatedTotals() {
             const container = document.getElementById('items-list-container');
-            const cards = container.querySelectorAll('[data-raw-item]');
+            const cards = container.querySelectorAll('.master-row');
             let totalToDateAmount = 0;
             cards.forEach((card) => {
-                const baseItem = JSON.parse(card.dataset.rawItem);
+                const wrapper = card.parentNode;
+                if(!wrapper || !wrapper.dataset.rawItem) return;
+                const baseItem = JSON.parse(wrapper.dataset.rawItem);
                 const cacheKey = `${baseItem.colIndex}_${baseItem.rowNumber}`;
                 const workingItem = appState.modifiedCells[cacheKey] || baseItem;
                 const metrics = calculateMetrics(workingItem.parts, appState.activeMonthOffset, workingItem.headerName);
@@ -2223,18 +2405,18 @@ if (icon) {
             if (count > 0) {
                 if (counterLabel) {
                     counterLabel.innerText = count;
-                    counterLabel.className = "ml-1.5 px-2 py-0.5 bg-white text-purple-600 rounded-lg text-[10px] animate-pulse shadow-sm";
+                    counterLabel.className = "ml-1.5 px-2 py-0.5 bg-white text-cyan-600 rounded-lg text-[10px] animate-pulse shadow-sm";
                     counterLabel.classList.remove('hidden');
                 }
                 syncBtn.disabled = false;
-                syncBtn.className = "w-1/2 max-w-[200px] justify-center bg-gradient-to-r from-purple-500 to-indigo-500 text-white px-3 py-3 lg:px-5 lg:py-3.5 rounded-xl font-black text-xs shadow-md shadow-purple-500/30 hover:scale-[1.02] transition-all flex items-center gap-1.5 cursor-pointer";
+                syncBtn.className = "btn-3d w-1/2 max-w-[200px] justify-center bg-gradient-to-r from-cyan-500 to-blue-600 border-b-4 border-blue-800 text-white px-3 py-3 lg:px-5 lg:py-3.5 rounded-xl font-black text-xs hover:scale-[1.02] flex items-center gap-1.5 cursor-pointer shadow-md";
             } else {
                 if (counterLabel) {
                     counterLabel.innerText = `0`;
                     counterLabel.classList.add('hidden');
                 }
                 syncBtn.disabled = true;
-                syncBtn.className = "w-1/2 max-w-[200px] justify-center bg-white/50 border border-white/60 text-slate-400 px-3 py-3 lg:px-5 lg:py-3.5 rounded-xl font-black text-xs transition-all flex items-center gap-1.5 cursor-not-allowed";
+                syncBtn.className = "btn-3d w-1/2 max-w-[200px] justify-center bg-white/50 border-b-4 border-slate-300 text-slate-400 px-3 py-3 lg:px-5 lg:py-3.5 rounded-xl font-black text-xs flex items-center gap-1.5 cursor-not-allowed";
             }
         }
 
@@ -2245,17 +2427,19 @@ if (icon) {
             
             const slippageEl = document.getElementById('stat-slippage');
             if (slippage !== null && slippage !== undefined && amount > 0) {
-                const sign = slippage > 0 ? '+' : '';
-                slippageEl.innerText = `${sign}${slippage.toFixed(2)}%`;
-                slippageEl.className = slippage >= 0 ? "text-emerald-600 font-extrabold break-all leading-tight tracking-tighter px-0.5" : "text-rose-600 font-extrabold break-all leading-tight tracking-tighter px-0.5";
+                const isPositive = slippage >= 0;
+                const sign = isPositive ? '+' : '';
+                const emoji = isPositive ? '😎' : '😟';
+                slippageEl.innerHTML = `<span>${sign}${slippage.toFixed(2)}%</span> <span class="text-sm drop-shadow-sm">${emoji}</span>`;
+                slippageEl.className = isPositive ? "text-emerald-600 font-extrabold flex flex-col items-center justify-center gap-0.5 break-all px-0.5" : "text-rose-600 font-extrabold flex flex-col items-center justify-center gap-0.5 break-all px-0.5";
             } else {
                 slippageEl.innerText = '-';
-                slippageEl.className = "text-rose-700 break-all leading-tight tracking-tighter px-0.5";
+                slippageEl.className = "text-rose-700 font-extrabold flex flex-col items-center justify-center gap-0.5 break-all px-0.5";
             }
         }
 
         function openItemsEditorModal() {
-            if (appState.activeMonthOffset < CURRENT_MONTH_OFFSET) {
+            if (appState.activeMonthOffset < CURRENT_MONTH_OFFSET && !appState.unlockedHistory) {
                 showCustomAlert(`Period Locked!\n\nThis month is historical and cannot be modified. Updating items is only allowed in the current month (${getMonthLabel(CURRENT_MONTH_OFFSET)}).`);
                 return;
             }
@@ -2322,7 +2506,7 @@ if (icon) {
         function restripeEditorRows() {
             const rows = document.getElementById('items-editor-table-body').children;
             for (let i = 0; i < rows.length; i++) {
-                rows[i].className = `hover:bg-orange-300/40 transition-colors ${i % 2 === 0 ? 'bg-[#ffebd6]/80' : 'bg-[#fff4eb]/80'}`;
+                rows[i].className = `hover:bg-cyan-50 transition-colors border-b border-slate-300 ${i % 2 === 0 ? 'bg-white' : 'bg-slate-50'}`;
             }
         }
 
@@ -2336,16 +2520,16 @@ if (icon) {
             const costFormatted = metrics.unitCost ? formatNum(metrics.unitCost) : '';
 
             tr.innerHTML = `
-                <td class="py-2 px-1.5 sm:px-3 align-middle border-r border-[#ee7d31]/20 overflow-hidden">
+                <td class="py-2.5 px-1.5 sm:px-3 align-middle border-r border-slate-300 overflow-hidden">
                     <input type="text" value="${metrics.itemNo || ''}" oninput="editorIsDirty = true;" onkeydown="handleEditorEnter(event, this, 'editor-item-no')" placeholder="ID..." class="w-full bg-transparent border-0 outline-none text-slate-800 text-[11px] sm:text-sm tracking-tighter font-bold focus:ring-0 text-left editor-item-no p-0">
                 </td>
-                <td class="py-2 px-1 sm:px-3 align-middle border-r border-[#ee7d31]/20 overflow-hidden">
+                <td class="py-2.5 px-1 sm:px-3 align-middle border-r border-slate-300 overflow-hidden">
                     <input type="text" value="${qtyFormatted}" oninput="editorIsDirty = true;" onfocus="this.value = unformatNumStr(this.value); this.select();" onblur="this.value = formatNumStr(this.value);" onkeydown="handleEditorEnter(event, this, 'editor-qty')" placeholder="0.00" class="w-full bg-transparent border-0 outline-none text-slate-800 text-[11px] sm:text-sm tracking-tighter font-bold focus:ring-0 text-right editor-qty p-0">
                 </td>
-                <td class="py-2 px-1 sm:px-3 align-middle border-r border-[#ee7d31]/20 overflow-hidden">
+                <td class="py-2.5 px-1 sm:px-3 align-middle border-r border-slate-300 overflow-hidden">
                     <input type="text" value="${costFormatted}" oninput="editorIsDirty = true;" onfocus="this.value = unformatNumStr(this.value); this.select();" onblur="this.value = formatNumStr(this.value);" onkeydown="handleEditorEnter(event, this, 'editor-unit-cost')" placeholder="0.00" class="w-full bg-transparent border-0 outline-none text-slate-800 text-[11px] sm:text-sm tracking-tighter font-bold focus:ring-0 text-right editor-unit-cost p-0">
                 </td>
-                <td class="py-2 px-0.5 sm:px-2 align-middle text-center">
+                <td class="py-2.5 px-0.5 sm:px-2 align-middle text-center">
                     <div class="flex justify-center items-center gap-1 sm:gap-2">
                         <button onclick="moveEditorRowUp(this)" class="text-slate-400 hover:text-blue-500 transition-colors text-[10px] sm:text-sm p-1 shrink-0" title="Move Up"><i class="fa-solid fa-arrow-up"></i></button>
                         <button onclick="moveEditorRowDown(this)" class="text-slate-400 hover:text-blue-500 transition-colors text-[10px] sm:text-sm p-1 shrink-0" title="Move Down"><i class="fa-solid fa-arrow-down"></i></button>
@@ -2486,9 +2670,10 @@ if (icon) {
                     while (workingParts.length < expectedLength) workingParts.push('0');
 
                     let previous = 0, thisPeriod = 0;
-                    if (monthDiff >= 0) {
-                        for (let x = 7; x < 7 + monthDiff; x++) previous += parseAccomplishmentVal(workingParts[x]);
-                        thisPeriod = parseAccomplishmentVal(workingParts[7 + monthDiff]);
+                    if (monthDiff >= 0 || appState.unlockedHistory) {
+                        const actualDiff = Math.max(0, monthDiff);
+                        for (let x = 7; x < 7 + actualDiff; x++) previous += parseAccomplishmentVal(workingParts[x]);
+                        thisPeriod = parseAccomplishmentVal(workingParts[7 + actualDiff]);
                     }
                     
                     previous = Math.round(previous * 100) / 100;
@@ -2600,8 +2785,11 @@ if (icon) {
             const selectedName = appState.loggedFullName || appState.loggedInUser || 'System';
 
             showConfirm(`Commit ${unsyncedCount} remaining pending changes directly to the Google Sheet?`, async () => {
-                setLoaderStatus("Synchronizing Data...", "Writing manual updates to secure Google cloud database");
-                document.getElementById('loader').classList.remove('hidden');
+                
+                // Show custom loading again
+                startLoading();
+                document.getElementById('loader-title').innerText = "Synchronizing Data...";
+                document.getElementById('loader-text').innerText = "Writing manual updates to secure Google cloud database";
 
                 try {
                     const token = await GoogleSheetsAPI.getAuthToken();
@@ -2621,20 +2809,22 @@ if (icon) {
                     }
 
                     const monthlyPercColIdx = appState.headers.findIndex(h => String(h || '').toUpperCase().replace(/\s/g, '') === 'MONTHLY(%)');
-                    if (monthlyPercColIdx !== -1 && monthDiff >= 0) {
+                    if (monthlyPercColIdx !== -1 && (monthDiff >= 0 || appState.unlockedHistory)) {
+                        const actualDiff = Math.max(0, monthDiff);
                         const actualPercentNum = parseFloat(document.getElementById('stat-actual-percent').innerText) || 0;
                         const percParts = (appState.contractRowData.values[monthlyPercColIdx] || '').split('|').map(p => p.trim());
-                        while (percParts.length <= monthDiff) percParts.push('');
-                        percParts[monthDiff] = actualPercentNum.toFixed(2);
+                        while (percParts.length <= actualDiff) percParts.push('');
+                        percParts[actualDiff] = actualPercentNum.toFixed(2);
                         payload.push({ range: `SWA!${colToLetter(monthlyPercColIdx)}${appState.contractRowData.rowNumber}`, values: [[percParts.join('|')]] });
                     }
 
                     const scheduleColIdx = appState.headers.findIndex(h => String(h || '').toUpperCase().trim() === 'SCHEDULE');
-                    if (scheduleColIdx !== -1 && monthDiff >= 0) {
+                    if (scheduleColIdx !== -1 && (monthDiff >= 0 || appState.unlockedHistory)) {
+                        const actualDiff = Math.max(0, monthDiff);
                         const scheduledPercentNum = calculateScheduledPercentage();
                         const schedParts = (appState.contractRowData.values[scheduleColIdx] || '').split('|').map(p => p.trim());
-                        while (schedParts.length <= monthDiff) schedParts.push('');
-                        schedParts[monthDiff] = scheduledPercentNum.toFixed(2);
+                        while (schedParts.length <= actualDiff) schedParts.push('');
+                        schedParts[actualDiff] = scheduledPercentNum.toFixed(2);
                         payload.push({ range: `SWA!${colToLetter(scheduleColIdx)}${appState.contractRowData.rowNumber}`, values: [[schedParts.join('|')]] });
                     }
 
@@ -2649,10 +2839,11 @@ if (icon) {
                     appState.modifiedCells = {};
                     updatePendingBadge();
                     
+                    finishLoading();
                     showToast("Synchronization Successful!", "SWA database updated successfully", "success");
                     await fetchSheetData();
                 } catch (err) {
-                    document.getElementById('loader').classList.add('hidden');
+                    finishLoading();
                     showToast("Sync Error", err.message, "error");
                 }
             }, "Sync Data", "Cancel");
@@ -2683,20 +2874,22 @@ if (icon) {
         }
 
         function setLoaderStatus(title, subtitle) {
-            document.getElementById('loader-title').innerText = title;
-            document.getElementById('loader-text').innerText = subtitle;
+            const titleEl = document.getElementById('loader-title');
+            const textEl = document.getElementById('loader-text');
+            if (titleEl) titleEl.innerText = title;
+            if (textEl) textEl.innerText = subtitle;
         }
 
         function showGlobalError(title, subtitle) {
             const loader = document.getElementById('loader');
             loader.classList.remove('hidden');
-            const spinner = loader.querySelector('.animate-spin');
-            if (spinner) spinner.classList.remove('animate-spin');
-            const icon = loader.querySelector('.fa-cube');
-            if (icon) icon.className = "fa-solid fa-triangle-exclamation text-5xl text-rose-500 drop-shadow-md";
+            loader.classList.add('flex');
+            const spinner = loader.querySelector('.fa-hourglass-half');
+            if (spinner) spinner.classList.remove('animate-pulse');
+            if (spinner) spinner.className = "fa-solid fa-triangle-exclamation text-6xl text-rose-500 drop-shadow-[0_10px_10px_rgba(225,29,72,0.5)]";
             document.getElementById('loader-title').innerText = title;
-            document.getElementById('loader-title').className = "text-2xl font-black text-rose-600 tracking-wider";
-            document.getElementById('loader-text').innerHTML = `<span class="text-slate-700 font-bold">${subtitle}</span><br><br><button onclick="window.location.reload()" class="mt-6 px-8 py-3 bg-gradient-to-r from-rose-500 to-red-600 text-white shadow-lg text-xs font-black rounded-xl uppercase tracking-widest hover:scale-[1.02] transition-transform">Re-Initialize</button>`;
+            document.getElementById('loader-title').className = "text-xl font-black text-rose-700 tracking-widest uppercase drop-shadow-sm mt-4";
+            document.getElementById('loader-text').innerHTML = `<span class="text-slate-700 font-bold">${subtitle}</span><br><br><button onclick="window.location.reload()" class="btn-3d mt-4 px-8 py-3 bg-gradient-to-r from-rose-500 to-red-600 border-b-4 border-red-800 text-white shadow-md text-xs font-black rounded-xl uppercase tracking-widest">Re-Initialize</button>`;
         }
 
         function showToast(title, subtitle, type) {
@@ -2706,8 +2899,8 @@ if (icon) {
             const text = document.getElementById('toast-text');
 
             text.innerHTML = `<span class="text-slate-800 block font-black leading-tight">${title}</span><span class="text-[10px] text-slate-500 block font-bold mt-0.5">${subtitle}</span>`;
-            box.className = "bg-white/95 backdrop-blur-md border rounded-2xl p-4 shadow-2xl flex items-center gap-4 w-full " + (type === 'success' ? 'border-emerald-200' : 'border-rose-200');
-            icon.className = "fa-solid text-2xl " + (type === 'success' ? 'fa-circle-check text-emerald-500 drop-shadow-sm' : 'fa-circle-exclamation text-rose-500 drop-shadow-sm');
+            box.className = "bg-white/95 backdrop-blur-md border border-b-4 rounded-2xl p-4 shadow-xl flex items-center gap-4 w-full " + (type === 'success' ? 'border-emerald-500' : 'border-rose-500');
+            icon.className = "fa-solid text-2xl drop-shadow-sm " + (type === 'success' ? 'fa-circle-check text-emerald-500' : 'fa-circle-exclamation text-rose-500');
 
             toast.classList.remove('pointer-events-none', 'opacity-0', '-translate-y-20');
             toast.classList.add('opacity-100', 'translate-y-0');
@@ -2721,10 +2914,10 @@ if (icon) {
             const printBtn = document.getElementById('print-report-button');
             if (appState.selectedContractId) {
                 printBtn.disabled = false;
-                printBtn.className = "w-1/2 max-w-[200px] justify-center bg-gradient-to-r from-blue-500 to-sky-500 text-white px-3 py-3 lg:px-5 lg:py-3.5 rounded-xl font-black text-xs hover:scale-[1.02] transition-all flex items-center gap-1.5 cursor-pointer shadow-md shadow-blue-500/30";
+                printBtn.className = "btn-3d w-1/2 max-w-[200px] justify-center bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-3 py-3 lg:px-5 lg:py-3.5 rounded-xl font-black text-xs hover:scale-[1.02] flex items-center gap-1.5 cursor-pointer shadow-md border-b-4 border-blue-800";
             } else {
                 printBtn.disabled = true;
-                printBtn.className = "w-1/2 max-w-[200px] justify-center bg-white/50 border border-white/60 text-slate-400 px-3 py-3 lg:px-5 lg:py-3.5 rounded-xl font-black text-xs transition-all flex items-center gap-1.5 cursor-not-allowed";
+                printBtn.className = "btn-3d w-1/2 max-w-[200px] justify-center bg-white/50 border-b-4 border-slate-300 text-slate-400 px-3 py-3 lg:px-5 lg:py-3.5 rounded-xl font-black text-xs flex items-center gap-1.5 cursor-not-allowed";
             }
         }
 
@@ -2943,13 +3136,14 @@ if (icon) {
             const monthDiff = appState.activeMonthOffset - ntpOffset;
             
             let remarkText = '';
-            if (remarksColIdx !== -1 && monthDiff >= 0) {
+            if (remarksColIdx !== -1 && (monthDiff >= 0 || appState.unlockedHistory)) {
+                const actualDiff = Math.max(0, monthDiff);
                 const cacheKey = `${remarksColIdx}_${rowNumber}`;
                 if (appState.modifiedCells[cacheKey]) {
-                    remarkText = appState.modifiedCells[cacheKey].parts[monthDiff] || '';
+                    remarkText = appState.modifiedCells[cacheKey].parts[actualDiff] || '';
                 } else {
                     const cellVal = String(row[remarksColIdx] || '');
-                    remarkText = cellVal.split('|')[monthDiff] || '';
+                    remarkText = cellVal.split('|')[actualDiff] || '';
                 }
             }
             const remarksContainer = document.getElementById('print-remarks-container');
@@ -2984,7 +3178,7 @@ if (icon) {
         function openVoEditor(idx, name) {
             toggleVoDropdown();
             currentVoIndex = idx;
-            document.getElementById('vo-editor-title').innerHTML = `<i class="fa-solid fa-file-contract mr-2"></i> EDIT ${name}`;
+            document.getElementById('vo-editor-title').innerHTML = `<i class="fa-solid fa-file-contract mr-2 drop-shadow-sm"></i> EDIT ${name}`;
             
             const tbody = document.getElementById('vo-editor-tbody');
             tbody.innerHTML = '';
@@ -3006,7 +3200,7 @@ if (icon) {
                 let revCost = costData.arr[idx] !== undefined && costData.arr[idx] !== '' ? costData.arr[idx] : origCost;
                 
                 const newTr = document.createElement('div');
-                newTr.className = "grid grid-cols-[26%_17%_17%_20%_20%] items-center hover:bg-slate-50 transition-colors";
+                newTr.className = "grid grid-cols-[26%_17%_17%_20%_20%] items-center hover:bg-slate-100 transition-colors border-b border-slate-200";
                 newTr.dataset.rawParts = tr.dataset.rawParts;
                 newTr.dataset.mainRowIndex = Array.from(tr.parentNode.children).indexOf(tr); 
                 
@@ -3015,10 +3209,10 @@ if (icon) {
                     <div class="py-2.5 px-2 text-right text-[11px] text-slate-500 border-l border-slate-200">${formatNum(origQty)}</div>
                     <div class="py-2.5 px-2 text-right text-[11px] text-slate-500 border-l border-slate-200">${formatNum(origCost)}</div>
                     <div class="py-1.5 px-1.5 bg-amber-50/50 border-l border-amber-200">
-                        <input type="text" value="${formatNumStr(revQty)}" onfocus="this.value = unformatNumStr(this.value); this.select();" onblur="this.value = formatNumStr(this.value);" class="w-full bg-white border border-amber-300 rounded-md px-1.5 py-1.5 text-right text-[11px] font-bold outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 vo-rev-qty shadow-inner">
+                        <input type="text" placeholder="Qty" value="${formatNumStr(revQty)}" onfocus="this.value = unformatNumStr(this.value); this.select();" onblur="this.value = formatNumStr(this.value);" class="w-full bg-white border-2 border-amber-300 rounded px-1.5 py-1.5 text-right text-[11px] font-bold outline-none focus:border-amber-500 text-amber-900 shadow-inner vo-rev-qty">
                     </div>
                     <div class="py-1.5 px-1.5 bg-amber-50/50 border-l border-amber-200">
-                        <input type="text" value="${formatNumStr(revCost)}" onfocus="this.value = unformatNumStr(this.value); this.select();" onblur="this.value = formatNumStr(this.value);" class="w-full bg-white border border-amber-300 rounded-md px-1.5 py-1.5 text-right text-[11px] font-bold outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 vo-rev-cost shadow-inner">
+                        <input type="text" placeholder="Cost" value="${formatNumStr(revCost)}" onfocus="this.value = unformatNumStr(this.value); this.select();" onblur="this.value = formatNumStr(this.value);" class="w-full bg-white border-2 border-amber-300 rounded px-1.5 py-1.5 text-right text-[11px] font-bold outline-none focus:border-amber-500 text-amber-900 shadow-inner vo-rev-cost">
                     </div>
                 `;
                 tbody.appendChild(newTr);
@@ -3146,7 +3340,7 @@ if (icon) {
                     }
 
                     html += `
-                    <div class="flex flex-col md:flex-row items-center gap-2 bg-rose-50 p-2.5 rounded-xl border border-rose-200 relative">
+                    <div class="flex flex-col md:flex-row items-center gap-2 bg-rose-50 p-2.5 rounded-xl border border-rose-200 shadow-sm relative">
                         <div class="flex-1 w-full flex items-center gap-2">
                             <span class="text-[10px] font-black text-rose-700 uppercase w-[60px]">Suspend:</span>
                             <input type="date" value="${pair.suspend}" onchange="updateSuspensionData()" class="susp-start-input flex-1 bg-white border border-rose-300 rounded-lg p-2 text-[11px] font-bold outline-none focus:border-rose-500 shadow-inner">
@@ -3156,7 +3350,7 @@ if (icon) {
                             <input type="date" value="${pair.resume}" onchange="updateSuspensionData()" class="susp-end-input flex-1 bg-white border border-emerald-300 rounded-lg p-2 text-[11px] font-bold outline-none focus:border-emerald-500 shadow-inner">
                         </div>
                         <button onclick="removeSuspensionRow(${idx})" class="text-rose-400 hover:text-rose-600 transition-colors p-2" title="Remove"><i class="fa-solid fa-trash"></i></button>
-                        ${daysText ? `<div class="absolute -top-2 -right-2 bg-rose-600 text-white text-[9px] font-black px-2 py-0.5 rounded shadow-sm border border-rose-700 z-10">${daysText}</div>` : ''}
+                        ${daysText ? `<div class="absolute -top-2 -right-2 bg-gradient-to-r from-rose-500 to-red-600 text-white text-[9px] font-black px-2 py-0.5 rounded shadow-sm border border-rose-700 z-10">${daysText}</div>` : ''}
                     </div>`;
                 });
             }

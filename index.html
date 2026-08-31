@@ -320,15 +320,7 @@
       flex:0 0 auto;
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
-    .card-thumb.loading-shimmer {
-      background: linear-gradient(90deg, #eceff1 25%, #f6f7f8 50%, #eceff1 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.5s infinite;
-    }
-    @keyframes shimmer {
-      0% { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
-    }
+    
     .card-content{padding:4px 2px;flex:1;font-size:.8rem;line-height:1.2;}
     .contract-id{font-size:1.3rem;font-weight:900;color:#8b0000;letter-spacing:.2px;}
     .engineer-name{color:#2563eb;font-weight:800;}
@@ -344,12 +336,140 @@
     }
     mark{background:#fef08a;padding:0 .15em;border-radius:.2em;}
 
-    @media (max-width: 768px) {
-      html { font-size: 75%; }
-      #appView { padding: 15px 10px; border-radius: 16px; margin-top: 50px; }
-      .home-title-area { padding: 25px 20px; margin-bottom: 25px; }
-      .home-title-area h2 { font-size: 2.2rem; }
-      .emoji-icon { font-size: 3.5rem; }
+    /* =========================================================
+       SCI-FI COSMIC LOADING BAR (0% - 100%)
+       ========================================================= */
+    .sci-fi-loader-container {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 20px;
+      background: radial-gradient(circle at center, #1a0b2e 0%, #050011 100%);
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.05);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.6), inset 0 0 50px rgba(138, 43, 226, 0.15);
+      position: relative;
+      overflow: hidden;
+      min-height: 250px;
+    }
+
+    /* Subtle background stars effect */
+    .sci-fi-loader-container::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-image: 
+        radial-gradient(1px 1px at 20px 30px, #fff, rgba(0,0,0,0)),
+        radial-gradient(1.5px 1.5px at 60px 70px, #fff, rgba(0,0,0,0)),
+        radial-gradient(1px 1px at 120px 150px, #fff, rgba(0,0,0,0)),
+        radial-gradient(2px 2px at 180px 40px, #fff, rgba(0,0,0,0)),
+        radial-gradient(1px 1px at 240px 90px, #fff, rgba(0,0,0,0));
+      background-size: 300px 300px;
+      opacity: 0.4;
+      animation: sciFiDrift 30s linear infinite;
+      z-index: 0;
+    }
+
+    @keyframes sciFiDrift {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-300px); }
+    }
+
+    .sci-fi-bar-wrap {
+      position: relative;
+      width: 100%;
+      max-width: 500px;
+      height: 38px;
+      background: #000;
+      border-radius: 30px;
+      padding: 4px;
+      z-index: 1;
+      /* Layered metallic silver border effect */
+      box-shadow: 
+        0 0 0 2px #e5e7eb, 
+        0 0 0 6px #87909c, 
+        0 15px 25px rgba(0,0,0,0.7),
+        inset 0 3px 10px rgba(0,0,0,1);
+    }
+
+    .sci-fi-bar-fill {
+      width: 0%;
+      height: 100%;
+      border-radius: 25px;
+      /* Purple to Red to Orange/Yellow */
+      background: linear-gradient(90deg, #5100ff 0%, #ff0055 50%, #ffb300 100%);
+      box-shadow: inset 0 2px 5px rgba(255,255,255,0.5), 0 0 20px rgba(255, 0, 85, 0.8);
+      transition: width 0.15s ease-out;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Sparkles inside the bar */
+    .sci-fi-bar-fill::before {
+      content: '✨';
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 14px;
+      color: white;
+      opacity: 0.8;
+      filter: drop-shadow(0 0 4px #fff);
+    }
+
+    /* Diagonal moving light sweep */
+    .sci-fi-bar-fill::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -100px; right: 0; bottom: 0;
+      width: 100px;
+      background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0) 100%);
+      transform: skewX(-25deg);
+      animation: sciFiShine 2s infinite linear;
+    }
+
+    @keyframes sciFiShine {
+      0% { left: -150px; }
+      100% { left: 150%; }
+    }
+
+    .sci-fi-loading-text {
+      margin-top: 40px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      z-index: 1;
+    }
+
+    .sci-fi-spinner {
+      width: 32px;
+      height: 32px;
+      border: 4px solid transparent;
+      border-top: 4px solid #ffb300; /* Orange top */
+      border-left: 4px solid #ff0055; /* Red side */
+      border-radius: 50%;
+      animation: spin 0.8s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+      box-shadow: 0 0 15px rgba(255, 179, 0, 0.4);
+    }
+
+    .sci-fi-text {
+      color: #f1f5f9;
+      font-size: 1.8rem;
+      font-weight: 900;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      font-family: 'Arial Black', Impact, sans-serif;
+      text-shadow: 2px 2px 0px #000, 0 0 15px rgba(255,255,255,0.3);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .sci-fi-pct {
+      color: #ffb300;
+      text-shadow: 2px 2px 0px #000, 0 0 15px rgba(255, 179, 0, 0.8);
     }
 
     /* =========================================================
@@ -467,7 +587,14 @@
       box-shadow: 0 2px 5px rgba(37,99,235,0.3);
     }
 
-    @media(max-width:768px){ #filters{ padding: 10px 0; } }
+    @media(max-width:768px){ 
+      #filters{ padding: 10px 0; } 
+      html { font-size: 75%; }
+      #appView { padding: 15px 10px; border-radius: 16px; margin-top: 50px; }
+      .home-title-area { padding: 25px 20px; margin-bottom: 25px; }
+      .home-title-area h2 { font-size: 2.2rem; }
+      .emoji-icon { font-size: 3.5rem; }
+    }
 
     /* =========================================================
        SINGLE WINDOW SPA STYLES
@@ -716,7 +843,6 @@
   <div class="grid hidden" id="grid"></div>
 </main>
 
-
 <!-- 3. MODAL VIEW (Single Window) -->
 <main id="modalView" class="hidden fullscreen-view">
   <iframe id="pcmaModalFrame" class="full-iframe" src="" title="Project Details"></iframe>
@@ -858,7 +984,7 @@
   });
 
   // =========================================================
-  // BUTTON LISTENERS
+  // BUTTON LISTENERS (WITH NEW SCI-FI LOADER)
   // =========================================================
   document.addEventListener("DOMContentLoaded", () => {
     window.checkAuthStatus(); // Run initial auth check immediately on page load
@@ -870,7 +996,38 @@
           PCMA.showView('appView');
           const grid = document.getElementById("grid");
           if (!PCMA.state || !PCMA.state.records || PCMA.state.records.length === 0) {
-              grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#1e293b;font-weight:bold;font-size:1.2rem;"><div class="card-thumb loading-shimmer" style="width:50px;height:50px;border-radius:50%;margin:0 auto 15px auto;"></div>Fetching high priority data from Google...</div>';
+              // Inject the gorgeous Sci-Fi Cosmic loader based on image
+              grid.innerHTML = `
+                <div class="sci-fi-loader-container" id="sciFiLoader">
+                  <div class="sci-fi-bar-wrap">
+                    <div class="sci-fi-bar-fill" id="sciFiBarFill"></div>
+                  </div>
+                  <div class="sci-fi-loading-text">
+                    <div class="sci-fi-spinner"></div>
+                    <div class="sci-fi-text">LOADING <span class="sci-fi-pct" id="sciFiPct">0%</span></div>
+                  </div>
+                </div>
+              `;
+
+              // Animate from 0% to 99% while waiting for Google Data
+              let pct = 0;
+              const barFill = document.getElementById('sciFiBarFill');
+              const pctText = document.getElementById('sciFiPct');
+              
+              if (window._pcmaLoaderInterval) clearInterval(window._pcmaLoaderInterval);
+              
+              window._pcmaLoaderInterval = setInterval(() => {
+                  if (!document.getElementById('sciFiLoader')) {
+                      clearInterval(window._pcmaLoaderInterval);
+                      return;
+                  }
+                  if (pct < 99) {
+                      pct += (Math.random() * 10 + 2); // Random progress jumps
+                      if (pct > 99) pct = 99;
+                      barFill.style.width = Math.floor(pct) + '%';
+                      pctText.innerText = Math.floor(pct) + '%';
+                  }
+              }, 150);
           }
           grid.classList.remove("hidden"); 
           document.getElementById("resultInfo").classList.remove("hidden");
@@ -1050,6 +1207,7 @@
         
       } catch (err) {
         console.error(err);
+        if (window._pcmaLoaderInterval) clearInterval(window._pcmaLoaderInterval);
         el.grid.classList.remove("hidden");
         el.grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:#fff;font-weight:bold;text-shadow:0 2px 4px rgba(255,255,255,0.5);">Failed to load data.</div>';
       }
@@ -1136,7 +1294,6 @@
         el.filterCombo.value = ''; 
         location.reload();
     };
-
 
     function populateFilterOptions() {
       const { headers, records } = PCMA.state;
@@ -1243,6 +1400,22 @@
     }
 
     function renderGrid(rows) {
+      // Intercept execution to finish the loading animation at 100% smoothly
+      const loader = document.getElementById('sciFiLoader');
+      if (loader && !loader.dataset.finished) {
+          loader.dataset.finished = "true";
+          if (window._pcmaLoaderInterval) clearInterval(window._pcmaLoaderInterval);
+          const barFill = document.getElementById('sciFiBarFill');
+          const pctText = document.getElementById('sciFiPct');
+          if (barFill && pctText) {
+              barFill.style.width = '100%';
+              pctText.innerText = '100%';
+              // Wait a split second to let user enjoy the 100% filled state before rendering grid
+              setTimeout(() => renderGrid(rows), 400);
+              return; 
+          }
+      }
+
       const { headers } = PCMA.state;
       el.grid.innerHTML = "";
 
@@ -1307,7 +1480,7 @@
         projDiv.style.marginTop = "2px";
         content.appendChild(projDiv);
 
-const statusDiv = document.createElement("div");
+        const statusDiv = document.createElement("div");
         const statusText = (colStatus >= 0 && r[colStatus] ? String(r[colStatus]) : "").trim();
         const tt = statusText.toLowerCase();
         let bg = "#777";
