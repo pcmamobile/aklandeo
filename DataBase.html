@@ -697,7 +697,7 @@
                 tr.id = `master-${p.id}`;
                 tr.onclick = () => toggleRow(p.id);
                 
-                const costFmt = p.cost ? p.cost.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}) : '';
+                const costFmt = p.cost ? 'P ' + p.cost.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}) : '';
                 
                 // Text wrapping enabled for Name & Contractor
                 tr.innerHTML = `
@@ -759,9 +759,11 @@
             const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
             return `${months[d.getMonth()]} ${String(d.getDate()).padStart(2,'0')}, ${d.getFullYear()}`;
         }
+
         function toCurrencyFormat(val) {
-            if (!val && val !== 0) return ''; let num = parseFloat(String(val).replace(/[^\d.-]/g, ''));
-            return isNaN(num) ? '' : num.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            if (!val && val !== 0) return ''; 
+            let num = parseFloat(String(val).replace(/[^\d.-]/g, ''));
+            return isNaN(num) ? '' : 'P ' + num.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
         }
         
         // Auto-expand Textareas safely and reliably
@@ -825,7 +827,6 @@
                 const container = document.getElementById(listId);
                 if(container) container.classList.add('hidden');
                 
-                // Strict validation on blur
                 const inputEl = document.getElementById(inputId);
                 if(inputEl && inputEl.value.trim() !== '') {
                     const list = window.dropdownLists[dataKey] || [];
@@ -834,8 +835,10 @@
                     if(!exactMatch) {
                         showToast("Invalid Entry. Please choose an option from the Dropdown list.", "error");
                         inputEl.value = "";
-                    } else {
+                        inputEl.dispatchEvent(new Event('change')); 
+                    } else if (inputEl.value !== exactMatch) {
                         inputEl.value = exactMatch;
+                        inputEl.dispatchEvent(new Event('change')); 
                     }
                 }
             }, 200);
@@ -1078,7 +1081,7 @@
                                     <button onclick="addFollowUpRow('${cid}')" class="bg-[#5b9bd5] text-white text-[10px] font-black px-2 py-1 rounded shadow">ADD DATE</button>
                                 </div>
                                 <div id="followUpList_${cid}" class="flex flex-col gap-2">
-                                    ${window[`fu_${cid}`].map(d => `<div class="flex gap-2 items-center"><div class="relative date-input-wrapper w-[200px]"><input type="text" class="date-input excel-input w-full" placeholder="Select Date" value="${formatDt(d)}" onchange="saveDynamicArray('DATE', 'Follow Up Letter', '${cid}', 'followUpList_${cid}', ' | ')">${ICON_DATE}</div><button onclick="this.parentElement.remove(); saveDynamicArray('DATE', 'Follow Up Letter', '${cid}', 'followUpList_${cid}', ' | ')" class="text-rose-500 hover:text-rose-700 bg-white px-3 py-2 rounded-lg shadow border border-rose-200"><i class="fa-solid fa-trash"></i></button></div>`).join('')}
+                                    ${window[`fu_${cid}`].map((d, index) => `<div class="flex gap-2 items-center"><div class="relative date-input-wrapper w-[240px]"><input type="text" class="date-input excel-input w-full" placeholder="Select Date" value="${formatDt(d)}" onchange="saveDynamicArray('DATE', 'Follow Up Letter', '${cid}', 'followUpList_${cid}', ' | ')">${ICON_DATE}<i id="icon_dyn_fu_${cid}_${index}" class="fa-solid fa-check save-indicator hidden" style="right: -24px;"></i></div><button onclick="this.parentElement.remove(); saveDynamicArray('DATE', 'Follow Up Letter', '${cid}', 'followUpList_${cid}', ' | ')" class="text-rose-500 hover:text-rose-700 bg-white px-3 py-2 rounded-lg shadow border border-rose-200"><i class="fa-solid fa-trash"></i></button></div>`).join('')}
                                 </div>
                             </div>
 
@@ -1092,7 +1095,7 @@
                                     <button onclick="addRemarkRow('${cid}')" class="bg-[#ed7d31] text-white text-[10px] font-black px-2 py-1 rounded shadow">ADD REMARK</button>
                                 </div>
                                 <div id="remarksList_${cid}" class="flex flex-col gap-2">
-                                    ${window[`rem_${cid}`].map(r => `<div class="flex gap-2 items-start"><textarea class="excel-input resize-y w-full dynamic-val" rows="2" oninput="autoExpand(this); saveDynamicArray('DATE', 'Remarks Yes/No (with or w/o Defects)', '${cid}', 'remarksList_${cid}', ' | ', true)">${r}</textarea><button onclick="this.parentElement.remove(); saveDynamicArray('DATE', 'Remarks Yes/No (with or w/o Defects)', '${cid}', 'remarksList_${cid}', ' | ', true)" class="text-rose-500 hover:text-rose-700 mt-2 bg-white px-3 py-2 rounded-lg shadow border border-rose-200"><i class="fa-solid fa-trash"></i></button></div>`).join('')}
+                                    ${window[`rem_${cid}`].map((r, index) => `<div class="flex gap-2 items-start"><div class="relative w-full"><textarea class="excel-input resize-y w-full dynamic-val" rows="2" oninput="autoExpand(this); saveDynamicArray('DATE', 'Remarks Yes/No (with or w/o Defects)', '${cid}', 'remarksList_${cid}', ' | ', true)">${r}</textarea><i id="icon_dyn_rem_${cid}_${index}" class="fa-solid fa-check save-indicator hidden" style="right: -24px; top: 12px;"></i></div><button onclick="this.parentElement.remove(); saveDynamicArray('DATE', 'Remarks Yes/No (with or w/o Defects)', '${cid}', 'remarksList_${cid}', ' | ', true)" class="text-rose-500 hover:text-rose-700 mt-2 bg-white px-3 py-2 rounded-lg shadow border border-rose-200"><i class="fa-solid fa-trash"></i></button></div>`).join('')}
                                 </div>
                             </div>
 
@@ -1283,7 +1286,8 @@
         function addFollowUpRow(cid) {
             const div = document.createElement('div');
             div.className = "flex gap-2 items-center";
-            div.innerHTML = `<div class="relative date-input-wrapper w-[240px]"><input type="text" class="date-input excel-input w-full" placeholder="Select Date" onchange="saveDynamicArray('DATE', 'Follow Up Letter', '${cid}', 'followUpList_${cid}', ' | ')">${ICON_DATE}</div><button onclick="this.parentElement.remove(); saveDynamicArray('DATE', 'Follow Up Letter', '${cid}', 'followUpList_${cid}', ' | ')" class="text-rose-500 hover:text-rose-700 bg-white px-3 py-2 rounded-lg shadow border border-rose-200"><i class="fa-solid fa-trash"></i></button>`;
+            const rowId = Date.now();
+            div.innerHTML = `<div class="relative date-input-wrapper w-[240px]"><input type="text" class="date-input excel-input w-full" placeholder="Select Date" onchange="saveDynamicArray('DATE', 'Follow Up Letter', '${cid}', 'followUpList_${cid}', ' | ')">${ICON_DATE}<i id="icon_dyn_fu_${rowId}" class="fa-solid fa-check save-indicator hidden" style="right: -24px;"></i></div><button onclick="this.parentElement.remove(); saveDynamicArray('DATE', 'Follow Up Letter', '${cid}', 'followUpList_${cid}', ' | ')" class="text-rose-500 hover:text-rose-700 bg-white px-3 py-2 rounded-lg shadow border border-rose-200"><i class="fa-solid fa-trash"></i></button>`;
             document.getElementById(`followUpList_${cid}`).appendChild(div);
             flatpickr(div.querySelector('.date-input'), { dateFormat: "F d, Y", allowInput: true, onChange: function(d,s,i){ i.element.dispatchEvent(new Event('change', { bubbles: true })); }});
         }
@@ -1291,7 +1295,8 @@
         function addRemarkRow(cid) {
             const div = document.createElement('div');
             div.className = "flex gap-2 items-start";
-            div.innerHTML = `<textarea class="excel-input resize-y w-full dynamic-val" rows="2" placeholder="Type remark here..." oninput="autoExpand(this); saveDynamicArray('DATE', 'Remarks Yes/No (with or w/o Defects)', '${cid}', 'remarksList_${cid}', ' | ', true)"></textarea><button onclick="this.parentElement.remove(); saveDynamicArray('DATE', 'Remarks Yes/No (with or w/o Defects)', '${cid}', 'remarksList_${cid}', ' | ', true)" class="text-rose-500 hover:text-rose-700 bg-white px-3 py-2 rounded-lg shadow border border-rose-200 mt-1"><i class="fa-solid fa-trash"></i></button>`;
+            const rowId = Date.now();
+            div.innerHTML = `<div class="relative w-full"><textarea class="excel-input resize-y w-full dynamic-val" rows="2" placeholder="Type remark here..." oninput="autoExpand(this); saveDynamicArray('DATE', 'Remarks Yes/No (with or w/o Defects)', '${cid}', 'remarksList_${cid}', ' | ', true)"></textarea><i id="icon_dyn_rem_${rowId}" class="fa-solid fa-check save-indicator hidden" style="right: -24px; top: 12px;"></i></div><button onclick="this.parentElement.remove(); saveDynamicArray('DATE', 'Remarks Yes/No (with or w/o Defects)', '${cid}', 'remarksList_${cid}', ' | ', true)" class="text-rose-500 hover:text-rose-700 bg-white px-3 py-2 rounded-lg shadow border border-rose-200 mt-1"><i class="fa-solid fa-trash"></i></button>`;
             document.getElementById(`remarksList_${cid}`).appendChild(div);
         }
 
@@ -1300,14 +1305,25 @@
             const inputs = Array.from(container.querySelectorAll('input, textarea')).map(el => el.value.trim()).filter(Boolean);
             
             let finalVal = inputs.join(joinChar);
+            let iconIds = [];
+            
             if (isYesNo) {
                 const isYes = document.getElementById(`sel_rem_${cid}`).value === 'Yes';
                 if(isYes) finalVal = 'Yes' + (finalVal ? ' | ' + finalVal : '');
                 else finalVal = 'No';
+                
+                const selectIconId = `icon_${cid.replace(/[^a-zA-Z0-9]/g,'')}_${tabKey}_${headerName.replace(/[^a-zA-Z0-9]/g,'')}`;
+                iconIds.push(selectIconId);
             }
 
-            const iconId = tabKey === 'DATE' && headerName === 'Follow Up Letter' ? `icon_fu_${cid}` : `icon_rem_${cid}`;
-            queueSave(tabKey, headerName, finalVal, cid, iconId);
+            const wrapperIconId = tabKey === 'DATE' && headerName === 'Follow Up Letter' ? `icon_fu_${cid}` : `icon_rem_${cid}`;
+            iconIds.push(wrapperIconId);
+            
+            container.querySelectorAll('.save-indicator').forEach(icon => {
+                if (icon.id) iconIds.push(icon.id);
+            });
+
+            queueSave(tabKey, headerName, finalVal, cid, iconIds);
         }
 
         // ==========================================
@@ -1461,14 +1477,18 @@
             return letter;
         }
 
-        function queueSave(tabKey, headerName, val, cid, iconId) {
-            const iconEl = document.getElementById(iconId);
-            if(iconEl) {
-                iconEl.className = 'fa-solid fa-circle-notch save-indicator loading';
-                iconEl.style.display = 'block'; 
-            }
-            pendingSaves = pendingSaves.filter(s => s.iconId !== iconId);
-            pendingSaves.push({ tabKey, headerName, value: val, iconId, cid });
+        function queueSave(tabKey, headerName, val, cid, iconIds) {
+            const icons = Array.isArray(iconIds) ? iconIds : [iconIds];
+            icons.forEach(iconId => {
+                const iconEl = document.getElementById(iconId);
+                if(iconEl) {
+                    iconEl.className = 'fa-solid fa-circle-notch save-indicator loading';
+                    iconEl.style.display = 'block'; 
+                }
+            });
+
+            pendingSaves = pendingSaves.filter(s => !(s.tabKey === tabKey && s.headerName === headerName && s.cid === cid));
+            pendingSaves.push({ tabKey, headerName, value: val, iconIds: icons, cid });
             
             clearTimeout(autoSaveTimer);
             autoSaveTimer = setTimeout(commitPendingSaves, 1500);
@@ -1480,12 +1500,16 @@
             
             let iconId = '';
             const safeKey = `${currentOpenCid.replace(/[^a-zA-Z0-9]/g,'')}_${tabKey}_${headerName.replace(/[^a-zA-Z0-9]/g,'')}`;
-            const parentW = el.closest('.relative');
+            const parentW = el.parentElement;
             const iEl = parentW ? parentW.querySelector('.save-indicator') : null;
-            if (iEl) iconId = iEl.id;
-            else iconId = `icon_${safeKey}`;
             
-            queueSave(tabKey, headerName, val, currentOpenCid, iconId);
+            if (iEl && iEl.id) {
+                iconId = iEl.id;
+            } else {
+                iconId = `icon_${safeKey}`;
+            }
+            
+            queueSave(tabKey, headerName, val, currentOpenCid, [iconId]);
         }
 
         function autoSaveBilling(cid, monthHdr) {
@@ -1500,7 +1524,9 @@
                 if(!dtEl) return; 
                 
                 const hdrEl = netEl.closest('.billing-block').querySelector('h4');
-                if(!hdrEl || hdrEl.innerText !== monthHdr) return;
+                
+                // FIX: Force both strings to uppercase to ignore the CSS rendering difference
+                if(!hdrEl || hdrEl.innerText.trim().toUpperCase() !== monthHdr.trim().toUpperCase()) return;
                 
                 let netVal = toCurrencyFormat(netEl.value); netEl.value = netVal;
                 let grossVal = toCurrencyFormat(grossEl.value); grossEl.value = grossVal;
@@ -1512,11 +1538,15 @@
                     if(remEl.value) combinedRem.push(remEl.value);
                 }
                 
-                autoSaveField('BILLING', monthHdr, netEl, false, false); 
+                const netIconId = `icon_bill_net_${cid}_${i}`;
+                queueSave('BILLING', monthHdr, netVal, cid, [netIconId]);
                 
                 const remStr = combinedRem.join(' | ');
+                const dtIconId = `icon_bill_dt_${cid}_${i}`;
+                const grossIconId = `icon_bill_gross_${cid}_${i}`;
                 const remIconId = `icon_bill_rem_${cid}_${i}`;
-                queueSave('BILLING', monthHdr + ' Remarks', remStr, cid, remIconId);
+                
+                queueSave('BILLING', monthHdr + ' Remarks', remStr, cid, [dtIconId, grossIconId, remIconId]);
             });
         }
 
@@ -1538,7 +1568,7 @@
                         const idCol = tabData.headers.findIndex(h => h && h.toUpperCase().includes('CONTRACT ID'));
                         let row = tabData.rows.find(r => r.values[idCol] === s.cid);
                         if(row) {
-                            row.values[headerIdx] = s.value; // Updates local memory
+                            row.values[headerIdx] = s.value; 
                             payload.push({
                                 range: `${TAB_CONFIG.find(t=>t.key===s.tabKey).sheetName}!${colToLetter(headerIdx)}${row.rowNumber}`,
                                 values: [[s.value]]
@@ -1557,15 +1587,19 @@
                 }
 
                 saves.forEach(s => {
-                    const el = document.getElementById(s.iconId);
-                    if(el) el.className = 'fa-solid fa-check save-indicator success';
+                    s.iconIds.forEach(iconId => {
+                        const el = document.getElementById(iconId);
+                        if(el) el.className = 'fa-solid fa-check save-indicator success';
+                    });
                 });
 
             } catch(e) {
                 console.error("Save Error:", e);
                 saves.forEach(s => {
-                    const el = document.getElementById(s.iconId);
-                    if(el) { el.className = 'fa-solid fa-xmark save-indicator error'; el.title = "Save failed: " + e.message; }
+                    s.iconIds.forEach(iconId => {
+                        const el = document.getElementById(iconId);
+                        if(el) { el.className = 'fa-solid fa-xmark save-indicator error'; el.title = "Save failed: " + e.message; }
+                    });
                 });
             }
         }
