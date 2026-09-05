@@ -513,6 +513,8 @@
         let billingGroupMode = 'contractor'; 
         
         let weeklySelectedMonthOffset = -1;
+        let weeklyFilterYear = 'All';
+        let weeklyFilterMark = 'All';
 
         let monthlyViewMode = 'standard'; 
         let monthlyFilterYear = 'All'; 
@@ -700,16 +702,17 @@
                     const slippage = actualPercent - schedulePercent;
                     
                     const weeklyHistory = {};
-                    if (is2026 && hasLogin) {
+                    if (hasLogin) {
                         for (let mOffset = 0; mOffset <= CURRENT_MONTH_OFFSET; mOffset++) {
-                            weeklyHistory[mOffset] = calculateWeeklyUpdates(row, headers, contractId, pdoLookup, mOffset);
+                            weeklyHistory[mOffset] = calculateWeeklyUpdates(row, headers, contractId, pdoLookup, mOffset, actualPercent);
                         }
                     }
 
                     monitoringData.push({ 
                         contractId, pe: peName, actual: actualPercent, schedule: schedulePercent, slippage, 
                         weeklyHistory, is2026, hasLogin,
-                        projectName, location, contractor, ntp, expiry, contractAmount
+                        projectName, location, contractor, ntp, expiry, contractAmount,
+                        year: pdoInfo.year || 'Unknown'
                     });
 
                     const pcmaRaw = globalPcmaColIdx !== -1 && row[globalPcmaColIdx] ? String(row[globalPcmaColIdx]).trim() : '';
@@ -1366,6 +1369,7 @@
             if (!val) return '-';
             const num = parseFloat(String(val).replace(/[^0-9.-]/g, ''));
             if (isNaN(num) || num === 0) return '-';
+            if (num >= 100) return 'C';
             if (String(val).includes('%')) return val;
             return num.toFixed(2) + '%'; 
         }
@@ -1464,7 +1468,7 @@
             return Math.min(100, totalScheduled);
         }
 
-        function calculateWeeklyUpdates(row, headers, contractId, pdoLookup, mOffset) {
+        function calculateWeeklyUpdates(row, headers, contractId, pdoLookup, mOffset, actualPercent) {
             let weeks = ['missing', 'missing', 'missing', 'missing'];
             const contractColIndex = findContractHeaderCol(headers);
             const ntpOffset = pdoLookup[contractId] ? parseNtpToOffset(pdoLookup[contractId].ntp) : 0;
@@ -1523,21 +1527,44 @@
                     const parts = cellVal.split('|').map(p => p.trim());
                     if (parts.length <= 7 + monthDiff) continue;
                     const tpStr = String(parts[7 + monthDiff] || '');
+                    
                     if (tpStr.includes(',')) {
                         const sp = tpStr.split(',');
                         for(let i=0; i<4; i++) {
                             if (weeks[i] === 'future' || weeks[i] === 'suspended') continue;
-                            const parsed = parseFloat(sp[i] ? sp[i].replace(/[^0-9.-]+/g, "") : "");
-                            if (!isNaN(parsed) && parsed > 0) weeks[i] = 'updated';
+                            const rawVal = sp[i] ? sp[i].trim() : "";
+                            if (rawVal !== "") {
+                                const parsed = parseFloat(rawVal.replace(/[^0-9.-]+/g, ""));
+                                if (!isNaN(parsed)) {
+                                    if (parsed > 0) weeks[i] = 'updated';
+                                    else if (parsed === 0 && weeks[i] === 'missing') weeks[i] = 'zero';
+                                }
+                            }
                         }
                     } else {
                         if (weeks[0] !== 'future' && weeks[0] !== 'suspended') {
-                            const parsed = parseFloat(tpStr.replace(/[^0-9.-]+/g, ""));
-                            if (!isNaN(parsed) && parsed > 0) weeks[0] = 'updated';
+                            const rawVal = tpStr.trim();
+                            if (rawVal !== "") {
+                                const parsed = parseFloat(rawVal.replace(/[^0-9.-]+/g, ""));
+                                if (!isNaN(parsed)) {
+                                    if (parsed > 0) weeks[0] = 'updated';
+                                    else if (parsed === 0 && weeks[0] === 'missing') weeks[0] = 'zero';
+                                }
+                            }
                         }
                     }
                 }
             }
+
+            // Convert missing, zero, suspended, AND updated icons to "Completed" if actual percentage is >= 100%
+            if (actualPercent >= 99.99) {
+                for (let i = 0; i < 4; i++) {
+                    if (weeks[i] !== 'future' && weeks[i] !== 'before_ntp') {
+                        weeks[i] = 'completed';
+                    }
+                }
+            }
+
             return weeks;
         }
 
@@ -1615,6 +1642,12 @@
 
         window.changeWeeklyMonth = function(mOffset) {
             weeklySelectedMonthOffset = mOffset;
+            renderView();
+        }
+
+        window.changeWeeklyFilter = function(type, val) {
+            if (type === 'year') weeklyFilterYear = val;
+            if (type === 'mark') weeklyFilterMark = val;
             renderView();
         }
 
@@ -1825,7 +1858,9 @@
 
         function getWeeklyIcon(status) {
             if (status === 'updated') return `<span class="text-emerald-500 font-extrabold text-lg">✓</span>`;
-            if (status === 'suspended') return `<i class="fa-solid fa-circle-dot text-[#7030a0] text-lg drop-shadow-sm"></i>`;
+            if (status === 'completed') return `<span class="text-blue-600 font-black text-base md:text-lg drop-shadow-sm">C</span>`;
+            if (status === 'suspended') return `<span class="text-[#7030a0] font-black text-base md:text-lg drop-shadow-sm">S</span>`;
+            if (status === 'zero') return `<span class="text-orange-500 font-black text-base md:text-lg drop-shadow-sm">N</span>`;
             if (status === 'before_ntp' || status === 'future') return `<span class="text-gray-400 font-extrabold text-sm">-</span>`;
             return `<span class="text-rose-600 font-extrabold text-lg">✘</span>`;
         }
@@ -2169,7 +2204,27 @@
                     if (activeTab === 'slippage') {
                         if (project.slippage <= -5.00) filteredData.push(project);
                     } else if (activeTab === 'weekly') {
-                        if (project.is2026 && project.hasLogin) filteredData.push(project);
+                        if (project.hasLogin) {
+                            const matchYear = weeklyFilterYear === 'All' || String(project.year) === weeklyFilterYear;
+                            if (!matchYear) return;
+
+                            const wData = project.weeklyHistory[weeklySelectedMonthOffset] || ['missing','missing','missing','missing'];
+                            let matchStatus = false;
+                            
+                            if (weeklyFilterMark === 'All') {
+                                matchStatus = true;
+                            } else if (weeklyFilterMark === 'Completed') {
+                                matchStatus = wData.includes('completed');
+                            } else if (weeklyFilterMark === 'On-going') {
+                                matchStatus = wData.includes('updated');
+                            } else if (weeklyFilterMark === 'No Accomplishment') {
+                                matchStatus = wData.includes('zero') || wData.includes('missing');
+                            } else if (weeklyFilterMark === 'Suspended') {
+                                matchStatus = wData.includes('suspended');
+                            }
+
+                            if (matchStatus) filteredData.push(project);
+                        }
                     }
                 });
 
@@ -2193,6 +2248,24 @@
                 `;
 
                 if (activeTab === 'weekly') {
+                    const weeklyYears = [...new Set(monitoringData.filter(p => p.hasLogin).map(p => p.year))].filter(Boolean).sort().reverse();
+                    
+                    html += `
+                        <div class="w-full flex flex-col md:flex-row gap-2 mb-2">
+                            <select onchange="changeWeeklyFilter('year', this.value)" class="flex-1 border-2 border-yellow-600 text-[#0f3b75] font-black text-center py-1 text-sm md:text-base outline-none cursor-pointer shadow-sm bg-white rounded-md">
+                                <option value="All" ${weeklyFilterYear === 'All' ? 'selected' : ''}>All Years</option>
+                                ${weeklyYears.map(y => `<option value="${y}" ${weeklyFilterYear === String(y) ? 'selected' : ''}>CY ${y}</option>`).join('')}
+                            </select>
+                            <select onchange="changeWeeklyFilter('mark', this.value)" class="flex-1 border-2 border-yellow-600 text-[#0f3b75] font-black text-center py-1 text-sm md:text-base outline-none cursor-pointer shadow-sm bg-white rounded-md">
+                                <option value="All" ${weeklyFilterMark === 'All' ? 'selected' : ''}>All Status</option>
+                                <option value="Completed" ${weeklyFilterMark === 'Completed' ? 'selected' : ''}>Completed (C)</option>
+                                <option value="On-going" ${weeklyFilterMark === 'On-going' ? 'selected' : ''}>On-going (✓)</option>
+                                <option value="No Accomplishment" ${weeklyFilterMark === 'No Accomplishment' ? 'selected' : ''}>No Accomplishment (N / ✘)</option>
+                                <option value="Suspended" ${weeklyFilterMark === 'Suspended' ? 'selected' : ''}>Suspended (S)</option>
+                            </select>
+                        </div>
+                    `;
+
                     html += `<div class="w-full flex overflow-x-auto shadow-sm border-y border-yellow-600 mb-4 bg-[#fff2cc] no-scrollbar">`;
                     for(let m = 0; m <= CURRENT_MONTH_OFFSET; m++) {
                         let mMonth = m % 12;
@@ -2235,10 +2308,11 @@
                             projects.forEach((p, idx) => {
                                 const rowColor = idx % 2 === 0 ? theme.rowOdd : theme.rowEven;
                                 const uniqueId = `slip-details-${index}-${idx}`;
+                                let actualDisplay = p.actual >= 100 ? 'C' : p.actual.toFixed(2) + '%';
                                 html += `
                                     <tr class="${rowColor} border-t border-gray-300/50 cursor-pointer hover:brightness-95 transition-all" onclick="toggleDetails('${uniqueId}')">
                                         <td class="py-1.5 px-2 dotted-border font-extrabold tracking-wider">${p.contractId}</td>
-                                        <td class="py-1.5 px-2 dotted-border font-medium">${p.actual.toFixed(2)}%</td>
+                                        <td class="py-1.5 px-2 dotted-border font-medium">${actualDisplay}</td>
                                         <td class="py-1.5 px-2 dotted-border font-medium">${p.schedule.toFixed(2)}%</td>
                                         <td class="py-1.5 px-2 text-rose-600 font-black tracking-tight">${p.slippage.toFixed(2)}%</td>
                                     </tr>
@@ -2576,8 +2650,8 @@
                                 let prevMonthDiff = itemMonthDiff - 1;
                                 let prevActualVal = prevMonthDiff >= 0 ? cleanActualVal(mParts[prevMonthDiff] || '') : '-';
                                 
-                                let curNum = parseFloat(actualVal) || 0;
-                                let prevNum = parseFloat(prevActualVal) || 0;
+                                let curNum = actualVal === 'C' ? 100 : (parseFloat(actualVal) || 0);
+                                let prevNum = prevActualVal === 'C' ? 100 : (parseFloat(prevActualVal) || 0);
                                 
                                 if (actualVal !== '-') {
                                     if (curNum > prevNum) {

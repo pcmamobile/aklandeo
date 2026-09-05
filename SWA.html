@@ -242,7 +242,7 @@
                 <!-- Months: Fixed to show 4 items exactly -->
                 <div id="month-carousel" class="flex gap-2 overflow-x-auto no-scrollbar pb-1 snap-x snap-mandatory"></div>
                 <!-- Weeks: Flex-1 to stretch equally -->
-                <div id="week-carousel" class="flex gap-2 w-full pt-2 border-t border-slate-300/50 hidden"></div>
+                <div id="week-carousel" class="flex items-center gap-1 w-full pt-2 border-t border-slate-300/50 hidden overflow-x-auto no-scrollbar"></div>
             </div>
 
             <!-- ENHANCED STATS GRID (Amount, To Date, Actual %, Slippage) -->
@@ -910,6 +910,15 @@
                 btn.innerHTML = `<i class="fa-solid fa-calendar-week mr-1"></i> ${WEEK_LABELS[i]}`;
                 container.appendChild(btn);
             }
+
+            // --- ADD THIS NEW ZERO BUTTON ---
+            const noAccBtn = document.createElement('button');
+            noAccBtn.onclick = declareNoAccomplishment;
+            noAccBtn.className = "shrink-0 ml-1 px-3 py-1 rounded-xl text-[9px] sm:text-[10px] font-black transition-all shadow-sm bg-gradient-to-b from-rose-50 to-rose-100 text-rose-600 border border-rose-300 hover:bg-rose-200 border-b-[3px] flex items-center justify-center gap-1.5";
+            noAccBtn.innerHTML = `<i class="fa-solid fa-ban text-rose-500 drop-shadow-sm"></i> ZERO`;
+            noAccBtn.title = "Declare No Accomplishment (0) for this Week";
+            container.appendChild(noAccBtn);
+            // --------------------------------
 
             setTimeout(() => {
                 const activePill = document.getElementById(`week-pill-${appState.activeWeekIndex}`);
@@ -2144,6 +2153,14 @@
                     const actualPercentNum = parseFloat(document.getElementById('stat-actual-percent').innerText) || 0;
                     const percParts = (appState.contractRowData.values[monthlyPercColIdx] || '').split('|').map(p => p.trim());
                     while (percParts.length <= actualDiff) percParts.push('');
+                    
+                    // BACKFILL MISSING PREVIOUS MONTHS
+                    for(let i=0; i<actualDiff; i++) {
+                        if(!percParts[i] || percParts[i].trim() === '') {
+                            percParts[i] = (i > 0 && percParts[i-1] !== '') ? percParts[i-1] : '0.00';
+                        }
+                    }
+                    
                     percParts[actualDiff] = actualPercentNum.toFixed(2);
                     payload.push({ range: `SWA!${colToLetter(monthlyPercColIdx)}${rowNumber}`, values: [[percParts.join('|')]] });
                 }
@@ -2154,6 +2171,14 @@
                     const scheduledPercentNum = calculateScheduledPercentage(); 
                     const schedParts = (appState.contractRowData.values[scheduleColIdx] || '').split('|').map(p => p.trim());
                     while (schedParts.length <= actualDiff) schedParts.push('');
+                    
+                    // BACKFILL MISSING PREVIOUS MONTHS
+                    for(let i=0; i<actualDiff; i++) {
+                        if(!schedParts[i] || schedParts[i].trim() === '') {
+                            schedParts[i] = (i > 0 && schedParts[i-1] !== '') ? schedParts[i-1] : '0.00';
+                        }
+                    }
+                    
                     schedParts[actualDiff] = scheduledPercentNum.toFixed(2);
                     payload.push({ range: `SWA!${colToLetter(scheduleColIdx)}${rowNumber}`, values: [[schedParts.join('|')]] });
                 }
@@ -2289,6 +2314,14 @@
                     const actualPercentNum = parseFloat(document.getElementById('stat-actual-percent').innerText) || 0;
                     const percParts = (appState.contractRowData.values[monthlyPercColIdx] || '').split('|').map(p => p.trim());
                     while (percParts.length <= actualDiff) percParts.push('');
+                    
+                    // BACKFILL MISSING PREVIOUS MONTHS
+                    for(let i=0; i<actualDiff; i++) {
+                        if(!percParts[i] || percParts[i].trim() === '') {
+                            percParts[i] = (i > 0 && percParts[i-1] !== '') ? percParts[i-1] : '0.00';
+                        }
+                    }
+
                     percParts[actualDiff] = actualPercentNum.toFixed(2);
                     payload.push({ range: `SWA!${colToLetter(monthlyPercColIdx)}${rowNumber}`, values: [[percParts.join('|')]] });
                 }
@@ -2299,6 +2332,14 @@
                     const scheduledPercentNum = calculateScheduledPercentage(); 
                     const schedParts = (appState.contractRowData.values[scheduleColIdx] || '').split('|').map(p => p.trim());
                     while (schedParts.length <= actualDiff) schedParts.push('');
+                    
+                    // BACKFILL MISSING PREVIOUS MONTHS
+                    for(let i=0; i<actualDiff; i++) {
+                        if(!schedParts[i] || schedParts[i].trim() === '') {
+                            schedParts[i] = (i > 0 && schedParts[i-1] !== '') ? schedParts[i-1] : '0.00';
+                        }
+                    }
+
                     schedParts[actualDiff] = scheduledPercentNum.toFixed(2);
                     payload.push({ range: `SWA!${colToLetter(scheduleColIdx)}${rowNumber}`, values: [[schedParts.join('|')]] });
                 }
@@ -2814,6 +2855,14 @@
                         const actualPercentNum = parseFloat(document.getElementById('stat-actual-percent').innerText) || 0;
                         const percParts = (appState.contractRowData.values[monthlyPercColIdx] || '').split('|').map(p => p.trim());
                         while (percParts.length <= actualDiff) percParts.push('');
+                        
+                        // BACKFILL MISSING PREVIOUS MONTHS
+                        for(let i=0; i<actualDiff; i++) {
+                            if(!percParts[i] || percParts[i].trim() === '') {
+                                percParts[i] = (i > 0 && percParts[i-1] !== '') ? percParts[i-1] : '0.00';
+                            }
+                        }
+
                         percParts[actualDiff] = actualPercentNum.toFixed(2);
                         payload.push({ range: `SWA!${colToLetter(monthlyPercColIdx)}${appState.contractRowData.rowNumber}`, values: [[percParts.join('|')]] });
                     }
@@ -2824,6 +2873,14 @@
                         const scheduledPercentNum = calculateScheduledPercentage();
                         const schedParts = (appState.contractRowData.values[scheduleColIdx] || '').split('|').map(p => p.trim());
                         while (schedParts.length <= actualDiff) schedParts.push('');
+                        
+                        // BACKFILL MISSING PREVIOUS MONTHS
+                        for(let i=0; i<actualDiff; i++) {
+                            if(!schedParts[i] || schedParts[i].trim() === '') {
+                                schedParts[i] = (i > 0 && schedParts[i-1] !== '') ? schedParts[i-1] : '0.00';
+                            }
+                        }
+
                         schedParts[actualDiff] = scheduledPercentNum.toFixed(2);
                         payload.push({ range: `SWA!${colToLetter(scheduleColIdx)}${appState.contractRowData.rowNumber}`, values: [[schedParts.join('|')]] });
                     }
@@ -3406,6 +3463,93 @@
             
             updatePendingBadge();
             recalculateAggregatedTotals();
+        }
+
+        // ========================================================
+        // ZERO ACCOMPLISHMENT DECLARATION
+        // ========================================================
+        function declareNoAccomplishment() {
+            if (appState.activeMonthOffset < CURRENT_MONTH_OFFSET && !appState.unlockedHistory) {
+                showCustomAlert("Period Locked!\n\nYou cannot declare zero accomplishment for a historical past month.");
+                return;
+            }
+            
+            showConfirm("Declare NO ACCOMPLISHMENT for the selected week?\n\nThis will apply explicitly '0' to all items for Week " + (appState.activeWeekIndex + 1) + ". You will need to click 'Save' at the bottom afterward to sync.", () => {
+                
+                const container = document.getElementById('items-list-container');
+                const cards = container.querySelectorAll('.master-row');
+                let updatedCount = 0;
+                
+                cards.forEach((card, index) => {
+                    const wrapper = card.parentNode;
+                    if(!wrapper || !wrapper.dataset.rawItem) return;
+                    
+                    const inputEl = document.querySelector(`#detail-${index} input[type="number"]`);
+                    if (inputEl && !inputEl.disabled) {
+                        const baseItem = JSON.parse(wrapper.dataset.rawItem);
+                        const cacheKey = `${baseItem.colIndex}_${baseItem.rowNumber}`;
+                        
+                        const metrics = calculateMetrics(baseItem.parts, appState.activeMonthOffset, baseItem.headerName);
+                        let wVals = [...metrics.thisPeriodWeeks];
+                        wVals[appState.activeWeekIndex] = 0; // Explicitly set zero
+                        
+                        let lastValid = -1;
+                        for(let i=3; i>=0; i--) { if(wVals[i] !== '') { lastValid = i; break; } }
+                        
+                        let valStr = '';
+                        if(lastValid !== -1) {
+                            valStr = wVals.slice(0, lastValid + 1).map(x => x === '' ? '0' : x).join(',');
+                        }
+                        
+                        const workingParts = [...baseItem.parts];
+                        let ntpOffset = 0;
+                        if (appState.selectedContractId && appState.pdoLookupMap[appState.selectedContractId]) {
+                            ntpOffset = parseNtpToOffset(appState.pdoLookupMap[appState.selectedContractId].ntp);
+                        }
+                        
+                        const actualDiff = Math.max(0, appState.activeMonthOffset - ntpOffset);
+                        const requiredIndex = 7 + actualDiff;
+                        while (workingParts.length <= requiredIndex) workingParts.push('0');
+                        workingParts[requiredIndex] = valStr;
+                        
+                        let previous = 0;
+                        for (let i = 7; i < 7 + actualDiff; i++) previous += parseAccomplishmentVal(workingParts[i]);
+                        previous = Math.round(previous * 100) / 100;
+                        
+                        const thisPeriod = Math.round(parseAccomplishmentVal(valStr) * 100) / 100;
+                        const toDate = Math.round((previous + thisPeriod) * 100) / 100;
+                        const targetQty = getLatestVo(workingParts[1]).val;
+                        const balance = Math.round((targetQty - toDate) * 100) / 100;
+                        
+                        workingParts[3] = String(previous);
+                        workingParts[4] = String(thisPeriod);
+                        workingParts[5] = String(toDate);
+                        workingParts[6] = String(balance);
+                        
+                        appState.modifiedCells[cacheKey] = { ...baseItem, parts: workingParts, synced: false };
+                        
+                        // Update UI visually
+                        document.getElementById(`master-prev-${index}`).innerText = previous === 0 ? '-' : formatNum(previous);
+                        document.getElementById(`master-todate-${index}`).innerText = formatNum(toDate);
+                        document.getElementById(`master-bal-${index}`).innerText = formatNum(balance);
+                        
+                        inputEl.value = '0';
+                        const wkSpan = document.getElementById(`wk-val-${index}-${appState.activeWeekIndex}`);
+                        if (wkSpan) wkSpan.innerText = '0.00';
+                        
+                        const icon = document.getElementById(`save-icon-${index}`);
+                        if (icon) icon.className = "fa-solid fa-pen text-yellow-300 text-xl mb-1 drop-shadow-md transition-colors";
+                        
+                        updatedCount++;
+                    }
+                });
+                
+                if (updatedCount > 0) {
+                    recalculateAggregatedTotals();
+                    updatePendingBadge(); // Glows the sync/save button to remind user to save
+                    showToast("Zero Accomplishment Set", "Prepared 0 for all items. Click SAVE below to write to the cloud.", "success");
+                }
+            });
         }
 		
     </script>
