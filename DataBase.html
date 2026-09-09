@@ -697,6 +697,7 @@
                 tr.id = `master-${p.id}`;
                 tr.onclick = () => toggleRow(p.id);
                 
+                // Dashboard view still adds the 'P' visually for readability
                 const costFmt = p.cost ? 'P ' + p.cost.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}) : '';
                 
                 // Text wrapping enabled for Name & Contractor
@@ -763,7 +764,7 @@
         function toCurrencyFormat(val) {
             if (!val && val !== 0) return ''; 
             let num = parseFloat(String(val).replace(/[^\d.-]/g, ''));
-            return isNaN(num) ? '' : 'P ' + num.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            return isNaN(num) ? '' : num.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
         }
         
         // Auto-expand Textareas safely and reliably
@@ -1373,12 +1374,22 @@
                 const netVal = toCurrencyFormat(getExtMapValue(cid, 'BILLING', monthHdr));
                 const rawRem = getExtMapValue(cid, 'BILLING', monthHdr + " Remarks") || '';
                 
-                let swaDate = '', grossAmt = '', remText = rawRem;
-                const parts = rawRem.split('|').map(s=>s.trim());
-                if (parts.length >= 3) {
-                    swaDate = parts[0]; grossAmt = parts[1]; remText = parts.slice(2).join(' | ');
-                } else if (parts.length === 2) {
-                    swaDate = parts[0]; remText = parts[1];
+                let swaDate = '', grossAmt = '', remText = '';
+                let parts = rawRem.split('|').map(s => s.trim());
+                
+                // Extract the auto-generated Encoded Date tag if it exists
+                let encodedTag = '';
+                if (parts.length > 0 && parts[parts.length - 1].startsWith('Encoded:')) {
+                    encodedTag = parts.pop();
+                }
+
+                // Safely map the remaining parts (Date | Gross | Remarks)
+                if (parts.length >= 2) {
+                    swaDate = parts[0]; 
+                    grossAmt = parts[1]; 
+                    remText = parts.length > 2 ? parts.slice(2).join(' | ') : '';
+                } else if (parts.length === 1) {
+                    remText = parts[0]; 
                 }
                 
                 const fSwaDate = /^\d{4}-\d{2}-\d{2}$/.test(swaDate) || /^[A-Za-z]+ \d{2}, \d{4}$/.test(swaDate) ? formatDt(swaDate) : swaDate;
@@ -1386,7 +1397,10 @@
 
                 html += `
                     <div class="billing-block bg-white p-6 rounded-2xl shadow-lg border border-[#a5c7f0]">
-                        <h4 class="text-rose-600 font-black italic mb-4 tracking-widest text-[14px] uppercase border-b-2 border-rose-200 pb-1 w-max">${monthHdr}</h4>
+                        <div class="flex items-center gap-3 mb-4 border-b-2 border-rose-200 pb-1 w-max">
+                            <h4 class="text-rose-600 font-black italic tracking-widest text-[14px] uppercase m-0">${monthHdr}</h4>
+                            ${encodedTag ? `<span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded border border-emerald-200 shadow-sm font-bold tracking-wide"><i class="fa-solid fa-clock-rotate-left mr-1"></i>${encodedTag}</span>` : ''}
+                        </div>
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 items-start justify-items-center">
                             
                             <div class="flex flex-col w-full">
@@ -1525,17 +1539,22 @@
                 
                 const hdrEl = netEl.closest('.billing-block').querySelector('h4');
                 
-                // FIX: Force both strings to uppercase to ignore the CSS rendering difference
                 if(!hdrEl || hdrEl.innerText.trim().toUpperCase() !== monthHdr.trim().toUpperCase()) return;
                 
                 let netVal = toCurrencyFormat(netEl.value); netEl.value = netVal;
                 let grossVal = toCurrencyFormat(grossEl.value); grossEl.value = grossVal;
                 
                 let combinedRem = [];
-                if(dtEl.value || grossVal || remEl.value) {
+                // If there's any data recorded for this month...
+                if(dtEl.value || grossVal || remEl.value || netVal) {
                     combinedRem.push(dtEl.value || '');
                     combinedRem.push(grossVal || '');
                     if(remEl.value) combinedRem.push(remEl.value);
+                    
+                    // Automatically append today's date tag
+                    const now = new Date();
+                    const encDate = now.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
+                    combinedRem.push(`Encoded: ${encDate}`);
                 }
                 
                 const netIconId = `icon_bill_net_${cid}_${i}`;

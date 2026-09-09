@@ -91,6 +91,35 @@
             left: 5px;
             top: 0px;
         }
+
+        /* Print Styles */
+        @media print {
+            body {
+                background-color: white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            body * {
+                visibility: hidden;
+            }
+            #summary-print-area, #summary-print-area * {
+                visibility: visible;
+            }
+            #summary-print-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .print-header {
+                display: block !important;
+            }
+        }
     </style>
 </head>
 <body class="flex flex-col items-center pt-4 pb-20 px-2">
@@ -194,8 +223,9 @@
             <div id="sidebar-menu" class="hidden absolute top-full left-0 mt-[2px] w-[300px] bg-[#4472c4] border border-blue-900 shadow-2xl z-[5050] text-white font-black text-lg flex flex-col p-3 tracking-wide">
                 <a href="index.html" class="block cursor-pointer hover:bg-white/20 p-1 rounded text-white no-underline">BACK TO MAIN PAGE</a>
                 <div class="cursor-pointer hover:bg-white/20 p-1 rounded leading-tight mt-1" onclick="switchMainView('home')">HOME</div>
-                <div class="cursor-pointer hover:bg-white/20 p-1 rounded leading-tight mt-1" onclick="switchMainView('monitoring')">SLIPPAGE, WEEKLY, BILLING</div>
-                <div class="cursor-pointer hover:bg-white/20 p-1 rounded leading-tight mt-1" onclick="switchMainView('monthly_cfa')">MONTHLY, ACCEPTANCE</div>
+                <div class="cursor-pointer hover:bg-white/20 p-1 rounded leading-tight mt-1" onclick="switchMainView('monitoring')">SLIPPAGE, WEEKLY, MONTHLY</div>
+                <div class="cursor-pointer hover:bg-white/20 p-1 rounded leading-tight mt-1" onclick="switchMainView('billing_summary')">BILLING, SUMMARY</div>
+                <div class="cursor-pointer hover:bg-white/20 p-1 rounded leading-tight mt-1" onclick="switchMainView('acceptance')">ACCEPTANCE</div>
                 <div class="cursor-pointer hover:bg-white/20 p-1 rounded leading-tight mt-1" onclick="switchMainView('documents')">DOCUMENTS</div>
                 
                 <div class="border-t-2 border-blue-900/50 my-2"></div>
@@ -221,19 +251,26 @@
                 <button id="tab-weekly" onclick="switchTab('weekly')" class="flex-1 py-1 md:py-2 font-black text-sm md:text-lg text-black transition-all bg-gradient-to-b from-gray-300 to-gray-400 border border-gray-500 shadow-inner opacity-80">
                     WEEKLY
                 </button>
-                <button id="tab-billing" onclick="switchTab('billing')" class="flex-1 py-1 md:py-2 font-black text-sm md:text-lg text-black transition-all bg-gradient-to-b from-gray-300 to-gray-400 border border-gray-500 shadow-inner opacity-80">
-                    BILLING
+                <button id="tab-monthly" onclick="switchTab('monthly')" class="flex-1 py-1 md:py-2 font-black text-sm md:text-lg text-black transition-all bg-gradient-to-b from-gray-300 to-gray-400 border border-gray-500 shadow-inner opacity-80">
+                    MONTHLY
                 </button>
             </div>
 
-            <!-- Header Area: Monthly / ACCEPTANCE Tabs -->
-            <div id="monthly-tabs" class="flex flex-1 ml-1 hidden">
-                <button id="tab-monthly" onclick="switchTab('monthly')" class="flex-1 py-1 md:py-2 font-black text-sm md:text-lg text-black transition-all bg-gradient-to-b from-orange-400 to-orange-500 shadow-md tab-btn border border-orange-600">
-                    MONTHLY
+            <!-- Header Area: Billing Tabs -->
+            <div id="billing-tabs" class="flex flex-1 ml-1 hidden">
+                <button id="tab-billing" onclick="switchTab('billing')" class="flex-1 py-1 md:py-2 font-black text-sm md:text-lg text-black transition-all bg-gradient-to-b from-orange-400 to-orange-500 shadow-md tab-btn border border-orange-600">
+                    BILLING
                 </button>
-                <button id="tab-cfa" onclick="switchTab('cfa')" class="flex-1 py-1 md:py-2 font-black text-sm md:text-lg text-black transition-all bg-gradient-to-b from-gray-300 to-gray-400 border border-gray-500 shadow-inner opacity-80">
+                <button id="tab-summary" onclick="switchTab('summary')" class="flex-1 py-1 md:py-2 font-black text-sm md:text-lg text-black transition-all bg-gradient-to-b from-gray-300 to-gray-400 border border-gray-500 shadow-inner opacity-80">
+                    SUMMARY
+                </button>
+            </div>
+
+            <!-- Header Area: Acceptance Tabs -->
+            <div id="acceptance-tabs" class="flex flex-1 ml-1 hidden">
+                <div class="flex-1 py-1 md:py-2 font-black text-xl md:text-2xl text-black bg-gradient-to-b from-orange-400 to-orange-500 shadow-md border border-orange-600 flex items-center justify-center tracking-widest uppercase">
                     ACCEPTANCE
-                </button>
+                </div>
             </div>
             
             <!-- Header Area: Documents Tabs -->
@@ -252,12 +289,12 @@
         </div>
 
         <!-- Date Header -->
-        <div class="text-center font-black text-[#0f3b75] text-xl mb-3 bg-white/40 py-1 shadow-sm border border-white/50">
+        <div class="text-center font-black text-[#0f3b75] text-xl mb-3 bg-white/40 py-1 shadow-sm border border-white/50 no-print">
             as of <span id="current-date-display">...</span>
         </div>
 
         <!-- Data Container -->
-        <div id="data-container" class="flex flex-col gap-6 relative z-10">
+        <div id="data-container" class="flex flex-col gap-6 relative z-10 w-full">
             <!-- Dynamic Tables will be injected here -->
         </div>
 
@@ -525,6 +562,9 @@
         
         let cfaFilterYear = 'All';
 
+		// Summary Tab State
+        let summaryGroupMode = 'contractor';
+
         let monthlyFilterPendingPCMA = false; 
         let monthlyFilterPendingActual = false; 
         let monthlyFilterPendingRemarks = false; 
@@ -589,15 +629,17 @@
                 const pdoLookup = buildPdoLookupMap(dataPDO);
 
                 excludedBillingContracts.clear();
-                othersSheetMeta = { contractColIdx: 0, billingColIdx: 1, map: {}, nextRow: 4 };
+                othersSheetMeta = { contractColIdx: 0, billingColIdx: 1, issueColIdx: 2, map: {}, data: {}, nextRow: 4 };
 
                 if (dataOthers.values && dataOthers.values.length >= 3) {
                     const headers = dataOthers.values[2].map(h => String(h || '').toUpperCase().trim());
                     const cIdx = headers.findIndex(h => h === 'CONTRACT ID' || h.includes('CONTRACT'));
                     const bIdx = headers.findIndex(h => h === 'BILLING');
+                    const iIdx = headers.findIndex(h => h === 'ISSUE');
                     
                     if (cIdx !== -1) othersSheetMeta.contractColIdx = cIdx;
                     if (bIdx !== -1) othersSheetMeta.billingColIdx = bIdx;
+                    if (iIdx !== -1) othersSheetMeta.issueColIdx = iIdx;
                     
                     for (let i = 3; i < dataOthers.values.length; i++) {
                         const row = dataOthers.values[i];
@@ -608,6 +650,8 @@
                             if (billVal === 'X') {
                                 excludedBillingContracts.add(cid);
                             }
+                            const issueVal = othersSheetMeta.issueColIdx !== -1 ? String(row[othersSheetMeta.issueColIdx] || '').trim() : '';
+                            othersSheetMeta.data[cid] = issueVal;
                         }
                     }
                     othersSheetMeta.nextRow = dataOthers.values.length + 1;
@@ -1303,6 +1347,62 @@
             }
         }
 
+
+window.updateIssue = async function(contractId, element) {
+            const text = element.value;
+            othersSheetMeta.data[contractId] = text; 
+            
+            let targetRow = othersSheetMeta.map[contractId];
+            let isNewRow = false;
+            
+            if (!targetRow) {
+                targetRow = othersSheetMeta.nextRow++;
+                othersSheetMeta.map[contractId] = targetRow;
+                isNewRow = true;
+            }
+
+            element.classList.add('bg-green-100');
+            
+            try {
+                const token = await GoogleSheetsAPI.getAuthToken();
+                let url, body;
+
+                if (isNewRow) {
+                    const maxCol = Math.max(othersSheetMeta.contractColIdx, othersSheetMeta.billingColIdx, othersSheetMeta.issueColIdx);
+                    const rowData = new Array(maxCol + 1).fill('');
+                    rowData[othersSheetMeta.contractColIdx] = contractId;
+                    rowData[othersSheetMeta.issueColIdx] = text;
+                    
+                    const cellA1 = `Others!A${targetRow}`;
+                    url = `https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values/${cellA1}?valueInputOption=USER_ENTERED`;
+                    body = JSON.stringify({ range: cellA1, majorDimension: "ROWS", values: [rowData] });
+                } else {
+                    const colLetter = colIndexToLetter(othersSheetMeta.issueColIdx);
+                    const cellA1 = `Others!${colLetter}${targetRow}`;
+                    url = `https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values/${cellA1}?valueInputOption=USER_ENTERED`;
+                    body = JSON.stringify({ range: cellA1, majorDimension: "ROWS", values: [[text]] });
+                }
+
+                const res = await fetch(url, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: body
+                });
+
+                if (res.ok) {
+                    setTimeout(() => element.classList.remove('bg-green-100'), 1000);
+                } else {
+                    element.classList.remove('bg-green-100');
+                    element.classList.add('bg-red-100');
+                }
+            } catch (e) {
+                console.error("Error updating issue:", e);
+                element.classList.remove('bg-green-100');
+                element.classList.add('bg-red-100');
+            }
+        };
+
+
         window.toggleBillingExclusion = async function(contractId, checkboxEl) {
             const isChecked = checkboxEl.checked;
             const isExcluded = !isChecked; 
@@ -1579,7 +1679,8 @@
             
             document.getElementById('home-header').classList.add('hidden');
             document.getElementById('monitoring-tabs').classList.add('hidden');
-            document.getElementById('monthly-tabs').classList.add('hidden');
+            document.getElementById('billing-tabs').classList.add('hidden');
+            document.getElementById('acceptance-tabs').classList.add('hidden');
             document.getElementById('documents-tabs').classList.add('hidden');
             
             const backBtn = document.getElementById('back-btn');
@@ -1598,13 +1699,23 @@
                     backBtn.classList.add('flex');
                 }
                 requestAnimationFrame(() => switchTab('slippage'));
-            } else if (view === 'monthly_cfa') {
-                document.getElementById('monthly-tabs').classList.remove('hidden');
+            } else if (view === 'billing_summary') {
+                document.getElementById('billing-tabs').classList.remove('hidden');
                 if (backBtn) {
                     backBtn.classList.remove('hidden');
                     backBtn.classList.add('flex');
                 }
-                requestAnimationFrame(() => switchTab('monthly'));
+                requestAnimationFrame(() => switchTab('billing'));
+            } else if (view === 'acceptance') {
+                document.getElementById('acceptance-tabs').classList.remove('hidden');
+                if (backBtn) {
+                    backBtn.classList.remove('hidden');
+                    backBtn.classList.add('flex');
+                }
+                requestAnimationFrame(() => {
+                    activeTab = 'cfa'; 
+                    renderView();
+                });
             } else if (view === 'documents') {
                 document.getElementById('documents-tabs').classList.remove('hidden');
                 if (backBtn) {
@@ -1617,7 +1728,7 @@
 
         function switchTab(tabName) {
             activeTab = tabName;
-            const allTabs = ['slippage', 'weekly', 'billing', 'monthly', 'cfa'];
+            const allTabs = ['slippage', 'weekly', 'monthly', 'billing', 'summary'];
             
             allTabs.forEach(t => {
                 const btn = document.getElementById('tab-' + t);
@@ -1648,6 +1759,11 @@
         window.changeWeeklyFilter = function(type, val) {
             if (type === 'year') weeklyFilterYear = val;
             if (type === 'mark') weeklyFilterMark = val;
+            renderView();
+        }
+
+		window.changeSummaryGroupMode = function(val) {
+            summaryGroupMode = val;
             renderView();
         }
 
@@ -1808,7 +1924,7 @@
 
             return `
             <tr id="${id}" class="hidden text-left bg-gradient-to-b from-[#fffbe6] to-[#ffea99] border-b-[3px] border-orange-300 shadow-inner">
-                <td colspan="3" class="px-2 py-2 text-xs md:text-sm text-black relative outline outline-2 outline-blue-600 outline-dashed outline-offset-[-2px]">
+                <td colspan="4" class="px-2 py-2 text-xs md:text-sm text-black relative outline outline-2 outline-blue-600 outline-dashed outline-offset-[-2px]">
                     <div class="flex flex-col text-left py-1 w-full max-w-full">
                         <div class="flex gap-2">
                             <div class="w-[85px] md:w-[100px] font-bold italic shrink-0 text-slate-800 tracking-wide">Name :</div>
@@ -1979,593 +2095,554 @@
             }
 
             // -------------------------------------------------------------
-            // MONITORING VIEW (BILLING TAB)
+            // BILLING & SUMMARY VIEW
             // -------------------------------------------------------------
-            else if (mainView === 'monitoring' && activeTab === 'billing') {
-                let filteredBills = [];
-                if (billingGroupMode === 'previous_month') {
-                    const targetMonthPrefix = monthsArr[navMonth].substring(0, 3).toLowerCase();
-                    filteredBills = billingDataGlobal.filter(b => b.isPaid === true && b.billingYear === navYear && (b.billingMonthName || '').toLowerCase().startsWith(targetMonthPrefix));
-                } else {
-                    filteredBills = billingDataGlobal.filter(b => b.isPaid === false);
-                }
-
-                let totalBase = 0, totalDar = 0, totalMaint = 0, totalPrior = 0, totalCurrent = 0;
-                const currentYearNum = _today.getFullYear(); 
-                const groupedData = {};
-                
-                filteredBills.forEach(b => {
-                    const isExcluded = excludedBillingContracts.has(b.contractId);
-
-                    // Compute totals irrespective of the fund checkbox toggles, but respect excluded logic
-                    if (!isExcluded) {
-                        if (b.isDar) totalDar += b.amount;
-                        else if (b.isMaint) totalMaint += b.amount;
-                        else {
-                            totalBase += b.amount;
-                            if (b.projectYear === currentYearNum) totalCurrent += b.amount;
-                            else if (b.projectYear < currentYearNum) totalPrior += b.amount;
-                        }
+            else if (mainView === 'billing_summary') {
+                if (activeTab === 'billing') {
+                    let filteredBills = [];
+                    if (billingGroupMode === 'previous_month') {
+                        const targetMonthPrefix = monthsArr[navMonth].substring(0, 3).toLowerCase();
+                        filteredBills = billingDataGlobal.filter(b => b.isPaid === true && b.billingYear === navYear && (b.billingMonthName || '').toLowerCase().startsWith(targetMonthPrefix));
+                    } else {
+                        filteredBills = billingDataGlobal.filter(b => b.isPaid === false);
                     }
 
-                    // Only push into rendering group if the specific fund is checked
-                    if (billingFundFilters[b.fundCategory]) {
-                        const groupKey = (billingGroupMode === 'pe') ? b.pe : b.contractor;
-                        if (!groupedData[groupKey]) groupedData[groupKey] = [];
-                        groupedData[groupKey].push(b);
-                    }
-                });
-
-                const renderAmount = (amount) => amount > 0 ? `PHP ${formatCurrency(amount)}` : '';
-
-                let html = `
-                    <div class="w-full mb-3 flex flex-col gap-2">
-                        <select id="billing-group-select" onchange="changeBillingGroupMode(this.value)" class="w-full border-2 border-green-700 text-[#0f3b75] font-black text-center py-1 text-sm md:text-base outline-none cursor-pointer shadow-sm bg-white rounded-md">
-                            <option value="contractor" ${billingGroupMode === 'contractor' ? 'selected' : ''}>by Contractor</option>
-                            <option value="pe" ${billingGroupMode === 'pe' ? 'selected' : ''}>by Project Engineer</option>
-                            <option value="previous_month" ${billingGroupMode === 'previous_month' ? 'selected' : ''}>Previous Month</option>
-                        </select>
-                `;
-
-                if (billingGroupMode === 'previous_month') {
-                    html += `
-                        <div class="flex items-center justify-center gap-6 text-[#0f3b75] font-black my-1">
-                            <button onclick="navMonthBack()" class="hover:scale-110 active:scale-95 transition-transform"><i class="fa-solid fa-arrow-left text-[#3b5998] text-3xl drop-shadow-md"></i></button>
-                            <span class="w-36 text-center text-xl tracking-tight">${monthsArr[navMonth]} ${navYear}</span>
-                            <button onclick="navMonthForward()" class="hover:scale-110 active:scale-95 transition-transform"><i class="fa-solid fa-arrow-right text-[#3b5998] text-3xl drop-shadow-md"></i></button>
-                        </div>
-                    `;
-                }
-
-                html += `</div>`; 
-
-                html += `
-                    <div class="w-full flex flex-col gap-4 mb-2 font-black text-[#0f3b75] drop-shadow-sm">
-                        <div class="flex w-full">
-                            <div class="w-[35%] bg-[#a9d18e] px-3 py-1.5 md:py-2 flex justify-between items-center text-base md:text-lg border-2 border-white">
-                                <span>TOTAL</span><span>=</span>
-                            </div>
-                            <div class="w-[65%] bg-gradient-to-b from-[#a9d18e] via-[#f0f8eb] to-[#a9d18e] flex justify-center items-center border-2 border-white text-lg md:text-2xl tracking-tight">
-                                ${renderAmount(totalBase)}
-                            </div>
-                        </div>
-
-                        <div class="flex flex-col w-full">
-                            <div class="flex w-full">
-                                <div class="w-[35%] bg-[#ffd966] px-3 py-1.5 md:py-2 flex justify-between items-center text-base md:text-lg border-2 border-white">
-                                    <span>PRIOR</span><span>=</span>
-                                </div>
-                                <div class="w-[65%] bg-gradient-to-b from-[#ffd966] via-[#fffbf0] to-[#ffd966] flex justify-center items-center border-2 border-white text-lg md:text-2xl tracking-tight">
-                                    ${renderAmount(totalPrior)}
-                                </div>
-                            </div>
-                            <div class="flex w-full -mt-[2px]">
-                                <div class="w-[35%] bg-[#f4b084] px-3 py-1.5 md:py-2 flex justify-between items-center text-base md:text-lg border-2 border-white">
-                                    <span>CURRENT</span><span>=</span>
-                                </div>
-                                <div class="w-[65%] bg-gradient-to-b from-[#f4b084] via-[#fdf3ec] to-[#f4b084] flex justify-center items-center border-2 border-white text-lg md:text-2xl tracking-tight">
-                                    ${renderAmount(totalCurrent)}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="flex flex-col w-full">
-                            <div class="flex w-full">
-                                <div class="w-[35%] bg-[#9bc2e6] px-3 py-1.5 md:py-2 flex justify-between items-center text-base md:text-lg border-2 border-white">
-                                    <span>DAR</span><span>=</span>
-                                </div>
-                                <div class="w-[65%] bg-gradient-to-b from-[#9bc2e6] via-[#f0f6fb] to-[#9bc2e6] flex justify-center items-center border-2 border-white text-lg md:text-2xl tracking-tight">
-                                    ${renderAmount(totalDar)}
-                                </div>
-                            </div>
-                            <div class="flex w-full -mt-[2px]">
-                                <div class="w-[35%] bg-[#00b0f0] px-3 py-1.5 md:py-2 flex justify-between items-center text-base md:text-lg border-2 border-white">
-                                    <span>MAINT</span><span>=</span>
-                                </div>
-                                <div class="w-[65%] bg-gradient-to-b from-[#00b0f0] via-[#e5f7fd] to-[#00b0f0] flex justify-center items-center border-2 border-white text-lg md:text-2xl tracking-tight">
-                                    ${renderAmount(totalMaint)}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-
-                html += `
-                    <div class="flex flex-col items-center gap-2 mt-3 mb-6 font-black text-[#0f3b75] text-[15px] md:text-lg w-full">
-                        <div class="flex flex-wrap justify-center items-center gap-x-4 md:gap-x-6 gap-y-2">
-                            <label class="flex items-center gap-1.5 cursor-pointer hover:opacity-80">
-                                <input type="checkbox" onchange="toggleBillingFund('GAA', this.checked)" ${billingFundFilters['GAA'] ? 'checked' : ''} class="fund-checkbox">
-                                <span>GAA</span>
-                            </label>
-                            <label class="flex items-center gap-1.5 cursor-pointer hover:opacity-80">
-                                <input type="checkbox" onchange="toggleBillingFund('DepEd', this.checked)" ${billingFundFilters['DepEd'] ? 'checked' : ''} class="fund-checkbox">
-                                <span>DepEd</span>
-                            </label>
-                            <label class="flex items-center gap-1.5 cursor-pointer hover:opacity-80">
-                                <input type="checkbox" onchange="toggleBillingFund('DA', this.checked)" ${billingFundFilters['DA'] ? 'checked' : ''} class="fund-checkbox">
-                                <span>DA</span>
-                            </label>
-                            <label class="flex items-center gap-1.5 cursor-pointer hover:opacity-80">
-                                <input type="checkbox" onchange="toggleBillingFund('SF', this.checked)" ${billingFundFilters['SF'] ? 'checked' : ''} class="fund-checkbox">
-                                <span>SF</span>
-                            </label>
-                        </div>
-                        <div class="flex flex-wrap justify-center items-center gap-x-4 md:gap-x-6 gap-y-2">
-                            <label class="flex items-center gap-1.5 cursor-pointer hover:opacity-80">
-                                <input type="checkbox" onchange="toggleBillingFund('DAR', this.checked)" ${billingFundFilters['DAR'] ? 'checked' : ''} class="fund-checkbox">
-                                <span>DAR</span>
-                            </label>
-                            <label class="flex items-center gap-1.5 cursor-pointer hover:opacity-80">
-                                <input type="checkbox" onchange="toggleBillingFund('Maint', this.checked)" ${billingFundFilters['Maint'] ? 'checked' : ''} class="fund-checkbox">
-                                <span>MAINT</span>
-                            </label>
-                        </div>
-                    </div>
-                `;
-
-                const sortedKeys = Object.keys(groupedData).sort();
-                if (sortedKeys.length === 0) {
-                    html += `<div class="text-center py-10 font-black text-slate-500 opacity-60"><i class="fa-solid fa-check-circle text-4xl mb-3 block"></i> No billings found for this selection!</div>`;
-                } else {
-                    sortedKeys.forEach((keyName, index) => {
-                        const theme = PE_THEMES[index % PE_THEMES.length];
-                        const bills = groupedData[keyName];
-                        
-                        html += `
-                        <div class="w-full flex flex-col shadow-md mb-6">
-                            <div class="${theme.header} px-4 py-1.5 font-black text-lg md:text-xl tracking-tight shadow-sm z-10 relative">${keyName}</div>
-                            <table class="w-full text-center border-collapse text-sm font-bold text-black bg-white">
-                                <thead>
-                                    <tr class="bg-[#fff9f2] italic text-xs">
-                                        <th class="py-1.5 px-2 dotted-border w-[35%] font-extrabold text-black">Contract ID</th>
-                                        <th class="py-1.5 px-2 dotted-border w-[30%] font-extrabold text-black">Billing</th>
-                                        <th class="py-1.5 px-2 font-extrabold text-black w-[35%]">Remarks</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                        `;
-                        
-                        let rowIdx = 0;
-                        let lastContractId = null;
-
-                        bills.forEach(b => {
-                            const rowColor = rowIdx % 2 === 0 ? theme.rowOdd : theme.rowEven;
-                            rowIdx++;
-                            const displayId = (b.contractId === lastContractId) ? '"' : b.contractId;
-                            lastContractId = b.contractId;
-                            const uniqueId = `bill-details-${index}-${rowIdx}`;
-                            
-                            let contractCellHtml = '';
-                            if (displayId === '"') {
-                                contractCellHtml = `<div class="w-full text-center font-extrabold text-black text-sm md:text-lg">"</div>`;
-                            } else {
-                                let fundText = b.fundCategory || 'GAA';
-                                contractCellHtml = `
-                                    <div class="flex items-center relative w-full">
-                                        <span class="absolute left-0 text-[10px] md:text-xs font-black text-[#0f3b75] leading-none">${fundText}</span>
-                                        <span class="w-full text-center font-extrabold text-black text-sm md:text-lg">${displayId}</span>
-                                    </div>
-                                `;
-                            }
-
-                            const isExcluded = excludedBillingContracts.has(b.contractId);
-
-                            html += `
-                                    <tr class="${rowColor} border-t border-gray-300/50 cursor-pointer hover:brightness-95 transition-all" onclick="toggleDetails('${uniqueId}')">
-                                        <td class="py-1.5 px-2 dotted-border tracking-wider">${contractCellHtml}</td>
-                                        <td class="py-1.5 px-2 dotted-border font-extrabold tracking-tight text-black text-sm md:text-lg">${formatCurrency(b.amount)}</td>
-                                        <td class="py-1.5 px-2 font-medium text-xs md:text-sm text-slate-700">
-                                            <div class="flex items-center justify-between w-full h-full gap-2">
-                                                <span class="flex-1 text-center leading-tight">${b.remarks}</span>
-                                                <input type="checkbox" 
-                                                    class="billing-checkbox"
-                                                    ${!isExcluded ? 'checked' : ''}
-                                                    onclick="event.stopPropagation(); toggleBillingExclusion('${b.contractId}', this)"
-                                                >
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    ${generateBillingDetailsRow(uniqueId, b)}
-                            `;
-                        });
-
-                        html += `</tbody></table></div>`;
-                    });
-                }
-                container.innerHTML = html;
-            }
-
-            // -------------------------------------------------------------
-            // MONITORING VIEW (SLIPPAGE & WEEKLY TABS)
-            // -------------------------------------------------------------
-            else if (mainView === 'monitoring' && (activeTab === 'slippage' || activeTab === 'weekly')) {
-                let filteredData = [];
-                monitoringData.forEach(project => {
-                    if (activeTab === 'slippage') {
-                        if (project.slippage <= -5.00) filteredData.push(project);
-                    } else if (activeTab === 'weekly') {
-                        if (project.hasLogin) {
-                            const matchYear = weeklyFilterYear === 'All' || String(project.year) === weeklyFilterYear;
-                            if (!matchYear) return;
-
-                            const wData = project.weeklyHistory[weeklySelectedMonthOffset] || ['missing','missing','missing','missing'];
-                            let matchStatus = false;
-                            
-                            if (weeklyFilterMark === 'All') {
-                                matchStatus = true;
-                            } else if (weeklyFilterMark === 'Completed') {
-                                matchStatus = wData.includes('completed');
-                            } else if (weeklyFilterMark === 'On-going') {
-                                matchStatus = wData.includes('updated');
-                            } else if (weeklyFilterMark === 'No Accomplishment') {
-                                matchStatus = wData.includes('zero') || wData.includes('missing');
-                            } else if (weeklyFilterMark === 'Suspended') {
-                                matchStatus = wData.includes('suspended');
-                            }
-
-                            if (matchStatus) filteredData.push(project);
-                        }
-                    }
-                });
-
-                const groupedData = {};
-                filteredData.forEach(p => {
-                    const groupKey = (generalGroupMode === 'contractor') ? p.contractor : p.pe;
-                    if (!groupedData[groupKey]) groupedData[groupKey] = [];
-                    groupedData[groupKey].push(p);
-                });
-
-                const sortedKeys = Object.keys(groupedData).sort();
-                let borderColor = activeTab === 'slippage' ? 'border-orange-600' : 'border-gray-500';
-                
-                let html = `
-                    <div class="w-full mb-3 flex flex-col gap-2">
-                        <select id="general-group-select" onchange="changeGeneralGroupMode(this.value)" class="w-full border-2 ${borderColor} text-[#0f3b75] font-black text-center py-1 text-sm md:text-base outline-none cursor-pointer shadow-sm bg-white rounded-md">
-                            <option value="pe" ${generalGroupMode === 'pe' ? 'selected' : ''}>by Project Engineer</option>
-                            <option value="contractor" ${generalGroupMode === 'contractor' ? 'selected' : ''}>by Contractor</option>
-                        </select>
-                    </div>
-                `;
-
-                if (activeTab === 'weekly') {
-                    const weeklyYears = [...new Set(monitoringData.filter(p => p.hasLogin).map(p => p.year))].filter(Boolean).sort().reverse();
+                    let totalBase = 0, totalDar = 0, totalMaint = 0, totalPrior = 0, totalCurrent = 0;
+                    const currentYearNum = _today.getFullYear(); 
+                    const groupedData = {};
                     
-                    html += `
-                        <div class="w-full flex flex-col md:flex-row gap-2 mb-2">
-                            <select onchange="changeWeeklyFilter('year', this.value)" class="flex-1 border-2 border-yellow-600 text-[#0f3b75] font-black text-center py-1 text-sm md:text-base outline-none cursor-pointer shadow-sm bg-white rounded-md">
-                                <option value="All" ${weeklyFilterYear === 'All' ? 'selected' : ''}>All Years</option>
-                                ${weeklyYears.map(y => `<option value="${y}" ${weeklyFilterYear === String(y) ? 'selected' : ''}>CY ${y}</option>`).join('')}
-                            </select>
-                            <select onchange="changeWeeklyFilter('mark', this.value)" class="flex-1 border-2 border-yellow-600 text-[#0f3b75] font-black text-center py-1 text-sm md:text-base outline-none cursor-pointer shadow-sm bg-white rounded-md">
-                                <option value="All" ${weeklyFilterMark === 'All' ? 'selected' : ''}>All Status</option>
-                                <option value="Completed" ${weeklyFilterMark === 'Completed' ? 'selected' : ''}>Completed (C)</option>
-                                <option value="On-going" ${weeklyFilterMark === 'On-going' ? 'selected' : ''}>On-going (✓)</option>
-                                <option value="No Accomplishment" ${weeklyFilterMark === 'No Accomplishment' ? 'selected' : ''}>No Accomplishment (N / ✘)</option>
-                                <option value="Suspended" ${weeklyFilterMark === 'Suspended' ? 'selected' : ''}>Suspended (S)</option>
-                            </select>
-                        </div>
-                    `;
+                    filteredBills.forEach(b => {
+                        const isExcluded = excludedBillingContracts.has(b.contractId);
 
-                    html += `<div class="w-full flex overflow-x-auto shadow-sm border-y border-yellow-600 mb-4 bg-[#fff2cc] no-scrollbar">`;
-                    for(let m = 0; m <= CURRENT_MONTH_OFFSET; m++) {
-                        let mMonth = m % 12;
-                        let mName = monthsArr[mMonth].substring(0,3);
-                        let isSel = (m === weeklySelectedMonthOffset);
-                        let btnClass = isSel
-                            ? "bg-gradient-to-b from-[#ffd966] to-[#ffb800] text-[#0f3b75] border-r border-yellow-600 font-black shadow-inner"
-                            : "text-[#0f3b75] border-r border-yellow-600 font-bold opacity-70 hover:bg-[#ffe599] hover:opacity-100 transition-all cursor-pointer";
-                        html += `<div class="min-w-[60px] md:min-w-[80px] flex-1 text-center py-1.5 text-sm md:text-base ${btnClass}" onclick="changeWeeklyMonth(${m})">${mName}</div>`;
-                    }
-                    html += `</div>`;
-                }
-
-                if (sortedKeys.length === 0) {
-                    html += `<div class="text-center py-10 font-black text-slate-500 opacity-60"><i class="fa-solid fa-check-circle text-4xl mb-3 block"></i> No projects fit this criteria! All good.</div>`;
-                    container.innerHTML = html;
-                } else {
-                    sortedKeys.forEach((keyName, index) => {
-                        const theme = PE_THEMES[index % PE_THEMES.length];
-                        const projects = groupedData[keyName];
-                        
-                        html += `
-                        <div class="w-full flex flex-col shadow-md mb-6">
-                            <div class="${theme.header} px-4 py-1.5 font-black text-lg md:text-xl tracking-tight shadow-sm z-10 relative">${keyName}</div>
-                            <table class="w-full text-center border-collapse text-sm font-bold text-black bg-white">
-                                <thead>
-                                    <tr class="bg-[#fff9f2] italic ${activeTab === 'slippage' ? 'text-xs md:text-sm' : 'text-xs'}">
-                        `;
-
-                        if (activeTab === 'slippage') {
-                            html += `
-                                        <th class="py-1.5 px-2 dotted-border w-[30%] font-extrabold text-black">Contract ID</th>
-                                        <th class="py-1.5 px-2 dotted-border w-[23%] font-extrabold text-black">Actual</th>
-                                        <th class="py-1.5 px-2 dotted-border w-[23%] font-extrabold text-black">Schedule</th>
-                                        <th class="py-1.5 px-2 w-[24%] font-extrabold text-black">Slippage</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                            `;
-                            projects.forEach((p, idx) => {
-                                const rowColor = idx % 2 === 0 ? theme.rowOdd : theme.rowEven;
-                                const uniqueId = `slip-details-${index}-${idx}`;
-                                let actualDisplay = p.actual >= 100 ? 'C' : p.actual.toFixed(2) + '%';
-                                html += `
-                                    <tr class="${rowColor} border-t border-gray-300/50 cursor-pointer hover:brightness-95 transition-all" onclick="toggleDetails('${uniqueId}')">
-                                        <td class="py-1.5 px-2 dotted-border font-extrabold tracking-wider">${p.contractId}</td>
-                                        <td class="py-1.5 px-2 dotted-border font-medium">${actualDisplay}</td>
-                                        <td class="py-1.5 px-2 dotted-border font-medium">${p.schedule.toFixed(2)}%</td>
-                                        <td class="py-1.5 px-2 text-rose-600 font-black tracking-tight">${p.slippage.toFixed(2)}%</td>
-                                    </tr>
-                                    ${generateDetailsRow(uniqueId, 4, p)}
-                                `;
-                            });
-                        } else {
-                            html += `
-                                        <th class="py-1.5 px-1 dotted-border font-extrabold text-black w-8">#</th>
-                                        <th class="py-1.5 px-2 dotted-border font-extrabold text-black w-[30%]">Contract ID</th>
-                                        <th class="py-1.5 px-2 dotted-border font-extrabold text-black">wk1</th>
-                                        <th class="py-1.5 px-2 dotted-border font-extrabold text-black">wk2</th>
-                                        <th class="py-1.5 px-2 dotted-border font-extrabold text-black">wk3</th>
-                                        <th class="py-1.5 px-2 font-extrabold text-black">wk4</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                            `;
-                            let rowCounter = 1;
-                            projects.forEach((p, idx) => {
-                                const rowColor = idx % 2 === 0 ? theme.rowOdd : theme.rowEven;
-                                const uniqueId = `weekly-details-${index}-${idx}`;
-                                const wData = p.weeklyHistory[weeklySelectedMonthOffset] || ['missing','missing','missing','missing'];
-
-                                html += `
-                                    <tr class="${rowColor} border-t border-gray-300/50 cursor-pointer hover:brightness-95 transition-all" onclick="toggleDetails('${uniqueId}')">
-                                        <td class="py-1 px-1 dotted-border text-center font-black text-gray-800">${rowCounter++}</td>
-                                        <td class="py-1 px-2 dotted-border font-extrabold tracking-wider">${p.contractId}</td>
-                                        <td class="py-1 px-2 dotted-border">${getWeeklyIcon(wData[0])}</td>
-                                        <td class="py-1 px-2 dotted-border">${getWeeklyIcon(wData[1])}</td>
-                                        <td class="py-1 px-2 dotted-border">${getWeeklyIcon(wData[2])}</td>
-                                        <td class="py-1 px-2">${getWeeklyIcon(wData[3])}</td>
-                                    </tr>
-                                    ${generateDetailsRow(uniqueId, 6, p)}
-                                `;
-                            });
+                        // Compute totals irrespective of the fund checkbox toggles, but respect excluded logic
+                        if (!isExcluded) {
+                            if (b.isDar) totalDar += b.amount;
+                            else if (b.isMaint) totalMaint += b.amount;
+                            else {
+                                totalBase += b.amount;
+                                if (b.projectYear === currentYearNum) totalCurrent += b.amount;
+                                else if (b.projectYear < currentYearNum) totalPrior += b.amount;
+                            }
                         }
-                        html += `</tbody></table></div>`;
-                    });
-                    container.innerHTML = html;
-                }
-            }
 
-            // -------------------------------------------------------------
-            // MONTHLY & ACCEPTANCE VIEW
-            // -------------------------------------------------------------
-            else if (mainView === 'monthly_cfa') {
-                if (activeTab === 'cfa') {
-                    const allYears = [...new Set([...Object.keys(acceptanceCocSummary), ...Object.keys(acceptanceCfaSummary)])].sort().reverse();
-                    
+                        // Only push into rendering group if the specific fund is checked
+                        if (billingFundFilters[b.fundCategory]) {
+                            const groupKey = (billingGroupMode === 'pe') ? b.pe : b.contractor;
+                            if (!groupedData[groupKey]) groupedData[groupKey] = [];
+                            groupedData[groupKey].push(b);
+                        }
+                    });
+
+                    const renderAmount = (amount) => amount > 0 ? `PHP ${formatCurrency(amount)}` : '';
+
                     let html = `
-                        <div class="w-full mb-4 bg-white border-[3px] border-red-600 shadow-sm relative group overflow-hidden">
-                            <select onchange="changeCfaFilter('year', this.value)" class="w-full text-center text-xl md:text-2xl font-black text-[#0f3b75] py-1.5 outline-none cursor-pointer bg-transparent appearance-none relative z-10">
-                                <option value="All" ${cfaFilterYear === 'All' ? 'selected' : ''}>All Years</option>
-                                ${allYears.map(y => `<option value="${y}" ${cfaFilterYear === String(y) ? 'selected' : ''}>${y}</option>`).join('')}
+                        <div class="w-full mb-3 flex flex-col gap-2">
+                            <select id="billing-group-select" onchange="changeBillingGroupMode(this.value)" class="w-full border-2 border-green-700 text-[#0f3b75] font-black text-center py-1 text-sm md:text-base outline-none cursor-pointer shadow-sm bg-white rounded-md">
+                                <option value="contractor" ${billingGroupMode === 'contractor' ? 'selected' : ''}>by Contractor</option>
+                                <option value="pe" ${billingGroupMode === 'pe' ? 'selected' : ''}>by Project Engineer</option>
+                                <option value="previous_month" ${billingGroupMode === 'previous_month' ? 'selected' : ''}>Previous Month</option>
                             </select>
-                            <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none z-0">
-                                <i class="fa-solid fa-chevron-down text-red-600 text-lg group-hover:translate-y-0.5 transition-transform"></i>
+                    `;
+
+                    if (billingGroupMode === 'previous_month') {
+                        html += `
+                            <div class="flex items-center justify-center gap-6 text-[#0f3b75] font-black my-1">
+                                <button onclick="navMonthBack()" class="hover:scale-110 active:scale-95 transition-transform"><i class="fa-solid fa-arrow-left text-[#3b5998] text-3xl drop-shadow-md"></i></button>
+                                <span class="w-36 text-center text-xl tracking-tight">${monthsArr[navMonth]} ${navYear}</span>
+                                <button onclick="navMonthForward()" class="hover:scale-110 active:scale-95 transition-transform"><i class="fa-solid fa-arrow-right text-[#3b5998] text-3xl drop-shadow-md"></i></button>
+                            </div>
+                        `;
+                    }
+
+                    html += `</div>`; 
+
+                    html += `
+                        <div class="w-full flex flex-col gap-4 mb-2 font-black text-[#0f3b75] drop-shadow-sm">
+                            <div class="flex w-full">
+                                <div class="w-[35%] bg-[#a9d18e] px-3 py-1.5 md:py-2 flex justify-between items-center text-base md:text-lg border-2 border-white">
+                                    <span>TOTAL</span><span>=</span>
+                                </div>
+                                <div class="w-[65%] bg-gradient-to-b from-[#a9d18e] via-[#f0f8eb] to-[#a9d18e] flex justify-center items-center border-2 border-white text-lg md:text-2xl tracking-tight">
+                                    ${renderAmount(totalBase)}
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col w-full">
+                                <div class="flex w-full">
+                                    <div class="w-[35%] bg-[#ffd966] px-3 py-1.5 md:py-2 flex justify-between items-center text-base md:text-lg border-2 border-white">
+                                        <span>PRIOR</span><span>=</span>
+                                    </div>
+                                    <div class="w-[65%] bg-gradient-to-b from-[#ffd966] via-[#fffbf0] to-[#ffd966] flex justify-center items-center border-2 border-white text-lg md:text-2xl tracking-tight">
+                                        ${renderAmount(totalPrior)}
+                                    </div>
+                                </div>
+                                <div class="flex w-full -mt-[2px]">
+                                    <div class="w-[35%] bg-[#f4b084] px-3 py-1.5 md:py-2 flex justify-between items-center text-base md:text-lg border-2 border-white">
+                                        <span>CURRENT</span><span>=</span>
+                                    </div>
+                                    <div class="w-[65%] bg-gradient-to-b from-[#f4b084] via-[#fdf3ec] to-[#f4b084] flex justify-center items-center border-2 border-white text-lg md:text-2xl tracking-tight">
+                                        ${renderAmount(totalCurrent)}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col w-full">
+                                <div class="flex w-full">
+                                    <div class="w-[35%] bg-[#9bc2e6] px-3 py-1.5 md:py-2 flex justify-between items-center text-base md:text-lg border-2 border-white">
+                                        <span>DAR</span><span>=</span>
+                                    </div>
+                                    <div class="w-[65%] bg-gradient-to-b from-[#9bc2e6] via-[#f0f6fb] to-[#9bc2e6] flex justify-center items-center border-2 border-white text-lg md:text-2xl tracking-tight">
+                                        ${renderAmount(totalDar)}
+                                    </div>
+                                </div>
+                                <div class="flex w-full -mt-[2px]">
+                                    <div class="w-[35%] bg-[#00b0f0] px-3 py-1.5 md:py-2 flex justify-between items-center text-base md:text-lg border-2 border-white">
+                                        <span>MAINT</span><span>=</span>
+                                    </div>
+                                    <div class="w-[65%] bg-gradient-to-b from-[#00b0f0] via-[#e5f7fd] to-[#00b0f0] flex justify-center items-center border-2 border-white text-lg md:text-2xl tracking-tight">
+                                        ${renderAmount(totalMaint)}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     `;
 
-                    let displayYears = cfaFilterYear === 'All' ? allYears : [cfaFilterYear];
-                    
-                    let cocTabClass = acceptanceSubTab === 'coc' 
-                        ? "py-1.5 border-b-2 border-orange-500 bg-gradient-to-b from-orange-300 to-orange-500 text-black font-black text-base md:text-xl tracking-wider cursor-pointer shadow-inner" 
-                        : "py-1.5 border-b-2 border-r-2 border-gray-400 bg-gradient-to-b from-gray-200 to-gray-300 text-black font-black text-base md:text-xl tracking-wider cursor-pointer hover:brightness-95";
-                        
-                    let cfaTabClass = acceptanceSubTab === 'cfa' 
-                        ? "py-1.5 border-b-2 border-orange-500 bg-gradient-to-b from-orange-300 to-orange-500 text-black font-black text-base md:text-xl tracking-wider cursor-pointer shadow-inner" 
-                        : "py-1.5 border-b-2 border-l-2 border-gray-400 bg-gradient-to-b from-gray-200 to-gray-300 text-black font-black text-base md:text-xl tracking-wider cursor-pointer hover:brightness-95";
-
                     html += `
-                        <table class="w-full text-center border-collapse text-sm md:text-base font-bold text-[#0f3b75] bg-white shadow-md mb-6">
-                            <thead>
-                                <tr>
-                                    <th colspan="3" class="${cocTabClass}" onclick="switchAcceptanceSubTab('coc')">COC</th>
-                                    <th colspan="2" class="${cfaTabClass}" onclick="switchAcceptanceSubTab('cfa')">CFA</th>
-                                </tr>
+                        <div class="flex flex-col items-center gap-2 mt-3 mb-6 font-black text-[#0f3b75] text-[15px] md:text-lg w-full">
+                            <div class="flex flex-wrap justify-center items-center gap-x-4 md:gap-x-6 gap-y-2">
+                                <label class="flex items-center gap-1.5 cursor-pointer hover:opacity-80">
+                                    <input type="checkbox" onchange="toggleBillingFund('GAA', this.checked)" ${billingFundFilters['GAA'] ? 'checked' : ''} class="fund-checkbox">
+                                    <span>GAA</span>
+                                </label>
+                                <label class="flex items-center gap-1.5 cursor-pointer hover:opacity-80">
+                                    <input type="checkbox" onchange="toggleBillingFund('DepEd', this.checked)" ${billingFundFilters['DepEd'] ? 'checked' : ''} class="fund-checkbox">
+                                    <span>DepEd</span>
+                                </label>
+                                <label class="flex items-center gap-1.5 cursor-pointer hover:opacity-80">
+                                    <input type="checkbox" onchange="toggleBillingFund('DA', this.checked)" ${billingFundFilters['DA'] ? 'checked' : ''} class="fund-checkbox">
+                                    <span>DA</span>
+                                </label>
+                                <label class="flex items-center gap-1.5 cursor-pointer hover:opacity-80">
+                                    <input type="checkbox" onchange="toggleBillingFund('SF', this.checked)" ${billingFundFilters['SF'] ? 'checked' : ''} class="fund-checkbox">
+                                    <span>SF</span>
+                                </label>
+                            </div>
+                            <div class="flex flex-wrap justify-center items-center gap-x-4 md:gap-x-6 gap-y-2">
+                                <label class="flex items-center gap-1.5 cursor-pointer hover:opacity-80">
+                                    <input type="checkbox" onchange="toggleBillingFund('DAR', this.checked)" ${billingFundFilters['DAR'] ? 'checked' : ''} class="fund-checkbox">
+                                    <span>DAR</span>
+                                </label>
+                                <label class="flex items-center gap-1.5 cursor-pointer hover:opacity-80">
+                                    <input type="checkbox" onchange="toggleBillingFund('Maint', this.checked)" ${billingFundFilters['Maint'] ? 'checked' : ''} class="fund-checkbox">
+                                    <span>MAINT</span>
+                                </label>
+                            </div>
+                        </div>
                     `;
 
-                    if (acceptanceSubTab === 'coc') {
-                        html += `
-                                <tr class="italic text-[11px] md:text-sm border-b border-red-500 bg-[#f8f9fa]">
-                                    <th class="py-2 px-1 md:px-2 border-r border-dotted border-red-500 font-extrabold w-[16%]">Year</th>
-                                    <th class="py-2 px-1 md:px-2 border-r border-dotted border-red-500 font-extrabold w-[21%]">Total</th>
-                                    <th class="py-2 px-1 md:px-2 border-r border-dotted border-red-500 font-extrabold w-[21%]">Completed</th>
-                                    <th class="py-2 px-1 md:px-2 border-r border-dotted border-red-500 font-extrabold w-[21%]">with COC</th>
-                                    <th class="py-2 px-1 md:px-2 font-extrabold w-[21%]">w/o COC</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                        `;
+                    const sortedKeys = Object.keys(groupedData).sort();
+                    if (sortedKeys.length === 0) {
+                        html += `<div class="text-center py-10 font-black text-slate-500 opacity-60"><i class="fa-solid fa-check-circle text-4xl mb-3 block"></i> No billings found for this selection!</div>`;
                     } else {
-                        html += `
-                                <tr class="italic text-[11px] md:text-sm border-b border-red-500 bg-[#f8f9fa]">
-                                    <th class="py-2 px-1 md:px-2 border-r border-dotted border-red-500 font-extrabold w-[16%]">Year</th>
-                                    <th class="py-2 px-1 md:px-2 border-r border-dotted border-red-500 font-extrabold w-[21%]">Total</th>
-                                    <th class="py-2 px-1 md:px-2 border-r border-dotted border-red-500 font-extrabold w-[21%]">COC</th>
-                                    <th class="py-2 px-1 md:px-2 border-r border-dotted border-red-500 font-extrabold w-[21%]">with CFA</th>
-                                    <th class="py-2 px-1 md:px-2 font-extrabold w-[21%]">w/o CFA</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                        `;
-                    }
-                    
-                    let grandTotal = 0;
-                    let grandCompletedOrCoc = 0;
-                    let grandWith = 0;
-                    let grandWo = 0;
-
-                    displayYears.forEach(y => {
-                        if (acceptanceSubTab === 'coc') {
-                            const sum = acceptanceCocSummary[y] || { total: 0, completed: 0, withCoc: 0, woCoc: 0 };
-                            grandTotal += sum.total;
-                            grandCompletedOrCoc += sum.completed;
-                            grandWith += sum.withCoc;
-                            grandWo += sum.woCoc;
-
-                            html += `
-                                <tr class="border-b border-gray-200 hover:bg-gray-50 transition-colors">
-                                    <td class="py-1.5 px-1 md:px-2 border-r border-dotted border-red-500 font-black text-lg md:text-xl text-[#0f3b75]">${y}</td>
-                                    <td class="py-1.5 px-1 md:px-2 border-r border-dotted border-red-500 text-base md:text-lg">${sum.total > 0 ? sum.total : '-'}</td>
-                                    <td class="py-1.5 px-1 md:px-2 border-r border-dotted border-red-500 text-base md:text-lg">${sum.completed > 0 ? sum.completed : '-'}</td>
-                                    <td class="py-1.5 px-1 md:px-2 border-r border-dotted border-red-500 text-base md:text-lg">${sum.withCoc > 0 ? sum.withCoc : '-'}</td>
-                                    <td class="py-1.5 px-1 md:px-2 text-base md:text-lg">${sum.woCoc > 0 ? sum.woCoc : '-'}</td>
-                                </tr>
-                            `;
-                        } else {
-                            const sum = acceptanceCfaSummary[y] || { total: 0, coc: 0, withCfa: 0, woCfa: 0 };
-                            grandTotal += sum.total;
-                            grandCompletedOrCoc += sum.coc;
-                            grandWith += sum.withCfa;
-                            grandWo += sum.woCfa;
-
-                            html += `
-                                <tr class="border-b border-gray-200 hover:bg-gray-50 transition-colors">
-                                    <td class="py-1.5 px-1 md:px-2 border-r border-dotted border-red-500 font-black text-lg md:text-xl text-[#0f3b75]">${y}</td>
-                                    <td class="py-1.5 px-1 md:px-2 border-r border-dotted border-red-500 text-base md:text-lg">${sum.total > 0 ? sum.total : '-'}</td>
-                                    <td class="py-1.5 px-1 md:px-2 border-r border-dotted border-red-500 text-base md:text-lg">${sum.coc > 0 ? sum.coc : '-'}</td>
-                                    <td class="py-1.5 px-1 md:px-2 border-r border-dotted border-red-500 text-base md:text-lg">${sum.withCfa > 0 ? sum.withCfa : '-'}</td>
-                                    <td class="py-1.5 px-1 md:px-2 text-base md:text-lg">${sum.woCfa > 0 ? sum.woCfa : '-'}</td>
-                                </tr>
-                            `;
-                        }
-                    });
-
-                    if (cfaFilterYear === 'All') {
-                        html += `
-                            <tr class="bg-gradient-to-b from-[#ffcccc] to-[#ffb3b3] border-t-2 border-red-600 shadow-inner">
-                                <td class="py-1.5 px-1 md:px-2 border-r border-dotted border-red-500 font-black text-base md:text-xl text-red-800 uppercase tracking-wider">Total</td>
-                                <td class="py-1.5 px-1 md:px-2 border-r border-dotted border-red-500 font-black text-base md:text-xl text-red-900">${grandTotal > 0 ? grandTotal : '-'}</td>
-                                <td class="py-1.5 px-1 md:px-2 border-r border-dotted border-red-500 font-black text-base md:text-xl text-red-900">${grandCompletedOrCoc > 0 ? grandCompletedOrCoc : '-'}</td>
-                                <td class="py-1.5 px-1 md:px-2 border-r border-dotted border-red-500 font-black text-base md:text-xl text-red-900">${grandWith > 0 ? grandWith : '-'}</td>
-                                <td class="py-1.5 px-1 md:px-2 font-black text-base md:text-xl text-red-900">${grandWo > 0 ? grandWo : '-'}</td>
-                            </tr>
-                        `;
-                    }
-                    
-                    html += `</tbody></table>`;
-
-                    const dataToRender = acceptanceSubTab === 'coc' ? acceptanceCocData : acceptanceCfaData;
-                    const filteredData = dataToRender.filter(item => cfaFilterYear === 'All' || item.year === cfaFilterYear);
-
-                    if (filteredData.length === 0) {
-                        html += `<div class="text-center py-10 font-black text-slate-500 opacity-60"><i class="fa-solid fa-check-circle text-4xl mb-3 block"></i> No projects to show in this view!</div>`;
-                    } else {
-                        const grouped = {};
-                        filteredData.forEach(item => {
-                            if (!grouped[item.pe]) grouped[item.pe] = [];
-                            grouped[item.pe].push(item);
-                        });
-
-                        const sortedPEs = Object.keys(grouped).sort();
-                        
-                        sortedPEs.forEach((pe, index) => {
+                        sortedKeys.forEach((keyName, index) => {
                             const theme = PE_THEMES[index % PE_THEMES.length];
-                            const projects = grouped[pe];
-
+                            const bills = groupedData[keyName];
+                            
                             html += `
-                                <div class="w-full flex flex-col shadow-md mb-6">
-                                    <div class="${theme.header} px-4 py-1.5 font-black text-lg md:text-xl tracking-tight shadow-sm z-10 relative flex justify-between items-center">
-                                        <span>${pe}</span>
-                                        <span class="text-red-600 drop-shadow-[0_1px_1px_rgba(255,255,255,0.7)] text-xl md:text-2xl">${projects.length}</span>
-                                    </div>
-                                    <table class="w-full text-center border-collapse text-sm font-bold text-black bg-white">
-                                        <thead>
-                                            <tr class="bg-[#fff9f2] italic text-xs md:text-sm">
+                            <div class="w-full flex flex-col shadow-md mb-6">
+                                <div class="${theme.header} px-4 py-1.5 font-black text-lg md:text-xl tracking-tight shadow-sm z-10 relative">${keyName}</div>
+                                <table class="w-full text-center border-collapse text-sm font-bold text-black bg-white">
+                                    <thead>
+                                        <tr class="bg-[#fff9f2] italic text-xs">
+                                            <th class="py-1.5 px-2 dotted-border w-[35%] font-extrabold text-black">Contract ID</th>
+                                            <th class="py-1.5 px-2 dotted-border w-[30%] font-extrabold text-black">Billing</th>
+                                            <th class="py-1.5 px-2 font-extrabold text-black w-[35%]">Remarks</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
                             `;
+                            
+                            let rowIdx = 0;
+                            let lastContractId = null;
 
-                            if (acceptanceSubTab === 'coc') {
-                                html += `
-                                                <th class="py-1.5 px-2 dotted-border font-extrabold text-black w-[25%]">Contract ID</th>
-                                                <th class="py-1.5 px-2 dotted-border font-extrabold text-black w-[22%]">Status</th>
-                                                <th class="py-1.5 px-2 dotted-border font-extrabold text-black w-[22%]">Completed</th>
-                                                <th class="py-1.5 px-2 dotted-border font-extrabold text-black w-[15%]">COC</th>
-                                                <th class="py-1.5 px-2 font-extrabold text-black w-[16%]">Lapsed</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                `;
-                            } else {
-                                html += `
-                                                <th class="py-1.5 px-2 dotted-border font-extrabold text-black w-[25%]">Contract ID</th>
-                                                <th class="py-1.5 px-2 dotted-border font-extrabold text-black w-[22%]">COC</th>
-                                                <th class="py-1.5 px-2 dotted-border font-extrabold text-black w-[22%]">PUNCHLIST</th>
-                                                <th class="py-1.5 px-2 dotted-border font-extrabold text-black w-[15%]">CFA</th>
-                                                <th class="py-1.5 px-2 font-extrabold text-black w-[16%]">Days</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                `;
-                            }
-
-                            projects.forEach((p, idx) => {
-                                const rowColor = idx % 2 === 0 ? theme.rowOdd : theme.rowEven;
-                                const uniqueId = `acc-details-${index}-${idx}`;
+                            bills.forEach(b => {
+                                const rowColor = rowIdx % 2 === 0 ? theme.rowOdd : theme.rowEven;
+                                rowIdx++;
+                                const displayId = (b.contractId === lastContractId) ? '"' : b.contractId;
+                                lastContractId = b.contractId;
+                                const uniqueId = `bill-details-${index}-${rowIdx}`;
                                 
-                                html += `<tr class="${rowColor} border-t border-gray-300/50 cursor-pointer hover:brightness-95 transition-all" onclick="toggleDetails('${uniqueId}')">`;
-                                
-                                if (acceptanceSubTab === 'coc') {
-                                    let lapsedColor = p.lapsed === '-' ? 'text-gray-500' : 'text-red-600';
-                                    html += `
-                                        <td class="py-1.5 px-2 dotted-border font-extrabold text-sm md:text-base tracking-wider">${p.contractId}</td>
-                                        <td class="py-1.5 px-2 dotted-border font-extrabold text-xs md:text-sm text-black">${p.status}</td>
-                                        <td class="py-1.5 px-2 dotted-border font-extrabold text-xs md:text-sm text-black">${p.completedDate}</td>
-                                        <td class="py-1.5 px-2 dotted-border font-extrabold text-sm md:text-base text-black">${p.coc}</td>
-                                        <td class="py-1.5 px-2 font-black text-sm md:text-base ${lapsedColor}">${p.lapsed}</td>
-                                    `;
+                                let contractCellHtml = '';
+                                if (displayId === '"') {
+                                    contractCellHtml = `<div class="w-full text-center font-extrabold text-black text-sm md:text-lg">"</div>`;
                                 } else {
-                                    let daysColor = p.days === '-' ? 'text-gray-500' : (p.days < 0 ? 'text-red-600' : 'text-emerald-500');
-                                    let daysDisplay = p.days === '-' ? '-' : (p.days < 0 ? `- ${Math.abs(p.days)}` : `${p.days}`);
-                                    let punchlistColor = p.punchlist === 'Yes' ? 'text-red-600' : 'text-black';
-                                    
-                                    html += `
-                                        <td class="py-1.5 px-2 dotted-border font-extrabold text-sm md:text-base tracking-wider">${p.contractId}</td>
-                                        <td class="py-1.5 px-2 dotted-border font-extrabold text-xs md:text-sm">${p.coc}</td>
-                                        <td class="py-1.5 px-2 dotted-border font-extrabold text-xs md:text-sm ${punchlistColor}">${p.punchlist}</td>
-                                        <td class="py-1.5 px-2 dotted-border font-extrabold text-sm md:text-base">${p.cfa}</td>
-                                        <td class="py-1.5 px-2 font-black text-sm md:text-base ${daysColor}">${daysDisplay}</td>
+                                    let fundText = b.fundCategory || 'GAA';
+                                    contractCellHtml = `
+                                        <div class="flex items-center relative w-full">
+                                            <span class="absolute left-0 text-[10px] md:text-xs font-black text-[#0f3b75] leading-none">${fundText}</span>
+                                            <span class="w-full text-center font-extrabold text-black text-sm md:text-lg">${displayId}</span>
+                                        </div>
                                     `;
                                 }
 
-                                html += `</tr>${generateDetailsRow(uniqueId, 5, p)}`;
+                                const isExcluded = excludedBillingContracts.has(b.contractId);
+
+                                html += `
+                                        <tr class="${rowColor} border-t border-gray-300/50 cursor-pointer hover:brightness-95 transition-all" onclick="toggleDetails('${uniqueId}')">
+                                            <td class="py-1.5 px-2 dotted-border tracking-wider">${contractCellHtml}</td>
+                                            <td class="py-1.5 px-2 dotted-border font-extrabold tracking-tight text-black text-sm md:text-lg">${formatCurrency(b.amount)}</td>
+                                            <td class="py-1.5 px-2 font-medium text-xs md:text-sm text-slate-700">
+                                                <div class="flex items-center justify-between w-full h-full gap-2">
+                                                    <span class="flex-1 text-center leading-tight">${b.remarks}</span>
+                                                    <input type="checkbox" 
+                                                        class="billing-checkbox"
+                                                        ${!isExcluded ? 'checked' : ''}
+                                                        onclick="event.stopPropagation(); toggleBillingExclusion('${b.contractId}', this)"
+                                                    >
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        ${generateBillingDetailsRow(uniqueId, b)}
+                                `;
                             });
-                            
+
                             html += `</tbody></table></div>`;
                         });
                     }
                     container.innerHTML = html;
+                } else if (activeTab === 'summary') {
+                    // Summary View Logic
+                    const summaryBills = billingDataGlobal.filter(b => 
+                        b.isPaid === false && 
+                        !excludedBillingContracts.has(b.contractId)
+                    );
 
-                } else {
+                    const projectMap = {};
+
+                    summaryBills.forEach(b => {
+                        if (!projectMap[b.contractId]) {
+                            // Copy ALL elements of `b` so generateBillingDetailsRow works perfectly!
+                            projectMap[b.contractId] = {
+                                ...b,
+                                remarks: [],
+                                totalAmount: 0,
+                                issueText: othersSheetMeta.data[b.contractId] || ''
+                            };
+                        }
+                        projectMap[b.contractId].totalAmount += b.amount;
+                        if (b.remarks && b.remarks !== '-') {
+                            if (!projectMap[b.contractId].remarks.includes(b.remarks)) {
+                                projectMap[b.contractId].remarks.push(b.remarks);
+                            }
+                        }
+                    });
+
+                    const summaryProjects = Object.values(projectMap);
+
+                    let sumTotal = 0;
+                    let yearlyTotals = {};
+
+                    summaryProjects.forEach(p => {
+                        sumTotal += p.totalAmount;
+                        if (!yearlyTotals[p.projectYear]) yearlyTotals[p.projectYear] = 0;
+                        yearlyTotals[p.projectYear] += p.totalAmount;
+                    });
+
+                    const presentYears = Object.keys(yearlyTotals).map(Number).sort((a,b) => b - a);
+
+                    let html = `
+                        <div id="summary-print-area" class="w-full flex flex-col gap-2">
+                            <div class="flex flex-col md:flex-row gap-2 mb-4 no-print">
+                                <select onchange="changeSummaryGroupMode(this.value)" class="flex-1 border-2 border-orange-500 text-[#0f3b75] font-black text-center py-1.5 text-sm md:text-base outline-none cursor-pointer shadow-sm bg-white rounded-md">
+                                    <option value="contractor" ${summaryGroupMode === 'contractor' ? 'selected' : ''}>by Contractor</option>
+                                    <option value="pe" ${summaryGroupMode === 'pe' ? 'selected' : ''}>by Project Engineer (PE)</option>
+                                    <option value="year" ${summaryGroupMode === 'year' ? 'selected' : ''}>by Year</option>
+                                </select>
+                                <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white font-black text-center py-1.5 px-4 text-sm md:text-base outline-none shadow-sm rounded-md transition-all flex items-center justify-center gap-2 active:scale-95">
+                                    <i class="fa-solid fa-print"></i> PRINT
+                                </button>
+                            </div>
+
+                            <div class="print-header hidden mb-4 text-center">
+                                <h1 class="text-2xl font-black text-[#0f3b75]">BILLING SUMMARY REPORT</h1>
+                                <p class="text-sm font-bold text-gray-600">Generated on ${new Date().toLocaleDateString()}</p>
+                            </div>
+
+                            <div class="w-full flex flex-col gap-0 font-black text-[#0f3b75] drop-shadow-sm mb-6">
+                                <div class="flex w-full">
+                                    <div class="w-[35%] bg-[#c6e0b4] px-3 py-1.5 md:py-2 flex justify-between items-center text-base md:text-lg border-[3px] border-white shadow-sm">
+                                        <span class="tracking-widest">TOTAL</span><span>=</span>
+                                    </div>
+                                    <div class="w-[65%] bg-gradient-to-r from-[#e2efda] to-[#c6e0b4] flex justify-center items-center border-[3px] border-white text-lg md:text-2xl tracking-tight text-[#0f3b75] shadow-sm">
+                                        PHP ${formatCurrency(sumTotal)}
+                                    </div>
+                                </div>
+                    `;
+                    
+                    const yearColors = [
+                        { left: 'bg-[#fce4d6]', right: 'from-[#fef4ed] to-[#fce4d6]' },
+                        { left: 'bg-[#f8cbad]', right: 'from-[#fce4d6] to-[#f8cbad]' },
+                        { left: 'bg-[#f4b084]', right: 'from-[#f8cbad] to-[#f4b084]' },
+                        { left: 'bg-[#f09a63]', right: 'from-[#f4b084] to-[#f09a63]' }
+                    ];
+
+                    presentYears.forEach((y, i) => {
+                        const color = yearColors[i % yearColors.length];
+                        html += `
+                                <div class="flex w-full -mt-[2px]">
+                                    <div class="w-[35%] ${color.left} px-3 py-1.5 md:py-2 flex justify-between items-center text-base md:text-lg border-[3px] border-white shadow-sm">
+                                        <span>${y}</span><span>=</span>
+                                    </div>
+                                    <div class="w-[65%] bg-gradient-to-r ${color.right} flex justify-center items-center border-[3px] border-white text-lg md:text-xl tracking-tight text-[#0f3b75] shadow-sm">
+                                        PHP ${formatCurrency(yearlyTotals[y])}
+                                    </div>
+                                </div>
+                        `;
+                    });
+
+                    html += `</div>`;
+
+                    if (summaryProjects.length === 0) {
+                        html += `<div class="text-center py-10 font-black text-slate-500 opacity-60"><i class="fa-solid fa-folder-open text-4xl mb-3 block"></i> No checked projects found!</div>`;
+                    } else {
+                        const groupedSummary = {};
+                        summaryProjects.forEach(p => {
+                            let groupKey = '';
+                            if (summaryGroupMode === 'year') groupKey = 'CY ' + p.projectYear;
+                            else if (summaryGroupMode === 'pe') groupKey = p.pe || 'Unknown PE';
+                            else groupKey = p.contractor || 'Unknown Contractor';
+
+                            if (!groupedSummary[groupKey]) groupedSummary[groupKey] = [];
+                            groupedSummary[groupKey].push(p);
+                        });
+
+                        let sortedSummaryKeys = Object.keys(groupedSummary).sort();
+                        if (summaryGroupMode === 'year') {
+                            sortedSummaryKeys.reverse();
+                        }
+
+                        sortedSummaryKeys.forEach((keyName, index) => {
+                            const theme = PE_THEMES[index % PE_THEMES.length];
+                            const projects = groupedSummary[keyName];
+
+                            html += `
+                            <div class="w-full flex flex-col shadow-md mb-6 break-inside-avoid">
+                                <div class="${theme.header} px-4 py-1.5 font-black text-lg md:text-xl tracking-tight shadow-sm z-10 relative text-left">${keyName}</div>
+                                <table class="w-full text-center border-collapse text-sm font-bold text-black bg-white">
+                                    <thead>
+                                        <tr class="bg-[#fff9f2] italic text-xs md:text-sm">
+                                            <th class="py-1.5 px-2 dotted-border w-[25%] font-extrabold text-black">Contract ID</th>
+                                            <th class="py-1.5 px-2 dotted-border w-[20%] font-extrabold text-black">Billing</th>
+                                            <th class="py-1.5 px-2 dotted-border font-extrabold text-black w-[30%]">Remarks</th>
+                                            <th class="py-1.5 px-2 font-extrabold text-black w-[25%]">Issue</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                            `;
+                            
+                            projects.sort((a,b) => b.totalAmount - a.totalAmount).forEach((p, rowIdx) => {
+                                const rowColor = rowIdx % 2 === 0 ? theme.rowOdd : theme.rowEven;
+                                let fundText = p.fundCategory || 'GAA';
+                                let remarksText = p.remarks.length > 0 ? p.remarks.join(' / ') : '-';
+                                const uniqueId = `summary-details-${index}-${rowIdx}`;
+
+                                html += `
+                                    <tr class="${rowColor} border-t border-gray-300/50 cursor-pointer hover:brightness-95 transition-all" onclick="toggleDetails('${uniqueId}')">
+                                        <td class="py-1.5 px-2 dotted-border tracking-wider">
+                                            <div class="flex items-center relative w-full">
+                                                <span class="absolute left-0 text-[10px] md:text-xs font-black text-[#0f3b75] leading-none">${fundText}</span>
+                                                <span class="w-full text-center font-extrabold text-black text-sm md:text-lg">${p.contractId}</span>
+                                            </div>
+                                        </td>
+                                        <td class="py-1.5 px-2 dotted-border font-extrabold tracking-tight text-black text-sm md:text-lg">${formatCurrency(p.totalAmount)}</td>
+                                        <td class="py-1.5 px-2 font-medium text-[11px] md:text-sm text-slate-700 leading-tight dotted-border">${remarksText}</td>
+                                        <td class="py-1 px-1 text-center">
+                                            <div class="w-full" onclick="event.stopPropagation()">
+                                                <textarea 
+                                                    class="w-full text-[11px] md:text-xs italic outline-none bg-transparent text-gray-800 text-center placeholder:text-gray-500 focus:bg-white/50 focus:ring-1 focus:ring-blue-400 rounded transition-colors resize-none overflow-hidden px-1 leading-tight"
+                                                    rows="1"
+                                                    placeholder="-"
+                                                    oninput="this.style.height = 'auto'; this.style.height = this.scrollHeight + 'px';"
+                                                    onchange="updateIssue('${p.contractId}', this)"
+                                                >${p.issueText.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</textarea>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    ${generateBillingDetailsRow(uniqueId, p)}
+                                `;
+                            });
+                            html += `</tbody></table></div>`;
+                        });
+                    }
+                    html += `</div>`;
+                    container.innerHTML = html;
+                    
+                    // Auto-resize the Issue textareas correctly on load
+                    resizeTextareasSmoothly();
+                }
+            }
+
+            // -------------------------------------------------------------
+            // MONITORING VIEW (SLIPPAGE, WEEKLY, MONTHLY TABS)
+            // -------------------------------------------------------------
+            else if (mainView === 'monitoring') {
+                if (activeTab === 'slippage' || activeTab === 'weekly') {
+                    let filteredData = [];
+                    monitoringData.forEach(project => {
+                        if (activeTab === 'slippage') {
+                            if (project.slippage <= -5.00) filteredData.push(project);
+                        } else if (activeTab === 'weekly') {
+                            if (project.hasLogin) {
+                                const matchYear = weeklyFilterYear === 'All' || String(project.year) === weeklyFilterYear;
+                                if (!matchYear) return;
+
+                                const wData = project.weeklyHistory[weeklySelectedMonthOffset] || ['missing','missing','missing','missing'];
+                                let matchStatus = false;
+                                
+                                if (weeklyFilterMark === 'All') {
+                                    matchStatus = true;
+                                } else if (weeklyFilterMark === 'Completed') {
+                                    matchStatus = wData.includes('completed');
+                                } else if (weeklyFilterMark === 'On-going') {
+                                    matchStatus = wData.includes('updated');
+                                } else if (weeklyFilterMark === 'No Accomplishment') {
+                                    matchStatus = wData.includes('zero') || wData.includes('missing');
+                                } else if (weeklyFilterMark === 'Suspended') {
+                                    matchStatus = wData.includes('suspended');
+                                }
+
+                                if (matchStatus) filteredData.push(project);
+                            }
+                        }
+                    });
+
+                    const groupedData = {};
+                    filteredData.forEach(p => {
+                        const groupKey = (generalGroupMode === 'contractor') ? p.contractor : p.pe;
+                        if (!groupedData[groupKey]) groupedData[groupKey] = [];
+                        groupedData[groupKey].push(p);
+                    });
+
+                    const sortedKeys = Object.keys(groupedData).sort();
+                    let borderColor = activeTab === 'slippage' ? 'border-orange-600' : 'border-gray-500';
+                    
+                    let html = `
+                        <div class="w-full mb-3 flex flex-col gap-2">
+                            <select id="general-group-select" onchange="changeGeneralGroupMode(this.value)" class="w-full border-2 ${borderColor} text-[#0f3b75] font-black text-center py-1 text-sm md:text-base outline-none cursor-pointer shadow-sm bg-white rounded-md">
+                                <option value="pe" ${generalGroupMode === 'pe' ? 'selected' : ''}>by Project Engineer</option>
+                                <option value="contractor" ${generalGroupMode === 'contractor' ? 'selected' : ''}>by Contractor</option>
+                            </select>
+                        </div>
+                    `;
+
+                    if (activeTab === 'weekly') {
+                        const weeklyYears = [...new Set(monitoringData.filter(p => p.hasLogin).map(p => p.year))].filter(Boolean).sort().reverse();
+                        
+                        html += `
+                            <div class="w-full flex flex-col md:flex-row gap-2 mb-2">
+                                <select onchange="changeWeeklyFilter('year', this.value)" class="flex-1 border-2 border-yellow-600 text-[#0f3b75] font-black text-center py-1 text-sm md:text-base outline-none cursor-pointer shadow-sm bg-white rounded-md">
+                                    <option value="All" ${weeklyFilterYear === 'All' ? 'selected' : ''}>All Years</option>
+                                    ${weeklyYears.map(y => `<option value="${y}" ${weeklyFilterYear === String(y) ? 'selected' : ''}>CY ${y}</option>`).join('')}
+                                </select>
+                                <select onchange="changeWeeklyFilter('mark', this.value)" class="flex-1 border-2 border-yellow-600 text-[#0f3b75] font-black text-center py-1 text-sm md:text-base outline-none cursor-pointer shadow-sm bg-white rounded-md">
+                                    <option value="All" ${weeklyFilterMark === 'All' ? 'selected' : ''}>All Status</option>
+                                    <option value="Completed" ${weeklyFilterMark === 'Completed' ? 'selected' : ''}>Completed (C)</option>
+                                    <option value="On-going" ${weeklyFilterMark === 'On-going' ? 'selected' : ''}>On-going (✓)</option>
+                                    <option value="No Accomplishment" ${weeklyFilterMark === 'No Accomplishment' ? 'selected' : ''}>No Accomplishment (N / ✘)</option>
+                                    <option value="Suspended" ${weeklyFilterMark === 'Suspended' ? 'selected' : ''}>Suspended (S)</option>
+                                </select>
+                            </div>
+                        `;
+
+                        html += `<div class="w-full flex overflow-x-auto shadow-sm border-y border-yellow-600 mb-4 bg-[#fff2cc] no-scrollbar">`;
+                        for(let m = 0; m <= CURRENT_MONTH_OFFSET; m++) {
+                            let mMonth = m % 12;
+                            let mName = monthsArr[mMonth].substring(0,3);
+                            let isSel = (m === weeklySelectedMonthOffset);
+                            let btnClass = isSel
+                                ? "bg-gradient-to-b from-[#ffd966] to-[#ffb800] text-[#0f3b75] border-r border-yellow-600 font-black shadow-inner"
+                                : "text-[#0f3b75] border-r border-yellow-600 font-bold opacity-70 hover:bg-[#ffe599] hover:opacity-100 transition-all cursor-pointer";
+                            html += `<div class="min-w-[60px] md:min-w-[80px] flex-1 text-center py-1.5 text-sm md:text-base ${btnClass}" onclick="changeWeeklyMonth(${m})">${mName}</div>`;
+                        }
+                        html += `</div>`;
+                    }
+
+                    if (sortedKeys.length === 0) {
+                        html += `<div class="text-center py-10 font-black text-slate-500 opacity-60"><i class="fa-solid fa-check-circle text-4xl mb-3 block"></i> No projects fit this criteria! All good.</div>`;
+                        container.innerHTML = html;
+                    } else {
+                        sortedKeys.forEach((keyName, index) => {
+                            const theme = PE_THEMES[index % PE_THEMES.length];
+                            const projects = groupedData[keyName];
+                            
+                            html += `
+                            <div class="w-full flex flex-col shadow-md mb-6">
+                                <div class="${theme.header} px-4 py-1.5 font-black text-lg md:text-xl tracking-tight shadow-sm z-10 relative">${keyName}</div>
+                                <table class="w-full text-center border-collapse text-sm font-bold text-black bg-white">
+                                    <thead>
+                                        <tr class="bg-[#fff9f2] italic ${activeTab === 'slippage' ? 'text-xs md:text-sm' : 'text-xs'}">
+                            `;
+
+                            if (activeTab === 'slippage') {
+                                html += `
+                                            <th class="py-1.5 px-2 dotted-border w-[30%] font-extrabold text-black">Contract ID</th>
+                                            <th class="py-1.5 px-2 dotted-border w-[23%] font-extrabold text-black">Actual</th>
+                                            <th class="py-1.5 px-2 dotted-border w-[23%] font-extrabold text-black">Schedule</th>
+                                            <th class="py-1.5 px-2 w-[24%] font-extrabold text-black">Slippage</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                `;
+                                projects.forEach((p, idx) => {
+                                    const rowColor = idx % 2 === 0 ? theme.rowOdd : theme.rowEven;
+                                    const uniqueId = `slip-details-${index}-${idx}`;
+                                    let actualDisplay = p.actual >= 100 ? 'C' : p.actual.toFixed(2) + '%';
+                                    html += `
+                                        <tr class="${rowColor} border-t border-gray-300/50 cursor-pointer hover:brightness-95 transition-all" onclick="toggleDetails('${uniqueId}')">
+                                            <td class="py-1.5 px-2 dotted-border font-extrabold tracking-wider">${p.contractId}</td>
+                                            <td class="py-1.5 px-2 dotted-border font-medium">${actualDisplay}</td>
+                                            <td class="py-1.5 px-2 dotted-border font-medium">${p.schedule.toFixed(2)}%</td>
+                                            <td class="py-1.5 px-2 text-rose-600 font-black tracking-tight">${p.slippage.toFixed(2)}%</td>
+                                        </tr>
+                                        ${generateDetailsRow(uniqueId, 4, p)}
+                                    `;
+                                });
+                            } else {
+                                html += `
+                                            <th class="py-1.5 px-1 dotted-border font-extrabold text-black w-8">#</th>
+                                            <th class="py-1.5 px-2 dotted-border font-extrabold text-black w-[30%]">Contract ID</th>
+                                            <th class="py-1.5 px-2 dotted-border font-extrabold text-black">wk1</th>
+                                            <th class="py-1.5 px-2 dotted-border font-extrabold text-black">wk2</th>
+                                            <th class="py-1.5 px-2 dotted-border font-extrabold text-black">wk3</th>
+                                            <th class="py-1.5 px-2 font-extrabold text-black">wk4</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                `;
+                                let rowCounter = 1;
+                                projects.forEach((p, idx) => {
+                                    const rowColor = idx % 2 === 0 ? theme.rowOdd : theme.rowEven;
+                                    const uniqueId = `weekly-details-${index}-${idx}`;
+                                    const wData = p.weeklyHistory[weeklySelectedMonthOffset] || ['missing','missing','missing','missing'];
+
+                                    html += `
+                                        <tr class="${rowColor} border-t border-gray-300/50 cursor-pointer hover:brightness-95 transition-all" onclick="toggleDetails('${uniqueId}')">
+                                            <td class="py-1 px-1 dotted-border text-center font-black text-gray-800">${rowCounter++}</td>
+                                            <td class="py-1 px-2 dotted-border font-extrabold tracking-wider">${p.contractId}</td>
+                                            <td class="py-1 px-2 dotted-border">${getWeeklyIcon(wData[0])}</td>
+                                            <td class="py-1 px-2 dotted-border">${getWeeklyIcon(wData[1])}</td>
+                                            <td class="py-1 px-2 dotted-border">${getWeeklyIcon(wData[2])}</td>
+                                            <td class="py-1 px-2">${getWeeklyIcon(wData[3])}</td>
+                                        </tr>
+                                        ${generateDetailsRow(uniqueId, 6, p)}
+                                    `;
+                                });
+                            }
+                            html += `</tbody></table></div>`;
+                        });
+                        container.innerHTML = html;
+                    }
+                } else if (activeTab === 'monthly') {
                     const targetMonthOffset = (monthlyNavYear - START_YEAR) * 12 + monthlyNavMonth;
                     
                     const allYears = [...new Set(monthlyDataGlobal.map(item => item.year))].filter(Boolean).sort().reverse();
@@ -2913,6 +2990,215 @@
             }
 
             // -------------------------------------------------------------
+            // ACCEPTANCE VIEW
+            // -------------------------------------------------------------
+            else if (mainView === 'acceptance') {
+                const allYears = [...new Set([...Object.keys(acceptanceCocSummary), ...Object.keys(acceptanceCfaSummary)])].sort().reverse();
+                
+                let html = `
+                    <div class="w-full mb-4 bg-white border-[3px] border-red-600 shadow-sm relative group overflow-hidden">
+                        <select onchange="changeCfaFilter('year', this.value)" class="w-full text-center text-xl md:text-2xl font-black text-[#0f3b75] py-1.5 outline-none cursor-pointer bg-transparent appearance-none relative z-10">
+                            <option value="All" ${cfaFilterYear === 'All' ? 'selected' : ''}>All Years</option>
+                            ${allYears.map(y => `<option value="${y}" ${cfaFilterYear === String(y) ? 'selected' : ''}>${y}</option>`).join('')}
+                        </select>
+                        <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none z-0">
+                            <i class="fa-solid fa-chevron-down text-red-600 text-lg group-hover:translate-y-0.5 transition-transform"></i>
+                        </div>
+                    </div>
+                `;
+
+                let displayYears = cfaFilterYear === 'All' ? allYears : [cfaFilterYear];
+                
+                let cocTabClass = acceptanceSubTab === 'coc' 
+                    ? "py-1.5 border-b-2 border-orange-500 bg-gradient-to-b from-orange-300 to-orange-500 text-black font-black text-base md:text-xl tracking-wider cursor-pointer shadow-inner" 
+                    : "py-1.5 border-b-2 border-r-2 border-gray-400 bg-gradient-to-b from-gray-200 to-gray-300 text-black font-black text-base md:text-xl tracking-wider cursor-pointer hover:brightness-95";
+                    
+                let cfaTabClass = acceptanceSubTab === 'cfa' 
+                    ? "py-1.5 border-b-2 border-orange-500 bg-gradient-to-b from-orange-300 to-orange-500 text-black font-black text-base md:text-xl tracking-wider cursor-pointer shadow-inner" 
+                    : "py-1.5 border-b-2 border-l-2 border-gray-400 bg-gradient-to-b from-gray-200 to-gray-300 text-black font-black text-base md:text-xl tracking-wider cursor-pointer hover:brightness-95";
+
+                html += `
+                    <table class="w-full text-center border-collapse text-sm md:text-base font-bold text-[#0f3b75] bg-white shadow-md mb-6">
+                        <thead>
+                            <tr>
+                                <th colspan="3" class="${cocTabClass}" onclick="switchAcceptanceSubTab('coc')">COC</th>
+                                <th colspan="2" class="${cfaTabClass}" onclick="switchAcceptanceSubTab('cfa')">CFA</th>
+                            </tr>
+                `;
+
+                if (acceptanceSubTab === 'coc') {
+                    html += `
+                            <tr class="italic text-[11px] md:text-sm border-b border-red-500 bg-[#f8f9fa]">
+                                <th class="py-2 px-1 md:px-2 border-r border-dotted border-red-500 font-extrabold w-[16%]">Year</th>
+                                <th class="py-2 px-1 md:px-2 border-r border-dotted border-red-500 font-extrabold w-[21%]">Total</th>
+                                <th class="py-2 px-1 md:px-2 border-r border-dotted border-red-500 font-extrabold w-[21%]">Completed</th>
+                                <th class="py-2 px-1 md:px-2 border-r border-dotted border-red-500 font-extrabold w-[21%]">with COC</th>
+                                <th class="py-2 px-1 md:px-2 font-extrabold w-[21%]">w/o COC</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                    `;
+                } else {
+                    html += `
+                            <tr class="italic text-[11px] md:text-sm border-b border-red-500 bg-[#f8f9fa]">
+                                <th class="py-2 px-1 md:px-2 border-r border-dotted border-red-500 font-extrabold w-[16%]">Year</th>
+                                <th class="py-2 px-1 md:px-2 border-r border-dotted border-red-500 font-extrabold w-[21%]">Total</th>
+                                <th class="py-2 px-1 md:px-2 border-r border-dotted border-red-500 font-extrabold w-[21%]">COC</th>
+                                <th class="py-2 px-1 md:px-2 border-r border-dotted border-red-500 font-extrabold w-[21%]">with CFA</th>
+                                <th class="py-2 px-1 md:px-2 font-extrabold w-[21%]">w/o CFA</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                    `;
+                }
+                
+                let grandTotal = 0;
+                let grandCompletedOrCoc = 0;
+                let grandWith = 0;
+                let grandWo = 0;
+
+                displayYears.forEach(y => {
+                    if (acceptanceSubTab === 'coc') {
+                        const sum = acceptanceCocSummary[y] || { total: 0, completed: 0, withCoc: 0, woCoc: 0 };
+                        grandTotal += sum.total;
+                        grandCompletedOrCoc += sum.completed;
+                        grandWith += sum.withCoc;
+                        grandWo += sum.woCoc;
+
+                        html += `
+                            <tr class="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                                <td class="py-1.5 px-1 md:px-2 border-r border-dotted border-red-500 font-black text-lg md:text-xl text-[#0f3b75]">${y}</td>
+                                <td class="py-1.5 px-1 md:px-2 border-r border-dotted border-red-500 text-base md:text-lg">${sum.total > 0 ? sum.total : '-'}</td>
+                                <td class="py-1.5 px-1 md:px-2 border-r border-dotted border-red-500 text-base md:text-lg">${sum.completed > 0 ? sum.completed : '-'}</td>
+                                <td class="py-1.5 px-1 md:px-2 border-r border-dotted border-red-500 text-base md:text-lg">${sum.withCoc > 0 ? sum.withCoc : '-'}</td>
+                                <td class="py-1.5 px-1 md:px-2 text-base md:text-lg">${sum.woCoc > 0 ? sum.woCoc : '-'}</td>
+                            </tr>
+                        `;
+                    } else {
+                        const sum = acceptanceCfaSummary[y] || { total: 0, coc: 0, withCfa: 0, woCfa: 0 };
+                        grandTotal += sum.total;
+                        grandCompletedOrCoc += sum.coc;
+                        grandWith += sum.withCfa;
+                        grandWo += sum.woCfa;
+
+                        html += `
+                            <tr class="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                                <td class="py-1.5 px-1 md:px-2 border-r border-dotted border-red-500 font-black text-lg md:text-xl text-[#0f3b75]">${y}</td>
+                                <td class="py-1.5 px-1 md:px-2 border-r border-dotted border-red-500 text-base md:text-lg">${sum.total > 0 ? sum.total : '-'}</td>
+                                <td class="py-1.5 px-1 md:px-2 border-r border-dotted border-red-500 text-base md:text-lg">${sum.coc > 0 ? sum.coc : '-'}</td>
+                                <td class="py-1.5 px-1 md:px-2 border-r border-dotted border-red-500 text-base md:text-lg">${sum.withCfa > 0 ? sum.withCfa : '-'}</td>
+                                <td class="py-1.5 px-1 md:px-2 text-base md:text-lg">${sum.woCfa > 0 ? sum.woCfa : '-'}</td>
+                            </tr>
+                        `;
+                    }
+                });
+
+                if (cfaFilterYear === 'All') {
+                    html += `
+                        <tr class="bg-gradient-to-b from-[#ffcccc] to-[#ffb3b3] border-t-2 border-red-600 shadow-inner">
+                            <td class="py-1.5 px-1 md:px-2 border-r border-dotted border-red-500 font-black text-base md:text-xl text-red-800 uppercase tracking-wider">Total</td>
+                            <td class="py-1.5 px-1 md:px-2 border-r border-dotted border-red-500 font-black text-base md:text-xl text-red-900">${grandTotal > 0 ? grandTotal : '-'}</td>
+                            <td class="py-1.5 px-1 md:px-2 border-r border-dotted border-red-500 font-black text-base md:text-xl text-red-900">${grandCompletedOrCoc > 0 ? grandCompletedOrCoc : '-'}</td>
+                            <td class="py-1.5 px-1 md:px-2 border-r border-dotted border-red-500 font-black text-base md:text-xl text-red-900">${grandWith > 0 ? grandWith : '-'}</td>
+                            <td class="py-1.5 px-1 md:px-2 font-black text-base md:text-xl text-red-900">${grandWo > 0 ? grandWo : '-'}</td>
+                        </tr>
+                    `;
+                }
+                
+                html += `</tbody></table>`;
+
+                const dataToRender = acceptanceSubTab === 'coc' ? acceptanceCocData : acceptanceCfaData;
+                const filteredData = dataToRender.filter(item => cfaFilterYear === 'All' || item.year === cfaFilterYear);
+
+                if (filteredData.length === 0) {
+                    html += `<div class="text-center py-10 font-black text-slate-500 opacity-60"><i class="fa-solid fa-check-circle text-4xl mb-3 block"></i> No projects to show in this view!</div>`;
+                } else {
+                    const grouped = {};
+                    filteredData.forEach(item => {
+                        if (!grouped[item.pe]) grouped[item.pe] = [];
+                        grouped[item.pe].push(item);
+                    });
+
+                    const sortedPEs = Object.keys(grouped).sort();
+                    
+                    sortedPEs.forEach((pe, index) => {
+                        const theme = PE_THEMES[index % PE_THEMES.length];
+                        const projects = grouped[pe];
+
+                        html += `
+                            <div class="w-full flex flex-col shadow-md mb-6">
+                                <div class="${theme.header} px-4 py-1.5 font-black text-lg md:text-xl tracking-tight shadow-sm z-10 relative flex justify-between items-center">
+                                    <span>${pe}</span>
+                                    <span class="text-red-600 drop-shadow-[0_1px_1px_rgba(255,255,255,0.7)] text-xl md:text-2xl">${projects.length}</span>
+                                </div>
+                                <table class="w-full text-center border-collapse text-sm font-bold text-black bg-white">
+                                    <thead>
+                                        <tr class="bg-[#fff9f2] italic text-xs md:text-sm">
+                        `;
+
+                        if (acceptanceSubTab === 'coc') {
+                            html += `
+                                            <th class="py-1.5 px-2 dotted-border font-extrabold text-black w-[25%]">Contract ID</th>
+                                            <th class="py-1.5 px-2 dotted-border font-extrabold text-black w-[22%]">Status</th>
+                                            <th class="py-1.5 px-2 dotted-border font-extrabold text-black w-[22%]">Completed</th>
+                                            <th class="py-1.5 px-2 dotted-border font-extrabold text-black w-[15%]">COC</th>
+                                            <th class="py-1.5 px-2 font-extrabold text-black w-[16%]">Lapsed</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                            `;
+                        } else {
+                            html += `
+                                            <th class="py-1.5 px-2 dotted-border font-extrabold text-black w-[25%]">Contract ID</th>
+                                            <th class="py-1.5 px-2 dotted-border font-extrabold text-black w-[22%]">COC</th>
+                                            <th class="py-1.5 px-2 dotted-border font-extrabold text-black w-[22%]">PUNCHLIST</th>
+                                            <th class="py-1.5 px-2 dotted-border font-extrabold text-black w-[15%]">CFA</th>
+                                            <th class="py-1.5 px-2 font-extrabold text-black w-[16%]">Days</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                            `;
+                        }
+
+                        projects.forEach((p, idx) => {
+                            const rowColor = idx % 2 === 0 ? theme.rowOdd : theme.rowEven;
+                            const uniqueId = `acc-details-${index}-${idx}`;
+                            
+                            html += `<tr class="${rowColor} border-t border-gray-300/50 cursor-pointer hover:brightness-95 transition-all" onclick="toggleDetails('${uniqueId}')">`;
+                            
+                            if (acceptanceSubTab === 'coc') {
+                                let lapsedColor = p.lapsed === '-' ? 'text-gray-500' : 'text-red-600';
+                                html += `
+                                    <td class="py-1.5 px-2 dotted-border font-extrabold text-sm md:text-base tracking-wider">${p.contractId}</td>
+                                    <td class="py-1.5 px-2 dotted-border font-extrabold text-xs md:text-sm text-black">${p.status}</td>
+                                    <td class="py-1.5 px-2 dotted-border font-extrabold text-xs md:text-sm text-black">${p.completedDate}</td>
+                                    <td class="py-1.5 px-2 dotted-border font-extrabold text-sm md:text-base text-black">${p.coc}</td>
+                                    <td class="py-1.5 px-2 font-black text-sm md:text-base ${lapsedColor}">${p.lapsed}</td>
+                                `;
+                            } else {
+                                let daysColor = p.days === '-' ? 'text-gray-500' : (p.days < 0 ? 'text-red-600' : 'text-emerald-500');
+                                let daysDisplay = p.days === '-' ? '-' : (p.days < 0 ? `- ${Math.abs(p.days)}` : `${p.days}`);
+                                let punchlistColor = p.punchlist === 'Yes' ? 'text-red-600' : 'text-black';
+                                
+                                html += `
+                                    <td class="py-1.5 px-2 dotted-border font-extrabold text-sm md:text-base tracking-wider">${p.contractId}</td>
+                                    <td class="py-1.5 px-2 dotted-border font-extrabold text-xs md:text-sm">${p.coc}</td>
+                                    <td class="py-1.5 px-2 dotted-border font-extrabold text-xs md:text-sm ${punchlistColor}">${p.punchlist}</td>
+                                    <td class="py-1.5 px-2 dotted-border font-extrabold text-sm md:text-base">${p.cfa}</td>
+                                    <td class="py-1.5 px-2 font-black text-sm md:text-base ${daysColor}">${daysDisplay}</td>
+                                `;
+                            }
+
+                            html += `</tr>${generateDetailsRow(uniqueId, 5, p)}`;
+                        });
+                        
+                        html += `</tbody></table></div>`;
+                    });
+                }
+                container.innerHTML = html;
+            }
+
+            // -------------------------------------------------------------
             // DOCUMENTS VIEW
             // -------------------------------------------------------------
             else if (mainView === 'documents') {
@@ -3133,7 +3419,8 @@
                 let finalAmount = 0;
                 if (revCostStr !== '') finalAmount = parseFloat(revCostStr.replace(/[^0-9.]/g, '')) || 0;
                 else if (costStr !== '') finalAmount = parseFloat(costStr.replace(/[^0-9.]/g, '')) || 0;
-                map[contractId] = { amount: finalAmount };
+                map[contractId]
+= { amount: finalAmount };
             }
             return map;
         }
