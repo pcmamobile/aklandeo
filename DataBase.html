@@ -268,37 +268,69 @@
 </head>
 <body class="flex flex-col min-h-screen">
 
-    <!-- LOGIN PORTAL -->
-    <div id="loginPortal" class="fixed inset-0 z-[200] flex items-center justify-center bg-slate-900/70 backdrop-blur-md transition-opacity duration-500">
-        <div class="bg-white p-10 rounded-[2rem] w-full max-w-sm shadow-2xl border-t-8 border-[#5b9bd5]">
-            <div class="text-center mb-8">
-                <div class="w-20 h-20 bg-gradient-to-br from-[#5b9bd5] to-[#1f4e79] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg transform rotate-3">
-                    <i class="fa-solid fa-layer-group text-4xl text-white -rotate-3"></i>
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toastContainer" class="fixed top-6 right-6 z-[999] flex flex-col items-end gap-3 pointer-events-none"></div>
+	
+    <!-- GLOBAL HISTORY MODAL -->
+    <div id="historyModal" class="fixed inset-0 z-[300] hidden flex items-center justify-center bg-slate-900/70 backdrop-blur-sm transition-opacity duration-300">
+        <div class="bg-white rounded-2xl w-full max-w-6xl shadow-2xl border-t-8 border-[#ffc000] flex flex-col h-[85vh] overflow-hidden m-4 relative">
+            <div class="px-6 py-4 bg-gradient-to-r from-[#fdfbf6] to-[#fff3cd] border-b border-[#ffe699] flex justify-between items-center shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-gradient-to-br from-[#ffeb9c] to-[#ffc000] rounded-lg flex items-center justify-center shadow">
+                        <i class="fa-solid fa-clock-rotate-left text-2xl text-[#c55a11]"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-black text-[#833c0c] uppercase tracking-wide leading-none">System History Logs</h2>
+                        <p class="text-xs font-bold text-[#c55a11] mt-1">All record updates are tracked here</p>
+                    </div>
                 </div>
-                <h1 class="text-3xl font-black tracking-tight text-slate-800 uppercase">System Login</h1>
-            </div>
-            <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-5">
-                <div>
-                    <label class="text-xs font-black uppercase text-slate-500">Username</label>
-                    <input type="text" id="loginUsername" required class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl p-3 mt-1 font-bold text-lg focus:outline-none focus:border-[#5b9bd5]">
-                </div>
-                <div>
-                    <label class="text-xs font-black uppercase text-slate-500">Password</label>
-                    <input type="password" id="loginPassword" required class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl p-3 mt-1 font-bold text-lg tracking-widest focus:outline-none focus:border-[#5b9bd5]">
-                </div>
-                <div id="loginError" class="hidden text-red-600 text-xs font-bold bg-red-50 p-3 rounded-lg border border-red-200 text-center">Invalid Credentials.</div>
-                <button type="submit" id="btnLogin" class="w-full py-4 bg-gradient-to-r from-[#5b9bd5] to-[#2f5597] text-white font-black text-lg uppercase rounded-xl shadow-lg hover:shadow-xl transition-all mt-4 transform hover:-translate-y-0.5 active:translate-y-0">
-                    Authenticate
+                <button onclick="closeHistoryModal()" class="text-rose-500 hover:text-white bg-white hover:bg-rose-600 rounded-lg p-2 transition-colors border border-rose-200 shadow-sm">
+                    <i class="fa-solid fa-xmark text-xl w-6 h-6 flex items-center justify-center"></i>
                 </button>
-            </form>
+            </div>
+            
+            <div class="p-6 bg-slate-50 flex-1 overflow-hidden flex flex-col">
+                <!-- CONTROLS ROW -->
+                <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-4 shrink-0 w-full">
+                    <div class="flex items-center gap-2 w-full md:w-auto">
+                        <div class="relative w-full md:w-64">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-[#5b9bd5] text-sm"></i>
+                            <input type="text" id="historySearchFilter" oninput="handleHistorySearch()" placeholder="Search logs..." class="w-full pl-9 pr-3 py-2 rounded-lg border border-slate-300 shadow-sm focus:outline-none focus:border-[#5b9bd5] text-sm font-bold text-[#1f4e79]">
+                        </div>
+                        <select id="historyTabFilter" onchange="handleHistoryTabFilter()" class="border border-slate-300 rounded-lg px-3 py-2 text-sm font-bold text-[#1f4e79] bg-white shadow-sm focus:outline-none focus:border-[#5b9bd5]">
+                            <option value="ALL">ALL TABS</option>
+                            <option value="PDO">PDO</option>
+                            <option value="DATE">DATE</option>
+                            <option value="VO">VO</option>
+                            <option value="WSO_WRO_CTE">WSO/WRO/CTE</option>
+                            <option value="BILLING">BILLING</option>
+                            <option value="PCMA">PCMA</option>
+                        </select>
+                    </div>
+                    
+                    <div class="flex items-center gap-3">
+                        <span id="historyCountBadge" class="text-sm font-black text-[#1f4e79] bg-white px-3 py-1.5 rounded-lg shadow-sm border border-[#a5c7f0]">0 Logs Found</span>
+                        <button onclick="openHistoryModal()" class="btn-vo px-4 py-1.5 text-xs shadow-sm"><i class="fa-solid fa-rotate-right mr-1"></i> Sync</button>
+                    </div>
+                </div>
+
+                <!-- TABLE CONTAINER -->
+                <div id="globalHistoryContainer" class="flex-1 bg-white border border-[#a5c7f0] rounded-xl shadow-inner overflow-hidden flex flex-col relative">
+                    <!-- Table injected here via JS -->
+                </div>
+
+                <!-- PAGINATION CONTROLS -->
+                <div class="mt-4 flex justify-end items-center gap-3 shrink-0">
+                    <button onclick="prevHistoryPage()" id="btnPrevHistory" class="px-4 py-1.5 bg-white border-2 border-[#5b9bd5] rounded-lg font-black text-[#5b9bd5] hover:bg-[#5b9bd5] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-xs">&lt; PREV</button>
+                    <span id="historyPaginationInfo" class="text-xs font-black text-[#1f4e79] bg-white px-4 py-1.5 rounded-lg border border-[#a5c7f0] shadow-sm">Page 1</span>
+                    <button onclick="nextHistoryPage()" id="btnNextHistory" class="px-4 py-1.5 bg-white border-2 border-[#5b9bd5] rounded-lg font-black text-[#5b9bd5] hover:bg-[#5b9bd5] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-xs">NEXT &gt;</button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- TOAST NOTIFICATION CONTAINER -->
-    <div id="toastContainer" class="fixed top-6 right-6 z-[999] flex flex-col items-end gap-3 pointer-events-none"></div>
-
     <!-- MAIN DASHBOARD WRAPPER -->
-    <div id="appWrapper" class="hidden flex-col flex-1 w-full h-full relative">
+    <div id="appWrapper" class="flex flex-col flex-1 w-full h-full relative">
         
         <!-- VIBRANT HEADER -->
         <header class="vibrant-header sticky top-0 z-[100]">
@@ -329,15 +361,15 @@
                     </div>
                 </div>
 
-                <!-- User Profile & Logout -->
+                <!-- User Profile & Global History -->
                 <div class="flex items-center gap-5 shrink-0">
+                    <button onclick="openHistoryModal()" class="bg-gradient-to-b from-[#ffeb9c] to-[#ffc000] hover:brightness-105 text-[#833c0c] font-black text-sm px-5 py-2.5 rounded-xl shadow-md transition-all uppercase tracking-wider flex items-center gap-2 transform hover:-translate-y-0.5 active:translate-y-0 border-2 border-[#ed7d31]">
+                        <i class="fa-solid fa-clock-rotate-left"></i> Global History
+                    </button>
                     <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm">
                         <i class="fa-solid fa-circle-user text-2xl text-[#5b9bd5]"></i>
-                        <span id="headerUsernameDisplay" class="font-black text-sm text-[#1f4e79] uppercase"></span>
+                        <span id="headerUsernameDisplay" class="font-black text-sm text-[#1f4e79] uppercase">Admin</span>
                     </div>
-                    <button onclick="handleLogout()" class="bg-gradient-to-b from-rose-500 to-rose-700 hover:from-rose-600 hover:to-rose-800 text-white font-black text-sm px-5 py-2.5 rounded-xl shadow-md transition-all uppercase tracking-wider flex items-center gap-2 transform hover:-translate-y-0.5 active:translate-y-0">
-                        <i class="fa-solid fa-power-off"></i> Logout
-                    </button>
                 </div>
             </div>
         </header>
@@ -399,7 +431,8 @@
             { key: "VO", sheetName: "VO" },
             { key: "WSO_WRO_CTE", sheetName: "WSO/WRO/CTE" },
             { key: "PCMA", sheetName: "PCMA" },
-            { key: "BILLING", sheetName: "BILLING" }
+            { key: "BILLING", sheetName: "BILLING" },
+            { key: "HISTORY", sheetName: "History" }
         ];
 
         class GoogleSheetsAPI {
@@ -483,19 +516,16 @@
         
         let pendingSaves = [];
         let autoSaveTimer = null;
+        
+        // GLOBAL HISTORY STATE
+        let currentHistoryPage = 1;
+        const historyItemsPerPage = 20;
+        let historySearchText = '';
+        let historyTabSelection = 'ALL';
 
-        // INITIALIZATION
+        // INITIALIZATION - NO LOGIN REQUIRED
         window.onload = () => {
-            const savedUser = localStorage.getItem('dashboardUser');
-            if (savedUser) { applyLoginState(JSON.parse(savedUser)); }
-        };
-
-        function applyLoginState(user) {
-            loggedInUser = user;
-            document.getElementById('headerUsernameDisplay').textContent = user.name || user.username;
-            document.getElementById('loginPortal').classList.add('hidden');
-            document.getElementById('appWrapper').classList.remove('hidden');
-            document.getElementById('appWrapper').classList.add('flex');
+            loggedInUser = { username: 'Admin', name: 'Admin' };
             initApp();
             
             // Close custom dropdowns if clicked outside
@@ -504,24 +534,7 @@
                     document.querySelectorAll('.custom-combo-list').forEach(l => l.classList.add('hidden'));
                 }
             });
-        }
-
-        function handleLogin(e) {
-            e.preventDefault();
-            const u = document.getElementById('loginUsername').value;
-            const btn = document.getElementById('btnLogin');
-            btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Authenticating...`;
-            setTimeout(() => {
-                const userData = { username: u, name: u };
-                localStorage.setItem('dashboardUser', JSON.stringify(userData));
-                applyLoginState(userData);
-            }, 800);
-        }
-
-        function handleLogout() {
-            localStorage.removeItem('dashboardUser');
-            location.reload();
-        }
+        };
 
         function initApp() {
             renderYearCheckboxes();
@@ -1018,7 +1031,8 @@
             const tabs = [
                 {id: 'PDO', label: 'PDO Details'}, {id: 'DATE', label: 'Project Dates'},
                 {id: 'VO', label: 'Variation Order'}, {id: 'WSO', label: 'Suspension/CTE'},
-                {id: 'PCMA', label: 'PCMA Tracking'}, {id: 'BILLING', label: 'Billing Status'}
+                {id: 'PCMA', label: 'PCMA Tracking'}, {id: 'BILLING', label: 'Billing Status'},
+                {id: 'HISTORY', label: 'History Logs'}
             ];
 
             let html = `
@@ -1082,7 +1096,7 @@
                                     <button onclick="addFollowUpRow('${cid}')" class="bg-[#5b9bd5] text-white text-[10px] font-black px-2 py-1 rounded shadow">ADD DATE</button>
                                 </div>
                                 <div id="followUpList_${cid}" class="flex flex-col gap-2">
-                                    ${window[`fu_${cid}`].map((d, index) => `<div class="flex gap-2 items-center"><div class="relative date-input-wrapper w-[240px]"><input type="text" class="date-input excel-input w-full" placeholder="Select Date" value="${formatDt(d)}" onchange="saveDynamicArray('DATE', 'Follow Up Letter', '${cid}', 'followUpList_${cid}', ' | ')">${ICON_DATE}<i id="icon_dyn_fu_${cid}_${index}" class="fa-solid fa-check save-indicator hidden" style="right: -24px;"></i></div><button onclick="this.parentElement.remove(); saveDynamicArray('DATE', 'Follow Up Letter', '${cid}', 'followUpList_${cid}', ' | ')" class="text-rose-500 hover:text-rose-700 bg-white px-3 py-2 rounded-lg shadow border border-rose-200"><i class="fa-solid fa-trash"></i></button></div>`).join('')}
+                                    ${window[`fu_${cid}`].map((d, index) => `<div class="flex gap-2 items-center"><div class="relative date-input-wrapper w-[240px]"><input type="text" class="date-input excel-input w-full" placeholder="Select Date" value="${formatDt(d)}" onchange="saveDynamicArray('DATE', 'Follow Up Letter', '${cid}', 'followUpList_${cid}', ' / ')">${ICON_DATE}<i id="icon_dyn_fu_${cid}_${index}" class="fa-solid fa-check save-indicator hidden" style="right: -24px;"></i></div><button onclick="this.parentElement.remove(); saveDynamicArray('DATE', 'Follow Up Letter', '${cid}', 'followUpList_${cid}', ' / ')" class="text-rose-500 hover:text-rose-700 bg-white px-3 py-2 rounded-lg shadow border border-rose-200"><i class="fa-solid fa-trash"></i></button></div>`).join('')}
                                 </div>
                             </div>
 
@@ -1096,7 +1110,7 @@
                                     <button onclick="addRemarkRow('${cid}')" class="bg-[#ed7d31] text-white text-[10px] font-black px-2 py-1 rounded shadow">ADD REMARK</button>
                                 </div>
                                 <div id="remarksList_${cid}" class="flex flex-col gap-2">
-                                    ${window[`rem_${cid}`].map((r, index) => `<div class="flex gap-2 items-start"><div class="relative w-full"><textarea class="excel-input resize-y w-full dynamic-val" rows="2" oninput="autoExpand(this); saveDynamicArray('DATE', 'Remarks Yes/No (with or w/o Defects)', '${cid}', 'remarksList_${cid}', ' | ', true)">${r}</textarea><i id="icon_dyn_rem_${cid}_${index}" class="fa-solid fa-check save-indicator hidden" style="right: -24px; top: 12px;"></i></div><button onclick="this.parentElement.remove(); saveDynamicArray('DATE', 'Remarks Yes/No (with or w/o Defects)', '${cid}', 'remarksList_${cid}', ' | ', true)" class="text-rose-500 hover:text-rose-700 mt-2 bg-white px-3 py-2 rounded-lg shadow border border-rose-200"><i class="fa-solid fa-trash"></i></button></div>`).join('')}
+                                    ${window[`rem_${cid}`].map((r, index) => `<div class="flex gap-2 items-start"><div class="relative w-full"><textarea class="excel-input resize-y w-full dynamic-val" rows="2" oninput="autoExpand(this); saveDynamicArray('DATE', 'Remarks Yes/No (with or w/o Defects)', '${cid}', 'remarksList_${cid}', ' / ', true)">${r}</textarea><i id="icon_dyn_rem_${cid}_${index}" class="fa-solid fa-check save-indicator hidden" style="right: -24px; top: 12px;"></i></div><button onclick="this.parentElement.remove(); saveDynamicArray('DATE', 'Remarks Yes/No (with or w/o Defects)', '${cid}', 'remarksList_${cid}', ' / ', true)" class="text-rose-500 hover:text-rose-700 mt-2 bg-white px-3 py-2 rounded-lg shadow border border-rose-200"><i class="fa-solid fa-trash"></i></button></div>`).join('')}
                                 </div>
                             </div>
 
@@ -1217,6 +1231,16 @@
                         <div id="billing-container-${cid}" class="space-y-6 w-full max-w-5xl"></div>
                     </div>
 
+                    <!-- HISTORY TAB -->
+                    <div id="content-${cid}-HISTORY" class="hidden flex flex-col gap-6 items-center">
+                        <div class="w-full flex justify-between items-end border-b-4 border-[#5b9bd5] pb-3">
+                            <h3 class="text-[#1f4e79] font-black text-2xl uppercase tracking-wide">Update History</h3>
+                            <button onclick="renderHistoryTab('${cid}')" class="btn-vo px-6 py-2 text-sm shadow-md"><i class="fa-solid fa-rotate-right"></i> Refresh Logs</button>
+                        </div>
+                        <div id="history-container-${cid}" class="w-full max-w-6xl bg-white rounded-xl shadow-md border border-[#a5c7f0] overflow-hidden">
+                        </div>
+                    </div>
+
                 </div>
             `;
             container.innerHTML = html;
@@ -1237,6 +1261,7 @@
             activeTab.classList.remove('hidden');
 
             if(tabId === 'BILLING') { renderBillingTab(cid); }
+            if(tabId === 'HISTORY') { renderHistoryTab(cid); }
 
             // Using setTimeout ensures the DOM is rendered before calculating height to auto-expand perfectly
             setTimeout(() => {
@@ -1244,6 +1269,56 @@
                     if(ta.value) autoExpand(ta); 
                 });
             }, 50);
+        }
+
+        function renderHistoryTab(cid) {
+            const container = document.getElementById(`history-container-${cid}`);
+            if (!serverData.HISTORY) {
+                container.innerHTML = `<div class="p-6 text-center text-rose-500 font-bold italic">History tab not found on Server. Please create 'History' sheet.</div>`;
+                return;
+            }
+            
+            const hData = serverData.HISTORY.rows;
+            const myHistory = hData.filter(r => String(r.values[0] || '').trim().toUpperCase() === String(cid).toUpperCase());
+            
+            // Show latest changes on top
+            myHistory.reverse();
+
+            if (myHistory.length === 0) {
+                container.innerHTML = `<div class="p-8 text-center text-slate-500 font-black italic border-2 border-slate-200 bg-slate-50 rounded-xl text-lg uppercase tracking-wider">No history recorded yet.</div>`;
+                return;
+            }
+
+            let html = `
+                <div class="overflow-y-auto max-h-[400px] custom-scrollbar w-full">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="sticky top-0 z-20">
+                            <tr class="bg-gradient-to-b from-[#f2f2f2] to-[#d9d9d9] text-black shadow-sm text-xs uppercase font-black tracking-wider">
+                                <th class="p-3 border-r border-gray-300 w-[15%]">Timestamp</th>
+                                <th class="p-3 border-r border-gray-300 w-[15%]">User</th>
+                                <th class="p-3 border-r border-gray-300 w-[15%]">Tab</th>
+                                <th class="p-3 border-r border-gray-300 w-[25%]">Field Updated</th>
+                                <th class="p-3 w-[30%]">New Value</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm font-bold text-gray-800">
+            `;
+
+            myHistory.forEach((r, i) => {
+                const isEven = i % 2 === 0;
+                const bg = isEven ? 'bg-white' : 'bg-gray-50';
+                html += `
+                    <tr class="${bg} border-b border-gray-200 hover:bg-[#ffeb9c] transition-colors">
+                        <td class="p-3 border-r border-gray-200 text-[#5b9bd5] whitespace-nowrap">${r.values[1] || ''}</td>
+                        <td class="p-3 border-r border-gray-200 uppercase">${r.values[2] || ''}</td>
+                        <td class="p-3 border-r border-gray-200 uppercase">${r.values[3] || ''}</td>
+                        <td class="p-3 border-r border-gray-200 text-[#c55a11]">${r.values[4] || ''}</td>
+                        <td class="p-3 max-w-[200px]" style="word-break: break-word;">${r.values[5] || ''}</td>
+                    </tr>
+                `;
+            });
+            html += `</tbody></table></div>`;
+            container.innerHTML = html;
         }
 
         // ==========================================
@@ -1281,14 +1356,14 @@
                 window[`remYes_${cid}`] = false;
                 document.getElementById(`remarksList_${cid}`).innerHTML = '';
             }
-            saveDynamicArray('DATE', 'Remarks Yes/No (with or w/o Defects)', cid, `remarksList_${cid}`, ' | ', true);
+            saveDynamicArray('DATE', 'Remarks Yes/No (with or w/o Defects)', cid, `remarksList_${cid}`, ' / ', true);
         }
 
         function addFollowUpRow(cid) {
             const div = document.createElement('div');
             div.className = "flex gap-2 items-center";
             const rowId = Date.now();
-            div.innerHTML = `<div class="relative date-input-wrapper w-[240px]"><input type="text" class="date-input excel-input w-full" placeholder="Select Date" onchange="saveDynamicArray('DATE', 'Follow Up Letter', '${cid}', 'followUpList_${cid}', ' | ')">${ICON_DATE}<i id="icon_dyn_fu_${rowId}" class="fa-solid fa-check save-indicator hidden" style="right: -24px;"></i></div><button onclick="this.parentElement.remove(); saveDynamicArray('DATE', 'Follow Up Letter', '${cid}', 'followUpList_${cid}', ' | ')" class="text-rose-500 hover:text-rose-700 bg-white px-3 py-2 rounded-lg shadow border border-rose-200"><i class="fa-solid fa-trash"></i></button>`;
+            div.innerHTML = `<div class="relative date-input-wrapper w-[240px]"><input type="text" class="date-input excel-input w-full" placeholder="Select Date" onchange="saveDynamicArray('DATE', 'Follow Up Letter', '${cid}', 'followUpList_${cid}', ' / ')">${ICON_DATE}<i id="icon_dyn_fu_${rowId}" class="fa-solid fa-check save-indicator hidden" style="right: -24px;"></i></div><button onclick="this.parentElement.remove(); saveDynamicArray('DATE', 'Follow Up Letter', '${cid}', 'followUpList_${cid}', ' / ')" class="text-rose-500 hover:text-rose-700 bg-white px-3 py-2 rounded-lg shadow border border-rose-200"><i class="fa-solid fa-trash"></i></button>`;
             document.getElementById(`followUpList_${cid}`).appendChild(div);
             flatpickr(div.querySelector('.date-input'), { dateFormat: "F d, Y", allowInput: true, onChange: function(d,s,i){ i.element.dispatchEvent(new Event('change', { bubbles: true })); }});
         }
@@ -1297,7 +1372,7 @@
             const div = document.createElement('div');
             div.className = "flex gap-2 items-start";
             const rowId = Date.now();
-            div.innerHTML = `<div class="relative w-full"><textarea class="excel-input resize-y w-full dynamic-val" rows="2" placeholder="Type remark here..." oninput="autoExpand(this); saveDynamicArray('DATE', 'Remarks Yes/No (with or w/o Defects)', '${cid}', 'remarksList_${cid}', ' | ', true)"></textarea><i id="icon_dyn_rem_${rowId}" class="fa-solid fa-check save-indicator hidden" style="right: -24px; top: 12px;"></i></div><button onclick="this.parentElement.remove(); saveDynamicArray('DATE', 'Remarks Yes/No (with or w/o Defects)', '${cid}', 'remarksList_${cid}', ' | ', true)" class="text-rose-500 hover:text-rose-700 bg-white px-3 py-2 rounded-lg shadow border border-rose-200 mt-1"><i class="fa-solid fa-trash"></i></button>`;
+            div.innerHTML = `<div class="relative w-full"><textarea class="excel-input resize-y w-full dynamic-val" rows="2" placeholder="Type remark here..." oninput="autoExpand(this); saveDynamicArray('DATE', 'Remarks Yes/No (with or w/o Defects)', '${cid}', 'remarksList_${cid}', ' / ', true)"></textarea><i id="icon_dyn_rem_${rowId}" class="fa-solid fa-check save-indicator hidden" style="right: -24px; top: 12px;"></i></div><button onclick="this.parentElement.remove(); saveDynamicArray('DATE', 'Remarks Yes/No (with or w/o Defects)', '${cid}', 'remarksList_${cid}', ' / ', true)" class="text-rose-500 hover:text-rose-700 bg-white px-3 py-2 rounded-lg shadow border border-rose-200 mt-1"><i class="fa-solid fa-trash"></i></button>`;
             document.getElementById(`remarksList_${cid}`).appendChild(div);
         }
 
@@ -1429,7 +1504,7 @@
                             </div>
                             
                             <div class="flex flex-col w-full">
-                                <label class="text-[11px] font-black uppercase text-black mb-1.5 ml-1">Remarks</label>
+                                <label class="text-[11px] font-black uppercase text-black mb-1.5 ml-1">Status</label>
                                 <div class="relative w-full">
                                     <textarea rows="1" oninput="autoExpand(this); autoSaveBilling('${cid}', '${monthHdr}')" onchange="autoSaveBilling('${cid}', '${monthHdr}')" id="bill_rem_${cid}_${i}" class="w-full excel-input resize-y font-bold text-sm">${remText}</textarea>
                                     <i id="icon_bill_rem_${cid}_${i}" class="fa-solid fa-check save-indicator hidden" style="right: 8px; top: 50%;"></i>
@@ -1453,6 +1528,127 @@
         function increaseBillingLimit(cid) {
             visibleBillingMonths[cid] += 3;
             renderBillingTab(cid);
+        }
+
+        // ==========================================
+        // GLOBAL HISTORY MODAL LOGIC (UPDATED WITH PAGINATION & FILTERS)
+        // ==========================================
+        function openHistoryModal() {
+            const modal = document.getElementById('historyModal');
+            modal.classList.remove('hidden');
+            
+            currentHistoryPage = 1;
+            document.getElementById('historySearchFilter').value = '';
+            historySearchText = '';
+            document.getElementById('historyTabFilter').value = 'ALL';
+            historyTabSelection = 'ALL';
+            
+            renderGlobalHistory();
+        }
+
+        function handleHistorySearch() {
+            historySearchText = document.getElementById('historySearchFilter').value.toLowerCase().trim();
+            currentHistoryPage = 1;
+            renderGlobalHistory();
+        }
+
+        function handleHistoryTabFilter() {
+            historyTabSelection = document.getElementById('historyTabFilter').value;
+            currentHistoryPage = 1;
+            renderGlobalHistory();
+        }
+
+        function prevHistoryPage() {
+            if (currentHistoryPage > 1) {
+                currentHistoryPage--;
+                renderGlobalHistory();
+            }
+        }
+
+        function nextHistoryPage() {
+            currentHistoryPage++;
+            renderGlobalHistory();
+        }
+
+        function renderGlobalHistory() {
+            const container = document.getElementById('globalHistoryContainer');
+            const countBadge = document.getElementById('historyCountBadge');
+            
+            if (!serverData || !serverData.HISTORY) {
+                container.innerHTML = `<div class="p-10 text-center text-rose-500 font-bold italic text-lg uppercase flex flex-col items-center justify-center h-full"><i class="fa-solid fa-triangle-exclamation mb-4 text-5xl"></i> History tab not found on Server.<br/>Please create a 'History' sheet.</div>`;
+                return;
+            }
+
+            let hData = [...serverData.HISTORY.rows];
+            hData.reverse(); // Show newest at the top
+
+            // 1. APPLY TAB FILTER
+            if (historyTabSelection !== 'ALL') {
+                hData = hData.filter(r => String(r.values[3] || '').trim().toUpperCase() === historyTabSelection.toUpperCase());
+            }
+
+            // 2. APPLY SEARCH FILTER
+            if (historySearchText !== '') {
+                hData = hData.filter(r => {
+                    const combined = r.values.join(' ').toLowerCase();
+                    return combined.includes(historySearchText);
+                });
+            }
+
+            const totalLogs = hData.length;
+            countBadge.innerText = `${totalLogs} Logs Found`;
+
+            // 3. PAGINATION CALCULATION
+            const totalPages = Math.ceil(totalLogs / historyItemsPerPage) || 1;
+            if (currentHistoryPage > totalPages) currentHistoryPage = totalPages;
+
+            document.getElementById('historyPaginationInfo').textContent = `Page ${currentHistoryPage} of ${totalPages}`;
+            document.getElementById('btnPrevHistory').disabled = currentHistoryPage <= 1;
+            document.getElementById('btnNextHistory').disabled = currentHistoryPage >= totalPages;
+
+            const paginatedData = hData.slice((currentHistoryPage - 1) * historyItemsPerPage, currentHistoryPage * historyItemsPerPage);
+
+            if (paginatedData.length === 0) {
+                container.innerHTML = `<div class="p-16 text-center text-slate-500 font-black italic text-lg uppercase tracking-wider flex flex-col items-center justify-center h-full"><i class="fa-solid fa-folder-open text-5xl mb-4 text-slate-300"></i> No records match your criteria.</div>`;
+                return;
+            }
+
+            let html = `
+                <div class="overflow-y-auto w-full h-full custom-scrollbar absolute inset-0">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="sticky top-0 z-20">
+                            <tr class="bg-gradient-to-b from-[#5b9bd5] to-[#2f5597] text-white shadow-sm text-xs uppercase font-black tracking-wider">
+                                <th class="p-3.5 border-r border-[#1f4e79]/50 w-[15%]">Timestamp</th>
+                                <th class="p-3.5 border-r border-[#1f4e79]/50 w-[15%]">Contract ID</th>
+                                <th class="p-3.5 border-r border-[#1f4e79]/50 w-[15%]">User</th>
+                                <th class="p-3.5 border-r border-[#1f4e79]/50 w-[10%] text-center">Tab</th>
+                                <th class="p-3.5 border-r border-[#1f4e79]/50 w-[20%]">Field Updated</th>
+                                <th class="p-3.5 w-[25%]">New Value</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm font-bold text-gray-800">
+            `;
+
+            paginatedData.forEach((r, i) => {
+                const isEven = i % 2 === 0;
+                const bg = isEven ? 'bg-white' : 'bg-[#f8fafc]';
+                html += `
+                    <tr class="${bg} border-b border-gray-200 hover:bg-[#ffeb9c] transition-colors">
+                        <td class="p-3.5 border-r border-gray-200 text-[#5b9bd5] whitespace-nowrap">${r.values[1] || ''}</td>
+                        <td class="p-3.5 border-r border-gray-200 text-[#c55a11] font-black">${r.values[0] || ''}</td>
+                        <td class="p-3.5 border-r border-gray-200 uppercase text-slate-600">${r.values[2] || ''}</td>
+                        <td class="p-3.5 border-r border-gray-200 uppercase text-center"><span class="bg-slate-200 text-slate-700 px-2 py-1 rounded text-[10px] font-black shadow-sm border border-slate-300 tracking-wider">${r.values[3] || ''}</span></td>
+                        <td class="p-3.5 border-r border-gray-200 text-[#2f5597]">${r.values[4] || ''}</td>
+                        <td class="p-3.5 max-w-[200px] text-green-700" style="word-break: break-word;">${r.values[5] || ''}</td>
+                    </tr>
+                `;
+            });
+            html += `</tbody></table></div>`;
+            container.innerHTML = html;
+        }
+
+        function closeHistoryModal() {
+            document.getElementById('historyModal').classList.add('hidden');
         }
 
         // ==========================================
@@ -1549,12 +1745,12 @@
                 if(dtEl.value || grossVal || remEl.value || netVal) {
                     combinedRem.push(dtEl.value || '');
                     combinedRem.push(grossVal || '');
-                    if(remEl.value) combinedRem.push(remEl.value);
+                    combinedRem.push(remEl.value || ''); // Forces Status/Remarks to always occupy the 3rd column
                     
                     // Automatically append today's date tag
                     const now = new Date();
                     const encDate = now.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
-                    combinedRem.push(`Encoded: ${encDate}`);
+                    combinedRem.push(`Encoded: ${encDate}`); // Encoded will now ALWAYS be strictly in the 4th column
                 }
                 
                 const netIconId = `icon_bill_net_${cid}_${i}`;
@@ -1603,6 +1799,37 @@
                         body: JSON.stringify({ valueInputOption: 'USER_ENTERED', data: payload })
                     });
                     if (!res.ok) throw new Error("Batch update failed.");
+
+                    // LOG TO HISTORY SHEET
+                    const timestamp = new Date().toLocaleString('en-US', { timeZone: 'Asia/Manila' });
+                    const user = loggedInUser ? (loggedInUser.name || loggedInUser.username) : 'Unknown User';
+                    
+                    const historyRows = saves.map(s => [
+                        s.cid,          // Column A: Contract ID
+                        timestamp,      // Column B: Time
+                        user,           // Column C: User
+                        s.tabKey,       // Column D: Tab
+                        s.headerName,   // Column E: Field updated
+                        String(s.value) // Column F: New Value
+                    ]);
+                    
+                    await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values/History!A1:append?valueInputOption=USER_ENTERED`, {
+                        method: 'POST',
+                        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ values: historyRows })
+                    });
+                    
+                    // Update local application memory so if the history button is clicked right away, it's already there
+                    if (serverData.HISTORY) {
+                        historyRows.forEach(hr => {
+                            serverData.HISTORY.rows.push({ rowNumber: 0, values: hr }); 
+                        });
+                        
+                        // Re-render Global History if it is currently open
+                        if (!document.getElementById('historyModal').classList.contains('hidden')) {
+                            renderGlobalHistory();
+                        }
+                    }
                 }
 
                 saves.forEach(s => {
