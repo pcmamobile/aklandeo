@@ -274,14 +274,17 @@
 
             <!-- Header Area: Billing Tabs -->
             <div id="billing-tabs" class="flex flex-1 ml-1 hidden">
-                <button id="tab-billing" onclick="switchTab('billing')" class="flex-1 py-1 md:py-2 font-black text-sm md:text-lg text-black transition-all bg-gradient-to-b from-orange-400 to-orange-500 shadow-md tab-btn border border-orange-600">
+                <button id="tab-billing" onclick="switchTab('billing')" class="flex-1 py-1 md:py-2 font-black text-xs md:text-sm lg:text-lg text-black transition-all bg-gradient-to-b from-orange-400 to-orange-500 shadow-md tab-btn border border-orange-600">
                     BILLING
                 </button>
-                <button id="tab-summary" onclick="switchTab('summary')" class="flex-1 py-1 md:py-2 font-black text-sm md:text-lg text-black transition-all bg-gradient-to-b from-gray-300 to-gray-400 border border-gray-500 shadow-inner opacity-80">
+                <button id="tab-summary" onclick="switchTab('summary')" class="flex-1 py-1 md:py-2 font-black text-xs md:text-sm lg:text-lg text-black transition-all bg-gradient-to-b from-gray-300 to-gray-400 border border-gray-500 shadow-inner opacity-80">
                     SUMMARY
                 </button>
-                <button id="tab-nobilling" onclick="switchTab('nobilling')" class="flex-1 py-1 md:py-2 font-black text-sm md:text-lg text-black transition-all bg-gradient-to-b from-gray-300 to-gray-400 border border-gray-500 shadow-inner opacity-80">
+                <button id="tab-nobilling" onclick="switchTab('nobilling')" class="flex-1 py-1 md:py-2 font-black text-xs md:text-sm lg:text-lg text-black transition-all bg-gradient-to-b from-gray-300 to-gray-400 border border-gray-500 shadow-inner opacity-80">
                     NO BILLING
+                </button>
+                <button id="tab-projected" onclick="switchTab('projected')" class="flex-1 py-1 md:py-2 font-black text-xs md:text-sm lg:text-lg text-black transition-all bg-gradient-to-b from-gray-300 to-gray-400 border border-gray-500 shadow-inner opacity-80">
+                    PROJECTED
                 </button>
             </div>
 
@@ -293,19 +296,24 @@
             </div>
             
             <!-- Header Area: Documents Tabs -->
-            <div id="documents-tabs" class="flex flex-1 ml-1 hidden">
-                <button id="tab-planning" onclick="switchDocTab('planning')" class="flex-1 py-1 md:py-2 font-black text-xs md:text-sm lg:text-lg text-black transition-all bg-gradient-to-b from-orange-400 to-orange-500 shadow-md tab-btn border border-orange-600">
-                    PLANNING
-                </button>
-                <button id="tab-procurement" onclick="switchDocTab('procurement')" class="flex-1 py-1 md:py-2 font-black text-xs md:text-sm lg:text-lg text-black transition-all bg-gradient-to-b from-gray-300 to-gray-400 border border-gray-500 shadow-inner opacity-80">
-                    PROCUREMENT
-                </button>
-                <button id="tab-construction" onclick="switchDocTab('construction')" class="flex-1 py-1 md:py-2 font-black text-xs md:text-sm lg:text-lg text-black transition-all bg-gradient-to-b from-gray-300 to-gray-400 border border-gray-500 shadow-inner opacity-80">
-                    CONSTRUCTION
+            <div id="documents-tabs" class="flex flex-col flex-1 ml-1 hidden">
+                <div class="flex w-full">
+                    <button id="tab-planning" onclick="switchDocTab('planning')" class="flex-1 py-1 md:py-2 font-black text-xs md:text-sm lg:text-lg text-black transition-all bg-gradient-to-b from-orange-400 to-orange-500 shadow-md tab-btn border border-orange-600">
+                        PLANNING
+                    </button>
+                    <button id="tab-procurement" onclick="switchDocTab('procurement')" class="flex-1 py-1 md:py-2 font-black text-xs md:text-sm lg:text-lg text-black transition-all bg-gradient-to-b from-gray-300 to-gray-400 border border-gray-500 shadow-inner opacity-80">
+                        PROCUREMENT
+                    </button>
+                    <button id="tab-construction" onclick="switchDocTab('construction')" class="flex-1 py-1 md:py-2 font-black text-xs md:text-sm lg:text-lg text-black transition-all bg-gradient-to-b from-gray-300 to-gray-400 border border-gray-500 shadow-inner opacity-80">
+                        CONSTRUCTION
+                    </button>
+                </div>
+                <button id="tab-vo_wso" onclick="switchDocTab('vo_wso')" class="w-full mt-1 py-1 md:py-2 font-black text-xs md:text-sm lg:text-lg text-black transition-all bg-gradient-to-b from-gray-300 to-gray-400 border border-gray-500 shadow-inner opacity-80">
+                    VO - WSO - CWSO - WRO - CTE
                 </button>
             </div>
             
-        </div>
+        </div> <!-- This specific closing tag is what got deleted previously! -->
 
         <!-- Date Header -->
         <div class="text-center font-black text-[#0f3b75] text-xl mb-3 bg-white/40 py-1 shadow-sm border border-white/50 no-print">
@@ -574,7 +582,16 @@
         let acceptanceCfaData = []; 
 
         let excludedBillingContracts = new Set();
-        let othersSheetMeta = { contractColIdx: 0, billingColIdx: 1, issueColIdx: 2, map: {}, data: {}, nextRow: 4, dropdownSubcon: [], dropdownIssue: [] };
+        let excludedNoBillingContracts = new Set();
+        let redDotContracts = new Set();
+        let billingUndoStack = [];
+        let billingRedoStack = [];
+        let filterShowChecked = true;
+        let filterShowUnchecked = true;
+        let filterShowRedDot = true;
+        let filterShowNoDot = true;
+        let billingFilterSubCon = 'All'; // Added for Sub Con Filter
+        let othersSheetMeta = { contractColIdx: 0, billingColIdx: 1, issueColIdx: 2, projectedColIdx: -1, noBillingColIdx: -1, paidColIdx: -1, map: {}, data: {}, projectedMap: {}, paidMap: {}, nextRow: 4, dropdownSubcon: [], dropdownIssue: [] };
 
         let globalPcmaColIdx = -1;
         let globalRemarksColIdx = -1;
@@ -586,6 +603,7 @@
         
         let generalGroupMode = 'pe'; 
         let billingGroupMode = 'contractor'; 
+		let billingTotalMode = 'checked';
         
         let weeklySelectedMonthOffset = -1;
         let weeklyFilterYear = 'All';
@@ -606,6 +624,10 @@
         // No Billing Tab State
         let noBillingGroupMode = 'contractor';
         let noBillingFilterYear = 'All';
+        
+        // Projected Tab State
+        let projectedGroupMode = 'contractor';
+        let projectedFilterYear = 'All';
 
         let monthlyFilterPendingPCMA = false; 
         let monthlyFilterPendingActual = false; 
@@ -671,13 +693,16 @@
                 const pdoLookup = buildPdoLookupMap(dataPDO);
 
                 excludedBillingContracts.clear();
-                othersSheetMeta = { contractColIdx: 0, billingColIdx: 1, issueColIdx: 2, map: {}, data: {}, nextRow: 4, dropdownSubcon: [], dropdownIssue: [] };
-
-                if (dataOthers.values && dataOthers.values.length >= 3) {
+				othersSheetMeta = { contractColIdx: 0, billingColIdx: 1, issueColIdx: 2, projectedColIdx: -1, noBillingColIdx: -1, paidColIdx: -1, map: {}, data: {}, projectedMap: {}, paidMap: {}, nextRow: 4, dropdownSubcon: [], dropdownIssue: [] };
+               
+			   if (dataOthers.values && dataOthers.values.length >= 3) {
                     const headers = dataOthers.values[2].map(h => String(h || '').toUpperCase().trim());
                     const cIdx = headers.findIndex(h => h === 'CONTRACT ID' || h.includes('CONTRACT'));
                     const bIdx = headers.findIndex(h => h === 'BILLING');
                     const iIdx = headers.findIndex(h => h === 'ISSUE');
+                    const projIdx = headers.findIndex(h => h === 'PROJECTED');
+                    const nbIdx = headers.findIndex(h => h === 'NO BILLING');
+                    const paidIdx = headers.findIndex(h => h === 'PAID'); // Read PAID header
                     
                     const ddSubconIdx = headers.findIndex(h => h === 'DROPDOWN SUBCON');
                     const ddIssueIdx = headers.findIndex(h => h === 'DROPDOWN ISSUE');
@@ -685,6 +710,9 @@
                     if (cIdx !== -1) othersSheetMeta.contractColIdx = cIdx;
                     if (bIdx !== -1) othersSheetMeta.billingColIdx = bIdx;
                     if (iIdx !== -1) othersSheetMeta.issueColIdx = iIdx;
+                    if (projIdx !== -1) othersSheetMeta.projectedColIdx = projIdx;
+                    if (nbIdx !== -1) othersSheetMeta.noBillingColIdx = nbIdx;
+                    if (paidIdx !== -1) othersSheetMeta.paidColIdx = paidIdx;
                     
                     for (let i = 3; i < dataOthers.values.length; i++) {
                         const row = dataOthers.values[i];
@@ -701,12 +729,27 @@
                         const cid = String(row[othersSheetMeta.contractColIdx] || '').trim();
                         if (cid) {
                             othersSheetMeta.map[cid] = i + 1; 
-                            const billVal = String(row[othersSheetMeta.billingColIdx] || '').trim().toUpperCase();
-                            if (billVal === 'X') {
+                            const billValRaw = String(row[othersSheetMeta.billingColIdx] || '').trim().toUpperCase();
+                            const bParts = billValRaw.split('|');
+                            if (bParts[0] && bParts[0].trim() === 'X') {
                                 excludedBillingContracts.add(cid);
+                            }
+                            if (bParts.length > 1 && bParts[1].trim() === 'O') {
+                                redDotContracts.add(cid);
                             }
                             const issueVal = othersSheetMeta.issueColIdx !== -1 ? String(row[othersSheetMeta.issueColIdx] || '').trim() : '';
                             othersSheetMeta.data[cid] = issueVal;
+                            
+                            const nbVal = othersSheetMeta.noBillingColIdx !== -1 ? String(row[othersSheetMeta.noBillingColIdx] || '').trim().toUpperCase() : '';
+                            if (nbVal === 'X') excludedNoBillingContracts.add(cid);
+
+                            const projValRaw = othersSheetMeta.projectedColIdx !== -1 ? String(row[othersSheetMeta.projectedColIdx] || '').trim() : '';
+                            let pVal = parseFloat(projValRaw.replace(/[^0-9.-]/g, '')) || 0;
+                            if (!projValRaw.includes('%') && pVal > 0 && pVal <= 1) pVal = pVal * 100;
+                            othersSheetMeta.projectedMap[cid] = pVal;
+                            
+                            const paidValRaw = othersSheetMeta.paidColIdx !== -1 ? String(row[othersSheetMeta.paidColIdx] || '').trim() : '';
+                            othersSheetMeta.paidMap[cid] = paidValRaw;
                         }
                     }
                     othersSheetMeta.nextRow = dataOthers.values.length + 1;
@@ -825,6 +868,8 @@
                         monthlyRaw: monthlyRaw, 
                         remarksRaw: remarksRaw, 
                         ntp: ntp, 
+                        expiry: expiry,
+                        contractAmount: contractAmount,
                         year: pdoInfo.year || 'Unknown',
                         pe: peName,
                         status: pdoInfo.status || 'Unknown',
@@ -1487,8 +1532,6 @@ window.toggleActionMenu = function(menuId) {
 
         window.bulkToggleSummaryCheckbox = async function(fundStr, isIncluded) {
             let affectedContracts = new Set();
-            
-            // Collect all Unpaid bills matching the selected fund
             billingDataGlobal.forEach(b => {
                 if (b.isPaid === false) {
                     if (fundStr === 'ALL') affectedContracts.add(b.contractId);
@@ -1499,24 +1542,30 @@ window.toggleActionMenu = function(menuId) {
             if (affectedContracts.size === 0) return;
 
             let updates = []; 
-            const val = isIncluded ? '' : 'X';
+            let changes = [];
 
             affectedContracts.forEach(contractId => {
                 const currentlyExcluded = excludedBillingContracts.has(contractId);
                 const needsChange = isIncluded ? currentlyExcluded : !currentlyExcluded;
 
                 if (needsChange) {
+                    const hasDot = redDotContracts.has(contractId);
+                    changes.push({ contractId, oldEx: currentlyExcluded, newEx: !currentlyExcluded, oldDot: hasDot, newDot: hasDot });
+
                     if (isIncluded) excludedBillingContracts.delete(contractId);
                     else excludedBillingContracts.add(contractId);
 
                     let targetRow = othersSheetMeta.map[contractId];
                     let isNewRow = false;
-                    
                     if (!targetRow) {
                         targetRow = othersSheetMeta.nextRow++;
                         othersSheetMeta.map[contractId] = targetRow;
                         isNewRow = true;
                     }
+
+                    const dotState = hasDot ? 'O' : '';
+                    const cbState = isIncluded ? '' : 'X';
+                    const val = dotState ? `${cbState}|O` : cbState;
 
                     if (isNewRow) {
                         const maxCol = Math.max(othersSheetMeta.contractColIdx, othersSheetMeta.billingColIdx);
@@ -1531,21 +1580,10 @@ window.toggleActionMenu = function(menuId) {
                 }
             });
 
-            // Re-render immediately so checkboxes update on-screen instantly (menu stays open!)
-            renderView();
-
-            if (updates.length > 0) {
-                try {
-                    const token = await GoogleSheetsAPI.getAuthToken();
-                    const body = { valueInputOption: "USER_ENTERED", data: updates };
-                    const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values:batchUpdate`, {
-                        method: 'POST',
-                        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                        body: JSON.stringify(body)
-                    });
-                } catch(e) {
-                    console.error("Bulk Error:", e);
-                }
+            if (changes.length > 0) {
+                pushToBillingUndo(changes);
+                renderView();
+                syncBatchOthersSheet(updates);
             }
         };
 
@@ -1653,18 +1691,31 @@ window.toggleActionMenu = function(menuId) {
 
 
         window.toggleBillingExclusion = async function(contractId, checkboxEl) {
-            const isChecked = checkboxEl.checked;
-            const isExcluded = !isChecked; 
-            const val = isExcluded ? 'X' : '';
+            const wasExcluded = excludedBillingContracts.has(contractId);
+            const isExcluded = !checkboxEl.checked;
+            const wasDot = redDotContracts.has(contractId);
+
+            pushToBillingUndo([{ contractId, oldEx: wasExcluded, newEx: isExcluded, oldDot: wasDot, newDot: wasDot }]);
 
             if (isExcluded) excludedBillingContracts.add(contractId);
             else excludedBillingContracts.delete(contractId);
             
             renderView(); 
+            syncOthersSheetBillingCol(contractId);
+        };
+
+			window.toggleNoBillingExclusion = async function(contractId, checkboxEl) {
+            const isChecked = checkboxEl.checked;
+            const isExcluded = !isChecked; 
+            const val = isExcluded ? 'X' : '';
+
+            if (isExcluded) excludedNoBillingContracts.add(contractId);
+            else excludedNoBillingContracts.delete(contractId);
+            
+            renderView(); 
 
             let targetRow = othersSheetMeta.map[contractId];
             let isNewRow = false;
-            
             if (!targetRow) {
                 targetRow = othersSheetMeta.nextRow++;
                 othersSheetMeta.map[contractId] = targetRow;
@@ -1676,42 +1727,76 @@ window.toggleActionMenu = function(menuId) {
                 let url, body;
 
                 if (isNewRow) {
-                    const maxCol = Math.max(othersSheetMeta.contractColIdx, othersSheetMeta.billingColIdx);
+                    const maxCol = Math.max(othersSheetMeta.contractColIdx, othersSheetMeta.noBillingColIdx);
                     const rowData = new Array(maxCol + 1).fill('');
                     rowData[othersSheetMeta.contractColIdx] = contractId;
-                    rowData[othersSheetMeta.billingColIdx] = val;
+                    if (othersSheetMeta.noBillingColIdx !== -1) rowData[othersSheetMeta.noBillingColIdx] = val;
                     
                     const cellA1 = `Others!A${targetRow}`;
                     url = `https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values/${cellA1}?valueInputOption=USER_ENTERED`;
                     body = JSON.stringify({ range: cellA1, majorDimension: "ROWS", values: [rowData] });
                 } else {
-                    const colLetter = colIndexToLetter(othersSheetMeta.billingColIdx);
+                    if (othersSheetMeta.noBillingColIdx === -1) {
+                        alert("Header 'NO BILLING' not found in Others sheet.");
+                        return;
+                    }
+                    const colLetter = colIndexToLetter(othersSheetMeta.noBillingColIdx);
                     const cellA1 = `Others!${colLetter}${targetRow}`;
                     url = `https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values/${cellA1}?valueInputOption=USER_ENTERED`;
                     body = JSON.stringify({ range: cellA1, majorDimension: "ROWS", values: [[val]] });
                 }
-
-                const res = await fetch(url, {
-                    method: 'PUT',
-                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                    body: body
-                });
-
-                if (!res.ok) {
-                    console.error("Failed to update Others sheet exclusion state.");
-                    if (isExcluded) excludedBillingContracts.delete(contractId);
-                    else excludedBillingContracts.add(contractId);
-                    renderView();
-                }
+                await fetch(url, { method: 'PUT', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: body });
             } catch (e) {
-                console.error("Error updating exclusion state:", e);
-                if (isExcluded) excludedBillingContracts.delete(contractId);
-                else excludedBillingContracts.add(contractId);
+                console.error("Error updating NO BILLING:", e);
+                if (isExcluded) excludedNoBillingContracts.delete(contractId);
+                else excludedNoBillingContracts.add(contractId);
                 renderView();
             }
         };
 
-			
+        window.updateProjectedPercent = async function(contractId, val, element) {
+            let numVal = parseFloat(val) || 0;
+            othersSheetMeta.projectedMap[contractId] = numVal;
+            renderView(); 
+
+            let targetRow = othersSheetMeta.map[contractId];
+            let isNewRow = false;
+            if (!targetRow) {
+                targetRow = othersSheetMeta.nextRow++;
+                othersSheetMeta.map[contractId] = targetRow;
+                isNewRow = true;
+            }
+
+            try {
+                const token = await GoogleSheetsAPI.getAuthToken();
+                let url, body;
+                const saveVal = numVal > 0 ? numVal + '%' : '';
+
+                if (isNewRow) {
+                    const maxCol = Math.max(othersSheetMeta.contractColIdx, othersSheetMeta.projectedColIdx);
+                    const rowData = new Array(maxCol + 1).fill('');
+                    rowData[othersSheetMeta.contractColIdx] = contractId;
+                    if (othersSheetMeta.projectedColIdx !== -1) rowData[othersSheetMeta.projectedColIdx] = saveVal;
+                    
+                    const cellA1 = `Others!A${targetRow}`;
+                    url = `https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values/${cellA1}?valueInputOption=USER_ENTERED`;
+                    body = JSON.stringify({ range: cellA1, majorDimension: "ROWS", values: [rowData] });
+                } else {
+                    if (othersSheetMeta.projectedColIdx === -1) {
+                        alert("Header 'PROJECTED' not found in Others sheet.");
+                        return;
+                    }
+                    const colLetter = colIndexToLetter(othersSheetMeta.projectedColIdx);
+                    const cellA1 = `Others!${colLetter}${targetRow}`;
+                    url = `https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values/${cellA1}?valueInputOption=USER_ENTERED`;
+                    body = JSON.stringify({ range: cellA1, majorDimension: "ROWS", values: [[saveVal]] });
+                }
+                await fetch(url, { method: 'PUT', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: body });
+            } catch (e) {
+                console.error("Error saving Projected:", e);
+                alert("Failed to save projected value to Google Sheets.");
+            }
+        };
 
         // ====================================================================
         // MATHEMATICAL COMPUTATIONS & UTILS
@@ -1933,6 +2018,8 @@ window.toggleActionMenu = function(menuId) {
             document.getElementById('billing-tabs').classList.add('hidden');
             document.getElementById('acceptance-tabs').classList.add('hidden');
             document.getElementById('documents-tabs').classList.add('hidden');
+            const row2 = document.getElementById('documents-tab-row2');
+            if(row2) row2.classList.add('hidden');
             
             const backBtn = document.getElementById('back-btn');
 
@@ -1969,6 +2056,8 @@ window.toggleActionMenu = function(menuId) {
                 });
             } else if (view === 'documents') {
                 document.getElementById('documents-tabs').classList.remove('hidden');
+                const row2 = document.getElementById('documents-tab-row2');
+                if(row2) row2.classList.remove('hidden');
                 if (backBtn) {
                     backBtn.classList.remove('hidden');
                     backBtn.classList.add('flex');
@@ -1979,24 +2068,154 @@ window.toggleActionMenu = function(menuId) {
 
         function switchTab(tabName) {
             activeTab = tabName;
-            const allTabs = ['slippage', 'weekly', 'monthly', 'billing', 'summary', 'nobilling'];
+            const allTabs = ['slippage', 'weekly', 'monthly', 'billing', 'summary', 'nobilling', 'projected'];
             
             allTabs.forEach(t => {
                 const btn = document.getElementById('tab-' + t);
                 if (btn) {
                     if (t === activeTab) {
-                        btn.className = "flex-1 py-1 md:py-2 font-black text-sm md:text-lg text-black transition-all bg-gradient-to-b from-orange-400 to-orange-500 shadow-md tab-btn border border-orange-600";
+                        btn.className = "flex-1 py-1 md:py-2 font-black text-xs md:text-sm lg:text-lg text-black transition-all bg-gradient-to-b from-orange-400 to-orange-500 shadow-md tab-btn border border-orange-600";
                     } else {
-                        btn.className = "flex-1 py-1 md:py-2 font-black text-sm md:text-lg text-black transition-all bg-gradient-to-b from-gray-200 to-gray-400 border border-gray-500 shadow-inner opacity-60";
+                        btn.className = "flex-1 py-1 md:py-2 font-black text-xs md:text-sm lg:text-lg text-black transition-all bg-gradient-to-b from-gray-200 to-gray-400 border border-gray-500 shadow-inner opacity-60";
                     }
                 }
             });
             requestAnimationFrame(() => renderView());
         }
 
-        function changeBillingGroupMode(mode) { billingGroupMode = mode; renderView(); }
-        function changeGeneralGroupMode(mode) { generalGroupMode = mode; renderView(); }
-        
+        window.changeBillingGroupMode = function(mode) { billingGroupMode = mode; renderView(); };
+		window.changeBillingTotalMode = function(mode) { billingTotalMode = mode; renderView(); };
+		window.toggleBillingVisibility = function(filterName, isChecked) {
+            if (filterName === 'checked') filterShowChecked = isChecked;
+            if (filterName === 'unchecked') filterShowUnchecked = isChecked;
+            if (filterName === 'dot') filterShowRedDot = isChecked;
+            if (filterName === 'nodot') filterShowNoDot = isChecked;
+            renderView();
+        };
+
+        function pushToBillingUndo(changes) {
+            billingUndoStack.push(changes);
+            billingRedoStack = []; 
+        }
+
+        window.handleBillingUndo = function() {
+            if (billingUndoStack.length === 0) return;
+            const changes = billingUndoStack.pop();
+            billingRedoStack.push(changes);
+            applyBillingHistoryState(changes, true);
+        };
+
+        window.handleBillingRedo = function() {
+            if (billingRedoStack.length === 0) return;
+            const changes = billingRedoStack.pop();
+            billingUndoStack.push(changes);
+            applyBillingHistoryState(changes, false);
+        };
+
+        function applyBillingHistoryState(changes, isUndo) {
+            let updates = [];
+            changes.forEach(c => {
+                const stateEx = isUndo ? c.oldEx : c.newEx;
+                const stateDot = isUndo ? c.oldDot : c.newDot;
+
+                if (stateEx) excludedBillingContracts.add(c.contractId);
+                else excludedBillingContracts.delete(c.contractId);
+
+                if (stateDot) redDotContracts.add(c.contractId);
+                else redDotContracts.delete(c.contractId);
+
+                let targetRow = othersSheetMeta.map[c.contractId];
+                let isNewRow = false;
+                if (!targetRow) {
+                    targetRow = othersSheetMeta.nextRow++;
+                    othersSheetMeta.map[c.contractId] = targetRow;
+                    isNewRow = true;
+                }
+
+                const dotStr = stateDot ? 'O' : '';
+                const cbStr = stateEx ? 'X' : '';
+                const val = dotStr ? `${cbStr}|O` : cbStr;
+
+                if (isNewRow) {
+                    const maxCol = Math.max(othersSheetMeta.contractColIdx, othersSheetMeta.billingColIdx);
+                    const rowData = new Array(maxCol + 1).fill('');
+                    rowData[othersSheetMeta.contractColIdx] = c.contractId;
+                    rowData[othersSheetMeta.billingColIdx] = val;
+                    updates.push({ range: `Others!A${targetRow}`, values: [rowData] });
+                } else {
+                    const colLetter = colIndexToLetter(othersSheetMeta.billingColIdx);
+                    updates.push({ range: `Others!${colLetter}${targetRow}`, values: [[val]] });
+                }
+            });
+
+            renderView();
+            syncBatchOthersSheet(updates);
+        }
+
+        async function syncBatchOthersSheet(updates) {
+            if(updates.length === 0) return;
+            try {
+                const token = await GoogleSheetsAPI.getAuthToken();
+                const body = { valueInputOption: "USER_ENTERED", data: updates };
+                await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values:batchUpdate`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+            } catch(e) { console.error(e); }
+        }
+
+        async function syncOthersSheetBillingCol(contractId) {
+            let targetRow = othersSheetMeta.map[contractId];
+            let isNewRow = false;
+            if (!targetRow) {
+                targetRow = othersSheetMeta.nextRow++;
+                othersSheetMeta.map[contractId] = targetRow;
+                isNewRow = true;
+            }
+
+            const isExcluded = excludedBillingContracts.has(contractId);
+            const hasDot = redDotContracts.has(contractId);
+            const cbState = isExcluded ? 'X' : '';
+            const dotState = hasDot ? 'O' : '';
+            let val = dotState ? `${cbState}|O` : cbState;
+
+            try {
+                const token = await GoogleSheetsAPI.getAuthToken();
+                let url, body;
+                if (isNewRow) {
+                    const maxCol = Math.max(othersSheetMeta.contractColIdx, othersSheetMeta.billingColIdx);
+                    const rowData = new Array(maxCol + 1).fill('');
+                    rowData[othersSheetMeta.contractColIdx] = contractId;
+                    rowData[othersSheetMeta.billingColIdx] = val;
+                    const cellA1 = `Others!A${targetRow}`;
+                    url = `https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values/${cellA1}?valueInputOption=USER_ENTERED`;
+                    body = JSON.stringify({ range: cellA1, majorDimension: "ROWS", values: [rowData] });
+                } else {
+                    const colLetter = colIndexToLetter(othersSheetMeta.billingColIdx);
+                    const cellA1 = `Others!${colLetter}${targetRow}`;
+                    url = `https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values/${cellA1}?valueInputOption=USER_ENTERED`;
+                    body = JSON.stringify({ range: cellA1, majorDimension: "ROWS", values: [[val]] });
+                }
+                await fetch(url, { method: 'PUT', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: body });
+            } catch (e) { console.error(e); }
+        }
+
+        window.toggleRedDot = function(contractId) {
+            const wasDot = redDotContracts.has(contractId);
+            const isDot = !wasDot;
+            const wasExcluded = excludedBillingContracts.has(contractId);
+
+            pushToBillingUndo([{ contractId, oldEx: wasExcluded, newEx: wasExcluded, oldDot: wasDot, newDot: isDot }]);
+
+            if (isDot) redDotContracts.add(contractId);
+            else redDotContracts.delete(contractId);
+            
+            renderView();
+            syncOthersSheetBillingCol(contractId);
+        };
+        window.changeGeneralGroupMode = function(mode) { generalGroupMode = mode; renderView(); };
+		
         let activeActionMenu = null; // Remembers which dropdown is open
 
         window.toggleBillingFund = function(fund, isChecked) {
@@ -2051,8 +2270,86 @@ window.toggleActionMenu = function(menuId) {
             renderView();
         }
 
+window.changeBillingSubConFilter = function(val) {
+            billingFilterSubCon = val;
+            renderView();
+        };
+
+        window.updatePaidStatus = async function(contractId, val, selectEl, year, monthStr) {
+            const monthNum = monthOrderMap[monthStr.substring(0,3)];
+            let offset = (parseInt(year) - 2026) * 12 + (monthNum - 5);
+            if (offset < 0) offset = 0; // Fallback for bills before May 2026
+
+            let rawPaid = othersSheetMeta.paidMap[contractId] || '';
+            let parts = rawPaid.split('|').map(p => p.trim());
+            
+            // Pad the array with dashes if it's too short for the current month
+            while(parts.length <= offset) parts.push('-');
+            
+            // Update the specific month's slot
+            parts[offset] = val;
+            
+            const newRawPaid = parts.join('|');
+            othersSheetMeta.paidMap[contractId] = newRawPaid;
+            selectEl.classList.add('bg-green-100');
+
+            let targetRow = othersSheetMeta.map[contractId];
+            let isNewRow = false;
+            if (!targetRow) {
+                targetRow = othersSheetMeta.nextRow++;
+                othersSheetMeta.map[contractId] = targetRow;
+                isNewRow = true;
+            }
+
+            try {
+                const token = await GoogleSheetsAPI.getAuthToken();
+                let url, body;
+
+                if (isNewRow) {
+                    const maxCol = Math.max(othersSheetMeta.contractColIdx, othersSheetMeta.paidColIdx);
+                    const rowData = new Array(maxCol + 1).fill('');
+                    rowData[othersSheetMeta.contractColIdx] = contractId;
+                    if (othersSheetMeta.paidColIdx !== -1) rowData[othersSheetMeta.paidColIdx] = newRawPaid;
+                    
+                    const cellA1 = `Others!A${targetRow}`;
+                    url = `https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values/${cellA1}?valueInputOption=USER_ENTERED`;
+                    body = JSON.stringify({ range: cellA1, majorDimension: "ROWS", values: [rowData] });
+                } else {
+                    if (othersSheetMeta.paidColIdx === -1) {
+                        alert("Header 'PAID' not found in Others sheet.");
+                        selectEl.classList.remove('bg-green-100');
+                        return;
+                    }
+                    const colLetter = colIndexToLetter(othersSheetMeta.paidColIdx);
+                    const cellA1 = `Others!${colLetter}${targetRow}`;
+                    url = `https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values/${cellA1}?valueInputOption=USER_ENTERED`;
+                    body = JSON.stringify({ range: cellA1, majorDimension: "ROWS", values: [[newRawPaid]] });
+                }
+
+                const res = await fetch(url, { method: 'PUT', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: body });
+                if (res.ok) {
+                    setTimeout(() => selectEl.classList.remove('bg-green-100'), 1000);
+                } else {
+                    selectEl.classList.remove('bg-green-100'); selectEl.classList.add('bg-red-100');
+                }
+            } catch (e) {
+                console.error("Error updating PAID status:", e);
+                selectEl.classList.remove('bg-green-100'); selectEl.classList.add('bg-red-100');
+            }
+        };
+
         window.changeNoBillingFilterYear = function(val) {
             noBillingFilterYear = val;
+            renderView();
+        }
+        
+        window.changeProjectedGroupMode = function(val) {
+            projectedGroupMode = val;
+            renderView();
+        }
+
+        window.changeProjectedFilterYear = function(val) {
+            projectedFilterYear = val;
             renderView();
         }
 
@@ -2093,15 +2390,16 @@ window.toggleActionMenu = function(menuId) {
 		
         window.switchDocTab = function(tabName) {
             documentSubTab = tabName;
-            const allTabs = ['planning', 'procurement', 'construction'];
+            const allTabs = ['planning', 'procurement', 'construction', 'vo_wso'];
             
             allTabs.forEach(t => {
                 const btn = document.getElementById('tab-' + t);
                 if (btn) {
+                    let baseClass = t === 'vo_wso' ? "w-full py-1 md:py-2 font-black text-xs md:text-sm lg:text-lg text-black transition-all " : "flex-1 py-1 md:py-2 font-black text-xs md:text-sm lg:text-lg text-black transition-all ";
                     if (t === documentSubTab) {
-                        btn.className = "flex-1 py-1 md:py-2 font-black text-xs md:text-sm lg:text-lg text-black transition-all bg-gradient-to-b from-orange-400 to-orange-500 shadow-md tab-btn border border-orange-600";
+                        btn.className = baseClass + "bg-gradient-to-b from-orange-400 to-orange-500 shadow-md tab-btn border border-orange-600";
                     } else {
-                        btn.className = "flex-1 py-1 md:py-2 font-black text-xs md:text-sm lg:text-lg text-black transition-all bg-gradient-to-b from-gray-200 to-gray-400 border border-gray-500 shadow-inner opacity-60";
+                        btn.className = baseClass + "bg-gradient-to-b from-gray-200 to-gray-400 border border-gray-500 shadow-inner opacity-60";
                     }
                 }
             });
@@ -2145,9 +2443,69 @@ window.toggleActionMenu = function(menuId) {
         };
 
         function generateDetailsRow(id, colSpan, data) {
+            const allBills = billingDataGlobal.filter(x => x.contractId === data.contractId);
+
+            allBills.sort((a, b) => {
+                if (a.billingYear !== b.billingYear) return a.billingYear - b.billingYear;
+                return monthOrderMap[a.billingMonthName.substring(0,3)] - monthOrderMap[b.billingMonthName.substring(0,3)];
+            });
+
+            let billsHtml = '';
+            let subCon = '';
+            let sheetRowIdx = -1;
+            let revExpiry = '-';
+
+            if (allBills.length > 0) {
+                subCon = allBills[0].subCon;
+                sheetRowIdx = allBills[0].sheetRowIdx;
+                revExpiry = allBills[0].revExpiry;
+            } else {
+                const billContractColIndex = findContractHeaderCol(globalBillingHeaders);
+                let revExpiryColIndex = globalBillingHeaders.findIndex(h => h && h.toUpperCase().includes('REV. EXPIRY'));
+                
+                for (let r = 3; r < globalBillingValues.length; r++) {
+                    const row = globalBillingValues[r] || [];
+                    if (row[billContractColIndex] && String(row[billContractColIndex]).trim() === data.contractId) {
+                        sheetRowIdx = r;
+                        subCon = globalBillingSubConColIdx >= 0 ? String(row[globalBillingSubConColIdx] || '').trim() : '';
+                        revExpiry = revExpiryColIndex >= 0 ? String(row[revExpiryColIndex] || '').trim() : '-';
+                        break;
+                    }
+                }
+            }
+
+            allBills.forEach(bill => {
+                const dateStr = bill.billingMonthName.substring(0,3) + ' ' + bill.billingYear;
+                const iconHtml = bill.isPaid
+                    ? `<i class="fa-solid fa-check-circle text-green-600 text-2xl cursor-pointer hover:scale-110 active:scale-95 transition-transform drop-shadow" onclick="openPaymentModal('${bill.contractId}', ${bill.amountColIndex})"></i>`
+                    : `<i class="fa-solid fa-rotate text-[#f89500] text-2xl cursor-pointer hover:scale-110 active:scale-95 transition-transform drop-shadow" onclick="openPaymentModal('${bill.contractId}', ${bill.amountColIndex})"></i>`;
+
+                billsHtml += `
+                    <tr class="border-b border-orange-200/50 hover:bg-orange-100 transition-colors">
+                        <td class="py-1.5 px-2 font-bold text-right text-gray-800 tracking-tight text-sm">Billing : ₱ ${formatCurrency(bill.amount)}</td>
+                        <td class="py-1.5 px-2 font-medium text-center text-gray-800 text-sm">${dateStr}</td>
+                        <td class="py-1.5 px-2 font-medium text-left text-gray-800 leading-tight text-sm break-words">${bill.remarks}</td>
+                        <td class="py-1.5 px-2 text-center">${iconHtml}</td>
+                    </tr>
+                `;
+            });
+            
+            if (billsHtml === '') {
+                billsHtml = `<tr><td colspan="4" class="py-2 text-center text-gray-500 italic text-xs">No billing records found for this project yet.</td></tr>`;
+            }
+
+            const origStr = (data.expiry && data.expiry !== '-') ? formatDateReadable(data.expiry) : '-';
+            const ntpStr = (data.ntp && data.ntp !== '-') ? formatDateReadable(data.ntp) : '-';
+            const revStr = (revExpiry && revExpiry !== '-') ? revExpiry : '-';
+
+            let durationHtml = `<span>${ntpStr}</span><span class="font-bold text-xs mx-2">to</span><span>${origStr} (orig.)</span>`;
+            if (revStr !== '-') {
+                durationHtml += `<span class="mx-2 font-black text-lg leading-none">/</span><span>${revStr} (rev.)</span>`;
+            }
+
             return `
-            <tr id="${id}" class="hidden text-left bg-gradient-to-b from-[#fffbe6] to-[#ffea99] border-b-2 border-orange-200 shadow-inner">
-                <td colspan="${colSpan}" class="px-2 py-2 text-xs md:text-sm text-black relative">
+            <tr id="${id}" class="hidden text-left bg-gradient-to-b from-[#fffbe6] to-[#ffea99] border-b-[3px] border-orange-300 shadow-inner">
+                <td colspan="${colSpan}" class="px-2 py-2 text-xs md:text-sm text-black relative outline outline-2 outline-blue-600 outline-dashed outline-offset-[-2px]">
                     <div class="flex flex-col text-left py-1 w-full max-w-full">
                         <div class="flex gap-2">
                             <div class="w-[85px] md:w-[100px] font-bold italic shrink-0 text-slate-800 tracking-wide">Name :</div>
@@ -2167,10 +2525,37 @@ window.toggleActionMenu = function(menuId) {
                         </div>
                         <div class="flex gap-2 border-t border-dotted border-[#c68936] mt-1.5 pt-1.5">
                             <div class="w-[85px] md:w-[100px] font-bold italic shrink-0 text-slate-800 tracking-wide">Duration :</div>
-                            <div class="text-gray-900 flex gap-3 md:gap-4 w-full justify-start items-center">
-                                <span>${formatDateReadable(data.ntp)}</span><span class="font-bold text-xs">to</span><span>${formatDateReadable(data.expiry)}</span>
+                            <div class="text-gray-900 flex flex-wrap w-full justify-start items-center">
+                                ${durationHtml}
                             </div>
                         </div>
+                        <div class="flex gap-2 border-t border-dotted border-[#c68936] mt-1.5 pt-1.5 pb-2">
+                            <div class="w-[85px] md:w-[100px] font-bold italic shrink-0 text-slate-800 tracking-wide">PE:</div>
+                            <div class="text-red-600 font-black flex-1">${data.pe || 'Unknown PE'}</div>
+                        </div>
+                        <div class="flex gap-2 border-t border-dotted border-[#c68936] mt-1.5 pt-1.5 pb-2" onclick="event.stopPropagation()">
+                            <div class="w-[85px] md:w-[100px] font-bold italic shrink-0 text-slate-800 tracking-wide flex items-center">Sub-con:</div>
+                            <div class="flex-1">
+                                <select class="w-full max-w-[200px] text-xs md:text-sm outline-none border border-gray-400 rounded py-1 px-2 text-gray-900 bg-white/80 shadow-sm focus:border-blue-500 cursor-pointer" onchange="if(${sheetRowIdx} === -1) { alert('Cannot save Sub-con: This project does not have an entry in the BILLING sheet yet.'); this.value=''; return; } updateSubCon('${data.contractId}', this, ${sheetRowIdx})">
+                                    <option value="">-- None --</option>
+                                    ${othersSheetMeta.dropdownSubcon.map(sc => `<option value="${sc.replace(/"/g, '&quot;')}" ${sc === subCon ? 'selected' : ''}>${sc}</option>`).join('')}
+                                </select>
+                            </div>
+                        </div>
+
+                        <table class="w-full mt-1 border-t-2 border-[#c68936] bg-[#fffae6]/70 shadow-sm rounded-sm">
+                            <thead>
+                                <tr class="italic text-slate-900 border-b-2 border-orange-300 text-[11px] md:text-sm">
+                                    <th class="py-1.5 px-2 text-right">Amount</th>
+                                    <th class="py-1.5 px-2 text-center">Date Paid</th>
+                                    <th class="py-1.5 px-2 text-left">Remarks</th>
+                                    <th class="py-1.5 px-2 text-center">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${billsHtml}
+                            </tbody>
+                        </table>
                     </div>
                 </td>
             </tr>
@@ -2398,7 +2783,7 @@ window.toggleActionMenu = function(menuId) {
             else if (mainView === 'billing_summary') {
                 if (activeTab === 'billing') {
                     let filteredBills = [];
-                    if (billingGroupMode === 'previous_month') {
+                    if (billingGroupMode === 'previous_month' || billingGroupMode === 'previous_month_subcon') {
                         const targetMonthPrefix = monthsArr[navMonth].substring(0, 3).toLowerCase();
                         filteredBills = billingDataGlobal.filter(b => b.isPaid === true && b.billingYear === navYear && (b.billingMonthName || '').toLowerCase().startsWith(targetMonthPrefix));
                     } else {
@@ -2411,9 +2796,21 @@ window.toggleActionMenu = function(menuId) {
                     
                     filteredBills.forEach(b => {
                         const isExcluded = excludedBillingContracts.has(b.contractId);
+                        const hasDot = redDotContracts.has(b.contractId);
 
-                        // Compute totals irrespective of the fund checkbox toggles, but respect excluded logic
-                        if (!isExcluded) {
+                        // Row Visibility Filtering Check
+                        if (!filterShowChecked && !isExcluded) return;
+                        if (!filterShowUnchecked && isExcluded) return;
+                        if (!filterShowRedDot && hasDot) return;
+                        if (!filterShowNoDot && !hasDot) return;
+
+                        let shouldIncludeInTotal = false;
+                        if (billingTotalMode === 'checked') shouldIncludeInTotal = !isExcluded;
+                        else if (billingTotalMode === 'unchecked') shouldIncludeInTotal = isExcluded;
+                        else if (billingTotalMode === 'red_dot') shouldIncludeInTotal = hasDot;
+
+                        // Compute totals respecting the dropdown mode
+                        if (shouldIncludeInTotal) {
                             if (b.isDar) totalDar += b.amount;
                             else if (b.isMaint) totalMaint += b.amount;
                             else {
@@ -2425,7 +2822,10 @@ window.toggleActionMenu = function(menuId) {
 
                         // Only push into rendering group if the specific fund is checked
                         if (billingFundFilters[b.fundCategory]) {
-                            const groupKey = (billingGroupMode === 'pe') ? b.pe : b.contractor;
+                            let groupKey = b.contractor;
+                            if (billingGroupMode === 'pe') groupKey = b.pe;
+                            else if (billingGroupMode === 'subcon' || billingGroupMode === 'previous_month_subcon') groupKey = b.subCon ? b.subCon : 'None';
+
                             if (!groupedData[groupKey]) groupedData[groupKey] = [];
                             groupedData[groupKey].push(b);
                         }
@@ -2438,11 +2838,13 @@ window.toggleActionMenu = function(menuId) {
                             <select id="billing-group-select" onchange="changeBillingGroupMode(this.value)" class="w-full border-2 border-green-700 text-[#0f3b75] font-black text-center py-1 text-sm md:text-base outline-none cursor-pointer shadow-sm bg-white rounded-md">
                                 <option value="contractor" ${billingGroupMode === 'contractor' ? 'selected' : ''}>by Contractor</option>
                                 <option value="pe" ${billingGroupMode === 'pe' ? 'selected' : ''}>by Project Engineer</option>
+                                <option value="subcon" ${billingGroupMode === 'subcon' ? 'selected' : ''}>by Sub Con</option>
                                 <option value="previous_month" ${billingGroupMode === 'previous_month' ? 'selected' : ''}>Previous Month</option>
+                                <option value="previous_month_subcon" ${billingGroupMode === 'previous_month_subcon' ? 'selected' : ''}>Previous Month (by Sub Con)</option>
                             </select>
                     `;
 
-                    if (billingGroupMode === 'previous_month') {
+                    if (billingGroupMode === 'previous_month' || billingGroupMode === 'previous_month_subcon') {
                         html += `
                             <div class="flex items-center justify-center gap-6 text-[#0f3b75] font-black my-1">
                                 <button onclick="navMonthBack()" class="hover:scale-110 active:scale-95 transition-transform"><i class="fa-solid fa-arrow-left text-[#3b5998] text-3xl drop-shadow-md"></i></button>
@@ -2455,6 +2857,14 @@ window.toggleActionMenu = function(menuId) {
                     html += `</div>`; 
 
                     html += `
+                        <div class="flex justify-between items-end w-full mb-1 px-1 mt-2">
+                            <div class="text-xs md:text-sm font-bold text-gray-700 italic">Compute totals for:</div>
+                            <select onchange="changeBillingTotalMode(this.value)" class="text-xs md:text-sm border-2 border-[#0f3b75] bg-[#fff9f2] rounded px-2 py-1 font-black text-[#0f3b75] outline-none cursor-pointer shadow-sm hover:brightness-95 transition-all">
+                                <option value="checked" ${billingTotalMode === 'checked' ? 'selected' : ''}>CHECKED PROJECTS</option>
+                                <option value="unchecked" ${billingTotalMode === 'unchecked' ? 'selected' : ''}>UNCHECKED PROJECTS</option>
+                                <option value="red_dot" ${billingTotalMode === 'red_dot' ? 'selected' : ''}>RED DOT PROJECTS</option>
+                            </select>
+                        </div>
                         <div class="w-full flex flex-col gap-4 mb-2 font-black text-[#0f3b75] drop-shadow-sm">
                             <div class="flex w-full">
                                 <div class="w-[35%] bg-[#a9d18e] px-3 py-1.5 md:py-2 flex justify-between items-center text-base md:text-lg border-2 border-white">
@@ -2508,9 +2918,17 @@ window.toggleActionMenu = function(menuId) {
                     const allFundsChecked = Object.values(billingFundFilters).every(v => v === true);
 
                     html += `
-                        <div class="w-full flex flex-col md:flex-row gap-2 mt-4 mb-6 action-dropdown-container relative z-40">
+                        <div class="w-full flex gap-2 justify-end mb-1">
+                            <button onclick="handleBillingUndo()" class="bg-blue-100 hover:bg-blue-200 border-2 border-[#0f3b75] text-[#0f3b75] font-black px-4 py-1.5 rounded-md shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed" ${billingUndoStack.length === 0 ? 'disabled' : ''}>
+                                <i class="fa-solid fa-rotate-left mr-1"></i> Undo
+                            </button>
+                            <button onclick="handleBillingRedo()" class="bg-blue-100 hover:bg-blue-200 border-2 border-[#0f3b75] text-[#0f3b75] font-black px-4 py-1.5 rounded-md shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed" ${billingRedoStack.length === 0 ? 'disabled' : ''}>
+                                Redo <i class="fa-solid fa-rotate-right ml-1"></i>
+                            </button>
+                        </div>
+                        <div class="w-full flex flex-col md:flex-row gap-2 mb-6 action-dropdown-container relative z-40">
                             
-                            <!-- Dropdown 1: Hide & Unhide Projects (Fund Filter) -->
+                            <!-- Dropdown 1: Hide & Unhide Projects (Fund Filter & Visibility) -->
                             <div class="relative flex-1">
                                 <button onclick="event.stopPropagation(); toggleActionMenu('filter-menu')" class="w-full bg-white border-2 border-[#0f3b75] text-[#0f3b75] font-black py-2 rounded-md shadow-sm flex justify-between items-center px-3 hover:bg-blue-50 transition-colors">
                                     <span class="text-sm md:text-base"><i class="fa-solid fa-eye mr-2"></i> 1. Hide & Unhide</span>
@@ -2518,6 +2936,24 @@ window.toggleActionMenu = function(menuId) {
                                 </button>
                                 <div id="filter-menu" class="action-menu-content ${activeActionMenu === 'filter-menu' ? '' : 'hidden'} absolute top-full left-0 w-full bg-white border-2 border-[#0f3b75] shadow-2xl mt-1 rounded-md z-50 p-4" onclick="event.stopPropagation()">
                                     
+                                    <div class="flex flex-col gap-2 mb-3 border-b border-gray-200 pb-3">
+                                        <div class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Row Visibility</div>
+                                        <div class="flex flex-wrap gap-4">
+                                            <label class="flex items-center gap-1.5 cursor-pointer text-sm font-bold text-gray-700">
+                                                <input type="checkbox" onchange="toggleBillingVisibility('checked', this.checked)" ${filterShowChecked ? 'checked' : ''}> Show Checked
+                                            </label>
+                                            <label class="flex items-center gap-1.5 cursor-pointer text-sm font-bold text-gray-700">
+                                                <input type="checkbox" onchange="toggleBillingVisibility('unchecked', this.checked)" ${filterShowUnchecked ? 'checked' : ''}> Show Unchecked
+                                            </label>
+                                            <label class="flex items-center gap-1.5 cursor-pointer text-sm font-bold text-gray-700">
+                                                <input type="checkbox" onchange="toggleBillingVisibility('dot', this.checked)" ${filterShowRedDot ? 'checked' : ''}> Show Red Dots
+                                            </label>
+                                            <label class="flex items-center gap-1.5 cursor-pointer text-sm font-bold text-gray-700">
+                                                <input type="checkbox" onchange="toggleBillingVisibility('nodot', this.checked)" ${filterShowNoDot ? 'checked' : ''}> Show No Dots
+                                            </label>
+                                        </div>
+                                    </div>
+
                                     <div class="flex items-center justify-center w-full mb-3 border-b border-gray-200 pb-3">
                                         <label class="flex items-center gap-2 cursor-pointer hover:bg-gray-100 bg-gray-50 px-4 py-1.5 rounded-md shadow-sm border border-gray-300 transition-all active:scale-95">
                                             <input type="checkbox" onchange="toggleAllBillingFunds(this.checked)" ${allFundsChecked ? 'checked' : ''} class="fund-checkbox">
@@ -2608,9 +3044,16 @@ window.toggleActionMenu = function(menuId) {
                             const theme = PE_THEMES[index % PE_THEMES.length];
                             const bills = groupedData[keyName];
                             
+                            // Calculate total amount for the current group
+                            let groupTotal = 0;
+                            bills.forEach(b => groupTotal += b.amount);
+                            
                             html += `
                             <div class="w-full flex flex-col shadow-md mb-6">
-                                <div class="${theme.header} px-4 py-1.5 font-black text-lg md:text-xl tracking-tight shadow-sm z-10 relative">${keyName}</div>
+                                <div class="${theme.header} px-4 py-1.5 font-black text-lg md:text-xl tracking-tight shadow-sm z-10 relative flex justify-between items-center">
+                                    <span>${keyName}</span>
+                                    <span>₱ ${formatCurrency(groupTotal)}</span>
+                                </div>
                                 <table class="w-full text-center border-collapse text-sm font-bold text-black bg-white">
                                     <thead>
                                         <tr class="bg-[#fff9f2] italic text-xs">
@@ -2646,6 +3089,41 @@ window.toggleActionMenu = function(menuId) {
                                 }
 
                                 const isExcluded = excludedBillingContracts.has(b.contractId);
+                                
+                                // Calculate the month slot offset based on the Bill's specific month
+                                const monthNum = monthOrderMap[b.billingMonthName.substring(0,3)];
+                                let offset = (b.billingYear - 2026) * 12 + (monthNum - 5);
+                                if (offset < 0) offset = 0;
+                                
+                                let rawPaid = othersSheetMeta.paidMap[b.contractId] || '';
+                                let parts = rawPaid.split('|').map(p => p.trim());
+                                let currentPaidStatus = offset >= 0 && offset < parts.length ? parts[offset] : '-';
+                                if (currentPaidStatus === '') currentPaidStatus = '-';
+
+                                let actionControlHtml = '';
+                                if (billingGroupMode === 'previous_month_subcon') {
+                                    actionControlHtml = `
+                                        <select class="border-2 border-orange-500 rounded text-xs px-1 py-0.5 outline-none font-bold cursor-pointer bg-[#fff9f2] text-orange-900"
+                                                onclick="event.stopPropagation()"
+                                                onchange="updatePaidStatus('${b.contractId}', this.value, this, ${b.billingYear}, '${b.billingMonthName}')">
+                                            <option value="-" ${currentPaidStatus === '-' ? 'selected' : ''}>-</option>
+                                            <option value="Paid" ${currentPaidStatus === 'Paid' ? 'selected' : ''}>Paid</option>
+                                        </select>
+                                    `;
+                                } else {
+                                    const dotActive = redDotContracts.has(b.contractId);
+                                    actionControlHtml = `
+                                        <div class="flex items-center gap-1.5 md:gap-2">
+                                            <div onclick="event.stopPropagation(); toggleRedDot('${b.contractId}')" 
+                                                 class="w-4 h-4 md:w-5 md:h-5 rounded-full cursor-pointer border-2 transition-all flex-shrink-0 shadow-inner ${dotActive ? 'bg-red-600 border-red-800' : 'bg-gray-200 border-gray-400 hover:border-gray-500'}"></div>
+                                            <input type="checkbox" 
+                                                class="billing-checkbox"
+                                                ${!isExcluded ? 'checked' : ''}
+                                                onclick="event.stopPropagation(); toggleBillingExclusion('${b.contractId}', this)"
+                                            >
+                                        </div>
+                                    `;
+                                }
 
                                 html += `
                                         <tr class="${rowColor} border-t border-gray-300/50 cursor-pointer hover:brightness-95 transition-all" onclick="toggleDetails('${uniqueId}')">
@@ -2654,11 +3132,7 @@ window.toggleActionMenu = function(menuId) {
                                             <td class="py-1.5 px-2 font-medium text-xs md:text-sm text-slate-700">
                                                 <div class="flex items-center justify-between w-full h-full gap-2">
                                                     <span class="flex-1 text-center leading-tight">${b.remarks}</span>
-                                                    <input type="checkbox" 
-                                                        class="billing-checkbox"
-                                                        ${!isExcluded ? 'checked' : ''}
-                                                        onclick="event.stopPropagation(); toggleBillingExclusion('${b.contractId}', this)"
-                                                    >
+                                                    ${actionControlHtml}
                                                 </div>
                                             </td>
                                         </tr>
@@ -2849,7 +3323,7 @@ window.toggleActionMenu = function(menuId) {
                                 `;
                             });
                             html += `</tbody></table></div>`;
-});
+                        });
                     }
                     html += `</div>`;
                     container.innerHTML = html;
@@ -2997,6 +3471,7 @@ window.toggleActionMenu = function(menuId) {
                             projects.forEach((p, idx) => {
                                 const rowColor = idx % 2 === 0 ? theme.rowOdd : theme.rowEven;
                                 const uniqueId = `nobilling-details-${index}-${idx}`;
+                                const isExcluded = excludedNoBillingContracts.has(p.contractId);
                                 html += `
                                     <tr class="${rowColor} border-t border-gray-300/50 cursor-pointer hover:brightness-95 transition-all" onclick="toggleDetails('${uniqueId}')">
                                         <td class="py-2 px-2 dotted-border tracking-wider">
@@ -3006,8 +3481,175 @@ window.toggleActionMenu = function(menuId) {
                                             </div>
                                         </td>
                                         <td class="py-2 px-2 dotted-border font-bold text-sm md:text-lg">₱ ${formatCurrency(p.totalBilled)}</td>
-                                        <td class="py-2 px-2 dotted-border font-medium text-xs md:text-sm text-slate-800 leading-tight">${p.lastBilling}</td>
+                                        <td class="py-2 px-2 dotted-border font-medium text-xs md:text-sm text-slate-800 leading-tight">
+                                            <div class="flex items-center justify-between w-full h-full gap-2">
+                                                <span class="flex-1 text-center leading-tight">${p.lastBilling}</span>
+                                                <input type="checkbox" class="billing-checkbox" ${!isExcluded ? 'checked' : ''} onclick="event.stopPropagation(); toggleNoBillingExclusion('${p.contractId}', this)">
+                                            </div>
+                                        </td>
                                         <td class="py-2 px-2 text-rose-600 font-black text-sm md:text-lg">₱ ${formatCurrency(p.remaining)}</td>
+                                    </tr>
+                                    ${generateDetailsRow(uniqueId, 4, p)}
+                                `;
+                            });
+
+                            html += `</tbody></table></div>`;
+                        });
+                    }
+
+                    container.innerHTML = html;
+                } else if (activeTab === 'projected') {
+                    // --- PROJECTED VIEW LOGIC ---
+                    const projectedProjects = [];
+                    const billContractColIndex = findContractHeaderCol(globalBillingHeaders);
+
+                    for (let r = 3; r < globalBillingValues.length; r++) {
+                        const row = globalBillingValues[r] || [];
+                        const cId = row[billContractColIndex] ? String(row[billContractColIndex]).trim() : '';
+                        if (!cId) continue;
+
+                        // Skip projects unchecked in NO BILLING
+                        if (excludedNoBillingContracts.has(cId)) continue;
+                        
+                        let hasRetention = false;
+                        globalBillingHeaders.forEach((h, colIdx) => {
+                            if (String(h || '').trim().toUpperCase().includes('REMARKS')) {
+                                if (String(row[colIdx] || '').trim().toUpperCase().includes('RETENTION')) hasRetention = true;
+                            }
+                        });
+                        if (hasRetention) continue; // Match NO BILLING logic
+
+                        const projectBills = billingDataGlobal.filter(b => b.contractId === cId);
+                        if (projectBills.some(b => b.isPaid === false)) continue; // Match NO BILLING logic
+
+                        let totalBilled = 0;
+                        projectBills.forEach(b => totalBilled += b.amount);
+
+                        const mData = monitoringData.find(m => m.contractId === cId);
+                        const cAmount = mData ? mData.contractAmount : 0;
+                        const pe = mData ? mData.pe : 'Unknown PE';
+                        const contractor = mData ? mData.contractor : 'Unknown Contractor';
+                        const year = mData ? String(mData.year) : 'Unknown';
+                        const fundCat = projectBills.length > 0 ? projectBills[0].fundCategory : 'GAA';
+                        
+                        const projectName = mData ? mData.projectName : 'Unknown Project';
+                        const location = mData ? mData.location : 'Unknown Location';
+                        const ntp = mData ? mData.ntp : '-';
+                        const expiry = mData ? mData.expiry : '-';
+
+                        const projectedPercent = othersSheetMeta.projectedMap[cId] || 0;
+                        const projectedValue = (cAmount * (projectedPercent / 100));
+                        const amount = projectedValue - totalBilled;
+
+                        projectedProjects.push({
+                            contractId: cId,
+                            contractAmount: cAmount,
+                            projectedPercent: projectedPercent,
+                            totalBilled: totalBilled,
+                            amount: amount,
+                            pe: pe,
+                            contractor: contractor,
+                            year: year,
+                            fundCategory: fundCat,
+                            projectName: projectName,
+                            location: location,
+                            ntp: ntp,
+                            expiry: expiry
+                        });
+                    }
+
+                    const allProjectedYears = [...new Set(projectedProjects.map(p => p.year))].filter(y => y !== 'Unknown').sort().reverse();
+                    const filteredProjected = projectedProjects.filter(p => projectedFilterYear === 'All' || p.year === projectedFilterYear);
+
+                    const groupedProjected = {};
+                    let totalProjectedAmount = 0;
+
+                    filteredProjected.forEach(p => {
+                        const groupKey = projectedGroupMode === 'pe' ? p.pe : p.contractor;
+                        if (!groupedProjected[groupKey]) groupedProjected[groupKey] = [];
+                        groupedProjected[groupKey].push(p);
+
+                        // Only add to the total if the amount is a positive number
+                        if (p.amount > 0) {
+                            totalProjectedAmount += p.amount;
+                        }
+                    });
+
+                    let html = `
+                        <div class="w-full flex flex-col md:flex-row gap-2 mb-4">
+                            <select onchange="changeProjectedGroupMode(this.value)" class="flex-1 border-2 border-orange-500 text-[#0f3b75] font-black text-center py-1.5 text-sm md:text-base outline-none cursor-pointer shadow-sm bg-white rounded-md">
+                                <option value="contractor" ${projectedGroupMode === 'contractor' ? 'selected' : ''}>by Contractor</option>
+                                <option value="pe" ${projectedGroupMode === 'pe' ? 'selected' : ''}>by Project Engineer (PE)</option>
+                            </select>
+                            <select onchange="changeProjectedFilterYear(this.value)" class="flex-1 border-2 border-orange-500 text-[#0f3b75] font-black text-center py-1.5 text-sm md:text-base outline-none cursor-pointer shadow-sm bg-white rounded-md">
+                                <option value="All" ${projectedFilterYear === 'All' ? 'selected' : ''}>All Years</option>
+                                ${allProjectedYears.map(y => `<option value="${y}" ${projectedFilterYear === String(y) ? 'selected' : ''}>CY ${y}</option>`).join('')}
+                            </select>
+                        </div>
+
+                        <!-- TOTAL AMOUNT BOX -->
+                        <div class="w-full flex flex-col gap-0 font-black text-[#0f3b75] drop-shadow-sm mb-6">
+                            <div class="flex w-full">
+                                <div class="w-[35%] bg-[#c6e0b4] px-3 py-1.5 md:py-2 flex justify-between items-center text-base md:text-lg border-[3px] border-white shadow-sm">
+                                    <span class="tracking-widest">TOTAL</span><span>=</span>
+                                </div>
+                                <div class="w-[65%] bg-gradient-to-r from-[#e2efda] to-[#c6e0b4] flex justify-center items-center border-[3px] border-white text-lg md:text-2xl tracking-tight text-[#0f3b75] shadow-sm">
+                                    PHP ${formatCurrency(totalProjectedAmount)}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    const sortedGroupKeys = Object.keys(groupedProjected).sort();
+
+                    if (sortedGroupKeys.length === 0) {
+                        html += `<div class="text-center py-10 font-black text-slate-500 opacity-60"><i class="fa-solid fa-check-circle text-4xl mb-3 block"></i> No projects found!</div>`;
+                    } else {
+                        sortedGroupKeys.forEach((keyName, index) => {
+                            const theme = PE_THEMES[index % PE_THEMES.length];
+                            const projects = groupedProjected[keyName];
+
+                            html += `
+                                <div class="w-full flex flex-col shadow-md mb-6">
+                                    <div class="${theme.header} px-4 py-1.5 font-black text-lg md:text-xl tracking-tight shadow-sm z-10 relative text-left">
+                                        ${keyName}
+                                    </div>
+                                    <table class="w-full text-center border-collapse text-sm font-bold text-black bg-white">
+                                        <thead>
+                                            <tr class="bg-[#fff9f2] italic text-xs md:text-sm border-b-2 border-orange-300">
+                                                <th class="py-2 px-2 dotted-border w-[25%] font-extrabold text-black">Contract ID</th>
+                                                <th class="py-2 px-2 dotted-border w-[25%] font-extrabold text-black">Contract Amount</th>
+                                                <th class="py-2 px-2 dotted-border w-[20%] font-extrabold text-black">Projected</th>
+                                                <th class="py-2 px-2 w-[30%] font-extrabold text-black">Amount</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                            `;
+
+                            projects.forEach((p, idx) => {
+                                const rowColor = idx % 2 === 0 ? theme.rowOdd : theme.rowEven;
+                                const uniqueId = `projected-details-${index}-${idx}`;
+                                html += `
+                                    <tr class="${rowColor} border-t border-gray-300/50 cursor-pointer hover:brightness-95 transition-all" onclick="toggleDetails('${uniqueId}')">
+                                        <td class="py-2 px-2 dotted-border tracking-wider">
+                                            <div class="flex items-center relative w-full">
+                                                <span class="absolute left-0 text-[10px] md:text-xs font-black text-[#0f3b75] leading-none">${p.fundCategory}</span>
+                                                <span class="w-full text-center font-extrabold text-[#0f3b75] text-sm md:text-lg">${p.contractId}</span>
+                                            </div>
+                                        </td>
+                                        <td class="py-2 px-2 dotted-border font-bold text-sm md:text-lg">₱ ${formatCurrency(p.contractAmount)}</td>
+                                        <td class="py-1 px-2 dotted-border">
+                                            <div class="w-full flex items-center justify-center" onclick="event.stopPropagation()">
+                                                <input type="number"
+                                                    value="${p.projectedPercent === 0 ? '' : p.projectedPercent}"
+                                                    class="w-16 text-center text-xs md:text-sm font-bold outline-none bg-gray-100 border border-gray-400 rounded focus:bg-white focus:border-blue-500 transition-colors py-1"
+                                                    placeholder="0"
+                                                    onchange="updateProjectedPercent('${p.contractId}', this.value, this)"
+                                                />
+                                                <span class="ml-1 font-bold">%</span>
+                                            </div>
+                                        </td>
+                                        <td class="py-2 px-2 text-rose-600 font-black text-sm md:text-lg">₱ ${formatCurrency(p.amount)}</td>
                                     </tr>
                                     ${generateDetailsRow(uniqueId, 4, p)}
                                 `;
@@ -3067,11 +3709,10 @@ window.toggleActionMenu = function(menuId) {
                     
                     let html = `
                         <div class="w-full mb-3 flex flex-col gap-2">
-                            <select id="general-group-select" onchange="changeGeneralGroupMode(this.value)" class="w-full border-2 ${borderColor} text-[#0f3b75] font-black text-center py-1 text-sm md:text-base outline-none cursor-pointer shadow-sm bg-white rounded-md">
+                            <select id="general-group-select" onchange="window.changeGeneralGroupMode(this.value)" class="w-full border-2 ${borderColor} text-[#0f3b75] font-black text-center py-1 text-sm md:text-base outline-none cursor-pointer shadow-sm bg-white rounded-md">
                                 <option value="pe" ${generalGroupMode === 'pe' ? 'selected' : ''}>by Project Engineer</option>
                                 <option value="contractor" ${generalGroupMode === 'contractor' ? 'selected' : ''}>by Contractor</option>
                             </select>
-                        </div>
                     `;
 
                     if (activeTab === 'weekly') {
@@ -3799,8 +4440,32 @@ window.toggleActionMenu = function(menuId) {
                         docCols = [{k: 'POW', l: 'POW'}, {k: 'DUPA', l: 'DUPA'}, {k: 'QUANTITY CALCULATION', l: 'Q.C.'}, {k: 'ORIGINAL PLAN', l: 'Orig. Plan'}];
                     } else if (documentSubTab === 'procurement') {
                         docCols = [{k: 'BOQ', l: 'BOQ'}, {k: 'DETAILED ESTIMATE', l: 'Estimate'}, {k: 'NOTICE OF AWARD', l: 'NOA'}, {k: 'CONTRACT AGREEMENT', l: 'Contract'}];
-                    } else {
+                    } else if (documentSubTab === 'construction') {
                         docCols = [{k: 'NTP', l: 'NTP'}, {k: 'PDM', l: 'PDM'}, {k: 'BAR-CHART', l: 'B. Chart'}, {k: 'PRE-CON NOTICE & MINUTES OF MEETING', l: 'Pre-con'}];
+                    } else if (documentSubTab === 'vo_wso') {
+                        docCols = [
+                            {k: 'VO', l: 'VO', isMulti: true, max: 5},
+                            {k: 'WSO', l: 'WSO', isMulti: true, max: 4},
+                            {k: 'CWSO', l: 'CWSO', isMulti: true, max: 4},
+                            {k: 'WRO', l: 'WRO', isMulti: true, max: 4},
+                            {k: 'CTE', l: 'CTE', isMulti: true, max: 20}
+                        ];
+                    } else if (documentSubTab === 'vo_wso') {
+                        docCols = [
+                            {k: 'VO', l: 'VO', isMulti: true, max: 5},
+                            {k: 'WSO', l: 'WSO', isMulti: true, max: 4},
+                            {k: 'CWSO', l: 'CWSO', isMulti: true, max: 4},
+                            {k: 'WRO', l: 'WRO', isMulti: true, max: 4},
+                            {k: 'CTE', l: 'CTE', isMulti: true, max: 20}
+                        ];
+                    } else if (documentSubTab === 'vo_wso') {
+                        docCols = [
+                            {k: 'VO', l: 'VO', isMulti: true, max: 5},
+                            {k: 'WSO', l: 'WSO', isMulti: true, max: 4},
+                            {k: 'CWSO', l: 'CWSO', isMulti: true, max: 4},
+                            {k: 'WRO', l: 'WRO', isMulti: true, max: 4},
+                            {k: 'CTE', l: 'CTE', isMulti: true, max: 20}
+                        ];
                     }
 
                     sortedPEs.forEach((pe, index) => {
@@ -3816,10 +4481,20 @@ window.toggleActionMenu = function(menuId) {
                             let projReq = 0;
                             let projChecks = 0;
                             docCols.forEach(col => {
-                                const docStatus = p.docs ? p.docs[col.k] : null;
-                                if (docStatus && docStatus.required) {
-                                    projReq++;
-                                    if (docStatus.uploaded) projChecks++;
+                                if (col.isMulti) {
+                                    for(let i = 1; i <= col.max; i++) {
+                                        const docStatus = p.docs ? p.docs[`${col.k}${i}`] : null;
+                                        if (docStatus && docStatus.required) {
+                                            projReq++;
+                                            if (docStatus.uploaded) projChecks++;
+                                        }
+                                    }
+                                } else {
+                                    const docStatus = p.docs ? p.docs[col.k] : null;
+                                    if (docStatus && docStatus.required) {
+                                        projReq++;
+                                        if (docStatus.uploaded) projChecks++;
+                                    }
                                 }
                             });
                             p._docReq = projReq;
@@ -3867,10 +4542,11 @@ window.toggleActionMenu = function(menuId) {
                                 <table class="w-full text-center border-collapse text-sm font-bold text-black bg-white">
                                     <thead>
                                         <tr class="bg-[#fff9f2] italic text-[11px] md:text-sm border-b border-orange-200">
-                                            <th class="py-2 px-1 dotted-border font-extrabold text-black w-[24%]">Contract ID</th>
+                                            <th class="py-2 px-1 dotted-border font-extrabold text-black ${documentSubTab === 'vo_wso' ? 'w-[15%]' : 'w-[24%]'}">Contract ID</th>
                         `;
                         docCols.forEach(col => {
-                            html += `<th class="py-2 px-1 dotted-border font-extrabold text-black w-[19%]">${col.l}</th>`;
+                            let colWidth = documentSubTab === 'vo_wso' ? 'w-[17%]' : 'w-[19%]';
+                            html += `<th class="py-2 px-1 dotted-border font-extrabold text-black ${colWidth}">${col.l}</th>`;
                         });
                         html += `</tr></thead><tbody>`;
 
@@ -3883,23 +4559,45 @@ window.toggleActionMenu = function(menuId) {
                             `;
                             
                             docCols.forEach(col => {
-                                const docStatus = p.docs ? p.docs[col.k] : null;
-                                let iconHtml = '';
-                                if (!docStatus || !docStatus.required) {
-                                    iconHtml = '<span class="text-purple-700 font-extrabold text-sm md:text-lg drop-shadow-sm" style="font-family: serif; letter-spacing:-0.5px;">N.A</span>';
-                                } else if (docStatus.uploaded) {
-                                    iconHtml = '<i class="fa-solid fa-check text-emerald-500 text-lg md:text-xl font-black drop-shadow-sm"></i>';
+                                if (col.isMulti) {
+                                    let cellHtml = '';
+                                    let hasAnyRequired = false;
+                                    for(let i = 1; i <= col.max; i++) {
+                                        const docStatus = p.docs ? p.docs[`${col.k}${i}`] : null;
+                                        if (docStatus && docStatus.required) {
+                                            hasAnyRequired = true;
+                                            if (docStatus.uploaded) {
+                                                cellHtml += '<i class="fa-solid fa-check text-emerald-500 text-[13px] md:text-base font-black drop-shadow-sm mx-[1.5px]"></i>';
+                                            } else {
+                                                cellHtml += '<i class="fa-solid fa-xmark text-red-600 text-[13px] md:text-base font-black drop-shadow-sm mx-[1.5px]"></i>';
+                                            }
+                                        }
+                                    }
+                                    if (!hasAnyRequired) {
+                                        // Modern, neutral bold N.A to match icons
+                                        cellHtml = '<span class="text-gray-400 font-black text-sm md:text-lg drop-shadow-sm">N.A</span>';
+                                    }
+                                    // Flex-wrap allows wrapping up to 20 icons inside the CTE column beautifully
+                                    html += `<td class="py-1 px-1 dotted-border align-middle"><div class="flex flex-wrap justify-center items-center">${cellHtml}</div></td>`;
                                 } else {
-                                    iconHtml = '<i class="fa-solid fa-xmark text-red-600 text-lg md:text-xl font-black drop-shadow-sm"></i>';
+                                    const docStatus = p.docs ? p.docs[col.k] : null;
+                                    let iconHtml = '';
+                                    if (!docStatus || !docStatus.required) {
+                                        // Modern, neutral bold N.A to match icons
+                                        iconHtml = '<span class="text-gray-400 font-black text-sm md:text-lg drop-shadow-sm">N.A</span>';
+                                    } else if (docStatus.uploaded) {
+                                        iconHtml = '<i class="fa-solid fa-check text-emerald-500 text-lg md:text-xl font-black drop-shadow-sm"></i>';
+                                    } else {
+                                        iconHtml = '<i class="fa-solid fa-xmark text-red-600 text-lg md:text-xl font-black drop-shadow-sm"></i>';
+                                    }
+                                    html += `<td class="py-2 px-1 dotted-border align-middle">${iconHtml}</td>`;
                                 }
-                                html += `<td class="py-2 px-1 dotted-border">${iconHtml}</td>`;
                             });
 
                             html += `</tr>${generateDetailsRow(uniqueId, 5, p)}`;
                         });
                         html += `</tbody></table></div>`;
                     });
-
                }
                 container.innerHTML = html;
             }
@@ -3958,8 +4656,7 @@ window.toggleActionMenu = function(menuId) {
                 let finalAmount = 0;
                 if (revCostStr !== '') finalAmount = parseFloat(revCostStr.replace(/[^0-9.]/g, '')) || 0;
                 else if (costStr !== '') finalAmount = parseFloat(costStr.replace(/[^0-9.]/g, '')) || 0;
-                map[contractId]
-= { amount: finalAmount };
+                map[contractId] = { amount: finalAmount };
             }
             return map;
         }
@@ -4021,8 +4718,7 @@ window.toggleActionMenu = function(menuId) {
                 let year = START_YEAR;
                 if (numMatches && numMatches.length > 0) {
                     const lastNum = parseInt(numMatches[numMatches.length - 1]);
-                    
-year = lastNum < 100 ? 2000 + lastNum : lastNum;
+                    year = lastNum < 100 ? 2000 + lastNum : lastNum;
                 }
                 return (year - START_YEAR) * 12 + monthIdx;
             }

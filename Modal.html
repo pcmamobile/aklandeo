@@ -460,17 +460,6 @@
       const currentCid = (cidIdx >= 0 ? String(row[cidIdx]).trim() : '');
       modalCID.textContent = currentCid || '—';
 
-      const img2Idx = findCol('image 2');
-      let rawImg2 = (img2Idx > -1 && row[img2Idx]) ? String(row[img2Idx]).trim() : '';
-      let heroImgUrl = rawImg2;
-      if (rawImg2 && !rawImg2.startsWith('http')) { heroImgUrl = `https://drive.google.com/thumbnail?id=${rawImg2}&sz=s800`; }
-
-      if (heroImgUrl) {
-        const wrap = document.createElement('div'); wrap.className = 'pcma-hero';
-        const im = document.createElement('img'); im.src = heroImgUrl; im.onerror = () => { im.src = LOGO_FALLBACK; };
-        wrap.appendChild(im); modalContent.appendChild(wrap);
-      }
-
       // =========================================================================
       // --- ACTION BUTTONS & SECURITY VALIDATION ---
       // =========================================================================
@@ -547,6 +536,20 @@
       actionBtns.appendChild(portalBtn);
       
       modalContent.appendChild(actionBtns);
+
+      // =========================================================================
+      // --- HERO IMAGE (Moved below Action Buttons) ---
+      // =========================================================================
+      const img2Idx = findCol('image 2');
+      let rawImg2 = (img2Idx > -1 && row[img2Idx]) ? String(row[img2Idx]).trim() : '';
+      let heroImgUrl = rawImg2;
+      if (rawImg2 && !rawImg2.startsWith('http')) { heroImgUrl = `https://drive.google.com/thumbnail?id=${rawImg2}&sz=s800`; }
+
+      if (heroImgUrl) {
+        const wrap = document.createElement('div'); wrap.className = 'pcma-hero';
+        const im = document.createElement('img'); im.src = heroImgUrl; im.onerror = () => { im.src = LOGO_FALLBACK; };
+        wrap.appendChild(im); modalContent.appendChild(wrap);
+      }
 
       // --- Primary Data Container ---
       const primary = document.createElement('div'); primary.className = 'pcma-primary';
