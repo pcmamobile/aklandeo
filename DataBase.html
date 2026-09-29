@@ -1773,10 +1773,15 @@
             try {
                 const token = await GoogleSheetsAPI.getAuthToken();
                 const payload = [];
+                let historyAppends = []; // Stores brand new logs that need to be appended
 
                 for (let s of saves) { await ensureRowExists(s.tabKey, s.cid); }
 
+                const timestamp = new Date().toLocaleString('en-US', { timeZone: 'Asia/Manila' });
+                const user = loggedInUser ? (loggedInUser.name || loggedInUser.username) : 'Unknown User';
+
                 saves.forEach(s => {
+                    // 1. UPDATE THE MAIN TAB DATA
                     const tabData = serverData[s.tabKey];
                     const headerIdx = tabData.headers.findIndex(h => String(h||'').toUpperCase().trim() === s.headerName.toUpperCase().trim());
                     if(headerIdx > -1) {
@@ -1790,8 +1795,39 @@
                             });
                         }
                     }
+
+                    // 2. CHECK HISTORY TO DECIDE IF WE OVERWRITE OR APPEND
+                    if (serverData.HISTORY) {
+                        const histData = serverData.HISTORY.rows;
+                        // Grab the absolute last row logged in history
+                        const lastLog = histData.length > 0 ? histData[histData.length - 1] : null;
+
+                        // Check if it's the exact same Contract, exact same Tab, and exact same Field
+                        if (lastLog && lastLog.values[0] === s.cid && lastLog.values[3] === s.tabKey && lastLog.values[4] === s.headerName) {
+                            
+                            // MATCH: We OVERWRITE the existing log row instead of adding a new one
+                            lastLog.values[1] = timestamp;
+                            lastLog.values[5] = String(s.value);
+                            
+                            // We add this to the payload so it updates instantly alongside the main data
+                            payload.push({
+                                range: `History!A${lastLog.rowNumber}:F${lastLog.rowNumber}`,
+                                values: [[s.cid, timestamp, user, s.tabKey, s.headerName, String(s.value)]]
+                            });
+
+                        } else {
+                            // NO MATCH: It's a new field or new contract, so we APPEND a new log
+                            const newRowVal = [s.cid, timestamp, user, s.tabKey, s.headerName, String(s.value)];
+                            historyAppends.push(newRowVal);
+                            
+                            // Estimate the row number for local memory so future edits can overwrite it
+                            let nextRow = histData.length > 0 ? histData[histData.length - 1].rowNumber + 1 : 4;
+                            histData.push({ rowNumber: nextRow, values: newRowVal });
+                        }
+                    }
                 });
 
+                // 3. SEND BATCH UPDATES (Updates main tabs AND Overwrites old history logs in ONE API call)
                 if(payload.length > 0) {
                     const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values:batchUpdate`, {
                         method: 'POST',
@@ -1799,37 +1835,20 @@
                         body: JSON.stringify({ valueInputOption: 'USER_ENTERED', data: payload })
                     });
                     if (!res.ok) throw new Error("Batch update failed.");
+                }
 
-                    // LOG TO HISTORY SHEET
-                    const timestamp = new Date().toLocaleString('en-US', { timeZone: 'Asia/Manila' });
-                    const user = loggedInUser ? (loggedInUser.name || loggedInUser.username) : 'Unknown User';
-                    
-                    const historyRows = saves.map(s => [
-                        s.cid,          // Column A: Contract ID
-                        timestamp,      // Column B: Time
-                        user,           // Column C: User
-                        s.tabKey,       // Column D: Tab
-                        s.headerName,   // Column E: Field updated
-                        String(s.value) // Column F: New Value
-                    ]);
-                    
+                // 4. SEND APPENDS (Only adds brand new history rows)
+                if (historyAppends.length > 0) {
                     await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values/History!A1:append?valueInputOption=USER_ENTERED`, {
                         method: 'POST',
                         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ values: historyRows })
+                        body: JSON.stringify({ values: historyAppends })
                     });
-                    
-                    // Update local application memory so if the history button is clicked right away, it's already there
-                    if (serverData.HISTORY) {
-                        historyRows.forEach(hr => {
-                            serverData.HISTORY.rows.push({ rowNumber: 0, values: hr }); 
-                        });
-                        
-                        // Re-render Global History if it is currently open
-                        if (!document.getElementById('historyModal').classList.contains('hidden')) {
-                            renderGlobalHistory();
-                        }
-                    }
+                }
+
+                // 5. RE-RENDER HISTORY MODAL IF OPEN
+                if (!document.getElementById('historyModal').classList.contains('hidden')) {
+                    renderGlobalHistory();
                 }
 
                 saves.forEach(s => {
