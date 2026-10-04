@@ -257,31 +257,42 @@
 
         // Share functionality for the Yellow Share Button
         async function shareToMessenger(cid, dateStr) {
-            const currentUrl = window.location.href; // Grabs the URL to share
+            const currentUrl = window.location.href; 
             
-            // Text that will be included with the link
-            const shareText = `Project Update: ${cid}\nDate: ${dateStr}\nClick the link to view the latest photos and details!`;
+            // 1. Build a beautiful text block with ALL project details
+            let textDetails = `🏗️ PROJECT UPDATE: ${cid}\n📅 Date: ${dateStr}\n\n`;
+            
+            detailFields.forEach(field => {
+                if (field.key !== 'spacer') {
+                    let val = globalProjectDetails[field.key] || globalProjectDetails[field.key.toLowerCase()] || '';
+                    if(val && val !== 'N/A') {
+                        textDetails += `${field.label} ${val}\n`;
+                    }
+                }
+            });
 
+            textDetails += `\n🔗 View Photos & Full History here:\n${currentUrl}`;
+
+            // 2. Try to open Mobile Share Menu, or fallback to Copying
             if (navigator.share) {
                 try {
                     await navigator.share({
-                        title: `Project Update - ${cid}`,
-                        text: shareText,
-                        url: currentUrl
+                        text: textDetails // Sharing text directly pre-fills the Messenger chat box
                     });
                 } catch (err) {
-                    copyToClipboard(currentUrl);
+                    copyToClipboard(textDetails);
                 }
             } else {
-                copyToClipboard(currentUrl);
+                // For Desktop/PC users
+                copyToClipboard(textDetails);
             }
         }
 
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text).then(() => {
-                alert("✅ Link Copied!\n\nPaste this link into your Messenger group to share this update.");
+                alert("✅ Project Details and Link Copied!\n\nPaste this into your Messenger chat. It will show all the text details and the link to the photos.");
             }).catch(err => {
-                alert("Failed to copy link. Please copy the URL from your browser.");
+                alert("Failed to copy link. Please manually copy the URL from your browser.");
             });
         }
     </script>
