@@ -2,260 +2,176 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Project History & Details</title>
+    <title>Project History Feed</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root {
-            --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            --text-main: #2d3436;
-            --text-muted: #636e72;
-            --color-blue: #0984e3;
-        }
-
         body {
-            font-family: 'Segoe UI', Roboto, Helvetica, sans-serif;
-            background: var(--bg-gradient);
-            padding: 15px;
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f0f2f5;
             margin: 0;
-            color: var(--text-main);
-            min-height: 100vh;
+            padding: 10px;
+            color: #000;
         }
 
-        .container {
-            max-width: 800px;
+        /* Top Back Button */
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            background: #fff;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        #feed-container {
+            max-width: 600px;
             margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        /* The Card representing one day's upload */
+        .post-card {
+            background-color: #fff;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             overflow: hidden;
-            border: 2px solid rgba(255, 255, 255, 0.8);
         }
 
-        .header {
-            background: linear-gradient(135deg, #74ebd5 0%, #9face6 100%);
-            padding: 25px 20px;
+        /* Header: CID and Date */
+        .post-header {
             text-align: center;
-            color: white;
+            padding: 15px 10px 10px 10px;
         }
 
-        .header h1 {
-            margin: 0;
+        .post-cid {
             font-size: 24px;
-            text-shadow: 1px 2px 4px rgba(0,0,0,0.2);
-            font-weight: 800;
+            font-weight: 900;
+            margin: 0 0 5px 0;
+            text-transform: uppercase;
         }
 
-        .header p { margin: 5px 0 0 0; font-size: 14px; opacity: 0.9; }
-
-        .content-section {
-            padding: 25px;
-            border-bottom: 1px solid #f1f2f6;
-        }
-
-        .content-section h2 {
-            margin-top: 0;
+        .post-date {
             font-size: 18px;
-            color: var(--color-blue);
+            font-weight: bold;
+            margin: 0;
+        }
+
+        /* Image full width */
+        .post-images img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-top: 2px solid #333;
+            border-bottom: 2px solid #333;
+        }
+
+        /* Project Details text */
+        .post-details {
+            padding: 15px 20px;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .post-details div {
             display: flex;
-            align-items: center;
-            gap: 8px;
-            border-bottom: 2px solid #dfe6e9;
-            padding-bottom: 10px;
-        }
-
-        /* Project Details Grid */
-        .details-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 15px;
-        }
-
-        .detail-item {
-            background: #f8fafc;
-            padding: 12px 15px;
-            border-radius: 12px;
-            border: 1px solid #e2e8f0;
+            justify-content: flex-start;
         }
 
         .detail-label {
-            font-size: 11px;
-            text-transform: uppercase;
-            font-weight: 700;
-            color: #94a3b8;
-            margin-bottom: 4px;
+            margin-right: 5px;
         }
 
-        .detail-val {
-            font-size: 15px;
-            font-weight: 600;
-            color: #334155;
-            word-wrap: break-word;
-        }
-
-        /* Photos Grid */
-        .photo-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
-        }
-
-        .photo-card {
-            background: #fff;
-            border-radius: 12px;
-            border: 1px solid #dfe6e9;
-            overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        }
-
-        .photo-card img {
+        /* The Yellow Share Button */
+        .share-btn {
             width: 100%;
-            height: 150px;
-            object-fit: cover;
-            display: block;
-        }
-
-        .photo-card .info {
-            padding: 8px;
-            font-size: 11px;
-            text-align: center;
-            color: var(--text-muted);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        /* Share Button */
-        .share-container {
-            padding: 20px;
-            background: #f1f5f9;
-            text-align: center;
-        }
-
-        .btn-share {
-            background: linear-gradient(135deg, #0084ff 0%, #005bb5 100%);
-            color: white;
+            background-color: #ffff00;
+            color: #000;
             border: none;
-            padding: 15px 30px;
+            padding: 12px;
             font-size: 16px;
-            font-weight: 700;
-            border-radius: 50px;
+            font-weight: bold;
             cursor: pointer;
-            box-shadow: 0 6px 15px rgba(0, 132, 255, 0.3);
-            transition: transform 0.1s;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
+            text-align: center;
         }
 
-        .btn-share:active { transform: translateY(3px); box-shadow: 0 2px 5px rgba(0, 132, 255, 0.3); }
+        .share-btn:active {
+            background-color: #e6e600;
+        }
 
-        #loader { text-align: center; padding: 40px; font-size: 18px; color: var(--color-blue); font-weight: bold; }
+        #loader {
+            text-align: center;
+            padding: 40px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
     </style>
 </head>
 <body>
 
-    <button onclick="window.location.href='index.html'" style="margin-bottom: 15px; padding: 10px 15px; border-radius: 10px; border:none; background:#fff; color: #2d3436; font-weight:bold; box-shadow:0 4px 6px rgba(0,0,0,0.1); cursor: pointer;">
-        <i class="fa-solid fa-arrow-left"></i> Back to Main
-    </button>
+    <div id="feed-container">
+        <button class="back-btn" onclick="window.location.href='index.html'">
+            &#8592; Back to Main
+        </button>
 
-    <div class="container" id="main-container" style="display:none;">
+        <div id="loader">Loading Project History...</div>
         
-        <div class="header">
-            <h1><i class="fa-solid fa-folder-open"></i> Project Record</h1>
-            <p id="head-cid">Loading...</p>
+        <div id="posts-wrapper">
+            <!-- Daily posts will be injected here via JavaScript -->
         </div>
-
-        <div class="content-section">
-            <h2><i class="fa-solid fa-clipboard-list"></i> Project Details</h2>
-            <div class="details-grid" id="details-box">
-                <!-- Details injected here via JS -->
-            </div>
-        </div>
-
-        <div class="content-section">
-            <h2><i class="fa-solid fa-images"></i> Uploaded Photos</h2>
-            <div id="photos-box">
-                <!-- Photos injected here via JS -->
-            </div>
-        </div>
-
-        <div class="share-container">
-            <button class="btn-share" onclick="shareToMessenger()">
-                <i class="fa-brands fa-facebook-messenger"></i> Share to Messenger Group
-            </button>
-            <p style="font-size:12px; color:#64748b; margin-top:12px;">Clicking this copies the link. Send the link to your group so they can view this exact page!</p>
-        </div>
-
     </div>
-
-    <div id="loader"><i class="fa-solid fa-circle-notch fa-spin"></i> Fetching Project History...</div>
 
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbxf_saXC_yEc9TgIeoUsUhLsNW7mPSGjxGzkB1qSiyXstpKXeNldxcUlvCwZpJmz5HaXg/exec"; 
 
-        // Fields to display mapped from the API details response
-        const requiredFields = [
-            { key: 'contractId', label: 'Contract ID' },
-            { key: 'projectName', label: 'Project Name' },
-            { key: 'location', label: 'Location' },
-            { key: 'contractCost', label: 'Contract Cost' },
-            { key: 'revisedContractCost', label: 'Revised Contract Cost' },
-            { key: 'ntp', label: 'NTP' },
-            { key: 'expiryDate', label: 'Expiry Date' },
-            { key: 'revisedExpiryDate', label: 'Revised Expiry Date' },
-            { key: 'calendarDays', label: 'Calendar Days' },
-            { key: 'revisedCalendarDays', label: 'Revised Calendar Days' },
-            { key: 'billing', label: 'Billing' },
-            { key: 'workSuspensionOrder', label: 'Work Suspension Order' },
-            { key: 'variationOrder', label: 'Variation Order' },
-            { key: 'projectEngineer', label: 'Project Engineer' },
-            { key: 'projectInspector', label: 'Project Inspector' },
-            { key: 'residentEngineer', label: 'Resident Engineer' },
-            { key: 'quantityEngineer', label: 'Quantity Engineer' }
+        // The specific fields you want in the exact order from your mockup
+        const detailFields = [
+            { key: 'projectName', label: 'Project Name:' },
+            { key: 'location', label: 'Location:' },
+            { key: 'contractor', label: 'Contractor:' },
+            { key: 'contractCost', label: 'Contract Cost:' },
+            { key: 'revisedContractCost', label: 'Revised Contract Cost:' },
+            { key: 'ntp', label: 'NTP:' },
+            { key: 'expiryDate', label: 'Expiry Date:' },
+            { key: 'revisedExpiryDate', label: 'Revised Expiry Date:' },
+            { key: 'calendarDays', label: 'Calendar Days:' },
+            { key: 'revisedCalendarDays', label: 'Revised Calendar Days:' },
+            { key: 'spacer', label: '' }, // Blank space matching your image
+            { key: 'projectEngineer', label: 'Project Engineer:' },
+            { key: 'projectInspector', label: 'Project Inspector:' },
+            { key: 'residentEngineer', label: 'Resident Engineer:' },
+            { key: 'quantityEngineer', label: 'Quantity Engineer:' },
+            { key: 'materialsEngineer', label: 'Material Engineer:' }
         ];
+
+        let globalProjectDetails = {};
 
         window.onload = async function() {
             const urlParams = new URLSearchParams(window.location.search);
             const cid = urlParams.get('cid');
             
             if (!cid) {
-                document.getElementById('loader').innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:red;"></i> No Contract ID provided in URL.';
+                document.getElementById('loader').innerText = 'No Contract ID provided.';
                 return;
             }
 
-            document.getElementById('head-cid').innerText = "Contract ID: " + cid;
-
             try {
-                // Fetch Details and Photos Simultaneously to save time
+                // Fetch Details and Photos Simultaneously
                 const [detailsRes, photosRes] = await Promise.all([
                     fetch(`${API_URL}?action=getProjectDetails&contractId=${encodeURIComponent(cid)}`).then(r => r.json()),
                     fetch(`${API_URL}?action=getPhotosList&contractId=${encodeURIComponent(cid)}`).then(r => r.json())
                 ]);
 
                 document.getElementById('loader').style.display = 'none';
-                document.getElementById('main-container').style.display = 'block';
 
-                // 1. Render Details
-                let detailsHtml = '';
-                let d = detailsRes.data || {};
-                
-                requiredFields.forEach(field => {
-                    // Extract value from API, fallback to 'N/A' if your Google Script doesn't output it yet
-                    let val = d[field.key] || d[field.key.toLowerCase()] || 'N/A';
-                    if (val === '' || val === null) val = 'N/A';
-                    
-                    detailsHtml += `
-                        <div class="detail-item">
-                            <div class="detail-label">${field.label}</div>
-                            <div class="detail-val">${val}</div>
-                        </div>
-                    `;
-                });
-                document.getElementById('details-box').innerHTML = detailsHtml;
+                // Save project details for the share button
+                globalProjectDetails = detailsRes.data || {};
 
-                // 2. Render Photos
+                // Consolidate all photos
                 let allPhotos = [];
                 if (photosRes.data) {
                     if (photosRes.data.preCon) allPhotos = allPhotos.concat(photosRes.data.preCon);
@@ -263,42 +179,97 @@
                     if (photosRes.data.completed) allPhotos = allPhotos.concat(photosRes.data.completed);
                 }
 
+                // Group Photos by Date
+                let photosByDate = {};
+
                 if (allPhotos.length === 0) {
-                    document.getElementById('photos-box').innerHTML = '<p style="color:#94a3b8; font-style:italic;">No photos uploaded yet.</p>';
-                } else {
-                    let photoHtml = '<div class="photo-grid">';
-                    allPhotos.forEach(p => {
-                        let fileId = p.id || (p.downloadUrl ? p.downloadUrl.split('id=')[1] : '');
-                        let thumbUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=s300`;
-                        photoHtml += `
-                            <div class="photo-card">
-                                <a href="${p.url}" target="_blank"><img src="${thumbUrl}" alt="Photo" loading="lazy"></a>
-                                <div class="info">${p.name}</div>
-                            </div>
-                        `;
-                    });
-                    photoHtml += '</div>';
-                    document.getElementById('photos-box').innerHTML = photoHtml;
+                    document.getElementById('posts-wrapper').innerHTML = '<div style="text-align:center; padding:20px; background:#fff;">No photos uploaded yet for this project.</div>';
+                    return;
                 }
 
+                allPhotos.forEach(p => {
+                    // Try to get the file creation date, fallback to today if not provided by Google Script
+                    let rawDate = p.createdTime || p.date || new Date().toISOString(); 
+                    let d = new Date(rawDate);
+                    
+                    // Format Date to "October 4, 2026"
+                    let options = { month: 'long', day: 'numeric', year: 'numeric' };
+                    let formattedDate = d.toLocaleDateString('en-US', options);
+
+                    if (!photosByDate[formattedDate]) {
+                        photosByDate[formattedDate] = [];
+                    }
+                    photosByDate[formattedDate].push(p);
+                });
+
+                // Render the Feed
+                let feedHtml = '';
+                
+                // Loop through each date and create a "Post"
+                for (let dateStr in photosByDate) {
+                    let photosForThisDay = photosByDate[dateStr];
+                    
+                    // Take the first photo as the main display image (like in the mockup)
+                    let mainPhoto = photosForThisDay[0]; 
+                    let fileId = mainPhoto.id || (mainPhoto.downloadUrl ? mainPhoto.downloadUrl.split('id=')[1] : '');
+                    let thumbUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`; // High quality wide image
+
+                    // Generate the project details text list
+                    let detailsListHtml = '';
+                    detailFields.forEach(field => {
+                        if (field.key === 'spacer') {
+                            detailsListHtml += `<br>`; // Adds the blank line spacing
+                            return;
+                        }
+                        let val = globalProjectDetails[field.key] || globalProjectDetails[field.key.toLowerCase()] || '';
+                        detailsListHtml += `<div><span class="detail-label">${field.label}</span> <span>${val}</span></div>`;
+                    });
+
+                    // Build the Post Card HTML
+                    feedHtml += `
+                        <div class="post-card">
+                            <div class="post-header">
+                                <h2 class="post-cid">${cid}</h2>
+                                <h3 class="post-date">${dateStr}</h3>
+                            </div>
+                            
+                            <div class="post-images">
+                                <a href="${mainPhoto.url}" target="_blank">
+                                    <img src="${thumbUrl}" alt="Project Photo">
+                                </a>
+                            </div>
+
+                            <div class="post-details">
+                                ${detailsListHtml}
+                            </div>
+
+                            <button class="share-btn" onclick="shareToMessenger('${cid}', '${dateStr}')">Share</button>
+                        </div>
+                    `;
+                }
+
+                document.getElementById('posts-wrapper').innerHTML = feedHtml;
+
             } catch (err) {
-                document.getElementById('loader').innerHTML = `<i class="fa-solid fa-circle-xmark" style="color:red;"></i> Error fetching data: ${err.message}`;
+                document.getElementById('loader').innerText = `Error: ${err.message}`;
             }
         };
 
-        // Share Link functionality
-        async function shareToMessenger() {
-            const currentUrl = window.location.href; // Grabs the URL containing the CID
+        // Share functionality for the Yellow Share Button
+        async function shareToMessenger(cid, dateStr) {
+            const currentUrl = window.location.href; // Grabs the URL to share
             
+            // Text that will be included with the link
+            const shareText = `Project Update: ${cid}\nDate: ${dateStr}\nClick the link to view the latest photos and details!`;
+
             if (navigator.share) {
                 try {
                     await navigator.share({
-                        title: 'Project Update History',
-                        text: 'Click here to view the latest details and photos for this project.',
+                        title: `Project Update - ${cid}`,
+                        text: shareText,
                         url: currentUrl
                     });
                 } catch (err) {
-                    // User canceled share or it failed, fallback to copy
                     copyToClipboard(currentUrl);
                 }
             } else {
@@ -308,9 +279,9 @@
 
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text).then(() => {
-                alert("✅ Web link copied to clipboard!\n\nOpen your Messenger group and Paste the link. Anyone who clicks it will see this exact page with live updates.");
+                alert("✅ Link Copied!\n\nPaste this link into your Messenger group to share this update.");
             }).catch(err => {
-                alert("Failed to copy link. Please manually copy the URL in your browser search bar.");
+                alert("Failed to copy link. Please copy the URL from your browser.");
             });
         }
     </script>
