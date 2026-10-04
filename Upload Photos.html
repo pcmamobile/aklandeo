@@ -474,6 +474,11 @@
 
         <hr class="divider">
         
+        <!-- NEW BUTTON FOR PROJECT HISTORY -->
+        <button class="btn-3d" style="background: linear-gradient(135deg, #0984e3 0%, #74ebd5 100%); color: white; box-shadow: 0 6px #06528d, 0 10px 15px rgba(0,0,0,0.15); margin-top: 10px;" onclick="openHistoryProject()">
+          <i class="fa-solid fa-clock-rotate-left"></i> History of Project
+        </button>
+
         <button class="btn-3d btn-purple" style="margin-top:10px;" onclick="switchView('gallery')">
           <i class="fa-solid fa-images"></i> View Gallery
         </button>
@@ -1074,27 +1079,29 @@
         return `<div class="category"><h3>${title}</h3><div class="photo-grid">${gridHtml}</div></div>`;
       }
 	  
-/* ==========================================
-         SAFE NAVIGATION LOGIC (RETURNS TO MODAL)
+      /* ==========================================
+         SAFE NAVIGATION LOGIC
          ========================================== */
       function handleAppBack() {
         try {
-          // Safely send a message to index.html to close the upload screen 
-          // and return to the exact Modal you were just looking at!
           if (window.parent && window.parent !== window) {
             window.parent.postMessage({ type: 'CLOSE_MODAL' }, '*');
             return;
           }
-        } catch (e) {
-          // Ignore cross-origin frame blocks
+        } catch (e) {}
+        try { window.top.location.href = 'index.html'; } catch (e) { window.location.href = 'index.html'; }
+      }
+
+      // ==========================================
+      // HISTORY PROJECT NAVIGATION LOGIC
+      // ==========================================
+      function openHistoryProject() {
+        let cid = document.getElementById('cid').value.trim();
+        if (!cid) { 
+            showMessage("Please enter a Contract ID first to view its history."); 
+            return; 
         }
-        
-        // Fallback: If opened directly in a new browser tab instead of inside the app
-        try {
-          window.top.location.href = 'index.html';
-        } catch (e) {
-          window.location.href = 'index.html';
-        }
+        window.location.href = 'HistoryProject.html?cid=' + encodeURIComponent(cid);
       }
     </script>
   </body>
