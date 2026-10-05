@@ -6,6 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- JWT Generation Library (Required for Secure Client-Side Data Fetching) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.5.27/jsrsasign-all-min.js"></script>
+
     <style>
       :root {
         --bg-gradient: linear-gradient(135deg, #74ebd5 0%, #9face6 100%);
@@ -119,14 +123,7 @@
       }
 
       .input-group { margin-bottom: 20px; position: relative; }
-      label { 
-        display: block; 
-        font-weight: 800; 
-        margin-bottom: 8px; 
-        color: var(--text-main); 
-        font-size: 14px;
-        text-shadow: 1px 1px 2px rgba(255,255,255,0.5);
-      }
+      label { display: block; font-weight: 800; margin-bottom: 8px; color: var(--text-main); font-size: 14px; text-shadow: 1px 1px 2px rgba(255,255,255,0.5); }
       
       .input-wrapper { position: relative; }
       
@@ -206,19 +203,11 @@
       .btn-orange { background-color: var(--color-orange); color: white; box-shadow: 0 6px var(--shadow-orange), 0 10px 15px rgba(0,0,0,0.15); }
       .btn-orange:active { box-shadow: 0 0 var(--shadow-orange), 0 2px 5px rgba(0,0,0,0.1); }
       
-      /* --- NEW MESSENGER BUTTON STYLE --- */
       .btn-messenger { background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%); color: white; box-shadow: 0 6px #005bb5, 0 10px 15px rgba(0,0,0,0.15); margin-top: 15px; }
       .btn-messenger:active { box-shadow: 0 0 #005bb5, 0 2px 5px rgba(0,0,0,0.1); }
+      .btn-messenger:disabled { filter: grayscale(1); cursor: not-allowed; box-shadow: 0 2px #005bb5; transform: translateY(4px); }
 
-      #loader { 
-        display: none; 
-        text-align: center; 
-        margin: 15px 0 25px 0; 
-        font-weight: 800; 
-        color: var(--color-blue); 
-        font-size: 15px;
-        animation: pulse 1.5s infinite;
-      }
+      #loader { display: none; text-align: center; margin: 15px 0 25px 0; font-weight: 800; color: var(--color-blue); font-size: 15px; animation: pulse 1.5s infinite; }
       @keyframes pulse { 0% { opacity: 0.5; transform: scale(0.98); } 50% { opacity: 1; transform: scale(1); } 100% { opacity: 0.5; transform: scale(0.98); } }
       
       #file-input { display: none; }
@@ -385,7 +374,6 @@
           </button>
         </div>
 
-        <!-- Upload Buttons -->
         <button id="btn-precon" class="btn-3d btn-grey" onclick="triggerUpload('PRE-CON')">
           <i class="fa-solid fa-clipboard-list"></i> PRE-CON (Empty)
         </button>
@@ -442,7 +430,6 @@
         <div class="modal-stat success-text"><i class="fa-solid fa-file-circle-check icon-3d-green"></i> Successfully Uploaded: <span id="success-count">0</span></div>
         <div class="modal-stat fail-text" id="fail-container"><i class="fa-solid fa-file-circle-xmark icon-3d-red"></i> Failed to Upload: <span id="fail-count">0</span></div>
         
-        <!-- --- NEW: SHARE TO MESSENGER BUTTON --- -->
         <button id="share-msg-btn" class="btn-3d btn-messenger" style="display:none;" onclick="combineAndSharePhotos()">
           <i class="fa-brands fa-facebook-messenger"></i> Combine & Send to Messenger
         </button>
@@ -466,8 +453,51 @@
       // CONFIGURATION & API
       // ==========================================
       const API_URL = "https://script.google.com/macros/s/AKfycbxf_saXC_yEc9TgIeoUsUhLsNW7mPSGjxGzkB1qSiyXstpKXeNldxcUlvCwZpJmz5HaXg/exec"; 
-      const MAX_FILES_PER_BATCH = 100;
+      
+      // Data Fetching Config for Collage Background Process
+      const API_CONFIG = {
+          SPREADSHEET_ID: "1LSYLZ7tfSeVupQMPsCOHG4SlnzPQqOAIe03QI1qRMr8",
+          SERVICE_ACCOUNT: {
+              "client_email": "pcma-mobile@gold-mode-473811-c6.iam.gserviceaccount.com",
+              "private_key": `-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQC1sEJI1CN6V8mj\nAhBvpiLC7JOEbrFFxsvqbzJjitbDRbyRhbk7prF1NQqAz0OV8l+9/v69UJ3ddGmE\n3Oq4EEqgOmeEpfdSeJeMa+alsc0H+1E2EmWLnhGNv/ot91osgokv7tUG7p/WnGSf\n0IP2bmbbEmQfhganvTCTmhTASHUSK32O+ZmYklYwqs9qptWCFjS3lj+uhaQ2nAFQ\nGCloj6go1aRbQTGxDygwwxtK08v68EuApslm5qs/x08gnj1UEV/FfHDUvUbCswm2\nIRTULJqNoGTYNs4DxbUJClUwcf72xmddbiE/CbOWs1g626obziGNe6/Dq74Ws5IR\nj39h8S57AgMBAAECggEAPUZdDH/TGUM7Iykijuz6Yz/zPmIwkiZKBl4LIewkowXF\nY1S0lGwTBELnsGp2Uj9ET+kMU5+5JgNJRQBWfs4rxN79o4xvnVZDUh3f0zjkO5Fk\nIbbRnWUpaWN6Bf+aX1GE3/AN00EuEex7uTRTFQzFzpNkxgbm/rI9DEKWRgUJyp7j\nwrbzhTp2cRRrQaPtONZej68dUtkkAsd2rlt3Reht3/NCdmNRTjpRHqiICZvuZuHe\njebcK/ewVZWqW9XpwVMfjhZeyBnfzNqRElNxF4BtodjmSpw+TkWyPK9obVFEBDG5\nFeRxBk6aTdutNkIN2uXOPFBP7UV4evsD3fiuYMRFvQKBgQDbiMwo80cLbnV7fuq/\nSr1y2i/mj8XDVX6xOJWDXOhrHNEDcTpYHp5Ey5qQwQhkGOiK/aUJWfWHJGMLM7DY\n7l6nvRe+oX/1inocjKMkiq5TGDvptBv2T9rz0K3LFueFNcxAv7445GgCsFADgYBM\n67reu9QcmT6Uis2nUffzcleGNQKBgQDT3ibtkMmkeDi3sl1uY9PudlZqnCcP11Pi\nQJF4+thJYjN/bYBKA3F4GhRZzEKxW6jjF/mQ/kZDLHJeGI4Y0ETpz76kB4gSO1zc\nlsKZnGBvfug2Oz7/fnPfdpMdSsaFS9AHOHTm7TAiyMuSXciJ1Sy5LxVeELP91cbJ\nBsJtKX+37wKBgQDFKUSB+orxn1Bvivp0tkESpxWh8blgxqWzr+fHRGeP2x90Afqu\nLUFi86BrJJHOo/gk68uObHZv2qQA6XmIOfxUlSSAFjb/ZFBq13ulU89f3UHhj9oV\nCn7Pvbh3zqg7IKfB9vJ10dv/ni0eGO4LJyJ66yGCVba4XTh5bspKn4QviQKBgQCi\nud3sWWiGilAFx1k7kDEW1o1JFOZrpFcpT65r3T6CHoqvNMt0DXD5bg5zag9Pabct\ntRxZ4PLWZSzyWKnLJSvI6WbjVWWNm0qXorOUiCcJe8+e16JrWhRlbg1QUj5n4vLE\nmPgw5bwy+0ZgBOgh9TmEgkVHGk0kiS1E+Ywbi+QswQKBgQDOI10/zjkwXOmqHlX7\n7nkuSIG9Kojrt2XWIsecZ9xP4lnIq6oyBUxDLaj3MaSnGeuvJZjDHa7YxqyAZvOO\nPxJ2F55gm4PME6obOldAw8rWdTWmlpG5rm679Q01nupwlC5+rJPqSzW/GpibKjZa\ni2e4E1vAOiqCrUlBSDcvD1r+/g==\n-----END PRIVATE KEY-----`
+          }
+      };
 
+      class GoogleSheetsAPI {
+          static _oauthToken = null;
+          static _tokenExp = 0;
+          static async getAuthToken() {
+              if (this._oauthToken && this._tokenExp > Date.now()) return this._oauthToken;
+              const header = { alg: "RS256", typ: "JWT" };
+              const now = Math.floor(Date.now() / 1000);
+              const claim = {
+                  iss: API_CONFIG.SERVICE_ACCOUNT.client_email,
+                  scope: "https://www.googleapis.com/auth/spreadsheets.readonly",
+                  aud: "https://oauth2.googleapis.com/token",
+                  exp: now + 3600,
+                  iat: now
+              };
+              const sHeader = JSON.stringify(header);
+              const sClaim = JSON.stringify(claim);
+              const sJWS = KJUR.jws.JWS.sign("RS256", sHeader, sClaim, API_CONFIG.SERVICE_ACCOUNT.private_key);
+
+              const res = await fetch("https://oauth2.googleapis.com/token", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                  body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${sJWS}`
+              });
+              const data = await res.json();
+              if (data.access_token) {
+                  this._oauthToken = data.access_token;
+                  this._tokenExp = Date.now() + (data.expires_in * 1000) - 60000;
+                  return data.access_token;
+              } else {
+                  throw new Error("Failed to get Google Token");
+              }
+          }
+      }
+
+      const MAX_FILES_PER_BATCH = 100;
       let isUploading = false;     
       let currentBatchId = 0;      
       let currentCategory = '';
@@ -950,7 +980,6 @@
           document.getElementById('retry-btn').style.display = 'none';
         }
 
-        // --- NEW: Toggle the Messenger Share button based on successful uploads ---
         let successfulUploads = pendingFiles.filter(f => !failedFiles.includes(f));
         if (successfulUploads.length > 0) {
            document.getElementById('share-msg-btn').style.display = 'inline-flex';
@@ -965,14 +994,86 @@
 
 
       /* ==========================================
-         --- NEW: COLLAGE & MESSENGER SHARE FEATURE ---
+         --- DATA FETCHING & COLLAGE FEATURE ---
          ========================================== */
-      
-      // 1. This function creates the actual grid layout (collage) using Canvas
-      async function createCollage(files) {
+
+      // 1. Fetch Project Details exactly like Projectdocs.html
+      async function fetchProjectDetailsForCollage(cid) {
+          try {
+              const token = await GoogleSheetsAPI.getAuthToken();
+              const fetchSheet = async (sheet) => {
+                  const url = `https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values/${encodeURIComponent(sheet + "!A1:ZZ1000")}`;
+                  const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+                  if (!res.ok) return [];
+                  const json = await res.json();
+                  return json.values || [];
+              };
+
+              const [appValues, pdoValues] = await Promise.all([fetchSheet("APP"), fetchSheet("PDO")]);
+
+              // Safe Parsing Helpers
+              const normalize = (t) => (t || "").toString().replace(/\s+/g, " ").trim().toUpperCase();
+              const findCol = (hdr, targets) => {
+                  for (let c of targets) {
+                      const idx = hdr.findIndex(h => normalize(h) === normalize(c));
+                      if (idx >= 0) return idx;
+                  }
+                  return -1;
+              };
+              const findRow = (vals, id) => {
+                  const target = String(id).trim().toLowerCase();
+                  for (let r = 0; r < vals.length; r++) {
+                      const row = vals[r] || [];
+                      if (row.some(cell => String(cell).trim().toLowerCase() === target)) {
+                          let header = null;
+                          for(let i = Math.max(0, r-5); i <= r; i++) {
+                              if(vals[i] && vals[i].length > 5) { header = vals[i]; break; }
+                          }
+                          return { header: header || vals[2] || [], row };
+                      }
+                  }
+                  return { header: null, row: null };
+              };
+
+              let data = {
+                  projectName: "-", location: "-", contractor: "-", contractCost: "-", revContractCost: "-", 
+                  ntp: "-", expiryDate: "-", revExpiryDate: "-", calendarDays: "-", revCalendarDays: "-",
+                  projectEngineer: "-", projectInspector: "-", residentEngineer: "-", quantityEngineer: "-", materialEngineer: "-"
+              };
+
+              const app = findRow(appValues, cid);
+              if (app.header && app.row) {
+                  data.projectName = app.row[findCol(app.header, ["Project Name", "Project Title", "DESCRIPTION/SCOPE OF WORK"])] || "-";
+                  data.location = app.row[findCol(app.header, ["Location"])] || "-";
+                  data.contractor = app.row[findCol(app.header, ["Contractor"])] || "-";
+                  data.projectEngineer = app.row[findCol(app.header, ["Project Engineer"])] || "-";
+                  data.projectInspector = app.row[findCol(app.header, ["Project Inspector"])] || "-";
+                  data.residentEngineer = app.row[findCol(app.header, ["Resident Engineer"])] || "-";
+                  data.quantityEngineer = app.row[findCol(app.header, ["Quantity Engineer"])] || "-";
+                  data.materialEngineer = app.row[findCol(app.header, ["Material Engineer", "Materials Engineer"])] || "-";
+              }
+
+              const pdo = findRow(pdoValues, cid);
+              if (pdo.header && pdo.row) {
+                  data.contractCost = pdo.row[findCol(pdo.header, ["Contract Cost", "Contract Amount"])] || "-";
+                  data.revContractCost = pdo.row[findCol(pdo.header, ["Revised Contract Cost", "Revised Amount"])] || "-";
+                  data.ntp = pdo.row[findCol(pdo.header, ["NTP", "Notice to Proceed", "Date of NTP"])] || "-";
+                  data.expiryDate = pdo.row[findCol(pdo.header, ["Expiry Date", "Original Expiry", "Original Expiry Date"])] || "-";
+                  data.revExpiryDate = pdo.row[findCol(pdo.header, ["Revised Expiry", "Revised Expiry Date"])] || "-";
+                  data.calendarDays = pdo.row[findCol(pdo.header, ["Calendar Days", "CD", "Duration"])] || "-";
+                  data.revCalendarDays = pdo.row[findCol(pdo.header, ["Revised CD", "Revised Calendar Days"])] || "-";
+              }
+              return data;
+          } catch (e) {
+              console.error("Error fetching project details for collage:", e);
+              return null; // Return null so the code can handle fallback easily
+          }
+      }
+
+      // 2. Generate the Vertical Image with Dynamic Text Scaling
+      async function createVerticalCollageWithData(files, projectData) {
           if (files.length === 0) return null;
 
-          // Load all successfully uploaded file objects into Image objects
           const images = await Promise.all(files.map(file => {
               return new Promise((resolve, reject) => {
                   const img = new Image();
@@ -982,82 +1083,178 @@
               });
           }));
 
-          // Safety Feature: If there are more than 9 images, only use the first 9 to prevent Out-Of-Memory crashing.
+          // Limit photos in collage to prevent memory crash
           const imgCount = Math.min(images.length, 9);
           
-          let cols = Math.ceil(Math.sqrt(imgCount));
-          let rows = Math.ceil(imgCount / cols);
+          // SET TARGET WIDTH TO THE ACTUAL WIDTH OF THE FIRST UPLOADED IMAGE (Actual Size requirement)
+          const targetW = images[0].width || 1200; 
+          const gap = Math.floor(targetW * 0.02); // Dynamic gap (2% of width)
 
-          const cellW = 500;
-          const cellH = 500;
-          const gap = 15; 
+          let totalImageHeight = 0;
+          const scaledHeights = [];
+          for (let i = 0; i < imgCount; i++) {
+              const h = images[i].height * (targetW / images[i].width);
+              scaledHeights.push(h);
+              totalImageHeight += h;
+          }
 
+          // Create initial oversized canvas (Text area might be large depending on targetW)
+          const safeTextHeight = targetW * 2.5; 
           const canvas = document.createElement('canvas');
-          canvas.width = (cols * cellW) + ((cols + 1) * gap);
-          canvas.height = (rows * cellH) + ((rows + 1) * gap);
+          canvas.width = targetW;
+          canvas.height = totalImageHeight + (imgCount * gap) + safeTextHeight;
           const ctx = canvas.getContext('2d');
           
-          // Draw White Background
+          // Fill background white
           ctx.fillStyle = '#ffffff';
           ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+          let currentY = 0;
+          
+          // Draw Images Vertically
           for (let i = 0; i < imgCount; i++) {
               const img = images[i];
-              const col = i % cols;
-              const row = Math.floor(i / cols);
-              
-              const x = (col * cellW) + (gap * (col + 1));
-              const y = (row * cellH) + (gap * (row + 1));
-              
-              // Crop calculations to make photos look uniform (object-fit: cover)
-              const imgRatio = img.width / img.height;
-              const cellRatio = cellW / cellH;
-              let drawW, drawH, offsetX, offsetY;
-              
-              if (imgRatio > cellRatio) {
-                 drawH = img.height;
-                 drawW = img.height * cellRatio;
-                 offsetX = (img.width - drawW) / 2;
-                 offsetY = 0;
-              } else {
-                 drawW = img.width;
-                 drawH = img.width / cellRatio;
-                 offsetX = 0;
-                 offsetY = (img.height - drawH) / 2;
-              }
-
-              ctx.drawImage(img, offsetX, offsetY, drawW, drawH, x, y, cellW, cellH);
-              URL.revokeObjectURL(img.src); // Free memory
+              const h = scaledHeights[i];
+              ctx.drawImage(img, 0, currentY, targetW, h);
+              currentY += h + gap;
+              URL.revokeObjectURL(img.src);
           }
 
+          // --- DYNAMIC FONT SCALING ENGINE ---
+          // Since "Actual Size" can mean a 4000px wide image, we must scale the fonts
+          // so the text panel doesn't look microscopic.
+          const scale = targetW / 1200; // 1200px is the baseline for these exact font sizes
+          
+          const fontTitle = `bold ${Math.floor(36 * scale)}px "Segoe UI", Arial, sans-serif`;
+          const fontLabel = `bold ${Math.floor(28 * scale)}px "Segoe UI", Arial, sans-serif`;
+          const fontValue = `${Math.floor(28 * scale)}px "Segoe UI", Arial, sans-serif`;
+          
+          const padX = 60 * scale;
+          const valX = 480 * scale; // How far right the values start
+          const maxValWidth = targetW - valX - padX;
+          const lineSpacing = 45 * scale;
+
+          // Draw Text Background Area
+          const textStartY = currentY;
+          ctx.fillStyle = '#f8fafc'; 
+          ctx.fillRect(0, textStartY, targetW, safeTextHeight); 
+          
+          // Header Text
+          ctx.fillStyle = '#0f172a';
+          ctx.font = fontTitle;
+          currentY += (80 * scale);
+          ctx.fillText("PROJECT DETAILS", padX, currentY);
+          
+          // Draw Line Separator
+          currentY += (30 * scale);
+          ctx.strokeStyle = '#cbd5e1';
+          ctx.lineWidth = Math.max(2, 2 * scale);
+          ctx.beginPath();
+          ctx.moveTo(padX, currentY);
+          ctx.lineTo(targetW - padX, currentY);
+          ctx.stroke();
+
+          const fields = [
+              { label: "Project Name:", value: projectData?.projectName },
+              { label: "Location:", value: projectData?.location },
+              { label: "Contractor:", value: projectData?.contractor },
+              { label: "Contract Cost:", value: projectData?.contractCost },
+              { label: "Revised Contract Cost:", value: projectData?.revContractCost },
+              { label: "NTP:", value: projectData?.ntp },
+              { label: "Expiry Date:", value: projectData?.expiryDate },
+              { label: "Revised Expiry Date:", value: projectData?.revExpiryDate },
+              { label: "Calendar Days:", value: projectData?.calendarDays },
+              { label: "Revised Calendar Days:", value: projectData?.revCalendarDays },
+              { isSpace: true },
+              { label: "Project Engineer:", value: projectData?.projectEngineer },
+              { label: "Project Inspector:", value: projectData?.projectInspector },
+              { label: "Resident Engineer:", value: projectData?.residentEngineer },
+              { label: "Quantity Engineer:", value: projectData?.quantityEngineer },
+              { label: "Material Engineer:", value: projectData?.materialEngineer }
+          ];
+
+          currentY += (60 * scale);
+
+          // Word Wrap Logic (For long Project Names & Locations)
+          function drawWrappedText(text, x, y, maxWidth, lineHeight) {
+              const words = String(text || "-").split(' ');
+              let line = '';
+              let tmpY = y;
+              for(let n = 0; n < words.length; n++) {
+                let testLine = line + words[n] + ' ';
+                let metrics = ctx.measureText(testLine);
+                if (metrics.width > maxWidth && n > 0) {
+                  ctx.fillText(line, x, tmpY);
+                  line = words[n] + ' ';
+                  tmpY += lineHeight;
+                } else {
+                  line = testLine;
+                }
+              }
+              ctx.fillText(line, x, tmpY);
+              return tmpY; 
+          }
+
+          fields.forEach(field => {
+              if (field.isSpace) {
+                  currentY += lineSpacing;
+                  return;
+              }
+              
+              ctx.font = fontLabel;
+              ctx.fillStyle = '#475569';
+              ctx.fillText(field.label, padX, currentY);
+              
+              ctx.font = fontValue;
+              ctx.fillStyle = '#0f172a';
+              
+              const endY = drawWrappedText(field.value, valX, currentY, maxValWidth, lineSpacing);
+              currentY = endY + lineSpacing + (10 * scale);
+          });
+          
+          currentY += (40 * scale); // Bottom Padding
+
+          // Finally, crop the massive canvas to the exact height of our content
+          const finalCanvas = document.createElement('canvas');
+          finalCanvas.width = targetW;
+          finalCanvas.height = currentY;
+          const finalCtx = finalCanvas.getContext('2d');
+          finalCtx.drawImage(canvas, 0, 0);
+
           return new Promise(resolve => {
-              canvas.toBlob(blob => { resolve(blob); }, 'image/jpeg', 0.85);
+              finalCanvas.toBlob(blob => { resolve(blob); }, 'image/jpeg', 0.85);
           });
       }
 
-      // 2. This function triggers when the user clicks "Combine & Send to Messenger"
+      // 3. User clicks "Combine & Send to Messenger"
       async function combineAndSharePhotos() {
           const successfulFiles = pendingFiles.filter(f => !failedFiles.includes(f));
           if(successfulFiles.length === 0) return;
           
           let shareBtn = document.getElementById('share-msg-btn');
-          shareBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Combining Photos...';
+          const originalBtnHtml = shareBtn.innerHTML;
+          
+          shareBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Fetching Project Data...';
           shareBtn.disabled = true;
 
           try {
              if (successfulFiles.length > 9) {
-                alert(`Note: You uploaded ${successfulFiles.length} photos. To prevent your device from freezing, only the first 9 will be combined in this image.`);
+                alert(`Note: You uploaded ${successfulFiles.length} photos. To prevent your device from crashing out of memory, only the first 9 will be combined in this image.`);
              }
 
-             // Generate Collage Blob
-             const blob = await createCollage(successfulFiles);
              const cid = document.getElementById('cid').value.trim();
-             const filename = `Contract_${cid}_Photos.jpg`;
              
-             // Convert Blob to File
+             // Step A: Securely Fetch the Data from Sheets
+             const projectData = await fetchProjectDetailsForCollage(cid);
+
+             // Step B: Build the Image Collage with the Data
+             shareBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Drawing Collage...';
+             const blob = await createVerticalCollageWithData(successfulFiles, projectData);
+             
+             const filename = `Contract_${cid}_Photos.jpg`;
              const combinedFile = new File([blob], filename, { type: "image/jpeg" });
 
-             // Open Native Share Menu (Web Share API)
+             // Step C: Trigger Native Phone Sharing
              if (navigator.canShare && navigator.canShare({ files: [combinedFile] })) {
                  await navigator.share({
                      files: [combinedFile],
@@ -1065,7 +1262,6 @@
                      text: `Here are the uploaded photos for Contract ${cid}.`
                  });
              } else {
-                 // Fallback for desktops/old browsers that don't support app-sharing
                  showMessage("Your browser doesn't support direct App Sharing. The combined image will be downloaded to your device instead. You can manually drag it into Messenger.");
                  const url = URL.createObjectURL(blob);
                  const a = document.createElement('a');
@@ -1077,7 +1273,7 @@
              console.error("Error creating combined image:", err);
              showMessage("Error creating combined image. You may be out of memory. Try uploading fewer photos at a time.");
           } finally {
-             shareBtn.innerHTML = '<i class="fa-brands fa-facebook-messenger"></i> Combine & Send to Messenger';
+             shareBtn.innerHTML = originalBtnHtml;
              shareBtn.disabled = false;
           }
       }
