@@ -997,7 +997,7 @@
          --- DATA FETCHING & COLLAGE FEATURE ---
          ========================================== */
 
-      // 1. Fetch Project Details exactly like Projectdocs.html
+      // 1. Fetch Project Details
       async function fetchProjectDetailsForCollage(cid) {
           try {
               const token = await GoogleSheetsAPI.getAuthToken();
@@ -1066,11 +1066,11 @@
               return data;
           } catch (e) {
               console.error("Error fetching project details for collage:", e);
-              return null; // Return null so the code can handle fallback easily
+              return null; 
           }
       }
 
-      // 2. Generate the Vertical Image with Dynamic Text Scaling
+      // 2. Generate the Vertical Image (CRASH-PROOF OPTIMIZED)
       async function createVerticalCollageWithData(files, projectData) {
           if (files.length === 0) return null;
 
@@ -1083,13 +1083,19 @@
               });
           }));
 
-          // Limit photos in collage to prevent memory crash
           const imgCount = Math.min(images.length, 9);
           
-          // SET TARGET WIDTH TO THE ACTUAL WIDTH OF THE FIRST UPLOADED IMAGE (Actual Size requirement)
-          const targetW = images[0].width || 1200; 
-          const gap = Math.floor(targetW * 0.02); // Dynamic gap (2% of width)
+          // CRITICAL FIX: Limit the maximum width to 1200 pixels.
+          // Mobile phones crash out of memory when trying to process canvases over a certain size.
+          const MAX_CANVAS_WIDTH = 1200;
+          let targetW = images[0].width || 1200;
+          if (targetW > MAX_CANVAS_WIDTH) {
+              targetW = MAX_CANVAS_WIDTH;
+          }
+          
+          const gap = Math.floor(targetW * 0.02); 
 
+          // Calculate scaled image heights
           let totalImageHeight = 0;
           const scaledHeights = [];
           for (let i = 0; i < imgCount; i++) {
@@ -1097,63 +1103,22 @@
               scaledHeights.push(h);
               totalImageHeight += h;
           }
+          const imagesSectionHeight = totalImageHeight + (imgCount * gap);
 
-          // Create initial oversized canvas (Text area might be large depending on targetW)
-          const safeTextHeight = targetW * 2.5; 
-          const canvas = document.createElement('canvas');
-          canvas.width = targetW;
-          canvas.height = totalImageHeight + (imgCount * gap) + safeTextHeight;
-          const ctx = canvas.getContext('2d');
-          
-          // Fill background white
-          ctx.fillStyle = '#ffffff';
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-          let currentY = 0;
-          
-          // Draw Images Vertically
-          for (let i = 0; i < imgCount; i++) {
-              const img = images[i];
-              const h = scaledHeights[i];
-              ctx.drawImage(img, 0, currentY, targetW, h);
-              currentY += h + gap;
-              URL.revokeObjectURL(img.src);
-          }
-
-          // --- DYNAMIC FONT SCALING ENGINE ---
-          // Since "Actual Size" can mean a 4000px wide image, we must scale the fonts
-          // so the text panel doesn't look microscopic.
-          const scale = targetW / 1200; // 1200px is the baseline for these exact font sizes
-          
+          // Calculate text section height dynamically using a dummy canvas
+          const scale = targetW / 1200; 
           const fontTitle = `bold ${Math.floor(36 * scale)}px "Segoe UI", Arial, sans-serif`;
           const fontLabel = `bold ${Math.floor(28 * scale)}px "Segoe UI", Arial, sans-serif`;
           const fontValue = `${Math.floor(28 * scale)}px "Segoe UI", Arial, sans-serif`;
           
           const padX = 60 * scale;
-          const valX = 480 * scale; // How far right the values start
+          const valX = 480 * scale; 
           const maxValWidth = targetW - valX - padX;
           const lineSpacing = 45 * scale;
 
-          // Draw Text Background Area
-          const textStartY = currentY;
-          ctx.fillStyle = '#f8fafc'; 
-          ctx.fillRect(0, textStartY, targetW, safeTextHeight); 
+          const dummyCanvas = document.createElement('canvas');
+          const dummyCtx = dummyCanvas.getContext('2d');
           
-          // Header Text
-          ctx.fillStyle = '#0f172a';
-          ctx.font = fontTitle;
-          currentY += (80 * scale);
-          ctx.fillText("PROJECT DETAILS", padX, currentY);
-          
-          // Draw Line Separator
-          currentY += (30 * scale);
-          ctx.strokeStyle = '#cbd5e1';
-          ctx.lineWidth = Math.max(2, 2 * scale);
-          ctx.beginPath();
-          ctx.moveTo(padX, currentY);
-          ctx.lineTo(targetW - padX, currentY);
-          ctx.stroke();
-
           const fields = [
               { label: "Project Name:", value: projectData?.projectName },
               { label: "Location:", value: projectData?.location },
@@ -1173,25 +1138,86 @@
               { label: "Material Engineer:", value: projectData?.materialEngineer }
           ];
 
+          let textSectionHeight = (80 * scale) + (30 * scale) + (60 * scale); // Title + Line + Padding
+
+          fields.forEach(field => {
+              if (field.isSpace) {
+                  textSectionHeight += lineSpacing;
+                  return;
+              }
+              dummyCtx.font = fontValue;
+              const words = String(field.value || "-").split(' ');
+              let line = '';
+              let linesCount = 1;
+              for(let n = 0; n < words.length; n++) {
+                  let testLine = line + words[n] + ' ';
+                  if (dummyCtx.measureText(testLine).width > maxValWidth && n > 0) {
+                      linesCount++;
+                      line = words[n] + ' ';
+                  } else {
+                      line = testLine;
+                  }
+              }
+              textSectionHeight += (linesCount * lineSpacing) + (10 * scale);
+          });
+          textSectionHeight += (40 * scale); // Bottom padding
+
+          // Create ONE single perfectly-sized canvas (Reduces memory load by 50%)
+          const canvas = document.createElement('canvas');
+          canvas.width = targetW;
+          canvas.height = imagesSectionHeight + textSectionHeight;
+          const ctx = canvas.getContext('2d');
+          
+          // Fill background white
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+          let currentY = 0;
+          
+          // Draw Images
+          for (let i = 0; i < imgCount; i++) {
+              const img = images[i];
+              const h = scaledHeights[i];
+              ctx.drawImage(img, 0, currentY, targetW, h);
+              currentY += h + gap;
+              URL.revokeObjectURL(img.src); // Free memory immediately
+          }
+
+          // Draw Text Background
+          const textStartY = imagesSectionHeight;
+          ctx.fillStyle = '#f8fafc'; 
+          ctx.fillRect(0, textStartY, targetW, textSectionHeight); 
+          
+          currentY = textStartY + (80 * scale);
+          ctx.fillStyle = '#0f172a';
+          ctx.font = fontTitle;
+          ctx.fillText("PROJECT DETAILS", padX, currentY);
+          
+          currentY += (30 * scale);
+          ctx.strokeStyle = '#cbd5e1';
+          ctx.lineWidth = Math.max(2, 2 * scale);
+          ctx.beginPath();
+          ctx.moveTo(padX, currentY);
+          ctx.lineTo(targetW - padX, currentY);
+          ctx.stroke();
+
           currentY += (60 * scale);
 
-          // Word Wrap Logic (For long Project Names & Locations)
           function drawWrappedText(text, x, y, maxWidth, lineHeight) {
               const words = String(text || "-").split(' ');
               let line = '';
               let tmpY = y;
               for(let n = 0; n < words.length; n++) {
                 let testLine = line + words[n] + ' ';
-                let metrics = ctx.measureText(testLine);
-                if (metrics.width > maxWidth && n > 0) {
-                  ctx.fillText(line, x, tmpY);
+                if (ctx.measureText(testLine).width > maxWidth && n > 0) {
+                  ctx.fillText(line.trim(), x, tmpY);
                   line = words[n] + ' ';
                   tmpY += lineHeight;
                 } else {
                   line = testLine;
                 }
               }
-              ctx.fillText(line, x, tmpY);
+              ctx.fillText(line.trim(), x, tmpY);
               return tmpY; 
           }
 
@@ -1211,18 +1237,16 @@
               const endY = drawWrappedText(field.value, valX, currentY, maxValWidth, lineSpacing);
               currentY = endY + lineSpacing + (10 * scale);
           });
-          
-          currentY += (40 * scale); // Bottom Padding
 
-          // Finally, crop the massive canvas to the exact height of our content
-          const finalCanvas = document.createElement('canvas');
-          finalCanvas.width = targetW;
-          finalCanvas.height = currentY;
-          const finalCtx = finalCanvas.getContext('2d');
-          finalCtx.drawImage(canvas, 0, 0);
-
-          return new Promise(resolve => {
-              finalCanvas.toBlob(blob => { resolve(blob); }, 'image/jpeg', 0.85);
+          return new Promise((resolve, reject) => {
+              try {
+                  canvas.toBlob(blob => { 
+                      if(blob) resolve(blob); 
+                      else reject(new Error("Canvas toBlob returned null (Memory limit reached)"));
+                  }, 'image/jpeg', 0.85);
+              } catch (e) {
+                  reject(e);
+              }
           });
       }
 
@@ -1244,17 +1268,14 @@
 
              const cid = document.getElementById('cid').value.trim();
              
-             // Step A: Securely Fetch the Data from Sheets
              const projectData = await fetchProjectDetailsForCollage(cid);
 
-             // Step B: Build the Image Collage with the Data
              shareBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Drawing Collage...';
              const blob = await createVerticalCollageWithData(successfulFiles, projectData);
              
              const filename = `Contract_${cid}_Photos.jpg`;
              const combinedFile = new File([blob], filename, { type: "image/jpeg" });
 
-             // Step C: Trigger Native Phone Sharing
              if (navigator.canShare && navigator.canShare({ files: [combinedFile] })) {
                  await navigator.share({
                      files: [combinedFile],
@@ -1271,7 +1292,8 @@
              }
           } catch (err) {
              console.error("Error creating combined image:", err);
-             showMessage("Error creating combined image. You may be out of memory. Try uploading fewer photos at a time.");
+             // More descriptive error message shown on the screen
+             showMessage(`Error creating image: ${err.message || 'Out of memory'}. Your phone does not have enough RAM for this many photos. Please try uploading fewer photos at a time.`);
           } finally {
              shareBtn.innerHTML = originalBtnHtml;
              shareBtn.disabled = false;
@@ -1327,9 +1349,6 @@
         try { window.top.location.href = 'index.html'; } catch (e) { window.location.href = 'index.html'; }
       }
 
-      // ==========================================
-      // HISTORY PROJECT NAVIGATION LOGIC
-      // ==========================================
       function openHistoryProject() {
         let cid = document.getElementById('cid').value.trim();
         if (!cid) { 
