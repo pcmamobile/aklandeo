@@ -191,10 +191,7 @@
         letter-spacing: 0.5px;
       }
       .btn-3d:active { transform: translateY(6px); }
-
-      .btn-3d i, .actions a i {
-        filter: drop-shadow(1px 2px 1px rgba(0,0,0,0.4));
-      }
+      .btn-3d i, .actions a i { filter: drop-shadow(1px 2px 1px rgba(0,0,0,0.4)); }
 
       .btn-grey { background-color: var(--color-grey); color: white; box-shadow: 0 6px var(--shadow-grey), 0 10px 15px rgba(0,0,0,0.1); }
       .btn-grey:active { box-shadow: 0 0 var(--shadow-grey), 0 2px 5px rgba(0,0,0,0.1); }
@@ -208,6 +205,10 @@
       .btn-purple:active { box-shadow: 0 0 var(--shadow-purple), 0 2px 5px rgba(0,0,0,0.1); }
       .btn-orange { background-color: var(--color-orange); color: white; box-shadow: 0 6px var(--shadow-orange), 0 10px 15px rgba(0,0,0,0.15); }
       .btn-orange:active { box-shadow: 0 0 var(--shadow-orange), 0 2px 5px rgba(0,0,0,0.1); }
+      
+      /* --- NEW MESSENGER BUTTON STYLE --- */
+      .btn-messenger { background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%); color: white; box-shadow: 0 6px #005bb5, 0 10px 15px rgba(0,0,0,0.15); margin-top: 15px; }
+      .btn-messenger:active { box-shadow: 0 0 #005bb5, 0 2px 5px rgba(0,0,0,0.1); }
 
       #loader { 
         display: none; 
@@ -231,34 +232,14 @@
       .progress-details { display: flex; justify-content: space-between; margin-top: 6px; font-size: 13px; font-weight: 700; color: var(--text-muted); }
 
       /* Upload Log Box */
-      #upload-log { 
-        margin-top: 20px; 
-        background: #f1f2f6; 
-        border: 1px solid #dfe6e9; 
-        border-radius: 12px; 
-        padding: 10px; 
-        height: 120px; 
-        overflow-y: auto; 
-        font-size: 12px; 
-        font-family: monospace; 
-        box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
-      }
+      #upload-log { margin-top: 20px; background: #f1f2f6; border: 1px solid #dfe6e9; border-radius: 12px; padding: 10px; height: 120px; overflow-y: auto; font-size: 12px; font-family: monospace; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); }
       .log-entry { margin-bottom: 5px; padding-bottom: 5px; border-bottom: 1px dashed #dfe6e9; line-height: 1.4; }
       .log-entry:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
 
-      /* NEW GOOGLE DRIVE STYLE QUEUE LIST */
-      #queue-list {
-        margin-top: 20px;
-        background: #ffffff;
-        border-radius: 12px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-        max-height: 250px;
-        overflow-y: auto;
-        border: 1px solid #dfe6e9;
-      }
+      /* QUEUE LIST */
+      #queue-list { margin-top: 20px; background: #ffffff; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); max-height: 250px; overflow-y: auto; border: 1px solid #dfe6e9; }
       #queue-list::-webkit-scrollbar { width: 6px; }
       #queue-list::-webkit-scrollbar-thumb { background: #b2bec3; border-radius: 10px; }
-      
       .queue-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid #f1f2f6; }
       .queue-item:last-child { border-bottom: none; }
       .queue-item-left { display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 600; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -277,15 +258,8 @@
       
       #modal-content h3, .alert-content h3 { margin-top: 0; color: var(--text-main); font-size: 22px; font-weight: 800; margin-bottom: 20px;}
       
-      .modal-icon { 
-         display: inline-flex; align-items: center; justify-content: center; width: 60px; height: 60px; 
-         background: linear-gradient(135deg, #00b894 0%, #55efc4 100%); color: white; border-radius: 50%; font-size: 32px; margin-bottom: 15px; 
-         box-shadow: 0 8px 15px rgba(0,184,148,0.5), inset 0 -4px 0 rgba(0,0,0,0.15); 
-      }
-      .modal-icon.warning { 
-         background: linear-gradient(135deg, #e17055 0%, #fab1a0 100%);
-         box-shadow: 0 8px 15px rgba(225,112,85,0.5), inset 0 -4px 0 rgba(0,0,0,0.15); 
-      }
+      .modal-icon { display: inline-flex; align-items: center; justify-content: center; width: 60px; height: 60px; background: linear-gradient(135deg, #00b894 0%, #55efc4 100%); color: white; border-radius: 50%; font-size: 32px; margin-bottom: 15px; box-shadow: 0 8px 15px rgba(0,184,148,0.5), inset 0 -4px 0 rgba(0,0,0,0.15); }
+      .modal-icon.warning { background: linear-gradient(135deg, #e17055 0%, #fab1a0 100%); box-shadow: 0 8px 15px rgba(225,112,85,0.5), inset 0 -4px 0 rgba(0,0,0,0.15); }
       .modal-icon i { filter: drop-shadow(2px 3px 0px rgba(0,0,0,0.25)); }
 
       .modal-stat { font-size: 16px; margin: 12px 0; font-weight: 800; background: #f8f9fa; padding: 14px; border-radius: 12px; border: 2px solid #dfe6e9; display: flex; align-items: center; justify-content: center; gap: 8px; }
@@ -298,7 +272,6 @@
       /* History List */
       #history-container { margin-top: 35px; background: rgba(255, 255, 255, 0.85); padding: 20px; border-radius: 20px; border: 2px solid rgba(255,255,255,0.5); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
       #history-container h3 { font-size: 18px; color: var(--text-main); margin-top: 0; margin-bottom: 15px; text-align: center; font-weight: 800;}
-      #history-container h3 i { color: var(--color-purple); margin-right: 8px;}
       #history-list { padding: 0; margin: 0; max-height: 250px; overflow-y: auto; padding-right: 5px;}
       #history-list::-webkit-scrollbar { width: 6px; }
       #history-list::-webkit-scrollbar-thumb { background: #b2bec3; border-radius: 10px; }
@@ -308,80 +281,39 @@
       .history-name { font-weight: 800; color: var(--color-blue); font-size: 15px; }
       .history-name i { margin-right: 5px; }
       .history-time { color: var(--text-muted); font-size: 12px; font-weight: 600; background: #f1f2f6; padding: 5px 10px; border-radius: 10px; line-height: 1.4; }
-      .history-time i { margin-right: 4px; color: var(--color-grey); }
       .history-action { color: var(--text-main); font-weight: 600; display: flex; align-items: center; gap: 8px;}
       .history-action i { color: var(--color-green); }
 
       /* ==========================================
          GALLERY VIEW STYLES
          ========================================== */
-      .gallery-header { text-align: center; color: var(--text-main); font-size: 24px; background: white; padding: 15px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); border-top: 2px solid #fff; margin-top: 20px; margin-bottom: 30px; font-weight: 800; }
-      .category { margin-top: 25px; background: #f8fafc; padding: 25px; border-radius: 16px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05), inset 0 2px 4px rgba(255, 255, 255, 0.8); border: 1px solid #e2e8f0; display: flex; flex-direction: column; width: 100%; box-sizing: border-box; height: max-content; }
-      .category h3 { margin-top: 0; color: #334155; border-bottom: 3px solid #cbd5e1; padding-bottom: 12px; font-size: 18px; display: flex; align-items: center; justify-content: center; text-align: center; gap: 10px; width: 100%; }
-      .category h3 i { color: #6366f1; }
+      .gallery-header { text-align: center; color: var(--text-main); font-size: 24px; background: white; padding: 15px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border-top: 2px solid #fff; margin-top: 20px; margin-bottom: 30px; font-weight: 800; }
+      .category { margin-top: 25px; background: #f8fafc; padding: 25px; border-radius: 16px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); border: 1px solid #e2e8f0; display: flex; flex-direction: column; width: 100%; box-sizing: border-box; }
+      .category h3 { margin-top: 0; color: #334155; border-bottom: 3px solid #cbd5e1; padding-bottom: 12px; font-size: 18px; display: flex; align-items: center; justify-content: center; text-align: center; gap: 10px; }
       .photo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 350px)); justify-content: center; align-items: start; gap: 30px; margin-top: 20px; width: 100%; }
-      .photo-card { background: #ffffff; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; width: 100%; box-shadow: 0 10px 20px rgba(0,0,0,0.08), 0 6px 6px rgba(0,0,0,0.04); border: 1px solid #f1f5f9; transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease; }
-      .photo-card:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
-      .photo-img { width: 100%; height: 300px; object-fit: contain; display: block; background: #f1f5f9; border-bottom: 2px solid #e2e8f0; }
+      .photo-card { background: #ffffff; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; width: 100%; box-shadow: 0 10px 20px rgba(0,0,0,0.08); border: 1px solid #f1f5f9; transition: transform 0.3s; }
+      .photo-card:hover { transform: translateY(-8px) scale(1.02); }
+      .photo-img { width: 100%; height: 300px; object-fit: contain; background: #f1f5f9; border-bottom: 2px solid #e2e8f0; }
       .photo-details { padding: 15px; display: flex; flex-direction: column; gap: 12px; }
       .file-name { font-size: 14px; color: #475569; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: center; font-weight: 600; }
-      .file-name i { color: #94a3b8; margin-right: 5px; }
-      
       .actions { display: flex; justify-content: space-between; gap: 10px; }
-      .actions a { text-decoration: none; padding: 10px 0; border-radius: 8px; font-size: 13px; font-weight: bold; text-align: center; flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.2); }
-      
+      .actions a { text-decoration: none; padding: 10px 0; border-radius: 8px; font-size: 13px; font-weight: bold; text-align: center; flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
       .btn-view { background: linear-gradient(145deg, #f8fafc, #e2e8f0); color: #475569; border: 1px solid #cbd5e1; }
-      .btn-view:hover { background: linear-gradient(145deg, #f1f5f9, #cbd5e1); color: #0f172a; }
       .btn-dl { background: linear-gradient(145deg, #3b82f6, #2563eb); color: white; border: 1px solid #1d4ed8; }
-      .btn-dl:hover { background: linear-gradient(145deg, #60a5fa, #3b82f6); }
-      .actions a:active { transform: translateY(2px); box-shadow: 0 1px 2px rgba(0,0,0,0.1), inset 0 3px 5px rgba(0,0,0,0.2); }
-      
       #gallery-loader { text-align: center; font-weight: bold; color: var(--color-blue); margin-top: 40px; font-size: 18px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-      #gallery-loader i { margin-right: 10px; animation: spin 1s linear infinite; }
-      
       .gallery-error-msg { color: #ef4444; font-weight: bold; margin-top: 10px; }
       .empty-msg { font-size: 14px; color: #64748b; font-style: italic; text-align: center; padding: 20px; width: 100%;}
 
       @media (max-width: 768px) { #upload-log, #queue-list { display: none !important; } }
       
-      /* Mobile Responsive Adjustments - OPTIMIZED FOR LOW SPEC PHONES */
       @media (max-width: 480px) {
         body { padding: 10px; }
-        
-        /* 1. Remove backdrop-filter (blur) on mobile to save massive GPU rendering power */
-        .app-container { 
-          padding: 20px 15px; 
-          border-radius: 20px; 
-          margin-top: 10px; 
-          margin-bottom: 10px; 
-          backdrop-filter: none !important; 
-          background: rgba(255,255,255, 0.95); 
-          border: 1px solid #dfe6e9;
-        }
-        
+        .app-container { padding: 20px 15px; border-radius: 20px; margin-top: 10px; margin-bottom: 10px; backdrop-filter: none !important; background: rgba(255,255,255, 0.95); border: 1px solid #dfe6e9; }
         .app-title { font-size: 20px; margin-bottom: 15px; }
-        label { font-size: 13px; }
         input[type="text"] { padding: 12px 12px 12px 35px; font-size: 14px; }
-        .input-wrapper i { font-size: 15px; left: 12px; }
         .btn-3d { padding: 12px; font-size: 14px; margin-bottom: 12px; border-radius: 12px; box-shadow: 0 4px 0 rgba(0,0,0,0.1); }
-        .btn-3d:active { transform: translateY(4px); box-shadow: 0 0 0 rgba(0,0,0,0.1); }
-        #progress-container { padding: 12px; margin-bottom: 15px; }
-        .progress-header { font-size: 13px; }
-        .progress-track { height: 16px; }
-        .progress-details { font-size: 12px; }
-        hr.divider { margin: 25px 0; }
-        hr.divider::before { font-size: 14px; top: -10px; }
-        #history-container { margin-top: 25px; padding: 15px; }
-        #history-container h3 { font-size: 16px; }
-        .history-item { padding: 12px; gap: 8px; }
-        .history-header { flex-direction: column; gap: 8px; }
-        .history-name { font-size: 14px; }
-        .history-time { font-size: 11px; align-self: flex-start; }
-        .history-action { font-size: 13px; }
         #modal-content, .alert-content { padding: 20px; width: 90%; }
-        #modal-content h3, .alert-content h3 { font-size: 18px; margin-bottom: 15px; }
         .modal-icon { width: 50px; height: 50px; font-size: 24px; }
-        .modal-stat { font-size: 14px; padding: 10px; }
         .gallery-header { font-size: 18px; padding: 12px; }
       }
     </style>
@@ -392,19 +324,16 @@
     <!--                UPLOAD VIEW                  -->
     <!-- ========================================== -->
     <div id="upload-view">
-	<div class="app-container">
+      <div class="app-container">
         
-        <!-- Header Row with 3D Back Button -->
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 25px;">
           <button onclick="handleAppBack()" class="btn-3d btn-grey" style="width: 42px; height: 42px; padding: 0; margin: 0; border-radius: 12px; flex-shrink: 0;" title="Back to Main Menu">
             <i class="fa-solid fa-arrow-left" style="margin: 0; font-size: 18px;"></i>
           </button>
-          
           <h2 class="app-title" style="margin-bottom: 0; flex: 1; text-align: center; line-height: 1.1;">
             <i class="fa-solid fa-cloud-arrow-up"></i> Upload Photos
           </h2>
-          
-          <div style="width: 42px; flex-shrink: 0;"></div> <!-- Invisible Spacer for Perfect Centering -->
+          <div style="width: 42px; flex-shrink: 0;"></div>
         </div>
 
         <div class="input-group">
@@ -425,10 +354,7 @@
 
         <div id="loader"><i class="fa-solid fa-arrows-rotate fa-spin icon-3d-blue"></i> <span id="loader-text">Syncing folders...</span></div>
 
-        <!-- NEW SEPARATED PROGRESS LAYOUT -->
         <div id="progress-container">
-          
-          <!-- Bar 1: Network Upload (REAL Bytes!) -->
           <div class="progress-header">
             <span id="progress-status"><i class="fa-solid fa-network-wired icon-3d-blue"></i> Uploading to Server...</span>
             <span id="network-percent">0%</span>
@@ -440,7 +366,6 @@
             <span id="progress-size">0.00 / 0.00 MB</span>
           </div>
 
-          <!-- Bar 2: Backend Processing -->
           <div class="progress-header">
             <span id="processing-status"><i class="fa-solid fa-hard-drive icon-3d-purple"></i> Saving...</span>
             <span id="processing-percent">0%</span>
@@ -458,7 +383,6 @@
           <button class="btn-3d btn-red" style="margin-top: 25px; padding: 12px; font-size: 14px;" onclick="cancelUpload()">
             <i class="fa-solid fa-rotate-left"></i> Reset / Cancel Upload
           </button>
-
         </div>
 
         <!-- Upload Buttons -->
@@ -474,7 +398,6 @@
 
         <hr class="divider">
         
-        <!-- NEW BUTTON FOR PROJECT HISTORY -->
         <button class="btn-3d" style="background: linear-gradient(135deg, #0984e3 0%, #74ebd5 100%); color: white; box-shadow: 0 6px #06528d, 0 10px 15px rgba(0,0,0,0.15); margin-top: 10px;" onclick="openHistoryProject()">
           <i class="fa-solid fa-clock-rotate-left"></i> History of Project
         </button>
@@ -518,7 +441,13 @@
         <h3>Upload Complete</h3>
         <div class="modal-stat success-text"><i class="fa-solid fa-file-circle-check icon-3d-green"></i> Successfully Uploaded: <span id="success-count">0</span></div>
         <div class="modal-stat fail-text" id="fail-container"><i class="fa-solid fa-file-circle-xmark icon-3d-red"></i> Failed to Upload: <span id="fail-count">0</span></div>
-        <button class="btn-3d btn-blue" style="margin-top: 15px;" onclick="closeModal()"><i class="fa-solid fa-thumbs-up"></i> Awesome</button>
+        
+        <!-- --- NEW: SHARE TO MESSENGER BUTTON --- -->
+        <button id="share-msg-btn" class="btn-3d btn-messenger" style="display:none;" onclick="combineAndSharePhotos()">
+          <i class="fa-brands fa-facebook-messenger"></i> Combine & Send to Messenger
+        </button>
+
+        <button class="btn-3d btn-blue" style="margin-top: 15px;" onclick="closeModal()"><i class="fa-solid fa-thumbs-up"></i> Awesome, Close</button>
         <button id="retry-btn" class="btn-3d btn-red" style="display:none;" onclick="retryFailed()"><i class="fa-solid fa-rotate-right"></i> Retry Failed</button>
       </div>
     </div>
@@ -536,9 +465,7 @@
       // ==========================================
       // CONFIGURATION & API
       // ==========================================
-      
       const API_URL = "https://script.google.com/macros/s/AKfycbxf_saXC_yEc9TgIeoUsUhLsNW7mPSGjxGzkB1qSiyXstpKXeNldxcUlvCwZpJmz5HaXg/exec"; 
-      
       const MAX_FILES_PER_BATCH = 100;
 
       let isUploading = false;     
@@ -551,18 +478,14 @@
       let pendingFiles = [];
       let failedFiles = [];
       let loadedBytesMap = {}; 
-      
-      // OPTIMIZATION 1: Global interval variable for UI throttling
       let uiUpdateInterval = null;
 
-      // Helper function to check if device is mobile
       const isMobile = () => window.innerWidth <= 768;
 
       window.onload = function() {
         const urlParams = new URLSearchParams(window.location.search);
         const cidParam = urlParams.get('cid');
         let cidInput = document.getElementById('cid');
-        
         if (cidParam) {
             cidInput.value = cidParam;
             loadStats();
@@ -621,9 +544,7 @@
       function showError(err) { hideLoader(); showMessage("Error: " + err.message); }
 
       function addUploadLog(htmlString) {
-        // OPTIMIZATION 2: Completely bypass DOM manipulation on hidden elements for low spec phones
         if (isMobile()) return; 
-        
         let logDiv = document.getElementById('upload-log');
         if (!logDiv) return;
         let entry = document.createElement('div');
@@ -634,9 +555,7 @@
       }
 
       function initializeQueueUI() {
-        // OPTIMIZATION 2: Bypass queue rendering on mobile to save massive amounts of RAM
         if (isMobile()) return; 
-
         let queueList = document.getElementById('queue-list');
         queueList.innerHTML = '';
         pendingFiles.forEach((file, index) => {
@@ -649,8 +568,7 @@
       }
 
       function updateQueueStatus(index, status) {
-        if (isMobile()) return; // Optimization
-
+        if (isMobile()) return;
         let statusDiv = document.getElementById(`queue-status-${index}`);
         if (!statusDiv) return;
         statusDiv.classList.remove('status-pending', 'status-uploading', 'status-success', 'status-error');
@@ -792,8 +710,6 @@
       function cancelUpload(silent = false) {
         isUploading = false;
         currentBatchId = 0; 
-        
-        // Stop UI updates immediately
         if (uiUpdateInterval) clearInterval(uiUpdateInterval);
         
         document.getElementById('progress-container').style.display = 'none';
@@ -827,9 +743,7 @@
         loadedBytesMap = {}; 
         
         initializeQueueUI(); 
-        
-        // OPTIMIZATION 3: Start Throttled UI Updates (Updates the heavy progress DOM only 4 times a second instead of 500)
-        updateOverallProgress(); // initial draw
+        updateOverallProgress(); 
         uiUpdateInterval = setInterval(updateOverallProgress, 250);
 
         let uploadCreds;
@@ -844,8 +758,7 @@
         let targetFolderId = uploadCreds.folderId;
         let accessToken = uploadCreds.token;
 
-        // OPTIMIZATION 4: Dynamic Concurrency - Limits intense network/CPU strain on Mobile
-        const CONCURRENCY_LIMIT = isMobile() ? 100 : 100; 
+        const CONCURRENCY_LIMIT = isMobile() ? 10 : 25; 
         let activeUploads = 0;
         let currentIndex = 0;
         let myBatchId = currentBatchId;
@@ -865,7 +778,7 @@
             loadedBytesMap[fileIndex] = 0;
             
             updateQueueStatus(fileIndex, 'uploading');
-            processNext(); // Stagger trigger
+            processNext(); 
 
             await executeNetworkUpload(file, fileIndex, targetFolderId, accessToken, myBatchId);
 
@@ -880,7 +793,7 @@
 
         if (isUploading && myBatchId === currentBatchId) { 
           if (uiUpdateInterval) clearInterval(uiUpdateInterval);
-          updateOverallProgress(); // Force final 100% draw
+          updateOverallProgress(); 
           finalizeUpload();
         }
       }
@@ -919,8 +832,6 @@
               xhr.setRequestHeader('Content-Type', contentType);
               
               xhr.upload.onprogress = function(e) {
-                  // OPTIMIZATION 1: Just store the bytes. DO NOT call DOM updates here. 
-                  // The uiUpdateInterval handles rendering this data every 250ms safely.
                   if (e.lengthComputable && myBatchId === currentBatchId) {
                       loadedBytesMap[fileIndex] = e.loaded;
                   }
@@ -951,10 +862,8 @@
 
         } catch (err) {
           if (myBatchId !== currentBatchId) return; 
-          console.error(`Upload Error for ${file.name}:`, err);
           loadedBytesMap[fileIndex] = 0; 
           failedFiles.push(file);
-          
           updateQueueStatus(fileIndex, 'error'); 
           let timeTaken = ((Date.now() - startTime) / 1000).toFixed(1);
           addUploadLog(`<span style="color:var(--color-red)"><i class="fa-solid fa-xmark"></i> [${serverName}] Failed: <strong style="color:var(--text-main)">${file.name}</strong><br><span style="font-size:10.5px; color:#c0392b; line-height: 1.2; display:block; margin-top:4px;">Error: ${err.message}</span></span>`);
@@ -1032,6 +941,7 @@
       function showSummaryModal() {
         document.getElementById('success-count').innerText = uploadedFileIds.length;
         document.getElementById('fail-count').innerText = failedFiles.length;
+        
         if (failedFiles.length > 0) {
           document.getElementById('fail-container').style.display = 'flex';
           document.getElementById('retry-btn').style.display = 'inline-flex';
@@ -1039,10 +949,139 @@
           document.getElementById('fail-container').style.display = 'none';
           document.getElementById('retry-btn').style.display = 'none';
         }
+
+        // --- NEW: Toggle the Messenger Share button based on successful uploads ---
+        let successfulUploads = pendingFiles.filter(f => !failedFiles.includes(f));
+        if (successfulUploads.length > 0) {
+           document.getElementById('share-msg-btn').style.display = 'inline-flex';
+        } else {
+           document.getElementById('share-msg-btn').style.display = 'none';
+        }
+
         document.getElementById('modal-overlay').style.display = 'flex';
       }
 
       function closeModal() { document.getElementById('modal-overlay').style.display = 'none'; }
+
+
+      /* ==========================================
+         --- NEW: COLLAGE & MESSENGER SHARE FEATURE ---
+         ========================================== */
+      
+      // 1. This function creates the actual grid layout (collage) using Canvas
+      async function createCollage(files) {
+          if (files.length === 0) return null;
+
+          // Load all successfully uploaded file objects into Image objects
+          const images = await Promise.all(files.map(file => {
+              return new Promise((resolve, reject) => {
+                  const img = new Image();
+                  img.onload = () => resolve(img);
+                  img.onerror = reject;
+                  img.src = URL.createObjectURL(file);
+              });
+          }));
+
+          // Safety Feature: If there are more than 9 images, only use the first 9 to prevent Out-Of-Memory crashing.
+          const imgCount = Math.min(images.length, 9);
+          
+          let cols = Math.ceil(Math.sqrt(imgCount));
+          let rows = Math.ceil(imgCount / cols);
+
+          const cellW = 500;
+          const cellH = 500;
+          const gap = 15; 
+
+          const canvas = document.createElement('canvas');
+          canvas.width = (cols * cellW) + ((cols + 1) * gap);
+          canvas.height = (rows * cellH) + ((rows + 1) * gap);
+          const ctx = canvas.getContext('2d');
+          
+          // Draw White Background
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+          for (let i = 0; i < imgCount; i++) {
+              const img = images[i];
+              const col = i % cols;
+              const row = Math.floor(i / cols);
+              
+              const x = (col * cellW) + (gap * (col + 1));
+              const y = (row * cellH) + (gap * (row + 1));
+              
+              // Crop calculations to make photos look uniform (object-fit: cover)
+              const imgRatio = img.width / img.height;
+              const cellRatio = cellW / cellH;
+              let drawW, drawH, offsetX, offsetY;
+              
+              if (imgRatio > cellRatio) {
+                 drawH = img.height;
+                 drawW = img.height * cellRatio;
+                 offsetX = (img.width - drawW) / 2;
+                 offsetY = 0;
+              } else {
+                 drawW = img.width;
+                 drawH = img.width / cellRatio;
+                 offsetX = 0;
+                 offsetY = (img.height - drawH) / 2;
+              }
+
+              ctx.drawImage(img, offsetX, offsetY, drawW, drawH, x, y, cellW, cellH);
+              URL.revokeObjectURL(img.src); // Free memory
+          }
+
+          return new Promise(resolve => {
+              canvas.toBlob(blob => { resolve(blob); }, 'image/jpeg', 0.85);
+          });
+      }
+
+      // 2. This function triggers when the user clicks "Combine & Send to Messenger"
+      async function combineAndSharePhotos() {
+          const successfulFiles = pendingFiles.filter(f => !failedFiles.includes(f));
+          if(successfulFiles.length === 0) return;
+          
+          let shareBtn = document.getElementById('share-msg-btn');
+          shareBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Combining Photos...';
+          shareBtn.disabled = true;
+
+          try {
+             if (successfulFiles.length > 9) {
+                alert(`Note: You uploaded ${successfulFiles.length} photos. To prevent your device from freezing, only the first 9 will be combined in this image.`);
+             }
+
+             // Generate Collage Blob
+             const blob = await createCollage(successfulFiles);
+             const cid = document.getElementById('cid').value.trim();
+             const filename = `Contract_${cid}_Photos.jpg`;
+             
+             // Convert Blob to File
+             const combinedFile = new File([blob], filename, { type: "image/jpeg" });
+
+             // Open Native Share Menu (Web Share API)
+             if (navigator.canShare && navigator.canShare({ files: [combinedFile] })) {
+                 await navigator.share({
+                     files: [combinedFile],
+                     title: `Contract Photos: ${cid}`,
+                     text: `Here are the uploaded photos for Contract ${cid}.`
+                 });
+             } else {
+                 // Fallback for desktops/old browsers that don't support app-sharing
+                 showMessage("Your browser doesn't support direct App Sharing. The combined image will be downloaded to your device instead. You can manually drag it into Messenger.");
+                 const url = URL.createObjectURL(blob);
+                 const a = document.createElement('a');
+                 a.href = url;
+                 a.download = filename;
+                 a.click();
+             }
+          } catch (err) {
+             console.error("Error creating combined image:", err);
+             showMessage("Error creating combined image. You may be out of memory. Try uploading fewer photos at a time.");
+          } finally {
+             shareBtn.innerHTML = '<i class="fa-brands fa-facebook-messenger"></i> Combine & Send to Messenger';
+             shareBtn.disabled = false;
+          }
+      }
+
 
       // ==========================================
       // GALLERY LOGIC
