@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <title>Project History Feed</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- JWT Generation Library for Service Account Authentication -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.5.27/jsrsasign-all-min.js"></script>
+
     <style>
         body {
             font-family: Arial, Helvetica, sans-serif;
@@ -13,7 +17,6 @@
             color: #000;
         }
 
-        /* Top Back Button */
         .back-btn {
             display: inline-block;
             margin-bottom: 15px;
@@ -26,25 +29,26 @@
             cursor: pointer;
             text-decoration: none;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: background 0.2s;
         }
+        
+        .back-btn:hover { background: #e2e8f0; }
 
-        #feed-container {
-            max-width: 600px;
-            margin: 0 auto;
-        }
+        #feed-container { max-width: 600px; margin: 0 auto; }
 
-        /* The Card representing one day's upload */
         .post-card {
             background-color: #fff;
-            margin-bottom: 25px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
             overflow: hidden;
         }
 
-        /* Header: CID and Date */
         .post-header {
             text-align: center;
             padding: 15px 10px 10px 10px;
+            background: #ffffff;
         }
 
         .post-cid {
@@ -52,55 +56,69 @@
             font-weight: 900;
             margin: 0 0 5px 0;
             text-transform: uppercase;
+            color: #0f172a;
         }
 
         .post-date {
-            font-size: 18px;
-            font-weight: bold;
+            font-size: 19px;
+            font-weight: 900;
+            color: #1d4ed8;
             margin: 0;
         }
 
-        /* Image full width */
+        .post-images {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            background-color: #333;
+            border-top: 3px solid #1e293b;
+            border-bottom: 3px solid #1e293b;
+        }
+        
         .post-images img {
             width: 100%;
             height: auto;
             display: block;
-            border-top: 2px solid #333;
-            border-bottom: 2px solid #333;
+            cursor: pointer;
+            transition: opacity 0.2s;
         }
 
-        /* Project Details text */
+        .post-images img:hover { opacity: 0.9; }
+
         .post-details {
             padding: 15px 20px;
             font-size: 15px;
             line-height: 1.6;
+            background-color: #f8fafc;
         }
 
         .post-details div {
             display: flex;
-            justify-content: flex-start;
+            justify-content: space-between;
+            border-bottom: 1px dashed #cbd5e1;
+            padding-bottom: 4px;
+            margin-bottom: 4px;
         }
+        
+        .post-details div:last-child { border-bottom: none; }
 
-        .detail-label {
-            margin-right: 5px;
-        }
+        .detail-label { font-weight: bold; margin-right: 5px; color: #334155; }
+        .detail-val { text-align: right; font-weight: 600; color: #0f172a; }
 
-        /* The Yellow Share Button */
         .share-btn {
             width: 100%;
             background-color: #ffff00;
             color: #000;
             border: none;
-            padding: 12px;
+            padding: 14px;
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
             text-align: center;
+            transition: background 0.2s;
         }
 
-        .share-btn:active {
-            background-color: #e6e600;
-        }
+        .share-btn:active { background-color: #e6e600; }
 
         #loader {
             text-align: center;
@@ -108,189 +126,314 @@
             font-size: 18px;
             font-weight: bold;
             color: #333;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            white-space: pre-wrap;
         }
     </style>
 </head>
 <body>
 
     <div id="feed-container">
-        <button class="back-btn" onclick="window.location.href='index.html'">
-            &#8592; Back to Main
-        </button>
-
-        <div id="loader">Loading Project History...</div>
-        
-        <div id="posts-wrapper">
-            <!-- Daily posts will be injected here via JavaScript -->
-        </div>
+        <button class="back-btn" onclick="window.history.back()">&#8592; Back</button>
+        <div id="loader">Authenticating & Fetching Photos...</div>
+        <div id="posts-wrapper"></div>
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbxf_saXC_yEc9TgIeoUsUhLsNW7mPSGjxGzkB1qSiyXstpKXeNldxcUlvCwZpJmz5HaXg/exec"; 
+        // ==========================================
+        // 1. SERVICE ACCOUNT CONFIGURATION
+        // ==========================================
+        const API_CONFIG = {
+            SPREADSHEET_ID: "1Pvc3vMJCXZB-rL2ejtMeAFb8rJLsdBdgS3IGVh9vF_s",
+            SERVICE_ACCOUNT: {
+                "client_email": "pcma-mobile@gold-mode-473811-c6.iam.gserviceaccount.com",
+                "private_key": `-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQC1sEJI1CN6V8mj\nAhBvpiLC7JOEbrFFxsvqbzJjitbDRbyRhbk7prF1NQqAz0OV8l+9/v69UJ3ddGmE\n3Oq4EEqgOmeEpfdSeJeMa+alsc0H+1E2EmWLnhGNv/ot91osgokv7tUG7p/WnGSf\n0IP2bmbbEmQfhganvTCTmhTASHUSK32O+ZmYklYwqs9qptWCFjS3lj+uhaQ2nAFQ\nGCloj6go1aRbQTGxDygwwxtK08v68EuApslm5qs/x08gnj1UEV/FfHDUvUbCswm2\nIRTULJqNoGTYNs4DxbUJClUwcf72xmddbiE/CbOWs1g626obziGNe6/Dq74Ws5IR\nj39h8S57AgMBAAECggEAPUZdDH/TGUM7Iykijuz6Yz/zPmIwkiZKBl4LIewkowXF\nY1S0lGwTBELnsGp2Uj9ET+kMU5+5JgNJRQBWfs4rxN79o4xvnVZDUh3f0zjkO5Fk\nIbbRnWUpaWN6Bf+aX1GE3/AN00EuEex7uTRTFQzFzpNkxgbm/rI9DEKWRgUJyp7j\nwrbzhTp2cRRrQaPtONZej68dUtkkAsd2rlt3Reht3/NCdmNRTjpRHqiICZvuZuHe\njebcK/ewVZWqW9XpwVMfjhZeyBnfzNqRElNxF4BtodjmSpw+TkWyPK9obVFEBDG5\nFeRxBk6aTdutNkIN2uXOPFBP7UV4evsD3fiuYMRFvQKBgQDbiMwo80cLbnV7fuq/\nSr1y2i/mj8XDVX6xOJWDXOhrHNEDcTpYHp5Ey5qQwQhkGOiK/aUJWfWHJGMLM7DY\n7l6nvRe+oX/1inocjKMkiq5TGDvptBv2T9rz0K3LFueFNcxAv7445GgCsFADgYBM\n67reu9QcmT6Uis2nUffzcleGNQKBgQDT3ibtkMmkeDi3sl1uY9PudlZqnCcP11Pi\nQJF4+thJYjN/bYBKA3F4GhRZzEKxW6jjF/mQ/kZDLHJeGI4Y0ETpz76kB4gSO1zc\nlsKZnGBvfug2Oz7/fnPfdpMdSsaFS9AHOHTm7TAiyMuSXciJ1Sy5LxVeELP91cbJ\nBsJtKX+37wKBgQDFKUSB+orxn1Bvivp0tkESpxWh8blgxqWzr+fHRGeP2x90Afqu\nLUFi86BrJJHOo/gk68uObHZv2qQA6XmIOfxUlSSAFjb/ZFBq13ulU89f3UHhj9oV\nCn7Pvbh3zqg7IKfB9vJ10dv/ni0eGO4LJyJ66yGCVba4XTh5bspKn4QviQKBgQCi\nud3sWWiGilAFx1k7kDEW1o1JFOZrpFcpT65r3T6CHoqvNMt0DXD5bg5zag9Pabct\ntRxZ4PLWZSzyWKnLJSvI6WbjVWWNm0qXorOUiCcJe8+e16JrWhRlbg1QUj5n4vLE\nmPgw5bwy+0ZgBOgh9TmEgkVHGk0kiS1E+Ywbi+QswQKBgQDOI10/zjkwXOmqHlX7\n7nkuSIG9Kojrt2XWIsecZ9xP4lnIq6oyBUxDLaj3MaSnGeuvJZjDHa7YxqyAZvOO\nPxJ2F55gm4PME6obOldAw8rWdTWmlpG5rm679Q01nupwlC5+rJPqSzW/GpibKjZa\ni2e4E1vAOiqCrUlBSDcvD1r+/g==\n-----END PRIVATE KEY-----`
+            }
+        };
 
-        // The specific fields you want in the exact order from your mockup
+        class GoogleSheetsAPI {
+            static _oauthToken = null;
+            static _tokenExp = 0;
+
+            static async getAuthToken() {
+                if (this._oauthToken && this._tokenExp > Date.now()) return this._oauthToken;
+                const header = { alg: "RS256", typ: "JWT" };
+                const now = Math.floor(Date.now() / 1000);
+                const claim = {
+                    iss: API_CONFIG.SERVICE_ACCOUNT.client_email,
+                    scope: "https://www.googleapis.com/auth/spreadsheets",
+                    aud: "https://oauth2.googleapis.com/token",
+                    exp: now + 3600,
+                    iat: now
+                };
+                const sJWS = KJUR.jws.JWS.sign("RS256", JSON.stringify(header), JSON.stringify(claim), API_CONFIG.SERVICE_ACCOUNT.private_key);
+                const res = await fetch("https://oauth2.googleapis.com/token", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${sJWS}`
+                });
+                const data = await res.json();
+                if (data.access_token) {
+                    this._oauthToken = data.access_token;
+                    this._tokenExp = Date.now() + (data.expires_in * 1000) - 60000;
+                    return data.access_token;
+                } else throw new Error("Failed to authenticate with Service Account.");
+            }
+
+            static async fetchUploadsData() {
+                const token = await this.getAuthToken();
+                // FIX 1: Added ?t=timestamp to force browser to get the newest uploaded pictures (bypassing cache)
+                const cacheBusterUrl = `https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values/Uploads!A:J?t=${Date.now()}`;
+                
+                const res = await fetch(cacheBusterUrl, {
+                    headers: { Authorization: `Bearer ${token}` },
+                    cache: 'no-store'
+                });
+                
+                if (!res.ok) throw new Error("Failed to fetch data from Uploads sheet.");
+                const json = await res.json();
+                return json.values || [];
+            }
+        }
+
+        // ==========================================
+        // 2. IMAGE CONSTANTS (FROM MODAL.HTML)
+        // ==========================================
+        const LOGO_FALLBACK = "https://drive.google.com/thumbnail?id=1VanVX82ANGfKA8jcGZL8cVDQh4EuN8-r&sz=s800";
+
         const detailFields = [
-            { key: 'projectName', label: 'Project Name:' },
-            { key: 'location', label: 'Location:' },
-            { key: 'contractor', label: 'Contractor:' },
-            { key: 'contractCost', label: 'Contract Cost:' },
-            { key: 'revisedContractCost', label: 'Revised Contract Cost:' },
-            { key: 'ntp', label: 'NTP:' },
-            { key: 'expiryDate', label: 'Expiry Date:' },
-            { key: 'revisedExpiryDate', label: 'Revised Expiry Date:' },
-            { key: 'calendarDays', label: 'Calendar Days:' },
-            { key: 'revisedCalendarDays', label: 'Revised Calendar Days:' },
-            { key: 'spacer', label: '' }, // Blank space matching your image
-            { key: 'projectEngineer', label: 'Project Engineer:' },
-            { key: 'projectInspector', label: 'Project Inspector:' },
-            { key: 'residentEngineer', label: 'Resident Engineer:' },
-            { key: 'quantityEngineer', label: 'Quantity Engineer:' },
-            { key: 'materialsEngineer', label: 'Material Engineer:' }
+            { key: 'Contract ID', label: 'Contract ID:' },
+            { key: 'Project Name', label: 'Project Name:' },
+            { key: 'Location', label: 'Location:' },
+            { key: 'Contractor', label: 'Contractor:' },
+            { key: 'Contract Cost', label: 'Contract Cost:' },
+            { key: 'Revised Contract Cost', label: 'Revised Contract Cost:' },
+            { key: 'NTP', label: 'NTP:' },
+            { key: 'Expiry Date', label: 'Expiry Date:' },
+            { key: 'Revised Expiry Date', label: 'Revised Expiry Date:' },
+            { key: 'Calendar Days', label: 'Calendar Days:' },
+            { key: 'Revised Calendar Days', label: 'Revised Calendar Days:' },
+            { key: 'spacer', label: '' }, 
+            { key: 'Project Engineer', label: 'Project Engineer:' },
+            { key: 'Project Inspector', label: 'Project Inspector:' },
+            { key: 'Resident Engineer', label: 'Resident Engineer:' },
+            { key: 'Quantity Engineer', label: 'Quantity Engineer:' },
+            { key: 'Material Engineer', label: 'Material Engineer:' }
         ];
 
         let globalProjectDetails = {};
 
         window.onload = async function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const cid = urlParams.get('cid');
-            
-            if (!cid) {
-                document.getElementById('loader').innerText = 'No Contract ID provided.';
-                return;
-            }
-
             try {
-                // Fetch Details and Photos Simultaneously
-                const [detailsRes, photosRes] = await Promise.all([
-                    fetch(`${API_URL}?action=getProjectDetails&contractId=${encodeURIComponent(cid)}`).then(r => r.json()),
-                    fetch(`${API_URL}?action=getPhotosList&contractId=${encodeURIComponent(cid)}`).then(r => r.json())
-                ]);
+                // =========================================================
+                // 3. Get Text Details from LocalStorage
+                // =========================================================
+                const rowStr = localStorage.getItem('pcma_modal_row');
+                const headersStr = localStorage.getItem('pcma_modal_headers');
 
-                document.getElementById('loader').style.display = 'none';
-
-                // Save project details for the share button
-                globalProjectDetails = detailsRes.data || {};
-
-                // Consolidate all photos
-                let allPhotos = [];
-                if (photosRes.data) {
-                    if (photosRes.data.preCon) allPhotos = allPhotos.concat(photosRes.data.preCon);
-                    if (photosRes.data.onGoing) allPhotos = allPhotos.concat(photosRes.data.onGoing);
-                    if (photosRes.data.completed) allPhotos = allPhotos.concat(photosRes.data.completed);
-                }
-
-                // Group Photos by Date
-                let photosByDate = {};
-
-                if (allPhotos.length === 0) {
-                    document.getElementById('posts-wrapper').innerHTML = '<div style="text-align:center; padding:20px; background:#fff;">No photos uploaded yet for this project.</div>';
+                if (!rowStr || !headersStr) {
+                    document.getElementById('loader').innerText = 'No project data found. Please launch this from the Dashboard.';
                     return;
                 }
 
-                allPhotos.forEach(p => {
-                    // Try to get the file creation date, fallback to today if not provided by Google Script
-                    let rawDate = p.createdTime || p.date || new Date().toISOString(); 
-                    let d = new Date(rawDate);
-                    
-                    // Format Date to "October 4, 2026"
-                    let options = { month: 'long', day: 'numeric', year: 'numeric' };
-                    let formattedDate = d.toLocaleDateString('en-US', options);
+                const row = JSON.parse(rowStr);
+                const headers = JSON.parse(headersStr);
 
-                    if (!photosByDate[formattedDate]) {
-                        photosByDate[formattedDate] = [];
+                function findCol(...keys) {
+                    const lowerKeys = keys.map(k => String(k).toLowerCase().trim());
+                    let exactIdx = headers.findIndex(h => lowerKeys.includes(String(h || '').toLowerCase().trim()));
+                    if (exactIdx !== -1) return exactIdx;
+                    return headers.findIndex(h => lowerKeys.some(k => String(h || '').toLowerCase().includes(k)));
+                }
+
+                function getVal(idx) { return (idx > -1 && row[idx] !== undefined && row[idx] !== null) ? String(row[idx]).trim() : ''; }
+                function toMoney(n) {
+                    if (!n) return '';
+                    const f = parseFloat(String(n).replace(/[^0-9.\-]/g, ''));
+                    return Number.isNaN(f) ? String(n) : '₱ ' + f.toLocaleString('en-PH', { minimumFractionDigits: 2 });
+                }
+                function toDateStr(v) {
+                    if (!v) return '';
+                    const d = new Date(v);
+                    return isNaN(d) ? String(v) : d.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+                }
+
+                globalProjectDetails = {
+                    'Contract ID': getVal(findCol('contract id')),
+                    'Project Name': getVal(findCol('project name')),
+                    'Location': getVal(findCol('location')),
+                    'Contractor': getVal(findCol('contractor')),
+                    'Contract Cost': toMoney(getVal(findCol('contract cost', 'contract amount', 'amount'))),
+                    'Revised Contract Cost': toMoney(getVal(findCol('revised contract cost', 'rev. contract cost', 'revised contract amount', 'rev. contract amount'))),
+                    'NTP': toDateStr(getVal(findCol('notice to proceed', 'ntp'))),
+                    'Expiry Date': toDateStr(getVal(findCol('expiry date'))),
+                    'Revised Expiry Date': toDateStr(getVal(findCol('revised expiry date', 'rev. expiry date'))),
+                    'Calendar Days': getVal(findCol('calendar days')),
+                    'Revised Calendar Days': getVal(findCol('revised cd', 'revised calendar days')),
+                    'Project Engineer': getVal(findCol('project engineer')),
+                    'Project Inspector': getVal(findCol('project inspector')),
+                    'Resident Engineer': getVal(findCol('resident engineer')),
+                    'Quantity Engineer': getVal(findCol('quantity engineer')),
+                    'Material Engineer': getVal(findCol('materials engineer', 'material engineer'))
+                };
+
+                const cid = globalProjectDetails['Contract ID'];
+                if (!cid) throw new Error("Contract ID is missing from local storage.");
+
+                // =========================================================
+                // 4. FETCH PHOTOS 
+                // =========================================================
+                const sheetRows = await GoogleSheetsAPI.fetchUploadsData();
+                document.getElementById('loader').style.display = 'none';
+
+                const projectRows = sheetRows.filter(r => r[0] && String(r[0]).trim().toUpperCase() === String(cid).trim().toUpperCase());
+
+                if (projectRows.length === 0) {
+                    document.getElementById('posts-wrapper').innerHTML = '<div style="text-align:center; padding:20px; background:#fff; border-radius:12px; font-weight:bold;">No photos found in the Uploads sheet for this project yet.</div>';
+                    return;
+                }
+
+                let allPhotos = [];
+
+                function extractPhotosWithDates(photoStr, dateStr) {
+                    if (photoStr) {
+                        const photoBlocks = String(photoStr).split('|');
+                        const dateBlocks = dateStr ? String(dateStr).split('|') : [];
+
+                        photoBlocks.forEach((pBlock, i) => {
+                            const match = pBlock.match(/[-\w]{25,}/); 
+                            if (match) {
+                                const id = match[0];
+                                
+                                // FIX 2: Handle empty dates (e.g. ` | | `) properly
+                                let rawDateStr = (dateBlocks[i] !== undefined) ? dateBlocks[i].trim() : "";
+                                let parsedDate = "Unknown Date"; // Fallback if no date is found
+
+                                if (rawDateStr !== "") {
+                                    const d = new Date(rawDateStr);
+                                    if (!isNaN(d.getTime())) {
+                                        parsedDate = d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+                                    }
+                                }
+                                
+                                // Push the photo even if the date was blank
+                                allPhotos.push({ id, date: parsedDate });
+                            }
+                        });
                     }
-                    photosByDate[formattedDate].push(p);
+                }
+
+                // Loop through updates
+                projectRows.forEach(rowData => {
+                    extractPhotosWithDates(rowData[4] || "", rowData[7] || "");
+                    extractPhotosWithDates(rowData[5] || "", rowData[8] || "");
+                    extractPhotosWithDates(rowData[6] || "", rowData[9] || "");
                 });
 
-                // Render the Feed
+                if (allPhotos.length === 0) {
+                    document.getElementById('posts-wrapper').innerHTML = '<div style="text-align:center; padding:20px; background:#fff; border-radius:12px; font-weight:bold;">No dated photos found for this project yet.</div>';
+                    return;
+                }
+
+                // =========================================================
+                // 5. GROUP BY DATE & RENDER UI 
+                // =========================================================
+                let photosByDate = {};
+                allPhotos.forEach(p => {
+                    if (!photosByDate[p.date]) photosByDate[p.date] = [];
+                    if (!photosByDate[p.date].includes(p.id)) photosByDate[p.date].push(p.id);
+                });
+
+                // Sort dates, making sure "Unknown Date" goes to the bottom safely
+                const sortedDates = Object.keys(photosByDate).sort((a, b) => {
+                    if (a === "Unknown Date") return 1;
+                    if (b === "Unknown Date") return -1;
+                    return new Date(b).getTime() - new Date(a).getTime();
+                });
+
                 let feedHtml = '';
+                let detailsListHtml = '';
                 
-                // Loop through each date and create a "Post"
-                for (let dateStr in photosByDate) {
-                    let photosForThisDay = photosByDate[dateStr];
+                detailFields.forEach(field => {
+                    if (field.key === 'spacer') {
+                        detailsListHtml += `<br>`;
+                        return;
+                    }
+                    let val = globalProjectDetails[field.key] || '—';
+                    detailsListHtml += `<div><span class="detail-label">${field.label}</span> <span class="detail-val">${val}</span></div>`;
+                });
+
+                sortedDates.forEach(dateStr => {
+                    let groupedPhotoIds = photosByDate[dateStr];
                     
-                    // Take the first photo as the main display image (like in the mockup)
-                    let mainPhoto = photosForThisDay[0]; 
-                    let fileId = mainPhoto.id || (mainPhoto.downloadUrl ? mainPhoto.downloadUrl.split('id=')[1] : '');
-                    let thumbUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`; // High quality wide image
+                    let imagesHtml = groupedPhotoIds.map(id => {
+                        const thumbUrl = `https://drive.google.com/thumbnail?id=${id}&sz=s800`; 
+                        const fullUrl = `https://drive.google.com/file/d/${id}/view`;
+                        
+                        return `
+                            <a href="${fullUrl}" target="_blank" style="text-decoration:none;">
+                                <img src="${thumbUrl}" 
+                                     loading="lazy" 
+                                     alt="Project Photo" 
+                                     onerror="this.src='${LOGO_FALLBACK}'" />
+                            </a>
+                        `;
+                    }).join('');
 
-                    // Generate the project details text list
-                    let detailsListHtml = '';
-                    detailFields.forEach(field => {
-                        if (field.key === 'spacer') {
-                            detailsListHtml += `<br>`; // Adds the blank line spacing
-                            return;
-                        }
-                        let val = globalProjectDetails[field.key] || globalProjectDetails[field.key.toLowerCase()] || '';
-                        detailsListHtml += `<div><span class="detail-label">${field.label}</span> <span>${val}</span></div>`;
-                    });
-
-                    // Build the Post Card HTML
                     feedHtml += `
                         <div class="post-card">
                             <div class="post-header">
                                 <h2 class="post-cid">${cid}</h2>
-                                <h3 class="post-date">${dateStr}</h3>
+                                <h3 class="post-date">📅 Date: ${dateStr}</h3>
                             </div>
-                            
                             <div class="post-images">
-                                <a href="${mainPhoto.url}" target="_blank">
-                                    <img src="${thumbUrl}" alt="Project Photo">
-                                </a>
+                                ${imagesHtml}
                             </div>
-
                             <div class="post-details">
                                 ${detailsListHtml}
                             </div>
-
-                            <button class="share-btn" onclick="shareToMessenger('${cid}', '${dateStr}')">Share</button>
+                            <button class="share-btn" onclick="shareToMessenger('${cid.replace(/'/g, "\\'")}', '${dateStr}')">Share via Messenger</button>
                         </div>
                     `;
-                }
+                });
 
                 document.getElementById('posts-wrapper').innerHTML = feedHtml;
 
             } catch (err) {
-                document.getElementById('loader').innerText = `Error: ${err.message}`;
+                document.getElementById('loader').innerText = `System Error:\n\n${err.message}`;
+                console.error(err);
             }
         };
 
-        // Share functionality for the Yellow Share Button
         async function shareToMessenger(cid, dateStr) {
-            const currentUrl = window.location.href; 
-            
-            // 1. Build a beautiful text block with ALL project details
             let textDetails = `🏗️ PROJECT UPDATE: ${cid}\n📅 Date: ${dateStr}\n\n`;
-            
             detailFields.forEach(field => {
                 if (field.key !== 'spacer') {
-                    let val = globalProjectDetails[field.key] || globalProjectDetails[field.key.toLowerCase()] || '';
-                    if(val && val !== 'N/A') {
+                    let val = globalProjectDetails[field.key];
+                    if(val && val !== '—' && val !== '') {
                         textDetails += `${field.label} ${val}\n`;
                     }
+                } else {
+                    textDetails += `\n`;
                 }
             });
 
-            textDetails += `\n🔗 View Photos & Full History here:\n${currentUrl}`;
-
-            // 2. Try to open Mobile Share Menu, or fallback to Copying
             if (navigator.share) {
                 try {
-                    await navigator.share({
-                        text: textDetails // Sharing text directly pre-fills the Messenger chat box
-                    });
+                    await navigator.share({ text: textDetails });
                 } catch (err) {
                     copyToClipboard(textDetails);
                 }
             } else {
-                // For Desktop/PC users
                 copyToClipboard(textDetails);
             }
         }
 
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text).then(() => {
-                alert("✅ Project Details and Link Copied!\n\nPaste this into your Messenger chat. It will show all the text details and the link to the photos.");
+                alert("✅ Project Details Copied!\n\nPaste this into your Messenger chat.");
             }).catch(err => {
                 alert("Failed to copy link. Please manually copy the URL from your browser.");
             });

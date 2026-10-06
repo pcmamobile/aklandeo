@@ -202,10 +202,6 @@
       .btn-purple:active { box-shadow: 0 0 var(--shadow-purple), 0 2px 5px rgba(0,0,0,0.1); }
       .btn-orange { background-color: var(--color-orange); color: white; box-shadow: 0 6px var(--shadow-orange), 0 10px 15px rgba(0,0,0,0.15); }
       .btn-orange:active { box-shadow: 0 0 var(--shadow-orange), 0 2px 5px rgba(0,0,0,0.1); }
-      
-      .btn-messenger { background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%); color: white; box-shadow: 0 6px #005bb5, 0 10px 15px rgba(0,0,0,0.15); margin-top: 15px; }
-      .btn-messenger:active { box-shadow: 0 0 #005bb5, 0 2px 5px rgba(0,0,0,0.1); }
-      .btn-messenger:disabled { filter: grayscale(1); cursor: not-allowed; box-shadow: 0 2px #005bb5; transform: translateY(4px); }
 
       #loader { display: none; text-align: center; margin: 15px 0 25px 0; font-weight: 800; color: var(--color-blue); font-size: 15px; animation: pulse 1.5s infinite; }
       @keyframes pulse { 0% { opacity: 0.5; transform: scale(0.98); } 50% { opacity: 1; transform: scale(1); } 100% { opacity: 0.5; transform: scale(0.98); } }
@@ -216,7 +212,8 @@
       #progress-container { display: none; margin-bottom: 25px; padding: 20px 15px; background: rgba(255, 255, 255, 0.85); border-radius: 16px; border: 2px solid rgba(255,255,255,0.5); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
       .progress-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; font-weight: 800; color: var(--text-main); }
       .progress-track { background: #dfe6e9; border-radius: 20px; overflow: hidden; height: 18px; width: 100%; box-shadow: inset 0 3px 6px rgba(0,0,0,0.1); position: relative; }
-      #network-bar { background: repeating-linear-gradient(45deg, var(--color-blue), var(--color-blue) 10px, #0873c4 10px, #0873c4 20px); width: 0%; height: 100%; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: inset 0 -3px 6px rgba(0,0,0,0.15), inset 0 3px 6px rgba(255,255,255,0.3); }
+      #network-bar { background: repeating-linear-gradient(45deg, var(--color-blue), var(--color-blue) 10px, #0873c4 10px, #0873c4 20px); width: 0%; height: 100%; transition: width 0.3s cubic-bezier(0.4
+	  , 0, 0.2, 1); box-shadow: inset 0 -3px 6px rgba(0,0,0,0.15), inset 0 3px 6px rgba(255,255,255,0.3); }
       #processing-bar { background: repeating-linear-gradient(45deg, var(--color-green), var(--color-green) 10px, #00896f 10px, #00896f 20px); width: 0%; height: 100%; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: inset 0 -3px 6px rgba(0,0,0,0.15), inset 0 3px 6px rgba(255,255,255,0.3); }
       .progress-details { display: flex; justify-content: space-between; margin-top: 6px; font-size: 13px; font-weight: 700; color: var(--text-muted); }
 
@@ -278,7 +275,7 @@
          ========================================== */
       .gallery-header { text-align: center; color: var(--text-main); font-size: 24px; background: white; padding: 15px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border-top: 2px solid #fff; margin-top: 20px; margin-bottom: 30px; font-weight: 800; }
       .category { margin-top: 25px; background: #f8fafc; padding: 25px; border-radius: 16px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); border: 1px solid #e2e8f0; display: flex; flex-direction: column; width: 100%; box-sizing: border-box; }
-      .category h3 { margin-top: 0; color: #334155; border-bottom: 3px solid #cbd5e1; padding-bottom: 12px; font-size: 18px; display: flex; align-items: center; justify-content: center; text-align: center; gap: 10px; }
+      .category h3 { margin-top: 0; color: #334155; border-bottom: 3px solid #cbd5e1; padding-bottom: 12px; font-size: 18px; text-align: center; gap: 10px; }
       .photo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 350px)); justify-content: center; align-items: start; gap: 30px; margin-top: 20px; width: 100%; }
       .photo-card { background: #ffffff; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; width: 100%; box-shadow: 0 10px 20px rgba(0,0,0,0.08); border: 1px solid #f1f5f9; transition: transform 0.3s; }
       .photo-card:hover { transform: translateY(-8px) scale(1.02); }
@@ -429,10 +426,6 @@
         <h3>Upload Complete</h3>
         <div class="modal-stat success-text"><i class="fa-solid fa-file-circle-check icon-3d-green"></i> Successfully Uploaded: <span id="success-count">0</span></div>
         <div class="modal-stat fail-text" id="fail-container"><i class="fa-solid fa-file-circle-xmark icon-3d-red"></i> Failed to Upload: <span id="fail-count">0</span></div>
-        
-        <button id="share-msg-btn" class="btn-3d btn-messenger" style="display:none;" onclick="combineAndSharePhotos()">
-          <i class="fa-brands fa-facebook-messenger"></i> Combine & Send to Messenger
-        </button>
 
         <button class="btn-3d btn-blue" style="margin-top: 15px;" onclick="closeModal()"><i class="fa-solid fa-thumbs-up"></i> Awesome, Close</button>
         <button id="retry-btn" class="btn-3d btn-red" style="display:none;" onclick="retryFailed()"><i class="fa-solid fa-rotate-right"></i> Retry Failed</button>
@@ -454,9 +447,10 @@
       // ==========================================
       const API_URL = "https://script.google.com/macros/s/AKfycbxf_saXC_yEc9TgIeoUsUhLsNW7mPSGjxGzkB1qSiyXstpKXeNldxcUlvCwZpJmz5HaXg/exec"; 
       
-      // Data Fetching Config for Collage Background Process
+      // Data Fetching Config for Collage & Timestamp Background Process
       const API_CONFIG = {
-          SPREADSHEET_ID: "1LSYLZ7tfSeVupQMPsCOHG4SlnzPQqOAIe03QI1qRMr8",
+          SPREADSHEET_ID: "1LSYLZ7tfSeVupQMPsCOHG4SlnzPQqOAIe03QI1qRMr8", // General Config ID
+          TIMESTAMP_SHEET_ID: "1Pvc3vMJCXZB-rL2ejtMeAFb8rJLsdBdgS3IGVh9vF_s", // The new Sheet for Time Stamps
           SERVICE_ACCOUNT: {
               "client_email": "pcma-mobile@gold-mode-473811-c6.iam.gserviceaccount.com",
               "private_key": `-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQC1sEJI1CN6V8mj\nAhBvpiLC7JOEbrFFxsvqbzJjitbDRbyRhbk7prF1NQqAz0OV8l+9/v69UJ3ddGmE\n3Oq4EEqgOmeEpfdSeJeMa+alsc0H+1E2EmWLnhGNv/ot91osgokv7tUG7p/WnGSf\n0IP2bmbbEmQfhganvTCTmhTASHUSK32O+ZmYklYwqs9qptWCFjS3lj+uhaQ2nAFQ\nGCloj6go1aRbQTGxDygwwxtK08v68EuApslm5qs/x08gnj1UEV/FfHDUvUbCswm2\nIRTULJqNoGTYNs4DxbUJClUwcf72xmddbiE/CbOWs1g626obziGNe6/Dq74Ws5IR\nj39h8S57AgMBAAECggEAPUZdDH/TGUM7Iykijuz6Yz/zPmIwkiZKBl4LIewkowXF\nY1S0lGwTBELnsGp2Uj9ET+kMU5+5JgNJRQBWfs4rxN79o4xvnVZDUh3f0zjkO5Fk\nIbbRnWUpaWN6Bf+aX1GE3/AN00EuEex7uTRTFQzFzpNkxgbm/rI9DEKWRgUJyp7j\nwrbzhTp2cRRrQaPtONZej68dUtkkAsd2rlt3Reht3/NCdmNRTjpRHqiICZvuZuHe\njebcK/ewVZWqW9XpwVMfjhZeyBnfzNqRElNxF4BtodjmSpw+TkWyPK9obVFEBDG5\nFeRxBk6aTdutNkIN2uXOPFBP7UV4evsD3fiuYMRFvQKBgQDbiMwo80cLbnV7fuq/\nSr1y2i/mj8XDVX6xOJWDXOhrHNEDcTpYHp5Ey5qQwQhkGOiK/aUJWfWHJGMLM7DY\n7l6nvRe+oX/1inocjKMkiq5TGDvptBv2T9rz0K3LFueFNcxAv7445GgCsFADgYBM\n67reu9QcmT6Uis2nUffzcleGNQKBgQDT3ibtkMmkeDi3sl1uY9PudlZqnCcP11Pi\nQJF4+thJYjN/bYBKA3F4GhRZzEKxW6jjF/mQ/kZDLHJeGI4Y0ETpz76kB4gSO1zc\nlsKZnGBvfug2Oz7/fnPfdpMdSsaFS9AHOHTm7TAiyMuSXciJ1Sy5LxVeELP91cbJ\nBsJtKX+37wKBgQDFKUSB+orxn1Bvivp0tkESpxWh8blgxqWzr+fHRGeP2x90Afqu\nLUFi86BrJJHOo/gk68uObHZv2qQA6XmIOfxUlSSAFjb/ZFBq13ulU89f3UHhj9oV\nCn7Pvbh3zqg7IKfB9vJ10dv/ni0eGO4LJyJ66yGCVba4XTh5bspKn4QviQKBgQCi\nud3sWWiGilAFx1k7kDEW1o1JFOZrpFcpT65r3T6CHoqvNMt0DXD5bg5zag9Pabct\ntRxZ4PLWZSzyWKnLJSvI6WbjVWWNm0qXorOUiCcJe8+e16JrWhRlbg1QUj5n4vLE\nmPgw5bwy+0ZgBOgh9TmEgkVHGk0kiS1E+Ywbi+QswQKBgQDOI10/zjkwXOmqHlX7\n7nkuSIG9Kojrt2XWIsecZ9xP4lnIq6oyBUxDLaj3MaSnGeuvJZjDHa7YxqyAZvOO\nPxJ2F55gm4PME6obOldAw8rWdTWmlpG5rm679Q01nupwlC5+rJPqSzW/GpibKjZa\ni2e4E1vAOiqCrUlBSDcvD1r+/g==\n-----END PRIVATE KEY-----`
@@ -472,7 +466,7 @@
               const now = Math.floor(Date.now() / 1000);
               const claim = {
                   iss: API_CONFIG.SERVICE_ACCOUNT.client_email,
-                  scope: "https://www.googleapis.com/auth/spreadsheets.readonly",
+                  scope: "https://www.googleapis.com/auth/spreadsheets", // Upgraded to Read/Write
                   aud: "https://oauth2.googleapis.com/token",
                   exp: now + 3600,
                   iat: now
@@ -509,6 +503,7 @@
       let failedFiles = [];
       let loadedBytesMap = {}; 
       let uiUpdateInterval = null;
+      let globalExistingFileCount = 0; // Tracks the count of files BEFORE the new upload starts
 
       const isMobile = () => window.innerWidth <= 768;
 
@@ -703,6 +698,9 @@
         try {
           let existingFiles = await apiGet('getExistingFiles', { contractId: cid, category: currentCategory });
           hideLoader();
+          
+          // STORE EXISTING COUNT GLOBALLY to use it later for Timestamp Padding logic
+          globalExistingFileCount = existingFiles.length; 
 
           let duplicateCount = 0;
           pendingFiles = [];
@@ -940,6 +938,94 @@
         }
       }
 
+      /* ==========================================
+         --- DIRECT GOOGLE SHEETS TIMESTAMP ---
+         ========================================== */
+      async function saveTimestampToGoogleSheets(cid, category, numUploaded, existingCount) {
+          const sheetId = API_CONFIG.TIMESTAMP_SHEET_ID;
+          const token = await GoogleSheetsAPI.getAuthToken();
+          
+          // 1. Fetch current data to find the Row Number and existing cell data
+          const getUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/Uploads!A:J`;
+          const getRes = await fetch(getUrl, { headers: { Authorization: `Bearer ${token}` } });
+          
+          if (!getRes.ok) throw new Error("Failed to fetch Uploads sheet for timestamping.");
+          const getData = await getRes.json();
+          const rows = getData.values || [];
+          
+          // 2. Find row index for the matching Contract ID (Assuming Contract ID is in Column A / index 0)
+          let rowIndex = -1;
+          for (let i = 0; i < rows.length; i++) {
+              if (rows[i][0] && String(rows[i][0]).trim().toUpperCase() === String(cid).trim().toUpperCase()) {
+                  rowIndex = i;
+                  break;
+              }
+          }
+          
+          if (rowIndex === -1) {
+              console.warn(`Contract ID ${cid} not found in the Uploads sheet. Cannot write timestamp.`);
+              return; 
+          }
+          
+          // 3. Determine specific Column for the Time Stamp
+          let colLetter = '';
+          let colIdx = -1;
+          
+          if (category === 'PRE-CON') { 
+              colLetter = 'H'; colIdx = 7; 
+          } else if (category === 'ON-GOING') { 
+              colLetter = 'I'; colIdx = 8; 
+          } else if (category === 'COMPLETED') { 
+              colLetter = 'J'; colIdx = 9; 
+          } else {
+              return; 
+          }
+          
+          // 4. Extract existing value and apply 1-to-1 Padding
+          const currentVal = rows[rowIndex][colIdx] ? String(rows[rowIndex][colIdx]) : '';
+          
+          let parts = [];
+          if (currentVal.trim() !== '') {
+              parts = currentVal.split('|').map(s => s.trim());
+          }
+          
+          // If there were existing files before this feature, pad them with empty slots (to maintain the 1-to-1 File ID mapping)
+          while (parts.length < existingCount) {
+              parts.push('');
+          }
+          
+          // Create the Date (e.g. Oct 5, 2026)
+          const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+          const d = new Date();
+          const dateStr = `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+          
+          // Append the timestamp exactly matching the number of newly uploaded files
+          for (let i = 0; i < numUploaded; i++) {
+              parts.push(dateStr);
+          }
+          
+          const newVal = parts.join(' | ');
+          
+          // 5. Update the cell directly using REST API PUT (only if value actually needs an update)
+          if (newVal !== currentVal) {
+              const range = `Uploads!${colLetter}${rowIndex + 1}`;
+              const putUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?valueInputOption=USER_ENTERED`;
+              
+              const putRes = await fetch(putUrl, {
+                  method: 'PUT',
+                  headers: { 
+                      'Authorization': `Bearer ${token}`,
+                      'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({
+                      values: [[newVal]]
+                  })
+              });
+              
+              if (!putRes.ok) throw new Error("Failed to write timestamp to Uploads sheet.");
+          }
+      }
+
       async function finalizeUpload() {
         if (uiUpdateInterval) clearInterval(uiUpdateInterval);
 
@@ -947,10 +1033,20 @@
         let uploader = document.getElementById('uploader').value.trim();
 
         if (uploadedFileIds.length > 0) {
-          document.getElementById('processing-status').innerHTML = "<i class='fa-solid fa-spinner fa-spin icon-3d-orange'></i> Writing to Sheets...";
+          document.getElementById('processing-status').innerHTML = "<i class='fa-solid fa-spinner fa-spin icon-3d-orange'></i> Writing to Apps Script...";
           try {
             await apiPost('checkFolderAndWriteIds', { contractId: cid, category: currentCategory, uploaderName: uploader, numPhotos: uploadedFileIds.length });
             
+            // --- NEW: WRITE TIME STAMP DIRECTLY TO GOOGLE SHEETS FRONTEND ---
+            document.getElementById('processing-status').innerHTML = "<i class='fa-solid fa-spinner fa-spin icon-3d-purple'></i> Saving Timestamps...";
+            try {
+                await saveTimestampToGoogleSheets(cid, currentCategory, uploadedFileIds.length, globalExistingFileCount);
+            } catch (tsErr) {
+                console.error("Timestamp Error:", tsErr);
+                // We just log it so the upload process doesn't fail completely if the Sheets writing errors out
+            }
+            // ----------------------------------------------------------------
+
             document.getElementById('processing-status').innerHTML = "<i class='fa-solid fa-spinner fa-spin icon-3d-blue'></i> Refreshing stats...";
             loadStats(); 
             document.getElementById('file-input').value = ""; 
@@ -980,325 +1076,10 @@
           document.getElementById('retry-btn').style.display = 'none';
         }
 
-        let successfulUploads = pendingFiles.filter(f => !failedFiles.includes(f));
-        if (successfulUploads.length > 0) {
-           document.getElementById('share-msg-btn').style.display = 'inline-flex';
-        } else {
-           document.getElementById('share-msg-btn').style.display = 'none';
-        }
-
         document.getElementById('modal-overlay').style.display = 'flex';
       }
 
       function closeModal() { document.getElementById('modal-overlay').style.display = 'none'; }
-
-
-      /* ==========================================
-         --- DATA FETCHING & COLLAGE FEATURE ---
-         ========================================== */
-
-      // 1. Fetch Project Details
-      async function fetchProjectDetailsForCollage(cid) {
-          try {
-              const token = await GoogleSheetsAPI.getAuthToken();
-              const fetchSheet = async (sheet) => {
-                  const url = `https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values/${encodeURIComponent(sheet + "!A1:ZZ1000")}`;
-                  const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
-                  if (!res.ok) return [];
-                  const json = await res.json();
-                  return json.values || [];
-              };
-
-              const [appValues, pdoValues] = await Promise.all([fetchSheet("APP"), fetchSheet("PDO")]);
-
-              // Safe Parsing Helpers
-              const normalize = (t) => (t || "").toString().replace(/\s+/g, " ").trim().toUpperCase();
-              const findCol = (hdr, targets) => {
-                  for (let c of targets) {
-                      const idx = hdr.findIndex(h => normalize(h) === normalize(c));
-                      if (idx >= 0) return idx;
-                  }
-                  return -1;
-              };
-              const findRow = (vals, id) => {
-                  const target = String(id).trim().toLowerCase();
-                  for (let r = 0; r < vals.length; r++) {
-                      const row = vals[r] || [];
-                      if (row.some(cell => String(cell).trim().toLowerCase() === target)) {
-                          let header = null;
-                          for(let i = Math.max(0, r-5); i <= r; i++) {
-                              if(vals[i] && vals[i].length > 5) { header = vals[i]; break; }
-                          }
-                          return { header: header || vals[2] || [], row };
-                      }
-                  }
-                  return { header: null, row: null };
-              };
-
-              let data = {
-                  projectName: "-", location: "-", contractor: "-", contractCost: "-", revContractCost: "-", 
-                  ntp: "-", expiryDate: "-", revExpiryDate: "-", calendarDays: "-", revCalendarDays: "-",
-                  projectEngineer: "-", projectInspector: "-", residentEngineer: "-", quantityEngineer: "-", materialEngineer: "-"
-              };
-
-              const app = findRow(appValues, cid);
-              if (app.header && app.row) {
-                  data.projectName = app.row[findCol(app.header, ["Project Name", "Project Title", "DESCRIPTION/SCOPE OF WORK"])] || "-";
-                  data.location = app.row[findCol(app.header, ["Location"])] || "-";
-                  data.contractor = app.row[findCol(app.header, ["Contractor"])] || "-";
-                  data.projectEngineer = app.row[findCol(app.header, ["Project Engineer"])] || "-";
-                  data.projectInspector = app.row[findCol(app.header, ["Project Inspector"])] || "-";
-                  data.residentEngineer = app.row[findCol(app.header, ["Resident Engineer"])] || "-";
-                  data.quantityEngineer = app.row[findCol(app.header, ["Quantity Engineer"])] || "-";
-                  data.materialEngineer = app.row[findCol(app.header, ["Material Engineer", "Materials Engineer"])] || "-";
-              }
-
-              const pdo = findRow(pdoValues, cid);
-              if (pdo.header && pdo.row) {
-                  data.contractCost = pdo.row[findCol(pdo.header, ["Contract Cost", "Contract Amount"])] || "-";
-                  data.revContractCost = pdo.row[findCol(pdo.header, ["Revised Contract Cost", "Revised Amount"])] || "-";
-                  data.ntp = pdo.row[findCol(pdo.header, ["NTP", "Notice to Proceed", "Date of NTP"])] || "-";
-                  data.expiryDate = pdo.row[findCol(pdo.header, ["Expiry Date", "Original Expiry", "Original Expiry Date"])] || "-";
-                  data.revExpiryDate = pdo.row[findCol(pdo.header, ["Revised Expiry", "Revised Expiry Date"])] || "-";
-                  data.calendarDays = pdo.row[findCol(pdo.header, ["Calendar Days", "CD", "Duration"])] || "-";
-                  data.revCalendarDays = pdo.row[findCol(pdo.header, ["Revised CD", "Revised Calendar Days"])] || "-";
-              }
-              return data;
-          } catch (e) {
-              console.error("Error fetching project details for collage:", e);
-              return null; 
-          }
-      }
-
-      // 2. Generate the Vertical Image (CRASH-PROOF OPTIMIZED)
-      async function createVerticalCollageWithData(files, projectData) {
-          if (files.length === 0) return null;
-
-          const images = await Promise.all(files.map(file => {
-              return new Promise((resolve, reject) => {
-                  const img = new Image();
-                  img.onload = () => resolve(img);
-                  img.onerror = reject;
-                  img.src = URL.createObjectURL(file);
-              });
-          }));
-
-          const imgCount = Math.min(images.length, 9);
-          
-          // CRITICAL FIX: Limit the maximum width to 1200 pixels.
-          // Mobile phones crash out of memory when trying to process canvases over a certain size.
-          const MAX_CANVAS_WIDTH = 1200;
-          let targetW = images[0].width || 1200;
-          if (targetW > MAX_CANVAS_WIDTH) {
-              targetW = MAX_CANVAS_WIDTH;
-          }
-          
-          const gap = Math.floor(targetW * 0.02); 
-
-          // Calculate scaled image heights
-          let totalImageHeight = 0;
-          const scaledHeights = [];
-          for (let i = 0; i < imgCount; i++) {
-              const h = images[i].height * (targetW / images[i].width);
-              scaledHeights.push(h);
-              totalImageHeight += h;
-          }
-          const imagesSectionHeight = totalImageHeight + (imgCount * gap);
-
-          // Calculate text section height dynamically using a dummy canvas
-          const scale = targetW / 1200; 
-          const fontTitle = `bold ${Math.floor(36 * scale)}px "Segoe UI", Arial, sans-serif`;
-          const fontLabel = `bold ${Math.floor(28 * scale)}px "Segoe UI", Arial, sans-serif`;
-          const fontValue = `${Math.floor(28 * scale)}px "Segoe UI", Arial, sans-serif`;
-          
-          const padX = 60 * scale;
-          const valX = 480 * scale; 
-          const maxValWidth = targetW - valX - padX;
-          const lineSpacing = 45 * scale;
-
-          const dummyCanvas = document.createElement('canvas');
-          const dummyCtx = dummyCanvas.getContext('2d');
-          
-          const fields = [
-              { label: "Project Name:", value: projectData?.projectName },
-              { label: "Location:", value: projectData?.location },
-              { label: "Contractor:", value: projectData?.contractor },
-              { label: "Contract Cost:", value: projectData?.contractCost },
-              { label: "Revised Contract Cost:", value: projectData?.revContractCost },
-              { label: "NTP:", value: projectData?.ntp },
-              { label: "Expiry Date:", value: projectData?.expiryDate },
-              { label: "Revised Expiry Date:", value: projectData?.revExpiryDate },
-              { label: "Calendar Days:", value: projectData?.calendarDays },
-              { label: "Revised Calendar Days:", value: projectData?.revCalendarDays },
-              { isSpace: true },
-              { label: "Project Engineer:", value: projectData?.projectEngineer },
-              { label: "Project Inspector:", value: projectData?.projectInspector },
-              { label: "Resident Engineer:", value: projectData?.residentEngineer },
-              { label: "Quantity Engineer:", value: projectData?.quantityEngineer },
-              { label: "Material Engineer:", value: projectData?.materialEngineer }
-          ];
-
-          let textSectionHeight = (80 * scale) + (30 * scale) + (60 * scale); // Title + Line + Padding
-
-          fields.forEach(field => {
-              if (field.isSpace) {
-                  textSectionHeight += lineSpacing;
-                  return;
-              }
-              dummyCtx.font = fontValue;
-              const words = String(field.value || "-").split(' ');
-              let line = '';
-              let linesCount = 1;
-              for(let n = 0; n < words.length; n++) {
-                  let testLine = line + words[n] + ' ';
-                  if (dummyCtx.measureText(testLine).width > maxValWidth && n > 0) {
-                      linesCount++;
-                      line = words[n] + ' ';
-                  } else {
-                      line = testLine;
-                  }
-              }
-              textSectionHeight += (linesCount * lineSpacing) + (10 * scale);
-          });
-          textSectionHeight += (40 * scale); // Bottom padding
-
-          // Create ONE single perfectly-sized canvas (Reduces memory load by 50%)
-          const canvas = document.createElement('canvas');
-          canvas.width = targetW;
-          canvas.height = imagesSectionHeight + textSectionHeight;
-          const ctx = canvas.getContext('2d');
-          
-          // Fill background white
-          ctx.fillStyle = '#ffffff';
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-          let currentY = 0;
-          
-          // Draw Images
-          for (let i = 0; i < imgCount; i++) {
-              const img = images[i];
-              const h = scaledHeights[i];
-              ctx.drawImage(img, 0, currentY, targetW, h);
-              currentY += h + gap;
-              URL.revokeObjectURL(img.src); // Free memory immediately
-          }
-
-          // Draw Text Background
-          const textStartY = imagesSectionHeight;
-          ctx.fillStyle = '#f8fafc'; 
-          ctx.fillRect(0, textStartY, targetW, textSectionHeight); 
-          
-          currentY = textStartY + (80 * scale);
-          ctx.fillStyle = '#0f172a';
-          ctx.font = fontTitle;
-          ctx.fillText("PROJECT DETAILS", padX, currentY);
-          
-          currentY += (30 * scale);
-          ctx.strokeStyle = '#cbd5e1';
-          ctx.lineWidth = Math.max(2, 2 * scale);
-          ctx.beginPath();
-          ctx.moveTo(padX, currentY);
-          ctx.lineTo(targetW - padX, currentY);
-          ctx.stroke();
-
-          currentY += (60 * scale);
-
-          function drawWrappedText(text, x, y, maxWidth, lineHeight) {
-              const words = String(text || "-").split(' ');
-              let line = '';
-              let tmpY = y;
-              for(let n = 0; n < words.length; n++) {
-                let testLine = line + words[n] + ' ';
-                if (ctx.measureText(testLine).width > maxWidth && n > 0) {
-                  ctx.fillText(line.trim(), x, tmpY);
-                  line = words[n] + ' ';
-                  tmpY += lineHeight;
-                } else {
-                  line = testLine;
-                }
-              }
-              ctx.fillText(line.trim(), x, tmpY);
-              return tmpY; 
-          }
-
-          fields.forEach(field => {
-              if (field.isSpace) {
-                  currentY += lineSpacing;
-                  return;
-              }
-              
-              ctx.font = fontLabel;
-              ctx.fillStyle = '#475569';
-              ctx.fillText(field.label, padX, currentY);
-              
-              ctx.font = fontValue;
-              ctx.fillStyle = '#0f172a';
-              
-              const endY = drawWrappedText(field.value, valX, currentY, maxValWidth, lineSpacing);
-              currentY = endY + lineSpacing + (10 * scale);
-          });
-
-          return new Promise((resolve, reject) => {
-              try {
-                  canvas.toBlob(blob => { 
-                      if(blob) resolve(blob); 
-                      else reject(new Error("Canvas toBlob returned null (Memory limit reached)"));
-                  }, 'image/jpeg', 0.85);
-              } catch (e) {
-                  reject(e);
-              }
-          });
-      }
-
-      // 3. User clicks "Combine & Send to Messenger"
-      async function combineAndSharePhotos() {
-          const successfulFiles = pendingFiles.filter(f => !failedFiles.includes(f));
-          if(successfulFiles.length === 0) return;
-          
-          let shareBtn = document.getElementById('share-msg-btn');
-          const originalBtnHtml = shareBtn.innerHTML;
-          
-          shareBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Fetching Project Data...';
-          shareBtn.disabled = true;
-
-          try {
-             if (successfulFiles.length > 9) {
-                alert(`Note: You uploaded ${successfulFiles.length} photos. To prevent your device from crashing out of memory, only the first 9 will be combined in this image.`);
-             }
-
-             const cid = document.getElementById('cid').value.trim();
-             
-             const projectData = await fetchProjectDetailsForCollage(cid);
-
-             shareBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Drawing Collage...';
-             const blob = await createVerticalCollageWithData(successfulFiles, projectData);
-             
-             const filename = `Contract_${cid}_Photos.jpg`;
-             const combinedFile = new File([blob], filename, { type: "image/jpeg" });
-
-             if (navigator.canShare && navigator.canShare({ files: [combinedFile] })) {
-                 await navigator.share({
-                     files: [combinedFile],
-                     title: `Contract Photos: ${cid}`,
-                     text: `Here are the uploaded photos for Contract ${cid}.`
-                 });
-             } else {
-                 showMessage("Your browser doesn't support direct App Sharing. The combined image will be downloaded to your device instead. You can manually drag it into Messenger.");
-                 const url = URL.createObjectURL(blob);
-                 const a = document.createElement('a');
-                 a.href = url;
-                 a.download = filename;
-                 a.click();
-             }
-          } catch (err) {
-             console.error("Error creating combined image:", err);
-             // More descriptive error message shown on the screen
-             showMessage(`Error creating image: ${err.message || 'Out of memory'}. Your phone does not have enough RAM for this many photos. Please try uploading fewer photos at a time.`);
-          } finally {
-             shareBtn.innerHTML = originalBtnHtml;
-             shareBtn.disabled = false;
-          }
-      }
 
 
       // ==========================================
@@ -1327,13 +1108,51 @@
       }
 
       function buildSection(title, files) {
-        if (!files || files.length === 0) return `<div class="category"><h3>${title}</h3><p class="empty-msg"><i class="fa-regular fa-image icon-3d-pastel" style="font-size: 32px; display:block; margin-bottom: 10px;"></i> No photos uploaded yet.</p></div>`;
+        if (!files || files.length === 0) {
+            return `<div class="category"><h3>${title}</h3><p class="empty-msg"><i class="fa-regular fa-image icon-3d-pastel" style="font-size: 32px; display:block; margin-bottom: 10px;"></i> No photos uploaded yet.</p></div>`;
+        }
+        
+        // 1. Extract Unique Dates to display in the Header
+        let dates = files.map(f => {
+          let dStr = f.dateCreated || f.createdTime || f.timestamp;
+          if (!dStr) return null;
+          let d = new Date(dStr);
+          if (isNaN(d.getTime())) return null;
+          let months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+          return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+        }).filter(Boolean);
+        
+        let uniqueDates = [...new Set(dates)];
+        let dateHtml = '';
+        if (uniqueDates.length > 0) {
+          dateHtml = `<span style="font-size: 14px; color: var(--color-blue); margin-top: 8px; display: block; font-weight: 700; text-align: center;">(${uniqueDates.join(' | ')})</span>`;
+        }
+
+        // 2. Generate Grid of Photos with specific timestamps under the title
         let gridHtml = files.map(f => {
           let fileId = f.id || (f.downloadUrl ? f.downloadUrl.split('id=')[1] : '');
           let thumbUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=s800`;
-          return `<div class="photo-card"><a href="${f.url}" target="_blank" title="Click to view full size"><img src="${thumbUrl}" alt="${f.name}" class="photo-img" loading="lazy" onerror="this.src='https://via.placeholder.com/300?text=No+Preview'"></a><div class="photo-details"><div class="file-name" title="${f.name}"><i class="fa-regular fa-image icon-3d-purple"></i> ${f.name}</div><div class="actions"><a href="${f.url}" target="_blank" class="btn-view"><i class="fa-solid fa-eye"></i> View</a><a href="${f.downloadUrl}" class="btn-dl" download><i class="fa-solid fa-cloud-arrow-down"></i> Download</a></div></div></div>`;
+          
+          let fileDateHtml = '';
+          let fDateStr = f.dateCreated || f.createdTime || f.timestamp;
+          if (fDateStr) {
+            let d = new Date(fDateStr);
+            if (!isNaN(d.getTime())) {
+              let months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+              let hours = d.getHours();
+              let minutes = d.getMinutes().toString().padStart(2, '0');
+              let ampm = hours >= 12 ? 'PM' : 'AM';
+              hours = hours % 12; hours = hours ? hours : 12;
+              let timeStr = `${hours}:${minutes} ${ampm}`;
+              // Timestamp box that shows per individual photo detail
+              fileDateHtml = `<div style="font-size:12px; color:#64748b; text-align:center; font-weight:600; margin-bottom: 8px; background: #f1f5f9; padding: 4px; border-radius: 6px;"><i class="fa-regular fa-clock"></i> ${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()} | ${timeStr}</div>`;
+            }
+          }
+
+          return `<div class="photo-card"><a href="${f.url}" target="_blank" title="Click to view full size"><img src="${thumbUrl}" alt="${f.name}" class="photo-img" loading="lazy" onerror="this.src='https://via.placeholder.com/300?text=No+Preview'"></a><div class="photo-details"><div class="file-name" title="${f.name}"><i class="fa-regular fa-image icon-3d-purple"></i> ${f.name}</div>${fileDateHtml}<div class="actions"><a href="${f.url}" target="_blank" class="btn-view"><i class="fa-solid fa-eye"></i> View</a><a href="${f.downloadUrl}" class="btn-dl" download><i class="fa-solid fa-cloud-arrow-down"></i> Download</a></div></div></div>`;
         }).join('');
-        return `<div class="category"><h3>${title}</h3><div class="photo-grid">${gridHtml}</div></div>`;
+        
+        return `<div class="category"><h3 style="display:flex; flex-direction:column; align-items:center; line-height: 1.4;"><div style="display:flex; align-items:center; gap:10px;">${title}</div>${dateHtml}</h3><div class="photo-grid">${gridHtml}</div></div>`;
       }
 	  
       /* ==========================================
