@@ -1799,28 +1799,38 @@
                     // 2. CHECK HISTORY TO DECIDE IF WE OVERWRITE OR APPEND
                     if (serverData.HISTORY) {
                         const histData = serverData.HISTORY.rows;
-                        // Grab the absolute last row logged in history
-                        const lastLog = histData.length > 0 ? histData[histData.length - 1] : null;
+                        const currentDate = timestamp.split(',')[0].trim();
+                        
+                        let targetLog = null;
+                        // Search backwards to find the most recent log for THIS exact field
+                        for (let i = histData.length - 1; i >= 0; i--) {
+                            const row = histData[i];
+                            if (row.values[0] === s.cid && row.values[3] === s.tabKey && row.values[4] === s.headerName) {
+                                // If the last edit for this field was made on the same date, we overwrite it to prevent spam
+                                const logDate = (row.values[1] || '').split(',')[0].trim();
+                                if (logDate === currentDate) {
+                                    targetLog = row;
+                                }
+                                break; // Found the latest edit for this field, stop searching backwards
+                            }
+                        }
 
-                        // Check if it's the exact same Contract, exact same Tab, and exact same Field
-                        if (lastLog && lastLog.values[0] === s.cid && lastLog.values[3] === s.tabKey && lastLog.values[4] === s.headerName) {
-                            
-                            // MATCH: We OVERWRITE the existing log row instead of adding a new one
-                            lastLog.values[1] = timestamp;
-                            lastLog.values[5] = String(s.value);
+                        if (targetLog) {
+                            // MATCH: We OVERWRITE the existing log row instead of creating a new one
+                            targetLog.values[1] = timestamp;
+                            targetLog.values[5] = String(s.value);
                             
                             // We add this to the payload so it updates instantly alongside the main data
                             payload.push({
-                                range: `History!A${lastLog.rowNumber}:F${lastLog.rowNumber}`,
+                                range: `History!A${targetLog.rowNumber}:F${targetLog.rowNumber}`,
                                 values: [[s.cid, timestamp, user, s.tabKey, s.headerName, String(s.value)]]
                             });
-
                         } else {
-                            // NO MATCH: It's a new field or new contract, so we APPEND a new log
+                            // NO MATCH OR DIFFERENT DATE: APPEND a new log
                             const newRowVal = [s.cid, timestamp, user, s.tabKey, s.headerName, String(s.value)];
                             historyAppends.push(newRowVal);
                             
-                            // Estimate the row number for local memory so future edits can overwrite it
+                            // Estimate the row number for local memory so future edits today can overwrite it
                             let nextRow = histData.length > 0 ? histData[histData.length - 1].rowNumber + 1 : 4;
                             histData.push({ rowNumber: nextRow, values: newRowVal });
                         }
