@@ -75,6 +75,21 @@
         transition: transform 0.2s ease-out;
         transform-origin: center center;
     }
+
+    /* 🔥 FLOATING CHAT BOX FIX FOR MOBILE OVERLAP 🔥 */
+    .chat-box-floating {
+        position: fixed !important;
+        bottom: 15vh !important; /* Forces it high up off the bottom */
+        left: 10px !important;
+        right: 10px !important;
+        border-radius: 24px !important;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.4) !important;
+        z-index: 9999 !important;
+        padding-bottom: 15px !important;
+        border: 3px solid #ff9a9e !important;
+        background: rgba(255, 255, 255, 0.98) !important;
+        width: auto !important;
+    }
   </style>
 </head>
 <body id="mainBody" class="perf-high bg-animated-pastel font-sans h-[100dvh] w-full flex flex-col overflow-hidden text-gray-800 selection:bg-pink-200">
@@ -110,13 +125,22 @@
           </div>
         </div>
       </div>
-      <div class="flex items-center space-x-1 sm:space-x-1.5 mr-8 sm:mr-0">
+      <div class="flex items-center space-x-1.5 sm:space-x-2 mr-2 sm:mr-0">
+        
+        <!-- 🔥 NEW ALTERNATIVE CHAT BUTTON 🔥 -->
+        <button onclick="toggleChatBox()" class="btn-3d p-1.5 sm:p-2 bg-gradient-to-r from-blue-400 to-cyan-400 text-white rounded-lg border border-white shadow-[0_2px_0_0_#0284c7] hover:rotate-6 transition-transform duration-300" title="Float Chat Box (Fix Overlap)">
+            <i class="ph-bold ph-keyboard text-lg sm:text-xl drop-shadow-md"></i>
+        </button>
+
+        <!-- Settings -->
         <button onclick="$('settingsModal').classList.remove('hidden')" class="btn-3d p-1.5 sm:p-2 bg-gradient-to-r from-violet-500 via-fuchsia-500 to-pink-500 text-white rounded-lg border border-white shadow-[0_2px_0_0_#a855f7] hover:rotate-90 transition-transform duration-300 group" title="Settings">
             <i class="ph-bold ph-gear-six text-lg sm:text-xl drop-shadow-md group-hover:animate-spin"></i>
         </button>
-        <button onclick="logout()" class="btn-3d p-1.5 sm:p-2 bg-red-50 text-red-500 rounded-lg border border-red-100 shadow-sm hover:bg-red-100 transition-colors" title="Log Out">
+        <!-- Log Out -->
+        <button onclick="logout()" class="btn-3d p-1.5 sm:p-2 bg-red-50 text-red-500 rounded-lg border border-red-100 shadow-sm hover:bg-red-100 transition-colors hidden sm:block" title="Log Out">
             <i class="ph-bold ph-sign-out text-lg sm:text-xl"></i>
         </button>
+        <!-- Close -->
         <button onclick="closeApp()" class="btn-3d p-1.5 sm:p-2 bg-gray-50 text-gray-500 rounded-lg border border-gray-200 shadow-sm hover:bg-gray-200 hover:text-gray-800 transition-colors" title="Close App">
             <i class="ph-bold ph-x text-lg sm:text-xl"></i>
         </button>
@@ -234,9 +258,14 @@
         </div>
     </div>
 
-    <!-- 🔥 INPUT AREA (FIXED MOBILE BOTTOM PADDING) 🔥 -->
-    <div class="bg-white px-2 pt-2 sm:px-3 sm:pt-3 border-t border-gray-100 shrink-0 relative z-40 shadow-[0_-5px_15px_rgba(0,0,0,0.02)]" style="padding-bottom: max(10px, env(safe-area-inset-bottom));">
+    <!-- 🔥 INPUT AREA WITH FLOATING TOGGLE ID 🔥 -->
+    <div id="chatInputContainer" class="bg-white px-2 pt-2 sm:px-3 sm:pt-3 border-t border-gray-100 shrink-0 relative z-40 shadow-[0_-5px_15px_rgba(0,0,0,0.02)] transition-all duration-300" style="padding-bottom: max(10px, env(safe-area-inset-bottom));">
       
+      <!-- Close Button (Only Visible when Floating) -->
+      <button onclick="toggleChatBox()" id="closeFloatingBtn" class="hidden absolute -top-4 -right-2 bg-red-500 text-white rounded-full p-1.5 shadow-lg z-[60] hover:bg-red-600 border-2 border-white transition-transform active:scale-90">
+        <i class="ph-bold ph-x text-sm"></i>
+      </button>
+
       <div id="uploadProgressContainer" class="hidden absolute bottom-full left-4 right-4 bg-white border border-pink-100 rounded-xl p-2.5 shadow-lg mb-2 z-50">
         <div class="flex justify-between text-xs font-bold text-pink-500 mb-1.5"><span>Nag-uupload...</span><span id="uploadPercentText">0%</span></div>
         <div class="w-full bg-pink-50 rounded-full h-1.5 overflow-hidden"><div id="uploadProgressBar" class="bg-pink-400 h-full w-0 transition-all duration-300"></div></div>
@@ -295,7 +324,7 @@
         DRIVE_FOLDER_ID: "1qSql_iqaU8Khib-QDuATFY_lk7-ivBv6",
         
         // 🔥 YOUR NEW APPS SCRIPT WEB APP URL (HUMAN TOKEN) 🔥
-        TOKEN_WEB_APP_URL: "https://script.google.com/macros/library/d/1LQHLY-E4EcuFnF978Xc_RoWwdxJiLQlhjAA9p4w-DIZli9H7eKTYIlB1/5"
+        TOKEN_WEB_APP_URL: "https://script.google.com/macros/s/AKfycbzkf45YDgocTS6b6Ux5ZOg686DxMgHxlBAsth74nLDxGGFi04y6CIldeGC09lSbqBcK/exec"
     };
 
     const SHEET_MSGS = 'Chat';
@@ -541,10 +570,24 @@
       });
     }
 
+    // 🔥 TOGGLE FLOATING CHAT BOX FUNCTION 🔥
+    function toggleChatBox() {
+        const container = $('chatInputContainer');
+        const closeBtn = $('closeFloatingBtn');
+        
+        container.classList.toggle('chat-box-floating');
+        
+        if (container.classList.contains('chat-box-floating')) {
+            closeBtn.classList.remove('hidden');
+            $('messageInput').focus();
+        } else {
+            closeBtn.classList.add('hidden');
+        }
+    }
+
     function setPerfMode(mode, save = true) {
         currentPerfMode = mode;
         if(save) localStorage.setItem('perfMode', mode);
-        // MOBILE HEIGHT FIX: Changed h-screen to h-[100dvh]
         $('mainBody').className = `font-sans h-[100dvh] w-full flex flex-col overflow-hidden text-gray-800 selection:bg-pink-200 bg-animated-pastel perf-${mode}`;
         ['btnPerfLow', 'btnPerfMedium', 'btnPerfHigh'].forEach(id => {
             $(id).classList.remove('bg-blue-100', 'border-blue-400', 'text-blue-700'); $(id).classList.add('bg-white', 'border-gray-200', 'text-gray-500');
@@ -584,7 +627,6 @@
       try {
         const token = await GoogleSheetsAPI.getAuthToken();
 
-        // 1. Write the "Image" header to G1 quietly, ensuring Column G structure exists.
         fetch(`https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values/${SHEET_MSGS}!G1?valueInputOption=USER_ENTERED`, {
             method: 'PUT', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({ values: [['Image']] })
@@ -652,7 +694,6 @@
         const data = await res.json();
         if(!data.valueRanges) return;
         
-        // PROFILES
         const profRows = data.valueRanges[1].values || [];
         let parsedProfiles = {};
         profRows.forEach((row, idx) => {
@@ -665,7 +706,6 @@
             };
         });
         
-        // MESSAGES
         const msgRows = data.valueRanges[0].values || [];
         let parsedMsgs = [];
         msgRows.forEach((row, idx) => {
