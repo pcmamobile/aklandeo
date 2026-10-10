@@ -3,9 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Pastel 3D Messenger Pro</title>
+  <title>Pastel 3D Messenger Pro (No Delay)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  
+  <!-- JWT Generation Library for Direct Google Sheets Access -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.5.27/jsrsasign-all-min.js"></script>
+
   <style>
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
@@ -76,14 +80,13 @@
       <input type="text" id="nameInput" placeholder="Pangalan mo..." class="w-full px-4 py-4 bg-pink-50 rounded-xl border border-pink-200 outline-none mb-4 font-bold text-lg focus:border-pink-400 transition-all text-center shadow-inner">
       
       <div class="w-full">
-        <button onclick="authenticateUser('login')" id="loginBtn" class="btn-3d w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white font-black py-4 rounded-xl shadow-[0_4px_0_0_#c026d3] text-lg hover:brightness-110">Join Chat</button>
+        <button onclick="authenticateUser()" id="loginBtn" class="btn-3d w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white font-black py-4 rounded-xl shadow-[0_4px_0_0_#c026d3] text-lg hover:brightness-110">Join Chat</button>
       </div>
       <p id="authErrorMsg" class="text-red-500 mt-4 hidden font-bold text-xs text-center"></p>
     </div>
   </div>
 
   <div id="chatView" class="hidden flex-col h-full w-full absolute inset-0 z-30">
-    <!-- PINALIIT NA HEADER -->
     <header class="glass px-2 py-1.5 sm:px-4 sm:py-2 flex justify-between items-center shrink-0 z-40 shadow-sm">
       <div class="flex items-center space-x-2 cursor-pointer group" onclick="openProfileModal()">
         <div class="w-8 h-8 rounded-lg shadow-sm border border-pink-200 bg-white flex items-center justify-center overflow-hidden group-hover:scale-105 transition-transform">
@@ -97,7 +100,6 @@
           </div>
         </div>
       </div>
-      <!-- IN-UPDATE: Naglagay ng 'mr-8 sm:mr-0' para umusad pakaliwa at hindi matabunan ng arrow ng cellphone -->
       <div class="flex items-center space-x-1 sm:space-x-1.5 mr-8 sm:mr-0">
         <button onclick="$('settingsModal').classList.remove('hidden')" class="btn-3d p-1.5 sm:p-2 bg-gradient-to-r from-violet-500 via-fuchsia-500 to-pink-500 text-white rounded-lg border border-white shadow-[0_2px_0_0_#a855f7] hover:rotate-90 transition-transform duration-300 group" title="Settings">
             <i class="ph-bold ph-gear-six text-lg sm:text-xl drop-shadow-md group-hover:animate-spin"></i>
@@ -113,9 +115,7 @@
 
     <div id="messagesContainer" class="flex-1 overflow-y-auto p-2 sm:p-4 bg-white/30 backdrop-blur-sm overflow-x-hidden"></div>
 
-    <!-- MODALS -->
-
-    <!-- LIGHTBOX PARA SA ZOOM NG IMAGES -->
+    <!-- LIGHTBOX -->
     <div id="imageLightbox" class="hidden fixed inset-0 z-[60] bg-black/95 flex flex-col items-center justify-center">
         <div class="absolute top-4 right-4 z-[70] flex space-x-3 bg-black/50 p-2 rounded-2xl backdrop-blur-md">
             <button onclick="zoomLightbox(1.5)" class="text-white p-2 hover:bg-gray-700 rounded-xl transition"><i class="ph-bold ph-magnifying-glass-plus text-2xl"></i></button>
@@ -123,13 +123,13 @@
             <button onclick="closeLightbox()" class="text-red-400 p-2 hover:bg-red-500 hover:text-white rounded-xl transition"><i class="ph-bold ph-x text-2xl"></i></button>
         </div>
         <div class="w-full h-full overflow-auto touch-pan-x touch-pan-y flex items-center justify-center p-4">
-            <!-- Nag-aadjust ang min-width para mas malinaw pag-zoom -->
             <div class="min-w-fit min-h-fit flex items-center justify-center">
                 <img id="lightboxImg" src="" class="max-w-none shadow-2xl" style="transform: scale(1);" alt="Zoomed Image">
             </div>
         </div>
     </div>
 
+    <!-- ONLINE MODAL -->
     <div id="onlineModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
         <div class="bg-white rounded-3xl shadow-xl p-5 w-full max-w-sm transform animate-float">
             <div class="flex justify-between items-center mb-4">
@@ -146,6 +146,7 @@
         </div>
     </div>
 
+    <!-- PROFILE MODAL -->
     <div id="profileModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
       <div class="bg-white rounded-3xl shadow-xl p-6 w-full max-w-xs border-2 border-pink-100 transform animate-float flex flex-col items-center">
         <div class="w-full flex justify-end mb-2">
@@ -165,7 +166,6 @@
         <button onclick="$('profilePicInput').click()" class="btn-3d w-full bg-pink-100 text-pink-600 font-bold py-3 rounded-xl border border-pink-200 hover:bg-pink-200 mb-2">
             <i class="ph-bold ph-upload-simple mr-1"></i> Palitan ang Litrato
         </button>
-
         <div id="picUploadProgress" class="w-full hidden mt-2">
             <p class="text-[10px] text-center text-pink-500 font-bold mb-1">Ina-upload...</p>
             <div class="w-full bg-pink-50 rounded-full h-2"><div id="picUploadBar" class="bg-pink-400 h-full w-0 transition-all"></div></div>
@@ -173,21 +173,19 @@
       </div>
     </div>
 
-    <!-- UPDATE: Settings Modal with Lag Option -->
+    <!-- SETTINGS MODAL -->
     <div id="settingsModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
       <div class="bg-white rounded-3xl shadow-xl p-5 w-full max-w-[420px] border-2 border-gray-100 transform animate-float">
         <div class="flex justify-between items-center mb-3">
             <span class="font-black text-gray-800 text-lg flex items-center"><i class="ph-fill ph-gear mr-2 text-violet-500"></i> Settings</span>
             <button onclick="$('settingsModal').classList.add('hidden')" class="text-gray-300 hover:text-red-500"><i class="ph ph-x-circle text-3xl"></i></button>
         </div>
-
         <p class="text-[11px] font-bold text-gray-500 mb-2 uppercase tracking-widest text-center mt-2">Bilis / Graphics (Lag Fix)</p>
         <div class="flex space-x-2 justify-center mb-4">
             <button onclick="setPerfMode('low')" id="btnPerfLow" class="flex-1 px-2 py-2 text-xs font-bold rounded-xl border transition-colors">Low (Fast)</button>
             <button onclick="setPerfMode('medium')" id="btnPerfMedium" class="flex-1 px-2 py-2 text-xs font-bold rounded-xl border transition-colors">Medium</button>
             <button onclick="setPerfMode('high')" id="btnPerfHigh" class="flex-1 px-2 py-2 text-xs font-bold rounded-xl border transition-colors">High (3D)</button>
         </div>
-
         <div class="border-t border-gray-100 pt-4">
             <p class="text-[11px] font-bold text-gray-500 mb-3 uppercase tracking-widest text-center">Piliin ang Kulay (50 Options)</p>
             <div id="themeGrid" class="grid grid-cols-5 sm:grid-cols-6 gap-2.5 place-items-center max-h-[250px] overflow-y-auto p-2 scrollbar-hide"></div>
@@ -195,6 +193,7 @@
       </div>
     </div>
 
+    <!-- REACT MODALS -->
     <div id="reactionDetailsModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
         <div class="bg-white rounded-3xl shadow-xl p-5 w-full max-w-xs transform">
             <div class="flex justify-between items-center mb-3">
@@ -215,7 +214,6 @@
         </div>
     </div>
 
-    <!-- BAGONG MODAL PARA SA "SEEN BY" -->
     <div id="seenByModal" class="hidden fixed inset-0 z-[55] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
         <div class="bg-white rounded-3xl shadow-xl p-5 w-full max-w-xs transform animate-float">
             <div class="flex justify-between items-center mb-3">
@@ -229,7 +227,7 @@
     <!-- INPUT AREA -->
     <div class="bg-white p-2 sm:p-3 border-t border-gray-100 shrink-0 relative z-40 shadow-[0_-5px_15px_rgba(0,0,0,0.02)]">
       
-      <div id="uploadProgressContainer" class="hidden absolute bottom-full left-4 right-4 bg-white border border-pink-100 rounded-xl p-2.5 shadow-lg mb-2">
+      <div id="uploadProgressContainer" class="hidden absolute bottom-full left-4 right-4 bg-white border border-pink-100 rounded-xl p-2.5 shadow-lg mb-2 z-50">
         <div class="flex justify-between text-xs font-bold text-pink-500 mb-1.5"><span>Nag-uupload...</span><span id="uploadPercentText">0%</span></div>
         <div class="w-full bg-pink-50 rounded-full h-1.5 overflow-hidden"><div id="uploadProgressBar" class="bg-pink-400 h-full w-0 transition-all duration-300"></div></div>
       </div>
@@ -255,7 +253,8 @@
 
       <div class="flex items-end space-x-1.5 max-w-5xl mx-auto">
         <button onclick="toggleEmojis()" class="btn-3d p-2 sm:p-2.5 bg-gray-50 text-gray-500 rounded-xl hover:bg-pink-50 hover:text-pink-500 shadow-[0_2px_0_0_#f3f4f6] mb-0.5"><i class="ph-bold ph-smiley text-xl sm:text-2xl"></i></button>
-        <input type="file" id="chatFileInput" class="hidden" onchange="handleChatFileUpload(event)">
+        <!-- MULTIPLE FILE INPUT ENABLED HERE -->
+        <input type="file" id="chatFileInput" class="hidden" multiple onchange="handleChatFileUpload(event)">
         <button onclick="$('chatFileInput').click()" class="btn-3d p-2 sm:p-2.5 bg-gray-50 text-gray-500 rounded-xl hover:bg-blue-50 hover:text-blue-500 shadow-[0_2px_0_0_#f3f4f6] mb-0.5"><i class="ph-bold ph-paperclip-horizontal text-xl sm:text-2xl"></i></button>
         <button id="micBtn" onclick="toggleRecording()" class="btn-3d p-2 sm:p-2.5 bg-gray-50 text-gray-500 rounded-xl hover:bg-purple-50 hover:text-purple-500 shadow-[0_2px_0_0_#f3f4f6] mb-0.5"><i class="ph-bold ph-microphone text-xl sm:text-2xl"></i></button>
         
@@ -273,12 +272,93 @@
 
   <script>
     const $ = id => document.getElementById(id);
-    const scriptUrl = 'https://script.google.com/macros/s/AKfycbzMJD5wwpAcUsjzVzY7WIqAU6RhIsnrAfiSBpeLYwtBipzaIbYmFJTF_RJcBjOpHVj9AA/exec'; 
-    
+
+    // ==========================================
+    // CONFIG (HYBRID MODE FIX)
+    // ==========================================
+    const API_CONFIG = {
+        SPREADSHEET_ID: "18s9yqAsqacX61zOdMWKfWu3k6s7C1k52yurGAI0XtLQ",
+        SERVICE_ACCOUNT: {
+            "client_email": "pcma-mobile@gold-mode-473811-c6.iam.gserviceaccount.com",
+            "private_key": `-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQC1sEJI1CN6V8mj\nAhBvpiLC7JOEbrFFxsvqbzJjitbDRbyRhbk7prF1NQqAz0OV8l+9/v69UJ3ddGmE\n3Oq4EEqgOmeEpfdSeJeMa+alsc0H+1E2EmWLnhGNv/ot91osgokv7tUG7p/WnGSf\n0IP2bmbbEmQfhganvTCTmhTASHUSK32O+ZmYklYwqs9qptWCFjS3lj+uhaQ2nAFQ\nGCloj6go1aRbQTGxDygwwxtK08v68EuApslm5qs/x08gnj1UEV/FfHDUvUbCswm2\nIRTULJqNoGTYNs4DxbUJClUwcf72xmddbiE/CbOWs1g626obziGNe6/Dq74Ws5IR\nj39h8S57AgMBAAECggEAPUZdDH/TGUM7Iykijuz6Yz/zPmIwkiZKBl4LIewkowXF\nY1S0lGwTBELnsGp2Uj9ET+kMU5+5JgNJRQBWfs4rxN79o4xvnVZDUh3f0zjkO5Fk\nIbbRnWUpaWN6Bf+aX1GE3/AN00EuEex7uTRTFQzFzpNkxgbm/rI9DEKWRgUJyp7j\nwrbzhTp2cRRrQaPtONZej68dUtkkAsd2rlt3Reht3/NCdmNRTjpRHqiICZvuZuHe\njebcK/ewVZWqW9XpwVMfjhZeyBnfzNqRElNxF4BtodjmSpw+TkWyPK9obVFEBDG5\nFeRxBk6aTdutNkIN2uXOPFBP7UV4evsD3fiuYMRFvQKBgQDbiMwo80cLbnV7fuq/\nSr1y2i/mj8XDVX6xOJWDXOhrHNEDcTpYHp5Ey5qQwQhkGOiK/aUJWfWHJGMLM7DY\n7l6nvRe+oX/1inocjKMkiq5TGDvptBv2T9rz0K3LFueFNcxAv7445GgCsFADgYBM\n67reu9QcmT6Uis2nUffzcleGNQKBgQDT3ibtkMmkeDi3sl1uY9PudlZqnCcP11Pi\nQJF4+thJYjN/bYBKA3F4GhRZzEKxW6jjF/mQ/kZDLHJeGI4Y0ETpz76kB4gSO1zc\nlsKZnGBvfug2Oz7/fnPfdpMdSsaFS9AHOHTm7TAiyMuSXciJ1Sy5LxVeELP91cbJ\nBsJtKX+37wKBgQDFKUSB+orxn1Bvivp0tkESpxWh8blgxqWzr+fHRGeP2x90Afqu\nLUFi86BrJJHOo/gk68uObHZv2qQA6XmIOfxUlSSAFjb/ZFBq13ulU89f3UHhj9oV\nCn7Pvbh3zqg7IKfB9vJ10dv/ni0eGO4LJyJ66yGCVba4XTh5bspKn4QviQKBgQCi\nud3sWWiGilAFx1k7kDEW1o1JFOZrpFcpT65r3T6CHoqvNMt0DXD5bg5zag9Pabct\ntRxZ4PLWZSzyWKnLJSvI6WbjVWWNm0qXorOUiCcJe8+e16JrWhRlbg1QUj5n4vLE\nmPgw5bwy+0ZgBOgh9TmEgkVHGk0kiS1E+Ywbi+QswQKBgQDOI10/zjkwXOmqHlX7\n7nkuSIG9Kojrt2XWIsecZ9xP4lnIq6oyBUxDLaj3MaSnGeuvJZjDHa7YxqyAZvOO\nPxJ2F55gm4PME6obOldAw8rWdTWmlpG5rm679Q01nupwlC5+rJPqSzW/GpibKjZa\ni2e4E1vAOiqCrUlBSDcvD1r+/g==\n-----END PRIVATE KEY-----`
+        },
+        DRIVE_FOLDER_ID: "1qSql_iqaU8Khib-QDuATFY_lk7-ivBv6",
+        
+        // 🔥 YOUR NEW APPS SCRIPT WEB APP URL (HUMAN TOKEN) 🔥
+        TOKEN_WEB_APP_URL: "https://script.google.com/macros/s/AKfycbzkf45YDgocTS6b6Ux5ZOg686DxMgHxlBAsth74nLDxGGFi04y6CIldeGC09lSbqBcK/exec"
+    };
+
+    const SHEET_MSGS = 'Chat';
+    const SHEET_PROFS = 'Profiles';
+
+    class GoogleSheetsAPI {
+        static _oauthToken = null;
+        static _tokenExp = 0;
+
+        static async getAuthToken() {
+            if (this._oauthToken && this._tokenExp > Date.now()) return this._oauthToken;
+            const header = { alg: "RS256", typ: "JWT" };
+            const now = Math.floor(Date.now() / 1000);
+            const claim = {
+                iss: API_CONFIG.SERVICE_ACCOUNT.client_email,
+                scope: "https://www.googleapis.com/auth/spreadsheets",
+                aud: "https://oauth2.googleapis.com/token",
+                exp: now + 3600, iat: now
+            };
+
+            const sHeader = JSON.stringify(header);
+            const sClaim = JSON.stringify(claim);
+            const sJWS = KJUR.jws.JWS.sign("RS256", sHeader, sClaim, API_CONFIG.SERVICE_ACCOUNT.private_key);
+
+            const params = new URLSearchParams();
+            params.append("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer");
+            params.append("assertion", sJWS);
+
+            const res = await fetch("https://oauth2.googleapis.com/token", {
+                method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: params.toString()
+            });
+            const data = await res.json();
+            if (data.access_token) {
+                this._oauthToken = data.access_token;
+                this._tokenExp = Date.now() + (data.expires_in * 1000) - 60000;
+                return data.access_token;
+            } else { throw new Error("Google Token Error"); }
+        }
+    }
+
+    // ==========================================
+    // GET HUMAN TOKEN FOR DRIVE UPLOADS
+    // ==========================================
+    async function getHumanDriveToken() {
+        const url = API_CONFIG.TOKEN_WEB_APP_URL;
+        try {
+            const res = await fetch(url);
+            const text = await res.text();
+            
+            try {
+                const data = JSON.parse(text);
+                if (data.token) return data.token;
+                throw new Error("No token found");
+            } catch (err) {
+                console.error("Returned HTML instead of JSON:", text);
+                alert("🔴 DEPLOYMENT ERROR 🔴\n\nThe Apps Script is blocking access and asking for a login.\n\nYou MUST deploy it as a 'New Deployment' with 'Who has access: Anyone'.");
+                return null;
+            }
+        } catch (e) {
+            console.error("Token Fetch Error:", e);
+            alert("🔴 NETWORK ERROR 🔴\n\nFailed to reach the Apps Script. Please make sure you created a 'New deployment' and set 'Who has access' to 'Anyone'!");
+            return null;
+        }
+    }
+
+    // ==========================================
+    // CHAT STATE & VARS
+    // ==========================================
     let userName = localStorage.getItem('messengerUserName') || '';
     let userColor = localStorage.getItem('myBubbleColor') || 'pink';
     let userPicUrl = localStorage.getItem('myProfilePic') || '';
-    let currentPerfMode = localStorage.getItem('perfMode') || 'high'; // Performance Mode
+    let currentPerfMode = localStorage.getItem('perfMode') || 'high'; 
     
     let fetchedMessages = [];
     let lastMessagesStr = "";
@@ -290,10 +370,13 @@
     let mediaRecorder = null, audioChunks = [], isRecording = false;
     let editingMsgTime = null; 
     let replyingToData = null; 
-    let sendingAnimInterval = null;
     let inactivityTimer = null;
     let lightboxZoom = 1;
 
+    let pollInterval = null;
+    let pingInterval = null;
+
+    // THEMES (50 options unchanged)
     const THEMES = {
       pink: { label: 'Pink', outer: 'bg-pink-100 border-pink-200', inner: 'bg-pink-500 text-white shadow-[0_2px_0_0_#be185d]', textCol: 'text-pink-600', btn: 'bg-pink-500' },
       blue: { label: 'Blue', outer: 'bg-blue-100 border-blue-200', inner: 'bg-blue-500 text-white shadow-[0_2px_0_0_#1d4ed8]', textCol: 'text-blue-600', btn: 'bg-blue-500' },
@@ -359,9 +442,7 @@
     }
 
     function init() {
-      // SET PERFORMANCE MODE NGA NAKA SAVE SA PHONE
       setPerfMode(currentPerfMode, false);
-      
       const savedName = localStorage.getItem('messengerUserName') || '';
       $('nameInput').value = savedName;
 
@@ -401,10 +482,7 @@
           this.style.height = (this.scrollHeight) + 'px';
       });
       msgInput.addEventListener('keydown', function(e) {
-          if (e.key === 'Enter' && !e.shiftKey) {
-              e.preventDefault();
-              submitMessage();
-          }
+          if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submitMessage(); }
       });
 
       if (!userName) $('authView').classList.remove('hidden'); else showChat();
@@ -418,38 +496,22 @@
         }
       });
 
-      let touchStartX = 0;
-      let swipeElement = null;
-
+      let touchStartX = 0; let swipeElement = null;
       msgContainer.addEventListener('touchstart', e => {
           const bubble = e.target.closest('.swipeable-message');
-          if (bubble) {
-              touchStartX = e.touches[0].clientX;
-              swipeElement = bubble;
-              bubble.style.transition = 'none';
-          }
+          if (bubble) { touchStartX = e.touches[0].clientX; swipeElement = bubble; bubble.style.transition = 'none'; }
       }, {passive: true});
 
       msgContainer.addEventListener('touchmove', e => {
-          if (!swipeElement) return;
-          const currentX = e.touches[0].clientX;
-          const diff = currentX - touchStartX;
-          if (diff > 0 && diff < 80) { 
-              swipeElement.style.transform = `translateX(${diff}px)`;
-          }
+          if (!swipeElement) return; const currentX = e.touches[0].clientX; const diff = currentX - touchStartX;
+          if (diff > 0 && diff < 80) swipeElement.style.transform = `translateX(${diff}px)`;
       }, {passive: true});
 
       msgContainer.addEventListener('touchend', e => {
-          if (!swipeElement) return;
-          const currentX = e.changedTouches[0].clientX;
-          const diff = currentX - touchStartX;
-          
-          swipeElement.style.transition = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
-          swipeElement.style.transform = 'translateX(0)';
-          
+          if (!swipeElement) return; const currentX = e.changedTouches[0].clientX; const diff = currentX - touchStartX;
+          swipeElement.style.transition = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)'; swipeElement.style.transform = 'translateX(0)';
           if (diff > 40) {
-              const name = swipeElement.getAttribute('data-name');
-              let content = swipeElement.getAttribute('data-content');
+              const name = swipeElement.getAttribute('data-name'); let content = swipeElement.getAttribute('data-content');
               if (name) replyTo(name, content);
           }
           swipeElement = null;
@@ -459,60 +521,35 @@
       document.addEventListener('visibilitychange', () => {
         if (document.hidden) {
             hiddenTime = Date.now();
-            if (userName) {
-                inactivityTimer = setTimeout(() => { softLogout(); }, 60000); 
-            }
+            if (userName) inactivityTimer = setTimeout(() => { softLogout(); }, 60000); 
         } else {
             if (inactivityTimer) { clearTimeout(inactivityTimer); inactivityTimer = null; }
-            if (hiddenTime > 0 && (Date.now() - hiddenTime > 60000) && userName) {
-                softLogout();
-            } else if (userName) {
-                fetch(`${scriptUrl}?action=fetch&t=${Date.now()}&ping=${encodeURIComponent(userName)}&_cb=${Math.random().toString(36).substring(7)}`);
-            }
+            if (hiddenTime > 0 && (Date.now() - hiddenTime > 60000) && userName) { softLogout(); } 
+            else if (userName) { pingServer(); fetchMessages(true); }
             hiddenTime = 0;
         }
       });
-      
-      window.addEventListener('beforeunload', () => {
-          if (userName) { navigator.sendBeacon(`${scriptUrl}?action=logout&name=${encodeURIComponent(userName)}`); }
-      });
     }
 
-    // --- BAGONG LOGIC PARA SA LAG SETTINGS ---
     function setPerfMode(mode, save = true) {
         currentPerfMode = mode;
         if(save) localStorage.setItem('perfMode', mode);
-        
         $('mainBody').className = `font-sans h-screen w-full flex flex-col overflow-hidden text-gray-800 selection:bg-pink-200 bg-animated-pastel perf-${mode}`;
-        
-        // Update Button UI
         ['btnPerfLow', 'btnPerfMedium', 'btnPerfHigh'].forEach(id => {
-            $(id).classList.remove('bg-blue-100', 'border-blue-400', 'text-blue-700');
-            $(id).classList.add('bg-white', 'border-gray-200', 'text-gray-500');
+            $(id).classList.remove('bg-blue-100', 'border-blue-400', 'text-blue-700'); $(id).classList.add('bg-white', 'border-gray-200', 'text-gray-500');
         });
-        
         if (mode === 'low') $('btnPerfLow').classList.add('bg-blue-100', 'border-blue-400', 'text-blue-700');
         if (mode === 'medium') $('btnPerfMedium').classList.add('bg-blue-100', 'border-blue-400', 'text-blue-700');
         if (mode === 'high') $('btnPerfHigh').classList.add('bg-blue-100', 'border-blue-400', 'text-blue-700');
     }
 
-    // --- BAGONG LOGIC PARA SA IMAGE LIGHTBOX (ZOOM) ---
     function openLightbox(src) {
-        $('lightboxImg').src = src;
-        lightboxZoom = 1;
-        $('lightboxImg').style.transform = `scale(${lightboxZoom})`;
+        $('lightboxImg').src = src; lightboxZoom = 1; $('lightboxImg').style.transform = `scale(${lightboxZoom})`;
         $('imageLightbox').classList.remove('hidden');
     }
-    
-    function closeLightbox() {
-        $('imageLightbox').classList.add('hidden');
-        $('lightboxImg').src = '';
-    }
-    
+    function closeLightbox() { $('imageLightbox').classList.add('hidden'); $('lightboxImg').src = ''; }
     function zoomLightbox(factor) {
-        lightboxZoom *= factor;
-        if(lightboxZoom < 0.5) lightboxZoom = 0.5;
-        if(lightboxZoom > 4) lightboxZoom = 4;
+        lightboxZoom *= factor; if(lightboxZoom < 0.5) lightboxZoom = 0.5; if(lightboxZoom > 4) lightboxZoom = 4;
         $('lightboxImg').style.transform = `scale(${lightboxZoom})`;
     }
 
@@ -520,35 +557,448 @@
         if(confirm("Gusto mo bang isara ang app?")) {
             window.close();
             setTimeout(() => {
-                $('chatView').innerHTML = `<div class="w-full h-full flex flex-col items-center justify-center bg-gray-100"><i class="ph-fill ph-check-circle text-6xl text-green-400 mb-4"></i><h1 class="text-2xl font-black text-gray-600">Safe na Isara</h1><p class="text-gray-400 text-sm">Maaari mo nang i-close ang tab na ito.</p></div>`;
+                $('chatView').innerHTML = `<div class="w-full h-full flex flex-col items-center justify-center bg-gray-100"><i class="ph-fill ph-check-circle text-6xl text-green-400 mb-4"></i><h1 class="text-2xl font-black text-gray-600">Safe na Isara</h1></div>`;
             }, 300);
         }
     }
 
-    function softLogout() {
-        if (userName) { navigator.sendBeacon(`${scriptUrl}?action=logout&name=${encodeURIComponent(userName)}`); }
-        userName = '';
-        $('chatView').classList.add('hidden'); $('chatView').classList.remove('flex');
-        $('authView').classList.remove('hidden');
-        $('nameInput').value = localStorage.getItem('messengerUserName') || '';
-        $('authErrorMsg').innerText = "Naka-logout ka para sa privacy dahil lumipas ang 60 seconds. I-click ang Join Chat para bumalik.";
-        $('authErrorMsg').classList.remove('hidden');
+    // ==========================================
+    // CORE API / SERVER COMM FUNCTIONS
+    // ==========================================
+    
+    async function authenticateUser() {
+      const name = $('nameInput').value.trim(); if (!name) return;
+      const btn = $('loginBtn'), origTxt = btn.innerText; btn.innerText = "Connecting...";
+      
+      try {
+        const token = await GoogleSheetsAPI.getAuthToken();
+
+        // 1. Write the "Image" header to G1 quietly, ensuring Column G structure exists.
+        fetch(`https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values/${SHEET_MSGS}!G1?valueInputOption=USER_ENTERED`, {
+            method: 'PUT', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ values: [['Image']] })
+        }).catch(e => console.warn("Failed setting G1 Header", e));
+
+        const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values/${SHEET_PROFS}!A2:G`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+        const rows = data.values || [];
+        
+        let foundIdx = -1; let existingColor = 'pink', existingPic = '';
+        rows.forEach((r, idx) => {
+            if(r[0] === name) { foundIdx = idx + 2; existingColor = r[1] || 'pink'; existingPic = r[2] || ''; }
+        });
+
+        if(foundIdx !== -1) {
+            await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values/${SHEET_PROFS}!D${foundIdx}:F${foundIdx}?valueInputOption=USER_ENTERED`, {
+                method: 'PUT', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ values: [[Date.now(), Date.now(), 'TRUE']] })
+            });
+            userColor = existingColor; userPicUrl = existingPic;
+        } else {
+            const newRow = [name, 'pink', '', Date.now(), Date.now(), 'TRUE'];
+            await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values/${SHEET_PROFS}!A:F:append?valueInputOption=USER_ENTERED`, {
+                method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ values: [newRow] })
+            });
+            userColor = 'pink'; userPicUrl = '';
+        }
+
+        userName = name; 
+        localStorage.setItem('messengerUserName', userName); 
+        localStorage.setItem('myBubbleColor', userColor);
+        localStorage.setItem('myProfilePic', userPicUrl);
+        
+        $('authView').classList.add('hidden'); $('authErrorMsg').classList.add('hidden');
+        showChat();
+        btn.innerText = origTxt;
+      } catch (err) { 
+        console.error(err);
+        $('authErrorMsg').innerHTML = `Network Error. Please make sure you have created the tabs exactly named <b>Chat</b> and <b>Profiles</b>, and shared the sheet with the Service Account email.`; 
+        $('authErrorMsg').classList.remove('hidden'); btn.innerText = origTxt; 
+      }
     }
+
+    function showChat() {
+      $('chatView').classList.remove('hidden'); $('chatView').classList.add('flex');
+      updateHeaderProfile(); 
+      fetchMessages(); 
+      
+      if (pollInterval) clearInterval(pollInterval);
+      pollInterval = setInterval(fetchMessages, 3000); 
+
+      if (pingInterval) clearInterval(pingInterval);
+      pingInterval = setInterval(pingServer, 15000);
+    }
+
+    async function fetchMessages(force = false) {
+      try {
+        const token = await GoogleSheetsAPI.getAuthToken();
+        const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values:batchGet?ranges=${SHEET_MSGS}!A2:G&ranges=${SHEET_PROFS}!A2:G`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if(!data.valueRanges) return;
+        
+        // PROFILES
+        const profRows = data.valueRanges[1].values || [];
+        let parsedProfiles = {};
+        profRows.forEach((row, idx) => {
+            const n = row[0]; if(!n) return;
+            parsedProfiles[n] = {
+                color: row[1] || 'pink', picUrl: row[2] || '',
+                lastActive: Number(row[3]) || 0, lastLogin: Number(row[4]) || 0,
+                isOnline: row[5] === 'TRUE' || row[5] === 'true',
+                rowIndex: idx + 2
+            };
+        });
+        
+        // MESSAGES
+        const msgRows = data.valueRanges[0].values || [];
+        let parsedMsgs = [];
+        msgRows.forEach((row, idx) => {
+            const time = Number(row[1]) || 0; if(!time) return;
+            parsedMsgs.push({
+                tempId: row[0], time: time, name: row[2] || '', type: row[3] || 'text',
+                content: row[4] || '', reactions: row[5] ? JSON.parse(row[5]) : {},
+                imageIds: row[6] || '',  
+                status: 'sent', rowIndex: idx + 2
+            });
+        });
+
+        let newMsgsStr = JSON.stringify(parsedMsgs);
+        let newProfsStr = JSON.stringify(parsedProfiles);
+
+        globalUserProfiles = parsedProfiles;
+        updateOnlineCount();
+        
+        if (!$('onlineModal').classList.contains('hidden')) refreshOnlineModalSilent();
+
+        if (newMsgsStr !== lastMessagesStr || newProfsStr !== lastProfilesStr || force) {
+            fetchedMessages = parsedMsgs;
+            lastMessagesStr = newMsgsStr; lastProfilesStr = newProfsStr;
+            if (displayLimit === 30 && autoScrollEnabled) renderMessagesHTML(false, 0, true);
+            else renderMessagesHTML();
+        }
+      } catch (err) { console.error("Fetch Error:", err); }
+    }
+
+    async function pingServer() {
+        if(!userName || !globalUserProfiles[userName] || !globalUserProfiles[userName].rowIndex) return;
+        try {
+            const rIdx = globalUserProfiles[userName].rowIndex;
+            const token = await GoogleSheetsAPI.getAuthToken();
+            await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values/${SHEET_PROFS}!D${rIdx}?valueInputOption=USER_ENTERED`, {
+                method: 'PUT', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ values: [[Date.now()]] })
+            });
+        } catch(e) {}
+    }
+
+    async function submitMessage() {
+      const i = $('messageInput'), v = i.value.trim(); if (!v) return;
+      i.value = ''; i.style.height = '40px'; autoScrollEnabled = true;
+      const btn = $('sendBtn'); btn.disabled = true;
+      
+      let finalContent = v;
+      if (replyingToData && !editingMsgTime) {
+          finalContent = `[Reply kay ${replyingToData.name}: "${replyingToData.content}"]\n${v}`;
+          cancelReply();
+      }
+
+      let isEdit = !!editingMsgTime;
+      let tempId = Date.now() + Math.random().toString(36).substring(7);
+      let newTime = Date.now();
+      
+      if (!isEdit) {
+          fetchedMessages.push({ time: newTime, name: userName, type: 'text', content: finalContent, reactions: {}, tempId: tempId, status: 'sending', imageIds: '' });
+          renderMessagesHTML(false, 0, true);
+      } else {
+          let editedMsg = fetchedMessages.find(m => m.time === editingMsgTime);
+          if (editedMsg) { editedMsg.content = finalContent; editedMsg.status = 'sending'; renderMessagesHTML(); }
+      }
+
+      try {
+          const token = await GoogleSheetsAPI.getAuthToken();
+          if (isEdit) {
+              const eMsg = fetchedMessages.find(m => m.time === editingMsgTime);
+              if (eMsg && eMsg.rowIndex) {
+                  await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values/${SHEET_MSGS}!E${eMsg.rowIndex}?valueInputOption=USER_ENTERED`, {
+                      method: 'PUT', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ values: [[finalContent]] })
+                  });
+              }
+              cancelEdit();
+          } else {
+              const rowData = [tempId, newTime, userName, 'text', finalContent, '{}', ''];
+              await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values/${SHEET_MSGS}!A:G:append?valueInputOption=USER_ENTERED`, {
+                  method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ values: [rowData] })
+              });
+          }
+
+          if (!isEdit) { let msgRef = fetchedMessages.find(m => m.tempId === tempId); if (msgRef) msgRef.status = 'sent'; } 
+          else { let editedMsg = fetchedMessages.find(m => m.time === editingMsgTime); if (editedMsg) editedMsg.status = 'sent'; }
+          
+          btn.disabled = false; renderMessagesHTML();
+          setTimeout(() => fetchMessages(true), 500);
+      } catch(e) { console.error(e); btn.disabled = false; }
+    }
+
+    async function deleteMessage(time) {
+      if(!confirm("Sigurado ka bang gusto mong burahin ang mensaheng ito?")) return;
+      const msgTime = Number(time);
+      const targetMsg = fetchedMessages.find(m => m.time === msgTime);
+      if(!targetMsg || !targetMsg.rowIndex) return;
+
+      targetMsg.content = '🗑️ Deleted'; renderMessagesHTML();
+
+      try {
+          const token = await GoogleSheetsAPI.getAuthToken();
+          await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values/${SHEET_MSGS}!E${targetMsg.rowIndex}?valueInputOption=USER_ENTERED`, {
+              method: 'PUT', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+              body: JSON.stringify({ values: [['🗑️ Deleted']] })
+          });
+      } catch(e) {}
+    }
+
+    async function confirmReact(emoji) {
+      closeReact();
+      const targetMsg = fetchedMessages.find(m => m.time === selectedMsgTime);
+      if(!targetMsg || !targetMsg.rowIndex) return;
+
+      let reacts = targetMsg.reactions || {};
+      if (!reacts[emoji]) reacts[emoji] = [];
+      if (reacts[emoji].includes(userName)) {
+          reacts[emoji] = reacts[emoji].filter(u => u !== userName);
+          if (reacts[emoji].length === 0) delete reacts[emoji];
+      } else { reacts[emoji].push(userName); }
+      
+      targetMsg.reactions = reacts; renderMessagesHTML();
+
+      try {
+          const token = await GoogleSheetsAPI.getAuthToken();
+          await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values/${SHEET_MSGS}!F${targetMsg.rowIndex}?valueInputOption=USER_ENTERED`, {
+              method: 'PUT', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+              body: JSON.stringify({ values: [[JSON.stringify(reacts)]] })
+          });
+      } catch(e) {}
+    }
+
+    async function setTheme(colorKey) {
+        userColor = colorKey; localStorage.setItem('myBubbleColor', colorKey); 
+        $('settingsModal').classList.add('hidden'); renderMessagesHTML(); 
+        if(!globalUserProfiles[userName] || !globalUserProfiles[userName].rowIndex) return;
+        try {
+            const token = await GoogleSheetsAPI.getAuthToken();
+            await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values/${SHEET_PROFS}!B${globalUserProfiles[userName].rowIndex}?valueInputOption=USER_ENTERED`, {
+                method: 'PUT', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ values: [[colorKey]] })
+            });
+        } catch(e) {}
+    }
+
+    async function executeChatUpload(content, type, imageIds = "") {
+      const pc = $('uploadProgressContainer'), pb = $('uploadProgressBar'), pt = $('uploadPercentText');
+      if(pc.classList.contains('hidden')) {
+          pc.classList.remove('hidden'); pb.style.width = "50%"; pt.innerText = "Nag-uupload sa Database..."; autoScrollEnabled = true; 
+      }
+      
+      let tempId = Date.now() + Math.random().toString(36).substring(7); let newTime = Date.now();
+      fetchedMessages.push({ time: newTime, name: userName, type: type, content: content, reactions: {}, tempId: tempId, status: 'sending', imageIds: imageIds });
+      renderMessagesHTML(false, 0, true);
+      
+      try {
+          // WE KEEP USING SERVICE ACCOUNT FOR SHEET UPDATES (Fast & No Quota Restrictions)
+          const token = await GoogleSheetsAPI.getAuthToken();
+          const rowData = [tempId, newTime, userName, type, content, '{}', imageIds];
+          const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values/${SHEET_MSGS}!A:G:append?valueInputOption=USER_ENTERED`, {
+              method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+              body: JSON.stringify({ values: [rowData] })
+          });
+          
+          const result = await response.json();
+          if (result.error) {
+              alert("Google Sheets Error:\n" + result.error.message + "\n\nPlease make sure Column G exists in the 'Chat' sheet.");
+              pc.classList.add('hidden');
+              return;
+          }
+
+          pb.style.width = "100%"; pt.innerText = "Tapos na!"; 
+          let msgRef = fetchedMessages.find(m => m.tempId === tempId); if (msgRef) msgRef.status = 'sent';
+          renderMessagesHTML(); setTimeout(() => { pc.classList.add('hidden'); fetchMessages(true); }, 1000);
+      } catch(e) { 
+          alert("Database append failed: " + e.message); 
+          pc.classList.add('hidden'); 
+      }
+    }
+
+    // 🔥 HYBRID FIX: USING HUMAN TOKEN FOR DRIVE UPLOADS 🔥
+    async function uploadImageToDrive(base64Data, filename) {
+        try {
+            const token = await getHumanDriveToken();
+            if (!token) return null; // Stops upload if Apps Script isn't configured
+
+            const metadata = { name: filename, parents: [API_CONFIG.DRIVE_FOLDER_ID] };
+            const boundary = "314159265358979323846";
+            const delimiter = "\r\n--" + boundary + "\r\n";
+            const close_delim = "\r\n--" + boundary + "--";
+            
+            const base64DataStr = base64Data.split(',')[1];
+            const contentType = base64Data.split(',')[0].split(':')[1].split(';')[0];
+            
+            const multipartRequestBody =
+                delimiter +
+                'Content-Type: application/json; charset=UTF-8\r\n\r\n' +
+                JSON.stringify(metadata) +
+                delimiter +
+                'Content-Type: ' + contentType + '\r\n' +
+                'Content-Transfer-Encoding: base64\r\n\r\n' +
+                base64DataStr +
+                close_delim;
+                
+            const res = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': `multipart/related; boundary=${boundary}`
+                },
+                body: multipartRequestBody
+            });
+            const data = await res.json();
+            
+            if (data.error) {
+                alert("🔴 GOOGLE DRIVE UPLOAD FAILED 🔴\n\n" + data.error.message);
+                return null;
+            }
+
+            // Allow anyone to view the image
+            if (data.id) {
+                const permRes = await fetch(`https://www.googleapis.com/drive/v3/files/${data.id}/permissions`, {
+                    method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ role: 'reader', type: 'anyone' })
+                });
+                return data.id;
+            }
+            return null;
+        } catch (e) { 
+            alert("Network Error during Google Drive Upload: " + e.message); 
+            return null; 
+        }
+    }
+
+    async function handleChatFileUpload(e) {
+      const files = Array.from(e.target.files); 
+      if (!files.length) return;
+      e.target.value = ''; // Reset input
+
+      const pc = $('uploadProgressContainer'), pb = $('uploadProgressBar'), pt = $('uploadPercentText');
+      pc.classList.remove('hidden'); pb.style.width = "5%"; pt.innerText = "Paghahanda..."; autoScrollEnabled = true;
+
+      const imageFiles = files.filter(f => f.type.startsWith('image/'));
+      const otherFiles = files.filter(f => !f.type.startsWith('image/'));
+
+      // Process Images & upload to Google Drive
+      if (imageFiles.length > 0) {
+          let uploadedIds = [];
+          
+          const readAndCompress = (file) => new Promise((resolve) => {
+              const r = new FileReader();
+              r.onload = ev => {
+                  const img = new Image();
+                  img.onload = () => {
+                      const canvas = document.createElement('canvas'); const MAX = 1200; // Better quality for Drive
+                      let w = img.width, h = img.height;
+                      if (w>h) { if(w>MAX) {h*=MAX/w; w=MAX;} } else { if(h>MAX) {w*=MAX/h; h=MAX;} }
+                      canvas.width = w; canvas.height = h; canvas.getContext('2d').drawImage(img, 0,0, w, h);
+                      resolve(canvas.toDataURL('image/jpeg', 0.8));
+                  };
+                  img.src = ev.target.result;
+              };
+              r.readAsDataURL(file);
+          });
+
+          for (let i = 0; i < imageFiles.length; i++) {
+              pt.innerText = `Ina-upload ang larawan ${i+1}/${imageFiles.length}...`;
+              let b64 = await readAndCompress(imageFiles[i]);
+              
+              let fileId = await uploadImageToDrive(b64, imageFiles[i].name);
+              
+              // IF FILE ID IS NULL (FAILED), STOP UPLOADING
+              if (!fileId) {
+                  pc.classList.add('hidden');
+                  return; 
+              }
+
+              uploadedIds.push(fileId);
+              pb.style.width = `${10 + ((i+1)/imageFiles.length)*80}%`;
+          }
+
+          if (uploadedIds.length > 0) {
+              await executeChatUpload("📸 [Nakapaloob na mga Larawan]", 'image', uploadedIds.join('|'));
+          }
+      }
+
+      // Process other files (Fallback to base64 inside Sheet - optional feature)
+      if (otherFiles.length > 0) {
+          for (let i = 0; i < otherFiles.length; i++) {
+              const r = new FileReader();
+              r.onload = ev => {
+                  executeChatUpload(ev.target.result, ['video','audio'].includes(otherFiles[i].type.split('/')[0]) ? otherFiles[i].type.split('/')[0] : 'file');
+              };
+              r.readAsDataURL(otherFiles[i]);
+          }
+      }
+    }
+
+    async function logout() {
+        if (userName && globalUserProfiles[userName]) {
+            try {
+                const token = await GoogleSheetsAPI.getAuthToken();
+                await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values/${SHEET_PROFS}!F${globalUserProfiles[userName].rowIndex}?valueInputOption=USER_ENTERED`, {
+                    method: 'PUT', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ values: [['FALSE']] })
+                });
+            } catch(e) {}
+        }
+        localStorage.clear(); 
+        $('chatView').classList.add('hidden'); $('chatView').classList.remove('flex');
+        $('authView').classList.remove('hidden'); $('nameInput').value = '';
+        $('authErrorMsg').innerText = "Matagumpay na nag-logout."; $('authErrorMsg').classList.remove('hidden', 'text-red-500'); $('authErrorMsg').classList.add('text-green-500');
+        if (pollInterval) clearInterval(pollInterval); if (pingInterval) clearInterval(pingInterval);
+        setTimeout(() => { location.reload(); }, 800);
+    }
+
+    async function softLogout() {
+        if (userName && globalUserProfiles[userName]) {
+            try {
+                const token = await GoogleSheetsAPI.getAuthToken();
+                await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values/${SHEET_PROFS}!F${globalUserProfiles[userName].rowIndex}?valueInputOption=USER_ENTERED`, {
+                    method: 'PUT', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ values: [['FALSE']] })
+                });
+            } catch(e) {}
+        }
+        userName = ''; $('chatView').classList.add('hidden'); $('chatView').classList.remove('flex');
+        $('authView').classList.remove('hidden'); $('nameInput').value = localStorage.getItem('messengerUserName') || '';
+        $('authErrorMsg').innerText = "Naka-logout ka para sa privacy. I-click ang Join Chat para bumalik."; $('authErrorMsg').classList.remove('hidden');
+        if (pollInterval) clearInterval(pollInterval); if (pingInterval) clearInterval(pingInterval);
+    }
+
+    // ==========================================
+    // RENDER FUNCTIONS (UNCHANGED VISUALS)
+    // ==========================================
 
     function getUserStatus(profileData) {
         if (!profileData) return { text: "Offline", color: "text-gray-400", dot: "bg-gray-400" };
-        
         const now = Date.now();
         if (profileData.isCurrentUser || profileData.isOnline) {
             let durationText = "Online";
             if (profileData.lastLogin && profileData.lastLogin > 0) {
                 const onlineMins = Math.floor((now - profileData.lastLogin) / 60000);
                 if (onlineMins < 60) durationText = `Online (${onlineMins}m)`;
-                else {
-                    const hrs = Math.floor(onlineMins / 60);
-                    const mins = onlineMins % 60;
-                    durationText = `Online (${hrs}h ${mins}m)`;
-                }
+                else { const hrs = Math.floor(onlineMins / 60); const mins = onlineMins % 60; durationText = `Online (${hrs}h ${mins}m)`; }
             }
             return { text: durationText, color: "text-green-500", dot: "bg-green-500" + (profileData.isCurrentUser ? " animate-pulse" : "") };
         } else {
@@ -578,192 +1028,66 @@
     }
 
     function openProfileModal() { $('profileModal').classList.remove('hidden'); }
-
     function updateOnlineCount() {
         let count = 1; 
-        Object.keys(globalUserProfiles).forEach(u => {
-            if(u !== userName && globalUserProfiles[u].isOnline) count++;
-        });
+        Object.keys(globalUserProfiles).forEach(u => { if(u !== userName && globalUserProfiles[u].isOnline) count++; });
         if ($('onlineCount')) $('onlineCount').innerText = count;
     }
     
-    // BAGONG FUNCTIONS PARA SA SEEN BY MODAL
     function openSeenByModal(readersStr) {
-        const readers = JSON.parse(decodeURIComponent(readersStr));
-        const list = $('seenByList');
-        list.innerHTML = '';
+        const readers = JSON.parse(decodeURIComponent(readersStr)); const list = $('seenByList'); list.innerHTML = '';
         readers.forEach(r => {
-            const div = document.createElement('div'); 
-            div.className = "flex items-center p-2.5 bg-gray-50 rounded-xl space-x-3 border border-gray-100";
+            const div = document.createElement('div'); div.className = "flex items-center p-2.5 bg-gray-50 rounded-xl space-x-3 border border-gray-100";
             const picSrc = r.picUrl ? `<img src="${r.picUrl}" class="w-10 h-10 rounded-full object-cover border border-gray-200 cursor-pointer hover:scale-105 transition-transform" onclick="openLightbox('${r.picUrl}')">` : `<div class="w-10 h-10 rounded-full bg-gray-200 border border-gray-200 flex items-center justify-center"><i class="ph-fill ph-user text-xl text-gray-400"></i></div>`;
-            div.innerHTML = `${picSrc}<span class="text-sm font-bold text-gray-700">${r.name}</span>`;
-            list.appendChild(div);
+            div.innerHTML = `${picSrc}<span class="text-sm font-bold text-gray-700">${r.name}</span>`; list.appendChild(div);
         });
         $('seenByModal').classList.remove('hidden');
     }
     function closeSeenByModal() { $('seenByModal').classList.add('hidden'); }
 
     function refreshOnlineModalSilent() {
-        const list = $('onlineUsersList');
-        list.innerHTML = '';
-        
-        let currentUserLogin = 0;
-        if (globalUserProfiles[userName]) currentUserLogin = globalUserProfiles[userName].lastLogin;
-
+        const list = $('onlineUsersList'); list.innerHTML = '';
+        let currentUserLogin = 0; if (globalUserProfiles[userName]) currentUserLogin = globalUserProfiles[userName].lastLogin;
         let allUsers = [{name: userName, pic: userPicUrl, color: userColor, isOnline: true, isCurrentUser: true, lastLogin: currentUserLogin}];
-        
         Object.keys(globalUserProfiles).forEach(u => {
-            if(u !== userName) {
-                allUsers.push({
-                    name: u, 
-                    pic: globalUserProfiles[u].picUrl, 
-                    color: globalUserProfiles[u].color,
-                    isOnline: globalUserProfiles[u].isOnline,
-                    lastActive: globalUserProfiles[u].lastActive,
-                    lastLogin: globalUserProfiles[u].lastLogin
-                });
-            }
+            if(u !== userName) allUsers.push({ name: u, pic: globalUserProfiles[u].picUrl, color: globalUserProfiles[u].color, isOnline: globalUserProfiles[u].isOnline, lastActive: globalUserProfiles[u].lastActive, lastLogin: globalUserProfiles[u].lastLogin });
         });
-
-        allUsers.sort((a, b) => {
-            if (a.isOnline === b.isOnline) return (b.lastActive || 0) - (a.lastActive || 0);
-            return a.isOnline ? -1 : 1;
-        });
-
+        allUsers.sort((a, b) => { if (a.isOnline === b.isOnline) return (b.lastActive || 0) - (a.lastActive || 0); return a.isOnline ? -1 : 1; });
         allUsers.forEach(u => {
-            const status = getUserStatus(u);
-            const div = document.createElement('div'); 
-            div.className = "flex items-center p-2.5 bg-gray-50 rounded-xl space-x-3 border border-gray-100";
-            // IN-UPDATE UPANG MA-CLICK AT MA-ZOOM ANG PICTURE SA ONLINE LIST
+            const status = getUserStatus(u); const div = document.createElement('div'); div.className = "flex items-center p-2.5 bg-gray-50 rounded-xl space-x-3 border border-gray-100";
             const picSrc = u.pic ? `<img src="${u.pic}" class="w-10 h-10 rounded-full object-cover border border-gray-200 cursor-pointer hover:scale-105 transition-transform" onclick="openLightbox('${u.pic}')">` : `<div class="w-10 h-10 rounded-full bg-gray-200 border border-gray-200 flex items-center justify-center"><i class="ph-fill ph-user text-xl text-gray-400"></i></div>`;
-            
-            div.innerHTML = `${picSrc} 
-                <div class="flex flex-col flex-1">
-                    <span class="text-sm font-bold text-gray-700">${u.name} ${u.isCurrentUser ? '<span class="text-pink-500">(Ikaw)</span>' : ''}</span>
-                    <span class="text-[10px] font-bold ${status.color}">${status.text}</span>
-                </div>
-                <span class="w-2.5 h-2.5 ${status.dot} rounded-full ml-auto shadow-sm"></span>`;
+            div.innerHTML = `${picSrc} <div class="flex flex-col flex-1"><span class="text-sm font-bold text-gray-700">${u.name} ${u.isCurrentUser ? '<span class="text-pink-500">(Ikaw)</span>' : ''}</span><span class="text-[10px] font-bold ${status.color}">${status.text}</span></div><span class="w-2.5 h-2.5 ${status.dot} rounded-full ml-auto shadow-sm"></span>`;
             list.appendChild(div);
         });
     }
     
     async function forceRefreshOnline() {
         const btn = $('refreshStatusBtn');
-        if (btn) {
-            const icon = btn.querySelector('i');
-            if (icon) icon.classList.add('animate-spin');
-            btn.classList.add('opacity-50');
-        }
-        
-        await fetchMessages(true);
-        refreshOnlineModalSilent();
-        
-        if (btn) {
-            const icon = btn.querySelector('i');
-            if (icon) icon.classList.remove('animate-spin');
-            btn.classList.remove('opacity-50');
-        }
+        if (btn) { const icon = btn.querySelector('i'); if (icon) icon.classList.add('animate-spin'); btn.classList.add('opacity-50'); }
+        await fetchMessages(true); refreshOnlineModalSilent();
+        if (btn) { const icon = btn.querySelector('i'); if (icon) icon.classList.remove('animate-spin'); btn.classList.remove('opacity-50'); }
     }
-    
     function openOnlineModal() { refreshOnlineModalSilent(); $('onlineModal').classList.remove('hidden'); forceRefreshOnline(); }
     function closeOnlineModal() { $('onlineModal').classList.add('hidden'); }
-
-    function setTheme(colorKey) {
-        userColor = colorKey; localStorage.setItem('myBubbleColor', colorKey); $('settingsModal').classList.add('hidden'); renderMessagesHTML(); 
-        try { fetch(scriptUrl, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'update_theme', name: userName, color: colorKey }) }); } catch(e) {}
-    }
-
-    async function authenticateUser(action) {
-      const name = $('nameInput').value.trim(); if (!name) return;
-      const btn = $('loginBtn'), origTxt = btn.innerText; btn.innerText = "Wait...";
-      try {
-        const res = await fetch(`${scriptUrl}?action=login&name=${encodeURIComponent(name)}&t=${Date.now()}&_cb=${Math.random().toString(36).substring(7)}`);
-        const data = await res.json();
-        if (data.success) { 
-            userName = name; localStorage.setItem('messengerUserName', userName); 
-            if (data.color) { userColor = data.color; localStorage.setItem('myBubbleColor', data.color); }
-            if (data.picUrl) { userPicUrl = data.picUrl; localStorage.setItem('myProfilePic', data.picUrl); }
-            
-            $('authView').classList.add('hidden');
-            $('authErrorMsg').classList.add('hidden');
-            showChat();
-            btn.innerText = origTxt;
-        } else { 
-            $('authErrorMsg').innerText = data.error; 
-            $('authErrorMsg').classList.remove('hidden'); 
-            btn.innerText = origTxt; 
-        }
-      } catch (err) { alert("Network Error"); btn.innerText = origTxt; }
-    }
-
-    function showChat() {
-      $('chatView').classList.remove('hidden'); $('chatView').classList.add('flex');
-      updateHeaderProfile(); fetchMessages(); setInterval(fetchMessages, 4000); 
-    }
-
-    async function fetchMessages(force = false) {
-      try {
-        const res = await fetch(`${scriptUrl}?action=fetch&t=${Date.now()}&ping=${encodeURIComponent(userName)}&_cb=${Math.random().toString(36).substring(7)}`);
-        const responseData = await res.json();
-        
-        let dataMsgs = Array.isArray(responseData) ? responseData : (responseData.messages || []);
-        let dataProfiles = responseData.profiles || {};
-
-        let profilesForCompare = {};
-        for (let k in dataProfiles) {
-            profilesForCompare[k] = { color: dataProfiles[k].color, picUrl: dataProfiles[k].picUrl, isOnline: dataProfiles[k].isOnline };
-        }
-
-        let newMsgsStr = JSON.stringify(dataMsgs);
-        let newProfsStr = JSON.stringify(profilesForCompare);
-
-        let msgsChanged = (newMsgsStr !== lastMessagesStr);
-        let profsChanged = (newProfsStr !== lastProfilesStr);
-
-        globalUserProfiles = dataProfiles;
-        updateOnlineCount();
-        
-        if (!$('onlineModal').classList.contains('hidden')) {
-            refreshOnlineModalSilent();
-        }
-
-        if (msgsChanged || profsChanged || force) {
-            fetchedMessages = dataMsgs;
-            lastMessagesStr = newMsgsStr;
-            lastProfilesStr = newProfsStr;
-            
-            if (displayLimit === 30 && autoScrollEnabled) renderMessagesHTML(false, 0, true);
-            else renderMessagesHTML();
-        }
-      } catch (err) {}
-    }
 
     function renderMessagesHTML(isLazyLoad = false, oldScrollHeight = 0, forceBottom = false) {
       const c = $('messagesContainer'); const prevScroll = c.scrollTop;
       const visibleMsgs = fetchedMessages.slice(-displayLimit);
       
-      // --- BAGONG LOGIC: "Seen By" / Read Receipts ---
       let seenMap = {};
       Object.keys(globalUserProfiles).forEach(uName => {
-          if (uName === userName) return; // Wag isama ang sarili sa listahan ng nakakita
-          let uData = globalUserProfiles[uName];
-          let effectiveLastActive = uData.isOnline ? Date.now() : (uData.lastActive || 0);
-
+          if (uName === userName) return;
+          let uData = globalUserProfiles[uName]; let effectiveLastActive = uData.isOnline ? Date.now() : (uData.lastActive || 0);
           let lastSeenMsg = null;
           for (let i = visibleMsgs.length - 1; i >= 0; i--) {
               let msg = visibleMsgs[i];
-              if (msg.content !== '🗑️ Deleted' && msg.status !== 'sending' && msg.time <= effectiveLastActive) {
-                  lastSeenMsg = msg;
-                  break;
-              }
+              if (msg.content !== '🗑️ Deleted' && msg.status !== 'sending' && msg.time <= effectiveLastActive) { lastSeenMsg = msg; break; }
           }
-          
           if (lastSeenMsg && lastSeenMsg.name !== uName) {
               if (!seenMap[lastSeenMsg.time]) seenMap[lastSeenMsg.time] = [];
               seenMap[lastSeenMsg.time].push({ name: uName, picUrl: uData.picUrl });
           }
       });
-      // ---------------------------------------------
 
       let groups = [];
       visibleMsgs.forEach(msg => {
@@ -780,55 +1104,55 @@
           let themeToUse = group.isMe ? (THEMES[userColor] || THEMES['pink']) : (THEMES[profileObj.color] || OTHER_THEME);
 
           if (!group.isMe) {
-              // IN-UPDATE: Clickable/Zoomable Profile Pic sa Chat Area
               const picSrc = profileObj.picUrl ? `<img src="${profileObj.picUrl}" class="profile-pic-chat w-7 h-7 rounded-full object-cover mr-2 border border-gray-200 shadow-sm cursor-pointer" onclick="openLightbox('${profileObj.picUrl}')">` : `<div class="profile-pic-chat w-7 h-7 rounded-full bg-gray-200 border border-gray-200 flex items-center justify-center mr-2 shadow-sm"><i class="ph-fill ph-user text-xs text-gray-400"></i></div>`;
-              html += `<div class="flex items-center mb-1 ml-1">
-                          ${picSrc} 
-                          <span class="block text-[13px] font-black uppercase tracking-wider drop-shadow-sm ${themeToUse.textCol}">${group.name}</span>
-                       </div>`;
+              html += `<div class="flex items-center mb-1 ml-1">${picSrc} <span class="block text-[13px] font-black uppercase tracking-wider drop-shadow-sm ${themeToUse.textCol}">${group.name}</span></div>`;
           } else {
-              // IN-UPDATE: Clickable/Zoomable Profile Pic sa Chat Area
               const myPicSrc = userPicUrl ? `<img src="${userPicUrl}" class="profile-pic-chat w-7 h-7 rounded-full object-cover ml-2 border border-gray-200 shadow-sm cursor-pointer" onclick="openLightbox('${userPicUrl}')">` : `<div class="profile-pic-chat w-7 h-7 rounded-full bg-gray-200 border border-gray-200 flex items-center justify-center ml-2 shadow-sm"><i class="ph-fill ph-user text-xs text-gray-400"></i></div>`;
-              html += `<div class="flex items-center mb-1 mr-1 justify-end">
-                          <span class="block text-[13px] font-black uppercase tracking-wider drop-shadow-sm ${themeToUse.textCol}">${userName}</span>
-                          ${myPicSrc} 
-                       </div>`;
+              html += `<div class="flex items-center mb-1 mr-1 justify-end"><span class="block text-[13px] font-black uppercase tracking-wider drop-shadow-sm ${themeToUse.textCol}">${userName}</span>${myPicSrc}</div>`;
           }
 
           html += `<div class="flex flex-col gap-1.5 p-2 sm:p-3 rounded-3xl ${themeToUse.outer} max-w-[95%] sm:max-w-[85%] border shadow-sm">`;
 
           group.msgs.forEach((msg, idx) => {
-              let contentHtml = '';
-              const isDeleted = msg.content === '🗑️ Deleted';
+              let contentHtml = ''; const isDeleted = msg.content === '🗑️ Deleted';
               
               let rawContentForReply = msg.content;
               if (msg.type === 'image') rawContentForReply = "📸 Nagpadala ng larawan";
               else if (msg.type === 'video') rawContentForReply = "🎥 Nagpadala ng video";
               else if (msg.type === 'audio') rawContentForReply = "🎵 Nagpadala ng audio";
               else if (msg.type === 'file') rawContentForReply = "📁 Nagpadala ng file";
-              
               const safeTxt = String(rawContentForReply).replace(/'/g, "\\'").replace(/"/g, "&quot;");
 
-              if (isDeleted) {
-                  contentHtml = `<div class="italic text-gray-500 font-bold text-sm sm:text-[15px] flex items-center bg-white/50 p-1.5 px-3 rounded-xl"><i class="ph-bold ph-trash mr-1.5 text-base"></i> Ang mensaheng ito ay binura.</div>`;
+              if (isDeleted) { 
+                  contentHtml = `<div class="italic text-gray-500 font-bold text-sm flex items-center bg-white/50 p-1.5 px-3 rounded-xl"><i class="ph-bold ph-trash mr-1.5 text-base"></i> Ang mensaheng ito ay binura.</div>`; 
+              
+              // 🔥 NEW THUMBNAIL RENDERER FIX 🔥
+              } else if (msg.type === 'image') { 
+                  if (msg.imageIds) {
+                      const ids = msg.imageIds.split('|').filter(id => id);
+                      let imgGrid = `<div class="grid ${ids.length > 1 ? 'grid-cols-2 gap-1.5' : 'grid-cols-1'}">`;
+                      ids.forEach(id => {
+                          const thumbUrl = `https://drive.google.com/thumbnail?id=${id}&sz=s800`;
+                          const fullUrl = `https://drive.google.com/thumbnail?id=${id}&sz=s2000`; // Higher Quality for Lightbox
+                          
+                          imgGrid += `<img src="${thumbUrl}" class="chat-image rounded-xl w-full h-auto cursor-pointer shadow-sm border border-white/20 object-cover" style="min-height:100px; max-height: 250px;" onclick="openLightbox('${fullUrl}')">`;
+                      });
+                      imgGrid += '</div>';
+                      contentHtml = imgGrid;
+                  } else {
+                      // Fallback for old base64 images that don't have Drive IDs
+                      contentHtml = `<img src="${msg.content}" class="chat-image rounded-xl w-full h-auto cursor-pointer shadow-sm border border-white/20 object-cover" style="min-width:200px;" onclick="openLightbox('${msg.content}')">`;
+                  }
               }
-              else if (msg.type === 'image') contentHtml = `<img src="${msg.content}" class="chat-image rounded-xl w-full h-auto cursor-pointer shadow-sm border border-white/20 object-cover" style="min-width:200px;" onclick="openLightbox('${msg.content}')">`;
               else if (msg.type === 'video') contentHtml = `<div class="rounded-xl overflow-hidden bg-black/20 shadow-sm w-full max-w-[200px] sm:max-w-[250px] border border-white/20"><video controls class="w-full h-auto" onplay="autoScrollEnabled=false" onpause="autoScrollEnabled=true"><source src="${msg.content.replace('view','download')}"></video></div>`;
               else if (msg.type === 'audio') contentHtml = `<div class="bg-white/20 p-2 rounded-xl border border-white/30 w-full max-w-[200px] sm:max-w-[250px]"><div class="flex items-center mb-1 px-1 text-[10px] font-bold uppercase"><i class="ph-fill ph-music-notes mr-1"></i> Audio</div><audio controls class="w-full h-8" src="${msg.content}"></audio></div>`;
               else if (msg.type === 'file') contentHtml = `<a href="${msg.content}" target="_blank" class="flex items-center space-x-2 bg-white/20 p-2 rounded-xl hover:bg-white/30 w-fit"><i class="ph-bold ph-file-zip text-2xl"></i><span class="font-bold text-xs underline">Download</span></a>`;
               else { 
                   let txt = String(msg.content || "").replace(/</g, "&lt;").replace(/>/g, "&gt;"); 
-                  
-                  if (txt.includes("[Reply kay")) {
-                      txt = txt.replace(/\[Reply kay (.*?): "(.*?)"\]\n?/g, `<div class="bg-black/10 p-2 rounded-xl text-[11px] font-bold mb-2 opacity-80 border-l-4 border-white flex flex-col"><span class="text-[9px] uppercase tracking-wider opacity-70 mb-0.5 flex items-center"><i class="ph-fill ph-reply mr-1"></i> Nag-reply kay $1</span><span class="truncate">$2</span></div>`); 
-                  }
-                  
+                  if (txt.includes("[Reply kay")) { txt = txt.replace(/\[Reply kay (.*?): "(.*?)"\]\n?/g, `<div class="bg-black/10 p-2 rounded-xl text-[11px] font-bold mb-2 opacity-80 border-l-4 border-white flex flex-col"><span class="text-[9px] uppercase tracking-wider opacity-70 mb-0.5 flex items-center"><i class="ph-fill ph-reply mr-1"></i> Nag-reply kay $1</span><span class="truncate">$2</span></div>`); }
                   ALL_UNIQUE_EMOJIS.forEach(emoji => {
-                      if (txt.includes(emoji)) {
-                          txt = txt.split(emoji).join(`<img src="${getAnimatedEmojiUrl(emoji)}" class="inline-block w-7 h-7 sm:w-8 sm:h-8 align-middle mx-0.5 drop-shadow-sm select-none" alt="${emoji}" onerror="this.outerHTML='<span class=\\'text-2xl align-middle mx-0.5\\'>${emoji}</span>'">`);
-                      }
+                      if (txt.includes(emoji)) { txt = txt.split(emoji).join(`<img src="${getAnimatedEmojiUrl(emoji)}" class="inline-block w-7 h-7 align-middle mx-0.5 drop-shadow-sm select-none" alt="${emoji}" onerror="this.outerHTML='<span class=\\'text-2xl align-middle mx-0.5\\'>${emoji}</span>'">`); }
                   });
-
                   contentHtml = `<div class="whitespace-pre-wrap break-words font-medium text-sm sm:text-[15px] leading-snug">${txt}</div>`; 
               }
 
@@ -838,48 +1162,30 @@
                   for (const [emoji, users] of Object.entries(msg.reactions)) {
                       const iReact = users.includes(userName), safeReactsStr = encodeURIComponent(JSON.stringify(msg.reactions));
                       const badgeClass = iReact ? (group.isMe ? 'bg-white/40 border-white text-white' : 'bg-pink-100 border-pink-300 text-pink-600') : (group.isMe ? 'bg-white/10 border-white/30 text-white' : 'bg-gray-50 border-gray-200 text-gray-500');
-                      
-                      reactHtml += `<button onclick="showReactionDetails('${safeReactsStr}', '${msg.time}')" class="reaction-badge ${badgeClass} px-2 py-1 rounded-full text-xs font-bold flex items-center shadow-sm hover:scale-110 active:scale-95 transition-transform">
-                          <img src="${getAnimatedEmojiUrl(emoji)}" class="w-5 h-5 sm:w-6 sm:h-6 mr-1 drop-shadow-sm select-none" alt="${emoji}" onerror="this.outerHTML='<span class=\\'text-lg mr-1\\'>${emoji}</span>'">
-                          <span class="text-xs font-black">${users.length}</span>
-                      </button>`;
+                      reactHtml += `<button onclick="showReactionDetails('${safeReactsStr}', '${msg.time}')" class="reaction-badge ${badgeClass} px-2 py-1 rounded-full text-xs font-bold flex items-center shadow-sm hover:scale-110 active:scale-95 transition-transform"><img src="${getAnimatedEmojiUrl(emoji)}" class="w-5 h-5 mr-1 drop-shadow-sm select-none" alt="${emoji}"><span class="text-xs font-black">${users.length}</span></button>`;
                   }
                   reactHtml += `</div>`;
               }
 
               const innerAlign = group.isMe ? 'self-end' : 'self-start';
               
-              // NEW SEEN HTML NA CLICKABLE
-              let seenHtml = '';
-              let readers = seenMap[msg.time];
+              let seenHtml = ''; let readers = seenMap[msg.time];
               if (readers && readers.length > 0) {
                   let safeReadersStr = encodeURIComponent(JSON.stringify(readers));
-                  seenHtml = `<div class="flex ${group.isMe ? 'justify-end' : 'justify-start'} w-full mt-0.5 px-1" title="Nakita nina: ${readers.map(r=>r.name).join(', ')}">`;
-                  seenHtml += `<div onclick="openSeenByModal('${safeReadersStr}')" class="flex items-center -space-x-1.5 opacity-90 hover:opacity-100 transition-opacity cursor-pointer">`;
-                  
-                  let maxDisplay = 5;
-                  let displayReaders = readers.slice(0, maxDisplay);
-                  let extraCount = readers.length - maxDisplay;
-
-                  if (extraCount > 0) {
-                      seenHtml += `<div class="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-gray-100 border border-white flex items-center justify-center text-[6px] sm:text-[7px] font-black text-gray-600 shadow-sm z-0">+${extraCount}</div>`;
-                  }
-
+                  seenHtml = `<div class="flex ${group.isMe ? 'justify-end' : 'justify-start'} w-full mt-0.5 px-1"><div onclick="openSeenByModal('${safeReadersStr}')" class="flex items-center -space-x-1.5 opacity-90 hover:opacity-100 transition-opacity cursor-pointer">`;
+                  let displayReaders = readers.slice(0, 5); let extraCount = readers.length - 5;
+                  if (extraCount > 0) seenHtml += `<div class="w-3.5 h-3.5 rounded-full bg-gray-100 border border-white flex items-center justify-center text-[6px] font-black text-gray-600 shadow-sm z-0">+${extraCount}</div>`;
                   displayReaders.forEach((r, i) => { 
                       let zIndex = 10 - i; 
-                      let pSrc = r.picUrl ? `<img src="${r.picUrl}" class="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full object-cover border border-white shadow-sm" style="z-index: ${zIndex}">` : `<div class="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-gray-300 border border-white flex items-center justify-center shadow-sm" style="z-index: ${zIndex}"><i class="ph-fill ph-user text-[7px] text-white"></i></div>`;
+                      let pSrc = r.picUrl ? `<img src="${r.picUrl}" class="w-3.5 h-3.5 rounded-full object-cover border border-white shadow-sm" style="z-index: ${zIndex}">` : `<div class="w-3.5 h-3.5 rounded-full bg-gray-300 border border-white flex items-center justify-center shadow-sm" style="z-index: ${zIndex}"><i class="ph-fill ph-user text-[7px] text-white"></i></div>`;
                       seenHtml += pSrc;
                   });
-
                   seenHtml += `</div></div>`;
               }
 
               html += `
                 <div class="relative group flex flex-col ${innerAlign} max-w-full swipeable-message" data-name="${group.name}" data-content="${safeTxt}">
-                  <div class="px-3 py-2 rounded-2xl ${isDeleted ? 'bg-transparent border border-white/20' : themeToUse.inner} flex flex-col relative z-10">
-                      ${contentHtml}
-                  </div>
-                  
+                  <div class="px-3 py-2 rounded-2xl ${isDeleted ? 'bg-transparent border border-white/20' : themeToUse.inner} flex flex-col relative z-10">${contentHtml}</div>
                   <div class="flex justify-between items-end mt-0.5 mb-0.5 px-1 relative z-0">
                       ${reactHtml}
                       <div class="text-[9px] font-bold tracking-tighter ${themeToUse.textCol} ml-auto mt-0.5 opacity-70 flex items-center">
@@ -888,15 +1194,7 @@
                       </div>
                   </div>
                   ${seenHtml}
-                  
-                  ${!isDeleted ? `
-                  <div class="absolute -top-2.5 ${group.isMe ? '-left-6' : '-right-6'} hidden group-hover:flex space-x-1 z-20">
-                      <button onclick="openReact('${msg.time}')" class="w-7 h-7 rounded-full flex items-center justify-center bg-white shadow-sm border border-gray-100 text-pink-500 hover:scale-110 transition"><i class="ph-bold ph-heart text-sm"></i></button>
-                      <button onclick="replyTo('${group.name}', '${safeTxt}')" class="w-7 h-7 rounded-full flex items-center justify-center bg-white shadow-sm border border-gray-100 text-blue-500 hover:scale-110 transition"><i class="ph-bold ph-arrow-u-up-left text-sm"></i></button>
-                      ${group.isMe && msg.type === 'text' ? `<button onclick="copyToEdit('${safeTxt}', '${msg.time}')" class="w-7 h-7 rounded-full flex items-center justify-center bg-white shadow-sm border border-gray-100 text-green-500 hover:scale-110 transition"><i class="ph-bold ph-pencil-simple text-sm"></i></button>` : ''}
-                      ${group.isMe ? `<button onclick="deleteMessage('${msg.time}')" class="w-7 h-7 rounded-full flex items-center justify-center bg-white shadow-sm border border-gray-100 text-red-500 hover:scale-110 transition"><i class="ph-bold ph-trash text-sm"></i></button>` : ''}
-                  </div>
-                  ` : ''}
+                  ${!isDeleted ? `<div class="absolute -top-2.5 ${group.isMe ? '-left-6' : '-right-6'} hidden group-hover:flex space-x-1 z-20"><button onclick="openReact('${msg.time}')" class="w-7 h-7 rounded-full flex bg-white shadow-sm border border-gray-100 text-pink-500 hover:scale-110 transition items-center justify-center"><i class="ph-bold ph-heart text-sm"></i></button><button onclick="replyTo('${group.name}', '${safeTxt}')" class="w-7 h-7 rounded-full flex bg-white shadow-sm border border-gray-100 text-blue-500 hover:scale-110 transition items-center justify-center"><i class="ph-bold ph-arrow-u-up-left text-sm"></i></button>${group.isMe && msg.type === 'text' ? `<button onclick="copyToEdit('${safeTxt}', '${msg.time}')" class="w-7 h-7 rounded-full flex bg-white shadow-sm border border-gray-100 text-green-500 hover:scale-110 transition items-center justify-center"><i class="ph-bold ph-pencil-simple text-sm"></i></button>` : ''}${group.isMe ? `<button onclick="deleteMessage('${msg.time}')" class="w-7 h-7 rounded-full flex bg-white shadow-sm border border-gray-100 text-red-500 hover:scale-110 transition items-center justify-center"><i class="ph-bold ph-trash text-sm"></i></button>` : ''}</div>` : ''}
                 </div>
               `;
           });
@@ -913,115 +1211,26 @@
     function closeReact() { $('reactionPopup').classList.add('hidden'); }
     function toggleEmojis() { $('emojiPicker').classList.toggle('hidden'); }
     
-    function logout() { 
-        // IN-UPDATE: Mas maaasahang fetch request at instant visual feedback
-        if (userName) { fetch(`${scriptUrl}?action=logout&name=${encodeURIComponent(userName)}`, { mode: 'no-cors' }); }
-        localStorage.clear(); 
-        
-        $('chatView').classList.add('hidden'); 
-        $('chatView').classList.remove('flex');
-        $('authView').classList.remove('hidden');
-        $('nameInput').value = '';
-        $('authErrorMsg').innerText = "Matagumpay na nag-logout.";
-        $('authErrorMsg').classList.remove('hidden', 'text-red-500');
-        $('authErrorMsg').classList.add('text-green-500');
-        
-        setTimeout(() => { location.reload(); }, 800);
-    }
-    
     function copyToEdit(txt, time) { 
-        cancelReply(); 
-        editingMsgTime = Number(time); $('messageInput').value = txt.replace(/\[Reply kay .*?\]\n/, ''); 
-        $('messageInput').dispatchEvent(new Event('input')); 
-        $('messageInput').focus(); $('editingIndicator').classList.remove('hidden'); $('messageInput').classList.add('ring-2', 'ring-yellow-400', 'bg-yellow-50');
+        cancelReply(); editingMsgTime = Number(time); $('messageInput').value = txt.replace(/\[Reply kay .*?\]\n/, ''); 
+        $('messageInput').dispatchEvent(new Event('input')); $('messageInput').focus(); $('editingIndicator').classList.remove('hidden'); $('messageInput').classList.add('ring-2', 'ring-yellow-400', 'bg-yellow-50');
     }
-    
     function cancelEdit() { 
-        editingMsgTime = null; $('messageInput').value = ''; 
-        $('messageInput').dispatchEvent(new Event('input')); 
+        editingMsgTime = null; $('messageInput').value = ''; $('messageInput').dispatchEvent(new Event('input')); 
         $('editingIndicator').classList.add('hidden'); $('messageInput').classList.remove('ring-2', 'ring-yellow-400', 'bg-yellow-50'); 
     }
-
     function replyTo(n, txt) { 
-        cancelEdit(); 
-        replyingToData = { name: n, content: txt.length > 50 ? txt.substring(0, 50) + "..." : txt };
-        $('replyPreviewName').innerText = n;
-        $('replyPreviewText').innerText = replyingToData.content;
-        $('replyingIndicator').classList.remove('hidden');
-        $('messageInput').focus(); 
+        cancelEdit(); replyingToData = { name: n, content: txt.length > 50 ? txt.substring(0, 50) + "..." : txt };
+        $('replyPreviewName').innerText = n; $('replyPreviewText').innerText = replyingToData.content;
+        $('replyingIndicator').classList.remove('hidden'); $('messageInput').focus(); 
     }
-    
-    function cancelReply() {
-        replyingToData = null;
-        $('replyingIndicator').classList.add('hidden');
-    }
-
-    async function deleteMessage(time) {
-      if(!confirm("Sigurado ka bang gusto mong burahin ang mensaheng ito?")) return;
-      const msgTime = Number(time);
-      await fetch(scriptUrl, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'edit_message', name: userName, content: '🗑️ Deleted', messageTime: msgTime }) });
-      setTimeout(fetchMessages, 1000);
-    }
-
-    async function confirmReact(emoji) {
-      closeReact();
-      await fetch(scriptUrl, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'react', emoji: emoji, messageTime: selectedMsgTime, userName: userName }) });
-      setTimeout(fetchMessages, 800);
-    }
-
-    async function submitMessage() {
-      const i = $('messageInput'), v = i.value.trim(); if (!v) return;
-      i.value = ''; i.style.height = '40px'; autoScrollEnabled = true;
-      const btn = $('sendBtn'); btn.disabled = true;
-      
-      let finalContent = v;
-      if (replyingToData && !editingMsgTime) {
-          finalContent = `[Reply kay ${replyingToData.name}: "${replyingToData.content}"]\n${v}`;
-          cancelReply();
-      }
-
-      let isEdit = !!editingMsgTime;
-      let tempId = Date.now() + Math.random();
-      
-      if (!isEdit) {
-          fetchedMessages.push({
-              time: Date.now(), name: userName, type: 'text', content: finalContent, reactions: {}, tempId: tempId, status: 'sending'
-          });
-          renderMessagesHTML(false, 0, true);
-      } else {
-          let editedMsg = fetchedMessages.find(m => m.time === editingMsgTime);
-          if (editedMsg) { editedMsg.content = finalContent; editedMsg.status = 'sending'; renderMessagesHTML(); }
-      }
-
-      if (isEdit) {
-          await fetch(scriptUrl, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'edit_message', name: userName, content: finalContent, messageTime: editingMsgTime }) });
-          cancelEdit();
-      } else {
-          await fetch(scriptUrl, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'chat', name: userName, type: 'text', content: finalContent }) });
-      }
-      
-      btn.disabled = false;
-
-      if (!isEdit) {
-          let msgRef = fetchedMessages.find(m => m.tempId === tempId);
-          if (msgRef) msgRef.status = 'sent';
-      } else {
-          let editedMsg = fetchedMessages.find(m => m.time === editingMsgTime);
-          if (editedMsg) editedMsg.status = 'sent';
-      }
-      renderMessagesHTML();
-      
-      setTimeout(() => fetchMessages(true), 500);
-    }
+    function cancelReply() { replyingToData = null; $('replyingIndicator').classList.add('hidden'); }
 
     function showReactionDetails(rStr, msgTime) {
       const reacts = JSON.parse(decodeURIComponent(rStr)), list = $('reactionDetailsList'); list.innerHTML = '';
       for (const [emoji, users] of Object.entries(reacts)) {
           const div = document.createElement('div'); div.className = "bg-gray-50 p-4 rounded-xl flex items-center space-x-4";
-          div.innerHTML = `
-            <img src="${getAnimatedEmojiUrl(emoji)}" class="w-12 h-12 drop-shadow-md select-none" alt="${emoji}" onerror="this.outerHTML='<span class=\\'text-4xl\\'>${emoji}</span>'">
-            <div class="flex-1"><span class="text-xs font-bold text-gray-700">${users.join(', ')}</span></div>
-          `;
+          div.innerHTML = `<img src="${getAnimatedEmojiUrl(emoji)}" class="w-12 h-12 drop-shadow-md select-none" alt="${emoji}"><div class="flex-1"><span class="text-xs font-bold text-gray-700">${users.join(', ')}</span></div>`;
           list.appendChild(div);
       }
       const btn = document.createElement('button'); btn.className = "w-full mt-3 bg-pink-100 text-pink-500 font-bold py-3 rounded-xl hover:bg-pink-200 transition shadow-sm";
@@ -1037,47 +1246,18 @@
           const stream = await navigator.mediaDevices.getUserMedia({ audio: true }); mediaRecorder = new MediaRecorder(stream); audioChunks = [];
           mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
           mediaRecorder.onstop = () => {
-            const mime = mediaRecorder.mimeType || 'audio/webm';
-            const ext = mime.includes('mp4') ? 'mp4' : (mime.includes('ogg') ? 'ogg' : 'webm');
-            const blob = new Blob(audioChunks, { type: mime });
-            const r = new FileReader(); 
-            r.onload = e => executeChatUpload(e.target.result, 'audio', { name: 'Voice_' + Date.now() + '.' + ext, mimeType: mime }); 
-            r.readAsDataURL(blob);
+            const mime = mediaRecorder.mimeType || 'audio/webm'; const ext = mime.includes('mp4') ? 'mp4' : (mime.includes('ogg') ? 'ogg' : 'webm');
+            const blob = new Blob(audioChunks, { type: mime }); const r = new FileReader(); 
+            r.onload = e => executeChatUpload(e.target.result, 'audio'); r.readAsDataURL(blob);
             stream.getTracks().forEach(track => track.stop());
           };
           mediaRecorder.start(); isRecording = true; 
           btn.classList.replace('bg-gray-50','bg-red-500'); btn.classList.replace('text-gray-500','text-white'); btn.classList.add('animate-pulse');
-        } catch(e) { alert("Mic required or not supported on this browser!"); }
+        } catch(e) { alert("Mic required or not supported!"); }
       } else {
         mediaRecorder.stop(); isRecording = false; 
         btn.classList.replace('bg-red-500','bg-gray-50'); btn.classList.replace('text-white','text-gray-500'); btn.classList.remove('animate-pulse');
       }
-    }
-
-    function handleChatFileUpload(e) {
-      const f = e.target.files[0]; if (!f) return;
-      const r = new FileReader(); r.onload = ev => { let type = f.type.split('/')[0]; if (!['image', 'video', 'audio'].includes(type)) type = 'file'; executeChatUpload(ev.target.result, type, f); }; r.readAsDataURL(f);
-    }
-
-    async function executeChatUpload(b64, type, file) {
-      const pc = $('uploadProgressContainer'), pb = $('uploadProgressBar'), pt = $('uploadPercentText');
-      pc.classList.remove('hidden'); pb.style.width = "40%"; pt.innerText = "40%"; autoScrollEnabled = true; 
-      
-      let tempId = Date.now() + Math.random();
-      fetchedMessages.push({
-          time: Date.now(), name: userName, type: type, content: b64, reactions: {}, tempId: tempId, status: 'sending'
-      });
-      renderMessagesHTML(false, 0, true);
-      
-      await fetch(scriptUrl, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'chat', name: userName, type: type, content: b64, fileName: file.name, mimeType: file.type }) });
-      
-      pb.style.width = "100%"; pt.innerText = "100%"; 
-      
-      let msgRef = fetchedMessages.find(m => m.tempId === tempId);
-      if (msgRef) msgRef.status = 'sent';
-      renderMessagesHTML();
-      
-      setTimeout(() => { pc.classList.add('hidden'); fetchMessages(true); }, 1000);
     }
 
     function handleProfilePicUpload(e) {
@@ -1090,20 +1270,21 @@
               let width = img.width, height = img.height;
               if (width > height) { if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; } } 
               else { if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; } }
-              canvas.width = width; canvas.height = height;
-              canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+              canvas.width = width; canvas.height = height; canvas.getContext('2d').drawImage(img, 0, 0, width, height);
               const b64 = canvas.toDataURL('image/jpeg', 0.8);
               $('picUploadProgress').classList.remove('hidden'); $('picUploadBar').style.width = '50%';
               
-              try {
-                  const res = await fetch(scriptUrl, { method: 'POST', body: JSON.stringify({ action: 'update_profile_pic', name: userName, content: b64, fileName: file.name, mimeType: 'image/jpeg' }) });
-                  const result = await res.json();
-                  $('picUploadBar').style.width = '100%';
-                  if(result.success && result.picUrl) {
-                      userPicUrl = result.picUrl; localStorage.setItem('myProfilePic', userPicUrl);
-                      updateHeaderProfile(); fetchMessages(); 
-                  }
-              } catch(err) {}
+              if(globalUserProfiles[userName] && globalUserProfiles[userName].rowIndex) {
+                  try {
+                      const token = await GoogleSheetsAPI.getAuthToken();
+                      await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values/${SHEET_PROFS}!C${globalUserProfiles[userName].rowIndex}?valueInputOption=USER_ENTERED`, {
+                          method: 'PUT', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ values: [[b64]] })
+                      });
+                      userPicUrl = b64; localStorage.setItem('myProfilePic', userPicUrl); updateHeaderProfile();
+                  } catch(e) {}
+              }
+              $('picUploadBar').style.width = '100%';
               setTimeout(() => { $('picUploadProgress').classList.add('hidden'); $('profileModal').classList.add('hidden'); }, 1000);
           };
           img.src = event.target.result;

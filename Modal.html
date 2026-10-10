@@ -46,6 +46,7 @@
     @keyframes pulse-glow { 0%, 100% { transform: scale(1); filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); } 50% { transform: scale(1.08); filter: drop-shadow(0 8px 12px rgba(255, 215, 0, 0.4)); } }
     @keyframes candy-stripe { from { background-position: 0 0; } to { background-position: 40px 0; } }
     @keyframes popIn { 0% { transform: scale(0.8) translateY(20px); opacity: 0; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
 
     /* Header */
     .pcma-modal-top {
@@ -53,15 +54,24 @@
       background: linear-gradient(135deg, var(--pastel-purple), var(--pastel-blue)); color: #fff;
       min-height: 50px; padding: 10px; border-bottom: 3px solid var(--pastel-purple-dark); box-shadow: 0 6px 15px rgba(192, 163, 230, 0.25);
     }
-    .pcma-modal-top > :not(.pcma-modal-top-cid):not(.view-toggle-btn):not(.back-btn) { display: none !important; }
+    .pcma-modal-top > :not(.pcma-modal-top-cid):not(.view-toggle-btn):not(.back-btn):not(.refresh-btn) { display: none !important; }
     .back-btn { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.5); border-radius: 8px; color: white; width: 34px; height: 34px; padding: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; }
     .back-btn:hover { background: rgba(255,255,255,0.3); border-color: white; transform: translateY(-50%) scale(1.05); }
     .back-btn:active { transform: translateY(-50%) scale(0.95); }
     .back-btn svg { width: 22px; height: 22px; }
 
     .pcma-modal-top-cid { flex: 1; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 900; color: #fff; line-height: 1; font-size: 1.4rem; letter-spacing: 1px; text-shadow: 0 2px 0 var(--pastel-purple-dark), 0 4px 8px rgba(0,0,0,0.2); }
+    
     .view-toggle-btn { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.5); border-radius: 8px; color: white; width: 34px; height: 34px; padding: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; }
-    .view-toggle-btn:hover { background: rgba(255,255,255,0.3); border-color: white; }
+    .view-toggle-btn:hover { background: rgba(255,255,255,0.3); border-color: white; transform: translateY(-50%) scale(1.05); }
+    .view-toggle-btn:active { transform: translateY(-50%) scale(0.95); }
+
+    /* Refresh Button */
+    .refresh-btn { position: absolute; right: 54px; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.5); border-radius: 8px; color: white; width: 34px; height: 34px; padding: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; }
+    .refresh-btn:hover { background: rgba(255,255,255,0.3); border-color: white; transform: translateY(-50%) scale(1.05); }
+    .refresh-btn:active { transform: translateY(-50%) scale(0.95); }
+    .refresh-btn svg { width: 20px; height: 20px; transition: transform 0.3s; }
+    .refresh-btn svg.spin { animation: spin 1s linear infinite; }
 
     /* Layout */
     #pcmaModalBody { flex: 1 1 auto; overflow: auto; padding-bottom: calc(var(--footer-h) + 10px); }
@@ -176,7 +186,18 @@
     <button class="back-btn" onclick="handleAppBack()" title="Back to Projects">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
     </button>
+    
     <div id="pcmaModalCID" class="pcma-modal-top-cid">—</div>
+    
+    <!-- Added Refresh Button Here -->
+    <button id="refreshBtn" class="refresh-btn" onclick="triggerRefresh()" title="Refresh Data">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="23 4 23 10 17 10"></polyline>
+        <polyline points="1 20 1 14 7 14"></polyline>
+        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+      </svg>
+    </button>
+    
     <button id="viewToggleBtn" class="view-toggle-btn" onclick="toggleViewMode()" title="Toggle PC/Mobile View">
       <svg id="viewModeIcon" viewBox="0 0 24 24" fill="currentColor"></svg>
     </button>
@@ -289,6 +310,24 @@
         else { icon.innerHTML = svgMobile; }
     }
 
+    // NEW REFRESH FUNCTIONALITY
+    function triggerRefresh() {
+      const btn = document.getElementById('refreshBtn');
+      const icon = btn.querySelector('svg');
+      icon.classList.add('spin'); // start the spin animation
+      
+      // Request the parent application to re-fetch and re-render data
+      if (window.parent && window.parent !== window) {
+          window.parent.postMessage({ type: 'RELOAD_APP' }, '*');
+      }
+      
+      // Fallback: remove spin state after 3s just in case parent doesn't send message back
+      setTimeout(() => {
+          icon.classList.remove('spin');
+          init(); // re-init local storage incase parent updated it directly
+      }, 3000);
+    }
+
     let currentHeaders = [];
 
     function init() {
@@ -302,11 +341,18 @@
       }
     }
 
+    // MODIFIED TO STOP REFRESH SPIN WHEN DATA IS RECEIVED
     window.addEventListener('message', (e) => {
       if (e.data && e.data.type === 'RENDER') {
           currentHeaders = e.data.headers || [];
           renderModal(e.data.row);
           window.scrollTo(0, 0);
+          
+          // Stop spinner once fresh data is rendered
+          const refreshIcon = document.querySelector('#refreshBtn svg');
+          if(refreshIcon) {
+              refreshIcon.classList.remove('spin');
+          }
       }
     });
 

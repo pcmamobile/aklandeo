@@ -2,12 +2,12 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <title>Photo Uploader App</title>
+    <title>Photo Uploader App (Fast Sync)</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- JWT Generation Library (Required for Secure Client-Side Data Fetching) -->
+    <!-- JWT Generation Library (Required for Timestamps) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.5.27/jsrsasign-all-min.js"></script>
 
     <style>
@@ -19,56 +19,26 @@
         
         --color-grey: #b2bec3;
         --shadow-grey: #636e72;
-        
         --color-green: #00b894;
         --shadow-green: #00896f;
-        
         --color-blue: #0984e3;
         --shadow-blue: #06528d;
-        
         --color-red: #d63031;
         --shadow-red: #a02020;
-
         --color-purple: #6c5ce7;
         --shadow-purple: #4839b8;
-        
         --color-orange: #e17055;
         --shadow-orange: #a84d37;
       }
 
-      body { 
-        font-family: 'Segoe UI', Roboto, Helvetica, sans-serif; 
-        padding: 20px; 
-        margin: 0; 
-        background: var(--bg-gradient); 
-        min-height: 100vh;
-      }
+      body { font-family: 'Segoe UI', Roboto, Helvetica, sans-serif; padding: 20px; margin: 0; background: var(--bg-gradient); min-height: 100vh; }
 
       /* --- View Wrappers --- */
-      #upload-view {
-        display: flex;
-        justify-content: center;
-        align-items: flex-start;
-        width: 100%;
-        animation: fadeIn 0.4s ease;
-      }
+      #upload-view { display: flex; justify-content: center; align-items: flex-start; width: 100%; animation: fadeIn 0.4s ease; }
+      #gallery-view { display: none; max-width: 900px; margin: 0 auto; animation: fadeIn 0.4s ease; padding-bottom: 40px; }
+      @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-      #gallery-view {
-        display: none;
-        max-width: 900px;
-        margin: 0 auto;
-        animation: fadeIn 0.4s ease;
-        padding-bottom: 40px;
-      }
-
-      @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-
-      /* ==========================================
-         3D COLORFUL ICON UTILITIES
-         ========================================== */
+      /* 3D COLORFUL ICON UTILITIES */
       .icon-3d-blue { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(1px 2px 0px rgba(0, 132, 227, 0.4)); display: inline-block; }
       .icon-3d-green { background: linear-gradient(135deg, #00b894 0%, #55efc4 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(1px 2px 0px rgba(0, 184, 148, 0.4)); display: inline-block; }
       .icon-3d-purple { background: linear-gradient(135deg, #b224ef 0%, #7579ff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(1px 2px 0px rgba(117, 121, 255, 0.4)); display: inline-block; }
@@ -80,115 +50,22 @@
       .file-name i, .history-name i { margin-right: 5px; }
       .history-time i { margin-right: 4px; }
 
-      /* ==========================================
-         UPLOAD VIEW STYLES
-         ========================================== */
-      .app-container {
-        background: var(--card-bg);
-        width: 100%;
-        max-width: 480px;
-        padding: 30px 25px;
-        border-radius: 24px;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.2), inset 0 5px 10px rgba(255,255,255,0.7);
-        border: 4px solid rgba(255, 255, 255, 0.6);
-        backdrop-filter: blur(10px);
-        position: relative;
-        margin-top: 20px;
-        margin-bottom: 20px;
-        box-sizing: border-box;
-      }
-
-      .app-title { 
-        text-align: center; 
-        color: var(--text-main); 
-        font-size: 28px; 
-        margin-top: 0;
-        margin-bottom: 25px;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        text-shadow: 2px 2px 4px rgba(255,255,255,0.6);
-      }
-
-      .app-title i { 
-        background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        display: inline-block;
-        filter: drop-shadow(3px 4px 0px rgba(193, 18, 31, 0.7)) drop-shadow(3px 8px 10px rgba(0,0,0,0.25));
-        margin-right: 12px; 
-        font-size: 38px;
-        transform: translateY(-2px);
-        vertical-align: middle;
-      }
+      /* UPLOAD VIEW STYLES */
+      .app-container { background: var(--card-bg); width: 100%; max-width: 480px; padding: 30px 25px; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.2), inset 0 5px 10px rgba(255,255,255,0.7); border: 4px solid rgba(255, 255, 255, 0.6); backdrop-filter: blur(10px); position: relative; margin-top: 20px; margin-bottom: 20px; box-sizing: border-box; }
+      .app-title { text-align: center; color: var(--text-main); font-size: 28px; margin-top: 0; margin-bottom: 25px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; text-shadow: 2px 2px 4px rgba(255,255,255,0.6); }
+      .app-title i { background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: inline-block; filter: drop-shadow(3px 4px 0px rgba(193, 18, 31, 0.7)) drop-shadow(3px 8px 10px rgba(0,0,0,0.25)); margin-right: 12px; font-size: 38px; transform: translateY(-2px); vertical-align: middle; }
 
       .input-group { margin-bottom: 20px; position: relative; }
       label { display: block; font-weight: 800; margin-bottom: 8px; color: var(--text-main); font-size: 14px; text-shadow: 1px 1px 2px rgba(255,255,255,0.5); }
-      
       .input-wrapper { position: relative; }
-      
-      .input-wrapper i {
-        position: absolute;
-        left: 16px;
-        top: 50%;
-        transform: translateY(-50%);
-        background: linear-gradient(135deg, #b2bec3 0%, #dfe6e9 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        filter: drop-shadow(1px 2px 0px rgba(178, 190, 195, 0.6));
-        font-size: 18px;
-        transition: 0.3s;
-        display: inline-block;
-      }
+      .input-wrapper i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); background: linear-gradient(135deg, #b2bec3 0%, #dfe6e9 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(1px 2px 0px rgba(178, 190, 195, 0.6)); font-size: 18px; transition: 0.3s; display: inline-block; }
+      input[type="text"] { width: 100%; padding: 16px 16px 16px 45px; box-sizing: border-box; border: 2px solid #dfe6e9; border-radius: 16px; font-size: 16px; background: rgba(255, 255, 255, 0.85); color: var(--text-main); font-weight: 600; transition: all 0.3s ease; box-shadow: inset 0 3px 6px rgba(0,0,0,0.04); }
+      input[type="text"]:focus { outline: none; border-color: var(--color-blue); background: #fff; box-shadow: inset 0 3px 6px rgba(0,0,0,0.02), 0 0 0 4px rgba(9, 132, 227, 0.2); }
+      input[type="text"]:focus + i, .input-wrapper input:focus ~ i { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(2px 2px 0px rgba(0, 132, 227, 0.4)); }
 
-      input[type="text"] { 
-        width: 100%; 
-        padding: 16px 16px 16px 45px; 
-        box-sizing: border-box; 
-        border: 2px solid #dfe6e9; 
-        border-radius: 16px; 
-        font-size: 16px; 
-        background: rgba(255, 255, 255, 0.85);
-        color: var(--text-main);
-        font-weight: 600;
-        transition: all 0.3s ease;
-        box-shadow: inset 0 3px 6px rgba(0,0,0,0.04);
-      }
-      
-      input[type="text"]:focus {
-        outline: none;
-        border-color: var(--color-blue);
-        background: #fff;
-        box-shadow: inset 0 3px 6px rgba(0,0,0,0.02), 0 0 0 4px rgba(9, 132, 227, 0.2);
-      }
-      input[type="text"]:focus + i, .input-wrapper input:focus ~ i { 
-        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        filter: drop-shadow(2px 2px 0px rgba(0, 132, 227, 0.4));
-      }
-
-      .btn-3d { 
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        width: 100%; 
-        padding: 16px; 
-        margin-bottom: 16px; 
-        font-size: 16px; 
-        font-weight: 800; 
-        text-align: center; 
-        border: none; 
-        border-radius: 16px; 
-        cursor: pointer; 
-        transition: all 0.1s ease; 
-        position: relative;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-      }
+      .btn-3d { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 16px; margin-bottom: 16px; font-size: 16px; font-weight: 800; text-align: center; border: none; border-radius: 16px; cursor: pointer; transition: all 0.1s ease; position: relative; text-transform: uppercase; letter-spacing: 0.5px; }
       .btn-3d:active { transform: translateY(6px); }
-      .btn-3d i, .actions a i { filter: drop-shadow(1px 2px 1px rgba(0,0,0,0.4)); }
+      .btn-3d i, .actions a i, .actions button i { filter: drop-shadow(1px 2px 1px rgba(0,0,0,0.4)); }
 
       .btn-grey { background-color: var(--color-grey); color: white; box-shadow: 0 6px var(--shadow-grey), 0 10px 15px rgba(0,0,0,0.1); }
       .btn-grey:active { box-shadow: 0 0 var(--shadow-grey), 0 2px 5px rgba(0,0,0,0.1); }
@@ -212,22 +89,18 @@
       #progress-container { display: none; margin-bottom: 25px; padding: 20px 15px; background: rgba(255, 255, 255, 0.85); border-radius: 16px; border: 2px solid rgba(255,255,255,0.5); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
       .progress-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; font-weight: 800; color: var(--text-main); }
       .progress-track { background: #dfe6e9; border-radius: 20px; overflow: hidden; height: 18px; width: 100%; box-shadow: inset 0 3px 6px rgba(0,0,0,0.1); position: relative; }
-      #network-bar { background: repeating-linear-gradient(45deg, var(--color-blue), var(--color-blue) 10px, #0873c4 10px, #0873c4 20px); width: 0%; height: 100%; transition: width 0.3s cubic-bezier(0.4
-	  , 0, 0.2, 1); box-shadow: inset 0 -3px 6px rgba(0,0,0,0.15), inset 0 3px 6px rgba(255,255,255,0.3); }
+      #network-bar { background: repeating-linear-gradient(45deg, var(--color-blue), var(--color-blue) 10px, #0873c4 10px, #0873c4 20px); width: 0%; height: 100%; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: inset 0 -3px 6px rgba(0,0,0,0.15), inset 0 3px 6px rgba(255,255,255,0.3); }
       #processing-bar { background: repeating-linear-gradient(45deg, var(--color-green), var(--color-green) 10px, #00896f 10px, #00896f 20px); width: 0%; height: 100%; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: inset 0 -3px 6px rgba(0,0,0,0.15), inset 0 3px 6px rgba(255,255,255,0.3); }
       .progress-details { display: flex; justify-content: space-between; margin-top: 6px; font-size: 13px; font-weight: 700; color: var(--text-muted); }
 
-      /* Upload Log Box */
+      /* Upload Log Box & QUEUE */
       #upload-log { margin-top: 20px; background: #f1f2f6; border: 1px solid #dfe6e9; border-radius: 12px; padding: 10px; height: 120px; overflow-y: auto; font-size: 12px; font-family: monospace; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); }
       .log-entry { margin-bottom: 5px; padding-bottom: 5px; border-bottom: 1px dashed #dfe6e9; line-height: 1.4; }
       .log-entry:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-
-      /* QUEUE LIST */
       #queue-list { margin-top: 20px; background: #ffffff; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); max-height: 250px; overflow-y: auto; border: 1px solid #dfe6e9; }
       #queue-list::-webkit-scrollbar { width: 6px; }
       #queue-list::-webkit-scrollbar-thumb { background: #b2bec3; border-radius: 10px; }
       .queue-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid #f1f2f6; }
-      .queue-item:last-child { border-bottom: none; }
       .queue-item-left { display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 600; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
       .queue-item-left i { color: #e74c3c; font-size: 18px; } 
       .queue-item-right { display: flex; align-items: center; font-size: 20px; }
@@ -237,78 +110,65 @@
       .status-success { color: #2ecc71; filter: drop-shadow(0 2px 4px rgba(46, 204, 113, 0.3)); }
       .status-error { color: #e74c3c; }
       
-      /* Modals */
-      #modal-overlay, #custom-alert { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); align-items: center; justify-content: center; z-index: 1000; }
+      /* Modals & Layout */
+      #modal-overlay, #custom-alert, #confirm-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); align-items: center; justify-content: center; z-index: 1000; }
+      #confirm-modal { z-index: 2000; }
       #modal-content, .alert-content { background: #fff; padding: 30px; border-radius: 24px; width: 85%; max-width: 380px; text-align: center; box-shadow: 0 15px 0 #d1d8e0, 0 25px 40px rgba(0,0,0,0.3); border: 4px solid #fff; transform: translateY(-20px); animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
       @keyframes popIn { to { transform: translateY(0); } }
-      
       #modal-content h3, .alert-content h3 { margin-top: 0; color: var(--text-main); font-size: 22px; font-weight: 800; margin-bottom: 20px;}
-      
       .modal-icon { display: inline-flex; align-items: center; justify-content: center; width: 60px; height: 60px; background: linear-gradient(135deg, #00b894 0%, #55efc4 100%); color: white; border-radius: 50%; font-size: 32px; margin-bottom: 15px; box-shadow: 0 8px 15px rgba(0,184,148,0.5), inset 0 -4px 0 rgba(0,0,0,0.15); }
       .modal-icon.warning { background: linear-gradient(135deg, #e17055 0%, #fab1a0 100%); box-shadow: 0 8px 15px rgba(225,112,85,0.5), inset 0 -4px 0 rgba(0,0,0,0.15); }
+      .modal-icon.danger { background: linear-gradient(135deg, #d63031 0%, #ff7675 100%); box-shadow: 0 8px 15px rgba(214,48,49,0.5), inset 0 -4px 0 rgba(0,0,0,0.15); }
       .modal-icon i { filter: drop-shadow(2px 3px 0px rgba(0,0,0,0.25)); }
-
       .modal-stat { font-size: 16px; margin: 12px 0; font-weight: 800; background: #f8f9fa; padding: 14px; border-radius: 12px; border: 2px solid #dfe6e9; display: flex; align-items: center; justify-content: center; gap: 8px; }
       .success-text { color: var(--color-green); }
       .fail-text { color: var(--color-red); }
-
       hr.divider { border: 0; height: 2px; background: rgba(255, 255, 255, 0.5); margin: 30px 0; position: relative; overflow: visible; box-shadow: 0 1px 0 rgba(0,0,0,0.05); }
       hr.divider::before { content: '\f03e'; font-family: 'FontAwesome'; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--card-bg); padding: 0 15px; color: #8ec5fc; font-size: 18px; border-radius: 50%; }
 
-      /* History List */
+      /* History & Gallery */
       #history-container { margin-top: 35px; background: rgba(255, 255, 255, 0.85); padding: 20px; border-radius: 20px; border: 2px solid rgba(255,255,255,0.5); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
       #history-container h3 { font-size: 18px; color: var(--text-main); margin-top: 0; margin-bottom: 15px; text-align: center; font-weight: 800;}
       #history-list { padding: 0; margin: 0; max-height: 250px; overflow-y: auto; padding-right: 5px;}
-      #history-list::-webkit-scrollbar { width: 6px; }
-      #history-list::-webkit-scrollbar-thumb { background: #b2bec3; border-radius: 10px; }
       .history-item { background: #fff; padding: 15px; border-radius: 12px; margin-bottom: 12px; box-shadow: 0 4px 0 #dfe6e9, 0 5px 10px rgba(0,0,0,0.05); font-size: 14px; border-left: 5px solid var(--color-blue); transition: transform 0.2s; display: flex; flex-direction: column; gap: 10px; }
-      .history-item:hover { transform: translateY(-2px); box-shadow: 0 6px 0 #dfe6e9, 0 8px 15px rgba(0,0,0,0.08); }
       .history-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
       .history-name { font-weight: 800; color: var(--color-blue); font-size: 15px; }
-      .history-name i { margin-right: 5px; }
-      .history-time { color: var(--text-muted); font-size: 12px; font-weight: 600; background: #f1f2f6; padding: 5px 10px; border-radius: 10px; line-height: 1.4; }
+      .history-time { color: var(--text-muted); font-size: 12px; font-weight: 600; background: #f1f2f6; padding: 5px 10px; border-radius: 10px; }
       .history-action { color: var(--text-main); font-weight: 600; display: flex; align-items: center; gap: 8px;}
-      .history-action i { color: var(--color-green); }
 
-      /* ==========================================
-         GALLERY VIEW STYLES
-         ========================================== */
       .gallery-header { text-align: center; color: var(--text-main); font-size: 24px; background: white; padding: 15px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border-top: 2px solid #fff; margin-top: 20px; margin-bottom: 30px; font-weight: 800; }
       .category { margin-top: 25px; background: #f8fafc; padding: 25px; border-radius: 16px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); border: 1px solid #e2e8f0; display: flex; flex-direction: column; width: 100%; box-sizing: border-box; }
       .category h3 { margin-top: 0; color: #334155; border-bottom: 3px solid #cbd5e1; padding-bottom: 12px; font-size: 18px; text-align: center; gap: 10px; }
       .photo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 350px)); justify-content: center; align-items: start; gap: 30px; margin-top: 20px; width: 100%; }
       .photo-card { background: #ffffff; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; width: 100%; box-shadow: 0 10px 20px rgba(0,0,0,0.08); border: 1px solid #f1f5f9; transition: transform 0.3s; }
-      .photo-card:hover { transform: translateY(-8px) scale(1.02); }
       .photo-img { width: 100%; height: 300px; object-fit: contain; background: #f1f5f9; border-bottom: 2px solid #e2e8f0; }
       .photo-details { padding: 15px; display: flex; flex-direction: column; gap: 12px; }
       .file-name { font-size: 14px; color: #475569; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: center; font-weight: 600; }
-      .actions { display: flex; justify-content: space-between; gap: 10px; }
-      .actions a { text-decoration: none; padding: 10px 0; border-radius: 8px; font-size: 13px; font-weight: bold; text-align: center; flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+      
+      .actions { display: flex; justify-content: space-between; gap: 8px; }
+      .actions a, .actions button { text-decoration: none; padding: 10px 0; border-radius: 8px; font-size: 13px; font-weight: bold; text-align: center; flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: none; cursor: pointer; transition: all 0.2s; }
+      .actions a:active, .actions button:active { transform: translateY(2px); box-shadow: 0 2px 3px rgba(0,0,0,0.1); }
       .btn-view { background: linear-gradient(145deg, #f8fafc, #e2e8f0); color: #475569; border: 1px solid #cbd5e1; }
       .btn-dl { background: linear-gradient(145deg, #3b82f6, #2563eb); color: white; border: 1px solid #1d4ed8; }
+      .btn-del { background: linear-gradient(145deg, #ef4444, #dc2626); color: white; border: 1px solid #b91c1c; }
+      
       #gallery-loader { text-align: center; font-weight: bold; color: var(--color-blue); margin-top: 40px; font-size: 18px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-      .gallery-error-msg { color: #ef4444; font-weight: bold; margin-top: 10px; }
-      .empty-msg { font-size: 14px; color: #64748b; font-style: italic; text-align: center; padding: 20px; width: 100%;}
 
       @media (max-width: 768px) { #upload-log, #queue-list { display: none !important; } }
-      
       @media (max-width: 480px) {
         body { padding: 10px; }
         .app-container { padding: 20px 15px; border-radius: 20px; margin-top: 10px; margin-bottom: 10px; backdrop-filter: none !important; background: rgba(255,255,255, 0.95); border: 1px solid #dfe6e9; }
         .app-title { font-size: 20px; margin-bottom: 15px; }
         input[type="text"] { padding: 12px 12px 12px 35px; font-size: 14px; }
-        .btn-3d { padding: 12px; font-size: 14px; margin-bottom: 12px; border-radius: 12px; box-shadow: 0 4px 0 rgba(0,0,0,0.1); }
+        .btn-3d { padding: 12px; font-size: 14px; margin-bottom: 12px; border-radius: 12px; }
         #modal-content, .alert-content { padding: 20px; width: 90%; }
-        .modal-icon { width: 50px; height: 50px; font-size: 24px; }
         .gallery-header { font-size: 18px; padding: 12px; }
       }
     </style>
   </head>
   <body>
 
-    <!-- ========================================== -->
-    <!--                UPLOAD VIEW                  -->
-    <!-- ========================================== -->
+    <!-- UPLOAD VIEW -->
     <div id="upload-view">
       <div class="app-container">
         
@@ -405,9 +265,7 @@
       </div>
     </div>
 
-    <!-- ========================================== -->
-    <!--                GALLERY VIEW                -->
-    <!-- ========================================== -->
+    <!-- GALLERY VIEW -->
     <div id="gallery-view">
       <button class="btn-3d btn-grey" style="max-width: 250px; margin: 20px auto 10px auto;" onclick="switchView('upload')">
         <i class="fa-solid fa-arrow-left"></i> Back to Upload
@@ -417,9 +275,7 @@
       <div id="gallery-content"></div>
     </div>
 
-    <!-- ========================================== -->
-    <!--                   MODALS                   -->
-    <!-- ========================================== -->
+    <!-- MODALS -->
     <div id="modal-overlay">
       <div id="modal-content">
         <div class="modal-icon"><i class="fa-solid fa-check"></i></div>
@@ -432,52 +288,62 @@
       </div>
     </div>
 
-    <div id="custom-alert" style="z-index: 2000;">
+    <div id="custom-alert">
       <div class="alert-content">
         <div class="modal-icon warning"><i class="fa-solid fa-exclamation"></i></div>
         <h3>Notice</h3>
-        <p id="custom-alert-msg" style="color:var(--text-main); font-size:15px; font-weight:600; margin-bottom:25px; white-space: pre-wrap;"></p>
+        <p id="custom-alert-msg" style="color:var(--text-main); font-size:15px; font-weight:600; margin-bottom:25px; white-space: pre-wrap; word-wrap: break-word;"></p>
         <button id="custom-alert-btn" class="btn-3d btn-blue" style="margin-top:0;"><i class="fa-solid fa-check"></i> Got it</button>
       </div>
     </div>
 
+    <!-- CONFIRM DELETE MODAL -->
+    <div id="confirm-modal">
+      <div class="alert-content">
+        <div class="modal-icon danger"><i class="fa-solid fa-trash"></i></div>
+        <h3>Confirm Deletion</h3>
+        <p id="confirm-modal-msg" style="color:var(--text-main); font-size:15px; font-weight:600; margin-bottom:25px; white-space: pre-wrap; word-wrap: break-word;"></p>
+        <div style="display: flex; gap: 10px;">
+            <button id="confirm-btn-cancel" class="btn-3d btn-grey" style="margin-top:0; padding: 12px;"><i class="fa-solid fa-xmark"></i> Cancel</button>
+            <button id="confirm-btn-yes" class="btn-3d btn-red" style="margin-top:0; padding: 12px;"><i class="fa-solid fa-trash"></i> Delete</button>
+        </div>
+      </div>
+    </div>
+
     <script>
-      // ==========================================
-      // CONFIGURATION & API
-      // ==========================================
-      const API_URL = "https://script.google.com/macros/s/AKfycbxf_saXC_yEc9TgIeoUsUhLsNW7mPSGjxGzkB1qSiyXstpKXeNldxcUlvCwZpJmz5HaXg/exec"; 
+      // =========================================================================
+      // HYBRID CONFIGURATION (FAST CLIENT-SIDE + ORIGINAL APPS SCRIPT TOKEN)
+      // =========================================================================
       
-      // Data Fetching Config for Collage & Timestamp Background Process
+      // YOUR ORIGINAL APPS SCRIPT URL
+      const API_URL = "https://script.google.com/macros/s/AKfycbxf_saXC_yEc9TgIeoUsUhLsNW7mPSGjxGzkB1qSiyXstpKXeNldxcUlvCwZpJmz5HaXg/exec"; 
+
       const API_CONFIG = {
-          SPREADSHEET_ID: "1LSYLZ7tfSeVupQMPsCOHG4SlnzPQqOAIe03QI1qRMr8", // General Config ID
-          TIMESTAMP_SHEET_ID: "1Pvc3vMJCXZB-rL2ejtMeAFb8rJLsdBdgS3IGVh9vF_s", // The new Sheet for Time Stamps
+          TIMESTAMP_SHEET_ID: "1Pvc3vMJCXZB-rL2ejtMeAFb8rJLsdBdgS3IGVh9vF_s",
           SERVICE_ACCOUNT: {
               "client_email": "pcma-mobile@gold-mode-473811-c6.iam.gserviceaccount.com",
               "private_key": `-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQC1sEJI1CN6V8mj\nAhBvpiLC7JOEbrFFxsvqbzJjitbDRbyRhbk7prF1NQqAz0OV8l+9/v69UJ3ddGmE\n3Oq4EEqgOmeEpfdSeJeMa+alsc0H+1E2EmWLnhGNv/ot91osgokv7tUG7p/WnGSf\n0IP2bmbbEmQfhganvTCTmhTASHUSK32O+ZmYklYwqs9qptWCFjS3lj+uhaQ2nAFQ\nGCloj6go1aRbQTGxDygwwxtK08v68EuApslm5qs/x08gnj1UEV/FfHDUvUbCswm2\nIRTULJqNoGTYNs4DxbUJClUwcf72xmddbiE/CbOWs1g626obziGNe6/Dq74Ws5IR\nj39h8S57AgMBAAECggEAPUZdDH/TGUM7Iykijuz6Yz/zPmIwkiZKBl4LIewkowXF\nY1S0lGwTBELnsGp2Uj9ET+kMU5+5JgNJRQBWfs4rxN79o4xvnVZDUh3f0zjkO5Fk\nIbbRnWUpaWN6Bf+aX1GE3/AN00EuEex7uTRTFQzFzpNkxgbm/rI9DEKWRgUJyp7j\nwrbzhTp2cRRrQaPtONZej68dUtkkAsd2rlt3Reht3/NCdmNRTjpRHqiICZvuZuHe\njebcK/ewVZWqW9XpwVMfjhZeyBnfzNqRElNxF4BtodjmSpw+TkWyPK9obVFEBDG5\nFeRxBk6aTdutNkIN2uXOPFBP7UV4evsD3fiuYMRFvQKBgQDbiMwo80cLbnV7fuq/\nSr1y2i/mj8XDVX6xOJWDXOhrHNEDcTpYHp5Ey5qQwQhkGOiK/aUJWfWHJGMLM7DY\n7l6nvRe+oX/1inocjKMkiq5TGDvptBv2T9rz0K3LFueFNcxAv7445GgCsFADgYBM\n67reu9QcmT6Uis2nUffzcleGNQKBgQDT3ibtkMmkeDi3sl1uY9PudlZqnCcP11Pi\nQJF4+thJYjN/bYBKA3F4GhRZzEKxW6jjF/mQ/kZDLHJeGI4Y0ETpz76kB4gSO1zc\nlsKZnGBvfug2Oz7/fnPfdpMdSsaFS9AHOHTm7TAiyMuSXciJ1Sy5LxVeELP91cbJ\nBsJtKX+37wKBgQDFKUSB+orxn1Bvivp0tkESpxWh8blgxqWzr+fHRGeP2x90Afqu\nLUFi86BrJJHOo/gk68uObHZv2qQA6XmIOfxUlSSAFjb/ZFBq13ulU89f3UHhj9oV\nCn7Pvbh3zqg7IKfB9vJ10dv/ni0eGO4LJyJ66yGCVba4XTh5bspKn4QviQKBgQCi\nud3sWWiGilAFx1k7kDEW1o1JFOZrpFcpT65r3T6CHoqvNMt0DXD5bg5zag9Pabct\ntRxZ4PLWZSzyWKnLJSvI6WbjVWWNm0qXorOUiCcJe8+e16JrWhRlbg1QUj5n4vLE\nmPgw5bwy+0ZgBOgh9TmEgkVHGk0kiS1E+Ywbi+QswQKBgQDOI10/zjkwXOmqHlX7\n7nkuSIG9Kojrt2XWIsecZ9xP4lnIq6oyBUxDLaj3MaSnGeuvJZjDHa7YxqyAZvOO\nPxJ2F55gm4PME6obOldAw8rWdTWmlpG5rm679Q01nupwlC5+rJPqSzW/GpibKjZa\ni2e4E1vAOiqCrUlBSDcvD1r+/g==\n-----END PRIVATE KEY-----`
           }
       };
 
-      class GoogleSheetsAPI {
+      // Used ONLY for updating the Spreadsheet Timestamp
+      class GoogleAuth {
           static _oauthToken = null;
           static _tokenExp = 0;
-          static async getAuthToken() {
+          static async getToken() {
               if (this._oauthToken && this._tokenExp > Date.now()) return this._oauthToken;
               const header = { alg: "RS256", typ: "JWT" };
               const now = Math.floor(Date.now() / 1000);
               const claim = {
                   iss: API_CONFIG.SERVICE_ACCOUNT.client_email,
-                  scope: "https://www.googleapis.com/auth/spreadsheets", // Upgraded to Read/Write
+                  scope: "https://www.googleapis.com/auth/spreadsheets",
                   aud: "https://oauth2.googleapis.com/token",
-                  exp: now + 3600,
-                  iat: now
+                  exp: now + 3600, iat: now
               };
-              const sHeader = JSON.stringify(header);
-              const sClaim = JSON.stringify(claim);
-              const sJWS = KJUR.jws.JWS.sign("RS256", sHeader, sClaim, API_CONFIG.SERVICE_ACCOUNT.private_key);
+              const sJWS = KJUR.jws.JWS.sign("RS256", JSON.stringify(header), JSON.stringify(claim), API_CONFIG.SERVICE_ACCOUNT.private_key);
 
               const res = await fetch("https://oauth2.googleapis.com/token", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                  method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" },
                   body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${sJWS}`
               });
               const data = await res.json();
@@ -485,36 +351,28 @@
                   this._oauthToken = data.access_token;
                   this._tokenExp = Date.now() + (data.expires_in * 1000) - 60000;
                   return data.access_token;
-              } else {
-                  throw new Error("Failed to get Google Token");
-              }
+              } else throw new Error("Authentication failed.");
           }
       }
+
+      // =========================================================================
 
       const MAX_FILES_PER_BATCH = 100;
       let isUploading = false;     
       let currentBatchId = 0;      
       let currentCategory = '';
-      let totalBytes = 0;
-      let totalPhotos = 0;
-      let completedPhotos = 0;
-      let uploadedFileIds = [];
-      let pendingFiles = [];
-      let failedFiles = [];
+      let totalBytes = 0, totalPhotos = 0, completedPhotos = 0;
+      let uploadedFileIds = [], pendingFiles = [], failedFiles = [];
       let loadedBytesMap = {}; 
       let uiUpdateInterval = null;
-      let globalExistingFileCount = 0; // Tracks the count of files BEFORE the new upload starts
+      let globalExistingFileCount = 0;
 
       const isMobile = () => window.innerWidth <= 768;
 
       window.onload = function() {
         const urlParams = new URLSearchParams(window.location.search);
         const cidParam = urlParams.get('cid');
-        let cidInput = document.getElementById('cid');
-        if (cidParam) {
-            cidInput.value = cidParam;
-            loadStats();
-        }
+        if (cidParam) { document.getElementById('cid').value = cidParam; loadStats(); }
       };
 
       function switchView(viewName) {
@@ -533,28 +391,6 @@
         }
       }
 
-      async function apiGet(action, params = {}) {
-        let url = new URL(API_URL);
-        url.searchParams.append('action', action);
-        for (let k in params) url.searchParams.append(k, params[k]);
-        let response = await fetch(url);
-        let json = await response.json();
-        if (json.status !== 'success') throw new Error(json.message);
-        return json.data;
-      }
-
-      async function apiPost(action, payload) {
-        payload.action = action;
-        let response = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify(payload)
-        });
-        let json = await response.json();
-        if (json.status !== 'success') throw new Error(json.message);
-        return json.data;
-      }
-
       function showMessage(msg, callback = null) {
         document.getElementById('custom-alert-msg').innerText = msg;
         document.getElementById('custom-alert').style.display = 'flex';
@@ -564,12 +400,25 @@
         };
       }
 
+      function showConfirm(msg, onConfirm) {
+        document.getElementById('confirm-modal-msg').innerText = msg;
+        document.getElementById('confirm-modal').style.display = 'flex';
+        
+        document.getElementById('confirm-btn-yes').onclick = function() {
+            document.getElementById('confirm-modal').style.display = 'none';
+            if (onConfirm) onConfirm();
+        };
+        
+        document.getElementById('confirm-btn-cancel').onclick = function() {
+            document.getElementById('confirm-modal').style.display = 'none';
+        };
+      }
+
       function showLoader(msg) { document.getElementById('loader-text').innerText = msg; document.getElementById('loader').style.display = 'block'; }
       function hideLoader() { document.getElementById('loader').style.display = 'none'; }
       function showError(err) { hideLoader(); showMessage("Error: " + err.message); }
 
       function addUploadLog(htmlString) {
-        if (isMobile()) return; 
         let logDiv = document.getElementById('upload-log');
         if (!logDiv) return;
         let entry = document.createElement('div');
@@ -580,7 +429,6 @@
       }
 
       function initializeQueueUI() {
-        if (isMobile()) return; 
         let queueList = document.getElementById('queue-list');
         queueList.innerHTML = '';
         pendingFiles.forEach((file, index) => {
@@ -593,7 +441,6 @@
       }
 
       function updateQueueStatus(index, status) {
-        if (isMobile()) return;
         let statusDiv = document.getElementById(`queue-status-${index}`);
         if (!statusDiv) return;
         statusDiv.classList.remove('status-pending', 'status-uploading', 'status-success', 'status-error');
@@ -609,6 +456,30 @@
         }
         let itemDiv = document.getElementById(`queue-item-${index}`);
         if (itemDiv) itemDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+
+      /* --- CALLS TO YOUR ORIGINAL APPS SCRIPT --- */
+      async function apiGet(action, params = {}) {
+        let url = new URL(API_URL);
+        url.searchParams.append('action', action);
+        for (let k in params) url.searchParams.append(k, params[k]);
+        let response = await fetch(url);
+        let json = await response.json();
+        if (json.status !== 'success') throw new Error(json.message);
+        return json.data;
+      }
+
+      async function apiPost(action, payload) {
+        payload.action = action;
+        let response = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload),
+          keepalive: true // Keeps the request alive in background even if page alters
+        });
+        let json = await response.json();
+        if (json.status !== 'success') throw new Error(json.message);
+        return json.data;
       }
 
       async function loadStats() {
@@ -699,14 +570,12 @@
           let existingFiles = await apiGet('getExistingFiles', { contractId: cid, category: currentCategory });
           hideLoader();
           
-          // STORE EXISTING COUNT GLOBALLY to use it later for Timestamp Padding logic
           globalExistingFileCount = existingFiles.length; 
-
           let duplicateCount = 0;
           pendingFiles = [];
 
           filesToUpload.forEach(file => {
-            if (existingFiles.some(ex => ex.name === file.name && ex.size === file.size)) {
+            if (existingFiles.some(ex => ex.name === file.name)) {
               duplicateCount++;
             } else {
               pendingFiles.push(file);
@@ -714,7 +583,7 @@
           });
 
           if (duplicateCount > 0) {
-            let msg = `${duplicateCount} Photo(s) already exist.\n`;
+            let msg = `${duplicateCount} Photo(s) already exist in Drive.\n`;
             if (pendingFiles.length > 0) {
               msg += `${pendingFiles.length} Photo(s) will be uploaded.`;
               showMessage(msg, () => startBatchUpload());
@@ -729,17 +598,11 @@
         } catch (err) { showError(err); }
       });
 
-      function retryFailed() {
-        closeModal();
-        pendingFiles = [...failedFiles];
-        startBatchUpload();
-      }
+      function retryFailed() { closeModal(); pendingFiles = [...failedFiles]; startBatchUpload(); }
 
       function cancelUpload(silent = false) {
-        isUploading = false;
-        currentBatchId = 0; 
+        isUploading = false; currentBatchId = 0; 
         if (uiUpdateInterval) clearInterval(uiUpdateInterval);
-        
         document.getElementById('progress-container').style.display = 'none';
         document.getElementById('file-input').value = "";
         document.getElementById('upload-log').innerHTML = ""; 
@@ -748,9 +611,26 @@
         pendingFiles = []; failedFiles = []; uploadedFileIds = []; loadedBytesMap = {};
         completedPhotos = 0; totalPhotos = 0; totalBytes = 0;
         
-        if (!silent) {
-          showMessage("Upload cancelled and history cleaned. You can safely start a new upload.");
-        }
+        if (!silent) showMessage("Upload cancelled and history cleaned. You can safely start a new upload.");
+      }
+
+      /* --- FAST SINGLE-STEP UPLOAD + HUMAN APPS SCRIPT TOKEN --- */
+
+      function compressImage(imgData, maxDim) {
+          return new Promise((resolve, reject) => {
+              const img = new Image();
+              img.onload = () => {
+                  let w = img.width; let h = img.height;
+                  if (w > maxDim || h > maxDim) {
+                      if (w > h) { h = Math.round((h * maxDim) / w); w = maxDim; } 
+                      else { w = Math.round((w * maxDim) / h); h = maxDim; }
+                  }
+                  const canvas = document.createElement('canvas'); canvas.width = w; canvas.height = h;
+                  canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                  resolve({ dataUrl: canvas.toDataURL('image/jpeg', 0.8), width: w, height: h }); 
+              };
+              img.onerror = reject; img.src = imgData;
+          });
       }
 
       async function startBatchUpload() {
@@ -759,36 +639,34 @@
         currentBatchId = Date.now(); 
 
         document.getElementById('progress-container').style.display = 'block';
-        document.getElementById('progress-status').innerHTML = '<i class="fa-solid fa-spinner fa-spin icon-3d-blue"></i> Getting secure connection...';
+        document.getElementById('progress-status').innerHTML = '<i class="fa-solid fa-folder-tree icon-3d-blue"></i> Organizing Drive Folders...';
         document.getElementById('processing-status').innerHTML = '<i class="fa-solid fa-hard-drive icon-3d-purple"></i> Waiting...';
         document.getElementById('upload-log').innerHTML = ""; 
         
         failedFiles = [];
-        totalBytes = pendingFiles.reduce((acc, file) => acc + file.size, 0);
+        totalBytes = pendingFiles.reduce((acc, file) => acc + file.size, 0); 
         totalPhotos = pendingFiles.length;
-        completedPhotos = 0;
-        uploadedFileIds = [];
-        loadedBytesMap = {}; 
+        completedPhotos = 0; uploadedFileIds = []; loadedBytesMap = {}; 
         
         initializeQueueUI(); 
         updateOverallProgress(); 
         uiUpdateInterval = setInterval(updateOverallProgress, 250);
 
-        let uploadCreds;
+        let targetFolderId;
+        let humanAccessToken;
         try {
-            uploadCreds = await apiGet('getUploadCredentials', { contractId: document.getElementById('cid').value.trim(), category: currentCategory });
+            // 🔥 THIS FIXES THE QUOTA ERROR: Uses your original Apps Script to handle folder creation and get the token for YOUR storage
+            let uploadCreds = await apiGet('getUploadCredentials', { contractId: document.getElementById('cid').value.trim(), category: currentCategory });
+            targetFolderId = uploadCreds.folderId;
+            humanAccessToken = uploadCreds.token;
         } catch(err) {
             cancelUpload(true); 
             showError(err);     
             return;
         }
 
-        let targetFolderId = uploadCreds.folderId;
-        let accessToken = uploadCreds.token;
-
         const CONCURRENCY_LIMIT = isMobile() ? 10 : 25; 
-        let activeUploads = 0;
-        let currentIndex = 0;
+        let activeUploads = 0, currentIndex = 0;
         let myBatchId = currentBatchId;
 
         await new Promise((resolve) => {
@@ -808,7 +686,8 @@
             updateQueueStatus(fileIndex, 'uploading');
             processNext(); 
 
-            await executeNetworkUpload(file, fileIndex, targetFolderId, accessToken, myBatchId);
+            // Upload using the HUMAN Token
+            await executeNetworkUpload(file, fileIndex, targetFolderId, humanAccessToken, myBatchId);
 
             activeUploads--;
             if (myBatchId === currentBatchId) {
@@ -828,73 +707,70 @@
 
       async function executeNetworkUpload(file, fileIndex, folderId, accessToken, myBatchId) {
         let serverName = `Drive API`; 
-        addUploadLog(`<span style="color:var(--color-blue)"><i class="fa-solid fa-spinner fa-spin"></i> [${serverName}] Uploading: <strong style="color:var(--text-main)">${file.name}</strong></span>`);
+        addUploadLog(`<span style="color:var(--color-blue)"><i class="fa-solid fa-spinner fa-spin"></i> [${serverName}] Compressing & Uploading: <strong style="color:var(--text-main)">${file.name}</strong></span>`);
         let startTime = Date.now();
 
         try {
-          let metadata = { name: file.name, parents: [folderId] };
-          let contentType = file.type || 'application/octet-stream';
-          
-          let initRes = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable&supportsAllDrives=true', {
-            method: 'POST',
-            headers: {
-              'Authorization': 'Bearer ' + accessToken,
-              'Content-Type': 'application/json',
-              'X-Upload-Content-Type': contentType,
-              'X-Upload-Content-Length': file.size.toString()
-            },
-            body: JSON.stringify(metadata)
-          });
+            // 1. COMPRESS THE FILE ON THE PHONE
+            let b64Data;
+            let mimeType = file.type || 'image/jpeg';
+            
+            if (file.type.startsWith('image/')) {
+                const dataUrl = await new Promise((resolve, reject) => { 
+                    const reader = new FileReader(); reader.onload = e => resolve(e.target.result); reader.onerror = reject; reader.readAsDataURL(file); 
+                });
+                const compressed = await compressImage(dataUrl, 1600); 
+                b64Data = compressed.dataUrl.split(',')[1];
+            } else {
+                b64Data = await new Promise((resolve, reject) => {
+                    const reader = new FileReader(); reader.onload = () => resolve(reader.result.split(',')[1]); reader.onerror = reject; reader.readAsDataURL(file);
+                });
+            }
 
-          if (!initRes.ok) {
-            let errTxt = await initRes.text();
-            throw new Error(`Init Status ${initRes.status}: ${errTxt}`);
-          }
+            if (myBatchId === currentBatchId) loadedBytesMap[fileIndex] = file.size * 0.5;
 
-          let uploadUrl = initRes.headers.get('Location');
-          if (!uploadUrl) throw new Error("No upload URL returned from Google.");
+            // 2. 🔥 CORS-SAFE SINGLE MULTIPART UPLOAD
+            const boundary = "-------314159265358979323846";
+            let metadata = { name: file.name, parents: [folderId] };
 
-          let fileId = await new Promise((resolve, reject) => {
-              let xhr = new XMLHttpRequest();
-              xhr.open('PUT', uploadUrl, true);
-              xhr.setRequestHeader('Content-Type', contentType);
-              
-              xhr.upload.onprogress = function(e) {
-                  if (e.lengthComputable && myBatchId === currentBatchId) {
-                      loadedBytesMap[fileIndex] = e.loaded;
-                  }
-              };
-              
-              xhr.onload = function() {
-                  if (xhr.status >= 200 && xhr.status < 300) {
-                      let response = JSON.parse(xhr.responseText);
-                      resolve(response.id);
-                  } else {
-                      reject(new Error(`PUT Status ${xhr.status}: ${xhr.responseText}`));
-                  }
-              };
-              
-              xhr.onerror = function() { reject(new Error("Network Error / CORS block during PUT.")); };
-              xhr.send(file);
-          });
+            let multipartRequestBody = 
+              "--" + boundary + "\r\n" +
+              "Content-Type: application/json; charset=UTF-8\r\n\r\n" +
+              JSON.stringify(metadata) + "\r\n" +
+              "--" + boundary + "\r\n" +
+              "Content-Type: " + mimeType + "\r\n" +
+              "Content-Transfer-Encoding: base64\r\n\r\n" +
+              b64Data + "\r\n" +
+              "--" + boundary + "--";
 
-          if (myBatchId !== currentBatchId) return;
+            let res = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&supportsAllDrives=true', {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + accessToken,
+                    'Content-Type': 'multipart/related; boundary=' + boundary
+                },
+                body: multipartRequestBody
+            });
 
-          loadedBytesMap[fileIndex] = file.size; 
-          completedPhotos++;
-          uploadedFileIds.push(fileId);
-          
-          updateQueueStatus(fileIndex, 'success'); 
-          let timeTaken = ((Date.now() - startTime) / 1000).toFixed(1);
-          addUploadLog(`<span style="color:var(--color-green)"><i class="fa-solid fa-check"></i> [${serverName}] Saved: <strong style="color:var(--text-main)">${file.name}</strong> (${timeTaken}s)</span>`);
+            if (!res.ok) {
+                let errText = await res.text();
+                throw new Error(`Google API: ${errText}`);
+            }
+
+            let responseData = await res.json();
+            let fileId = responseData.id;
+
+            if (myBatchId !== currentBatchId) return;
+
+            loadedBytesMap[fileIndex] = file.size; 
+            completedPhotos++; uploadedFileIds.push(fileId);
+            updateQueueStatus(fileIndex, 'success'); 
+            addUploadLog(`<span style="color:var(--color-green)"><i class="fa-solid fa-check"></i> [${serverName}] Saved: <strong style="color:var(--text-main)">${file.name}</strong> (${((Date.now() - startTime) / 1000).toFixed(1)}s)</span>`);
 
         } catch (err) {
-          if (myBatchId !== currentBatchId) return; 
-          loadedBytesMap[fileIndex] = 0; 
-          failedFiles.push(file);
-          updateQueueStatus(fileIndex, 'error'); 
-          let timeTaken = ((Date.now() - startTime) / 1000).toFixed(1);
-          addUploadLog(`<span style="color:var(--color-red)"><i class="fa-solid fa-xmark"></i> [${serverName}] Failed: <strong style="color:var(--text-main)">${file.name}</strong><br><span style="font-size:10.5px; color:#c0392b; line-height: 1.2; display:block; margin-top:4px;">Error: ${err.message}</span></span>`);
+            if (myBatchId !== currentBatchId) return; 
+            loadedBytesMap[fileIndex] = 0; failedFiles.push(file); updateQueueStatus(fileIndex, 'error'); 
+            addUploadLog(`<span style="color:var(--color-red)"><i class="fa-solid fa-xmark"></i> [${serverName}] Failed: <strong style="color:var(--text-main)">${file.name}</strong><br><span style="font-size:10.5px; color:#c0392b; line-height: 1.2; display:block; margin-top:4px;">Error: ${err.message}</span></span>`);
         }
       }
 
@@ -903,18 +779,12 @@
         let networkPercent = totalBytes === 0 ? 0 : Math.round((totalLoadedBytes / totalBytes) * 100);
         if (networkPercent > 100) networkPercent = 100; 
         
-        let loadedMb = (totalLoadedBytes / (1024 * 1024)).toFixed(2);
-        let totalMb = (totalBytes / (1024 * 1024)).toFixed(2);
-
         document.getElementById('network-bar').style.width = networkPercent + '%';
         document.getElementById('network-percent').innerText = networkPercent + '%';
-        document.getElementById('progress-size').innerText = `${loadedMb} / ${totalMb} MB`;
+        document.getElementById('progress-size').innerText = `${(totalLoadedBytes / (1024 * 1024)).toFixed(2)} / ${(totalBytes / (1024 * 1024)).toFixed(2)} MB`;
         
-        if (networkPercent >= 99) {
-          document.getElementById('progress-status').innerHTML = `<i class='fa-solid fa-circle-check icon-3d-green'></i> Uploaded to Server`;
-        } else {
-          document.getElementById('progress-status').innerHTML = `<i class="fa-solid fa-network-wired icon-3d-blue"></i> Uploading to Server...`;
-        }
+        if (networkPercent >= 99) document.getElementById('progress-status').innerHTML = `<i class='fa-solid fa-circle-check icon-3d-green'></i> Uploaded to Server`;
+        else document.getElementById('progress-status').innerHTML = `<i class="fa-solid fa-network-wired icon-3d-blue"></i> Uploading to Server...`;
 
         let processingPercent = totalPhotos === 0 ? 0 : Math.round((completedPhotos / totalPhotos) * 100);
         if (processingPercent > 100) processingPercent = 100;
@@ -925,165 +795,105 @@
 
         let filesPendingServerResponse = Object.keys(loadedBytesMap).filter(k => {
           let pFile = pendingFiles[k];
-          if (!pFile) return false;
-          return loadedBytesMap[k] >= pFile.size * 0.99 && loadedBytesMap[k] < pFile.size;
+          return pFile && loadedBytesMap[k] >= pFile.size * 0.90 && loadedBytesMap[k] < pFile.size;
         }).length;
 
-        if (completedPhotos === totalPhotos && totalPhotos > 0) {
-          document.getElementById('processing-status').innerHTML = `<i class='fa-solid fa-circle-check icon-3d-green'></i> Saved to Drive`;
-        } else if (filesPendingServerResponse > 0) {
-          document.getElementById('processing-status').innerHTML = `<i class='fa-solid fa-spinner fa-spin icon-3d-blue'></i> Saving to Drive...`;
-        } else if (completedPhotos === 0 && networkPercent < 10) {
-           document.getElementById('processing-status').innerHTML = `<i class="fa-solid fa-hard-drive icon-3d-purple"></i> Waiting to Save...`;
-        }
+        if (completedPhotos === totalPhotos && totalPhotos > 0) document.getElementById('processing-status').innerHTML = `<i class='fa-solid fa-circle-check icon-3d-green'></i> Saved to Drive`;
+        else if (filesPendingServerResponse > 0) document.getElementById('processing-status').innerHTML = `<i class='fa-solid fa-spinner fa-spin icon-3d-blue'></i> Saving to Drive...`;
+        else if (completedPhotos === 0 && networkPercent < 10) document.getElementById('processing-status').innerHTML = `<i class="fa-solid fa-hard-drive icon-3d-purple"></i> Waiting to Save...`;
       }
 
-      /* ==========================================
-         --- DIRECT GOOGLE SHEETS TIMESTAMP ---
-         ========================================== */
+      /* --- SHEET WRITES (History/Timestamps use Service Account securely) --- */
+
       async function saveTimestampToGoogleSheets(cid, category, numUploaded, existingCount) {
-          const sheetId = API_CONFIG.TIMESTAMP_SHEET_ID;
-          const token = await GoogleSheetsAPI.getAuthToken();
-          
-          // 1. Fetch current data to find the Row Number and existing cell data
-          const getUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/Uploads!A:J`;
+          const token = await GoogleAuth.getToken();
+          const getUrl = `https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.TIMESTAMP_SHEET_ID}/values/Uploads!A:J`;
           const getRes = await fetch(getUrl, { headers: { Authorization: `Bearer ${token}` } });
+          if (!getRes.ok) return;
+          const rows = (await getRes.json()).values || [];
           
-          if (!getRes.ok) throw new Error("Failed to fetch Uploads sheet for timestamping.");
-          const getData = await getRes.json();
-          const rows = getData.values || [];
-          
-          // 2. Find row index for the matching Contract ID (Assuming Contract ID is in Column A / index 0)
           let rowIndex = -1;
-          for (let i = 0; i < rows.length; i++) {
-              if (rows[i][0] && String(rows[i][0]).trim().toUpperCase() === String(cid).trim().toUpperCase()) {
-                  rowIndex = i;
-                  break;
-              }
-          }
+          for (let i = 0; i < rows.length; i++) { if (rows[i][0] && String(rows[i][0]).trim().toUpperCase() === String(cid).trim().toUpperCase()) { rowIndex = i; break; } }
+          if (rowIndex === -1) return; 
           
-          if (rowIndex === -1) {
-              console.warn(`Contract ID ${cid} not found in the Uploads sheet. Cannot write timestamp.`);
-              return; 
-          }
+          let colLetter = '', colIdx = -1;
+          if (category === 'PRE-CON') { colLetter = 'H'; colIdx = 7; } 
+          else if (category === 'ON-GOING') { colLetter = 'I'; colIdx = 8; } 
+          else if (category === 'COMPLETED') { colLetter = 'J'; colIdx = 9; } 
+          else return; 
           
-          // 3. Determine specific Column for the Time Stamp
-          let colLetter = '';
-          let colIdx = -1;
-          
-          if (category === 'PRE-CON') { 
-              colLetter = 'H'; colIdx = 7; 
-          } else if (category === 'ON-GOING') { 
-              colLetter = 'I'; colIdx = 8; 
-          } else if (category === 'COMPLETED') { 
-              colLetter = 'J'; colIdx = 9; 
-          } else {
-              return; 
-          }
-          
-          // 4. Extract existing value and apply 1-to-1 Padding
           const currentVal = rows[rowIndex][colIdx] ? String(rows[rowIndex][colIdx]) : '';
-          
           let parts = [];
-          if (currentVal.trim() !== '') {
-              parts = currentVal.split('|').map(s => s.trim());
-          }
+          if (currentVal.trim() !== '') parts = currentVal.split('|').map(s => s.trim());
+          while (parts.length < existingCount) parts.push('');
           
-          // If there were existing files before this feature, pad them with empty slots (to maintain the 1-to-1 File ID mapping)
-          while (parts.length < existingCount) {
-              parts.push('');
-          }
-          
-          // Create the Date (e.g. Oct 5, 2026)
           const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-          const d = new Date();
-          const dateStr = `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
-          
-          // Append the timestamp exactly matching the number of newly uploaded files
-          for (let i = 0; i < numUploaded; i++) {
-              parts.push(dateStr);
-          }
+          const d = new Date(); const dateStr = `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+          for (let i = 0; i < numUploaded; i++) parts.push(dateStr);
           
           const newVal = parts.join(' | ');
-          
-          // 5. Update the cell directly using REST API PUT (only if value actually needs an update)
           if (newVal !== currentVal) {
               const range = `Uploads!${colLetter}${rowIndex + 1}`;
-              const putUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?valueInputOption=USER_ENTERED`;
-              
-              const putRes = await fetch(putUrl, {
-                  method: 'PUT',
-                  headers: { 
-                      'Authorization': `Bearer ${token}`,
-                      'Content-Type': 'application/json'
-                  },
-                  body: JSON.stringify({
-                      values: [[newVal]]
-                  })
+              await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.TIMESTAMP_SHEET_ID}/values/${range}?valueInputOption=USER_ENTERED`, {
+                  method: 'PUT', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ values: [[newVal]] }), keepalive: true
               });
-              
-              if (!putRes.ok) throw new Error("Failed to write timestamp to Uploads sheet.");
           }
       }
 
       async function finalizeUpload() {
         if (uiUpdateInterval) clearInterval(uiUpdateInterval);
-
         let cid = document.getElementById('cid').value.trim();
         let uploader = document.getElementById('uploader').value.trim();
 
         if (uploadedFileIds.length > 0) {
-          document.getElementById('processing-status').innerHTML = "<i class='fa-solid fa-spinner fa-spin icon-3d-orange'></i> Writing to Apps Script...";
-          try {
-            await apiPost('checkFolderAndWriteIds', { contractId: cid, category: currentCategory, uploaderName: uploader, numPhotos: uploadedFileIds.length });
-            
-            // --- NEW: WRITE TIME STAMP DIRECTLY TO GOOGLE SHEETS FRONTEND ---
-            document.getElementById('processing-status').innerHTML = "<i class='fa-solid fa-spinner fa-spin icon-3d-purple'></i> Saving Timestamps...";
+          // Immediately update UI to show completion without waiting for Apps Script
+          document.getElementById('processing-status').innerHTML = "<i class='fa-solid fa-circle-check icon-3d-green'></i> Saved to Drive";
+          
+          // Execute background tasks silently (auto-save architecture)
+          (async () => {
             try {
-                await saveTimestampToGoogleSheets(cid, currentCategory, uploadedFileIds.length, globalExistingFileCount);
-            } catch (tsErr) {
-                console.error("Timestamp Error:", tsErr);
-                // We just log it so the upload process doesn't fail completely if the Sheets writing errors out
+              console.log("Silently writing mapping to Apps Script...");
+              await apiPost('checkFolderAndWriteIds', { contractId: cid, category: currentCategory, uploaderName: uploader, numPhotos: uploadedFileIds.length });
+              
+              console.log("Silently saving timestamps to Google Sheets...");
+              try { await saveTimestampToGoogleSheets(cid, currentCategory, uploadedFileIds.length, globalExistingFileCount); } catch (tsErr) { console.error("Timestamp Error:", tsErr); }
+              
+              console.log("Silently refreshing local stats...");
+              let stats = await apiGet('getFolderStats', { contractId: cid });
+              setButtonState('btn-precon', 'PRE-CON', stats.preCon, 'btn-orange', 'fa-clipboard-list');
+              setButtonState('btn-ongoing', 'ON-GOING', stats.onGoing, 'btn-blue', 'fa-person-digging');
+              setButtonState('btn-completed', 'COMPLETED', stats.completed, 'btn-green', 'fa-check-double');
+              loadHistory(cid); // Silently update history timeline
+            } catch (err) {
+              console.error("Silent Background Write Error:", err);
             }
-            // ----------------------------------------------------------------
+          })();
 
-            document.getElementById('processing-status').innerHTML = "<i class='fa-solid fa-spinner fa-spin icon-3d-blue'></i> Refreshing stats...";
-            loadStats(); 
-            document.getElementById('file-input').value = ""; 
-            
-            setTimeout(() => {
-                document.getElementById('progress-container').style.display = 'none';
-                isUploading = false;
-                showSummaryModal();
-            }, 1000);
-          } catch (err) { showError(err); isUploading = false; }
+          document.getElementById('file-input').value = ""; 
+          
+          // Show the Success Modal smoothly without keeping the user trapped waiting
+          setTimeout(() => { 
+            document.getElementById('progress-container').style.display = 'none'; 
+            isUploading = false; 
+            showSummaryModal(); 
+          }, 800);
         } else {
-          document.getElementById('progress-container').style.display = 'none';
-          isUploading = false;
-          showSummaryModal();
+          document.getElementById('progress-container').style.display = 'none'; isUploading = false; showSummaryModal();
         }
       }
 
       function showSummaryModal() {
         document.getElementById('success-count').innerText = uploadedFileIds.length;
         document.getElementById('fail-count').innerText = failedFiles.length;
-        
-        if (failedFiles.length > 0) {
-          document.getElementById('fail-container').style.display = 'flex';
-          document.getElementById('retry-btn').style.display = 'inline-flex';
-        } else {
-          document.getElementById('fail-container').style.display = 'none';
-          document.getElementById('retry-btn').style.display = 'none';
-        }
-
+        if (failedFiles.length > 0) { document.getElementById('fail-container').style.display = 'flex'; document.getElementById('retry-btn').style.display = 'inline-flex'; } 
+        else { document.getElementById('fail-container').style.display = 'none'; document.getElementById('retry-btn').style.display = 'none'; }
         document.getElementById('modal-overlay').style.display = 'flex';
       }
 
       function closeModal() { document.getElementById('modal-overlay').style.display = 'none'; }
 
-
       // ==========================================
-      // GALLERY LOGIC
+      // GALLERY & DELETE LOGIC
       // ==========================================
       async function loadGallery(cid) {
         document.getElementById('cid-display').innerText = cid;
@@ -1101,18 +911,16 @@
 
       function renderPhotos(data) {
         document.getElementById('gallery-loader').style.display = 'none';
-        let html = buildSection('<i class="fa-solid fa-truck-fast icon-3d-orange"></i> Mobilization (PRE-CON)', data?.preCon) +
-                   buildSection('<i class="fa-solid fa-person-digging icon-3d-blue"></i> On-Going', data?.onGoing) +
-                   buildSection('<i class="fa-solid fa-check-double icon-3d-green"></i> Completed', data?.completed);
+        let html = buildSection('<i class="fa-solid fa-truck-fast icon-3d-orange"></i> Mobilization (PRE-CON)', data?.preCon, 'PRE-CON') +
+                   buildSection('<i class="fa-solid fa-person-digging icon-3d-blue"></i> On-Going', data?.onGoing, 'ON-GOING') +
+                   buildSection('<i class="fa-solid fa-check-double icon-3d-green"></i> Completed', data?.completed, 'COMPLETED');
         document.getElementById('gallery-content').innerHTML = html;
       }
 
-      function buildSection(title, files) {
+      function buildSection(title, files, category) {
         if (!files || files.length === 0) {
             return `<div class="category"><h3>${title}</h3><p class="empty-msg"><i class="fa-regular fa-image icon-3d-pastel" style="font-size: 32px; display:block; margin-bottom: 10px;"></i> No photos uploaded yet.</p></div>`;
         }
-        
-        // 1. Extract Unique Dates to display in the Header
         let dates = files.map(f => {
           let dStr = f.dateCreated || f.createdTime || f.timestamp;
           if (!dStr) return null;
@@ -1123,57 +931,108 @@
         }).filter(Boolean);
         
         let uniqueDates = [...new Set(dates)];
-        let dateHtml = '';
-        if (uniqueDates.length > 0) {
-          dateHtml = `<span style="font-size: 14px; color: var(--color-blue); margin-top: 8px; display: block; font-weight: 700; text-align: center;">(${uniqueDates.join(' | ')})</span>`;
-        }
+        let dateHtml = uniqueDates.length > 0 ? `<span style="font-size: 14px; color: var(--color-blue); margin-top: 8px; display: block; font-weight: 700; text-align: center;">(${uniqueDates.join(' | ')})</span>` : '';
 
-        // 2. Generate Grid of Photos with specific timestamps under the title
         let gridHtml = files.map(f => {
           let fileId = f.id || (f.downloadUrl ? f.downloadUrl.split('id=')[1] : '');
           let thumbUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=s800`;
-          
           let fileDateHtml = '';
           let fDateStr = f.dateCreated || f.createdTime || f.timestamp;
           if (fDateStr) {
             let d = new Date(fDateStr);
             if (!isNaN(d.getTime())) {
               let months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-              let hours = d.getHours();
-              let minutes = d.getMinutes().toString().padStart(2, '0');
-              let ampm = hours >= 12 ? 'PM' : 'AM';
-              hours = hours % 12; hours = hours ? hours : 12;
-              let timeStr = `${hours}:${minutes} ${ampm}`;
-              // Timestamp box that shows per individual photo detail
-              fileDateHtml = `<div style="font-size:12px; color:#64748b; text-align:center; font-weight:600; margin-bottom: 8px; background: #f1f5f9; padding: 4px; border-radius: 6px;"><i class="fa-regular fa-clock"></i> ${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()} | ${timeStr}</div>`;
+              let hours = d.getHours(); let minutes = d.getMinutes().toString().padStart(2, '0'); let ampm = hours >= 12 ? 'PM' : 'AM'; hours = hours % 12; hours = hours ? hours : 12;
+              fileDateHtml = `<div style="font-size:12px; color:#64748b; text-align:center; font-weight:600; margin-bottom: 8px; background: #f1f5f9; padding: 4px; border-radius: 6px;"><i class="fa-regular fa-clock"></i> ${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()} | ${hours}:${minutes} ${ampm}</div>`;
             }
           }
-
-          return `<div class="photo-card"><a href="${f.url}" target="_blank" title="Click to view full size"><img src="${thumbUrl}" alt="${f.name}" class="photo-img" loading="lazy" onerror="this.src='https://via.placeholder.com/300?text=No+Preview'"></a><div class="photo-details"><div class="file-name" title="${f.name}"><i class="fa-regular fa-image icon-3d-purple"></i> ${f.name}</div>${fileDateHtml}<div class="actions"><a href="${f.url}" target="_blank" class="btn-view"><i class="fa-solid fa-eye"></i> View</a><a href="${f.downloadUrl}" class="btn-dl" download><i class="fa-solid fa-cloud-arrow-down"></i> Download</a></div></div></div>`;
+          
+          let safeName = (f.name || '').replace(/'/g, "\\'");
+          return `
+            <div class="photo-card" id="photo-card-${fileId}">
+              <a href="${f.url}" target="_blank" title="Click to view full size">
+                <img src="${thumbUrl}" alt="${f.name}" class="photo-img" loading="lazy" onerror="this.src='https://via.placeholder.com/300?text=No+Preview'">
+              </a>
+              <div class="photo-details">
+                <div class="file-name" title="${f.name}"><i class="fa-regular fa-image icon-3d-purple"></i> ${f.name}</div>
+                ${fileDateHtml}
+                <div class="actions">
+                  <a href="${f.url}" target="_blank" class="btn-view"><i class="fa-solid fa-eye"></i> View</a>
+                  <a href="${f.downloadUrl}" class="btn-dl" download><i class="fa-solid fa-cloud-arrow-down"></i> Save</a>
+                  <button onclick="deletePhoto('${fileId}', '${category}', '${safeName}')" class="btn-del"><i class="fa-solid fa-trash"></i> Del</button>
+                </div>
+              </div>
+            </div>`;
         }).join('');
-        
         return `<div class="category"><h3 style="display:flex; flex-direction:column; align-items:center; line-height: 1.4;"><div style="display:flex; align-items:center; gap:10px;">${title}</div>${dateHtml}</h3><div class="photo-grid">${gridHtml}</div></div>`;
       }
+
+      async function deletePhoto(fileId, category, fileName) {
+          showConfirm(`Are you sure you want to permanently delete "${fileName}" from Google Drive and remove its record?`, async () => {
+              let cid = document.getElementById('cid').value.trim();
+              
+              // Show loader in gallery
+              let galleryLoader = document.getElementById('gallery-loader');
+              galleryLoader.style.display = 'block';
+              galleryLoader.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin icon-3d-red"></i> Deleting from Drive and Syncing Sheets...';
+              
+              try {
+                  // 1. Fetch the authentication token required to edit files in the backend Drive
+                  let uploadCreds = await apiGet('getUploadCredentials', { contractId: cid, category: category });
+                  let token = uploadCreds.token;
+                  
+                  // 2. Issue DELETE request to Google Drive API
+                  let res = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}`, {
+                      method: 'DELETE',
+                      headers: { 'Authorization': 'Bearer ' + token }
+                  });
+                  
+                  if (!res.ok) {
+                      let errText = await res.text();
+                      throw new Error(`Drive API: ${errText}`);
+                  }
+                  
+                  // 3. REMOVE FILE ID FROM GOOGLE SHEETS
+                  // By calling your existing checkFolderAndWriteIds function, it will re-scan the folder,
+                  // notice that the file is gone, and automatically overwrite your Google Sheet with the remaining IDs!
+                  try {
+                      await apiPost('checkFolderAndWriteIds', { 
+                          contractId: cid, 
+                          category: category, 
+                          uploaderName: 'System (File Deleted)', 
+                          numPhotos: 0 
+                      });
+                  } catch(e) {
+                      console.warn("Folder sync background warning:", e);
+                  }
+                  
+                  // 4. Instantly remove from HTML Document Object Model UI
+                  let card = document.getElementById(`photo-card-${fileId}`);
+                  if (card) {
+                      card.style.transform = 'scale(0.8)';
+                      card.style.opacity = '0';
+                      setTimeout(() => card.remove(), 300);
+                  }
+                  
+                  showMessage(`"${fileName}" was successfully deleted from Google Drive and Records updated.`);
+                  
+              } catch (err) {
+                  showMessage(`Failed to delete photo: ${err.message}`);
+              } finally {
+                  galleryLoader.style.display = 'none';
+                  galleryLoader.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin icon-3d-blue"></i> Fetching photos from Google Drive...';
+              }
+          });
+      }
 	  
-      /* ==========================================
-         SAFE NAVIGATION LOGIC
-         ========================================== */
       function handleAppBack() {
-        try {
-          if (window.parent && window.parent !== window) {
-            window.parent.postMessage({ type: 'CLOSE_MODAL' }, '*');
-            return;
-          }
-        } catch (e) {}
+        try { if (window.parent && window.parent !== window) { window.parent.postMessage({ type: 'CLOSE_MODAL' }, '*'); return; } } catch (e) {}
         try { window.top.location.href = 'index.html'; } catch (e) { window.location.href = 'index.html'; }
       }
 
       function openHistoryProject() {
         let cid = document.getElementById('cid').value.trim();
-        if (!cid) { 
-            showMessage("Please enter a Contract ID first to view its history."); 
-            return; 
-        }
+        if (!cid) { showMessage("Please enter a Contract ID first to view its history."); return; }
         window.location.href = 'HistoryProject.html?cid=' + encodeURIComponent(cid);
       }
     </script>
