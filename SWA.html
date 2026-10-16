@@ -319,6 +319,11 @@
                     </div>
                 </div>
 
+                <!-- No Accomplishment this week Button -->
+                <button id="btn-no-accomplishment" onclick="declareNoAccomplishment()" class="hidden w-full btn-3d bg-gradient-to-b from-rose-50 to-rose-100 border-b-[4px] border-rose-300 text-rose-600 rounded-2xl py-3 text-xs font-black tracking-widest uppercase items-center justify-center gap-2 mt-1 shadow-sm">
+                    <i class="fa-solid fa-ban text-rose-500 text-lg drop-shadow-sm"></i> No Accomplishment this week
+                </button>
+
                 <!-- Compact Scheduled % (BarChart) Accordion -->
                 <div id="barchart-container" class="hidden flex-col border border-blue-300 bg-gradient-to-r from-[#f0f7ff] to-white rounded-2xl overflow-hidden shadow-sm mt-1">
                     <div class="px-4 py-3 text-[11px] md:text-sm font-semibold text-slate-800 cursor-pointer hover:bg-blue-100/50 flex justify-between items-center" onclick="toggleBarChartAccordion()">
@@ -341,6 +346,18 @@
                         <span id="suspension-preview" class="text-[10px] text-slate-500 font-bold break-all leading-tight max-w-[50%] text-right">No interruptions</span>
                     </div>
                     <div id="detail-suspension" class="hidden flex-col bg-white border-t border-dashed border-rose-300 shadow-inner p-4 gap-3"></div>
+                </div>
+
+                <!-- Compact Terminated Accordion -->
+                <div id="terminated-container" class="hidden flex-col border border-stone-300 bg-gradient-to-r from-[#f5f5f4] to-white rounded-2xl overflow-hidden shadow-sm mt-1">
+                    <div class="px-4 py-3 text-[11px] md:text-sm font-semibold text-slate-800 cursor-pointer hover:bg-stone-100/50 flex justify-between items-center" onclick="toggleTerminatedAccordion()">
+                        <div class="flex items-center gap-2 font-bold text-stone-700 shrink-0 mr-2">
+                            <i class="fa-solid fa-chevron-right text-[10px]" id="icon-terminated"></i>
+                            <i class="fa-solid fa-calendar-xmark"></i> Terminated
+                        </div>
+                        <span id="terminated-preview" class="text-[10px] text-slate-500 font-bold break-all leading-tight max-w-[50%] text-right">Active</span>
+                    </div>
+                    <div id="detail-terminated" class="hidden flex-col bg-white border-t border-dashed border-stone-300 shadow-inner p-4 gap-3"></div>
                 </div>
 
                 <!-- Compact Monthly Remarks Accordion -->
@@ -911,14 +928,6 @@
                 container.appendChild(btn);
             }
 
-            // --- ADD THIS NEW ZERO BUTTON ---
-            const noAccBtn = document.createElement('button');
-            noAccBtn.onclick = declareNoAccomplishment;
-            noAccBtn.className = "shrink-0 ml-1 px-3 py-1 rounded-xl text-[9px] sm:text-[10px] font-black transition-all shadow-sm bg-gradient-to-b from-rose-50 to-rose-100 text-rose-600 border border-rose-300 hover:bg-rose-200 border-b-[3px] flex items-center justify-center gap-1.5";
-            noAccBtn.innerHTML = `<i class="fa-solid fa-ban text-rose-500 drop-shadow-sm"></i> ZERO`;
-            noAccBtn.title = "Declare No Accomplishment (0) for this Week";
-            container.appendChild(noAccBtn);
-            // --------------------------------
 
             setTimeout(() => {
                 const activePill = document.getElementById(`week-pill-${appState.activeWeekIndex}`);
@@ -1218,6 +1227,21 @@
                 barchartContainer.classList.add('hidden');
                 barchartContainer.classList.remove('flex');
             }
+            const suspensionContainer = document.getElementById('suspension-container');
+            if (suspensionContainer) {
+                suspensionContainer.classList.add('hidden');
+                suspensionContainer.classList.remove('flex');
+            }
+            const terminatedContainer = document.getElementById('terminated-container');
+            if (terminatedContainer) {
+                terminatedContainer.classList.add('hidden');
+                terminatedContainer.classList.remove('flex');
+            }
+            const btnNoAcc = document.getElementById('btn-no-accomplishment');
+            if (btnNoAcc) {
+                btnNoAcc.classList.add('hidden');
+                btnNoAcc.classList.remove('flex');
+            }
 
             returnToHome();
             updatePrintButtonState();
@@ -1331,10 +1355,11 @@
                 addBtn.innerHTML = `<i class="fa-solid fa-gears drop-shadow-sm"></i> Add/Edit/Update Items`;
             }
 
+            const excludedCols = ['REMARKS', 'BARCHART', 'SUSPENSION', 'TERMINATED'];
             for (let c = 0; c < row.length; c++) {
                 if (c === contractColIndex) continue;
                 const colHeader = String(headers[c] || '').trim();
-                if (colHeader.toUpperCase() === 'REMARKS' || colHeader.toUpperCase() === 'BARCHART') continue;
+                if (excludedCols.includes(colHeader.toUpperCase())) continue;
                 const cellVal = String(row[c] || '').trim();
                 const cacheKey = `${c}_${rowNumber}`;
                 const isLocallyAdded = appState.modifiedCells[cacheKey] !== undefined;
@@ -1343,7 +1368,10 @@
                 }
             }
 
+            const btnNoAcc = document.getElementById('btn-no-accomplishment');
+
             if (validItems.length === 0) {
+                if (btnNoAcc) { btnNoAcc.classList.add('hidden'); btnNoAcc.classList.remove('flex'); }
                 const emptyMsg = document.createElement('div');
                 emptyMsg.className = "w-full text-center py-16 text-slate-500 bg-white/60 backdrop-blur-xl border border-slate-200 rounded-[30px] shadow-sm";
                 emptyMsg.innerHTML = `<i class="fa-solid fa-face-frown text-5xl mb-4 opacity-30 text-cyan-500"></i><p class="text-sm font-black">No SWA item records identified for this contract.</p>`;
@@ -1356,8 +1384,12 @@
                 
                 renderBarChart();
                 renderRemarks();
+                renderSuspensions();
+                if (typeof renderTerminated === 'function') renderTerminated();
                 return;
             }
+
+            if (btnNoAcc) { btnNoAcc.classList.remove('hidden'); btnNoAcc.classList.add('flex'); }
 
             let totalToDateAmount = 0;
             
@@ -1538,6 +1570,7 @@
             renderBarChart();
             renderRemarks();
             renderSuspensions();
+            renderTerminated();
         }
 
         function calculateScheduledPercentage() {
@@ -2518,10 +2551,11 @@
             
             appState.editorAllocatedCols = [];
 
+            const excludedCols = ['REMARKS', 'BARCHART', 'SUSPENSION', 'TERMINATED'];
             for (let c = 0; c < rowValues.length; c++) {
                 if (c === contractColIndex) continue;
                 const colHeader = String(headers[c] || '').trim();
-                if (colHeader.toUpperCase() === 'REMARKS' || colHeader.toUpperCase() === 'BARCHART') continue;
+                if (excludedCols.includes(colHeader.toUpperCase())) continue;
                 const cellVal = String(rowValues[c] || '').trim();
                 const cacheKey = `${c}_${rowNumber}`;
                 const isLocallyAdded = appState.modifiedCells[cacheKey] !== undefined;
@@ -3005,11 +3039,12 @@
             const monthNamesLong = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
             document.getElementById('print-active-period').innerText = `as of ${monthNamesLong[today.getMonth()]} ${String(today.getDate()).padStart(2, '0')}, ${today.getFullYear()}`;
 
+            const excludedCols = ['REMARKS', 'BARCHART', 'SUSPENSION', 'TERMINATED'];
             const validItems = [];
             for (let c = 0; c < row.length; c++) {
                 if (c === contractColIndex) continue;
                 const colHeader = String(headers[c] || '').trim();
-                if (colHeader.toUpperCase() === 'REMARKS' || colHeader.toUpperCase() === 'BARCHART') continue;
+                if (excludedCols.includes(colHeader.toUpperCase())) continue;
                 const cellVal = String(row[c] || '').trim();
                 const cacheKey = `${c}_${rowNumber}`;
                 const isLocallyAdded = appState.modifiedCells[cacheKey] !== undefined;
@@ -3463,6 +3498,108 @@
             
             updatePendingBadge();
             recalculateAggregatedTotals();
+        }
+
+        // ========================================================
+        // TERMINATED ENGINE
+        // ========================================================
+        function toggleTerminatedAccordion() {
+            const detail = document.getElementById('detail-terminated');
+            const icon = document.getElementById('icon-terminated');
+            if (detail.classList.contains('hidden')) {
+                detail.classList.remove('hidden'); detail.classList.add('flex');
+                icon.classList.add('rotate-90');
+            } else {
+                detail.classList.add('hidden'); detail.classList.remove('flex');
+                icon.classList.remove('rotate-90');
+            }
+        }
+
+        function renderTerminated() {
+            const container = document.getElementById('terminated-container');
+            if (!container) return;
+            if (!appState.contractRowData) {
+                container.classList.add('hidden'); container.classList.remove('flex'); return;
+            }
+
+            const headers = appState.headers;
+            const termColIdx = headers.findIndex(h => String(h || '').toUpperCase().trim() === 'TERMINATED');
+            container.classList.remove('hidden');
+            container.classList.add('flex');
+            const detailContainer = document.getElementById('detail-terminated');
+            
+            if (termColIdx === -1) {
+                detailContainer.innerHTML = `<div class="p-4 bg-stone-50 text-stone-700 rounded-xl text-xs font-bold text-center border border-stone-200"><i class="fa-solid fa-circle-info mb-2 text-xl"></i><br>To use the <b>Terminated</b> engine, please add a new column named <b>TERMINATED</b> to your SWA database in Google Sheets.</div>`;
+                document.getElementById('terminated-preview').innerText = 'Unavailable';
+                return;
+            }
+
+            const rowNumber = appState.contractRowData.rowNumber;
+            const cacheKey = `${termColIdx}_${rowNumber}`;
+            let termStr = appState.modifiedCells[cacheKey] ? (appState.modifiedCells[cacheKey].parts[0] || '') : String(appState.contractRowData.values[termColIdx] || '');
+            
+            detailContainer.dataset.colIndex = termColIdx;
+            detailContainer.dataset.rowNumber = rowNumber;
+            detailContainer.dataset.parts = termStr; 
+            buildTerminatedTable();
+        }
+
+        function buildTerminatedTable() {
+            const detailContainer = document.getElementById('detail-terminated');
+            const termStr = detailContainer.dataset.parts || '';
+            let html = `<div class="flex flex-col gap-3">`;
+            
+            let isTerminated = termStr.trim() !== '';
+
+            html += `
+            <div class="flex flex-col items-center gap-2 bg-stone-50 p-3 rounded-xl border border-stone-200 shadow-sm relative">
+                <div class="w-full flex items-center justify-between gap-2">
+                    <span class="text-[11px] font-black text-stone-700 uppercase">Termination Date:</span>
+                    <div class="flex items-center gap-2">
+                        <input type="date" id="terminated-date-input" value="${termStr}" onchange="updateTerminatedData()" class="bg-white border border-stone-300 rounded-lg p-2 text-[11px] font-bold outline-none focus:border-stone-500 shadow-inner">
+                        <button onclick="clearTerminatedData()" class="text-rose-400 hover:text-rose-600 transition-colors p-2" title="Clear Termination"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                </div>
+                ${isTerminated ? `<div class="w-full text-center mt-2 bg-red-100 text-red-700 font-bold text-[10px] py-1 rounded">PROJECT TERMINATED ON ${termStr}</div>` : ''}
+            </div>`;
+            
+            html += `</div>`;
+            
+            detailContainer.innerHTML = html;
+            const preview = document.getElementById('terminated-preview');
+            if (isTerminated) preview.innerHTML = `<span class="text-red-600 font-extrabold tracking-wide"><i class="fa-solid fa-ban"></i> Terminated: ${termStr}</span>`;
+            else preview.innerText = "Active";
+        }
+        
+        function updateTerminatedData() {
+            const detailContainer = document.getElementById('detail-terminated');
+            const input = document.getElementById('terminated-date-input');
+            detailContainer.dataset.parts = input.value;
+            buildTerminatedTable();
+            commitTerminatedToState();
+        }
+
+        function clearTerminatedData() {
+            const detailContainer = document.getElementById('detail-terminated');
+            detailContainer.dataset.parts = '';
+            buildTerminatedTable();
+            commitTerminatedToState();
+        }
+        
+        function commitTerminatedToState() {
+            const detailContainer = document.getElementById('detail-terminated');
+            const colIdx = parseInt(detailContainer.dataset.colIndex);
+            const rowNumber = parseInt(detailContainer.dataset.rowNumber);
+            const cacheKey = `${colIdx}_${rowNumber}`;
+            const newStr = detailContainer.dataset.parts;
+            
+            appState.modifiedCells[cacheKey] = {
+                colIndex: colIdx, colLetter: colToLetter(colIdx), rowNumber: rowNumber, headerName: 'TERMINATED', parts: [newStr], synced: false
+            };
+            const originalVal = String(appState.contractRowData.values[colIdx] || '');
+            if (originalVal === newStr) delete appState.modifiedCells[cacheKey];
+            
+            updatePendingBadge();
         }
 
         // ========================================================

@@ -109,6 +109,9 @@
         }
 
         /* Print Styles */
+        .show-on-print {
+            display: none;
+        }
         @media print {
             body {
                 background-color: white !important;
@@ -118,10 +121,12 @@
             body * {
                 visibility: hidden;
             }
-            #summary-print-area, #summary-print-area * {
+            #summary-print-area, #summary-print-area *,
+            #acceptance-print-area, #acceptance-print-area *,
+            #subcon-print-area, #subcon-print-area * {
                 visibility: visible;
             }
-            #summary-print-area {
+            #summary-print-area, #acceptance-print-area, #subcon-print-area {
                 position: absolute;
                 left: 0;
                 top: 0;
@@ -129,11 +134,108 @@
                 margin: 0;
                 padding: 0;
             }
+            
+            /* Sub Con Print Styles */
+            .subcon-print-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 15px;
+                break-inside: avoid;
+                font-family: Arial, sans-serif;
+            }
+            .subcon-print-2cols {
+                column-count: 2;
+                column-gap: 25px;
+            }
+            .subcon-print-centered {
+                max-width: 800px;
+                margin: 0 auto;
+            }
+            .subcon-print-cell {
+                border-right: 1px dotted #e67e22;
+                padding: 1.5px 4px; /* Shorter row height */
+                text-align: center;
+                font-size: 10.5px; /* Shrunk text size */
+                font-weight: bold;
+                border-bottom: 1px solid transparent;
+                line-height: 1.1; /* Tighter line height */
+                white-space: nowrap; /* Forces text to fit in one line (shrink to fit effect) */
+                letter-spacing: -0.1px; /* Slight compression to fit longer words */
+                overflow: hidden;
+            }
+            .subcon-print-cell:last-child {
+                border-right: none;
+            }
             .no-print {
                 display: none !important;
             }
             .print-header {
                 display: block !important;
+            }
+            .show-on-print {
+                display: block !important;
+            }
+            tr.show-on-print {
+                display: table-row !important;
+            }
+            
+            /* Acceptance Exact Formatting */
+            #acceptance-print-area table {
+                border: 1px solid black !important; /* Solid outer border */
+            }
+            #acceptance-print-area th,
+            #acceptance-print-area td {
+                border: 1px dotted black !important; /* Dotted internal lines */
+            }
+            #acceptance-print-area thead th {
+                border-bottom: 1px solid black !important; /* Solid line under headers for clarity */
+                border-top: 1px solid black !important;
+            }
+            #acceptance-print-area .dotted-border,
+            #acceptance-print-area .border-r {
+                border-right: 1px dotted black !important;
+            }
+            #acceptance-print-area .shadow-md {
+                box-shadow: none !important;
+                break-inside: avoid;
+            }
+            #acceptance-print-area .shadow-md > .z-10 {
+                border: 1px solid black !important; /* Solid border for PE Names / Ariel Fernandez */
+                border-bottom: none !important;
+            }
+
+            /* Project Table Print Compression & Color Removal */
+            .print-project-container {
+                margin-bottom: 8px !important;
+            }
+            .print-project-table tbody tr {
+                background-color: transparent !important;
+                background-image: none !important;
+            }
+            .print-project-table th, 
+            .print-project-table td {
+                padding-top: 1px !important;
+                padding-bottom: 1px !important;
+                font-size: 11px !important;
+                line-height: 1.1 !important;
+            }
+            .print-project-table .text-sm,
+            .print-project-table .text-base,
+            .print-project-table .text-lg,
+            .print-project-table .text-xs {
+                font-size: 11px !important;
+                line-height: 1.1 !important;
+            }
+            .print-pe-header {
+                padding-top: 2px !important;
+                padding-bottom: 2px !important;
+                min-height: auto !important;
+            }
+            .print-pe-header span {
+                font-size: 13px !important;
+            }
+            #acceptance-print-area .mb-6 {
+                margin-bottom: 12px !important;
             }
         }
     </style>
@@ -222,6 +324,9 @@
     <!-- Main Dashboard Container -->
     <div id="main-app" class="w-full max-w-2xl bg-transparent hidden">
         
+        <!-- Hidden Print Area for Sub Con -->
+        <div id="subcon-print-area" class="show-on-print w-full bg-white text-black p-4"></div>
+        
         <!-- Top Navigation Bar (Hamburger + Tabs/Home) -->
         <div class="flex w-full sticky top-0 z-[5000] bg-[#fce4c8] pt-4 pb-2 -mt-4 mb-1">
             
@@ -243,6 +348,7 @@
                 <div class="cursor-pointer hover:bg-white/20 p-1 rounded leading-tight mt-1" onclick="switchMainView('billing_summary')">BILLING, SUMMARY</div>
                 <div class="cursor-pointer hover:bg-white/20 p-1 rounded leading-tight mt-1" onclick="switchMainView('acceptance')">ACCEPTANCE</div>
                 <div class="cursor-pointer hover:bg-white/20 p-1 rounded leading-tight mt-1" onclick="switchMainView('documents')">DOCUMENTS</div>
+                <div class="cursor-pointer hover:bg-white/20 p-1 rounded leading-tight mt-1" onclick="switchMainView('upload_photos')">UPLOAD PHOTOS</div>
                 
                 <div class="border-t-2 border-blue-900/50 my-2"></div>
                 
@@ -295,6 +401,13 @@
                 </div>
             </div>
             
+            <!-- Header Area: Upload Photos Tabs -->
+            <div id="upload-photos-tabs" class="flex flex-1 ml-1 hidden">
+                <div class="flex-1 py-1 md:py-2 font-black text-xl md:text-2xl text-black bg-gradient-to-b from-orange-400 to-orange-500 shadow-md border border-orange-600 flex items-center justify-center tracking-widest uppercase">
+                    UPLOAD PHOTOS
+                </div>
+            </div>
+
             <!-- Header Area: Documents Tabs -->
             <div id="documents-tabs" class="flex flex-col flex-1 ml-1 hidden">
                 <div class="flex w-full">
@@ -591,9 +704,9 @@
         let filterShowRedDot = true;
         let filterShowNoDot = true;
         let billingFilterSubCon = 'All'; // Added for Sub Con Filter
-        let othersSheetMeta = { contractColIdx: 0, billingColIdx: 1, issueColIdx: 2, projectedColIdx: -1, noBillingColIdx: -1, paidColIdx: -1, map: {}, data: {}, projectedMap: {}, paidMap: {}, nextRow: 4, dropdownSubcon: [], dropdownIssue: [] };
-
-        let globalPcmaColIdx = -1;
+		let othersSheetMeta = { contractColIdx: 0, billingColIdx: 1, issueColIdx: 2, projectedColIdx: -1, noBillingColIdx: -1, paidColIdx: -1, bacColIdx: -1, map: {}, data: {}, projectedMap: {}, paidMap: {}, bacMap: {}, nextRow: 4, dropdownSubcon: [], dropdownIssue: [] };
+        
+		let globalPcmaColIdx = -1;
         let globalRemarksColIdx = -1;
 
         let editHistory = []; 
@@ -640,6 +753,13 @@
 		let docSearchQuery = '';
         let docSearchDebounceTimer = null;
         let docHideCompletePE = {}; 
+
+        let appPhotosData = [];
+        let appFilterYear = 'All';
+        let appFilterPe = 'All';
+        let appFilterStatus = 'All';
+        let appSearchQuery = '';
+        let appSearchDebounceTimer = null; 
         
         let navYear = _today.getFullYear();
         let navMonth = _today.getMonth(); 
@@ -671,7 +791,7 @@
                 startLoading();
 
                 const token = await GoogleSheetsAPI.getAuthToken();
-                const batchUrl = `https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values:batchGet?ranges=SWA!A3:ZZ&ranges=ITEMS!A3:ZZ&ranges=VO!A3:ZZ&ranges=PDO!A3:ZZ&ranges=DATE!A3:ZZ&ranges=UPLOAD!A1:ZZ`;
+                const batchUrl = `https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values:batchGet?ranges=SWA!A3:ZZ&ranges=ITEMS!A3:ZZ&ranges=VO!A3:ZZ&ranges=PDO!A3:ZZ&ranges=DATE!A3:ZZ&ranges=UPLOAD!A1:ZZ&ranges=APP!A1:ZZ`;
                 const othersUrl = `https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values/Others!A1:ZZ`;
                 
                 const [batchData, billingSheet, othersRes] = await Promise.all([
@@ -686,6 +806,7 @@
                 const dataPDO = batchData.valueRanges[3] || { values: [] };
                 const dataDATE = batchData.valueRanges[4] || { values: [] };
                 const dataUPLOAD = batchData.valueRanges[5] || { values: [] };
+                const dataAPP = batchData.valueRanges[6] || { values: [] };
                 const dataOthers = othersRes || { values: [] };
 
                 const itemsLookup = buildItemsLookupMap(dataITEMS);
@@ -693,9 +814,9 @@
                 const pdoLookup = buildPdoLookupMap(dataPDO);
 
                 excludedBillingContracts.clear();
-				othersSheetMeta = { contractColIdx: 0, billingColIdx: 1, issueColIdx: 2, projectedColIdx: -1, noBillingColIdx: -1, paidColIdx: -1, map: {}, data: {}, projectedMap: {}, paidMap: {}, nextRow: 4, dropdownSubcon: [], dropdownIssue: [] };
-               
-			   if (dataOthers.values && dataOthers.values.length >= 3) {
+				othersSheetMeta = { contractColIdx: 0, billingColIdx: 1, issueColIdx: 2, projectedColIdx: -1, noBillingColIdx: -1, paidColIdx: -1, bacColIdx: -1, map: {}, data: {}, projectedMap: {}, paidMap: {}, bacMap: {}, nextRow: 4, dropdownSubcon: [], dropdownIssue: [] };          
+			  
+			  if (dataOthers.values && dataOthers.values.length >= 3) {
                     const headers = dataOthers.values[2].map(h => String(h || '').toUpperCase().trim());
                     const cIdx = headers.findIndex(h => h === 'CONTRACT ID' || h.includes('CONTRACT'));
                     const bIdx = headers.findIndex(h => h === 'BILLING');
@@ -703,6 +824,7 @@
                     const projIdx = headers.findIndex(h => h === 'PROJECTED');
                     const nbIdx = headers.findIndex(h => h === 'NO BILLING');
                     const paidIdx = headers.findIndex(h => h === 'PAID'); // Read PAID header
+                    const bacIdx = headers.findIndex(h => h === 'BAC'); // Read BAC header
                     
                     const ddSubconIdx = headers.findIndex(h => h === 'DROPDOWN SUBCON');
                     const ddIssueIdx = headers.findIndex(h => h === 'DROPDOWN ISSUE');
@@ -713,6 +835,7 @@
                     if (projIdx !== -1) othersSheetMeta.projectedColIdx = projIdx;
                     if (nbIdx !== -1) othersSheetMeta.noBillingColIdx = nbIdx;
                     if (paidIdx !== -1) othersSheetMeta.paidColIdx = paidIdx;
+                    if (bacIdx !== -1) othersSheetMeta.bacColIdx = bacIdx;
                     
                     for (let i = 3; i < dataOthers.values.length; i++) {
                         const row = dataOthers.values[i];
@@ -750,6 +873,9 @@
                             
                             const paidValRaw = othersSheetMeta.paidColIdx !== -1 ? String(row[othersSheetMeta.paidColIdx] || '').trim() : '';
                             othersSheetMeta.paidMap[cid] = paidValRaw;
+                            
+                            const bacValRaw = othersSheetMeta.bacColIdx !== -1 ? String(row[othersSheetMeta.bacColIdx] || '').trim() : '';
+                            othersSheetMeta.bacMap[cid] = bacValRaw;
                         }
                     }
                     othersSheetMeta.nextRow = dataOthers.values.length + 1;
@@ -796,13 +922,18 @@
                 Object.values(pdoLookup).forEach(pdoInfo => {
                     const y = parseInt(pdoInfo.year);
                     if (targetYears.includes(y)) {
+                        const fundStr = (pdoInfo.fund || '').toUpperCase();
+                        const projStr = (pdoInfo.projectName || '').toUpperCase();
+                        
                         let fCategory = 'GAA';
-                        const fStr = (pdoInfo.fund || '').toUpperCase();
-                        if (fStr.includes('DEPED')) fCategory = 'DepEd';
-                        else if (fStr.includes('MAINT')) fCategory = 'Maint';
-                        else if (fStr.includes('DAR')) fCategory = 'DAR';
-                        else if (fStr === 'DA' || fStr.includes('DA ') || fStr.startsWith('DA-')) fCategory = 'DA';
-                        else if (fStr.includes('SF') || fStr.includes('SPECIAL')) fCategory = 'SF';
+                        if (fundStr.includes('DEPED') || projStr.includes('DEPED')) fCategory = 'DepEd';
+                        else if (fundStr.includes('MAINT')) fCategory = 'Maint';
+                        else if (fundStr.includes('DAR') || /\bDAR\b/.test(projStr)) fCategory = 'DAR';
+                        else if (fundStr === 'DA' || fundStr.includes('DA ') || fundStr.startsWith('DA-') || projStr.includes(' DA ') || projStr.startsWith('DA-')) fCategory = 'DA';
+                        else if (fundStr.includes('SF') || fundStr.includes('SPECIAL') || projStr.includes('SPECIAL FUND')) fCategory = 'SF';
+                        
+                        // Failsafe: if the Fund is explicitly GAA, enforce it
+                        if (fundStr === 'GAA' || fundStr.includes('REGULAR')) fCategory = 'GAA';
                         
                         const sStr = (pdoInfo.status || '').toUpperCase();
                         
@@ -908,16 +1039,24 @@
                         const revExpiry = revExpiryColIndex >= 0 ? String(row[revExpiryColIndex] || '').trim() : '-';
                         const subConVal = globalBillingSubConColIdx >= 0 ? String(row[globalBillingSubConColIdx] || '').trim() : '';
                         
-                        const fundAndProject = ((pdoInfo.fund || '') + ' ' + (pdoInfo.projectName || '')).toUpperCase();
-                        const isDar = fundAndProject.includes('DAR');
-                        const isMaint = fundAndProject.includes('MAINT');
+                        const fundStr = (pdoInfo.fund || '').toUpperCase();
+                        const projStr = (pdoInfo.projectName || '').toUpperCase();
+                        
+                        const isDar = fundStr.includes('DAR') || /\bDAR\b/.test(projStr);
+                        // ONLY check the Fund column for "Maint" to prevent "Preventive Maintenance" projects from being wrongly tagged
+                        const isMaint = fundStr.includes('MAINT');
                         
                         let fCategory = 'GAA';
-                        if (fundAndProject.includes('DEPED')) fCategory = 'DepEd';
-                        else if (fundAndProject.includes('MAINT')) fCategory = 'Maint';
-                        else if (fundAndProject.includes('DAR')) fCategory = 'DAR';
-                        else if (fundAndProject.includes('DA ') || fundAndProject.startsWith('DA-')) fCategory = 'DA';
-                        else if (fundAndProject.includes('SF') || fundAndProject.includes('SPECIAL')) fCategory = 'SF';
+                        if (fundStr.includes('DEPED') || projStr.includes('DEPED')) fCategory = 'DepEd';
+                        else if (fundStr.includes('MAINT')) fCategory = 'Maint';
+                        else if (fundStr.includes('DAR') || /\bDAR\b/.test(projStr)) fCategory = 'DAR';
+                        else if (fundStr === 'DA' || fundStr.includes('DA ') || fundStr.startsWith('DA-') || projStr.includes(' DA ') || projStr.startsWith('DA-')) fCategory = 'DA';
+                        else if (fundStr.includes('SF') || fundStr.includes('SPECIAL') || projStr.includes('SPECIAL FUND')) fCategory = 'SF';
+                        
+                        // Failsafe: if the Fund is explicitly GAA, enforce it
+                        if (fundStr === 'GAA' || fundStr.includes('REGULAR')) {
+                            fCategory = 'GAA';
+                        }
 
                         const yearPrefix = contractId.substring(0, 2);
                         const projectYear = parseInt("20" + yearPrefix) || _today.getFullYear();
@@ -1166,7 +1305,41 @@
                     item.docs = docsLookup[item.contractId] || {};
                 });
 
-                isDataFetched = true; 
+                // Calculate APP PHOTOS Data
+                appPhotosData = [];
+                if (dataAPP.values && dataAPP.values.length > 1) {
+                    const appHeaders = dataAPP.values[1].map(h => String(h || '').toUpperCase().trim());
+                    const colId = appHeaders.findIndex(h => h.includes('CONTRACT ID') || h === 'CONTRACTID' || h === 'CONTRACT');
+                    const colMob = appHeaders.indexOf('MOBILIZATION');
+                    const colOn = appHeaders.indexOf('ON-GOING');
+                    const colComp = appHeaders.indexOf('COMPLETED');
+
+                    for (let i = 2; i < dataAPP.values.length; i++) {
+                        const row = dataAPP.values[i];
+                        const cId = colId !== -1 && row[colId] ? String(row[colId]).trim() : '';
+                        if (!cId) continue;
+
+                        const pdoInfo = pdoLookup[cId] || {};
+                        
+                        appPhotosData.push({
+                            contractId: cId,
+                            mobilization: colMob !== -1 && row[colMob] ? String(row[colMob]).trim() : '-',
+                            ongoing: colOn !== -1 && row[colOn] ? String(row[colOn]).trim() : '-',
+                            completed: colComp !== -1 && row[colComp] ? String(row[colComp]).trim() : '-',
+                            pe: pdoInfo.pe || 'Unknown PE',
+                            year: pdoInfo.year || 'Unknown',
+                            status: pdoInfo.status || 'Unknown',
+                            projectName: pdoInfo.projectName || '',
+                            contractor: pdoInfo.contractor || '',
+                            location: pdoInfo.location || '',
+                            contractAmount: voLookup[cId] ? voLookup[cId].amount : 0,
+                            ntp: pdoInfo.ntp || '-',
+                            expiry: pdoInfo.expiry || '-'
+                        });
+                    }
+                }
+
+                isDataFetched = true;
                 stopLoading(() => {
                     switchMainView(mainView); 
                 });
@@ -2004,6 +2177,115 @@ window.toggleActionMenu = function(menuId) {
             return weeks;
         }
 
+
+
+        // ====================================================================
+        // NEW RULE LOGIC & SYNC FOR LAST BILLING
+        // ====================================================================
+        function formatLastBillingValue(remarks) {
+            if (!remarks || remarks === '-') return '-';
+            const lower = remarks.toLowerCase();
+            
+            if (lower.includes('retention')) return '100%';
+            if (lower.includes('final')) return '100%';
+            if (lower.includes('mobilization')) return '15%';
+            
+            // Extract percentage if present (e.g., "35%", "40.5%")
+            const pctMatch = remarks.match(/(\d+(?:\.\d+)?%)/);
+            if (pctMatch) return pctMatch[1];
+            
+            return remarks; // Fallback to original text if none of the rules match
+        }
+
+        window.syncLastBillingToSheet = async function() {
+            const btn = document.getElementById('sync-last-billing-btn');
+            if (btn) btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> SYNCING...';
+
+            const billContractColIndex = findContractHeaderCol(globalBillingHeaders);
+            const lastBillingColIndex = globalBillingHeaders.findIndex(h => String(h||'').trim().toLowerCase() === 'last billing');
+
+            if (lastBillingColIndex === -1) {
+                alert("Error: 'Last Billing' column not found in row 3 of the BILLING sheet.\nPlease ensure the column header exists and is exactly named 'Last Billing'.");
+                if (btn) btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> SYNC TO SHEETS';
+                return;
+            }
+
+            let updates = [];
+
+            // Loop through all rows in BILLING sheet
+            for (let r = 3; r < globalBillingValues.length; r++) {
+                const row = globalBillingValues[r] || [];
+                const cId = row[billContractColIndex] ? String(row[billContractColIndex]).trim() : '';
+                if (!cId) continue;
+
+                let lastBillingStatus = '-';
+
+                // 1. Get ONLY the bills for this project that are ACTUALLY PAID (isPaid === true)
+                const paidBills = billingDataGlobal.filter(b => b.contractId === cId && b.isPaid === true);
+
+                if (paidBills.length > 0) {
+                    // 2. Sort the PAID bills chronologically
+                    paidBills.sort((a, b) => {
+                        if (a.billingYear !== b.billingYear) return a.billingYear - b.billingYear;
+                        return monthOrderMap[a.billingMonthName.substring(0,3)] - monthOrderMap[b.billingMonthName.substring(0,3)];
+                    });
+
+                    // 3. Check if ANY of the PAID bills is a Retention
+                    const hasPaidRetention = paidBills.some(b => 
+                        (b.remarks || '').toUpperCase().includes('RETENTION') || 
+                        (b.fullRemarks || '').toUpperCase().includes('RETENTION')
+                    );
+
+                    // 4. Set the value to 100% if Retention is PAID, otherwise get the latest PAID value
+                    if (hasPaidRetention) {
+                        lastBillingStatus = '100%';
+                    } else {
+                        lastBillingStatus = formatLastBillingValue(paidBills[paidBills.length - 1].remarks);
+                    }
+                }
+
+                // Add to batch update list
+                const colLetter = colIndexToLetter(lastBillingColIndex);
+                const cellA1 = `BILLING!${colLetter}${r + 1}`;
+                updates.push({
+                    range: cellA1,
+                    values: [[lastBillingStatus]]
+                });
+            }
+
+            if (updates.length === 0) {
+                alert("No active projects found to sync.");
+                if (btn) btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> SYNC TO SHEETS';
+                return;
+            }
+
+            try {
+                const token = await GoogleSheetsAPI.getAuthToken();
+                const body = {
+                    valueInputOption: "USER_ENTERED",
+                    data: updates
+                };
+                
+                const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values:batchUpdate`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+
+                if (res.ok) {
+                    alert(`Successfully synced ${updates.length} project(s) to the Google Sheet!`);
+                } else {
+                    console.error("Sync Error:", await res.json());
+                    alert("Failed to sync data. Check the console for details.");
+                }
+            } catch (e) {
+                console.error("Critical Sync Error:", e);
+                alert("An error occurred while syncing to Google Sheets.");
+            }
+            
+            if (btn) btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> SYNC TO SHEETS';
+        };
+
         // ====================================================================
         // UI & RENDERING LOGIC
         // ====================================================================
@@ -2018,6 +2300,7 @@ window.toggleActionMenu = function(menuId) {
             document.getElementById('billing-tabs').classList.add('hidden');
             document.getElementById('acceptance-tabs').classList.add('hidden');
             document.getElementById('documents-tabs').classList.add('hidden');
+            document.getElementById('upload-photos-tabs').classList.add('hidden');
             const row2 = document.getElementById('documents-tab-row2');
             if(row2) row2.classList.add('hidden');
             
@@ -2063,6 +2346,13 @@ window.toggleActionMenu = function(menuId) {
                     backBtn.classList.add('flex');
                 }
                 requestAnimationFrame(() => switchDocTab('planning'));
+            } else if (view === 'upload_photos') {
+                document.getElementById('upload-photos-tabs').classList.remove('hidden');
+                if (backBtn) {
+                    backBtn.classList.remove('hidden');
+                    backBtn.classList.add('flex');
+                }
+                requestAnimationFrame(() => renderView());
             }
         }
 
@@ -2338,6 +2628,66 @@ window.changeBillingSubConFilter = function(val) {
             }
         };
 
+        window.updateBacStatus = async function(contractId, val, selectEl, year, monthStr) {
+            const monthNum = monthOrderMap[monthStr.substring(0,3)];
+            let offset = (parseInt(year) - 2026) * 12 + (monthNum - 5);
+            if (offset < 0) offset = 0; 
+
+            let rawBac = othersSheetMeta.bacMap[contractId] || '';
+            let parts = rawBac.split('|').map(p => p.trim());
+            
+            while(parts.length <= offset) parts.push('-');
+            parts[offset] = val;
+            
+            const newRawBac = parts.join('|');
+            othersSheetMeta.bacMap[contractId] = newRawBac;
+            selectEl.classList.add('bg-green-100');
+
+            let targetRow = othersSheetMeta.map[contractId];
+            let isNewRow = false;
+            if (!targetRow) {
+                targetRow = othersSheetMeta.nextRow++;
+                othersSheetMeta.map[contractId] = targetRow;
+                isNewRow = true;
+            }
+
+            try {
+                const token = await GoogleSheetsAPI.getAuthToken();
+                let url, body;
+
+                if (isNewRow) {
+                    const maxCol = Math.max(othersSheetMeta.contractColIdx, othersSheetMeta.bacColIdx);
+                    const rowData = new Array(maxCol + 1).fill('');
+                    rowData[othersSheetMeta.contractColIdx] = contractId;
+                    if (othersSheetMeta.bacColIdx !== -1) rowData[othersSheetMeta.bacColIdx] = newRawBac;
+                    
+                    const cellA1 = `Others!A${targetRow}`;
+                    url = `https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values/${cellA1}?valueInputOption=USER_ENTERED`;
+                    body = JSON.stringify({ range: cellA1, majorDimension: "ROWS", values: [rowData] });
+                } else {
+                    if (othersSheetMeta.bacColIdx === -1) {
+                        alert("Header 'BAC' not found in Others sheet.");
+                        selectEl.classList.remove('bg-green-100');
+                        return;
+                    }
+                    const colLetter = colIndexToLetter(othersSheetMeta.bacColIdx);
+                    const cellA1 = `Others!${colLetter}${targetRow}`;
+                    url = `https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values/${cellA1}?valueInputOption=USER_ENTERED`;
+                    body = JSON.stringify({ range: cellA1, majorDimension: "ROWS", values: [[newRawBac]] });
+                }
+
+                const res = await fetch(url, { method: 'PUT', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: body });
+                if (res.ok) {
+                    setTimeout(() => selectEl.classList.remove('bg-green-100'), 1000);
+                } else {
+                    selectEl.classList.remove('bg-green-100'); selectEl.classList.add('bg-red-100');
+                }
+            } catch (e) {
+                console.error("Error updating BAC status:", e);
+                selectEl.classList.remove('bg-green-100'); selectEl.classList.add('bg-red-100');
+            }
+        };
+
         window.changeNoBillingFilterYear = function(val) {
             noBillingFilterYear = val;
             renderView();
@@ -2388,7 +2738,22 @@ window.changeBillingSubConFilter = function(val) {
             renderView();
         };
 		
-        window.switchDocTab = function(tabName) {
+        window.changeAppFilter = function(type, val) {
+            if (type === 'year') appFilterYear = val;
+            if (type === 'pe') appFilterPe = val;
+            if (type === 'status') appFilterStatus = val;
+            renderView();
+        }
+        
+        window.debounceAppSearch = function(val) {
+            if (appSearchDebounceTimer) clearTimeout(appSearchDebounceTimer);
+            appSearchDebounceTimer = setTimeout(() => {
+                appSearchQuery = val;
+                renderView();
+            }, 300);
+        };
+		
+		window.switchDocTab = function(tabName) {
             documentSubTab = tabName;
             const allTabs = ['planning', 'procurement', 'construction', 'vo_wso'];
             
@@ -2664,7 +3029,126 @@ window.changeBillingSubConFilter = function(val) {
             return `<span class="text-rose-600 font-extrabold text-lg">✘</span>`;
         }
 
-        function resizeTextareasSmoothly() {
+		window.printPreviousMonthSubCon = function() {
+            const targetMonthPrefix = monthsArr[navMonth].substring(0, 3).toLowerCase();
+            let filteredBills = billingDataGlobal.filter(b => b.isPaid === true && b.billingYear === navYear && (b.billingMonthName || '').toLowerCase().startsWith(targetMonthPrefix));
+            
+            let groupedData = {};
+            filteredBills.forEach(b => {
+                const isExcluded = excludedBillingContracts.has(b.contractId);
+                const hasDot = redDotContracts.has(b.contractId);
+
+                if (!filterShowChecked && !isExcluded) return;
+                if (!filterShowUnchecked && isExcluded) return;
+                if (!filterShowRedDot && hasDot) return;
+                if (!filterShowNoDot && !hasDot) return;
+
+                if (billingFundFilters[b.fundCategory]) {
+                    let groupKey = b.subCon ? b.subCon : 'None';
+                    if (!groupedData[groupKey]) groupedData[groupKey] = [];
+                    groupedData[groupKey].push(b);
+                }
+            });
+
+            const sortedKeys = Object.keys(groupedData).sort();
+            
+            let totalRows = 0;
+            sortedKeys.forEach(k => {
+                totalRows += groupedData[k].length + 2; 
+            });
+
+            // If rows exceed ~35 (roughly a 1-page limit), it changes to 2-columns. Otherwise, Centered.
+            let containerClass = totalRows > 35 ? "subcon-print-2cols" : "subcon-print-centered";
+
+            let printHtml = `
+                <div class="print-header text-center mb-6">
+                    <h1 class="text-2xl font-black text-[#0f3b75] uppercase tracking-widest">Sub Con Billing - ${monthsArr[navMonth]} ${navYear}</h1>
+                </div>
+                <div class="${containerClass}">
+            `;
+
+            // Define color themes to cycle through for each Sub Con
+            const printThemes = [
+                { top: '#9bc854', bottom: '#7cae3c', bg: '#8cb85c', rowLight: '#f4faeb' }, // Green
+                { top: '#f6b26b', bottom: '#e69138', bg: '#e69138', rowLight: '#fef5eb' }, // Orange
+                { top: '#9fc5e8', bottom: '#6fa8dc', bg: '#6fa8dc', rowLight: '#f0f6fb' }, // Blue
+                { top: '#d5a6bd', bottom: '#c27ba0', bg: '#c27ba0', rowLight: '#fbf3f8' }, // Purple
+                { top: '#ffd966', bottom: '#f1c232', bg: '#f1c232', rowLight: '#fffcf0' }, // Yellow
+                { top: '#a2c4c9', bottom: '#76a5af', bg: '#76a5af', rowLight: '#f1f6f7' }  // Teal
+            ];
+
+            sortedKeys.forEach((keyName, groupIdx) => {
+                const theme = printThemes[groupIdx % printThemes.length];
+                
+                const bills = groupedData[keyName];
+                let groupTotal = 0;
+                bills.forEach(b => groupTotal += b.amount);
+                
+                printHtml += `
+                    <table class="subcon-print-table">
+                        <thead>
+                            <tr>
+                                <td colspan="4" style="background-image: linear-gradient(to bottom, ${theme.top}, ${theme.bottom}) !important; background-color: ${theme.bg} !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 2px 6px; border-bottom: 1.5px solid white;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; color: black; font-weight: 900; font-size: 13px; font-family: Arial, sans-serif;">
+                                        <span>${keyName}</span>
+                                        <span>${formatCurrency(groupTotal)}</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                bills.forEach((b, idx) => {
+                    const rowBg = idx % 2 === 0 ? theme.rowLight : '#ffffff'; // Alternating matching theme / white rows
+                    
+                    const monthNum = monthOrderMap[b.billingMonthName.substring(0,3)];
+                    let offset = (b.billingYear - 2026) * 12 + (monthNum - 5);
+                    if (offset < 0) offset = 0;
+                    
+                    let rawPaid = othersSheetMeta.paidMap[b.contractId] || '';
+                    let parts = rawPaid.split('|').map(p => p.trim());
+                    let currentPaidStatus = offset >= 0 && offset < parts.length ? parts[offset] : '-';
+                    if (currentPaidStatus === '') currentPaidStatus = '-';
+                    
+                    let rawBac = othersSheetMeta.bacMap[b.contractId] || '';
+                    let partsBac = rawBac.split('|').map(p => p.trim());
+                    let currentBacStatus = offset >= 0 && offset < partsBac.length ? partsBac[offset] : '-';
+                    if (currentBacStatus === '') currentBacStatus = '-';
+
+                    let paidStr = currentPaidStatus === 'Paid' ? `<span style="color: red; font-style: italic; font-weight: bold;">Paid</span>` : `<span style="color: blue; font-weight: bold;">-</span>`;
+                    let bacStr = currentBacStatus === 'Paid' ? `<span style="color: green; font-style: italic; font-weight: bold;">Paid</span>` : `<span style="color: blue; font-weight: bold;">-</span>`;
+
+                    let statusHtml = `
+                        <div style="display: flex; justify-content: center; gap: 8px;">
+                            <div><span style="font-size: 8px; color: gray;">PAID:</span> ${paidStr}</div>
+                            <div><span style="font-size: 8px; color: gray;">BAC:</span> ${bacStr}</div>
+                        </div>
+                    `;
+
+                    printHtml += `
+                        <tr style="background-color: ${rowBg} !important; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
+                            <td class="subcon-print-cell" style="width: 20%; color: black; font-family: Arial, sans-serif;">${b.contractId}</td>
+                            <td class="subcon-print-cell" style="width: 25%; color: black; font-family: Arial, sans-serif;">${formatCurrency(b.amount)}</td>
+                            <td class="subcon-print-cell" style="width: 30%; font-style: italic; font-weight: normal; color: black; font-family: Arial, sans-serif;">${b.remarks}</td>
+                            <td class="subcon-print-cell" style="width: 25%; border-right: none; font-family: Arial, sans-serif;">${statusHtml}</td>
+                        </tr>
+                    `;
+                });
+                printHtml += `</tbody></table>`;
+            });
+
+            printHtml += `</div>`;
+            
+            const printArea = document.getElementById('subcon-print-area');
+            printArea.innerHTML = printHtml;
+            
+            setTimeout(() => {
+                window.print();
+            }, 100); // 100ms delay enables DOM update before print window catches it
+        };
+
+	   function resizeTextareasSmoothly() {
             const textareas = Array.from(document.querySelectorAll('textarea')).filter(ta => ta.value && ta.value !== '-');
             if (textareas.length === 0) return;
             
@@ -2811,8 +3295,8 @@ window.changeBillingSubConFilter = function(val) {
 
                         // Compute totals respecting the dropdown mode
                         if (shouldIncludeInTotal) {
-                            if (b.isDar) totalDar += b.amount;
-                            else if (b.isMaint) totalMaint += b.amount;
+                            if (b.fundCategory === 'DAR') totalDar += b.amount;
+                            else if (b.fundCategory === 'Maint') totalMaint += b.amount;
                             else {
                                 totalBase += b.amount;
                                 if (b.projectYear === currentYearNum) totalCurrent += b.amount;
@@ -2846,12 +3330,21 @@ window.changeBillingSubConFilter = function(val) {
 
                     if (billingGroupMode === 'previous_month' || billingGroupMode === 'previous_month_subcon') {
                         html += `
-                            <div class="flex items-center justify-center gap-6 text-[#0f3b75] font-black my-1">
+                            <div class="flex items-center justify-center gap-6 text-[#0f3b75] font-black my-1 no-print">
                                 <button onclick="navMonthBack()" class="hover:scale-110 active:scale-95 transition-transform"><i class="fa-solid fa-arrow-left text-[#3b5998] text-3xl drop-shadow-md"></i></button>
                                 <span class="w-36 text-center text-xl tracking-tight">${monthsArr[navMonth]} ${navYear}</span>
                                 <button onclick="navMonthForward()" class="hover:scale-110 active:scale-95 transition-transform"><i class="fa-solid fa-arrow-right text-[#3b5998] text-3xl drop-shadow-md"></i></button>
                             </div>
                         `;
+                        if (billingGroupMode === 'previous_month_subcon') {
+                            html += `
+                            <div class="w-full flex justify-end mb-2 no-print">
+                                <button onclick="printPreviousMonthSubCon()" class="bg-blue-600 hover:bg-blue-700 text-white font-black text-center py-1.5 px-4 text-sm md:text-base outline-none shadow-sm rounded-md transition-all flex items-center justify-center gap-2 active:scale-95">
+                                    <i class="fa-solid fa-print"></i> PRINT REPORT
+                                </button>
+                            </div>
+                            `;
+                        }
                     }
 
                     html += `</div>`; 
@@ -3099,16 +3592,27 @@ window.changeBillingSubConFilter = function(val) {
                                 let parts = rawPaid.split('|').map(p => p.trim());
                                 let currentPaidStatus = offset >= 0 && offset < parts.length ? parts[offset] : '-';
                                 if (currentPaidStatus === '') currentPaidStatus = '-';
+                                
+                                let rawBac = othersSheetMeta.bacMap[b.contractId] || '';
+                                let partsBac = rawBac.split('|').map(p => p.trim());
+                                let currentBacStatus = offset >= 0 && offset < partsBac.length ? partsBac[offset] : '-';
+                                if (currentBacStatus === '') currentBacStatus = '-';
 
                                 let actionControlHtml = '';
                                 if (billingGroupMode === 'previous_month_subcon') {
                                     actionControlHtml = `
-                                        <select class="border-2 border-orange-500 rounded text-xs px-1 py-0.5 outline-none font-bold cursor-pointer bg-[#fff9f2] text-orange-900"
-                                                onclick="event.stopPropagation()"
-                                                onchange="updatePaidStatus('${b.contractId}', this.value, this, ${b.billingYear}, '${b.billingMonthName}')">
-                                            <option value="-" ${currentPaidStatus === '-' ? 'selected' : ''}>-</option>
-                                            <option value="Paid" ${currentPaidStatus === 'Paid' ? 'selected' : ''}>Paid</option>
-                                        </select>
+                                        <div class="flex items-center gap-1.5" onclick="event.stopPropagation()">
+                                            <select class="border border-orange-500 rounded text-xs px-1 py-0.5 outline-none font-bold cursor-pointer bg-[#fff9f2] text-orange-900"
+                                                    onchange="updatePaidStatus('${b.contractId}', this.value, this, ${b.billingYear}, '${b.billingMonthName}')">
+                                                <option value="-" ${currentPaidStatus === '-' ? 'selected' : ''}>-</option>
+                                                <option value="Paid" ${currentPaidStatus === 'Paid' ? 'selected' : ''}>Paid</option>
+                                            </select>
+                                            <select class="border border-blue-500 rounded text-xs px-1 py-0.5 outline-none font-bold cursor-pointer bg-[#e6f0ff] text-blue-900"
+                                                    onchange="updateBacStatus('${b.contractId}', this.value, this, ${b.billingYear}, '${b.billingMonthName}')">
+                                                <option value="-" ${currentBacStatus === '-' ? 'selected' : ''}>-</option>
+                                                <option value="Paid" ${currentBacStatus === 'Paid' ? 'selected' : ''}>Paid</option>
+                                            </select>
+                                        </div>
                                     `;
                                 } else {
                                     const dotActive = redDotContracts.has(b.contractId);
@@ -3373,7 +3877,7 @@ window.changeBillingSubConFilter = function(val) {
                         // Add up the red amounts and set the latest status
                         projectBills.forEach(b => {
                             totalBilled += b.amount;
-                            lastBillingStatus = b.remarks; // Will end up holding the chronologically last valid remarks
+                            lastBillingStatus = formatLastBillingValue(b.remarks); // Format text before displaying
                         });
 
                         // Find the contractAmount, PE, Contractor, and Year by checking the monitoringData pool
@@ -3417,6 +3921,9 @@ window.changeBillingSubConFilter = function(val) {
                     const filteredNoBilling = noBillingProjects.filter(p => {
                         return noBillingFilterYear === 'All' || p.year === noBillingFilterYear;
                     });
+                    
+                    // SAVE VISIBLE PROJECTS TO GLOBAL VARIABLE FOR SYNCING
+                    window.currentVisibleNoBilling = filteredNoBilling;
 
                     // Group Data by Selected Mode (PE or Contractor)
                     const groupedNoBilling = {};
@@ -3437,6 +3944,9 @@ window.changeBillingSubConFilter = function(val) {
                                 <option value="All" ${noBillingFilterYear === 'All' ? 'selected' : ''}>All Years</option>
                                 ${allNoBillingYears.map(y => `<option value="${y}" ${noBillingFilterYear === String(y) ? 'selected' : ''}>CY ${y}</option>`).join('')}
                             </select>
+                            <button id="sync-last-billing-btn" onclick="syncLastBillingToSheet()" class="bg-blue-600 hover:bg-blue-700 text-white font-black text-center py-1.5 px-4 text-sm md:text-base outline-none shadow-sm rounded-md transition-all flex items-center justify-center gap-2 active:scale-95 shrink-0">
+                                <i class="fa-solid fa-cloud-arrow-up"></i> SYNC TO SHEETS
+                            </button>
                         </div>
                     `;
 
@@ -4175,32 +4685,50 @@ window.changeBillingSubConFilter = function(val) {
             else if (mainView === 'acceptance') {
                 const allYears = [...new Set([...Object.keys(acceptanceCocSummary), ...Object.keys(acceptanceCfaSummary)])].sort().reverse();
                 
+                const options = { month: 'long', day: 'numeric', year: 'numeric' };
+                const printDate = _today.toLocaleDateString('en-US', options);
+                const titleText = acceptanceSubTab === 'coc' ? 'STATUS OF COC' : 'STATUS OF CFA';
+
                 let html = `
-                    <div class="w-full mb-4 bg-white border-[3px] border-red-600 shadow-sm relative group overflow-hidden">
-                        <select onchange="changeCfaFilter('year', this.value)" class="w-full text-center text-xl md:text-2xl font-black text-[#0f3b75] py-1.5 outline-none cursor-pointer bg-transparent appearance-none relative z-10">
-                            <option value="All" ${cfaFilterYear === 'All' ? 'selected' : ''}>All Years</option>
-                            ${allYears.map(y => `<option value="${y}" ${cfaFilterYear === String(y) ? 'selected' : ''}>${y}</option>`).join('')}
-                        </select>
-                        <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none z-0">
-                            <i class="fa-solid fa-chevron-down text-red-600 text-lg group-hover:translate-y-0.5 transition-transform"></i>
+                    <div id="acceptance-print-area" class="w-full flex flex-col gap-2">
+                        <div class="flex flex-col md:flex-row gap-2 mb-4 no-print">
+                            <div class="w-full bg-white border-[3px] border-red-600 shadow-sm relative group overflow-hidden flex-1">
+                                <select onchange="changeCfaFilter('year', this.value)" class="w-full text-center text-xl md:text-2xl font-black text-[#0f3b75] py-1.5 outline-none cursor-pointer bg-transparent appearance-none relative z-10">
+                                    <option value="All" ${cfaFilterYear === 'All' ? 'selected' : ''}>All Years</option>
+                                    ${allYears.map(y => `<option value="${y}" ${cfaFilterYear === String(y) ? 'selected' : ''}>${y}</option>`).join('')}
+                                </select>
+                                <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none z-0">
+                                    <i class="fa-solid fa-chevron-down text-red-600 text-lg group-hover:translate-y-0.5 transition-transform"></i>
+                                </div>
+                            </div>
+                            <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white font-black text-center py-1.5 px-4 text-sm md:text-base outline-none shadow-sm rounded-md transition-all flex items-center justify-center gap-2 active:scale-95 shrink-0">
+                                <i class="fa-solid fa-print"></i> PRINT
+                            </button>
                         </div>
-                    </div>
+
+                        <div class="show-on-print mb-6 mt-2 text-center text-black">
+                            <h1 class="text-3xl font-black tracking-widest uppercase">${titleText}</h1>
+                            <p class="text-lg mt-1 font-medium">As of ${printDate}</p>
+                        </div>
                 `;
 
                 let displayYears = cfaFilterYear === 'All' ? allYears : [cfaFilterYear];
                 
                 let cocTabClass = acceptanceSubTab === 'coc' 
-                    ? "py-1.5 border-b-2 border-orange-500 bg-gradient-to-b from-orange-300 to-orange-500 text-black font-black text-base md:text-xl tracking-wider cursor-pointer shadow-inner" 
-                    : "py-1.5 border-b-2 border-r-2 border-gray-400 bg-gradient-to-b from-gray-200 to-gray-300 text-black font-black text-base md:text-xl tracking-wider cursor-pointer hover:brightness-95";
+                    ? "py-1.5 border-b-2 border-orange-500 bg-gradient-to-b from-orange-300 to-orange-500 text-black font-black text-base md:text-xl tracking-wider cursor-pointer shadow-inner no-print" 
+                    : "py-1.5 border-b-2 border-r-2 border-gray-400 bg-gradient-to-b from-gray-200 to-gray-300 text-black font-black text-base md:text-xl tracking-wider cursor-pointer hover:brightness-95 no-print";
                     
                 let cfaTabClass = acceptanceSubTab === 'cfa' 
-                    ? "py-1.5 border-b-2 border-orange-500 bg-gradient-to-b from-orange-300 to-orange-500 text-black font-black text-base md:text-xl tracking-wider cursor-pointer shadow-inner" 
-                    : "py-1.5 border-b-2 border-l-2 border-gray-400 bg-gradient-to-b from-gray-200 to-gray-300 text-black font-black text-base md:text-xl tracking-wider cursor-pointer hover:brightness-95";
+                    ? "py-1.5 border-b-2 border-orange-500 bg-gradient-to-b from-orange-300 to-orange-500 text-black font-black text-base md:text-xl tracking-wider cursor-pointer shadow-inner no-print" 
+                    : "py-1.5 border-b-2 border-l-2 border-gray-400 bg-gradient-to-b from-gray-200 to-gray-300 text-black font-black text-base md:text-xl tracking-wider cursor-pointer hover:brightness-95 no-print";
 
                 html += `
                     <table class="w-full text-center border-collapse text-sm md:text-base font-bold text-[#0f3b75] bg-white shadow-md mb-6">
                         <thead>
-                            <tr>
+                            <tr class="show-on-print">
+                                <th colspan="5" class="py-1.5 bg-[#f4a261] text-black font-black text-xl md:text-2xl tracking-widest uppercase border border-black" style="-webkit-print-color-adjust: exact; print-color-adjust: exact;">ACCEPTANCE</th>
+                            </tr>
+                            <tr class="no-print">
                                 <th colspan="3" class="${cocTabClass}" onclick="switchAcceptanceSubTab('coc')">COC</th>
                                 <th colspan="2" class="${cfaTabClass}" onclick="switchAcceptanceSubTab('cfa')">CFA</th>
                             </tr>
@@ -4245,6 +4773,8 @@ window.changeBillingSubConFilter = function(val) {
                         grandWith += sum.withCoc;
                         grandWo += sum.woCoc;
 
+                        if (sum.woCoc === 0) return; // Hide year if no data in w/o COC
+
                         html += `
                             <tr class="border-b border-gray-200 hover:bg-gray-50 transition-colors">
                                 <td class="py-1.5 px-1 md:px-2 border-r border-dotted border-red-500 font-black text-lg md:text-xl text-[#0f3b75]">${y}</td>
@@ -4260,6 +4790,8 @@ window.changeBillingSubConFilter = function(val) {
                         grandCompletedOrCoc += sum.coc;
                         grandWith += sum.withCfa;
                         grandWo += sum.woCfa;
+
+                        if (sum.woCfa === 0) return; // Hide year if no data in w/o CFA
 
                         html += `
                             <tr class="border-b border-gray-200 hover:bg-gray-50 transition-colors">
@@ -4306,14 +4838,14 @@ window.changeBillingSubConFilter = function(val) {
                         const projects = grouped[pe];
 
                         html += `
-                            <div class="w-full flex flex-col shadow-md mb-6">
-                                <div class="${theme.header} px-4 py-1.5 font-black text-lg md:text-xl tracking-tight shadow-sm z-10 relative flex justify-between items-center">
+                            <div class="w-full flex flex-col shadow-md mb-6 print-project-container">
+                                <div class="${theme.header} px-4 py-1.5 font-black text-lg md:text-xl tracking-tight shadow-sm z-10 relative flex justify-between items-center print-pe-header">
                                     <span>${pe}</span>
-                                    <span class="text-red-600 drop-shadow-[0_1px_1px_rgba(255,255,255,0.7)] text-xl md:text-2xl">${projects.length}</span>
+                                    <span class="text-red-600 drop-shadow-[0_1px_1px_rgba(255,255,255,0.7)] text-xl md:text-2xl print:text-red-800">${projects.length}</span>
                                 </div>
-                                <table class="w-full text-center border-collapse text-sm font-bold text-black bg-white">
+                                <table class="w-full text-center border-collapse text-sm font-bold text-black bg-white print-project-table">
                                     <thead>
-                                        <tr class="bg-[#fff9f2] italic text-xs md:text-sm">
+                                        <tr class="bg-[#fff9f2] italic text-xs md:text-sm print:bg-[#fff9f2]">
                         `;
 
                         if (acceptanceSubTab === 'coc') {
@@ -4375,6 +4907,7 @@ window.changeBillingSubConFilter = function(val) {
                         html += `</tbody></table></div>`;
                     });
                 }
+                html += `</div>`; // Close #acceptance-print-area wrapper
                 container.innerHTML = html;
             }
 
@@ -4599,6 +5132,123 @@ window.changeBillingSubConFilter = function(val) {
                         html += `</tbody></table></div>`;
                     });
                }
+                container.innerHTML = html;
+            }
+
+            // -------------------------------------------------------------
+            // UPLOAD PHOTOS VIEW
+            // -------------------------------------------------------------
+            else if (mainView === 'upload_photos') {
+                const allYears = [...new Set(appPhotosData.map(item => item.year))].filter(Boolean).sort().reverse();
+                const allPEs = [...new Set(appPhotosData.map(item => item.pe))].filter(Boolean).sort();
+                const allStatuses = [...new Set(appPhotosData.map(item => item.status))].filter(Boolean).sort();
+
+                let html = `
+                    <div class="w-full flex flex-col gap-2 mb-4">
+                        <div class="relative w-full">
+                            <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <input type="text" placeholder="Search Contract ID, Project, Contractor..." value="${appSearchQuery}" class="w-full border-2 border-orange-500 pl-10 pr-3 py-1.5 rounded-md text-sm md:text-base font-bold outline-none text-slate-700 shadow-sm" onkeyup="debounceAppSearch(this.value)">
+                        </div>
+
+                        <div class="flex flex-col md:flex-row gap-2">
+                            <select onchange="changeAppFilter('year', this.value)" class="flex-1 border-2 border-orange-500 text-[#0f3b75] font-black text-center py-1.5 text-sm md:text-base outline-none cursor-pointer shadow-sm bg-white rounded-md">
+                                <option value="All" ${appFilterYear === 'All' ? 'selected' : ''}>All Years</option>
+                                ${allYears.map(y => `<option value="${y}" ${appFilterYear === String(y) ? 'selected' : ''}>${y}</option>`).join('')}
+                            </select>
+                            <select onchange="changeAppFilter('pe', this.value)" class="flex-1 border-2 border-orange-500 text-[#0f3b75] font-black text-center py-1.5 text-sm md:text-base outline-none cursor-pointer shadow-sm bg-white rounded-md">
+                                <option value="All">All PEs</option>
+                                ${allPEs.map(pe => `<option value="${pe}" ${appFilterPe===pe?'selected':''}>${pe}</option>`).join('')}
+                            </select>
+                            <select onchange="changeAppFilter('status', this.value)" class="flex-1 border-2 border-orange-500 text-[#0f3b75] font-black text-center py-1.5 text-sm md:text-base outline-none cursor-pointer shadow-sm bg-white rounded-md">
+                                <option value="All">All Status</option>
+                                ${allStatuses.map(s => `<option value="${s}" ${appFilterStatus===s?'selected':''}>${s}</option>`).join('')}
+                            </select>
+                        </div>
+                    </div>
+                `;
+
+                let filteredApp = appPhotosData.filter(item => {
+                    const matchYear = appFilterYear === 'All' || item.year === appFilterYear;
+                    const matchPe = appFilterPe === 'All' || item.pe === appFilterPe;
+                    const matchStatus = appFilterStatus === 'All' || item.status === appFilterStatus;
+                    let matchSearch = true;
+                    if (appSearchQuery) {
+                        const sq = appSearchQuery.toLowerCase();
+                        matchSearch = (item.contractId && item.contractId.toLowerCase().includes(sq)) ||
+                                      (item.projectName && item.projectName.toLowerCase().includes(sq)) ||
+                                      (item.contractor && item.contractor.toLowerCase().includes(sq));
+                    }
+                    return matchYear && matchPe && matchStatus && matchSearch;
+                });
+
+                if (filteredApp.length === 0) {
+                    html += `<div class="text-center py-10 font-black text-slate-500 opacity-60"><i class="fa-solid fa-folder-open text-4xl mb-3 block"></i> No projects found matching this criteria!</div>`;
+                } else {
+                    const groupedApp = {};
+                    filteredApp.forEach(item => {
+                        if(!groupedApp[item.pe]) groupedApp[item.pe] = [];
+                        groupedApp[item.pe].push(item);
+                    });
+
+                    const sortedPEs = Object.keys(groupedApp).sort();
+                    
+                    const formatPhotoFrac = (rawStr, max) => {
+                        let count = 0;
+                        
+                        // Count the file IDs by splitting the " | " separator
+                        if (rawStr && rawStr !== '-' && rawStr.trim() !== '') {
+                            const parts = rawStr.split('|').map(p => p.trim()).filter(p => p !== '');
+                            count = parts.length;
+                        }
+                        
+                        const displayStr = `${count}/${max}`;
+                        
+                        // Color logic: Green if attained (count >= max), Red if not
+                        if (count >= max) {
+                            return `<span class="text-emerald-600 font-black">${displayStr}</span>`;
+                        } else {
+                            return `<span class="text-red-600 font-black">${displayStr}</span>`;
+                        }
+                    };
+
+                    sortedPEs.forEach((pe, index) => {
+                        const theme = PE_THEMES[index % PE_THEMES.length];
+                        const items = groupedApp[pe];
+
+                        html += `
+                            <div class="w-full flex flex-col shadow-md mb-6">
+                                <div class="${theme.header} px-4 py-1.5 font-black text-lg md:text-xl tracking-tight shadow-sm z-10 relative flex justify-between items-center">
+                                    <span>${pe}</span>
+                                    <span class="text-red-600 drop-shadow-[0_1px_1px_rgba(255,255,255,0.7)] text-xl md:text-2xl">${items.length}</span>
+                                </div>
+                                <table class="w-full text-center border-collapse text-sm font-bold text-black bg-white">
+                                    <thead>
+                                        <tr class="bg-[#fff9f2] italic text-[11px] md:text-sm border-b border-orange-200">
+                                            <th class="py-2 px-1 dotted-border font-extrabold text-black w-[28%]">Contract ID</th>
+                                            <th class="py-2 px-1 dotted-border font-extrabold text-black w-[24%]">Mobilization</th>
+                                            <th class="py-2 px-1 dotted-border font-extrabold text-black w-[24%]">On-going</th>
+                                            <th class="py-2 px-1 font-extrabold text-black w-[24%]">Completed</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                        `;
+
+                        items.forEach((p, idx) => {
+                            const rowColor = idx % 2 === 0 ? theme.rowOdd : theme.rowEven;
+                            const uniqueId = `app-details-${index}-${idx}`;
+                            html += `
+                                <tr class="${rowColor} border-t border-gray-300/50 cursor-pointer hover:brightness-95 transition-all text-black" onclick="toggleDetails('${uniqueId}')">
+                                    <td class="py-2 px-1 dotted-border font-extrabold tracking-wider text-[12px] md:text-base">${p.contractId}</td>
+                                    <td class="py-2 px-1 dotted-border text-sm md:text-lg">${formatPhotoFrac(p.mobilization, 3)}</td>
+                                    <td class="py-2 px-1 dotted-border text-sm md:text-lg">${formatPhotoFrac(p.ongoing, 10)}</td>
+                                    <td class="py-2 px-1 text-sm md:text-lg">${formatPhotoFrac(p.completed, 5)}</td>
+                                </tr>
+                                ${generateDetailsRow(uniqueId, 4, p)}
+                            `;
+                        });
+                        html += `</tbody></table></div>`;
+                    });
+                }
                 container.innerHTML = html;
             }
 
