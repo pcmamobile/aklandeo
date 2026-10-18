@@ -414,7 +414,7 @@
             </div>
             <div class="overflow-y-auto w-full p-4 bg-slate-100 flex-1 shadow-inner">
                 <p class="text-xs text-slate-500 font-bold mb-3 italic px-1">Note: Enter the specific Quantity and Unit Cost directly inside the text boxes.</p>
-                <div class="w-full text-left border-collapse table-fixed bg-white shadow-md border-2 border-slate-300 rounded-xl overflow-hidden">
+                <div class="w-full text-left border-collapse table-fixed bg-white shadow-md border-2 border-slate-300 rounded-xl overflow-hidden flex flex-col">
                     <div class="grid grid-cols-[26%_17%_17%_20%_20%] bg-slate-200 text-slate-700 font-extrabold text-[10px] sm:text-[11px] tracking-wide uppercase shadow-sm z-10 relative border-b-2 border-slate-300">
                         <div class="py-2.5 px-3">Item No.</div>
                         <div class="py-2.5 px-2 text-right border-l border-slate-300">Orig Qty</div>
@@ -423,6 +423,11 @@
                         <div class="py-2.5 px-2 text-center border-l border-slate-300 bg-amber-100 text-amber-800">Rev Cost</div>
                     </div>
                     <div id="vo-editor-tbody" class="flex flex-col divide-y divide-slate-200"></div>
+                    
+                    <!-- NEW BUTTON: ADD EXTRA WORK ORDER -->
+                    <button onclick="addRowInVoEditor()" class="btn-3d w-full py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-black text-[11px] uppercase tracking-widest flex justify-center items-center gap-2 border-t-2 border-slate-300">
+                        <i class="fa-solid fa-plus-circle text-lg"></i> Add Extra Work Order
+                    </button>
                 </div>
             </div>
         </div>
@@ -2187,15 +2192,27 @@
                     const percParts = (appState.contractRowData.values[monthlyPercColIdx] || '').split('|').map(p => p.trim());
                     while (percParts.length <= actualDiff) percParts.push('');
                     
-                    // BACKFILL MISSING PREVIOUS MONTHS
                     for(let i=0; i<actualDiff; i++) {
                         if(!percParts[i] || percParts[i].trim() === '') {
                             percParts[i] = (i > 0 && percParts[i-1] !== '') ? percParts[i-1] : '0.00';
                         }
                     }
-                    
                     percParts[actualDiff] = actualPercentNum.toFixed(2);
                     payload.push({ range: `SWA!${colToLetter(monthlyPercColIdx)}${rowNumber}`, values: [[percParts.join('|')]] });
+                }
+
+                // ================= EXACT WEEKLY(%) RECALCULATION =================
+                const weeklyPercColIdx = appState.headers.findIndex(h => String(h || '').toUpperCase().replace(/\s/g, '') === 'WEEKLY(%)');
+                if (weeklyPercColIdx !== -1 && (monthDiff >= 0 || appState.unlockedHistory)) {
+                    const actualDiff = Math.max(0, monthDiff);
+                    const computedWeeklyParts = recalculateAllWeeklyPercentages(actualDiff, appState.activeWeekIndex);
+                    
+                    const existingWeeklyParts = (appState.contractRowData.values[weeklyPercColIdx] || '').split('|').map(p => p.trim());
+                    for(let i=0; i<computedWeeklyParts.length; i++) {
+                        existingWeeklyParts[i] = computedWeeklyParts[i];
+                    }
+                    
+                    payload.push({ range: `SWA!${colToLetter(weeklyPercColIdx)}${rowNumber}`, values: [[existingWeeklyParts.join('|')]] });
                 }
 
                 const scheduleColIdx = appState.headers.findIndex(h => String(h || '').toUpperCase().trim() === 'SCHEDULE');
@@ -2348,15 +2365,27 @@
                     const percParts = (appState.contractRowData.values[monthlyPercColIdx] || '').split('|').map(p => p.trim());
                     while (percParts.length <= actualDiff) percParts.push('');
                     
-                    // BACKFILL MISSING PREVIOUS MONTHS
                     for(let i=0; i<actualDiff; i++) {
                         if(!percParts[i] || percParts[i].trim() === '') {
                             percParts[i] = (i > 0 && percParts[i-1] !== '') ? percParts[i-1] : '0.00';
                         }
                     }
-
                     percParts[actualDiff] = actualPercentNum.toFixed(2);
                     payload.push({ range: `SWA!${colToLetter(monthlyPercColIdx)}${rowNumber}`, values: [[percParts.join('|')]] });
+                }
+
+                // ================= EXACT WEEKLY(%) RECALCULATION =================
+                const weeklyPercColIdx = appState.headers.findIndex(h => String(h || '').toUpperCase().replace(/\s/g, '') === 'WEEKLY(%)');
+                if (weeklyPercColIdx !== -1 && (monthDiff >= 0 || appState.unlockedHistory)) {
+                    const actualDiff = Math.max(0, monthDiff);
+                    const computedWeeklyParts = recalculateAllWeeklyPercentages(actualDiff, appState.activeWeekIndex);
+                    
+                    const existingWeeklyParts = (appState.contractRowData.values[weeklyPercColIdx] || '').split('|').map(p => p.trim());
+                    for(let i=0; i<computedWeeklyParts.length; i++) {
+                        existingWeeklyParts[i] = computedWeeklyParts[i];
+                    }
+                    
+                    payload.push({ range: `SWA!${colToLetter(weeklyPercColIdx)}${rowNumber}`, values: [[existingWeeklyParts.join('|')]] });
                 }
 
                 const scheduleColIdx = appState.headers.findIndex(h => String(h || '').toUpperCase().trim() === 'SCHEDULE');
@@ -2661,7 +2690,7 @@
             }
         }
 
-        function addEmptyRowInEditor() {
+        function addEmptyRowInEditor(isFromVo = false) {
             const headers = appState.headers;
             let emptyColIdx = -1;
             for (let c = 0; c < headers.length; c++) {
@@ -2674,7 +2703,7 @@
 
             if (emptyColIdx === -1) {
                 showCustomAlert("No further empty Item columns found in SWA headers to assign a new row.");
-                return;
+                return false;
             }
 
             appState.editorAllocatedCols.push(emptyColIdx);
@@ -2682,7 +2711,9 @@
             
             const blankItem = { parts: ['', '', '', '0', '0', '0', '0'] };
             appendEditorRow(blankItem);
-            restripeEditorRows();
+            
+            if (!isFromVo) restripeEditorRows();
+            return true;
         }
 
         function closeItemsEditorModal() {
@@ -2890,15 +2921,27 @@
                         const percParts = (appState.contractRowData.values[monthlyPercColIdx] || '').split('|').map(p => p.trim());
                         while (percParts.length <= actualDiff) percParts.push('');
                         
-                        // BACKFILL MISSING PREVIOUS MONTHS
                         for(let i=0; i<actualDiff; i++) {
                             if(!percParts[i] || percParts[i].trim() === '') {
                                 percParts[i] = (i > 0 && percParts[i-1] !== '') ? percParts[i-1] : '0.00';
                             }
                         }
-
                         percParts[actualDiff] = actualPercentNum.toFixed(2);
                         payload.push({ range: `SWA!${colToLetter(monthlyPercColIdx)}${appState.contractRowData.rowNumber}`, values: [[percParts.join('|')]] });
+                    }
+
+                    // ================= EXACT WEEKLY(%) RECALCULATION =================
+                    const weeklyPercColIdx = appState.headers.findIndex(h => String(h || '').toUpperCase().replace(/\s/g, '') === 'WEEKLY(%)');
+                    if (weeklyPercColIdx !== -1 && (monthDiff >= 0 || appState.unlockedHistory)) {
+                        const actualDiff = Math.max(0, monthDiff);
+                        const computedWeeklyParts = recalculateAllWeeklyPercentages(actualDiff, appState.activeWeekIndex);
+                        
+                        const existingWeeklyParts = (appState.contractRowData.values[weeklyPercColIdx] || '').split('|').map(p => p.trim());
+                        for(let i=0; i<computedWeeklyParts.length; i++) {
+                            existingWeeklyParts[i] = computedWeeklyParts[i];
+                        }
+                        
+                        payload.push({ range: `SWA!${colToLetter(weeklyPercColIdx)}${appState.contractRowData.rowNumber}`, values: [[existingWeeklyParts.join('|')]] });
                     }
 
                     const scheduleColIdx = appState.headers.findIndex(h => String(h || '').toUpperCase().trim() === 'SCHEDULE');
@@ -3267,7 +3310,8 @@
             menu.classList.toggle('flex');
         }
 
-        function openVoEditor(idx, name) {
+        
+ function openVoEditor(idx, name) {
             toggleVoDropdown();
             currentVoIndex = idx;
             document.getElementById('vo-editor-title').innerHTML = `<i class="fa-solid fa-file-contract mr-2 drop-shadow-sm"></i> EDIT ${name}`;
@@ -3288,8 +3332,8 @@
                 const origQty = qtyData.arr[0] !== undefined && qtyData.arr[0] !== '' ? qtyData.arr[0] : 0;
                 const origCost = costData.arr[0] !== undefined && costData.arr[0] !== '' ? costData.arr[0] : 0;
                 
-                let revQty = qtyData.arr[idx] !== undefined && qtyData.arr[idx] !== '' ? qtyData.arr[idx] : origQty;
-                let revCost = costData.arr[idx] !== undefined && costData.arr[idx] !== '' ? costData.arr[idx] : origCost;
+                let revQty = qtyData.arr[idx] !== undefined && qtyData.arr[idx] !== '' ? qtyData.arr[idx] : qtyData.val;
+                let revCost = costData.arr[idx] !== undefined && costData.arr[idx] !== '' ? costData.arr[idx] : costData.val;
                 
                 const newTr = document.createElement('div');
                 newTr.className = "grid grid-cols-[26%_17%_17%_20%_20%] items-center hover:bg-slate-100 transition-colors border-b border-slate-200";
@@ -3314,6 +3358,38 @@
             document.getElementById('vo-editor-modal').classList.add('flex');
         }
         
+        function addRowInVoEditor() {
+            const success = addEmptyRowInEditor(true);
+            if (!success) return;
+
+            const mainRows = document.getElementById('items-editor-table-body').children;
+            const newMainTr = mainRows[mainRows.length - 1];
+            
+            const tbody = document.getElementById('vo-editor-tbody');
+            const newTr = document.createElement('div');
+            newTr.className = "grid grid-cols-[26%_17%_17%_20%_20%] items-center hover:bg-slate-100 transition-colors border-b border-slate-200";
+            newTr.dataset.rawParts = newMainTr.dataset.rawParts;
+            newTr.dataset.mainRowIndex = mainRows.length - 1;
+            
+            newTr.innerHTML = `
+                <div class="py-1.5 px-1.5 border-r border-slate-200">
+                    <input type="text" placeholder="New Item ID" class="w-full bg-white border border-slate-300 rounded px-1.5 py-1.5 text-[11px] font-bold outline-none focus:border-amber-500 text-slate-800 shadow-inner vo-new-item-no">
+                </div>
+                <div class="py-2.5 px-2 text-right text-[11px] text-slate-500 border-l border-slate-200">0.00</div>
+                <div class="py-2.5 px-2 text-right text-[11px] text-slate-500 border-l border-slate-200">0.00</div>
+                <div class="py-1.5 px-1.5 bg-amber-50/50 border-l border-amber-200">
+                    <input type="text" placeholder="Qty" class="w-full bg-white border-2 border-amber-300 rounded px-1.5 py-1.5 text-right text-[11px] font-bold outline-none focus:border-amber-500 text-amber-900 shadow-inner vo-rev-qty" onfocus="this.value = unformatNumStr(this.value); this.select();" onblur="this.value = formatNumStr(this.value);">
+                </div>
+                <div class="py-1.5 px-1.5 bg-amber-50/50 border-l border-amber-200">
+                    <input type="text" placeholder="Cost" class="w-full bg-white border-2 border-amber-300 rounded px-1.5 py-1.5 text-right text-[11px] font-bold outline-none focus:border-amber-500 text-amber-900 shadow-inner vo-rev-cost" onfocus="this.value = unformatNumStr(this.value); this.select();" onblur="this.value = formatNumStr(this.value);">
+                </div>
+            `;
+            tbody.appendChild(newTr);
+            
+            const container = tbody.parentElement.parentElement;
+            container.scrollTop = container.scrollHeight;
+        }
+
         function closeVoEditor() {
             document.getElementById('vo-editor-modal').classList.add('hidden');
             document.getElementById('vo-editor-modal').classList.remove('flex');
@@ -3330,12 +3406,29 @@
                 const revQtyInput = parseEditVal(tr.querySelector('.vo-rev-qty').value);
                 const revCostInput = parseEditVal(tr.querySelector('.vo-rev-cost').value);
                 
+                const itemNoInput = tr.querySelector('.vo-new-item-no');
+                let isNewVoItem = false;
+                
                 const baseParts = JSON.parse(mainTr.dataset.rawParts);
+                
+                if (itemNoInput && itemNoInput.value.trim() !== '') {
+                    isNewVoItem = true;
+                    mainTr.querySelector('.editor-item-no').value = itemNoInput.value.trim();
+                    baseParts[0] = itemNoInput.value.trim();
+                } else if (itemNoInput && itemNoInput.value.trim() === '') {
+                    return; 
+                }
+                
                 const qtyData = getLatestVo(baseParts[1]);
                 const costData = getLatestVo(baseParts[2]);
                 
                 while (qtyData.arr.length <= currentVoIndex) qtyData.arr.push('');
                 while (costData.arr.length <= currentVoIndex) costData.arr.push('');
+                
+                if (isNewVoItem) {
+                    if (qtyData.arr[0] === '' || qtyData.arr[0] === undefined) qtyData.arr[0] = 0;
+                    if (costData.arr[0] === '' || costData.arr[0] === undefined) costData.arr[0] = 0;
+                }
                 
                 qtyData.arr[currentVoIndex] = revQtyInput;
                 costData.arr[currentVoIndex] = revCostInput;
@@ -3352,7 +3445,8 @@
             editorIsDirty = true;
             closeVoEditor();
             showToast("VO Configured", "Variation Order temporarily applied. Click 'Apply Changes' in the main editor to save.", "success");
-        }
+        }       
+        
 
         document.addEventListener('click', function(e) {
             const menu = document.getElementById('vo-dropdown-menu');
@@ -3688,6 +3782,93 @@
                 }
             });
         }
+		
+		// ========================================================
+        // HISTORICAL WEEKLY PERCENTAGE CALCULATOR
+        // ========================================================
+        function recalculateAllWeeklyPercentages(targetMonthDiff, targetWeekIndex) {
+            const contractVo = appState.voLookupMap[appState.selectedContractId] || { amount: 0 };
+            const contractAmount = contractVo.amount;
+            if (contractAmount <= 0) return [];
+
+            const headers = appState.headers;
+            const contractColIndex = findContractHeaderCol(headers);
+            const excludedCols = ['REMARKS', 'BARCHART', 'SUSPENSION', 'TERMINATED'];
+            
+            const validItems = [];
+            const rowNumber = appState.contractRowData.rowNumber;
+            const rowValues = appState.contractRowData.values;
+
+            // 1. Gather all item data (including unsaved edits)
+            for (let c = 0; c < rowValues.length; c++) {
+                if (c === contractColIndex) continue;
+                const colHeader = String(headers[c] || '').trim();
+                if (excludedCols.includes(colHeader.toUpperCase())) continue;
+                
+                const cacheKey = `${c}_${rowNumber}`;
+                const cellVal = appState.modifiedCells[cacheKey] 
+                                ? appState.modifiedCells[cacheKey].parts.join('|') 
+                                : String(rowValues[c] || '').trim();
+                
+                if ((colHeader.toUpperCase().startsWith('ITEM') && cellVal !== "" && cellVal.includes('|')) || appState.modifiedCells[cacheKey]) {
+                    let parts = cellVal.split('|').map(p => p.trim());
+                    validItems.push({ parts: parts });
+                }
+            }
+
+            let weeklyPartsArray = [];
+            
+            // 2. Mathematically rebuild every past month and week
+            for (let m = 0; m <= targetMonthDiff; m++) {
+                let monthWeeks = ['', '', '', ''];
+                let maxW = (m === targetMonthDiff) ? targetWeekIndex : 3;
+                
+                for (let w = 0; w <= maxW; w++) {
+                    let weekAmount = 0;
+                    
+                    for (let item of validItems) {
+                        const parts = item.parts;
+                        const costData = getLatestVo(parts[2]);
+                        let unitCost = costData.val;
+                        if (unitCost === 0) {
+                            const lookupInfo = appState.itemsLookupMap[parts[0]] || { unitCost: 0 };
+                            unitCost = lookupInfo.unitCost || 0;
+                        }
+
+                        let itemAcc = 0;
+                        
+                        // Sum completed previous months
+                        for (let pastM = 0; pastM < m; pastM++) {
+                            itemAcc += parseAccomplishmentVal(parts[7 + pastM]);
+                        }
+                        
+                        // Sum the weeks inside the evaluated month
+                        const mStr = String(parts[7 + m] || '');
+                        if (mStr.includes(',')) {
+                            const sp = mStr.split(',');
+                            for (let pw = 0; pw <= w; pw++) {
+                                if (sp[pw] && sp[pw].trim() !== '') {
+                                    const parsed = parseFloat(sp[pw].trim().replace(/[^0-9.-]+/g, ""));
+                                    if (!isNaN(parsed)) itemAcc += parsed;
+                                }
+                            }
+                        } else {
+                            if (w === 3) itemAcc += parseAccomplishmentVal(mStr);
+                        }
+                        
+                        weekAmount += (itemAcc * unitCost);
+                    }
+                    
+                    let pct = (weekAmount / contractAmount) * 100;
+                    monthWeeks[w] = pct.toFixed(2);
+                }
+                
+                weeklyPartsArray.push(monthWeeks.join(','));
+            }
+            
+            return weeklyPartsArray;
+        }
+		
 		
     </script>
 </body>

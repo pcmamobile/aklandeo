@@ -1486,10 +1486,10 @@
         let bg = "#777";
         if (tt === "completed (pcma)" || tt === "pcma") bg = "#2563eb";
         else if (tt === "completed") bg = "#16a34a";
-        else if (tt === "on-going") bg = "#f97316";
+        else if (tt === "ongoing") bg = "#f97316";
         else if (tt === "100%") bg = "#14b8a6";
         else if (tt === "suspended") bg = "#dc2626"; /* Red */
-        else if (tt === "nys") bg = "#9333ea";       /* Purple */
+        else if (tt === "not yet started") bg = "#9333ea";       /* Purple */
         else if (tt === "terminated") bg = "#000000"; /* Black */
         statusDiv.innerHTML = `<span class="status" style="background:${bg}">${statusText}</span>`;
         content.appendChild(statusDiv);

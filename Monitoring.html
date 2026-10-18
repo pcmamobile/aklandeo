@@ -2090,16 +2090,28 @@ window.toggleActionMenu = function(menuId) {
             if (suspColIdx !== -1) {
                 const suspStr = String(row[suspColIdx] || '');
                 if (suspStr) {
-                    suspensions = suspStr.split(',').map(s => {
-                        const p = s.split('|');
-                        const sStart = p[0] ? new Date(p[0].trim()) : null;
-                        const sEnd = p[1] && p[1].trim() !== '' ? new Date(p[1].trim()) : null;
-                        return { suspend: (sStart && !isNaN(sStart.getTime())) ? sStart : null, resume: (sEnd && !isNaN(sEnd.getTime())) ? sEnd : null };
-                    }).filter(s => s.suspend !== null);
+                suspensions = suspStr.split(',').map(s => {
+                    const p = s.split('|');
+                    const sStart = p[0] ? new Date(p[0].trim()) : null;
+                    const sEnd = p[1] && p[1].trim() !== '' ? new Date(p[1].trim()) : null;
+                    return { suspend: (sStart && !isNaN(sStart.getTime())) ? sStart : null, resume: (sEnd && !isNaN(sEnd.getTime())) ? sEnd : null };
+                }).filter(s => s.suspend !== null);
+            }
+        }
+
+        const termColIdx = headers.findIndex(h => String(h || '').toUpperCase().trim() === 'TERMINATED');
+        let terminationDate = null;
+        if (termColIdx !== -1) {
+            const termStr = String(row[termColIdx] || '').trim();
+            if (termStr) {
+                const parsedTerm = new Date(termStr);
+                if (!isNaN(parsedTerm.getTime())) {
+                    terminationDate = parsedTerm;
                 }
             }
-            
-            const targetYear = START_YEAR + Math.floor(mOffset / 12);
+        }
+        
+        const targetYear = START_YEAR + Math.floor(mOffset / 12);
             const targetMonth = mOffset % 12;
             const weekRanges = [
                 { start: new Date(targetYear, targetMonth, 1), end: new Date(targetYear, targetMonth, 7, 23, 59, 59) },
@@ -2115,12 +2127,17 @@ window.toggleActionMenu = function(menuId) {
                 const wkEnd = weekRanges[w].end;
                 
                 if (wkStart.getTime() > todayTime) {
-                    weeks[w] = 'future';
-                    continue;
-                }
+                weeks[w] = 'future';
+                continue;
+            }
 
-                const isSuspended = suspensions.some(s => {
-                    const sStart = s.suspend;
+            if (terminationDate && wkEnd >= terminationDate) {
+                weeks[w] = 'terminated';
+                continue;
+            }
+
+            const isSuspended = suspensions.some(s => {
+                const sStart = s.suspend;
                     const sEnd = s.resume || new Date(2099, 11, 31); 
                     return sStart <= wkEnd && sEnd >= wkStart;
                 });
@@ -2140,8 +2157,8 @@ window.toggleActionMenu = function(menuId) {
                     if (tpStr.includes(',')) {
                         const sp = tpStr.split(',');
                         for(let i=0; i<4; i++) {
-                            if (weeks[i] === 'future' || weeks[i] === 'suspended') continue;
-                            const rawVal = sp[i] ? sp[i].trim() : "";
+                        if (weeks[i] === 'future' || weeks[i] === 'suspended' || weeks[i] === 'terminated') continue;
+                        const rawVal = sp[i] ? sp[i].trim() : "";
                             if (rawVal !== "") {
                                 const parsed = parseFloat(rawVal.replace(/[^0-9.-]+/g, ""));
                                 if (!isNaN(parsed)) {
@@ -2151,7 +2168,7 @@ window.toggleActionMenu = function(menuId) {
                             }
                         }
                     } else {
-                        if (weeks[0] !== 'future' && weeks[0] !== 'suspended') {
+                        if (weeks[0] !== 'future' && weeks[0] !== 'suspended' && weeks[0] !== 'terminated') {
                             const rawVal = tpStr.trim();
                             if (rawVal !== "") {
                                 const parsed = parseFloat(rawVal.replace(/[^0-9.-]+/g, ""));
@@ -2166,13 +2183,13 @@ window.toggleActionMenu = function(menuId) {
             }
 
             // Convert missing, zero, suspended, AND updated icons to "Completed" if actual percentage is >= 100%
-            if (actualPercent >= 99.99) {
-                for (let i = 0; i < 4; i++) {
-                    if (weeks[i] !== 'future' && weeks[i] !== 'before_ntp') {
-                        weeks[i] = 'completed';
-                    }
+        if (actualPercent >= 99.99) {
+            for (let i = 0; i < 4; i++) {
+                if (weeks[i] !== 'future' && weeks[i] !== 'before_ntp' && weeks[i] !== 'terminated') {
+                    weeks[i] = 'completed';
                 }
             }
+        }
 
             return weeks;
         }
@@ -3024,6 +3041,7 @@ window.changeBillingSubConFilter = function(val) {
             if (status === 'updated') return `<span class="text-emerald-500 font-extrabold text-lg">✓</span>`;
             if (status === 'completed') return `<span class="text-blue-600 font-black text-base md:text-lg drop-shadow-sm">C</span>`;
             if (status === 'suspended') return `<span class="text-[#7030a0] font-black text-base md:text-lg drop-shadow-sm">S</span>`;
+            if (status === 'terminated') return `<span class="text-red-800 font-black text-base md:text-lg drop-shadow-sm">T</span>`;
             if (status === 'zero') return `<span class="text-orange-500 font-black text-base md:text-lg drop-shadow-sm">N</span>`;
             if (status === 'before_ntp' || status === 'future') return `<span class="text-gray-400 font-extrabold text-sm">-</span>`;
             return `<span class="text-rose-600 font-extrabold text-lg">✘</span>`;
@@ -4200,6 +4218,8 @@ window.changeBillingSubConFilter = function(val) {
                                     matchStatus = wData.includes('zero') || wData.includes('missing');
                                 } else if (weeklyFilterMark === 'Suspended') {
                                     matchStatus = wData.includes('suspended');
+                                } else if (weeklyFilterMark === 'Terminated') {
+                                    matchStatus = wData.includes('terminated');
                                 }
 
                                 if (matchStatus) filteredData.push(project);
@@ -4240,6 +4260,7 @@ window.changeBillingSubConFilter = function(val) {
                                     <option value="On-going" ${weeklyFilterMark === 'On-going' ? 'selected' : ''}>On-going (✓)</option>
                                     <option value="No Accomplishment" ${weeklyFilterMark === 'No Accomplishment' ? 'selected' : ''}>No Accomplishment (N / ✘)</option>
                                     <option value="Suspended" ${weeklyFilterMark === 'Suspended' ? 'selected' : ''}>Suspended (S)</option>
+                                    <option value="Terminated" ${weeklyFilterMark === 'Terminated' ? 'selected' : ''}>Terminated (T)</option>
                                 </select>
                             </div>
                         `;
