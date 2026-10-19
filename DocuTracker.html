@@ -201,7 +201,7 @@
         }
     </style>
 </head>
-<body class="min-h-screen relative flex flex-col">
+<body class="h-screen overflow-hidden relative flex flex-col">
     
     <!-- TOAST NOTIFICATIONS CONTAINER -->
     <div id="toast-container" class="fixed bottom-4 right-4 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
@@ -233,8 +233,8 @@
     </div>
 
     <!-- Dashboard View -->
-    <div id="dashboard-view" class="hidden flex-1 flex flex-col p-2 md:p-8">
-		<div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 md:mb-8 box-3d p-3 md:p-5 md:px-8">
+    <div id="dashboard-view" class="hidden flex-1 flex flex-col p-2 md:p-8 overflow-hidden">
+		<div class="sticky top-2 md:top-8 z-40 flex flex-col md:flex-row justify-between items-start md:items-center mb-4 md:mb-8 box-3d p-3 md:p-5 md:px-8">
             <div class="flex items-center gap-3 md:gap-4 w-full md:w-auto mb-3 md:mb-0">
                 
                 <!-- Circular Back Button -->
@@ -253,12 +253,15 @@
                 </div>
             </div>
             <!-- Mobile 4-column / Desktop flex header buttons -->
-            <div class="grid grid-cols-4 md:flex gap-1.5 md:gap-3 w-full md:w-auto justify-start md:justify-end">
+            <div class="grid grid-cols-5 md:flex gap-1.5 md:gap-3 w-full md:w-auto justify-start md:justify-end">
                 <button onclick="openSearchView()" class="btn-3d py-1.5 md:py-2.5 px-2 md:px-5 text-[10px] sm:text-xs md:text-base bg-gradient-to-r from-emerald-400 to-teal-500 shadow-[0_4px_0_#0f766e] md:shadow-[0_5px_0_#0f766e] text-center flex flex-col md:flex-row items-center justify-center">
                     <i class="fa-solid fa-magnifying-glass md:mr-2 mb-0.5 md:mb-0"></i><span class="hidden md:inline">Search</span>
                 </button>
                 <button onclick="manualRefresh()" class="btn-3d py-1.5 md:py-2.5 px-2 md:px-5 text-[10px] sm:text-xs md:text-base bg-gradient-to-r from-blue-400 to-indigo-400 shadow-[0_4px_0_#6366f1] md:shadow-[0_5px_0_#6366f1] text-center flex flex-col md:flex-row items-center justify-center">
                     <i class="fa-solid fa-arrows-rotate md:mr-2 mb-0.5 md:mb-0"></i><span class="hidden md:inline">Refresh</span>
+                </button>
+                <button id="btn-toggle-stats" onclick="toggleStats()" class="btn-3d py-1.5 md:py-2.5 px-2 md:px-5 text-[10px] sm:text-xs md:text-base bg-gradient-to-r from-amber-400 to-orange-400 shadow-[0_4px_0_#d97706] md:shadow-[0_5px_0_#d97706] text-center flex flex-col md:flex-row items-center justify-center">
+                    <i class="fa-solid fa-chart-pie md:mr-2 mb-0.5 md:mb-0"></i><span class="hidden md:inline">Stats</span>
                 </button>
                 <button onclick="openChangePasswordModal()" class="btn-3d py-1.5 md:py-2.5 px-2 md:px-5 text-[10px] sm:text-xs md:text-base bg-gradient-to-r from-purple-400 to-fuchsia-400 shadow-[0_4px_0_#a21caf] md:shadow-[0_5px_0_#a21caf] text-center flex flex-col md:flex-row items-center justify-center">
                     <i class="fa-solid fa-key md:mr-2 mb-0.5 md:mb-0"></i><span class="hidden md:inline">Password</span>
@@ -269,7 +272,7 @@
             </div>
         </div>
 
-        <div id="top-stats-container" class="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-6 mb-4 md:mb-8">
+        <div id="top-stats-container" class="hidden grid-cols-2 md:grid-cols-4 gap-2 md:gap-6 mb-4 md:mb-8">
             <div class="box-3d box-3d-color-1 stat-box p-3 md:p-6 flex items-center justify-between">
                 <div><p class="text-[10px] md:text-sm font-bold text-blue-400/80 uppercase tracking-wider">Received</p><h2 class="text-xl md:text-4xl font-extrabold mt-0.5 md:mt-1 text-slate-700" id="stat-received">0</h2></div>
                 <div class="w-8 h-8 md:w-12 md:h-12 rounded-full bg-blue-100 flex items-center justify-center"><i class="fa-solid fa-inbox text-sm md:text-2xl text-blue-400"></i></div>
@@ -290,7 +293,7 @@
 
         <div class="box-3d flex-1 flex flex-col overflow-hidden bg-white/70">
             <div id="tabs-container"></div>
-            <div class="p-1 md:p-6 flex-1 overflow-auto rounded-b-2xl relative bg-white/40">
+            <div class="p-1 md:p-6 flex-1 flex flex-col overflow-hidden rounded-b-2xl relative bg-white/40">
                 
                 <div id="receiving-form-container" class="hidden max-w-2xl mx-auto bg-white/90 backdrop-blur-md p-4 md:p-8 rounded-xl md:rounded-2xl border border-white shadow-xl mt-2 md:mt-0">
                     <h3 class="text-lg md:text-2xl font-bold mb-4 md:mb-6 text-indigo-700 flex items-center"><span class="bg-indigo-100 text-indigo-500 p-1.5 md:p-2 rounded-lg mr-2 md:mr-3"><i class="fa-solid fa-cloud-arrow-up"></i></span> Upload New Document</h3>
@@ -376,14 +379,34 @@
                     </form>
                 </div>
 
-                <div id="data-table-container" class="overflow-x-auto hidden w-full px-1 md:px-0 mt-2 md:mt-0 pb-2 md:pb-4">
-                    <table class="w-full text-left border-collapse min-w-full">
-                        <thead id="table-head"></thead>
-                        <tbody id="table-body"></tbody>
-                    </table>
-                    <div id="empty-state" class="hidden text-center py-10 md:py-16 text-slate-400/70">
-                        <i class="fa-regular fa-folder-open text-5xl md:text-7xl mb-4 md:mb-6 text-indigo-200"></i>
-                        <p class="text-sm md:text-lg font-medium tracking-wide">No documents found here.</p>
+                <!-- Left Pane Card List & Pagination + Right Pane PDF -->
+                <div id="data-table-container" class="hidden w-full px-1 md:px-0 mt-2 md:mt-0 pb-2 md:pb-4 flex-col flex-1 min-h-0">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 h-full flex-1">
+                        <!-- Left Pane: Card List & Pagination -->
+                        <div class="col-span-1 border-r border-indigo-100 pr-2 flex flex-col h-full overflow-hidden">
+                            <div class="overflow-y-auto w-full flex-1 pr-2 hide-scrollbar">
+                                <div id="table-body" class="flex flex-col w-full"></div>
+                                <div id="empty-state" class="hidden text-center py-10 md:py-16 text-slate-400/70">
+                                    <i class="fa-regular fa-folder-open text-5xl md:text-7xl mb-4 md:mb-6 text-indigo-200"></i>
+                                    <p class="text-sm md:text-lg font-medium tracking-wide">No documents found here.</p>
+                                </div>
+                            </div>
+                            <!-- Pagination Controls -->
+                            <div id="pagination-controls" class="hidden justify-between items-center py-3 border-t border-indigo-100 mt-2 shrink-0">
+                                <button onclick="prevPage()" class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-lg text-sm font-bold hover:bg-indigo-200 disabled:opacity-50">&laquo; Prev</button>
+                                <span id="page-indicator" class="text-xs font-bold text-slate-500">Page 1</span>
+                                <button onclick="nextPage()" class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-lg text-sm font-bold hover:bg-indigo-200 disabled:opacity-50">Next &raquo;</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Right Pane: PDF Viewer -->
+                        <div class="hidden lg:flex col-span-2 h-full bg-slate-50 rounded-xl flex-col items-center justify-center border border-slate-200 relative overflow-hidden">
+                            <div id="viewer-placeholder" class="text-center text-slate-400">
+                                <i class="fa-regular fa-file-pdf text-6xl mb-3 text-slate-300"></i>
+                                <p class="text-lg font-medium">Click a document to preview</p>
+                            </div>
+                            <iframe id="document-iframe" class="hidden w-full h-full rounded-xl border-none" src=""></iframe>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -391,8 +414,8 @@
     </div>
 
     <!-- Search View (Advanced Filtering) -->
-    <div id="search-view" class="hidden flex-1 flex flex-col p-2 md:p-8">
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 md:mb-8 box-3d p-3 md:p-5 md:px-8">
+    <div id="search-view" class="hidden flex-1 flex flex-col p-2 md:p-8 overflow-hidden">
+        <div class="sticky top-2 md:top-8 z-40 flex flex-col md:flex-row justify-between items-start md:items-center mb-4 md:mb-8 box-3d p-3 md:p-5 md:px-8">
             <div class="flex items-center gap-3 md:gap-4 w-full md:w-auto mb-3 md:mb-0">
                 <div class="w-10 h-10 md:w-14 md:h-14 bg-gradient-to-br from-teal-100 to-emerald-100 rounded-lg md:rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm border border-white">
                     <i class="fa-solid fa-magnifying-glass text-lg md:text-2xl text-teal-500"></i>
@@ -471,14 +494,31 @@
         </div>
 
         <div class="box-3d flex-1 flex flex-col overflow-hidden bg-white/70 p-1 md:p-6">
-            <div class="overflow-x-auto w-full px-1 md:px-0 pb-2 md:pb-4">
-                <table class="w-full text-left border-collapse min-w-full">
-                    <thead id="search-table-head"></thead>
-                    <tbody id="search-table-body"></tbody>
-                </table>
-                <div id="search-empty-state" class="text-center py-10 md:py-16 text-slate-400/70">
-                    <i class="fa-solid fa-magnifying-glass text-5xl md:text-7xl mb-4 md:mb-6 text-teal-200"></i>
-                    <p class="text-sm md:text-lg font-medium tracking-wide">Enter criteria above to find documents.</p>
+            <div class="w-full px-1 md:px-0 pb-2 md:pb-4 flex-col flex-1 min-h-0">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 h-full flex-1">
+                    <div class="col-span-1 border-r border-indigo-100 pr-2 flex flex-col h-full overflow-hidden">
+                        <div class="overflow-y-auto w-full flex-1 pr-2 hide-scrollbar">
+                            <div id="search-table-body" class="flex flex-col w-full"></div>
+                            <div id="search-empty-state" class="hidden text-center py-10 md:py-16 text-slate-400/70">
+                                <i class="fa-solid fa-magnifying-glass text-5xl md:text-7xl mb-4 md:mb-6 text-teal-200"></i>
+                                <p class="text-sm md:text-lg font-medium tracking-wide">Enter criteria above to find documents.</p>
+                            </div>
+                        </div>
+                        <!-- Search Pagination Controls -->
+                        <div id="search-pagination-controls" class="hidden justify-between items-center py-3 border-t border-indigo-100 mt-2 shrink-0">
+                            <button onclick="prevPage()" class="px-3 py-1 bg-teal-100 text-teal-700 rounded-lg text-sm font-bold hover:bg-teal-200 disabled:opacity-50">&laquo; Prev</button>
+                            <span id="search-page-indicator" class="text-xs font-bold text-slate-500">Page 1</span>
+                            <button onclick="nextPage()" class="px-3 py-1 bg-teal-100 text-teal-700 rounded-lg text-sm font-bold hover:bg-teal-200 disabled:opacity-50">Next &raquo;</button>
+                        </div>
+                    </div>
+                    
+                    <div class="hidden lg:flex col-span-2 h-full bg-slate-50 rounded-xl flex-col items-center justify-center border border-slate-200 relative overflow-hidden">
+                        <div id="search-viewer-placeholder" class="text-center text-slate-400">
+                            <i class="fa-regular fa-file-pdf text-6xl mb-3 text-slate-300"></i>
+                            <p class="text-lg font-medium">Click a document to preview</p>
+                        </div>
+                        <iframe id="search-document-iframe" class="hidden w-full h-full rounded-xl border-none" src=""></iframe>
+                    </div>
                 </div>
             </div>
         </div>
@@ -662,8 +702,17 @@
         let currentUser = null;
         let currentTab = '';
         let autoRefreshTimer = null; 
+        
         let globalTrackerData = []; 
         let globalUsersData = [];
+        
+        let currentPage = 1;
+        const PAGE_SIZE = 20;
+        let currentFilteredDocs = [];
+        let isSearchActive = false;
+
+        // NEW: Track the currently viewed document so silent refresh doesn't wipe it
+        let currentlyViewingRowIndex = null; 
 
         // --- AUTHENTICATION & API WRAPPER ---
         async function apiCall(payload) {
@@ -820,7 +869,64 @@
             }
         }
 
-        function executeSearch() {
+        function toggleStats() {
+            const container = document.getElementById('top-stats-container');
+            if (container.classList.contains('hidden')) {
+                container.classList.remove('hidden');
+                container.classList.add('grid');
+            } else {
+                container.classList.add('hidden');
+                container.classList.remove('grid');
+            }
+        }
+
+        async function viewDocumentInline(fileId, isSearch = false, rowIndex = null) {
+            if(!fileId) return showToast("No file attached to view.", "error");
+
+            // Store the currently viewed row globally
+            currentlyViewingRowIndex = rowIndex;
+
+            // --- Card Highlight Logic ---
+            // Remove highlight from all cards currently in DOM
+            document.querySelectorAll('.doc-card').forEach(card => {
+                card.classList.remove('ring-2', 'ring-indigo-500', 'bg-indigo-50/60', 'border-indigo-400');
+                card.classList.add('bg-white', 'border-slate-200');
+            });
+
+            // Add highlight to clicked card
+            if (rowIndex !== null) {
+                const activeCardId = `card-${isSearch ? 'search-' : ''}${rowIndex}`;
+                const activeCard = document.getElementById(activeCardId);
+                if (activeCard) {
+                    activeCard.classList.remove('bg-white', 'border-slate-200');
+                    activeCard.classList.add('ring-2', 'ring-indigo-500', 'bg-indigo-50/60', 'border-indigo-400');
+                }
+            }
+            // ----------------------------
+
+            const iframe = document.getElementById(isSearch ? 'search-document-iframe' : 'document-iframe');
+            const placeholder = document.getElementById(isSearch ? 'search-viewer-placeholder' : 'viewer-placeholder');
+            
+            placeholder.classList.add('hidden');
+            iframe.classList.remove('hidden');
+            iframe.src = `https://drive.google.com/file/d/${fileId}/preview`;
+            
+            // On mobile devices, open in new tab instead (since viewer is hidden on small screens)
+            if (window.innerWidth < 1024) {
+                window.open(`https://drive.google.com/file/d/${fileId}/view`, '_blank');
+            }
+
+            // Record "Date Viewed by User" automatically if it's new
+            if(currentUser.role === 'User' && rowIndex && !isSearch && currentTab === 'Incoming') {
+                const today = flatpickr.formatDate(new Date(), "F d, Y");
+                try {
+                    await apiCall({ action: 'updateRow', rowIndex: rowIndex, updateFields: { "Date Viewed by User": today } });
+                    manualRefresh(true);
+                } catch(e) {}
+            }
+        }
+
+        function executeSearch(silent = false) {
             const keyword = document.getElementById('search-keyword').value.toLowerCase();
             const origin = document.getElementById('search-origin').value;
             const type = document.getElementById('search-type').value;
@@ -830,162 +936,225 @@
             let results = [];
 
             globalTrackerData.forEach(doc => {
-                // Determine if standard User can see this
                 if (currentUser.role === "User") {
                     const docUsers = String(doc["User"]).toLowerCase().split(',').map(u => u.trim());
                     const isAssigned = docUsers.includes(currentUser.account.toLowerCase()) || docUsers.includes("all users");
-                    if (!isAssigned) return; // Skip
+                    if (!isAssigned) return; 
                 }
 
                 const actualStatus = getDocumentStatus(doc, currentUser.role);
 
-                // Status Filter
                 if (statusFilter && actualStatus !== statusFilter) return;
-
-                // Origin Filter
                 const docOrigin = doc['Origin'] || '';
                 if (origin && docOrigin !== origin) return;
-
-                // Type Filter
                 const docType = doc['Types of Letter'] || '';
                 if (type && docType !== type) return;
 
-                // User Filter (Admin only)
                 if (currentUser.role === "Admin" && userFilter) {
                     const docUsers = String(doc["User"]).toLowerCase();
                     if (!docUsers.includes(userFilter) && !docUsers.includes("all users")) return;
                 }
 
-                // Keyword Filter
                 if (keyword) {
-                    const searchString = `
-                        ${doc['Reference Number']||''} 
-                        ${doc['Title/Description']||''} 
-                        ${doc['Remarks']||''} 
-                        ${doc['User']||''}
-                    `.toLowerCase();
-                    
+                    const searchString = `${doc['Reference Number']||''} ${doc['Title/Description']||''} ${doc['Remarks']||''} ${doc['User']||''}`.toLowerCase();
                     if (!searchString.includes(keyword)) return;
                 }
 
-                // Inject computed status so renderer knows what buttons to show
                 doc._computedStatus = actualStatus;
                 results.push(doc);
             });
 
-            renderSearchResults(results.reverse());
+            isSearchActive = true;
+            currentFilteredDocs = results.reverse();
+            
+            // Only reset page & iframe if it's an EXPLICIT user action (not a background refresh)
+            if (silent !== true) {
+                currentPage = 1;
+                currentlyViewingRowIndex = null;
+                document.getElementById('search-viewer-placeholder').classList.remove('hidden');
+                document.getElementById('search-document-iframe').classList.add('hidden');
+                document.getElementById('search-document-iframe').src = '';
+            }
+
+            renderPaginatedTable('Search', true);
         }
 
-        function renderSearchResults(docs) {
-            const head = document.getElementById('search-table-head');
-            const body = document.getElementById('search-table-body');
-            const emptyState = document.getElementById('search-empty-state');
-            const tableCont = document.getElementById('search-table-head').parentElement;
-            head.innerHTML = ''; body.innerHTML = '';
+        function loadTableData(tabName, silent = false) {
+            let filteredDocs = [];
+            globalTrackerData.forEach(doc => {
+                const isArchived = doc["Archive"] && String(doc["Archive"]).trim().toUpperCase() === "OK";
+                const letterType = doc['Types of Letter'] || '';
+                const needsReply = letterType.includes('(Yes)') || letterType.includes('(Optional)') || letterType === '';
+                let isMatch = false;
 
-            if(docs.length === 0) {
-                emptyState.classList.remove('hidden'); tableCont.classList.add('hidden');
-                return;
-            }
-            emptyState.classList.add('hidden'); tableCont.classList.remove('hidden');
+                if (currentUser.role === "Admin") {
+                    if (tabName === "Archive" && isArchived) isMatch = true;
+                    else if (!isArchived) {
+                        if (tabName === "Action Required" && doc["User"] && !doc["Date for Signature"] && needsReply) isMatch = true;
+                        if (tabName === "For Info" && doc["User"] && !doc["Date for Signature"] && !needsReply) isMatch = true;
+                        if (tabName === "For Signature" && doc["Date for Signature"] && !doc["Reply File ID"]) isMatch = true;
+                        if (tabName === "Approved" && doc["Reply File ID"] && !doc["Date Released/Completed"]) isMatch = true;
+                        if (tabName === "Completed" && doc["Date Released/Completed"]) isMatch = true;
+                    }
+                } 
+                else if (currentUser.role === "User") {
+                    const docUsers = String(doc["User"]).toLowerCase().split(',').map(u => u.trim());
+                    const isAssigned = docUsers.includes(currentUser.account.toLowerCase()) || docUsers.includes("all users");
 
-            let cols = [
-                { key: 'action', label: 'Action' }, 
-                { key: 'status', label: 'Status' }, 
-                { key: 'Title/Description', label: 'Document Details' }, 
-                { key: 'Date Received', label: 'Received' }, 
-                { key: 'Deadline', label: 'Deadline' }
-            ];
-            
-            if(currentUser.role === 'Admin') {
-                cols.push({ key: 'User', label: 'User(s)' });
-            }
-
-            let trH = '<tr>'; cols.forEach(c => trH += `<th class="p-2 md:p-4">${c.label}</th>`); head.innerHTML = trH + '</tr>';
-
-            docs.forEach(doc => {
-                let tr = '<tr class="hover:bg-indigo-50/40 transition-colors">';
-                const tabName = doc._computedStatus;
-
-                cols.forEach(c => {
-                    let cellContent = '';
-                    if (c.key === 'action') {
-                        cellContent = `<div class="flex flex-wrap gap-1.5 md:gap-2">${getActions(tabName, doc)}</div>`;
-                    } else if (c.key === 'status') {
-                        let statusColor = "bg-slate-100 text-slate-600 border-slate-200";
-                        let icon = "fa-layer-group";
-                        if(tabName === "Archive") { statusColor = "bg-gray-100 text-gray-600 border-gray-300"; icon = "fa-box-archive"; }
-                        else if(tabName === "Completed" || tabName === "Approved") { statusColor = "bg-emerald-100 text-emerald-700 border-emerald-300"; icon = "fa-check-double"; }
-                        else if(tabName === "Action Required" || tabName === "Processing" || tabName === "For Signature") { statusColor = "bg-amber-100 text-amber-700 border-amber-300"; icon = "fa-spinner"; }
-                        else if(tabName === "Receiving" || tabName === "Incoming") { statusColor = "bg-blue-100 text-blue-700 border-blue-300"; icon = "fa-inbox"; }
-                        else if(tabName === "For Info") { statusColor = "bg-cyan-100 text-cyan-700 border-cyan-300"; icon = "fa-info-circle"; }
-                        
-                        cellContent = `<span class="${statusColor} text-[9px] md:text-[11px] font-bold px-1.5 md:px-2.5 py-0.5 md:py-1 rounded-md border shadow-sm tracking-wide whitespace-nowrap"><i class="fa-solid ${icon} mr-1 md:mr-1.5 opacity-80"></i>${tabName}</span>`;
-                    } else if (c.key === 'Title/Description') {
-                        let titleText = doc['Title/Description'] || '';
-                        let refNo = doc['Reference Number'] || '';
-                        let letterType = doc['Types of Letter'] || '';
-                        let originVal = doc['Origin'] || '';
-                        
-                        if (!refNo && titleText.includes(' | ')) {
-                            const parts = titleText.split(' | ');
-                            refNo = parts[0];
-                            titleText = parts.slice(1).join(' | ');
-                        }
-                        
-                        let badgesHtml = '';
-                        if (refNo) badgesHtml += `<span class="bg-indigo-100 text-indigo-700 text-[9px] md:text-[11px] font-bold px-1.5 md:px-2 py-0.5 rounded border border-indigo-200 shadow-sm tracking-wide mr-1 md:mr-1.5 mb-1 inline-block"><i class="fa-solid fa-hashtag mr-1 opacity-70"></i>${refNo}</span>`;
-                        if (originVal) badgesHtml += `<span class="bg-blue-100 text-blue-700 text-[9px] md:text-[11px] font-bold px-1.5 md:px-2 py-0.5 rounded border border-blue-200 shadow-sm tracking-wide mr-1 md:mr-1.5 mb-1 inline-block"><i class="fa-solid fa-building mr-1 opacity-70"></i>${originVal}</span>`;
-                        if (letterType) {
-                            let typeBadgeColor = 'bg-slate-100 text-slate-700 border-slate-200';
-                            if (letterType.includes('(Yes)') || letterType.includes('(Optional)')) typeBadgeColor = 'bg-emerald-100 text-emerald-700 border-emerald-200';
-                            else if (letterType.includes('(No)')) typeBadgeColor = 'bg-rose-100 text-rose-700 border-rose-200';
-                            badgesHtml += `<span class="${typeBadgeColor} text-[9px] md:text-[11px] font-bold px-1.5 md:px-2 py-0.5 rounded border shadow-sm tracking-wide mb-1 inline-block"><i class="fa-solid fa-tag mr-1 opacity-70"></i>${letterType}</span>`;
-                        }
-
-                        cellContent = `<div class="flex flex-col items-start gap-1">
-                            <div class="flex flex-wrap items-center">${badgesHtml}</div>
-                            <span class="font-semibold text-slate-800 leading-snug text-xs md:text-sm">${titleText}</span>
-                        </div>`;
-                        
-                    } else {
-                        let v = doc[c.key] || '';
-                        if (c.key === 'Deadline' && v && !['Approved', 'Completed', 'Archive'].includes(tabName)) {
-                            const today = new Date();
-                            today.setHours(0,0,0,0);
-                            const dDate = new Date(v);
-                            
-                            if (!isNaN(dDate)) {
-                                const diffTime = dDate.getTime() - today.getTime();
-                                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                                const fDate = formatCustomDate(v);
-                                let badgeClass = ""; let icon = ""; let daysText = "";
-                                
-                                if (diffDays < 0) {
-                                    const absDays = Math.abs(diffDays);
-                                    badgeClass = "bg-rose-100 text-rose-700 border-rose-300 shadow-md"; icon = "fa-triangle-exclamation"; daysText = `Overdue by ${absDays} day${absDays!==1?'s':''}`;
-                                } else if (diffDays <= 3) {
-                                    badgeClass = "bg-orange-100 text-orange-700 border-orange-300 shadow-md animate-pulse"; icon = "fa-fire"; daysText = `${diffDays} day${diffDays!==1?'s':''} left`;
-                                } else if (diffDays <= 7) {
-                                    badgeClass = "bg-amber-100 text-amber-700 border-amber-300 shadow-sm"; icon = "fa-clock"; daysText = `${diffDays} days left`;
-                                } else {
-                                    badgeClass = "bg-emerald-100 text-emerald-700 border-emerald-300 shadow-sm"; icon = "fa-calendar-check"; daysText = `${diffDays} days`;
-                                }
-                                cellContent = `<span class="${badgeClass} px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-[10px] md:text-[13px] font-bold border inline-flex items-center gap-1 mt-1 md:mt-0 whitespace-nowrap tracking-wide"><i class="fa-solid ${icon}"></i>${fDate} (${daysText})</span>`;
-                            } else { cellContent = v; }
-                        } 
-                        else if (c.key.includes('Date') || v instanceof Date || (typeof v === 'string' && v.includes('T00:00'))) {
-                            cellContent = formatCustomDate(v);
-                        } else {
-                            cellContent = `<span class="text-xs md:text-sm">${v}</span>`;
+                    if (isAssigned) {
+                        if (tabName === "Archive" && isArchived) isMatch = true;
+                        else if (!isArchived) {
+                            if (tabName === "Incoming" && !doc["Date for Signature"]) isMatch = true;
+                            if (tabName === "Processing" && doc["Date for Signature"] && !doc["Reply File ID"]) isMatch = true;
+                            if (tabName === "Completed" && doc["Reply File ID"]) isMatch = true;
                         }
                     }
-                    tr += `<td data-label="${c.label}" class="p-2 md:p-4 whitespace-normal text-xs md:text-sm font-medium md:font-normal text-slate-700">${cellContent}</td>`;
-                });
-                body.innerHTML += tr + '</tr>';
+                }
+                if (isMatch) filteredDocs.push(doc);
             });
+
+            isSearchActive = false;
+            currentFilteredDocs = filteredDocs.reverse();
+            
+            // Only reset page & iframe if it's an EXPLICIT user action (not a background refresh)
+            if (silent !== true) {
+                currentPage = 1;
+                currentlyViewingRowIndex = null;
+                document.getElementById('viewer-placeholder').classList.remove('hidden');
+                document.getElementById('document-iframe').classList.add('hidden');
+                document.getElementById('document-iframe').src = '';
+            }
+
+            renderPaginatedTable(tabName, false);
         }
 
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderPaginatedTable(isSearchActive ? 'Search' : currentTab, isSearchActive);
+            }
+        }
+
+        function nextPage() {
+            const maxPages = Math.ceil(currentFilteredDocs.length / PAGE_SIZE);
+            if (currentPage < maxPages) {
+                currentPage++;
+                renderPaginatedTable(isSearchActive ? 'Search' : currentTab, isSearchActive);
+            }
+        }
+
+        function renderPaginatedTable(tabName, isSearch = false) {
+            const startIndex = (currentPage - 1) * PAGE_SIZE;
+            const paginatedDocs = currentFilteredDocs.slice(startIndex, startIndex + PAGE_SIZE);
+            
+            const maxPages = Math.ceil(currentFilteredDocs.length / PAGE_SIZE) || 1;
+            const paginationEl = document.getElementById(isSearch ? 'search-pagination-controls' : 'pagination-controls');
+            const indicatorEl = document.getElementById(isSearch ? 'search-page-indicator' : 'page-indicator');
+            
+            if (currentFilteredDocs.length > PAGE_SIZE) {
+                paginationEl.classList.remove('hidden');
+                paginationEl.classList.add('flex');
+                indicatorEl.textContent = `Page ${currentPage} of ${maxPages}`;
+            } else {
+                paginationEl.classList.add('hidden');
+                paginationEl.classList.remove('flex');
+            }
+
+            renderCards(tabName, paginatedDocs, isSearch);
+        }
+
+		function renderCards(tabName, docs, isSearch = false) {
+            const body = document.getElementById(isSearch ? 'search-table-body' : 'table-body');
+            const emptyState = document.getElementById(isSearch ? 'search-empty-state' : 'empty-state');
+            const containerSelector = isSearch ? '#search-view .grid' : '#data-table-container .grid';
+            const tableCont = document.querySelector(containerSelector);
+            
+            body.innerHTML = '';
+
+            if(docs.length === 0) {
+                emptyState.classList.remove('hidden'); 
+                if (tableCont) tableCont.classList.add('hidden');
+                return;
+            }
+            emptyState.classList.add('hidden'); 
+            if (tableCont) tableCont.classList.remove('hidden');
+
+            docs.forEach(doc => {
+                const currentDocTab = isSearch ? doc._computedStatus : tabName;
+                
+                let titleText = doc['Title/Description'] || '';
+                let refNo = doc['Reference Number'] || '';
+                let letterType = doc['Types of Letter'] || '';
+                let originVal = doc['Origin'] || '';
+                
+                if (!refNo && titleText.includes(' | ')) {
+                    const parts = titleText.split(' | ');
+                    refNo = parts[0];
+                    titleText = parts.slice(1).join(' | ');
+                }
+
+                let badgesHtml = '';
+                if (refNo) badgesHtml += `<span class="bg-indigo-100 text-indigo-700 text-[9px] md:text-[10px] font-bold px-2 py-0.5 rounded border border-indigo-200 mb-1 inline-block mr-1"><i class="fa-solid fa-hashtag mr-1 opacity-70"></i>${refNo}</span>`;
+                if (originVal) badgesHtml += `<span class="bg-blue-100 text-blue-700 text-[9px] md:text-[10px] font-bold px-2 py-0.5 rounded border border-blue-200 mb-1 inline-block mr-1"><i class="fa-solid fa-building mr-1 opacity-70"></i>${originVal}</span>`;
+                if (letterType) {
+                    let typeBadgeColor = 'bg-slate-100 text-slate-700 border-slate-200';
+                    if (letterType.includes('(Yes)') || letterType.includes('(Optional)')) typeBadgeColor = 'bg-emerald-100 text-emerald-700 border-emerald-200';
+                    else if (letterType.includes('(No)')) typeBadgeColor = 'bg-rose-100 text-rose-700 border-rose-200';
+                    badgesHtml += `<span class="${typeBadgeColor} text-[9px] md:text-[10px] font-bold px-2 py-0.5 rounded border mb-1 inline-block"><i class="fa-solid fa-tag mr-1 opacity-70"></i>${letterType}</span>`;
+                }
+
+                let fileIdForView = doc['Reply File ID'] && ['Completed', 'Approved'].includes(currentDocTab) ? doc['Reply File ID'] : doc['Received File ID'];
+
+                const dRec = formatCustomDate(doc['Date Received']);
+                let dDead = '';
+                let vDead = doc['Deadline'];
+                if (vDead && !['Approved', 'Completed', 'Archive'].includes(currentDocTab)) {
+                    const today = new Date(); today.setHours(0,0,0,0);
+                    const dDate = new Date(vDead);
+                    if (!isNaN(dDate)) {
+                        const diffTime = dDate.getTime() - today.getTime();
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                        const fDate = formatCustomDate(vDead);
+                        let daysText = diffDays < 0 ? `Overdue by ${Math.abs(diffDays)} days` : `${diffDays} days left`;
+                        dDead = `${fDate} <span class="font-semibold text-[11px] ${diffDays < 0 ? 'text-rose-600' : 'text-slate-500'}">(${daysText})</span>`;
+                    } else { dDead = vDead; }
+                } else if (vDead) {
+                    dDead = formatCustomDate(vDead);
+                }
+
+                const dView = formatCustomDate(doc['Date Viewed by User']);
+                
+                // Get action buttons
+                let actionsHtml = getActions(currentDocTab, doc);
+
+                // Determine if this is the currently viewed card to keep it highlighted on silent refresh
+                const isActive = doc.rowIndex === currentlyViewingRowIndex;
+                const activeClasses = isActive 
+                    ? "ring-2 ring-indigo-500 bg-indigo-50/60 border-indigo-400" 
+                    : "bg-white border-slate-200 hover:shadow-md hover:border-indigo-300";
+
+                let cardHtml = `
+                <div id="card-${isSearch ? 'search-' : ''}${doc.rowIndex}" onclick="viewDocumentInline('${fileIdForView}', ${isSearch}, ${doc.rowIndex})" class="doc-card ${activeClasses} p-3 rounded-xl border shadow-sm transition-all mb-3 flex flex-col gap-2 cursor-pointer group">
+                    <div class="flex justify-between items-start">
+                        <div class="flex flex-wrap items-center gap-1.5 mb-1">${badgesHtml}</div>
+                        ${isSearch ? `<span class="bg-slate-100 text-slate-600 text-[10px] font-bold px-2 py-0.5 rounded border border-slate-200 ml-auto whitespace-nowrap">${currentDocTab}</span>` : ''}
+                    </div>
+                    <div class="font-bold text-slate-800 text-sm group-hover:text-indigo-700 transition-colors leading-tight mb-1 block group-hover:underline decoration-indigo-300">
+                        ${titleText}
+                    </div>
+                    
+                    <div class="grid grid-cols-[70px_1fr] gap-x-2 gap-y-1 text-xs text-slate-600 mt-1">
+                        <div class="font-bold text-slate-700">Received</div> <div>: ${dRec || '-'}</div>
+                        ${currentDocTab !== 'Archive' && currentDocTab !== 'Completed' ? `<div class="font-bold text-slate-700">Deadline</div> <div>: ${dDead || '-'}</div>` : ''}
+                        <div class="font-bold text-slate-700">User</div> <div>: ${doc['User'] || 'Unassigned'}</div>
+                        ${currentUser.role === 'Admin' && currentDocTab !== 'Archive' ? `<div class="font-bold text-slate-700">Viewed</div> <div>: ${dView || 'Not yet viewed'}</div>` : ''}
+                        <div class="font-bold text-slate-700 self-center">Action</div> <div class="flex flex-wrap gap-1.5 mt-1 relative z-10"> ${actionsHtml}</div>
+                    </div>
+                </div>
+                `;
+                body.innerHTML += cardHtml;
+            });
+        }
 
         // ------------------------------------
 
@@ -1158,8 +1327,9 @@
             const topStatsContainer = document.getElementById('top-stats-container');
             if (currentUser.role === 'User') {
                 if (topStatsContainer) topStatsContainer.classList.add('hidden');
+                if (document.getElementById('btn-toggle-stats')) document.getElementById('btn-toggle-stats').classList.add('hidden');
             } else {
-                if (topStatsContainer) topStatsContainer.classList.remove('hidden');
+                if (document.getElementById('btn-toggle-stats')) document.getElementById('btn-toggle-stats').classList.remove('hidden');
             }
 
             const tabs = currentUser.role === 'Admin' ? ADMIN_TABS : USER_TABS;
@@ -1197,11 +1367,11 @@
                     
                     refreshStatsUI();
                     
-                    // Auto-refresh whichever view is active
+                    // Auto-refresh whichever view is active, passing the 'silent' flag!
                     if (document.getElementById('search-view') && !document.getElementById('search-view').classList.contains('hidden')) {
-                        executeSearch();
+                        executeSearch(silent); 
                     } else if (currentTab !== "Receiving" && currentTab !== "") {
-                        loadTableData(currentTab, true);
+                        loadTableData(currentTab, silent);
                     }
                 }
             } catch(e) { console.error(e); }
@@ -1298,232 +1468,47 @@
             } else {
                 document.getElementById('receiving-form-container').classList.add('hidden');
                 document.getElementById('data-table-container').classList.remove('hidden');
-                loadTableData(tabName);
+                document.getElementById('data-table-container').classList.add('flex');
+                
+                // When we manually switch tabs, we do NOT want it to be silent
+                // so we can wipe the previous iframe
+                loadTableData(tabName, false);
             }
         }
 
-        function loadTableData(tabName, silent = false) {
-            let filteredDocs = [];
-            globalTrackerData.forEach(doc => {
-                const isArchived = doc["Archive"] && String(doc["Archive"]).trim().toUpperCase() === "OK";
-                const letterType = doc['Types of Letter'] || '';
-                const needsReply = letterType.includes('(Yes)') || letterType.includes('(Optional)') || letterType === '';
-                let isMatch = false;
-
-                if (currentUser.role === "Admin") {
-                    if (tabName === "Archive" && isArchived) isMatch = true;
-                    else if (!isArchived) {
-                        if (tabName === "Action Required" && doc["User"] && !doc["Date for Signature"] && needsReply) isMatch = true;
-                        if (tabName === "For Info" && doc["User"] && !doc["Date for Signature"] && !needsReply) isMatch = true;
-                        if (tabName === "For Signature" && doc["Date for Signature"] && !doc["Reply File ID"]) isMatch = true;
-                        if (tabName === "Approved" && doc["Reply File ID"] && !doc["Date Released/Completed"]) isMatch = true;
-                        if (tabName === "Completed" && doc["Date Released/Completed"]) isMatch = true;
-                    }
-                } 
-                else if (currentUser.role === "User") {
-                    const docUsers = String(doc["User"]).toLowerCase().split(',').map(u => u.trim());
-                    const isAssigned = docUsers.includes(currentUser.account.toLowerCase()) || docUsers.includes("all users");
-
-                    if (isAssigned) {
-                        if (tabName === "Archive" && isArchived) isMatch = true;
-                        else if (!isArchived) {
-                            if (tabName === "Incoming" && !doc["Date for Signature"]) isMatch = true;
-                            if (tabName === "Processing" && doc["Date for Signature"] && !doc["Reply File ID"]) isMatch = true;
-                            if (tabName === "Completed" && doc["Reply File ID"]) isMatch = true;
-                        }
-                    }
-                }
-                if (isMatch) filteredDocs.push(doc);
-            });
-            renderTable(tabName, filteredDocs.reverse(), false);
-        }
-
-        function renderTable(tabName, docs, isSearch = false) {
-            const head = isSearch ? document.getElementById('search-table-head') : document.getElementById('table-head');
-            const body = isSearch ? document.getElementById('search-table-body') : document.getElementById('table-body');
-            const emptyState = isSearch ? document.getElementById('search-empty-state') : document.getElementById('empty-state');
-            const tableCont = isSearch ? document.getElementById('search-table-head').parentElement : document.querySelector('#data-table-container table');
-            head.innerHTML = ''; body.innerHTML = '';
-
-            if(docs.length === 0) {
-                emptyState.classList.remove('hidden'); tableCont.classList.add('hidden');
-                return;
-            }
-            emptyState.classList.add('hidden'); tableCont.classList.remove('hidden');
-
-            let cols = [];
-            
-            if (isSearch) {
-                cols = [
-                    { key: 'action', label: 'Action' }, 
-                    { key: 'status', label: 'Status' }, 
-                    { key: 'Title/Description', label: 'Document Details' }, 
-                    { key: 'Date Received', label: 'Received' }, 
-                    { key: 'Deadline', label: 'Deadline' }
-                ];
-                if(currentUser.role === 'Admin') cols.push({ key: 'User', label: 'User(s)' });
-            } else {
-                cols = [{ key: 'action', label: 'Action' }, { key: 'Title/Description', label: 'Title' }, { key: 'Date Received', label: 'Received' }, { key: 'Deadline', label: 'Deadline' }];
-                if(currentUser.role === 'Admin') {
-                    cols.push({ key: 'User', label: 'User(s)' });
-                    if(tabName !== 'Archive') cols.push({ key: 'Date Viewed by User', label: 'Viewed' });
-                    if(['For Signature', 'Approved', 'Completed'].includes(tabName)) { cols.push({ key: 'Date of Letter', label: 'Letter Date' }); cols.push({ key: 'Date for Signature', label: 'Sign Date' }); }
-                    if(['Approved', 'Completed'].includes(tabName)) cols.push({ key: 'Date Approved', label: 'Approved' });
-                    if(tabName === 'Completed') cols.push({ key: 'Date Released/Completed', label: 'Completed' });
-                    if(tabName === 'Archive') cols.push({ key: 'Remarks', label: 'Remarks' });
-                } else {
-                    cols.push({ key: 'User', label: 'User(s)' });
-                    if(['Processing', 'Completed'].includes(tabName)) { cols.push({ key: 'Date of Letter', label: 'Letter Date' }); cols.push({ key: 'Date for Signature', label: 'Sign Date' }); }
-                    if(['Completed', 'Archive'].includes(tabName)) cols.push({ key: 'Date Approved', label: 'Approved' });
-                    if(tabName === 'Archive') cols.push({ key: 'Remarks', label: 'Remarks' });
-                }
-            }
-
-            let trH = '<tr>'; cols.forEach(c => trH += `<th class="p-2 md:p-4">${c.label}</th>`); head.innerHTML = trH + '</tr>';
-
-            docs.forEach(doc => {
-                let tr = '<tr class="hover:bg-indigo-50/40 transition-colors">';
-                const currentDocTab = isSearch ? doc._computedStatus : tabName;
-
-                cols.forEach(c => {
-                    let cellContent = '';
-                    if (c.key === 'action') {
-                        cellContent = `<div class="flex flex-wrap gap-1.5 md:gap-2">${getActions(currentDocTab, doc)}</div>`;
-                    } else if (c.key === 'status') {
-                        let statusColor = "bg-slate-100 text-slate-600 border-slate-200";
-                        let icon = "fa-layer-group";
-                        if(currentDocTab === "Archive") { statusColor = "bg-gray-100 text-gray-600 border-gray-300"; icon = "fa-box-archive"; }
-                        else if(currentDocTab === "Completed" || currentDocTab === "Approved") { statusColor = "bg-emerald-100 text-emerald-700 border-emerald-300"; icon = "fa-check-double"; }
-                        else if(currentDocTab === "Action Required" || currentDocTab === "Processing" || currentDocTab === "For Signature") { statusColor = "bg-amber-100 text-amber-700 border-amber-300"; icon = "fa-spinner"; }
-                        else if(currentDocTab === "Receiving" || currentDocTab === "Incoming") { statusColor = "bg-blue-100 text-blue-700 border-blue-300"; icon = "fa-inbox"; }
-                        else if(currentDocTab === "For Info") { statusColor = "bg-cyan-100 text-cyan-700 border-cyan-300"; icon = "fa-info-circle"; }
-                        
-                        cellContent = `<span class="${statusColor} text-[9px] md:text-[11px] font-bold px-1.5 md:px-2.5 py-0.5 md:py-1 rounded-md border shadow-sm tracking-wide whitespace-nowrap"><i class="fa-solid ${icon} mr-1 md:mr-1.5 opacity-80"></i>${currentDocTab}</span>`;
-                    } else if (c.key === 'Title/Description') {
-                        let titleText = doc['Title/Description'] || '';
-                        let refNo = doc['Reference Number'] || '';
-                        let letterType = doc['Types of Letter'] || '';
-                        let originVal = doc['Origin'] || '';
-                        
-                        // Backward compatibility for old "REF | Title" format
-                        if (!refNo && titleText.includes(' | ')) {
-                            const parts = titleText.split(' | ');
-                            refNo = parts[0];
-                            titleText = parts.slice(1).join(' | ');
-                        }
-                        
-                        let badgesHtml = '';
-                        if (refNo) {
-                            badgesHtml += `<span class="bg-indigo-100 text-indigo-700 text-[9px] md:text-[11px] font-bold px-1.5 md:px-2 py-0.5 rounded border border-indigo-200 shadow-sm tracking-wide mr-1 md:mr-1.5 mb-1 inline-block"><i class="fa-solid fa-hashtag mr-1 opacity-70"></i>${refNo}</span>`;
-                        }
-                        if (originVal) {
-                            badgesHtml += `<span class="bg-blue-100 text-blue-700 text-[9px] md:text-[11px] font-bold px-1.5 md:px-2 py-0.5 rounded border border-blue-200 shadow-sm tracking-wide mr-1 md:mr-1.5 mb-1 inline-block"><i class="fa-solid fa-building mr-1 opacity-70"></i>${originVal}</span>`;
-                        }
-                        if (letterType) {
-                            let typeBadgeColor = 'bg-slate-100 text-slate-700 border-slate-200';
-                            if (letterType.includes('(Yes)') || letterType.includes('(Optional)')) {
-                                typeBadgeColor = 'bg-emerald-100 text-emerald-700 border-emerald-200';
-                            } else if (letterType.includes('(No)')) {
-                                typeBadgeColor = 'bg-rose-100 text-rose-700 border-rose-200';
-                            }
-                            badgesHtml += `<span class="${typeBadgeColor} text-[9px] md:text-[11px] font-bold px-1.5 md:px-2 py-0.5 rounded border shadow-sm tracking-wide mb-1 inline-block"><i class="fa-solid fa-tag mr-1 opacity-70"></i>${letterType}</span>`;
-                        }
-
-                        cellContent = `<div class="flex flex-col items-start gap-1">
-                            <div class="flex flex-wrap items-center">${badgesHtml}</div>
-                            <span class="font-semibold text-slate-800 leading-snug text-xs md:text-sm">${titleText}</span>
-                        </div>`;
-                        
-                    } else if (c.key === 'Date Viewed by User') {
-                        let v = doc[c.key] || '';
-                        if (v) {
-                            const fDate = formatCustomDate(v);
-                            cellContent = `<span class="bg-sky-100 text-sky-700 px-1.5 md:px-2.5 py-0.5 md:py-1 rounded-md text-[9px] md:text-[12px] font-bold border border-sky-200 shadow-sm inline-flex items-center gap-1 mt-1 md:mt-0 whitespace-nowrap tracking-wide"><i class="fa-solid fa-eye opacity-80"></i>${fDate}</span>`;
-                        }
-                    } else {
-                        let v = doc[c.key] || '';
-                        
-                        // Custom Date Math and Formats
-                        if (c.key === 'Deadline' && v && !['Approved', 'Completed', 'Archive'].includes(currentDocTab)) {
-                            const today = new Date();
-                            today.setHours(0,0,0,0);
-                            const dDate = new Date(v);
-                            
-                            if (!isNaN(dDate)) {
-                                const diffTime = dDate.getTime() - today.getTime();
-                                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                                const fDate = formatCustomDate(v);
-                                
-                                let badgeClass = "";
-                                let icon = "";
-                                let daysText = "";
-                                
-                                if (diffDays < 0) {
-                                    const absDays = Math.abs(diffDays);
-                                    badgeClass = "bg-rose-100 text-rose-700 border-rose-300 shadow-md";
-                                    icon = "fa-triangle-exclamation";
-                                    daysText = `Overdue by ${absDays} day${absDays!==1?'s':''}`;
-                                } else if (diffDays <= 3) {
-                                    badgeClass = "bg-orange-100 text-orange-700 border-orange-300 shadow-md animate-pulse";
-                                    icon = "fa-fire";
-                                    daysText = `${diffDays} day${diffDays!==1?'s':''} left`;
-                                } else if (diffDays <= 7) {
-                                    badgeClass = "bg-amber-100 text-amber-700 border-amber-300 shadow-sm";
-                                    icon = "fa-clock";
-                                    daysText = `${diffDays} days left`;
-                                } else {
-                                    badgeClass = "bg-emerald-100 text-emerald-700 border-emerald-300 shadow-sm";
-                                    icon = "fa-calendar-check";
-                                    daysText = `${diffDays} days`;
-                                }
-                                
-                                cellContent = `<span class="${badgeClass} px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-[10px] md:text-[13px] font-bold border inline-flex items-center gap-1 mt-1 md:mt-0 whitespace-nowrap tracking-wide"><i class="fa-solid ${icon}"></i>${fDate} (${daysText})</span>`;
-                            } else { cellContent = v; }
-                        } 
-                        else if (c.key.includes('Date') || v instanceof Date || (typeof v === 'string' && v.includes('T00:00'))) {
-                            cellContent = formatCustomDate(v);
-                        } else {
-                            cellContent = `<span class="text-xs md:text-sm">${v}</span>`;
-                        }
-                    }
-                    tr += `<td data-label="${c.label}" class="p-2 md:p-4 whitespace-normal text-xs md:text-sm font-medium md:font-normal text-slate-700">${cellContent}</td>`;
-                });
-                body.innerHTML += tr + '</tr>';
-            });
-        }
 
         function getActions(tabName, doc) {
-            let html = `<button onclick="viewFile('${doc['Received File ID']}', ${doc.rowIndex}, '${tabName}')" class="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 transition-colors px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold tracking-wide"><i class="fa-solid fa-eye"></i> View</button>`;
+            let html = ``;
             
             const safeTitle = (doc['Title/Description'] || '').replace(/'/g, "\\'").replace(/"/g, "&quot;");
             const safeUsers = (doc['User'] || '').replace(/'/g, "\\'").replace(/"/g, "&quot;");
             const safeDateRec = (doc['Date Received'] || '').replace(/'/g, "\\'").replace(/"/g, "&quot;");
 
             if(currentUser.role === 'Admin') {
-                html += `<button onclick="openEditModal(${doc.rowIndex}, '${tabName}')" class="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 transition-colors px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold tracking-wide"><i class="fa-solid fa-pen"></i> Edit</button>`;
+                html += `<button type="button" onclick="event.stopPropagation(); openEditModal(${doc.rowIndex}, '${tabName}')" class="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 transition-colors px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold tracking-wide"><i class="fa-solid fa-pen"></i> Edit</button>`;
                 
                 if(tabName === 'Action Required' || tabName === 'For Info') {
-                    html += `<button onclick="openReassignModal(${doc.rowIndex}, '${safeUsers}')" class="bg-sky-100 text-sky-700 hover:bg-sky-200 transition-colors px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold tracking-wide"><i class="fa-solid fa-user-pen"></i> Reassign</button>`;
-                    html += `<button onclick="openDatesModal(${doc.rowIndex})" class="bg-amber-100 text-amber-700 hover:bg-amber-200 transition-colors px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold tracking-wide"><i class="fa-solid fa-calendar-plus"></i> Dates</button>`;
-                    html += `<button onclick="openArchiveModal(${doc.rowIndex})" class="bg-slate-200 text-slate-600 hover:bg-slate-300 transition-colors px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold tracking-wide"><i class="fa-solid fa-box-archive"></i> Archive</button>`;
+                    html += `<button type="button" onclick="event.stopPropagation(); openReassignModal(${doc.rowIndex}, '${safeUsers}')" class="bg-sky-100 text-sky-700 hover:bg-sky-200 transition-colors px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold tracking-wide"><i class="fa-solid fa-user-pen"></i> Reassign</button>`;
+                    html += `<button type="button" onclick="event.stopPropagation(); openDatesModal(${doc.rowIndex})" class="bg-amber-100 text-amber-700 hover:bg-amber-200 transition-colors px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold tracking-wide"><i class="fa-solid fa-calendar-plus"></i> Dates</button>`;
+                    html += `<button type="button" onclick="event.stopPropagation(); openArchiveModal(${doc.rowIndex})" class="bg-slate-200 text-slate-600 hover:bg-slate-300 transition-colors px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold tracking-wide"><i class="fa-solid fa-box-archive"></i> Archive</button>`;
                 }
                 if(tabName === 'For Signature') {
-                    html += `<button onclick="openReassignModal(${doc.rowIndex}, '${safeUsers}')" class="bg-sky-100 text-sky-700 hover:bg-sky-200 transition-colors px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold tracking-wide"><i class="fa-solid fa-user-pen"></i> Reassign</button>`;
-                    html += `<button onclick="openReplyModal(${doc.rowIndex}, '${safeTitle}')" class="bg-fuchsia-100 text-fuchsia-700 hover:bg-fuchsia-200 transition-colors px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold tracking-wide"><i class="fa-solid fa-upload"></i> Reply</button>`;
-                    html += `<button onclick="openArchiveModal(${doc.rowIndex})" class="bg-slate-200 text-slate-600 hover:bg-slate-300 transition-colors px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold tracking-wide"><i class="fa-solid fa-box-archive"></i> Archive</button>`;
+                    html += `<button type="button" onclick="event.stopPropagation(); openReassignModal(${doc.rowIndex}, '${safeUsers}')" class="bg-sky-100 text-sky-700 hover:bg-sky-200 transition-colors px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold tracking-wide"><i class="fa-solid fa-user-pen"></i> Reassign</button>`;
+                    html += `<button type="button" onclick="event.stopPropagation(); openReplyModal(${doc.rowIndex}, '${safeTitle}')" class="bg-fuchsia-100 text-fuchsia-700 hover:bg-fuchsia-200 transition-colors px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold tracking-wide"><i class="fa-solid fa-upload"></i> Reply</button>`;
+                    html += `<button type="button" onclick="event.stopPropagation(); openArchiveModal(${doc.rowIndex})" class="bg-slate-200 text-slate-600 hover:bg-slate-300 transition-colors px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold tracking-wide"><i class="fa-solid fa-box-archive"></i> Archive</button>`;
                 }
                 if(tabName === 'Approved') {
-                    html += `<button onclick="openReleaseModal(${doc.rowIndex})" class="bg-emerald-100 text-emerald-700 hover:bg-emerald-200 transition-colors px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold tracking-wide"><i class="fa-solid fa-check-double"></i> Release</button>`;
+                    html += `<button type="button" onclick="event.stopPropagation(); openReleaseModal(${doc.rowIndex})" class="bg-emerald-100 text-emerald-700 hover:bg-emerald-200 transition-colors px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold tracking-wide"><i class="fa-solid fa-check-double"></i> Release</button>`;
                 }
                 if(['Approved', 'Completed', 'Archive'].includes(tabName) && doc['Reply File ID']) {
-                    html += `<button onclick="viewFile('${doc['Reply File ID']}', null, 'Reply')" class="bg-slate-200 text-slate-700 hover:bg-slate-300 transition-colors px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold tracking-wide"><i class="fa-solid fa-envelope-open-text"></i> Reply File</button>`;
+                    html += `<button type="button" onclick="event.stopPropagation(); viewFile('${doc['Reply File ID']}', null, 'Reply')" class="bg-slate-200 text-slate-700 hover:bg-slate-300 transition-colors px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold tracking-wide"><i class="fa-solid fa-envelope-open-text"></i> Reply File</button>`;
                 }
             } else if(currentUser.role === 'User') {
                 if (tabName !== 'Completed' && tabName !== 'Archive') {
-                    html += `<button onclick="openReassignModal(${doc.rowIndex}, '${safeUsers}')" class="bg-sky-100 text-sky-700 hover:bg-sky-200 transition-colors px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold tracking-wide"><i class="fa-solid fa-user-plus"></i> Assign</button>`;
+                    html += `<button type="button" onclick="event.stopPropagation(); openReassignModal(${doc.rowIndex}, '${safeUsers}')" class="bg-sky-100 text-sky-700 hover:bg-sky-200 transition-colors px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold tracking-wide"><i class="fa-solid fa-user-plus"></i> Assign</button>`;
                 }
                 if(['Processing', 'Completed', 'Archive'].includes(tabName) && doc['Reply File ID']) {
-                    html += `<button onclick="viewFile('${doc['Reply File ID']}', null, 'Reply')" class="bg-fuchsia-100 text-fuchsia-700 hover:bg-fuchsia-200 transition-colors px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold tracking-wide"><i class="fa-solid fa-envelope-open-text"></i> Reply</button>`;
+                    html += `<button type="button" onclick="event.stopPropagation(); viewFile('${doc['Reply File ID']}', null, 'Reply')" class="bg-fuchsia-100 text-fuchsia-700 hover:bg-fuchsia-200 transition-colors px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold tracking-wide"><i class="fa-solid fa-envelope-open-text"></i> Reply</button>`;
                 }
             }
             return html;
