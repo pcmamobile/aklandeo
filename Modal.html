@@ -898,6 +898,8 @@
       if (!hasPhotos) { modalPhotos.innerHTML = '<div style="text-align:center; padding:20px; color:#94a3b8; font-weight:800; font-size:0.9rem; border:3px dashed #ffffff; border-radius:16px; background:linear-gradient(135deg, var(--dpwh-pastel-orange), var(--dpwh-pastel-blue)); backdrop-filter:blur(5px);">No photos uploaded yet.</div>'; } 
       else { modalPhotos.innerHTML = html; }
 
+
+
       // Team Cards
       const teamData = [
         { key: 'PE', val: peIdx > -1 ? row[peIdx] : '', bg: 'var(--pastel-blue)', border: 'var(--pastel-blue-dark)' },
@@ -1025,46 +1027,14 @@
       const barChartRaw      = parsePipeSeries(barChartCol);
       const pcmaRaw          = parsePipeSeries(pcmaCol);
 
-      // 1. Build Monthly Planned Series
-      let plannedMonthly = [];
-      if (scheduleRaw.length > 0 && scheduleRaw.some(v => v !== null)) {
-        plannedMonthly = [...scheduleRaw];
-      } else if (barChartRaw.length > 0) {
-        let cum = 0;
-        plannedMonthly = barChartRaw.map(v => {
-          if (v !== null) cum += v;
-          return Math.round(Math.min(100, cum) * 100) / 100;
-        });
-      }
-
-      // 2. Interpolate Monthly Planned into Weekly Steps
-      let plannedSeries = [];
-      let prevPlan = 0;
-      for (let m = 0; m < plannedMonthly.length; m++) {
-          let currPlan = plannedMonthly[m];
-          if (currPlan === null) {
-              plannedSeries.push(null, null, null, null);
-              continue;
-          }
-          plannedSeries.push(
-              Math.round((prevPlan + (currPlan - prevPlan) * (7/30)) * 100) / 100,
-              Math.round((prevPlan + (currPlan - prevPlan) * (14/30)) * 100) / 100,
-              Math.round((prevPlan + (currPlan - prevPlan) * (21/30)) * 100) / 100,
-              currPlan
-          );
-          prevPlan = currPlan;
-      }
-
-      // 3. Extract Weekly Actuals
+      // Extract Weekly Actuals & PCMA
       const actualSeries = parseWeeklySeries(weeklyCol);
-
-      // 4. Map Monthly PCMA to Weekly (pushed to week 4 boundary)
       let pcmaSeries = [];
       for (let m = 0; m < pcmaRaw.length; m++) {
           pcmaSeries.push(null, null, null, pcmaRaw[m]);
       }
 
-      // Suspensions & Terminated Flags
+      // Parse Suspensions, Terminations, and NTP Date first for dynamic shifting
       const suspRaw = suspCol > -1 ? String(targetRow[suspCol] || '').trim() : '';
       const termRaw = termCol > -1 ? String(targetRow[termCol] || '').trim() : '';
 
@@ -1080,6 +1050,79 @@
       if (ntpStr) {
         const d = new Date(ntpStr);
         if (!isNaN(d.getTime())) ntpDate = d;
+      }
+
+      // Map Suspensions to Week Indices (1 month = 4 weeks ~ 30 days => 1 week = 7.5 days)
+      let suspensionWeeks = [];
+      if (ntpDate) {
+        suspensionEvents.forEach(s => {
+          const dStart = new Date(s.start);
+          const dEnd = s.end ? new Date(s.end) : null;
+          if (!isNaN(dStart.getTime())) {
+            const startDays = (dStart - ntpDate) / (1000 * 60 * 60 * 24);
+            const startWeek = Math.max(0, startDays / 7.5);
+            let endWeek = Infinity; // Assumes ongoing if no end date
+            if (dEnd && !isNaN(dEnd.getTime())) {
+                const endDays = (dEnd - ntpDate) / (1000 * 60 * 60 * 24);
+                endWeek = Math.max(startWeek, endDays / 7.5);
+            }
+            suspensionWeeks.push({ start: startWeek, end: endWeek });
+          }
+        });
+      }
+
+      // 1. Build Base Schedule Increments (assuming no suspensions)
+      let baseIncrements = [];
+      let barLength = Math.max(barChartRaw.length, scheduleRaw.length);
+      let prevSched = 0;
+      
+      for (let m = 0; m < barLength; m++) {
+          let inc = 0;
+          if (barChartRaw.length > 0 && barChartRaw.some(v => v !== null)) {
+              inc = barChartRaw[m] !== null ? barChartRaw[m] : 0;
+          } else if (scheduleRaw.length > 0 && scheduleRaw.some(v => v !== null)) {
+              let curr = scheduleRaw[m] !== null ? scheduleRaw[m] : prevSched;
+              inc = Math.max(0, curr - prevSched);
+              prevSched = curr;
+          }
+          // Break monthly increment into 4 weekly steps (7/30, 7/30, 7/30, 9/30 interpolation equivalent)
+          baseIncrements.push(inc * 7/30, inc * 7/30, inc * 7/30, inc * 9/30);
+      }
+
+      // 2. Generate Planned Series by applying suspensions dynamically (Horizontal Shift)
+      let plannedSeries = [];
+      let baseIdx = 0;
+      let cumPlan = 0;
+      let targetWeeks = Math.max(actualSeries.length, pcmaSeries.length, baseIncrements.length);
+      let w = 0;
+
+      while (true) {
+          let isSuspended = suspensionWeeks.some(susp => w >= susp.start && w < susp.end);
+
+          if (isSuspended) {
+              // Plot horizontally (flatline) during suspension
+              plannedSeries.push(Math.round(cumPlan * 100) / 100);
+          } else {
+              // Consume base schedule increment
+              if (baseIdx < baseIncrements.length) {
+                  cumPlan += baseIncrements[baseIdx];
+                  baseIdx++;
+              }
+              cumPlan = Math.min(100, cumPlan); // Cap at 100%
+              plannedSeries.push(Math.round(cumPlan * 100) / 100);
+          }
+          
+          w++;
+          
+          // Stop when all base schedule is drawn AND we covered the current timeline
+          if (baseIdx >= baseIncrements.length && w >= targetWeeks) break;
+          
+          // Stop if project is currently indefinitely suspended and we've reached the edge of recorded timeline
+          let isInInfiniteSuspension = suspensionWeeks.some(susp => w >= susp.start && susp.end === Infinity);
+          if (isInInfiniteSuspension && w >= targetWeeks) break;
+          
+          // Absolute fallback to prevent infinite charting loop (~10 years max shift)
+          if (w > 500) break;
       }
 
       renderSCurveSVG(containerEl, {
@@ -1164,40 +1207,31 @@
         if (matchingPlan !== null) currentSlip = actual[lastActIdx] - matchingPlan;
       }
 
-      // SVG Canvas Dimensions
-      const W = 800, H = 340, padLeft = 45, padRight = 35, padTop = 30, padBottom = 45;
+      // SVG Canvas Dimensions (padRight widened to 95 for end-labels)
+      const W = 800, H = 340, padLeft = 45, padRight = 95, padTop = 30, padBottom = 45;
       const plotW = W - padLeft - padRight;
       const plotH = H - padTop - padBottom;
       const getX = (mIdx) => padLeft + (mIdx / totalMonths) * plotW;
       const getY = (val) => padTop + plotH - (Math.min(Math.max(val, 0), 105) / 105) * plotH;
 
-      // Construct Smooth SVG Path
-      const buildSmoothPath = (pts, key) => {
+      // Construct Straight Dot-to-Dot SVG Path
+      const buildStraightPath = (pts, key) => {
         const validPts = pts.filter(p => p[key] !== null).map(p => ({ x: getX(p.timeIndex), y: getY(p[key]), val: p[key] }));
         if (validPts.length < 2) return { path: '', area: '', validPts };
         
         let d = `M ${validPts[0].x} ${validPts[0].y}`;
-        for (let i = 0; i < validPts.length - 1; i++) {
-          const p0 = validPts[i === 0 ? 0 : i - 1];
-          const p1 = validPts[i];
-          const p2 = validPts[i + 1];
-          const p3 = validPts[i + 2] ? validPts[i + 2] : p2;
-
-          const cp1x = p1.x + (p2.x - p0.x) / 6;
-          const cp1y = p1.y + (p2.y - p0.y) / 6;
-          const cp2x = p2.x - (p3.x - p1.x) / 6;
-          const cp2y = p2.y - (p3.y - p1.y) / 6;
-
-          d += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y}`;
+        for (let i = 1; i < validPts.length; i++) {
+          d += ` L ${validPts[i].x} ${validPts[i].y}`; // L connects points with a straight line
         }
+        
         const first = validPts[0], last = validPts[validPts.length - 1];
         const area = `${d} L ${last.x} ${padTop + plotH} L ${first.x} ${padTop + plotH} Z`;
         return { path: d, area, validPts };
       };
 
-      const plannedCurve = buildSmoothPath(timelinePoints, 'planned');
-      const actualCurve  = buildSmoothPath(timelinePoints, 'actual');
-      const pcmaCurve    = buildSmoothPath(timelinePoints, 'pcma');
+      const plannedCurve = buildStraightPath(timelinePoints, 'planned');
+      const actualCurve  = buildStraightPath(timelinePoints, 'actual');
+      const pcmaCurve    = buildStraightPath(timelinePoints, 'pcma');
 
       // Grid Y guidelines
       const yTicks = [0, 25, 50, 75, 100];
@@ -1318,8 +1352,37 @@
         if (pt.actual !== null)  svgHtml += `<circle cx="${x}" cy="${getY(pt.actual)}" r="${actRadius}" fill="#10b981" stroke="#ffffff" stroke-width="2" class="scurve-pt actual-pt" />`;
       });
 
-      svgHtml += `<line id="scurveCrosshair" x1="0" y1="${padTop}" x2="0" y2="${padTop + plotH}" stroke="#0f172a" stroke-width="1.5" stroke-dasharray="3,3" opacity="0" /></g></svg>`;
+     // Draw Labels at the end of the Plotted Lines (Aligned to Actual)
+      const drawEndLabel = (curve, color, textLabel, alignX = null) => {
+        if (!curve.validPts || curve.validPts.length === 0) return '';
+        let targetPt = curve.validPts[curve.validPts.length - 1]; // Default to the end
+        
+        // If an alignX is provided, find the point on this curve that matches that X-coordinate
+        if (alignX !== null) {
+          const matched = curve.validPts.find(p => p.x === alignX);
+          if (matched) targetPt = matched;
+        }
 
+        return `
+          <g transform="translate(${targetPt.x + 6}, ${targetPt.y + 4})">
+            <rect x="0" y="-12" width="75" height="18" rx="6" fill="${color}" opacity="0.9" filter="drop-shadow(0 2px 2px rgba(0,0,0,0.2))"/>
+            <text x="37.5" y="0.5" fill="#fff" font-size="8.5" font-weight="900" text-anchor="middle">${textLabel}: ${targetPt.val.toFixed(2)}%</text>
+          </g>
+        `;
+      };
+
+      // Extract the X-coordinate of the latest actual point
+      const lastActX = actualCurve.validPts && actualCurve.validPts.length > 0 
+          ? actualCurve.validPts[actualCurve.validPts.length - 1].x 
+          : null;
+
+      // Pass lastActX to the SCHED and PCMA labels so they align exactly in the same column as ACTUAL
+      svgHtml += drawEndLabel(plannedCurve, '#0284c7', 'SCHED', lastActX);
+      svgHtml += drawEndLabel(actualCurve, '#10b981', 'ACTUAL');
+      svgHtml += drawEndLabel(pcmaCurve, '#7e22ce', 'PCMA', lastActX);
+
+      svgHtml += `<line id="scurveCrosshair" x1="0" y1="${padTop}" x2="0" y2="${padTop + plotH}" stroke="#0f172a" stroke-width="1.5" stroke-dasharray="3,3" opacity="0" /></g></svg>`;
+	  
       // Slippage Pill Styling
       let slipBadgeClass = 'scurve-chip-slip-pos', slipSign = '+', slipEmoji = '😎';
       if (currentSlip !== null && currentSlip < 0) {
@@ -1373,25 +1436,31 @@
 
       if (!graphBox || !svg || !tooltip) return;
 
-      const handleMove = (clientX) => {
+      const handleMove = (e) => {
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
         const rect = svg.getBoundingClientRect();
         const svgScale = totalW / rect.width;
         const mouseX = (clientX - rect.left) * svgScale;
+        const mouseY = clientY - rect.top; // Track local Y for safe tooltip placement
 
-        // Find nearest time point
+        // 1. Find nearest time point safely
         let nearest = null;
         let minDist = Infinity;
+        let nearestIdx = -1;
 
-        points.forEach(pt => {
+        points.forEach((pt, idx) => {
           const ptX = getX(pt.timeIndex);
           const d = Math.abs(ptX - mouseX);
           if (d < minDist) {
             minDist = d;
             nearest = pt;
+            nearestIdx = idx;
           }
         });
 
-        if (!nearest || minDist > (plotW / points.length) * 1.5) {
+        // 2. Widened Hover Tolerance
+        if (!nearest || minDist > Math.max(30, (plotW / points.length) * 3.5)) {
           tooltip.style.display = 'none';
           if (crosshair) crosshair.setAttribute('opacity', '0');
           return;
@@ -1406,38 +1475,95 @@
           crosshair.setAttribute('opacity', '1');
         }
 
-        // Calculate slippage for this point
-        let slipStr = '';
-        if (nearest.actual !== null && nearest.planned !== null && nearest.timeIndex > 0) {
-          const diff = nearest.actual - nearest.planned;
-          const sign = diff >= 0 ? '+' : '';
-          const color = diff >= 0 ? '#34d399' : '#f87171';
-          slipStr = `<div class="scurve-tooltip-row" style="color:${color}; border-top:1px dashed rgba(255,255,255,0.2); margin-top:4px; padding-top:3px;">
-                      <span>Slippage:</span> <b>${sign}${diff.toFixed(2)}%</b>
-                    </div>`;
+        // 3. Safe Number Extractor
+        const getVal = (v) => (typeof v === 'number' && !isNaN(v)) ? v : null;
+        const pVal = getVal(nearest.planned);
+        const aVal = getVal(nearest.actual);
+        const cVal = getVal(nearest.pcma);
+
+        let planStr = '', actStr = '', pcmaStr = '', slipStr = '';
+
+        // 4. Render Schedule (with Weekly Increment)
+        if (pVal !== null) {
+            let inc = 0;
+            if (nearestIdx > 0) {
+                const prevP = getVal(points[nearestIdx - 1].planned) || 0;
+                inc = pVal - prevP;
+            }
+            const incStr = inc > 0 ? ` <span style="color:#7dd3fc; font-size:10px; margin-left:6px;" title="Accomplished this week">(+${inc.toFixed(2)}%)</span>` : '';
+            planStr = `<div style="display:flex; justify-content:space-between; align-items:center; margin:5px 0;">
+                <span style="display:flex; align-items:center;"><span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#38bdf8; margin-right:5px;"></span>Sched:</span> 
+                <span style="display:flex; align-items:center;"><b>${pVal.toFixed(2)}%</b>${incStr}</span>
+            </div>`;
         }
 
+        // 5. Render Actual (with Weekly Increment)
+        if (aVal !== null) {
+            let inc = 0;
+            if (nearestIdx > 0) {
+                const prevA = getVal(points[nearestIdx - 1].actual) || 0;
+                inc = aVal - prevA;
+            }
+            const incStr = inc > 0 ? ` <span style="color:#6ee7b7; font-size:10px; margin-left:6px;" title="Accomplished this week">(+${inc.toFixed(2)}%)</span>` : '';
+            actStr = `<div style="display:flex; justify-content:space-between; align-items:center; margin:5px 0;">
+                <span style="display:flex; align-items:center;"><span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#34d399; margin-right:5px;"></span>Actual:</span> 
+                <span style="display:flex; align-items:center;"><b>${aVal.toFixed(2)}%</b>${incStr}</span>
+            </div>`;
+        }
+
+        // 6. Render PCMA
+        if (cVal !== null) {
+            pcmaStr = `<div style="display:flex; justify-content:space-between; align-items:center; margin:5px 0;">
+                <span style="display:flex; align-items:center;"><span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#c084fc; margin-right:5px;"></span>PCMA:</span> 
+                <b>${cVal.toFixed(2)}%</b>
+            </div>`;
+        }
+
+        // 7. Render Slippage
+        if (aVal !== null && pVal !== null && nearest.timeIndex > 0) {
+            const diff = aVal - pVal;
+            const sign = diff >= 0 ? '+' : '';
+            const color = diff >= 0 ? '#34d399' : '#f87171';
+            slipStr = `<div style="display:flex; justify-content:space-between; margin-top:8px; padding-top:5px; border-top:1px dashed rgba(255,255,255,0.2); color:${color};">
+                <span>Slippage:</span> <b>${sign}${diff.toFixed(2)}%</b>
+            </div>`;
+        }
+
+        // 8. Inject Safely formatted HTML directly to Tooltip
         tooltip.innerHTML = `
-          <div class="scurve-tooltip-title">${nearest.label} (${nearest.fullDate})</div>
-          ${nearest.planned !== null ? `<div class="scurve-tooltip-row"><span><span class="scurve-tooltip-dot" style="background:#38bdf8;"></span>Planned:</span> <b>${nearest.planned.toFixed(2)}%</b></div>` : ''}
-          ${nearest.actual !== null ? `<div class="scurve-tooltip-row"><span><span class="scurve-tooltip-dot" style="background:#34d399;"></span>Actual:</span> <b>${nearest.actual.toFixed(2)}%</b></div>` : ''}
-          ${nearest.pcma !== null ? `<div class="scurve-tooltip-row"><span><span class="scurve-tooltip-dot" style="background:#c084fc;"></span>PCMA:</span> <b>${nearest.pcma.toFixed(2)}%</b></div>` : ''}
+          <div style="font-weight:900; font-size:0.8rem; color:#38bdf8; border-bottom:1px solid rgba(255,255,255,0.2); padding-bottom:5px; margin-bottom:6px; text-transform:uppercase; text-align:center; display:flex; flex-direction:column; gap:2px;">
+              <span>${nearest.label}</span>
+              <span style="font-size:0.65rem; color:#cbd5e1; font-weight:800;">${nearest.fullDate}</span>
+          </div>
+          ${planStr}
+          ${actStr}
+          ${pcmaStr}
           ${slipStr}
         `;
 
         tooltip.style.display = 'block';
-        tooltip.style.left = `${Math.max(70, Math.min(rect.width - 70, domX))}px`;
-        tooltip.style.top = `60px`;
+        
+        // Dynamically position tooltip to NEVER get clipped
+        tooltip.style.left = `${Math.max(100, Math.min(rect.width - 100, domX))}px`;
+        
+        // If mouse is high up, put tooltip below the cursor. If mouse is low, put tooltip above.
+        if (mouseY < rect.height / 2) {
+            tooltip.style.transform = 'translate(-50%, 20px)';
+        } else {
+            tooltip.style.transform = 'translate(-50%, -115%)';
+        }
+        tooltip.style.top = `${mouseY}px`;
       };
 
-      svg.addEventListener('mousemove', (e) => handleMove(e.clientX));
+      // Pass the full event (e) instead of just clientX
+      svg.addEventListener('mousemove', (e) => handleMove(e));
       svg.addEventListener('mouseleave', () => {
         tooltip.style.display = 'none';
         if (crosshair) crosshair.setAttribute('opacity', '0');
       });
 
       svg.addEventListener('touchmove', (e) => {
-        if (e.touches.length > 0) handleMove(e.touches[0].clientX);
+        if (e.touches.length > 0) handleMove(e);
       }, { passive: true });
 
       svg.addEventListener('touchend', () => {
