@@ -18,8 +18,11 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Arial:wght@400;700;900&display=swap');
 
-        body { margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f0f0f0; display: flex; justify-content: center; min-height: 100vh; }
-        .app-container { width: 100%; max-width: 600px; background-color: white; min-height: 100vh; display: flex; flex-direction: column; box-shadow: 0 0 20px rgba(0,0,0,0.1); position: relative; }
+        /* CHANGED: Fixed viewport height and disabled body scroll to allow internal scrolling */
+        body { margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f0f0f0; display: flex; justify-content: center; height: 100vh; height: 100dvh; overflow: hidden; }
+        
+        /* CHANGED: Changed min-height to height 100% to strictly lock container to screen */
+        .app-container { width: 100%; max-width: 600px; background-color: white; height: 100%; display: flex; flex-direction: column; box-shadow: 0 0 20px rgba(0,0,0,0.1); position: relative; overflow: hidden; }
 
         .gradient-header { background: linear-gradient(to bottom, #f28b40 0%, #ffb473 40%, #f28b40 100%); color: black; font-weight: 900; font-size: 22px; text-align: center; padding: 12px 0; border-bottom: 2px solid white; text-transform: uppercase; }
         .tabs-container { display: flex; width: 100%; }
@@ -27,7 +30,10 @@
         .tab-active { background: linear-gradient(to bottom, #f0893a 0%, #fdc18e 40%, #f0893a 100%); color: black; border-right: 2px solid white; }
         .tab-inactive { background: linear-gradient(to bottom, #b3b3b3 0%, #e0e0e0 40%, #b3b3b3 100%); color: black; border-right: 2px solid white; }
         .gradient-blue-bar { background: linear-gradient(to bottom, #497bc3 0%, #9cbdf2 40%, #497bc3 100%); color: black; font-weight: 900; font-size: 22px; text-align: center; padding: 8px 0; border-bottom: 2px solid white; position: relative; }
-        .doc-list { display: flex; flex-direction: column; width: 100%; }
+        
+        /* CHANGED: Added flex: 1 and overflow-y: auto to allow the list to scroll underneath the frozen header */
+        .doc-list { display: flex; flex-direction: column; width: 100%; flex: 1; overflow-y: auto; }
+        
         .doc-item { display: flex; flex-direction: column; width: 100%; }
         .doc-row { display: flex; width: 100%; min-height: 55px; border-bottom: 1px solid #497bc3; box-sizing: border-box; align-items: stretch; }
         .doc-row.row-odd { background: linear-gradient(to bottom, #7da5e2 0%, #bad0f5 40%, #7da5e2 100%); }
@@ -51,7 +57,8 @@
         .accordion-iframe { width: 100%; height: 450px; border: none; display: block; }
 
         /* Utilities & Search */
-        .overlay { position: absolute; inset: 0; background: rgba(255,255,255,0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 2000; }
+        /* CHANGED: Swapped overlay from absolute to fixed to guarantee it always covers full screen */
+        .overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 2000; }
         .hidden { display: none !important; }
         .spinner { width: 50px; height: 50px; border: 5px solid #ccc; border-top-color: #f28b40; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
         @keyframes spin { to { transform: rotate(360deg); } }
@@ -99,7 +106,8 @@
         </div>
 
         <!-- SCREEN 1: SEARCH / LOGIN -->
-        <div id="searchScreen" style="height: 100%;">
+        <!-- CHANGED: Replaced height:100% with flex:1 to enable proper layout handling -->
+        <div id="searchScreen" style="flex: 1; display: flex; flex-direction: column; overflow-y: auto;">
             <div class="gradient-header">CONTRACTOR PORTAL</div>
             <div class="gradient-blue-bar" style="font-size: 16px;">ENTER CONTRACT ID</div>
             <div class="search-screen">
@@ -109,7 +117,8 @@
         </div>
 
         <!-- SCREEN 2: MAIN UI -->
-        <div id="mainScreen" class="hidden" style="height: 100%; display: flex; flex-direction: column;">
+        <!-- CHANGED: Replaced height:100% with flex:1 and overflow:hidden to lock the main screen bounds -->
+        <div id="mainScreen" class="hidden" style="flex: 1; display: flex; flex-direction: column; overflow: hidden;">
             
             <div class="gradient-header">UPLOAD DOCUMENTS</div>
             
@@ -123,6 +132,7 @@
                 <span id="displayContractId">26GA0161</span>
             </div>
 
+            <!-- The container below naturally takes up the remaining screen space and scrolls its contents inside its borders -->
             <div class="doc-list" id="docListContainer" style="border: 2px solid #497bc3; border-top: none; box-sizing: border-box;">
                 <!-- Rows dynamically injected here -->
             </div>
