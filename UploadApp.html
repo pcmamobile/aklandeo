@@ -330,7 +330,10 @@
 
             currentContractDocs.forEach((doc, idx) => {
                 const isUploaded = doc.uploadVal !== "";
-                if (currentTab === 'upload' && isUploaded) return; 
+                const isContinuousUpload = doc.name === "DO 193, series of 2016" || doc.name === "Other Related Document";
+                
+                // Allow continuous documents to remain in the Upload tab even if they already have files uploaded
+                if (currentTab === 'upload' && isUploaded && !isContinuousUpload) return; 
                 if (currentTab === 'uploaded' && !isUploaded) return; 
 
                 const rowClass = rowIndex % 2 !== 0 ? 'row-odd' : 'row-even';
@@ -368,9 +371,18 @@
                 rowHtml += `</div>`; 
 
                 if (currentTab === 'uploaded') {
-                    let fileId = doc.uploadVal.split('|')[0].trim();
-                    let embedUrl = fileId.startsWith('http') ? fileId : `https://drive.google.com/file/d/${fileId}/preview`;
-                    rowHtml += `<div id="view-${idx}" class="accordion-body"><iframe class="accordion-iframe" data-src="${embedUrl}"></iframe></div>`;
+                    rowHtml += `<div id="view-${idx}" class="accordion-body">`;
+                    let fileIds = doc.uploadVal.split('|');
+                    fileIds.forEach((id, fIdx) => {
+                        let fileId = id.trim();
+                        if (fileId) {
+                            let embedUrl = fileId.startsWith('http') ? fileId : `https://drive.google.com/file/d/${fileId}/preview`;
+                            // Add a blue border divider between multiple files
+                            let borderStyle = fIdx < fileIds.length - 1 ? 'border-bottom: 4px solid #1a4f8f;' : '';
+                            rowHtml += `<iframe class="accordion-iframe" data-src="${embedUrl}" style="${borderStyle}"></iframe>`;
+                        }
+                    });
+                    rowHtml += `</div>`;
                 }
                 rowHtml += `</div>`; 
                 container.innerHTML += rowHtml; rowIndex++;
@@ -380,9 +392,16 @@
         }
 
         function toggleView(id) {
-            const el = document.getElementById(id); const iframe = el.querySelector('iframe');
-            if (el.classList.contains('open')) el.classList.remove('open');
-            else { if (!iframe.src) iframe.src = iframe.getAttribute('data-src'); el.classList.add('open'); }
+            const el = document.getElementById(id); 
+            const iframes = el.querySelectorAll('iframe');
+            if (el.classList.contains('open')) {
+                el.classList.remove('open');
+            } else { 
+                iframes.forEach(iframe => {
+                    if (!iframe.src) iframe.src = iframe.getAttribute('data-src'); 
+                });
+                el.classList.add('open'); 
+            }
         }
 
         function triggerFilePicker(docName) {
@@ -614,10 +633,21 @@
                 if (!driveData.success) throw new Error(driveData.error);
                 
                 showLoader("Syncing Database...");
-                await updateSheetCell(docType.toUpperCase() + " UPLOADED", driveData.fileId);
-
+                
                 let targetDoc = currentContractDocs.find(d => d.name === docType);
-                if (targetDoc) targetDoc.uploadVal = driveData.fileId; 
+                let finalUploadVal = driveData.fileId;
+                
+                // Check if the current document is set for continuous uploads
+                const isContinuousUpload = docType === "DO 193, series of 2016" || docType === "Other Related Document";
+                
+                // If this is a continuous file upload doc and it already has files, append the new ID with a |
+                if (isContinuousUpload && targetDoc && targetDoc.uploadVal !== "") {
+                    finalUploadVal = targetDoc.uploadVal + "|" + driveData.fileId;
+                }
+                
+                await updateSheetCell(docType.toUpperCase() + " UPLOADED", finalUploadVal);
+
+                if (targetDoc) targetDoc.uploadVal = finalUploadVal; 
                 
                 alert("Upload Successful!"); hideLoader(); switchTab('uploaded');
             } catch(error) { hideLoader(); alert("Upload failed: " + error.message); }
