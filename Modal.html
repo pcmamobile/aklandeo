@@ -453,7 +453,7 @@
     const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwE2zVf654nTieExX174j6eTPG5-BaVINGQIszgfe5sLvDvJARL-u2k0vQk_DlYukExNg/exec";
 
     // =========================================================
-    // GOOGLE SHEETS API & SWA DATA ENGINE (OPTION A)
+    // GOOGLE SHEETS API & SWA DATA ENGINE
     // =========================================================
     const SWA_API_CONFIG = {
         SPREADSHEET_ID: "1LSYLZ7tfSeVupQMPsCOHG4SlnzPQqOAIe03QI1qRMr8",
@@ -732,11 +732,12 @@
       const projIdIdx  = findCol('Project ID', 'proj id', 'projectid');
       const uploadCol  = findCol('upload pictures');
 
-      const peIdx = findCol('project engineer');
-      const piIdx = findCol('project inspector');
-      const reIdx = findCol('resident engineer');
-      const qeIdx = findCol('quantity engineer');
-      const meIdx = findCol('materials engineer');
+      // Enhanced search for personnel to ensure they are captured no matter the naming variation
+      const peIdx = findCol('project engineer', 'pe');
+      const piIdx = findCol('project inspector', 'inspector', 'pi');
+      const reIdx = findCol('resident engineer', 're');
+      const qeIdx = findCol('quantity engineer', 'quantity surveyor', 'qe');
+      const meIdx = findCol('materials engineer', 'me');
 
       const schedIdx = findCol('sched', 'schedule');
       const actualIdx= findCol('actual', 'actual %', 'actual accomplishment', 'accomp', 'accomplishment'); 
@@ -761,20 +762,24 @@
       docsBtn.onclick = () => { window.parent.postMessage({ type: 'OPEN_DOCS', cid: currentCid }, '*'); };
       actionBtns.appendChild(docsBtn);
 
+      // Cleaned up authorization logic
       const currentUser = localStorage.getItem('pcma_logged_in_user') || 'Guest';
-      const currentFullName = localStorage.getItem('pcma_logged_in_fullname') || '';
+      const currentFullName = (localStorage.getItem('pcma_logged_in_fullname') || '').trim();
       const isAdmin = (currentUser === 'Admin');
 
       let isAuthorized = isAdmin;
       if (!isAdmin && currentUser !== 'Guest' && currentFullName) {
+          const userSearchStr = currentFullName.toLowerCase();
+          
           const personnel = [
               peIdx > -1 ? String(row[peIdx] || '').toLowerCase() : '',
-              piIdx > -1 ? String(row[peIdx] || '').toLowerCase() : '',
+              piIdx > -1 ? String(row[piIdx] || '').toLowerCase() : '', // FIXED: Previously this was erroneously checking peIdx
               reIdx > -1 ? String(row[reIdx] || '').toLowerCase() : '',
               qeIdx > -1 ? String(row[qeIdx] || '').toLowerCase() : '',
               meIdx > -1 ? String(row[meIdx] || '').toLowerCase() : ''
           ];
-          isAuthorized = personnel.some(p => p.includes(currentFullName.toLowerCase()));
+          
+          isAuthorized = personnel.some(p => p.includes(userSearchStr));
       }
 
       let swaBtn = document.createElement('button'); swaBtn.type = 'button';
