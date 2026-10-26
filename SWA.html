@@ -718,6 +718,32 @@
             return isNaN(num) ? '' : num;
         }
 
+        // --- NEW FORMATTING FUNCTIONS FOR SUSPENSION DATES ---
+        function formatDateToMMM(dateString) {
+            if (!dateString) return '';
+            const parts = dateString.split('-');
+            if(parts.length === 3) {
+                const d = new Date(parts[0], parts[1] - 1, parts[2]);
+                const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+            }
+            const d = new Date(dateString);
+            if (isNaN(d.getTime())) return dateString; 
+            const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+        }
+
+        function parseMMMToDateInput(mmmString) {
+            if (!mmmString) return '';
+            const d = new Date(mmmString);
+            if (isNaN(d.getTime())) return '';
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}`;
+        }
+        // -----------------------------------------------------
+
         function getOrdinal(n) {
             const s = ["th", "st", "nd", "rd"];
             const v = n % 100;
@@ -1616,12 +1642,20 @@
             let suspensions = [];
             if (suspColIdx !== -1) {
                 const suspCacheKey = `${suspColIdx}_${rowNumber}`;
-                let suspStr = appState.modifiedCells[suspCacheKey] ? (appState.modifiedCells[suspCacheKey].parts[0] || '') : String(appState.contractRowData.values[suspColIdx] || '');
-                if (suspStr) {
-                    suspensions = suspStr.split(',').map(s => {
-                        const parts = s.split('|');
-                        return { suspend: parts[0] ? new Date(parts[0]) : null, resume: parts[1] ? new Date(parts[1]) : null };
-                    }).filter(s => s.suspend && !isNaN(s.suspend.getTime()));
+                let suspParts = [];
+                if (appState.modifiedCells[suspCacheKey]) {
+                    suspParts = appState.modifiedCells[suspCacheKey].parts;
+                } else {
+                    const cellVal = String(appState.contractRowData.values[suspColIdx] || '');
+                    suspParts = cellVal ? cellVal.split('|').map(p => p.trim()) : [];
+                }
+                
+                for (let i = 0; i < suspParts.length; i += 2) {
+                    let sDate = suspParts[i] ? new Date(suspParts[i]) : null;
+                    let rDate = suspParts[i+1] ? new Date(suspParts[i+1]) : null;
+                    if (sDate && !isNaN(sDate.getTime())) {
+                        suspensions.push({ suspend: sDate, resume: rDate && !isNaN(rDate.getTime()) ? rDate : null });
+                    }
                 }
             }
 
@@ -3489,21 +3523,29 @@
 
             const rowNumber = appState.contractRowData.rowNumber;
             const cacheKey = `${suspColIdx}_${rowNumber}`;
-            let suspStr = appState.modifiedCells[cacheKey] ? (appState.modifiedCells[cacheKey].parts[0] || '') : String(appState.contractRowData.values[suspColIdx] || '');
+            let suspParts = [];
+            if (appState.modifiedCells[cacheKey]) {
+                suspParts = appState.modifiedCells[cacheKey].parts;
+            } else {
+                const cellVal = String(appState.contractRowData.values[suspColIdx] || '');
+                suspParts = cellVal ? cellVal.split('|').map(p => p.trim()) : [];
+            }
             
             detailContainer.dataset.colIndex = suspColIdx;
             detailContainer.dataset.rowNumber = rowNumber;
-            detailContainer.dataset.parts = suspStr; 
+            detailContainer.dataset.parts = JSON.stringify(suspParts); 
             buildSuspensionTable();
         }
 
         function buildSuspensionTable() {
             const detailContainer = document.getElementById('detail-suspension');
-            const suspStr = detailContainer.dataset.parts || '';
+            const suspParts = JSON.parse(detailContainer.dataset.parts || '[]');
             let html = `<div class="flex flex-col gap-3">`;
             
             let pairs = [];
-            if (suspStr) pairs = suspStr.split(',').map(s => { const p = s.split('|'); return { suspend: p[0] || '', resume: p[1] || '' }; });
+            for (let i = 0; i < suspParts.length; i += 2) {
+                pairs.push({ suspend: suspParts[i] || '', resume: suspParts[i+1] || '' });
+            }
             
             let isSuspended = false;
             let totalDays = 0;
@@ -3524,16 +3566,19 @@
                             totalDays += diffDays;
                         }
                     }
+                    
+                    const suspInputVal = pair.suspend ? parseMMMToDateInput(pair.suspend) : '';
+                    const resInputVal = pair.resume ? parseMMMToDateInput(pair.resume) : '';
 
                     html += `
                     <div class="flex flex-col md:flex-row items-center gap-2 bg-rose-50 p-2.5 rounded-xl border border-rose-200 shadow-sm relative">
                         <div class="flex-1 w-full flex items-center gap-2">
                             <span class="text-[10px] font-black text-rose-700 uppercase w-[60px]">Suspend:</span>
-                            <input type="date" value="${pair.suspend}" onchange="updateSuspensionData()" class="susp-start-input flex-1 bg-white border border-rose-300 rounded-lg p-2 text-[11px] font-bold outline-none focus:border-rose-500 shadow-inner">
+                            <input type="date" value="${suspInputVal}" onchange="updateSuspensionData()" class="susp-start-input flex-1 bg-white border border-rose-300 rounded-lg p-2 text-[11px] font-bold outline-none focus:border-rose-500 shadow-inner">
                         </div>
                         <div class="flex-1 w-full flex items-center gap-2">
                             <span class="text-[10px] font-black text-emerald-700 uppercase w-[60px]">Resume:</span>
-                            <input type="date" value="${pair.resume}" onchange="updateSuspensionData()" class="susp-end-input flex-1 bg-white border border-emerald-300 rounded-lg p-2 text-[11px] font-bold outline-none focus:border-emerald-500 shadow-inner">
+                            <input type="date" value="${resInputVal}" onchange="updateSuspensionData()" class="susp-end-input flex-1 bg-white border border-emerald-300 rounded-lg p-2 text-[11px] font-bold outline-none focus:border-emerald-500 shadow-inner">
                         </div>
                         <button onclick="removeSuspensionRow(${idx})" class="text-rose-400 hover:text-rose-600 transition-colors p-2" title="Remove"><i class="fa-solid fa-trash"></i></button>
                         ${daysText ? `<div class="absolute -top-2 -right-2 bg-gradient-to-r from-rose-500 to-red-600 text-white text-[9px] font-black px-2 py-0.5 rounded shadow-sm border border-rose-700 z-10">${daysText}</div>` : ''}
@@ -3551,17 +3596,18 @@
         
         function addSuspensionRow() {
             const detailContainer = document.getElementById('detail-suspension');
-            let suspStr = detailContainer.dataset.parts || '';
-            detailContainer.dataset.parts = suspStr ? suspStr + ',|' : '|';
+            let suspParts = JSON.parse(detailContainer.dataset.parts || '[]');
+            suspParts.push('', ''); // Add empty suspend and resume slots
+            detailContainer.dataset.parts = JSON.stringify(suspParts);
             buildSuspensionTable();
             commitSuspensionToState();
         }
         
         function removeSuspensionRow(idx) {
             const detailContainer = document.getElementById('detail-suspension');
-            let pairs = (detailContainer.dataset.parts || '').split(',');
-            pairs.splice(idx, 1);
-            detailContainer.dataset.parts = pairs.join(',');
+            let suspParts = JSON.parse(detailContainer.dataset.parts || '[]');
+            suspParts.splice(idx * 2, 2);
+            detailContainer.dataset.parts = JSON.stringify(suspParts);
             buildSuspensionTable();
             commitSuspensionToState();
         }
@@ -3570,9 +3616,12 @@
             const detailContainer = document.getElementById('detail-suspension');
             const starts = detailContainer.querySelectorAll('.susp-start-input');
             const ends = detailContainer.querySelectorAll('.susp-end-input');
-            let pairs = [];
-            for(let i=0; i<starts.length; i++) pairs.push(`${starts[i].value}|${ends[i].value}`);
-            detailContainer.dataset.parts = pairs.join(',');
+            let suspParts = [];
+            for(let i = 0; i < starts.length; i++) {
+                suspParts.push(formatDateToMMM(starts[i].value));
+                suspParts.push(formatDateToMMM(ends[i].value));
+            }
+            detailContainer.dataset.parts = JSON.stringify(suspParts);
             buildSuspensionTable();
             commitSuspensionToState();
         }
@@ -3582,13 +3631,14 @@
             const colIdx = parseInt(detailContainer.dataset.colIndex);
             const rowNumber = parseInt(detailContainer.dataset.rowNumber);
             const cacheKey = `${colIdx}_${rowNumber}`;
-            const newStr = detailContainer.dataset.parts;
+            const suspParts = JSON.parse(detailContainer.dataset.parts || '[]');
             
             appState.modifiedCells[cacheKey] = {
-                colIndex: colIdx, colLetter: colToLetter(colIdx), rowNumber: rowNumber, headerName: 'SUSPENSION', parts: [newStr], synced: false
+                colIndex: colIdx, colLetter: colToLetter(colIdx), rowNumber: rowNumber, headerName: 'SUSPENSION', parts: suspParts, synced: false
             };
+            
             const originalVal = String(appState.contractRowData.values[colIdx] || '');
-            if (originalVal === newStr) delete appState.modifiedCells[cacheKey];
+            if (originalVal === suspParts.join('|')) delete appState.modifiedCells[cacheKey];
             
             updatePendingBadge();
             recalculateAggregatedTotals();

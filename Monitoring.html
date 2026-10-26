@@ -426,7 +426,7 @@
                 </button>
             </div>
             
-        </div> <!-- This specific closing tag is what got deleted previously! -->
+        </div>
 
         <!-- Date Header -->
         <div class="text-center font-black text-[#0f3b75] text-xl mb-3 bg-white/40 py-1 shadow-sm border border-white/50 no-print">
@@ -493,7 +493,7 @@
             checkAuth();
         });
 
-        // Global Event Listener for closing Summary issue menus
+        // Global Event Listener for closing Summary issue menus & Custom Multi-Select Dropdowns
         document.addEventListener('click', (e) => {
             // Close Sidebar
             const sidebar = document.getElementById('sidebar-menu');
@@ -505,8 +505,17 @@
             }
             // Close Action Menus (Hide/Unhide & Check/Uncheck)
             if (!e.target.closest('.action-dropdown-container')) {
-                document.querySelectorAll('.action-menu-content').forEach(el => el.classList.add('hidden'));
-                activeActionMenu = null; // Clear state when clicking away
+                if (activeActionMenu) {
+                    activeActionMenu = null; // Clear state when clicking away
+                    document.querySelectorAll('.action-menu-content').forEach(el => el.classList.add('hidden'));
+                }
+            }
+            // Close Custom Multi-Select Filter Menus
+            if (!e.target.closest('.filter-dropdown-container')) {
+                if (activeFilterMenu) {
+                    activeFilterMenu = null;
+                    document.querySelectorAll('.filter-dropdown-container > div:nth-child(2)').forEach(el => el.classList.add('hidden'));
+                }
             }
             // Close Issue Dropdowns & Reset row layer styles
             if (!e.target.closest('.issue-dropdown-container')) {
@@ -703,13 +712,15 @@
         let filterShowUnchecked = true;
         let filterShowRedDot = true;
         let filterShowNoDot = true;
-        let billingFilterSubCon = 'All'; // Added for Sub Con Filter
-		let othersSheetMeta = { contractColIdx: 0, billingColIdx: 1, issueColIdx: 2, projectedColIdx: -1, noBillingColIdx: -1, paidColIdx: -1, bacColIdx: -1, map: {}, data: {}, projectedMap: {}, paidMap: {}, bacMap: {}, nextRow: 4, dropdownSubcon: [], dropdownIssue: [] };
+		
+        let othersSheetMeta = { contractColIdx: 0, billingColIdx: 1, issueColIdx: 2, projectedColIdx: -1, noBillingColIdx: -1, paidColIdx: -1, bacColIdx: -1, map: {}, data: {}, projectedMap: {}, paidMap: {}, bacMap: {}, nextRow: 4, dropdownSubcon: [], dropdownIssue: [] };
         
 		let globalPcmaColIdx = -1;
         let globalRemarksColIdx = -1;
 
         let editHistory = []; 
+        let activeActionMenu = null;
+        let activeFilterMenu = null;
         
         let mainView = 'home'; 
         let activeTab = 'slippage'; 
@@ -719,45 +730,45 @@
 		let billingTotalMode = 'checked';
         
         let weeklySelectedMonthOffset = -1;
-        let weeklyFilterYear = 'All';
-        let weeklyFilterMark = 'All';
+        let weeklyFilterYear = ['All'];
+        let weeklyFilterMark = ['All'];
 
         let monthlyViewMode = 'standard'; 
-        let monthlyFilterYear = 'All'; 
-        let monthlyFilterPe = 'All';
-        let monthlyFilterStatus = 'All';
+        let monthlyFilterYear = ['All']; 
+        let monthlyFilterPe = ['All'];
+        let monthlyFilterStatus = ['All'];
         let monthlySearchQuery = '';
         let searchDebounceTimer = null; 
         
-        let cfaFilterYear = 'All';
+        let cfaFilterYear = ['All'];
 
 		// Summary Tab State
         let summaryGroupMode = 'contractor';
 
         // No Billing Tab State
         let noBillingGroupMode = 'contractor';
-        let noBillingFilterYear = 'All';
+        let noBillingFilterYear = ['All'];
         
         // Projected Tab State
         let projectedGroupMode = 'contractor';
-        let projectedFilterYear = 'All';
+        let projectedFilterYear = ['All'];
 
         let monthlyFilterPendingPCMA = false; 
         let monthlyFilterPendingActual = false; 
         let monthlyFilterPendingRemarks = false; 
         
         let documentSubTab = 'planning';
-        let docFilterYear = 'All';
-        let docFilterPe = 'All';
-        let docFilterStatus = 'All';
+        let docFilterYear = ['All'];
+        let docFilterPe = ['All'];
+        let docFilterStatus = ['All'];
 		let docSearchQuery = '';
         let docSearchDebounceTimer = null;
         let docHideCompletePE = {}; 
 
         let appPhotosData = [];
-        let appFilterYear = 'All';
-        let appFilterPe = 'All';
-        let appFilterStatus = 'All';
+        let appFilterYear = ['All'];
+        let appFilterPe = ['All'];
+        let appFilterStatus = ['All'];
         let appSearchQuery = '';
         let appSearchDebounceTimer = null; 
         
@@ -823,8 +834,8 @@
                     const iIdx = headers.findIndex(h => h === 'ISSUE');
                     const projIdx = headers.findIndex(h => h === 'PROJECTED');
                     const nbIdx = headers.findIndex(h => h === 'NO BILLING');
-                    const paidIdx = headers.findIndex(h => h === 'PAID'); // Read PAID header
-                    const bacIdx = headers.findIndex(h => h === 'BAC'); // Read BAC header
+                    const paidIdx = headers.findIndex(h => h === 'PAID'); 
+                    const bacIdx = headers.findIndex(h => h === 'BAC'); 
                     
                     const ddSubconIdx = headers.findIndex(h => h === 'DROPDOWN SUBCON');
                     const ddIssueIdx = headers.findIndex(h => h === 'DROPDOWN ISSUE');
@@ -1043,7 +1054,6 @@
                         const projStr = (pdoInfo.projectName || '').toUpperCase();
                         
                         const isDar = fundStr.includes('DAR') || /\bDAR\b/.test(projStr);
-                        // ONLY check the Fund column for "Maint" to prevent "Preventive Maintenance" projects from being wrongly tagged
                         const isMaint = fundStr.includes('MAINT');
                         
                         let fCategory = 'GAA';
@@ -1053,7 +1063,6 @@
                         else if (fundStr === 'DA' || fundStr.includes('DA ') || fundStr.startsWith('DA-') || projStr.includes(' DA ') || projStr.startsWith('DA-')) fCategory = 'DA';
                         else if (fundStr.includes('SF') || fundStr.includes('SPECIAL') || projStr.includes('SPECIAL FUND')) fCategory = 'SF';
                         
-                        // Failsafe: if the Fund is explicitly GAA, enforce it
                         if (fundStr === 'GAA' || fundStr.includes('REGULAR')) {
                             fCategory = 'GAA';
                         }
@@ -1093,19 +1102,12 @@
                             if (parsedAmount > 0) {
                                 let cleanedRemarks = '-';
                                 if (remarksText) {
-                                    // Split without removing empty items so the 3rd column stays at the correct index
                                     const remarkParts = remarksText.split('|').map(p => p.trim());
-                                    
-                                    // If format is "Date | Amount | Status | Encoded", get the 3rd part (index 2)
                                     if (remarkParts.length >= 3) {
                                         cleanedRemarks = remarkParts[2];
-                                    } 
-                                    // Fallback for older or shorter remarks (e.g., just "Retention")
-                                    else if (remarkParts.length > 0) {
+                                    } else if (remarkParts.length > 0) {
                                         cleanedRemarks = remarkParts[remarkParts.length - 1]; 
                                     }
-                                    
-                                    // Make sure empty values fallback to a dash
                                     if (!cleanedRemarks || cleanedRemarks === '') {
                                         cleanedRemarks = '-';
                                     }
@@ -1544,10 +1546,10 @@
             if (btn) {
                 if (editHistory.length > 0) {
                     btn.disabled = false;
-                    btn.className = "bg-rose-500 hover:bg-rose-600 text-white font-black text-center py-1.5 px-4 text-sm md:text-base outline-none shadow-md rounded-md transition-all active:scale-95 flex justify-center items-center gap-2";
+                    btn.className = "bg-rose-500 hover:bg-rose-600 text-white font-black text-center py-1.5 px-4 text-sm md:text-base outline-none shadow-md rounded-md transition-all active:scale-95 flex justify-center items-center gap-2 z-0";
                 } else {
                     btn.disabled = true;
-                    btn.className = "bg-gray-300 opacity-50 cursor-not-allowed text-white font-black text-center py-1.5 px-4 text-sm md:text-base outline-none shadow-sm rounded-md transition-all flex justify-center items-center gap-2";
+                    btn.className = "bg-gray-300 opacity-50 cursor-not-allowed text-white font-black text-center py-1.5 px-4 text-sm md:text-base outline-none shadow-sm rounded-md transition-all flex justify-center items-center gap-2 z-0";
                 }
             }
         }
@@ -1694,13 +1696,111 @@
             }
         };
 
-window.toggleActionMenu = function(menuId) {
+        window.toggleActionMenu = function(menuId) {
             if (activeActionMenu === menuId) {
                 activeActionMenu = null; // Close if already open
             } else {
                 activeActionMenu = menuId; // Open the clicked one
             }
             renderView(); // Re-render to apply the open/close state
+        };
+        
+        window.toggleFilterMenu = function(id) {
+            if (activeFilterMenu === id) {
+                activeFilterMenu = null;
+            } else {
+                activeFilterMenu = id;
+            }
+            renderView(); 
+        };
+
+        window.updateMultiFilter = function(filterName, val, isChecked, menuId) {
+            let menuEl = document.getElementById(menuId);
+            let scrollPos = menuEl ? menuEl.scrollTop : 0;
+
+            let arr;
+            switch(filterName) {
+                case 'weeklyYear': arr = weeklyFilterYear; break;
+                case 'weeklyMark': arr = weeklyFilterMark; break;
+                case 'monthlyYear': arr = monthlyFilterYear; break;
+                case 'monthlyPe': arr = monthlyFilterPe; break;
+                case 'monthlyStatus': arr = monthlyFilterStatus; break;
+                case 'noBillingYear': arr = noBillingFilterYear; break;
+                case 'projectedYear': arr = projectedFilterYear; break;
+                case 'cfaYear': arr = cfaFilterYear; break;
+                case 'docYear': arr = docFilterYear; break;
+                case 'docPe': arr = docFilterPe; break;
+                case 'docStatus': arr = docFilterStatus; break;
+                case 'appYear': arr = appFilterYear; break;
+                case 'appPe': arr = appFilterPe; break;
+                case 'appStatus': arr = appFilterStatus; break;
+                default: return;
+            }
+
+            if (val === 'All') {
+                if (isChecked) {
+                    arr.length = 0;
+                    arr.push('All');
+                } else {
+                    arr.length = 0; 
+                    arr.push('All');
+                }
+            } else {
+                const allIdx = arr.indexOf('All');
+                if (allIdx > -1) arr.splice(allIdx, 1);
+
+                if (isChecked) {
+                    if (!arr.includes(val)) arr.push(val);
+                } else {
+                    const idx = arr.indexOf(val);
+                    if (idx > -1) arr.splice(idx, 1);
+                }
+                if (arr.length === 0) arr.push('All');
+            }
+
+            renderView();
+
+            let newMenuEl = document.getElementById(menuId);
+            if (newMenuEl) newMenuEl.scrollTop = scrollPos;
+        };
+
+        window.renderMultiSelect = function(id, label, options, selectedArray, filterName, customClass) {
+            let display = selectedArray.includes('All') ? `All ${label}s` : selectedArray.join(', ');
+            if (display.length > 20) display = display.substring(0, 17) + '...';
+
+            const boxClass = customClass ? customClass : "w-full border-2 border-orange-500 text-[#0f3b75] font-black text-center py-1.5 text-xs md:text-sm outline-none cursor-pointer shadow-sm bg-white rounded-md flex items-center justify-between px-2 h-full min-h-[36px]";
+            
+            const isOpen = activeFilterMenu === id;
+
+            const optionsHtml = options.map(opt => {
+                const val = typeof opt === 'object' ? opt.value : opt;
+                const text = typeof opt === 'object' ? opt.label : opt;
+                const isChecked = selectedArray.includes(String(val));
+                const valEscaped = String(val).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                
+                return `
+                <label class="flex items-start gap-2 p-2 hover:bg-blue-50 cursor-pointer border-b border-gray-200 transition-colors">
+                    <input type="checkbox" class="mt-0.5 accent-blue-600 shrink-0" value="${valEscaped}" ${isChecked ? 'checked' : ''} onchange="updateMultiFilter('${filterName}', '${valEscaped}', this.checked, '${id}')">
+                    <span class="text-xs md:text-sm font-bold text-gray-800 leading-tight">${text}</span>
+                </label>`;
+            }).join('');
+
+            return `
+            <div class="relative flex-1 text-left filter-dropdown-container" onclick="event.stopPropagation()">
+                <div class="${boxClass}" onclick="toggleFilterMenu('${id}')">
+                    <span class="truncate pr-2 pointer-events-none">${display}</span>
+                    <i class="fa-solid fa-chevron-down text-[10px] md:text-xs shrink-0 pointer-events-none"></i>
+                </div>
+                <div id="${id}" class="${isOpen ? '' : 'hidden'} absolute top-full left-0 z-50 w-full bg-white border border-gray-400 shadow-xl mt-1 max-h-56 overflow-y-auto rounded text-left">
+                    <div class="p-1.5 bg-gray-100 font-bold text-xs text-center border-b border-gray-300 sticky top-0 z-10 shadow-sm text-black uppercase tracking-wide">${label}</div>
+                    <label class="flex items-start gap-2 p-2 hover:bg-blue-50 cursor-pointer border-b border-gray-200 transition-colors">
+                        <input type="checkbox" class="mt-0.5 accent-blue-600 shrink-0" value="All" ${selectedArray.includes('All') ? 'checked' : ''} onchange="updateMultiFilter('${filterName}', 'All', this.checked, '${id}')">
+                        <span class="text-xs md:text-sm font-bold text-gray-800 leading-tight">All ${label}s</span>
+                    </label>
+                    ${optionsHtml}
+                </div>
+            </div>
+            `;
         };
 
         window.bulkToggleSummaryCheckbox = async function(fundStr, isIncluded) {
@@ -2044,12 +2144,20 @@ window.toggleActionMenu = function(menuId) {
             const suspColIdx = headers.findIndex(h => String(h || '').toUpperCase().trim() === 'SUSPENSION');
             let suspensions = [];
             if (suspColIdx !== -1) {
-                const suspStr = String(row[suspColIdx] || '');
+                const suspStr = String(row[suspColIdx] || '').trim();
                 if (suspStr) {
-                    suspensions = suspStr.split(',').map(s => {
-                        const p = s.split('|');
-                        return { suspend: p[0] ? new Date(p[0]) : null, resume: p[1] ? new Date(p[1]) : null };
-                    }).filter(s => s.suspend && !isNaN(s.suspend.getTime()));
+                    const parts = suspStr.split('|').map(p => p.trim());
+                    for (let i = 0; i < parts.length; i += 2) {
+                        const sStart = parts[i] ? new Date(parts[i]) : null;
+                        const sEnd = (i + 1 < parts.length && parts[i + 1]) ? new Date(parts[i + 1]) : null;
+                        
+                        if (sStart && !isNaN(sStart.getTime())) {
+                            suspensions.push({
+                                suspend: sStart,
+                                resume: (sEnd && !isNaN(sEnd.getTime())) ? sEnd : null
+                            });
+                        }
+                    }
                 }
             }
             let evalDate = new Date(); 
@@ -2088,16 +2196,22 @@ window.toggleActionMenu = function(menuId) {
             const suspColIdx = headers.findIndex(h => String(h || '').toUpperCase().trim() === 'SUSPENSION');
             let suspensions = [];
             if (suspColIdx !== -1) {
-                const suspStr = String(row[suspColIdx] || '');
+                const suspStr = String(row[suspColIdx] || '').trim();
                 if (suspStr) {
-                suspensions = suspStr.split(',').map(s => {
-                    const p = s.split('|');
-                    const sStart = p[0] ? new Date(p[0].trim()) : null;
-                    const sEnd = p[1] && p[1].trim() !== '' ? new Date(p[1].trim()) : null;
-                    return { suspend: (sStart && !isNaN(sStart.getTime())) ? sStart : null, resume: (sEnd && !isNaN(sEnd.getTime())) ? sEnd : null };
-                }).filter(s => s.suspend !== null);
+                    const parts = suspStr.split('|').map(p => p.trim());
+                    for (let i = 0; i < parts.length; i += 2) {
+                        const sStart = parts[i] ? new Date(parts[i]) : null;
+                        const sEnd = (i + 1 < parts.length && parts[i + 1]) ? new Date(parts[i + 1]) : null;
+                        
+                        if (sStart && !isNaN(sStart.getTime())) {
+                            suspensions.push({
+                                suspend: sStart,
+                                resume: (sEnd && !isNaN(sEnd.getTime())) ? sEnd : null
+                            });
+                        }
+                    }
+                }
             }
-        }
 
         const termColIdx = headers.findIndex(h => String(h || '').toUpperCase().trim() === 'TERMINATED');
         let terminationDate = null;
@@ -2182,7 +2296,6 @@ window.toggleActionMenu = function(menuId) {
                 }
             }
 
-            // Convert missing, zero, suspended, AND updated icons to "Completed" if actual percentage is >= 100%
         if (actualPercent >= 99.99) {
             for (let i = 0; i < 4; i++) {
                 if (weeks[i] !== 'future' && weeks[i] !== 'before_ntp' && weeks[i] !== 'terminated') {
@@ -2193,8 +2306,6 @@ window.toggleActionMenu = function(menuId) {
 
             return weeks;
         }
-
-
 
         // ====================================================================
         // NEW RULE LOGIC & SYNC FOR LAST BILLING
@@ -2207,11 +2318,10 @@ window.toggleActionMenu = function(menuId) {
             if (lower.includes('final')) return '100%';
             if (lower.includes('mobilization')) return '15%';
             
-            // Extract percentage if present (e.g., "35%", "40.5%")
             const pctMatch = remarks.match(/(\d+(?:\.\d+)?%)/);
             if (pctMatch) return pctMatch[1];
             
-            return remarks; // Fallback to original text if none of the rules match
+            return remarks; 
         }
 
         window.syncLastBillingToSheet = async function() {
@@ -2220,53 +2330,86 @@ window.toggleActionMenu = function(menuId) {
 
             const billContractColIndex = findContractHeaderCol(globalBillingHeaders);
             const lastBillingColIndex = globalBillingHeaders.findIndex(h => String(h||'').trim().toLowerCase() === 'last billing');
+            const currentBillingColIndex = globalBillingHeaders.findIndex(h => String(h||'').trim().toLowerCase() === 'current billing');
 
             if (lastBillingColIndex === -1) {
                 alert("Error: 'Last Billing' column not found in row 3 of the BILLING sheet.\nPlease ensure the column header exists and is exactly named 'Last Billing'.");
                 if (btn) btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> SYNC TO SHEETS';
                 return;
             }
+            if (currentBillingColIndex === -1) {
+                alert("Error: 'Current Billing' column not found in row 3 of the BILLING sheet.\nPlease ensure the column header exists and is exactly named 'Current Billing'.");
+                if (btn) btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> SYNC TO SHEETS';
+                return;
+            }
 
             let updates = [];
 
-            // Loop through all rows in BILLING sheet
             for (let r = 3; r < globalBillingValues.length; r++) {
                 const row = globalBillingValues[r] || [];
                 const cId = row[billContractColIndex] ? String(row[billContractColIndex]).trim() : '';
                 if (!cId) continue;
 
                 let lastBillingStatus = '-';
+                let currentBillingStatus = '-';
 
-                // 1. Get ONLY the bills for this project that are ACTUALLY PAID (isPaid === true)
-                const paidBills = billingDataGlobal.filter(b => b.contractId === cId && b.isPaid === true);
+                const projectBills = billingDataGlobal.filter(b => b.contractId === cId);
+                const paidBills = projectBills.filter(b => b.isPaid === true);
+                const unpaidBills = projectBills.filter(b => b.isPaid === false);
 
                 if (paidBills.length > 0) {
-                    // 2. Sort the PAID bills chronologically
                     paidBills.sort((a, b) => {
                         if (a.billingYear !== b.billingYear) return a.billingYear - b.billingYear;
                         return monthOrderMap[a.billingMonthName.substring(0,3)] - monthOrderMap[b.billingMonthName.substring(0,3)];
                     });
 
-                    // 3. Check if ANY of the PAID bills is a Retention
                     const hasPaidRetention = paidBills.some(b => 
                         (b.remarks || '').toUpperCase().includes('RETENTION') || 
                         (b.fullRemarks || '').toUpperCase().includes('RETENTION')
                     );
 
-                    // 4. Set the value to 100% if Retention is PAID, otherwise get the latest PAID value
-                    if (hasPaidRetention) {
-                        lastBillingStatus = '100%';
-                    } else {
-                        lastBillingStatus = formatLastBillingValue(paidBills[paidBills.length - 1].remarks);
-                    }
+                    const latestPaid = paidBills[paidBills.length - 1];
+                    let lbValue = hasPaidRetention ? '100%' : formatLastBillingValue(latestPaid.remarks);
+                    let lbAmount = formatCurrency(latestPaid.amount);
+                    let lbMonthYear = `${latestPaid.billingMonthName} ${latestPaid.billingYear}`;
+                    
+                    lastBillingStatus = `${lbValue}|${lbAmount}|${latestPaid.remarks}|${lbMonthYear}|Paid`;
                 }
 
-                // Add to batch update list
-                const colLetter = colIndexToLetter(lastBillingColIndex);
-                const cellA1 = `BILLING!${colLetter}${r + 1}`;
+                if (unpaidBills.length > 0) {
+                    unpaidBills.sort((a, b) => {
+                        if (a.billingYear !== b.billingYear) return a.billingYear - b.billingYear;
+                        return monthOrderMap[a.billingMonthName.substring(0,3)] - monthOrderMap[b.billingMonthName.substring(0,3)];
+                    });
+
+                    const earliestUnpaid = unpaidBills[0];
+                    let cbValue = formatLastBillingValue(earliestUnpaid.remarks);
+                    let cbAmount = formatCurrency(earliestUnpaid.amount);
+                    let cbMonthYear = `${earliestUnpaid.billingMonthName} ${earliestUnpaid.billingYear}`;
+                    
+                    currentBillingStatus = `${cbValue}|${cbAmount}|${earliestUnpaid.remarks}|${cbMonthYear}|Pending`;
+                } else if (paidBills.length > 0) {
+                    const latestPaid = paidBills[paidBills.length - 1];
+                    const currentSysMonth = monthsArr[_today.getMonth()].substring(0, 3).toLowerCase();
+                    const currentSysYear = _today.getFullYear();
+
+                    if (latestPaid.billingYear === currentSysYear && latestPaid.billingMonthName.toLowerCase().startsWith(currentSysMonth)) {
+                        currentBillingStatus = lastBillingStatus;
+                    }
+                } else if (paidBills.length > 0) {
+                    currentBillingStatus = lastBillingStatus;
+                }
+
+                const lbColLetter = colIndexToLetter(lastBillingColIndex);
+                const cbColLetter = colIndexToLetter(currentBillingColIndex);
+                
                 updates.push({
-                    range: cellA1,
+                    range: `BILLING!${lbColLetter}${r + 1}`,
                     values: [[lastBillingStatus]]
+                });
+                updates.push({
+                    range: `BILLING!${cbColLetter}${r + 1}`,
+                    values: [[currentBillingStatus]]
                 });
             }
 
@@ -2290,7 +2433,7 @@ window.toggleActionMenu = function(menuId) {
                 });
 
                 if (res.ok) {
-                    alert(`Successfully synced ${updates.length} project(s) to the Google Sheet!`);
+                    alert(`Successfully synced ${updates.length / 2} project(s) to the Google Sheet!`);
                 } else {
                     console.error("Sync Error:", await res.json());
                     alert("Failed to sync data. Check the console for details.");
@@ -2523,8 +2666,6 @@ window.toggleActionMenu = function(menuId) {
         };
         window.changeGeneralGroupMode = function(mode) { generalGroupMode = mode; renderView(); };
 		
-        let activeActionMenu = null; // Remembers which dropdown is open
-
         window.toggleBillingFund = function(fund, isChecked) {
             billingFundFilters[fund] = isChecked;
             renderView();
@@ -2540,7 +2681,6 @@ window.toggleActionMenu = function(menuId) {
             renderView();
         };
 
-        // Helper to check if a specific fund is fully included in the Summary Tab
         function getFundInclusionStatus(fundStr) {
             let total = 0;
             let included = 0;
@@ -2553,17 +2693,11 @@ window.toggleActionMenu = function(menuId) {
                 }
             });
             if (total === 0) return false; 
-            return included === total; // Returns true if ALL unpaid projects in this fund are checked
+            return included === total; 
         }
 
         window.changeWeeklyMonth = function(mOffset) {
             weeklySelectedMonthOffset = mOffset;
-            renderView();
-        }
-
-        window.changeWeeklyFilter = function(type, val) {
-            if (type === 'year') weeklyFilterYear = val;
-            if (type === 'mark') weeklyFilterMark = val;
             renderView();
         }
 
@@ -2577,7 +2711,12 @@ window.toggleActionMenu = function(menuId) {
             renderView();
         }
 
-window.changeBillingSubConFilter = function(val) {
+        window.changeProjectedGroupMode = function(val) {
+            projectedGroupMode = val;
+            renderView();
+        }
+
+        window.changeBillingSubConFilter = function(val) {
             billingFilterSubCon = val;
             renderView();
         };
@@ -2585,15 +2724,13 @@ window.changeBillingSubConFilter = function(val) {
         window.updatePaidStatus = async function(contractId, val, selectEl, year, monthStr) {
             const monthNum = monthOrderMap[monthStr.substring(0,3)];
             let offset = (parseInt(year) - 2026) * 12 + (monthNum - 5);
-            if (offset < 0) offset = 0; // Fallback for bills before May 2026
+            if (offset < 0) offset = 0; 
 
             let rawPaid = othersSheetMeta.paidMap[contractId] || '';
             let parts = rawPaid.split('|').map(p => p.trim());
             
-            // Pad the array with dashes if it's too short for the current month
             while(parts.length <= offset) parts.push('-');
             
-            // Update the specific month's slot
             parts[offset] = val;
             
             const newRawPaid = parts.join('|');
@@ -2705,40 +2842,10 @@ window.changeBillingSubConFilter = function(val) {
             }
         };
 
-        window.changeNoBillingFilterYear = function(val) {
-            noBillingFilterYear = val;
-            renderView();
-        }
-        
-        window.changeProjectedGroupMode = function(val) {
-            projectedGroupMode = val;
-            renderView();
-        }
-
-        window.changeProjectedFilterYear = function(val) {
-            projectedFilterYear = val;
-            renderView();
-        }
-
         function changeMonthlyFilter(type, val) {
-            if (type === 'year') monthlyFilterYear = val;
-            if (type === 'pe') monthlyFilterPe = val;
-            if (type === 'status') monthlyFilterStatus = val;
             if (type === 'pendingPCMA') monthlyFilterPendingPCMA = val;
             if (type === 'pendingActual') monthlyFilterPendingActual = val;
             if (type === 'pendingRemarks') monthlyFilterPendingRemarks = val;
-            renderView();
-        }
-        
-        function changeCfaFilter(type, val) {
-            if (type === 'year') cfaFilterYear = val;
-            renderView();
-        }
-
-        function changeDocFilter(type, val) {
-            if (type === 'year') docFilterYear = val;
-            if (type === 'pe') docFilterPe = val;
-            if (type === 'status') docFilterStatus = val;
             renderView();
         }
         
@@ -2754,13 +2861,6 @@ window.changeBillingSubConFilter = function(val) {
             docHideCompletePE[pe] = checked;
             renderView();
         };
-		
-        window.changeAppFilter = function(type, val) {
-            if (type === 'year') appFilterYear = val;
-            if (type === 'pe') appFilterPe = val;
-            if (type === 'status') appFilterStatus = val;
-            renderView();
-        }
         
         window.debounceAppSearch = function(val) {
             if (appSearchDebounceTimer) clearTimeout(appSearchDebounceTimer);
@@ -3075,7 +3175,6 @@ window.changeBillingSubConFilter = function(val) {
                 totalRows += groupedData[k].length + 2; 
             });
 
-            // If rows exceed ~35 (roughly a 1-page limit), it changes to 2-columns. Otherwise, Centered.
             let containerClass = totalRows > 35 ? "subcon-print-2cols" : "subcon-print-centered";
 
             let printHtml = `
@@ -3085,14 +3184,13 @@ window.changeBillingSubConFilter = function(val) {
                 <div class="${containerClass}">
             `;
 
-            // Define color themes to cycle through for each Sub Con
             const printThemes = [
-                { top: '#9bc854', bottom: '#7cae3c', bg: '#8cb85c', rowLight: '#f4faeb' }, // Green
-                { top: '#f6b26b', bottom: '#e69138', bg: '#e69138', rowLight: '#fef5eb' }, // Orange
-                { top: '#9fc5e8', bottom: '#6fa8dc', bg: '#6fa8dc', rowLight: '#f0f6fb' }, // Blue
-                { top: '#d5a6bd', bottom: '#c27ba0', bg: '#c27ba0', rowLight: '#fbf3f8' }, // Purple
-                { top: '#ffd966', bottom: '#f1c232', bg: '#f1c232', rowLight: '#fffcf0' }, // Yellow
-                { top: '#a2c4c9', bottom: '#76a5af', bg: '#76a5af', rowLight: '#f1f6f7' }  // Teal
+                { top: '#9bc854', bottom: '#7cae3c', bg: '#8cb85c', rowLight: '#f4faeb' }, 
+                { top: '#f6b26b', bottom: '#e69138', bg: '#e69138', rowLight: '#fef5eb' }, 
+                { top: '#9fc5e8', bottom: '#6fa8dc', bg: '#6fa8dc', rowLight: '#f0f6fb' }, 
+                { top: '#d5a6bd', bottom: '#c27ba0', bg: '#c27ba0', rowLight: '#fbf3f8' }, 
+                { top: '#ffd966', bottom: '#f1c232', bg: '#f1c232', rowLight: '#fffcf0' }, 
+                { top: '#a2c4c9', bottom: '#76a5af', bg: '#76a5af', rowLight: '#f1f6f7' }  
             ];
 
             sortedKeys.forEach((keyName, groupIdx) => {
@@ -3118,7 +3216,7 @@ window.changeBillingSubConFilter = function(val) {
                 `;
                 
                 bills.forEach((b, idx) => {
-                    const rowBg = idx % 2 === 0 ? theme.rowLight : '#ffffff'; // Alternating matching theme / white rows
+                    const rowBg = idx % 2 === 0 ? theme.rowLight : '#ffffff'; 
                     
                     const monthNum = monthOrderMap[b.billingMonthName.substring(0,3)];
                     let offset = (b.billingYear - 2026) * 12 + (monthNum - 5);
@@ -3163,7 +3261,7 @@ window.changeBillingSubConFilter = function(val) {
             
             setTimeout(() => {
                 window.print();
-            }, 100); // 100ms delay enables DOM update before print window catches it
+            }, 100); 
         };
 
 	   function resizeTextareasSmoothly() {
@@ -3300,7 +3398,6 @@ window.changeBillingSubConFilter = function(val) {
                         const isExcluded = excludedBillingContracts.has(b.contractId);
                         const hasDot = redDotContracts.has(b.contractId);
 
-                        // Row Visibility Filtering Check
                         if (!filterShowChecked && !isExcluded) return;
                         if (!filterShowUnchecked && isExcluded) return;
                         if (!filterShowRedDot && hasDot) return;
@@ -3311,7 +3408,6 @@ window.changeBillingSubConFilter = function(val) {
                         else if (billingTotalMode === 'unchecked') shouldIncludeInTotal = isExcluded;
                         else if (billingTotalMode === 'red_dot') shouldIncludeInTotal = hasDot;
 
-                        // Compute totals respecting the dropdown mode
                         if (shouldIncludeInTotal) {
                             if (b.fundCategory === 'DAR') totalDar += b.amount;
                             else if (b.fundCategory === 'Maint') totalMaint += b.amount;
@@ -3322,7 +3418,6 @@ window.changeBillingSubConFilter = function(val) {
                             }
                         }
 
-                        // Only push into rendering group if the specific fund is checked
                         if (billingFundFilters[b.fundCategory]) {
                             let groupKey = b.contractor;
                             if (billingGroupMode === 'pe') groupKey = b.pe;
@@ -3429,7 +3524,7 @@ window.changeBillingSubConFilter = function(val) {
                     const allFundsChecked = Object.values(billingFundFilters).every(v => v === true);
 
                     html += `
-                        <div class="w-full flex gap-2 justify-end mb-1">
+                        <div class="w-full flex gap-2 justify-end mb-1 relative z-[45]">
                             <button onclick="handleBillingUndo()" class="bg-blue-100 hover:bg-blue-200 border-2 border-[#0f3b75] text-[#0f3b75] font-black px-4 py-1.5 rounded-md shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed" ${billingUndoStack.length === 0 ? 'disabled' : ''}>
                                 <i class="fa-solid fa-rotate-left mr-1"></i> Undo
                             </button>
@@ -3439,7 +3534,6 @@ window.changeBillingSubConFilter = function(val) {
                         </div>
                         <div class="w-full flex flex-col md:flex-row gap-2 mb-6 action-dropdown-container relative z-40">
                             
-                            <!-- Dropdown 1: Hide & Unhide Projects (Fund Filter & Visibility) -->
                             <div class="relative flex-1">
                                 <button onclick="event.stopPropagation(); toggleActionMenu('filter-menu')" class="w-full bg-white border-2 border-[#0f3b75] text-[#0f3b75] font-black py-2 rounded-md shadow-sm flex justify-between items-center px-3 hover:bg-blue-50 transition-colors">
                                     <span class="text-sm md:text-base"><i class="fa-solid fa-eye mr-2"></i> 1. Hide & Unhide</span>
@@ -3501,7 +3595,6 @@ window.changeBillingSubConFilter = function(val) {
                                 </div>
                             </div>
 
-                            <!-- Dropdown 2: Check & Uncheck Projects (Bulk Actions) -->
                             <div class="relative flex-1">
                                 <button onclick="event.stopPropagation(); toggleActionMenu('bulk-menu')" class="w-full bg-[#fff9f2] border-2 border-orange-500 text-orange-900 font-black py-2 rounded-md shadow-sm flex justify-between items-center px-3 hover:bg-orange-50 transition-colors">
                                     <span class="text-sm md:text-base"><i class="fa-solid fa-list-check mr-2"></i> 2. Check & Uncheck</span>
@@ -3555,7 +3648,6 @@ window.changeBillingSubConFilter = function(val) {
                             const theme = PE_THEMES[index % PE_THEMES.length];
                             const bills = groupedData[keyName];
                             
-                            // Calculate total amount for the current group
                             let groupTotal = 0;
                             bills.forEach(b => groupTotal += b.amount);
                             
@@ -3601,7 +3693,6 @@ window.changeBillingSubConFilter = function(val) {
 
                                 const isExcluded = excludedBillingContracts.has(b.contractId);
                                 
-                                // Calculate the month slot offset based on the Bill's specific month
                                 const monthNum = monthOrderMap[b.billingMonthName.substring(0,3)];
                                 let offset = (b.billingYear - 2026) * 12 + (monthNum - 5);
                                 if (offset < 0) offset = 0;
@@ -3667,7 +3758,6 @@ window.changeBillingSubConFilter = function(val) {
                     }
                     container.innerHTML = html;
                 } else if (activeTab === 'summary') {
-                    // Summary View Logic
                     const summaryBills = billingDataGlobal.filter(b => 
                         b.isPaid === false && 
                         !excludedBillingContracts.has(b.contractId)
@@ -3677,7 +3767,6 @@ window.changeBillingSubConFilter = function(val) {
 
                     summaryBills.forEach(b => {
                         if (!projectMap[b.contractId]) {
-                            // Copy ALL elements of `b` so generateBillingDetailsRow works perfectly!
                             projectMap[b.contractId] = {
                                 ...b,
                                 remarks: [],
@@ -3850,19 +3939,15 @@ window.changeBillingSubConFilter = function(val) {
                     html += `</div>`;
                     container.innerHTML = html;
                 } else if (activeTab === 'nobilling') {
-                    // --- NO BILLING VIEW LOGIC ---
                     const noBillingProjects = [];
                     const billContractColIndex = findContractHeaderCol(globalBillingHeaders);
 
-                    // Loop through all raw billing rows
                     for (let r = 3; r < globalBillingValues.length; r++) {
                         const row = globalBillingValues[r] || [];
                         const cId = row[billContractColIndex] ? String(row[billContractColIndex]).trim() : '';
                         if (!cId) continue;
 
                         let hasRetention = false;
-
-                        // 1. Scan headers strictly to check if 'RETENTION' exists anywhere
                         globalBillingHeaders.forEach((h, colIdx) => {
                             const headerStr = String(h || '').trim().toUpperCase();
                             if (headerStr.includes('REMARKS')) {
@@ -3873,32 +3958,28 @@ window.changeBillingSubConFilter = function(val) {
                             }
                         });
 
-                        if (hasRetention) continue; // Skip if Retention found
+                        if (hasRetention) continue; 
 
-                        // 2. Fetch all parsed bills for this Contract ID
                         const projectBills = billingDataGlobal.filter(b => b.contractId === cId);
-                        
-                        // 3. Condition: If ANY bill is Black Text (Unpaid / isPaid === false), skip this project completely
                         const hasUnpaid = projectBills.some(b => b.isPaid === false);
                         if (hasUnpaid) continue;
 
-                        // 4. Calculate Total Billed and find Last Billing Status for Paid (Red Text) bills
                         let totalBilled = 0;
                         let lastBillingStatus = '-';
                         
-                        // Sort bills chronologically by year and month to get the true "Last Billing"
                         projectBills.sort((a, b) => {
                             if (a.billingYear !== b.billingYear) return a.billingYear - b.billingYear;
                             return monthOrderMap[a.billingMonthName.substring(0,3)] - monthOrderMap[b.billingMonthName.substring(0,3)];
                         });
 
-                        // Add up the red amounts and set the latest status
                         projectBills.forEach(b => {
                             totalBilled += b.amount;
-                            lastBillingStatus = formatLastBillingValue(b.remarks); // Format text before displaying
+                            let val = formatLastBillingValue(b.remarks);
+                            let formattedAmount = formatCurrency(b.amount); 
+                            let monthYear = `${b.billingMonthName} ${b.billingYear}`;
+                            lastBillingStatus = `${val}|${formattedAmount}|${b.remarks}|${monthYear}|Paid`; 
                         });
 
-                        // Find the contractAmount, PE, Contractor, and Year by checking the monitoringData pool
                         const mData = monitoringData.find(m => m.contractId === cId);
                         const cAmount = mData ? mData.contractAmount : 0;
                         const pe = mData ? mData.pe : 'Unknown PE';
@@ -3911,8 +3992,6 @@ window.changeBillingSubConFilter = function(val) {
                         const expiry = mData ? mData.expiry : '-';
 
                         const remaining = cAmount - totalBilled;
-                        
-                        // Extract the fund category from the project's billing data
                         const fundCat = projectBills.length > 0 ? projectBills[0].fundCategory : 'GAA';
 
                         noBillingProjects.push({
@@ -3932,18 +4011,14 @@ window.changeBillingSubConFilter = function(val) {
                         });
                     }
 
-                    // Extract unique years for the filter dropdown
                     const allNoBillingYears = [...new Set(noBillingProjects.map(p => p.year))].filter(y => y !== 'Unknown').sort().reverse();
 
-                    // Apply Year Filter
                     const filteredNoBilling = noBillingProjects.filter(p => {
-                        return noBillingFilterYear === 'All' || p.year === noBillingFilterYear;
+                        return noBillingFilterYear.includes('All') || noBillingFilterYear.includes(p.year);
                     });
                     
-                    // SAVE VISIBLE PROJECTS TO GLOBAL VARIABLE FOR SYNCING
                     window.currentVisibleNoBilling = filteredNoBilling;
 
-                    // Group Data by Selected Mode (PE or Contractor)
                     const groupedNoBilling = {};
                     filteredNoBilling.forEach(p => {
                         const groupKey = noBillingGroupMode === 'pe' ? p.pe : p.contractor;
@@ -3951,31 +4026,27 @@ window.changeBillingSubConFilter = function(val) {
                         groupedNoBilling[groupKey].push(p);
                     });
 
-                    // Render HTML for the Dropdowns
                     let html = `
                         <div class="w-full flex flex-col md:flex-row gap-2 mb-4">
                             <select onchange="changeNoBillingGroupMode(this.value)" class="flex-1 border-2 border-orange-500 text-[#0f3b75] font-black text-center py-1.5 text-sm md:text-base outline-none cursor-pointer shadow-sm bg-white rounded-md">
                                 <option value="contractor" ${noBillingGroupMode === 'contractor' ? 'selected' : ''}>by Contractor</option>
                                 <option value="pe" ${noBillingGroupMode === 'pe' ? 'selected' : ''}>by Project Engineer (PE)</option>
                             </select>
-                            <select onchange="changeNoBillingFilterYear(this.value)" class="flex-1 border-2 border-orange-500 text-[#0f3b75] font-black text-center py-1.5 text-sm md:text-base outline-none cursor-pointer shadow-sm bg-white rounded-md">
-                                <option value="All" ${noBillingFilterYear === 'All' ? 'selected' : ''}>All Years</option>
-                                ${allNoBillingYears.map(y => `<option value="${y}" ${noBillingFilterYear === String(y) ? 'selected' : ''}>CY ${y}</option>`).join('')}
-                            </select>
+                            
+                            ${renderMultiSelect('nobill-year', 'Year', allNoBillingYears, noBillingFilterYear, 'noBillingYear')}
+                            
                             <button id="sync-last-billing-btn" onclick="syncLastBillingToSheet()" class="bg-blue-600 hover:bg-blue-700 text-white font-black text-center py-1.5 px-4 text-sm md:text-base outline-none shadow-sm rounded-md transition-all flex items-center justify-center gap-2 active:scale-95 shrink-0">
                                 <i class="fa-solid fa-cloud-arrow-up"></i> SYNC TO SHEETS
                             </button>
                         </div>
                     `;
 
-                    // Render Grouped Tables
                     const sortedGroupKeys = Object.keys(groupedNoBilling).sort();
 
                     if (sortedGroupKeys.length === 0) {
                         html += `<div class="text-center py-10 font-black text-slate-500 opacity-60"><i class="fa-solid fa-check-circle text-4xl mb-3 block"></i> All active projects have Retentions matching this filter!</div>`;
                     } else {
                         sortedGroupKeys.forEach((keyName, index) => {
-                            // Cycle through your existing color themes for PE/Contractor
                             const theme = PE_THEMES[index % PE_THEMES.length];
                             const projects = groupedNoBilling[keyName];
 
@@ -4027,7 +4098,6 @@ window.changeBillingSubConFilter = function(val) {
 
                     container.innerHTML = html;
                 } else if (activeTab === 'projected') {
-                    // --- PROJECTED VIEW LOGIC ---
                     const projectedProjects = [];
                     const billContractColIndex = findContractHeaderCol(globalBillingHeaders);
 
@@ -4036,7 +4106,6 @@ window.changeBillingSubConFilter = function(val) {
                         const cId = row[billContractColIndex] ? String(row[billContractColIndex]).trim() : '';
                         if (!cId) continue;
 
-                        // Skip projects unchecked in NO BILLING
                         if (excludedNoBillingContracts.has(cId)) continue;
                         
                         let hasRetention = false;
@@ -4045,10 +4114,10 @@ window.changeBillingSubConFilter = function(val) {
                                 if (String(row[colIdx] || '').trim().toUpperCase().includes('RETENTION')) hasRetention = true;
                             }
                         });
-                        if (hasRetention) continue; // Match NO BILLING logic
+                        if (hasRetention) continue; 
 
                         const projectBills = billingDataGlobal.filter(b => b.contractId === cId);
-                        if (projectBills.some(b => b.isPaid === false)) continue; // Match NO BILLING logic
+                        if (projectBills.some(b => b.isPaid === false)) continue; 
 
                         let totalBilled = 0;
                         projectBills.forEach(b => totalBilled += b.amount);
@@ -4087,7 +4156,10 @@ window.changeBillingSubConFilter = function(val) {
                     }
 
                     const allProjectedYears = [...new Set(projectedProjects.map(p => p.year))].filter(y => y !== 'Unknown').sort().reverse();
-                    const filteredProjected = projectedProjects.filter(p => projectedFilterYear === 'All' || p.year === projectedFilterYear);
+                    
+                    const filteredProjected = projectedProjects.filter(p => {
+                        return projectedFilterYear.includes('All') || projectedFilterYear.includes(p.year);
+                    });
 
                     const groupedProjected = {};
                     let totalProjectedAmount = 0;
@@ -4097,7 +4169,6 @@ window.changeBillingSubConFilter = function(val) {
                         if (!groupedProjected[groupKey]) groupedProjected[groupKey] = [];
                         groupedProjected[groupKey].push(p);
 
-                        // Only add to the total if the amount is a positive number
                         if (p.amount > 0) {
                             totalProjectedAmount += p.amount;
                         }
@@ -4109,10 +4180,8 @@ window.changeBillingSubConFilter = function(val) {
                                 <option value="contractor" ${projectedGroupMode === 'contractor' ? 'selected' : ''}>by Contractor</option>
                                 <option value="pe" ${projectedGroupMode === 'pe' ? 'selected' : ''}>by Project Engineer (PE)</option>
                             </select>
-                            <select onchange="changeProjectedFilterYear(this.value)" class="flex-1 border-2 border-orange-500 text-[#0f3b75] font-black text-center py-1.5 text-sm md:text-base outline-none cursor-pointer shadow-sm bg-white rounded-md">
-                                <option value="All" ${projectedFilterYear === 'All' ? 'selected' : ''}>All Years</option>
-                                ${allProjectedYears.map(y => `<option value="${y}" ${projectedFilterYear === String(y) ? 'selected' : ''}>CY ${y}</option>`).join('')}
-                            </select>
+                            
+                            ${renderMultiSelect('proj-year', 'Year', allProjectedYears.map(y=>({label:`CY ${y}`, value:y})), projectedFilterYear, 'projectedYear')}
                         </div>
 
                         <!-- TOTAL AMOUNT BOX -->
@@ -4202,24 +4271,20 @@ window.changeBillingSubConFilter = function(val) {
                             if (project.slippage <= -5.00) filteredData.push(project);
                         } else if (activeTab === 'weekly') {
                             if (project.hasLogin) {
-                                const matchYear = weeklyFilterYear === 'All' || String(project.year) === weeklyFilterYear;
+                                const matchYear = weeklyFilterYear.includes('All') || weeklyFilterYear.includes(String(project.year));
                                 if (!matchYear) return;
 
                                 const wData = project.weeklyHistory[weeklySelectedMonthOffset] || ['missing','missing','missing','missing'];
                                 let matchStatus = false;
                                 
-                                if (weeklyFilterMark === 'All') {
+                                if (weeklyFilterMark.includes('All')) {
                                     matchStatus = true;
-                                } else if (weeklyFilterMark === 'Completed') {
-                                    matchStatus = wData.includes('completed');
-                                } else if (weeklyFilterMark === 'On-going') {
-                                    matchStatus = wData.includes('updated');
-                                } else if (weeklyFilterMark === 'No Accomplishment') {
-                                    matchStatus = wData.includes('zero') || wData.includes('missing');
-                                } else if (weeklyFilterMark === 'Suspended') {
-                                    matchStatus = wData.includes('suspended');
-                                } else if (weeklyFilterMark === 'Terminated') {
-                                    matchStatus = wData.includes('terminated');
+                                } else {
+                                    if (weeklyFilterMark.includes('Completed') && wData.includes('completed')) matchStatus = true;
+                                    if (weeklyFilterMark.includes('On-going') && wData.includes('updated')) matchStatus = true;
+                                    if (weeklyFilterMark.includes('No Accomplishment') && (wData.includes('zero') || wData.includes('missing'))) matchStatus = true;
+                                    if (weeklyFilterMark.includes('Suspended') && wData.includes('suspended')) matchStatus = true;
+                                    if (weeklyFilterMark.includes('Terminated') && wData.includes('terminated')) matchStatus = true;
                                 }
 
                                 if (matchStatus) filteredData.push(project);
@@ -4247,21 +4312,18 @@ window.changeBillingSubConFilter = function(val) {
 
                     if (activeTab === 'weekly') {
                         const weeklyYears = [...new Set(monitoringData.filter(p => p.hasLogin).map(p => p.year))].filter(Boolean).sort().reverse();
+                        const markOptions = [
+                            {label: 'Completed (C)', value: 'Completed'},
+                            {label: 'On-going (✓)', value: 'On-going'},
+                            {label: 'No Accomplish (N / ✘)', value: 'No Accomplishment'},
+                            {label: 'Suspended (S)', value: 'Suspended'},
+                            {label: 'Terminated (T)', value: 'Terminated'}
+                        ];
                         
                         html += `
                             <div class="w-full flex flex-col md:flex-row gap-2 mb-2">
-                                <select onchange="changeWeeklyFilter('year', this.value)" class="flex-1 border-2 border-yellow-600 text-[#0f3b75] font-black text-center py-1 text-sm md:text-base outline-none cursor-pointer shadow-sm bg-white rounded-md">
-                                    <option value="All" ${weeklyFilterYear === 'All' ? 'selected' : ''}>All Years</option>
-                                    ${weeklyYears.map(y => `<option value="${y}" ${weeklyFilterYear === String(y) ? 'selected' : ''}>CY ${y}</option>`).join('')}
-                                </select>
-                                <select onchange="changeWeeklyFilter('mark', this.value)" class="flex-1 border-2 border-yellow-600 text-[#0f3b75] font-black text-center py-1 text-sm md:text-base outline-none cursor-pointer shadow-sm bg-white rounded-md">
-                                    <option value="All" ${weeklyFilterMark === 'All' ? 'selected' : ''}>All Status</option>
-                                    <option value="Completed" ${weeklyFilterMark === 'Completed' ? 'selected' : ''}>Completed (C)</option>
-                                    <option value="On-going" ${weeklyFilterMark === 'On-going' ? 'selected' : ''}>On-going (✓)</option>
-                                    <option value="No Accomplishment" ${weeklyFilterMark === 'No Accomplishment' ? 'selected' : ''}>No Accomplishment (N / ✘)</option>
-                                    <option value="Suspended" ${weeklyFilterMark === 'Suspended' ? 'selected' : ''}>Suspended (S)</option>
-                                    <option value="Terminated" ${weeklyFilterMark === 'Terminated' ? 'selected' : ''}>Terminated (T)</option>
-                                </select>
+                                ${renderMultiSelect('week-year', 'Year', weeklyYears.map(y=>({label:`CY ${y}`, value:y})), weeklyFilterYear, 'weeklyYear', "w-full border-2 border-yellow-600 text-[#0f3b75] font-black text-center py-1.5 text-sm md:text-base outline-none cursor-pointer shadow-sm bg-white rounded-md flex items-center justify-between px-2")}
+                                ${renderMultiSelect('week-mark', 'Status', markOptions, weeklyFilterMark, 'weeklyMark', "w-full border-2 border-yellow-600 text-[#0f3b75] font-black text-center py-1.5 text-sm md:text-base outline-none cursor-pointer shadow-sm bg-white rounded-md flex items-center justify-between px-2")}
                             </div>
                         `;
 
@@ -4380,21 +4442,12 @@ window.changeBillingSubConFilter = function(val) {
                                 </select>
                             </div>
 
-                            <div class="flex flex-col md:flex-row gap-2">
-                                <select onchange="changeMonthlyFilter('year', this.value)" class="flex-1 border-2 border-orange-500 text-[#0f3b75] font-black text-center py-1.5 text-sm md:text-base outline-none cursor-pointer shadow-sm bg-white rounded-md">
-                                    <option value="All" ${monthlyFilterYear === 'All' ? 'selected' : ''}>All Years</option>
-                                    ${allYears.map(y => `<option value="${y}" ${monthlyFilterYear === String(y) ? 'selected' : ''}>${y}</option>`).join('')}
-                                </select>
-                                <select onchange="changeMonthlyFilter('pe', this.value)" class="flex-1 border-2 border-orange-500 text-[#0f3b75] font-black text-center py-1.5 text-sm md:text-base outline-none cursor-pointer shadow-sm bg-white rounded-md">
-                                    <option value="All">All PEs</option>
-                                    ${allPEs.map(pe => `<option value="${pe}" ${monthlyFilterPe===pe?'selected':''}>${pe}</option>`).join('')}
-                                </select>
-                                <select onchange="changeMonthlyFilter('status', this.value)" class="flex-1 border-2 border-orange-500 text-[#0f3b75] font-black text-center py-1.5 text-sm md:text-base outline-none cursor-pointer shadow-sm bg-white rounded-md">
-                                    <option value="All">All Status</option>
-                                    ${allStatuses.map(s => `<option value="${s}" ${monthlyFilterStatus===s?'selected':''}>${s}</option>`).join('')}
-                                </select>
+                            <div class="flex flex-col md:flex-row gap-2 relative z-50">
+                                ${renderMultiSelect('month-year', 'Year', allYears, monthlyFilterYear, 'monthlyYear')}
+                                ${renderMultiSelect('month-pe', 'PE', allPEs, monthlyFilterPe, 'monthlyPe')}
+                                ${renderMultiSelect('month-status', 'Status', allStatuses, monthlyFilterStatus, 'monthlyStatus')}
 
-                                <button onclick="undoLastEdit()" id="undo-btn" class="${undoBtnClass} text-white font-black text-center py-1.5 px-4 text-sm md:text-base outline-none shadow-sm rounded-md transition-all flex items-center justify-center gap-2 active:scale-95" ${undoBtnState}>
+                                <button onclick="undoLastEdit()" id="undo-btn" class="${undoBtnClass} text-white font-black text-center py-1.5 px-4 text-sm md:text-base outline-none shadow-sm rounded-md transition-all flex items-center justify-center gap-2 active:scale-95 z-0" ${undoBtnState}>
                                     <i class="fa-solid fa-rotate-left"></i> UNDO
                                 </button>
                             </div>
@@ -4477,9 +4530,9 @@ window.changeBillingSubConFilter = function(val) {
                             trendData
                         };
                     }).filter(item => {
-                        const matchYear = monthlyFilterYear === 'All' || item.year === monthlyFilterYear;
-                        const matchPe = monthlyFilterPe === 'All' || item.pe === monthlyFilterPe;
-                        const matchStatus = monthlyFilterStatus === 'All' || item.status === monthlyFilterStatus;
+                        const matchYear = monthlyFilterYear.includes('All') || monthlyFilterYear.includes(item.year);
+                        const matchPe = monthlyFilterPe.includes('All') || monthlyFilterPe.includes(item.pe);
+                        const matchStatus = monthlyFilterStatus.includes('All') || monthlyFilterStatus.includes(item.status);
                         
                         const matchPendingPcma = !monthlyFilterPendingPCMA || (!item.isPcmaUpdated && !item.isBeforeNTP);
                         const matchPendingActual = !monthlyFilterPendingActual || (!item.isActualUpdated && !item.isBeforeNTP);
@@ -4513,7 +4566,7 @@ window.changeBillingSubConFilter = function(val) {
                             const theme = YEAR_THEMES[yearGrp] || YEAR_THEMES[2026]; 
                             const items = groupedMonthly[yearGrp];
 
-                            html += `<div class="w-full flex flex-col shadow-md mb-6">`;
+                            html += `<div class="w-full flex flex-col shadow-md mb-6 z-10 relative">`;
 
                             if (monthlyViewMode === 'standard') {
                                 html += `
@@ -4712,17 +4765,10 @@ window.changeBillingSubConFilter = function(val) {
 
                 let html = `
                     <div id="acceptance-print-area" class="w-full flex flex-col gap-2">
-                        <div class="flex flex-col md:flex-row gap-2 mb-4 no-print">
-                            <div class="w-full bg-white border-[3px] border-red-600 shadow-sm relative group overflow-hidden flex-1">
-                                <select onchange="changeCfaFilter('year', this.value)" class="w-full text-center text-xl md:text-2xl font-black text-[#0f3b75] py-1.5 outline-none cursor-pointer bg-transparent appearance-none relative z-10">
-                                    <option value="All" ${cfaFilterYear === 'All' ? 'selected' : ''}>All Years</option>
-                                    ${allYears.map(y => `<option value="${y}" ${cfaFilterYear === String(y) ? 'selected' : ''}>${y}</option>`).join('')}
-                                </select>
-                                <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none z-0">
-                                    <i class="fa-solid fa-chevron-down text-red-600 text-lg group-hover:translate-y-0.5 transition-transform"></i>
-                                </div>
-                            </div>
-                            <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white font-black text-center py-1.5 px-4 text-sm md:text-base outline-none shadow-sm rounded-md transition-all flex items-center justify-center gap-2 active:scale-95 shrink-0">
+                        <div class="flex flex-col md:flex-row gap-2 mb-4 no-print relative z-50">
+                            ${renderMultiSelect('cfa-year', 'Year', allYears, cfaFilterYear, 'cfaYear', 'w-full bg-white border-[3px] border-red-600 shadow-sm text-center text-xl md:text-2xl font-black text-[#0f3b75] py-1.5 outline-none cursor-pointer flex items-center justify-between px-4')}
+                            
+                            <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white font-black text-center py-1.5 px-4 text-sm md:text-base outline-none shadow-sm rounded-md transition-all flex items-center justify-center gap-2 active:scale-95 shrink-0 z-0">
                                 <i class="fa-solid fa-print"></i> PRINT
                             </button>
                         </div>
@@ -4733,7 +4779,7 @@ window.changeBillingSubConFilter = function(val) {
                         </div>
                 `;
 
-                let displayYears = cfaFilterYear === 'All' ? allYears : [cfaFilterYear];
+                let displayYears = cfaFilterYear.includes('All') ? allYears : cfaFilterYear;
                 
                 let cocTabClass = acceptanceSubTab === 'coc' 
                     ? "py-1.5 border-b-2 border-orange-500 bg-gradient-to-b from-orange-300 to-orange-500 text-black font-black text-base md:text-xl tracking-wider cursor-pointer shadow-inner no-print" 
@@ -4744,7 +4790,7 @@ window.changeBillingSubConFilter = function(val) {
                     : "py-1.5 border-b-2 border-l-2 border-gray-400 bg-gradient-to-b from-gray-200 to-gray-300 text-black font-black text-base md:text-xl tracking-wider cursor-pointer hover:brightness-95 no-print";
 
                 html += `
-                    <table class="w-full text-center border-collapse text-sm md:text-base font-bold text-[#0f3b75] bg-white shadow-md mb-6">
+                    <table class="w-full text-center border-collapse text-sm md:text-base font-bold text-[#0f3b75] bg-white shadow-md mb-6 z-10 relative">
                         <thead>
                             <tr class="show-on-print">
                                 <th colspan="5" class="py-1.5 bg-[#f4a261] text-black font-black text-xl md:text-2xl tracking-widest uppercase border border-black" style="-webkit-print-color-adjust: exact; print-color-adjust: exact;">ACCEPTANCE</th>
@@ -4794,7 +4840,7 @@ window.changeBillingSubConFilter = function(val) {
                         grandWith += sum.withCoc;
                         grandWo += sum.woCoc;
 
-                        if (sum.woCoc === 0) return; // Hide year if no data in w/o COC
+                        if (sum.woCoc === 0) return; 
 
                         html += `
                             <tr class="border-b border-gray-200 hover:bg-gray-50 transition-colors">
@@ -4812,7 +4858,7 @@ window.changeBillingSubConFilter = function(val) {
                         grandWith += sum.withCfa;
                         grandWo += sum.woCfa;
 
-                        if (sum.woCfa === 0) return; // Hide year if no data in w/o CFA
+                        if (sum.woCfa === 0) return; 
 
                         html += `
                             <tr class="border-b border-gray-200 hover:bg-gray-50 transition-colors">
@@ -4826,7 +4872,7 @@ window.changeBillingSubConFilter = function(val) {
                     }
                 });
 
-                if (cfaFilterYear === 'All') {
+                if (cfaFilterYear.includes('All')) {
                     html += `
                         <tr class="bg-gradient-to-b from-[#ffcccc] to-[#ffb3b3] border-t-2 border-red-600 shadow-inner">
                             <td class="py-1.5 px-1 md:px-2 border-r border-dotted border-red-500 font-black text-base md:text-xl text-red-800 uppercase tracking-wider">Total</td>
@@ -4841,7 +4887,7 @@ window.changeBillingSubConFilter = function(val) {
                 html += `</tbody></table>`;
 
                 const dataToRender = acceptanceSubTab === 'coc' ? acceptanceCocData : acceptanceCfaData;
-                const filteredData = dataToRender.filter(item => cfaFilterYear === 'All' || item.year === cfaFilterYear);
+                const filteredData = dataToRender.filter(item => cfaFilterYear.includes('All') || cfaFilterYear.includes(item.year));
 
                 if (filteredData.length === 0) {
                     html += `<div class="text-center py-10 font-black text-slate-500 opacity-60"><i class="fa-solid fa-check-circle text-4xl mb-3 block"></i> No projects to show in this view!</div>`;
@@ -4859,7 +4905,7 @@ window.changeBillingSubConFilter = function(val) {
                         const projects = grouped[pe];
 
                         html += `
-                            <div class="w-full flex flex-col shadow-md mb-6 print-project-container">
+                            <div class="w-full flex flex-col shadow-md mb-6 print-project-container z-10 relative">
                                 <div class="${theme.header} px-4 py-1.5 font-black text-lg md:text-xl tracking-tight shadow-sm z-10 relative flex justify-between items-center print-pe-header">
                                     <span>${pe}</span>
                                     <span class="text-red-600 drop-shadow-[0_1px_1px_rgba(255,255,255,0.7)] text-xl md:text-2xl print:text-red-800">${projects.length}</span>
@@ -4928,7 +4974,7 @@ window.changeBillingSubConFilter = function(val) {
                         html += `</tbody></table></div>`;
                     });
                 }
-                html += `</div>`; // Close #acceptance-print-area wrapper
+                html += `</div>`; 
                 container.innerHTML = html;
             }
 
@@ -4942,32 +4988,23 @@ window.changeBillingSubConFilter = function(val) {
 
                 let html = `
                     <div class="w-full flex flex-col gap-2 mb-4">
-                        <div class="relative w-full">
+                        <div class="relative w-full z-0">
                             <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                             <input type="text" placeholder="Search Contract ID, Project, Contractor..." value="${docSearchQuery}" class="w-full border-2 border-orange-500 pl-10 pr-3 py-1.5 rounded-md text-sm md:text-base font-bold outline-none text-slate-700 shadow-sm" onkeyup="debounceDocSearch(this.value)">
                         </div>
 
-                        <div class="flex flex-col md:flex-row gap-2">
-                            <select onchange="changeDocFilter('year', this.value)" class="flex-1 border-2 border-orange-500 text-[#0f3b75] font-black text-center py-1.5 text-sm md:text-base outline-none cursor-pointer shadow-sm bg-white rounded-md">
-                                <option value="All" ${docFilterYear === 'All' ? 'selected' : ''}>All Years</option>
-                                ${allYears.map(y => `<option value="${y}" ${docFilterYear === String(y) ? 'selected' : ''}>${y}</option>`).join('')}
-                            </select>
-                            <select onchange="changeDocFilter('pe', this.value)" class="flex-1 border-2 border-orange-500 text-[#0f3b75] font-black text-center py-1.5 text-sm md:text-base outline-none cursor-pointer shadow-sm bg-white rounded-md">
-                                <option value="All">All PEs</option>
-                                ${allPEs.map(pe => `<option value="${pe}" ${docFilterPe===pe?'selected':''}>${pe}</option>`).join('')}
-                            </select>
-                            <select onchange="changeDocFilter('status', this.value)" class="flex-1 border-2 border-orange-500 text-[#0f3b75] font-black text-center py-1.5 text-sm md:text-base outline-none cursor-pointer shadow-sm bg-white rounded-md">
-                                <option value="All">All Status</option>
-                                ${allStatuses.map(s => `<option value="${s}" ${docFilterStatus===s?'selected':''}>${s}</option>`).join('')}
-                            </select>
+                        <div class="flex flex-col md:flex-row gap-2 relative z-50">
+                            ${renderMultiSelect('doc-year', 'Year', allYears, docFilterYear, 'docYear')}
+                            ${renderMultiSelect('doc-pe', 'PE', allPEs, docFilterPe, 'docPe')}
+                            ${renderMultiSelect('doc-status', 'Status', allStatuses, docFilterStatus, 'docStatus')}
                         </div>
                     </div>
                 `;
 
                 let filteredDocs = monthlyDataGlobal.filter(item => {
-                    const matchYear = docFilterYear === 'All' || item.year === docFilterYear;
-                    const matchPe = docFilterPe === 'All' || item.pe === docFilterPe;
-                    const matchStatus = docFilterStatus === 'All' || item.status === docFilterStatus;
+                    const matchYear = docFilterYear.includes('All') || docFilterYear.includes(item.year);
+                    const matchPe = docFilterPe.includes('All') || docFilterPe.includes(item.pe);
+                    const matchStatus = docFilterStatus.includes('All') || docFilterStatus.includes(item.status);
                     let matchSearch = true;
                     if (docSearchQuery) {
                         const sq = docSearchQuery.toLowerCase();
@@ -4996,22 +5033,6 @@ window.changeBillingSubConFilter = function(val) {
                         docCols = [{k: 'BOQ', l: 'BOQ'}, {k: 'DETAILED ESTIMATE', l: 'Estimate'}, {k: 'NOTICE OF AWARD', l: 'NOA'}, {k: 'CONTRACT AGREEMENT', l: 'Contract'}];
                     } else if (documentSubTab === 'construction') {
                         docCols = [{k: 'NTP', l: 'NTP'}, {k: 'PDM', l: 'PDM'}, {k: 'BAR-CHART', l: 'B. Chart'}, {k: 'PRE-CON NOTICE & MINUTES OF MEETING', l: 'Pre-con'}];
-                    } else if (documentSubTab === 'vo_wso') {
-                        docCols = [
-                            {k: 'VO', l: 'VO', isMulti: true, max: 5},
-                            {k: 'WSO', l: 'WSO', isMulti: true, max: 4},
-                            {k: 'CWSO', l: 'CWSO', isMulti: true, max: 4},
-                            {k: 'WRO', l: 'WRO', isMulti: true, max: 4},
-                            {k: 'CTE', l: 'CTE', isMulti: true, max: 20}
-                        ];
-                    } else if (documentSubTab === 'vo_wso') {
-                        docCols = [
-                            {k: 'VO', l: 'VO', isMulti: true, max: 5},
-                            {k: 'WSO', l: 'WSO', isMulti: true, max: 4},
-                            {k: 'CWSO', l: 'CWSO', isMulti: true, max: 4},
-                            {k: 'WRO', l: 'WRO', isMulti: true, max: 4},
-                            {k: 'CTE', l: 'CTE', isMulti: true, max: 20}
-                        ];
                     } else if (documentSubTab === 'vo_wso') {
                         docCols = [
                             {k: 'VO', l: 'VO', isMulti: true, max: 5},
@@ -5071,7 +5092,7 @@ window.changeBillingSubConFilter = function(val) {
                         const peEscaped = pe.replace(/"/g, '&quot;'); 
 
                         html += `
-                            <div class="w-full flex flex-col shadow-md mb-6">
+                            <div class="w-full flex flex-col shadow-md mb-6 z-10 relative">
                                 <div class="${theme.header} px-4 py-1.5 font-black text-lg md:text-xl tracking-tight shadow-sm z-10 relative flex justify-between items-center">
                                     <span>${pe}</span>
                                     <div class="flex items-center gap-2 md:gap-4 text-sm md:text-base font-bold text-black">
@@ -5128,16 +5149,13 @@ window.changeBillingSubConFilter = function(val) {
                                         }
                                     }
                                     if (!hasAnyRequired) {
-                                        // Modern, neutral bold N.A to match icons
                                         cellHtml = '<span class="text-gray-400 font-black text-sm md:text-lg drop-shadow-sm">N.A</span>';
                                     }
-                                    // Flex-wrap allows wrapping up to 20 icons inside the CTE column beautifully
                                     html += `<td class="py-1 px-1 dotted-border align-middle"><div class="flex flex-wrap justify-center items-center">${cellHtml}</div></td>`;
                                 } else {
                                     const docStatus = p.docs ? p.docs[col.k] : null;
                                     let iconHtml = '';
                                     if (!docStatus || !docStatus.required) {
-                                        // Modern, neutral bold N.A to match icons
                                         iconHtml = '<span class="text-gray-400 font-black text-sm md:text-lg drop-shadow-sm">N.A</span>';
                                     } else if (docStatus.uploaded) {
                                         iconHtml = '<i class="fa-solid fa-check text-emerald-500 text-lg md:text-xl font-black drop-shadow-sm"></i>';
@@ -5166,32 +5184,23 @@ window.changeBillingSubConFilter = function(val) {
 
                 let html = `
                     <div class="w-full flex flex-col gap-2 mb-4">
-                        <div class="relative w-full">
+                        <div class="relative w-full z-0">
                             <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                             <input type="text" placeholder="Search Contract ID, Project, Contractor..." value="${appSearchQuery}" class="w-full border-2 border-orange-500 pl-10 pr-3 py-1.5 rounded-md text-sm md:text-base font-bold outline-none text-slate-700 shadow-sm" onkeyup="debounceAppSearch(this.value)">
                         </div>
 
-                        <div class="flex flex-col md:flex-row gap-2">
-                            <select onchange="changeAppFilter('year', this.value)" class="flex-1 border-2 border-orange-500 text-[#0f3b75] font-black text-center py-1.5 text-sm md:text-base outline-none cursor-pointer shadow-sm bg-white rounded-md">
-                                <option value="All" ${appFilterYear === 'All' ? 'selected' : ''}>All Years</option>
-                                ${allYears.map(y => `<option value="${y}" ${appFilterYear === String(y) ? 'selected' : ''}>${y}</option>`).join('')}
-                            </select>
-                            <select onchange="changeAppFilter('pe', this.value)" class="flex-1 border-2 border-orange-500 text-[#0f3b75] font-black text-center py-1.5 text-sm md:text-base outline-none cursor-pointer shadow-sm bg-white rounded-md">
-                                <option value="All">All PEs</option>
-                                ${allPEs.map(pe => `<option value="${pe}" ${appFilterPe===pe?'selected':''}>${pe}</option>`).join('')}
-                            </select>
-                            <select onchange="changeAppFilter('status', this.value)" class="flex-1 border-2 border-orange-500 text-[#0f3b75] font-black text-center py-1.5 text-sm md:text-base outline-none cursor-pointer shadow-sm bg-white rounded-md">
-                                <option value="All">All Status</option>
-                                ${allStatuses.map(s => `<option value="${s}" ${appFilterStatus===s?'selected':''}>${s}</option>`).join('')}
-                            </select>
+                        <div class="flex flex-col md:flex-row gap-2 relative z-50">
+                            ${renderMultiSelect('app-year', 'Year', allYears, appFilterYear, 'appYear')}
+                            ${renderMultiSelect('app-pe', 'PE', allPEs, appFilterPe, 'appPe')}
+                            ${renderMultiSelect('app-status', 'Status', allStatuses, appFilterStatus, 'appStatus')}
                         </div>
                     </div>
                 `;
 
                 let filteredApp = appPhotosData.filter(item => {
-                    const matchYear = appFilterYear === 'All' || item.year === appFilterYear;
-                    const matchPe = appFilterPe === 'All' || item.pe === appFilterPe;
-                    const matchStatus = appFilterStatus === 'All' || item.status === appFilterStatus;
+                    const matchYear = appFilterYear.includes('All') || appFilterYear.includes(item.year);
+                    const matchPe = appFilterPe.includes('All') || appFilterPe.includes(item.pe);
+                    const matchStatus = appFilterStatus.includes('All') || appFilterStatus.includes(item.status);
                     let matchSearch = true;
                     if (appSearchQuery) {
                         const sq = appSearchQuery.toLowerCase();
@@ -5215,8 +5224,6 @@ window.changeBillingSubConFilter = function(val) {
                     
                     const formatPhotoFrac = (rawStr, max) => {
                         let count = 0;
-                        
-                        // Count the file IDs by splitting the " | " separator
                         if (rawStr && rawStr !== '-' && rawStr.trim() !== '') {
                             const parts = rawStr.split('|').map(p => p.trim()).filter(p => p !== '');
                             count = parts.length;
@@ -5224,7 +5231,6 @@ window.changeBillingSubConFilter = function(val) {
                         
                         const displayStr = `${count}/${max}`;
                         
-                        // Color logic: Green if attained (count >= max), Red if not
                         if (count >= max) {
                             return `<span class="text-emerald-600 font-black">${displayStr}</span>`;
                         } else {
@@ -5237,7 +5243,7 @@ window.changeBillingSubConFilter = function(val) {
                         const items = groupedApp[pe];
 
                         html += `
-                            <div class="w-full flex flex-col shadow-md mb-6">
+                            <div class="w-full flex flex-col shadow-md mb-6 z-10 relative">
                                 <div class="${theme.header} px-4 py-1.5 font-black text-lg md:text-xl tracking-tight shadow-sm z-10 relative flex justify-between items-center">
                                     <span>${pe}</span>
                                     <span class="text-red-600 drop-shadow-[0_1px_1px_rgba(255,255,255,0.7)] text-xl md:text-2xl">${items.length}</span>

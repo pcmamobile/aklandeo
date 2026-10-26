@@ -1045,10 +1045,19 @@
 
       let suspensionEvents = [];
       if (suspRaw) {
-        suspensionEvents = suspRaw.split(',').map(s => {
-          const [start, end] = s.split('|').map(p => p.trim());
-          return { start: start || null, end: end || null };
-        }).filter(e => e.start);
+          const parts = suspRaw.split('|').map(p => p.trim());
+          // Loop through parts by pairs of 2 (Suspension, Resume)
+          for (let i = 0; i < parts.length; i += 2) {
+              const sStart = parts[i] ? parts[i] : null;
+              const sEnd = (i + 1 < parts.length && parts[i + 1]) ? parts[i + 1] : null;
+              
+              if (sStart) {
+                  suspensionEvents.push({
+                      start: sStart,
+                      end: sEnd
+                  });
+              }
+          }
       }
 
       let ntpDate = null;
