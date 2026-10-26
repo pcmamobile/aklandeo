@@ -955,6 +955,98 @@
     // =========================================================================
     // S-CURVE COMPILATION & SVG RENDERING ENGINE
     // =========================================================================
+	
+	function calculateExactScheduledPercentage(targetRow, headers, ntpStr) {
+        const START_YEAR = 2026;
+        
+        const barchartColIdx = headers.findIndex(h => {
+            const c = String(h || '').toUpperCase().replace(/\s/g, '');
+            return c === 'BARCHART' || c === 'SCHEDULE' || c === 'SCHED';
+        });
+        if (barchartColIdx === -1) return 0;
+
+        let ntpDate = new Date(ntpStr);
+        let ntpOffset = 0;
+        
+        if (isNaN(ntpDate.getTime())) {
+            const cleaned = (ntpStr || '').toLowerCase().trim();
+            const monthNames = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+            let monthIdx = -1;
+            for (let i = 0; i < 12; i++) {
+                if (cleaned.includes(monthNames[i])) { monthIdx = i; break; }
+            }
+            if (monthIdx !== -1) {
+                const numMatches = cleaned.match(/\d+/g);
+                let year = START_YEAR;
+                if (numMatches && numMatches.length > 0) {
+                    const lastNum = parseInt(numMatches[numMatches.length - 1]);
+                    year = lastNum < 100 ? 2000 + lastNum : lastNum;
+                }
+                ntpOffset = (year - START_YEAR) * 12 + monthIdx;
+                ntpDate = new Date(year, monthIdx, 1);
+            } else return 0; 
+        } else {
+            ntpOffset = (ntpDate.getFullYear() - START_YEAR) * 12 + ntpDate.getMonth();
+        }
+
+        const today = new Date();
+        const todayMonthOffset = (today.getFullYear() - START_YEAR) * 12 + today.getMonth();
+
+        if (todayMonthOffset < ntpOffset) return 0;
+
+        const cellVal = String(targetRow[barchartColIdx] || '');
+        const barchartParts = cellVal ? cellVal.split('|').map(p => p.trim()) : [];
+
+        const suspColIdx = headers.findIndex(h => {
+            const c = String(h || '').toUpperCase().replace(/\s/g, '');
+            return c === 'SUSPENSION' || c === 'SUSPENSIONS';
+        });
+        let suspensions = [];
+        if (suspColIdx !== -1) {
+            const suspVal = String(targetRow[suspColIdx] || '');
+            const suspParts = suspVal ? suspVal.split('|').map(p => p.trim()) : [];
+            for (let i = 0; i < suspParts.length; i += 2) {
+                let sDate = suspParts[i] ? new Date(suspParts[i]) : null;
+                let rDate = suspParts[i + 1] ? new Date(suspParts[i + 1]) : null;
+                if (sDate && !isNaN(sDate.getTime())) {
+                    suspensions.push({ suspend: sDate, resume: rDate && !isNaN(rDate.getTime()) ? rDate : null });
+                }
+            }
+        }
+
+        let evalDate = new Date();
+        let totalSuspendedMs = 0;
+        
+        suspensions.forEach(s => {
+            const start = s.suspend > ntpDate ? s.suspend : ntpDate;
+            let end = evalDate;
+            if (s.resume && s.resume < evalDate) end = s.resume;
+
+            if (start < end && start <= evalDate) {
+                totalSuspendedMs += (end.getTime() - start.getTime());
+            }
+        });
+
+        const effectiveDate = new Date(evalDate.getTime() - totalSuspendedMs);
+        const effectiveMonthOffset = (effectiveDate.getFullYear() - START_YEAR) * 12 + effectiveDate.getMonth();
+
+        let totalScheduled = 0;
+        for (let i = ntpOffset; i <= effectiveMonthOffset; i++) {
+            const monthDiff = i - ntpOffset;
+            const monthPerc = parseFloat(barchartParts[monthDiff]) || 0;
+
+            if (i < effectiveMonthOffset) {
+                totalScheduled += monthPerc;
+            } else if (i === effectiveMonthOffset) {
+                const year = START_YEAR + Math.floor(i / 12);
+                const month = i % 12;
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+                totalScheduled += (monthPerc / daysInMonth) * effectiveDate.getDate();
+            }
+        }
+        return Math.min(100, totalScheduled);
+    }
+	
     async function loadAndRenderSCurve(contractId, ntpStr, expStr, containerEl, forceFetch = false) {
       if (!contractId) {
         containerEl.innerHTML = `<div style="text-align:center; padding:15px; color:#64748b; font-weight:800;">No contract ID provided.</div>`;
@@ -1139,18 +1231,22 @@
           if (w > 500) break;
       }
 
+      // Calculate exact scheduled % using SWA.html logic
+      const exactSched = calculateExactScheduledPercentage(targetRow, headers, ntpStr);
+
       renderSCurveSVG(containerEl, {
         ntpDate: ntpDate,
         planned: plannedSeries,
         actual: actualSeries,
         pcma: pcmaSeries,
         suspensions: suspensionEvents,
-        terminated: termRaw
+        terminated: termRaw,
+        exactSched: exactSched
       });
     }
 
     function renderSCurveSVG(container, data) {
-      const { ntpDate, planned, actual, pcma, suspensions, terminated } = data;
+      const { ntpDate, planned, actual, pcma, suspensions, terminated, exactSched } = data;
 
       // Ensure proper width sizing including empty months mapping
       const totalMonths = Math.max(Math.ceil(planned.length/4), Math.ceil(actual.length/4), Math.ceil(pcma.length/4), 6);
@@ -1179,7 +1275,8 @@
           let label = `M${m}W${w}`;
           let fullDateStr = `Month ${m} Week ${w}`;
           if (ntpDate) {
-            const ptDate = new Date(ntpDate.getFullYear(), ntpDate.getMonth() + m, 1);
+            // FIX: Use (m - 1) so the first bucket correctly labels as the NTP month itself
+            const ptDate = new Date(ntpDate.getFullYear(), ntpDate.getMonth() + (m - 1), 1);
             fullDateStr = `${monthNames[ptDate.getMonth()]} ${ptDate.getFullYear()} Week ${w}`;
             if (w === 4) label = `${monthNames[ptDate.getMonth()]}'${String(ptDate.getFullYear()).slice(-2)}`;
           } else if (w === 4) {
@@ -1205,24 +1302,25 @@
       }
 
       // Summary Stats Calculation
-      let latestActual = 0, latestPlan = 0, latestPcma = 0;
+      let latestActual = 0, latestPcma = 0;
       let lastActIdx = -1;
       
       for (let i = actual.length - 1; i >= 0; i--) { 
         if (actual[i] !== null) { latestActual = actual[i]; lastActIdx = i; break; } 
       }
-      for (let i = planned.length - 1; i >= 0; i--) { if (planned[i] !== null) { latestPlan = planned[i]; break; } }
       for (let i = pcma.length - 1; i >= 0; i--) { if (pcma[i] !== null) { latestPcma = pcma[i]; break; } }
 
-      // Compute slippage reliably at latest actual point mapping
+      // Use exact scheduled percentage mirrored directly from SWA.html
+      let latestPlan = exactSched !== undefined ? exactSched : 0;
+
+      // Compute slippage reliably (Actual - Exact Sched)
       let currentSlip = null;
       if (lastActIdx !== -1) {
-        const matchingPlan = planned[lastActIdx] !== undefined && planned[lastActIdx] !== null ? planned[lastActIdx] : null;
-        if (matchingPlan !== null) currentSlip = actual[lastActIdx] - matchingPlan;
+        currentSlip = latestActual - latestPlan;
       }
 
-      // SVG Canvas Dimensions (padRight widened to 95 for end-labels)
-      const W = 800, H = 340, padLeft = 45, padRight = 95, padTop = 30, padBottom = 45;
+      // SVG Canvas Dimensions (padRight widened to 135 for end-labels)
+      const W = 800, H = 340, padLeft = 45, padRight = 135, padTop = 30, padBottom = 45;
       const plotW = W - padLeft - padRight;
       const plotH = H - padTop - padBottom;
       const getX = (mIdx) => padLeft + (mIdx / totalMonths) * plotW;
@@ -1288,15 +1386,41 @@
             const daysDiff = Math.max(1, Math.round((dEnd - dStart) / (1000 * 60 * 60 * 24)));
             const ongoingText = !s.end ? '(Ongoing)' : '';
 
+            // Date Formatter for the Badges
+            const formatBadgeDate = (dateStr) => {
+              if (!dateStr) return '';
+              const d = new Date(dateStr);
+              if (isNaN(d.getTime())) return dateStr;
+              const m = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+              return `${m[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+            };
+            const startStr = formatBadgeDate(s.start);
+            const endStr = s.end ? formatBadgeDate(s.end) : 'Ongoing';
+
             suspElementsHtml += `
               <rect x="${xStart}" y="${padTop}" width="${rectW}" height="${plotH}" fill="url(#suspension-pattern)" opacity="0.35" />
               <line x1="${xStart}" y1="${padTop}" x2="${xStart}" y2="${padTop + plotH}" stroke="#f43f5e" stroke-width="2" stroke-dasharray="3,3" />
               <line x1="${xEnd}" y1="${padTop}" x2="${xEnd}" y2="${padTop + plotH}" stroke="#10b981" stroke-width="2" stroke-dasharray="3,3" />
-              <g transform="translate(${xStart + 3}, ${padTop + 14})">
-                <rect x="0" y="0" width="85" height="18" rx="5" fill="#e11d48" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.25))" />
+              
+              <!-- Suspension Start Badge -->
+              <g transform="translate(${xStart + 4}, ${padTop + 10})">
+                <rect x="0" y="0" width="85" height="28" rx="5" fill="#e11d48" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.25))" />
                 <text x="42.5" y="12" fill="#ffffff" font-size="8.5" font-weight="900" text-anchor="middle">⏸️ SUSP (${daysDiff}d)</text>
+                <text x="42.5" y="23" fill="#ffffff" font-size="7" font-weight="800" text-anchor="middle">${startStr}</text>
               </g>
             `;
+            
+            // Resume End Badge (Only draw if it has ended)
+            if (s.end) {
+                suspElementsHtml += `
+                <g transform="translate(${xEnd + 4}, ${padTop + 10})">
+                  <rect x="0" y="0" width="85" height="28" rx="5" fill="#10b981" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.25))" />
+                  <text x="42.5" y="12" fill="#ffffff" font-size="8.5" font-weight="900" text-anchor="middle">▶️ RESU (${daysDiff}d)</text>
+                  <text x="42.5" y="23" fill="#ffffff" font-size="7" font-weight="800" text-anchor="middle">${endStr}</text>
+                </g>
+                `;
+            }
+
             suspBadgesHtml += `<div class="scurve-event-banner banner-suspension"><span>⏸️ <b>Suspension #${sIdx + 1}:</b> ${s.start} to ${s.end || 'Present'} (${daysDiff} days ${ongoingText})</span></div>`;
           }
         });
@@ -1366,34 +1490,89 @@
         if (pt.actual !== null)  svgHtml += `<circle cx="${x}" cy="${getY(pt.actual)}" r="${actRadius}" fill="#10b981" stroke="#ffffff" stroke-width="2" class="scurve-pt actual-pt" />`;
       });
 
-     // Draw Labels at the end of the Plotted Lines (Aligned to Actual)
-      const drawEndLabel = (curve, color, textLabel, alignX = null) => {
-        if (!curve.validPts || curve.validPts.length === 0) return '';
-        let targetPt = curve.validPts[curve.validPts.length - 1]; // Default to the end
-        
-        // If an alignX is provided, find the point on this curve that matches that X-coordinate
-        if (alignX !== null) {
-          const matched = curve.validPts.find(p => p.x === alignX);
-          if (matched) targetPt = matched;
-        }
+     // =========================================================
+      // VERTICALLY ALIGNED UNIFIED END LABELS WITH BEZIER ARROWS
+      // =========================================================
+      const drawUnifiedStackedLabels = () => {
+          const getLatestPt = (curve) => {
+              if (!curve || !curve.validPts || curve.validPts.length === 0) return null;
+              const valid = curve.validPts.filter(p => !isNaN(p.x) && !isNaN(p.y));
+              if (valid.length === 0) return null;
+              return valid[valid.length - 1]; // Returns {x, y, val}
+          };
 
-        return `
-          <g transform="translate(${targetPt.x + 6}, ${targetPt.y + 4})">
-            <rect x="0" y="-12" width="75" height="18" rx="6" fill="${color}" opacity="0.9" filter="drop-shadow(0 2px 2px rgba(0,0,0,0.2))"/>
-            <text x="37.5" y="0.5" fill="#fff" font-size="8.5" font-weight="900" text-anchor="middle">${textLabel}: ${targetPt.val.toFixed(2)}%</text>
-          </g>
-        `;
+          const actPt = getLatestPt(actualCurve);
+          const pcmaPt = getLatestPt(pcmaCurve);
+          
+          // 1. Find the current X position (representing "Now" on the graph based on the latest update)
+          let currentX = null;
+          if (actPt) currentX = actPt.x;
+          else if (pcmaPt) currentX = pcmaPt.x;
+
+          // 2. Pin the Sched arrow to this current date, instead of the end of the project!
+          let schedPt = null;
+          if (currentX !== null && plannedCurve && plannedCurve.validPts) {
+              const matched = plannedCurve.validPts.find(p => p.x === currentX);
+              if (matched) {
+                  // Lock onto the curve's Y at this date, but use the highly accurate exactSched for the label text
+                  schedPt = { x: matched.x, y: matched.y, val: exactSched !== undefined ? exactSched : matched.val };
+              }
+          }
+          
+          // Fallback if no actual/pcma data exists yet
+          if (!schedPt) {
+              schedPt = getLatestPt(plannedCurve);
+              if (schedPt && exactSched !== undefined) schedPt.val = exactSched;
+          }
+
+          const items = [];
+          if (schedPt) items.push({ color: '#0284c7', label: 'SCHED', val: schedPt.val, ptY: schedPt.y, ptX: schedPt.x });
+          if (actPt) items.push({ color: '#10b981', label: 'ACTUAL', val: actPt.val, ptY: actPt.y, ptX: actPt.x });
+          if (pcmaPt) items.push({ color: '#7e22ce', label: 'PCMA', val: pcmaPt.val, ptY: pcmaPt.y, ptX: pcmaPt.x });
+
+          if (items.length === 0) return '';
+
+          // 3. Sort dynamically based on visual height (Smaller Y = higher on screen)
+          items.sort((a, b) => a.ptY - b.ptY);
+
+          let html = '';
+          
+          // Base the box X-coordinate securely on the furthest right point being labeled
+          const maxTargetX = Math.max(...items.map(i => i.ptX));
+          const boxX = maxTargetX + 35; 
+          
+          // Center the stack vertically based on the average Y of the valid points
+          let stackCenterY = items.reduce((sum, i) => sum + i.ptY, 0) / items.length;
+          if (isNaN(stackCenterY)) stackCenterY = padTop + plotH / 2;
+          
+          const boxHeight = items.length * 28; 
+          const startY = stackCenterY - (boxHeight / 2) + 14;
+
+          // Draw the smooth bezier connecting arrows
+          items.forEach((item, index) => {
+              const pillY = startY + (index * 28);
+              const midY = pillY + 11; 
+              
+              html += `<path d="M ${item.ptX} ${item.ptY} C ${item.ptX + 15} ${item.ptY}, ${boxX - 15} ${midY}, ${boxX - 5} ${midY}" fill="none" stroke="${item.color}" stroke-width="2.5" opacity="0.6" />`;
+              html += `<polygon points="${boxX - 2},${midY} ${boxX - 7},${midY - 3} ${boxX - 7},${midY + 3}" fill="${item.color}" opacity="0.9"/>`;
+          });
+
+          // Draw the vertically stacked badges
+          items.forEach((item, index) => {
+              const pillY = startY + (index * 28);
+              html += `
+                <g transform="translate(${boxX}, ${pillY})">
+                  <rect x="0" y="0" width="85" height="22" rx="6" fill="${item.color}" opacity="0.95" filter="drop-shadow(0 4px 6px rgba(0,0,0,0.3))"/>
+                  <text x="42.5" y="15" fill="#fff" font-size="9" font-weight="900" text-anchor="middle">${item.label}: ${item.val.toFixed(2)}%</text>
+                </g>
+              `;
+          });
+
+          return html;
       };
 
-      // Extract the X-coordinate of the latest actual point
-      const lastActX = actualCurve.validPts && actualCurve.validPts.length > 0 
-          ? actualCurve.validPts[actualCurve.validPts.length - 1].x 
-          : null;
-
-      // Pass lastActX to the SCHED and PCMA labels so they align exactly in the same column as ACTUAL
-      svgHtml += drawEndLabel(plannedCurve, '#0284c7', 'SCHED', lastActX);
-      svgHtml += drawEndLabel(actualCurve, '#10b981', 'ACTUAL');
-      svgHtml += drawEndLabel(pcmaCurve, '#7e22ce', 'PCMA', lastActX);
+      // Inject the unified labels into the SVG
+      svgHtml += drawUnifiedStackedLabels();
 
       svgHtml += `<line id="scurveCrosshair" x1="0" y1="${padTop}" x2="0" y2="${padTop + plotH}" stroke="#0f172a" stroke-width="1.5" stroke-dasharray="3,3" opacity="0" /></g></svg>`;
 	  
