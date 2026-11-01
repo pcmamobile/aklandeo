@@ -304,14 +304,9 @@
             <div id="pm-amount" class="text-center text-2xl font-black mb-1 text-gray-900 tracking-tight">₱ 1,312,761.77</div>
             <div id="pm-status-text" class="text-center text-lg font-bold mb-4 text-gray-700">(On-process)</div>
 
-            <div class="flex items-center justify-between bg-white/50 border border-orange-300 p-2 rounded mb-5 shadow-sm">
-                <span class="italic font-bold text-sm">Month & Year Paid :</span>
-                <div class="flex gap-1">
-                    <select id="pm-month" class="bg-gradient-to-b from-gray-200 to-gray-300 font-bold px-1 py-0.5 rounded shadow border border-gray-400 text-sm outline-none cursor-pointer">
-                    </select>
-                    <select id="pm-year" class="bg-gradient-to-b from-gray-200 to-gray-300 font-bold px-1 py-0.5 rounded shadow border border-gray-400 text-sm outline-none cursor-pointer">
-                    </select>
-                </div>
+            <div id="pm-date-container" class="flex flex-col items-center bg-white/50 border border-orange-300 p-2 rounded mb-5 shadow-sm">
+                <span class="italic font-bold text-sm mb-1">Date Paid :</span>
+                <input type="date" id="pm-date-input" class="w-full text-center bg-white font-bold px-2 py-1 rounded shadow border border-gray-400 outline-none cursor-pointer">
             </div>
 
             <div class="flex justify-between gap-3 mt-2">
@@ -635,7 +630,8 @@
 
         async function fetchBillingSheetSafe(token) {
             try {
-                const url = `https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}?ranges=BILLING!A1:ZZ5000&fields=sheets(properties/sheetId,data(rowData(values(formattedValue,effectiveFormat.textFormat.foregroundColor))))`;
+                // Changed to target 'BILLING Test'
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}?ranges='BILLING'!A1:ZZ5000&fields=sheets(properties/sheetId,data(rowData(values(formattedValue,effectiveFormat.textFormat.foregroundColor))))`;
                 const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
                 if (!res.ok) return { values: [], colorGrid: [], sheetId: 0 };
                 const json = await res.json();
@@ -1070,44 +1066,87 @@
                         const yearPrefix = contractId.substring(0, 2);
                         const projectYear = parseInt("20" + yearPrefix) || _today.getFullYear();
 
-                        billHeader.forEach((title, colIndex) => {
-                            if (!title) return;
-                            const match = /^(\d{4})\s+([A-Za-z]+)$/.exec(String(title).trim());
-                            if (!match) return;
-                            
-                            const year = match[1], monthName = match[2];
-                            const amountText = String(row[colIndex] || "").trim();
-                            
+                        const billingOrdinals = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th"];
+                        
+                        billingOrdinals.forEach((ordinal) => {
+                            let amountColIndex = -1;
                             let remarksColIndex = -1;
-                            const remarksHeader = year + " " + monthName + " Remarks";
+                            
+                            // Find the columns dynamically
                             for (let j = 0; j < billHeader.length; j++) {
-                                if (String(billHeader[j]||'').toUpperCase().trim() === remarksHeader.toUpperCase()) { remarksColIndex = j; break; }
+                                const h = String(billHeader[j] || '').toUpperCase().trim();
+                                if (h === `${ordinal.toUpperCase()} BILLING`) amountColIndex = j;
+                                if (h === `${ordinal.toUpperCase()} BILLING REMARKS`) remarksColIndex = j;
                             }
-                            if (remarksColIndex < 0) {
-                                const shortMonth = monthName.slice(0, 3).toLowerCase();
-                                for (let j = 0; j < billHeader.length; j++) {
-                                    const h = String(billHeader[j] || "").toLowerCase();
-                                    if (h.includes(year.toLowerCase()) && h.includes(shortMonth) && h.includes("remarks")) { remarksColIndex = j; break; }
-                                }
-                            }
-
+                            
+                            if (amountColIndex === -1) return; // Skip if this billing column doesn't exist
+                            
+                            const amountText = String(row[amountColIndex] || "").trim();
                             const remarksText = remarksColIndex >= 0 ? String(row[remarksColIndex] || "").trim() : "";
+                            
                             if (!amountText && !remarksText) return;
 
-                            const color = colors[colIndex] || null;
-                            let isRed = false;
-                            if (color && (color.red || 0) >= 0.7 && (color.green || 0) <= 0.3 && (color.blue || 0) <= 0.3) isRed = true;
-
                             const parsedAmount = parseFloat(amountText.replace(/[^0-9.-]+/g, "")) || 0;
+                            
                             if (parsedAmount > 0) {
                                 let cleanedRemarks = '-';
+                                let actualIsPaid = false; 
+                                let bYear = 0;
+                                let bMonthName = ''; 
+                                
                                 if (remarksText) {
                                     const remarkParts = remarksText.split('|').map(p => p.trim());
-                                    if (remarkParts.length >= 3) {
+                                    
+                                    // Try to get Date Paid from Index 13 (14th value)
+                                    let foundDate = false;
+                                    if (remarkParts.length > 13 && remarkParts[13]) {
+                                        const bDate = new Date(remarkParts[13]);
+                                        if (!isNaN(bDate.getTime())) {
+                                            bYear = bDate.getFullYear();
+                                            bMonthName = monthsArr[bDate.getMonth()];
+                                            foundDate = true;
+                                        }
+                                    }
+                                    
+                                    // If not found in Index 13, fallback to Index 0 (old format) just in case
+                                    if (!foundDate && remarkParts.length > 0 && remarkParts[0]) {
+                                        const bDate = new Date(remarkParts[0]);
+                                        if (!isNaN(bDate.getTime())) {
+                                            bYear = bDate.getFullYear();
+                                            bMonthName = monthsArr[bDate.getMonth()];
+                                        }
+                                    }
+                                    
+                                    // 1. Check Index 12 for "Yes" or "No" Paid flag
+                                    if (remarkParts.length > 12) {
+                                        const paidFlag = remarkParts[12].toLowerCase();
+                                        if (paidFlag === 'yes') actualIsPaid = true;
+                                        else if (paidFlag === 'no') actualIsPaid = false;
+                                    }
+
+                                    // 2. Safely extract Status and Percentage for UI display
+                                    if (remarkParts.length > 5) {
+                                        let bStatus = remarkParts[2] || '';
+                                        let bNumber = remarkParts[4] || '';
+                                        let bPercent = remarkParts[5] || '';
+                                        
+                                        let built = [];
+                                        if (bNumber) built.push(bNumber);
+                                        if (bStatus) built.push(bStatus);
+                                        cleanedRemarks = built.join(' ').trim();
+                                        
+                                        if (bPercent) {
+                                            let pctDisplay = bPercent.includes('%') ? bPercent : `${bPercent}%`;
+                                            cleanedRemarks = cleanedRemarks ? `${cleanedRemarks} - ${pctDisplay}` : pctDisplay;
+                                        }
+                                        if (!cleanedRemarks) cleanedRemarks = '-';
+                                        
+                                    } else if (remarkParts.length >= 3) {
                                         cleanedRemarks = remarkParts[2];
                                     } else if (remarkParts.length > 0) {
                                         cleanedRemarks = remarkParts[remarkParts.length - 1]; 
                                     }
+                                    
                                     if (!cleanedRemarks || cleanedRemarks === '') {
                                         cleanedRemarks = '-';
                                     }
@@ -1119,8 +1158,8 @@
                                     isDar: isDar, isMaint: isMaint, projectYear: projectYear,
                                     amount: parsedAmount, remarks: cleanedRemarks, fullRemarks: remarksText,
                                     projectName, location, ntp, expiry, contractAmount, revExpiry,
-                                    isPaid: isRed, billingYear: parseInt(year), billingMonthName: monthName,
-                                    sheetRowIdx: r, amountColIndex: colIndex, remarksColIndex: remarksColIndex
+                                    isPaid: actualIsPaid, billingYear: bYear, billingMonthName: bMonthName,
+                                    sheetRowIdx: r, amountColIndex: amountColIndex, remarksColIndex: remarksColIndex
                                 });
                             }
                         });
@@ -1367,31 +1406,38 @@
         }
 
         window.openPaymentModal = function(contractId, amountColIdx) {
-            currentPaymentBill = billingDataGlobal.find(b => b.contractId === contractId && b.amountColIndex === amountColIdx);
-            if (!currentPaymentBill) return;
+            const targetBill = billingDataGlobal.find(b => b.contractId === contractId && b.amountColIndex === amountColIdx);
+            if (!targetBill) return;
 
-            document.getElementById('pm-remarks').innerText = currentPaymentBill.remarks;
-            document.getElementById('pm-amount').innerText = `₱ ${formatCurrency(currentPaymentBill.amount)}`;
-            document.getElementById('pm-status-text').innerText = currentPaymentBill.isPaid ? "(Paid)" : "(On-process)";
+            currentPaymentBill = { contractId, amountColIdx, targetBill };
+            const willBePaid = !targetBill.isPaid;
+            
+            document.getElementById('pm-remarks').innerText = targetBill.remarks || 'Billing';
+            document.getElementById('pm-amount').innerText = `₱ ${formatCurrency(targetBill.amount)}`;
+            
+            const dateContainer = document.getElementById('pm-date-container');
+            const saveBtn = document.getElementById('pm-save-btn');
+            const statusText = document.getElementById('pm-status-text');
 
-            const btn = document.getElementById('pm-save-btn');
-            if (currentPaymentBill.isPaid) {
-                btn.innerText = "UNPAID";
-                btn.className = "flex-1 bg-gradient-to-b from-rose-500 to-rose-700 text-white font-black text-lg py-2 rounded-xl border-2 border-rose-900 shadow-[inset_0px_-3px_5px_rgba(0,0,0,0.3)] hover:brightness-110 active:scale-95 transition-all";
+            if (willBePaid) {
+                statusText.innerText = "Mark as PAID";
+                dateContainer.classList.remove('hidden');
+                
+                // Set default date to today
+                const today = new Date();
+                const yyyy = today.getFullYear();
+                const mm = String(today.getMonth() + 1).padStart(2, '0');
+                const dd = String(today.getDate()).padStart(2, '0');
+                document.getElementById('pm-date-input').value = `${yyyy}-${mm}-${dd}`;
+
+                saveBtn.innerText = "PAID";
+                saveBtn.className = "flex-1 bg-gradient-to-b from-[#8fd64d] to-[#68a332] text-white font-black text-lg py-2 rounded-xl border-2 border-green-800 shadow-[inset_0px_-3px_5px_rgba(0,0,0,0.3)] hover:brightness-110 active:scale-95 transition-all";
             } else {
-                btn.innerText = "PAID";
-                btn.className = "flex-1 bg-gradient-to-b from-[#8fd64d] to-[#68a332] text-white font-black text-lg py-2 rounded-xl border-2 border-green-800 shadow-[inset_0px_-3px_5px_rgba(0,0,0,0.3)] hover:brightness-110 active:scale-95 transition-all";
+                statusText.innerText = "Revert to UNPAID";
+                dateContainer.classList.add('hidden'); // No date needed to un-pay
+                saveBtn.innerText = "UNPAID";
+                saveBtn.className = "flex-1 bg-gradient-to-b from-[#f89500] to-[#e65c00] text-white font-black text-lg py-2 rounded-xl border-2 border-orange-800 shadow-[inset_0px_-3px_5px_rgba(0,0,0,0.3)] hover:brightness-110 active:scale-95 transition-all";
             }
-
-            const monthSelect = document.getElementById('pm-month');
-            monthSelect.innerHTML = monthsArr.map(m => `<option value="${m}" ${currentPaymentBill.billingMonthName.toLowerCase().startsWith(m.substring(0,3).toLowerCase()) ? 'selected' : ''}>${m.substring(0,3)}</option>`).join('');
-
-            const yearSelect = document.getElementById('pm-year');
-            let yearsHtml = '';
-            for(let y=2024; y<=2034; y++) {
-                yearsHtml += `<option value="${y}" ${y === currentPaymentBill.billingYear ? 'selected' : ''}>${y}</option>`;
-            }
-            yearSelect.innerHTML = yearsHtml;
 
             document.getElementById('payment-modal').classList.remove('hidden');
         };
@@ -1404,139 +1450,73 @@
         window.savePaymentModal = async function() {
             if (!currentPaymentBill) return;
 
-            const targetMonth = document.getElementById('pm-month').value; 
-            const targetYear = parseInt(document.getElementById('pm-year').value); 
-            const willBePaid = !currentPaymentBill.isPaid;
-
-            let targetAmountColIdx = -1;
-            let targetRemarksColIdx = -1;
-
-            // Find target columns
-            for (let j = 0; j < globalBillingHeaders.length; j++) {
-                const h = String(globalBillingHeaders[j]).trim();
-                const match = /^(\d{4})\s+([A-Za-z]+)$/.exec(h);
-                if (match && parseInt(match[1]) === targetYear && match[2].toLowerCase() === targetMonth.toLowerCase()) {
-                    targetAmountColIdx = j;
-                }
-                const remarksHeader = targetYear + " " + targetMonth + " Remarks";
-                if (h.toUpperCase() === remarksHeader.toUpperCase()) {
-                    targetRemarksColIdx = j;
-                } else if (h.toLowerCase().includes(String(targetYear).toLowerCase()) && h.toLowerCase().includes(targetMonth.slice(0,3).toLowerCase()) && h.toLowerCase().includes("remarks")) {
-                    targetRemarksColIdx = j;
-                }
-            }
-
-            if (targetAmountColIdx === -1 || targetRemarksColIdx === -1) {
-                alert("Error: Target columns for this Month/Year were not found in the BILLING sheet.");
-                return;
-            }
-
-            const isMoving = (targetAmountColIdx !== currentPaymentBill.amountColIndex);
-            const rIdx = currentPaymentBill.sheetRowIdx;
-
-            if (isMoving) {
-                const rowData = globalBillingValues[rIdx] || [];
-                const existingAmount = String(rowData[targetAmountColIdx] || '').trim();
-                const existingRemarks = String(rowData[targetRemarksColIdx] || '').trim();
-                if (existingAmount || existingRemarks) {
-                    alert("Warning: Data already exists in the selected month. Please choose another month.");
+            const targetBill = currentPaymentBill.targetBill;
+            const willBePaid = !targetBill.isPaid;
+            let datePaidStr = '';
+            
+            if (willBePaid) {
+                const dateVal = document.getElementById('pm-date-input').value;
+                if (!dateVal) {
+                    alert("Please select a date.");
                     return;
                 }
+                // Convert yyyy-mm-dd format to "Oct 30, 2026"
+                const parts = dateVal.split('-');
+                if (parts.length === 3) {
+                    const d = new Date(parts[0], parts[1] - 1, parts[2]);
+                    datePaidStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                } else {
+                    datePaidStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                }
             }
 
-            // Close Modal Immediately
-            document.getElementById('payment-modal').classList.add('hidden');
+            // Instantly Close Modal for quick UX
+            closePaymentModal();
 
-            // Save old state for potential rollback
-            const oldState = {
-                amountColIndex: currentPaymentBill.amountColIndex,
-                remarksColIndex: currentPaymentBill.remarksColIndex,
-                billingMonthName: currentPaymentBill.billingMonthName,
-                billingYear: currentPaymentBill.billingYear,
-                isPaid: currentPaymentBill.isPaid
-            };
+            const rIdx = targetBill.sheetRowIdx;
+            const targetRemarksColIdx = targetBill.remarksColIndex;
 
-            // Update Optimistically
-            currentPaymentBill.amountColIndex = targetAmountColIdx;
-            currentPaymentBill.remarksColIndex = targetRemarksColIdx;
-            currentPaymentBill.billingMonthName = targetMonth;
-            currentPaymentBill.billingYear = targetYear;
-            currentPaymentBill.isPaid = willBePaid;
+            // Apply optimistic UI updates immediately
+            targetBill.isPaid = willBePaid;
+            let rParts = (targetBill.fullRemarks || '').split('|').map(p => p.trim());
+            while(rParts.length < 14) rParts.push(''); 
+            rParts[12] = willBePaid ? 'Yes' : 'No';
+            rParts[13] = willBePaid ? datePaidStr : ''; 
 
-            if (isMoving) {
-                if(!globalBillingValues[rIdx]) globalBillingValues[rIdx] = [];
-                globalBillingValues[rIdx][targetAmountColIdx] = currentPaymentBill.amount;
-                globalBillingValues[rIdx][targetRemarksColIdx] = currentPaymentBill.fullRemarks;
-                globalBillingValues[rIdx][oldState.amountColIndex] = "";
-                globalBillingValues[rIdx][oldState.remarksColIndex] = "";
-            }
+            targetBill.fullRemarks = rParts.join(' | ');
 
-            // Re-render UI Instantly
+            if (!globalBillingValues[rIdx]) globalBillingValues[rIdx] = [];
+            globalBillingValues[rIdx][targetRemarksColIdx] = targetBill.fullRemarks;
+
             renderView();
 
-            // Perform Background Sync
+            // Background Google Sheets Sync
             try {
                 const token = await GoogleSheetsAPI.getAuthToken();
+                const valueDataUpdates = [
+                    { range: `'BILLING'!${colIndexToLetter(targetRemarksColIdx)}${rIdx + 1}`, values: [[ targetBill.fullRemarks ]] }
+                ];
 
-                if (isMoving) {
-                    const valuesBody = {
-                        valueInputOption: "USER_ENTERED",
-                        data: [
-                            { range: `BILLING!${colIndexToLetter(targetAmountColIdx)}${rIdx + 1}`, values: [[ currentPaymentBill.amount ]] },
-                            { range: `BILLING!${colIndexToLetter(targetRemarksColIdx)}${rIdx + 1}`, values: [[ currentPaymentBill.fullRemarks ]] },
-                            { range: `BILLING!${colIndexToLetter(oldState.amountColIndex)}${rIdx + 1}`, values: [[ "" ]] },
-                            { range: `BILLING!${colIndexToLetter(oldState.remarksColIndex)}${rIdx + 1}`, values: [[ "" ]] }
-                        ]
-                    };
-                    const vRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values:batchUpdate`, {
-                        method: 'POST',
-                        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                        body: JSON.stringify(valuesBody)
-                    });
-                    if (!vRes.ok) throw new Error("Failed to move values");
-                }
-
-                const color = willBePaid ? {red: 1, green: 0, blue: 0} : {red: 0, green: 0, blue: 0};
-                const formatBody = {
-                    requests: [{
-                        repeatCell: {
-                            range: {
-                                sheetId: globalBillingSheetId,
-                                startRowIndex: rIdx,
-                                endRowIndex: rIdx + 1,
-                                startColumnIndex: targetAmountColIdx,
-                                endColumnIndex: targetAmountColIdx + 1
-                            },
-                            cell: { userEnteredFormat: { textFormat: { foregroundColor: color } } },
-                            fields: "userEnteredFormat.textFormat.foregroundColor"
-                        }
-                    }]
+                const valuesBody = {
+                    valueInputOption: "USER_ENTERED",
+                    data: valueDataUpdates
                 };
-
-                const fRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}:batchUpdate`, {
+                
+                const vRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values:batchUpdate`, {
                     method: 'POST',
                     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formatBody)
+                    body: JSON.stringify(valuesBody)
                 });
-                if (!fRes.ok) throw new Error("Failed to format color");
-
+                if (!vRes.ok) throw new Error("Failed to update text values");
+                
             } catch (e) {
                 console.error(e);
                 alert("An error occurred syncing data. Reverting changes on screen.");
-                
-                // Rollback if the API fails
-                currentPaymentBill.amountColIndex = oldState.amountColIndex;
-                currentPaymentBill.remarksColIndex = oldState.remarksColIndex;
-                currentPaymentBill.billingMonthName = oldState.billingMonthName;
-                currentPaymentBill.billingYear = oldState.billingYear;
-                currentPaymentBill.isPaid = oldState.isPaid;
-
-                if (isMoving) {
-                    globalBillingValues[rIdx][oldState.amountColIndex] = currentPaymentBill.amount;
-                    globalBillingValues[rIdx][oldState.remarksColIndex] = currentPaymentBill.fullRemarks;
-                    globalBillingValues[rIdx][targetAmountColIdx] = "";
-                    globalBillingValues[rIdx][targetRemarksColIdx] = "";
-                }
+                targetBill.isPaid = !willBePaid;
+                rParts[12] = !willBePaid ? 'Yes' : 'No';
+                rParts[13] = '';
+                targetBill.fullRemarks = rParts.join(' | ');
+                globalBillingValues[rIdx][targetRemarksColIdx] = targetBill.fullRemarks;
                 renderView();
             }
         };
@@ -1939,7 +1919,7 @@
             try {
                 const token = await GoogleSheetsAPI.getAuthToken();
                 const colLetter = colIndexToLetter(globalBillingSubConColIdx);
-                const cellA1 = `BILLING!${colLetter}${sheetRowIdx + 1}`;
+                const cellA1 = `'BILLING'!${colLetter}${sheetRowIdx + 1}`;
                 const url = `https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values/${cellA1}?valueInputOption=USER_ENTERED`;
                 const body = JSON.stringify({ range: cellA1, majorDimension: "ROWS", values: [[val]] });
 
@@ -2404,11 +2384,11 @@
                 const cbColLetter = colIndexToLetter(currentBillingColIndex);
                 
                 updates.push({
-                    range: `BILLING!${lbColLetter}${r + 1}`,
+                    range: `'BILLING'!${lbColLetter}${r + 1}`,
                     values: [[lastBillingStatus]]
                 });
                 updates.push({
-                    range: `BILLING!${cbColLetter}${r + 1}`,
+                    range: `'BILLING'!${cbColLetter}${r + 1}`,
                     values: [[currentBillingStatus]]
                 });
             }
@@ -3045,7 +3025,12 @@
         }
 
         function generateBillingDetailsRow(id, b) {
-            const allBills = billingDataGlobal.filter(x => x.contractId === b.contractId);
+            // Check current mode: if in default modes, strictly show Unpaid (false). 
+            // If in Previous Month modes, show Paid (true).
+            const targetPaidState = (billingGroupMode === 'previous_month' || billingGroupMode === 'previous_month_subcon') ? true : false;
+            
+            // Filter out bills based on the target state
+            const allBills = billingDataGlobal.filter(x => x.contractId === b.contractId && x.isPaid === targetPaidState);
 
             allBills.sort((a, b) => {
                 if (a.billingYear !== b.billingYear) return a.billingYear - b.billingYear;
@@ -3232,15 +3217,21 @@
                     let currentBacStatus = offset >= 0 && offset < partsBac.length ? partsBac[offset] : '-';
                     if (currentBacStatus === '') currentBacStatus = '-';
 
-                    let paidStr = currentPaidStatus === 'Paid' ? `<span style="color: red; font-style: italic; font-weight: bold;">Paid</span>` : `<span style="color: blue; font-weight: bold;">-</span>`;
-                    let bacStr = currentBacStatus === 'Paid' ? `<span style="color: green; font-style: italic; font-weight: bold;">Paid</span>` : `<span style="color: blue; font-weight: bold;">-</span>`;
-
-                    let statusHtml = `
-                        <div style="display: flex; justify-content: center; gap: 8px;">
-                            <div><span style="font-size: 8px; color: gray;">PAID:</span> ${paidStr}</div>
-                            <div><span style="font-size: 8px; color: gray;">BAC:</span> ${bacStr}</div>
-                        </div>
-                    `;
+                    let statusHtml = '';
+                    if (currentPaidStatus === 'Paid' || currentBacStatus === 'Paid') {
+                        let statusItems = [];
+                        // If it's paid, we output the specific tag without the label
+                        if (currentPaidStatus === 'Paid') {
+                            statusItems.push(`<span style="color: red; font-style: italic; font-weight: bold;">PAID</span>`);
+                        }
+                        if (currentBacStatus === 'Paid') {
+                            statusItems.push(`<span style="color: green; font-style: italic; font-weight: bold;">BAC</span>`);
+                        }
+                        statusHtml = `<div style="display: flex; justify-content: center; gap: 8px;">${statusItems.join('')}</div>`;
+                    } else {
+                        // If neither is paid, just show a blue "-"
+                        statusHtml = `<span style="color: blue; font-weight: bold;">-</span>`;
+                    }
 
                     printHtml += `
                         <tr style="background-color: ${rowBg} !important; -webkit-print-color-adjust: exact; print-color-adjust: exact;">

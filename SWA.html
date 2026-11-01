@@ -996,11 +996,43 @@
             if (appState.selectedContractId) renderItemsList();
         }
 
+        // 1. The unbreakable pop-up window generator
+        function showVersionError(appVer, dbVer) {
+            clearInterval(loadingInterval);
+            document.body.innerHTML = `
+                <div class="fixed inset-0 z-[99999] bg-slate-900/90 backdrop-blur-md flex flex-col justify-center items-center p-4">
+                    <div class="bg-white border-t-4 border-rose-500 rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl flex flex-col text-center">
+                        <div class="p-6 flex flex-col gap-4 items-center">
+                            <div class="w-16 h-16 bg-rose-50 border border-rose-200 shadow-inner rounded-full flex items-center justify-center text-rose-500 text-3xl mb-2">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                            </div>
+                            <h3 class="text-lg font-black text-slate-800 tracking-wider">VERSION MISMATCH</h3>
+                            
+                            <div class="w-full bg-slate-100 p-4 rounded-xl border border-slate-200 mb-1 text-sm text-left shadow-inner">
+                                <p class="mb-2 text-slate-600 font-bold">App Version: <span class="text-rose-600 font-black float-right">${appVer}</span></p>
+                                <p class="text-slate-600 font-bold">Database: <span class="text-blue-600 font-black float-right">${dbVer}</span></p>
+                            </div>
+                            <p class="text-sm text-slate-600 font-bold leading-relaxed px-1">
+                                You need to update your app or tell the moderator to update the app to match the database version.
+                            </p>
+                        </div>
+                        <div class="p-4 bg-slate-50 border-t border-slate-200">
+                            <button onclick="window.location.reload(true)" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-rose-500 to-red-600 border-b-4 border-red-800 text-white font-black text-xs uppercase tracking-widest shadow-md hover:scale-[1.02] transition-transform">
+                                RELOAD APP
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 2. Fetching the data including SWA!A1
         async function fetchSheetData() {
             startLoading();
             try {
                 const token = await GoogleSheetsAPI.getAuthToken();
-                const batchUrl = `https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values:batchGet?ranges=SWA!A3:ZZ&ranges=ITEMS!A3:ZZ&ranges=VO!A3:ZZ&ranges=PDO!A3:ZZ&ranges=REGISTRATION!A3:ZZ`;
+                // Requesting SWA!A1 at the beginning
+                const batchUrl = `https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values:batchGet?ranges=SWA!A1&ranges=SWA!A3:ZZ&ranges=ITEMS!A3:ZZ&ranges=VO!A3:ZZ&ranges=PDO!A3:ZZ&ranges=REGISTRATION!A3:ZZ`;
                 
                 let response = await fetch(batchUrl, { headers: { Authorization: `Bearer ${token}` } });
                 if (response.status === 503 || response.status === 429) {
@@ -1011,13 +1043,26 @@
                 if (!response.ok) throw new Error(`Google API Request Failed: ${response.status} ${response.statusText}`);
                 const batchData = await response.json();
                 
-                if (!batchData.valueRanges || batchData.valueRanges.length < 5) throw new Error("Incomplete dataset returned from Google Sheets.");
+                // Adjusting length check for the 6 ranges requested
+                if (!batchData.valueRanges || batchData.valueRanges.length < 6) throw new Error("Incomplete dataset returned from Google Sheets.");
 
-                const dataSWA = batchData.valueRanges[0] || { values: [] };
-                const dataITEMS = batchData.valueRanges[1] || { values: [] };
-                const dataVO = batchData.valueRanges[2] || { values: [] };
-                const dataPDO = batchData.valueRanges[3] || { values: [] };
-                const dataREGISTRATION = batchData.valueRanges[4] || { values: [] };
+                const versionData = batchData.valueRanges[0] || { values: [] };
+                const dataSWA = batchData.valueRanges[1] || { values: [] };
+                const dataITEMS = batchData.valueRanges[2] || { values: [] };
+                const dataVO = batchData.valueRanges[3] || { values: [] };
+                const dataPDO = batchData.valueRanges[4] || { values: [] };
+                const dataREGISTRATION = batchData.valueRanges[5] || { values: [] };
+
+                // 3. Verify Version
+                const EXPECTED_VERSION = "V1.2";
+                const sheetVersion = (versionData.values && versionData.values[0] && versionData.values[0][0]) 
+                    ? String(versionData.values[0][0]).trim().toUpperCase() 
+                    : "UNKNOWN";
+                
+                if (sheetVersion !== EXPECTED_VERSION) {
+                    showVersionError(EXPECTED_VERSION, sheetVersion);
+                    return; // This abruptly ends everything and prevents the popup from vanishing
+                }
 
                 buildItemsLookupMap(dataITEMS);
                 buildVoLookupMap(dataVO);

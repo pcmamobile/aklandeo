@@ -270,6 +270,29 @@
 
     <!-- TOAST NOTIFICATION CONTAINER -->
     <div id="toastContainer" class="fixed top-6 right-6 z-[999] flex flex-col items-end gap-3 pointer-events-none"></div>
+
+    <!-- VERSION MISMATCH MODAL -->
+    <div id="versionModal" class="fixed inset-0 z-[99999] hidden flex items-center justify-center bg-slate-900/85 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden m-4 border-t-8 border-rose-500">
+            <div class="p-8 text-center">
+                <i class="fa-solid fa-triangle-exclamation text-6xl text-rose-500 mb-4 animate-bounce"></i>
+                <h2 class="text-3xl font-black text-slate-800 uppercase tracking-wide mb-2">Update Required</h2>
+                <p class="text-sm font-bold text-slate-600 mb-8">The system has been updated. Please use the newest version or contact the moderator.</p>
+                
+                <div class="flex justify-center items-center gap-4 mb-2">
+                    <div class="bg-slate-100 p-4 rounded-xl border border-slate-200 w-1/2">
+                        <span class="block text-xs font-black text-slate-400 uppercase mb-1">Your Version</span>
+                        <span id="currentAppVersion" class="text-2xl font-black text-rose-500"></span>
+                    </div>
+                    <i class="fa-solid fa-arrow-right text-slate-300 text-2xl"></i>
+                    <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-200 w-1/2 shadow-inner">
+                        <span class="block text-xs font-black text-emerald-600 uppercase mb-1">New Version</span>
+                        <span id="latestSheetVersion" class="text-2xl font-black text-emerald-600"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 	
     <!-- GLOBAL HISTORY MODAL -->
     <div id="historyModal" class="fixed inset-0 z-[300] hidden flex items-center justify-center bg-slate-900/70 backdrop-blur-sm transition-opacity duration-300">
@@ -483,7 +506,7 @@
                             }
                         }
                     }
-                    data[tab.key] = { headers, rows };
+                    data[tab.key] = { headers, rows, rawValues: json.values || [] };
                 }
                 return data;
             }
@@ -522,6 +545,9 @@
         const historyItemsPerPage = 20;
         let historySearchText = '';
         let historyTabSelection = 'ALL';
+        
+        // APP VERSION CONSTANT
+        const APP_VERSION = "V1.2";
 
         // INITIALIZATION - NO LOGIN REQUIRED
         window.onload = () => {
@@ -571,6 +597,24 @@
                 GoogleSheetsAPI.fetchAllTabs(),
                 GoogleSheetsAPI.fetchPersonnelList()
             ]).then(([tabsData, personnelArray]) => {
+                
+                // ==========================================
+                // VERSION CHECK LOGIC
+                // ==========================================
+                const billingSheetData = tabsData.BILLING.rawValues;
+                // Get row 0, col 0 (Cell A1). Fallback to 'UNKNOWN' if it doesn't exist
+                const sheetVersion = (billingSheetData && billingSheetData[0] && billingSheetData[0][0]) 
+                    ? String(billingSheetData[0][0]).trim() 
+                    : "UNKNOWN";
+                
+                if (sheetVersion !== APP_VERSION) {
+                    clearInterval(interval); // Stop loading animation
+                    document.getElementById('currentAppVersion').innerText = APP_VERSION;
+                    document.getElementById('latestSheetVersion').innerText = sheetVersion;
+                    document.getElementById('versionModal').classList.remove('hidden'); // Show blocking popup
+                    return; // HALT execution right here
+                }
+
                 serverData = tabsData;
                 
                 // Map the personnel accurately to the specific ranges specified
@@ -1406,123 +1450,246 @@
         // BILLING LOGIC (Centered, Concise)
         // ==========================================
         function getBillingMonths(cid) {
-            let ntpOffset = -1;
-            const pdoNtp = getExtMapValue(cid, 'PDO', 'NTP') || getExtMapValue(cid, 'DATE', 'NTP');
-            if(pdoNtp) {
-                const d = new Date(pdoNtp);
-                if(!isNaN(d)) ntpOffset = d.getFullYear() * 12 + d.getMonth();
-            }
-            if(ntpOffset === -1) return []; 
-
-            const headers = serverData.BILLING.headers;
+            if (!serverData || !serverData.BILLING) return [];
+            const rawHeaders = serverData.BILLING.headers;
             let months = [];
-            headers.forEach(h => {
-                if(!h) return;
-                const uh = h.toUpperCase();
-                if(uh.includes('REMARKS') || uh.includes('CONTRACT') || uh.includes('YEAR') || uh.includes('STATUS') || uh.includes('ACTUAL') || uh.includes('PROJECT')) return;
+            
+            // Loop from 1 up to 10 (Ascending Order)
+            for(let i=1; i<=10; i++) {
+                let targetName = `${i === 1 ? '1st' : i === 2 ? '2nd' : i === 3 ? '3rd' : i + 'th'} Billing`;
                 
-                const d = new Date(h + " 1");
-                if(!isNaN(d)) {
-                    const hOffset = d.getFullYear() * 12 + d.getMonth();
-                    if(hOffset >= ntpOffset) months.push(h);
+                // Case-insensitive & space-insensitive check
+                let exists = rawHeaders.some(h => String(h || '').trim().toUpperCase() === targetName.toUpperCase());
+                
+                if (exists) {
+                    months.push(targetName);
                 }
-            });
-            months.sort((a,b) => new Date(b+" 1") - new Date(a+" 1"));
+            }
             return months;
         }
 
-        function renderBillingTab(cid) {
-            visibleBillingMonths[cid] = visibleBillingMonths[cid] || 3;
-            const limit = visibleBillingMonths[cid];
+		function handleBillingVisibility(cid, i) {
+            const statusEl = document.getElementById(`bill_status_${cid}_${i}`);
+            const block = document.getElementById(`billing-block-${cid}-${i}`);
+            if(!block || !statusEl) return;
+            
+            const status = statusEl.value;
+            const r1Ext = block.querySelector('.r1-ext-container');
+            const r2 = block.querySelector('.r2-row');
+            const r3 = block.querySelector('.r3-row');
+            const r4 = block.querySelector('.r4-dates');
+            const r3LdOth = block.querySelectorAll('.r3-ld-oth');
+            
+            const pctWrapper = document.getElementById(`bill_pct_wrapper_${cid}_${i}`);
+            const pctInput = document.getElementById(`bill_pct_${cid}_${i}`);
+
+            // Reset all visibility to normal
+            if(r1Ext) r1Ext.style.display = 'grid';
+            if(r2) r2.style.display = 'grid';
+            if(r3) r3.style.display = 'grid';
+            if(r4) r4.style.display = 'grid';
+            r3LdOth.forEach(el => el.style.display = 'flex');
+            if(pctWrapper) pctWrapper.style.display = 'flex'; // Reset percentage visibility
+
+            // If empty, or Mobilization/Balance/Retention, hide everything except the first 3 inputs
+            if(status === '' || status === 'Mobilization' || status === 'Balance' || status === 'Retention') {
+                if(r1Ext) r1Ext.style.display = 'none';
+                if(r2) r2.style.display = 'none';
+                if(r3) r3.style.display = 'none';
+                if(r4) r4.style.display = 'none';
+            } 
+            // If Partial Billing, hide only Dates, LD, and Others
+            else if (status === 'Partial Billing') {
+                if(r4) r4.style.display = 'none'; 
+                r3LdOth.forEach(el => el.style.display = 'none'); 
+            }
+            // NEW: If Final Billing, hide percentage wrapper and force value to 100%
+            else if (status === 'Final Billing') {
+                if(pctWrapper) pctWrapper.style.display = 'none';
+                if(pctInput && pctInput.value !== '100%') {
+                    pctInput.value = '100%';
+                }
+            }
+        }
+
+			function renderBillingTab(cid) {
             const allMonths = getBillingMonths(cid);
             const container = document.getElementById(`billing-container-${cid}`);
             
             if(allMonths.length === 0) {
-                container.innerHTML = `<div class="p-8 text-center text-rose-600 font-black italic border-2 border-rose-300 bg-rose-50 rounded-xl shadow-inner text-lg uppercase tracking-wider">No billing months available. Ensure NTP is provided.</div>`;
+                container.innerHTML = `<div class="p-8 text-center text-rose-600 font-black italic border-2 border-rose-300 bg-rose-50 rounded-xl shadow-inner text-lg uppercase tracking-wider">No billing columns found. Check Google Sheets headers.</div>`;
                 return;
             }
 
-            const toShow = allMonths.slice(0, limit);
             let html = '';
+            let showNextEmpty = true; // Tracks if we should show the next empty block
             
-            toShow.forEach((monthHdr, i) => {
+            allMonths.forEach((monthHdr, i) => {
                 const netVal = toCurrencyFormat(getExtMapValue(cid, 'BILLING', monthHdr));
                 const rawRem = getExtMapValue(cid, 'BILLING', monthHdr + " Remarks") || '';
+                const parts = rawRem.split('|').map(s => s.trim());
                 
-                let swaDate = '', grossAmt = '', remText = '';
-                let parts = rawRem.split('|').map(s => s.trim());
-                
-                // Extract the auto-generated Encoded Date tag if it exists
-                let encodedTag = '';
-                if (parts.length > 0 && parts[parts.length - 1].startsWith('Encoded:')) {
-                    encodedTag = parts.pop();
+                // Extract parts using strict formatting
+                let bDate = parts[0] || '';
+                let bPayable = parts[1] || '';
+                let bStatus = parts[2] || '';
+                let bEncoded = parts[3] && parts[3].startsWith('Encoded:') ? parts[3] : '';
+                let bNumber = parts[4] || '';
+                let bPercent = parts[5] || '';
+                let bRecoup = parts[6] || '';
+                let bReten = parts[7] || '';
+                let bEWT = parts[8] || '';
+                let bFvat = parts[9] || '';
+                let bLD = parts[10] || '';
+                let bOthers = parts[11] || '';
+                let bPaid = parts[12] || 'No';
+                let bDatePaid = parts[13] || '';
+
+                // STRICT DATA CHECK: Only consider it "having data" if Net, Date, or Status has actual letters/numbers (ignores dashes)
+                let cleanNet = netVal.replace(/[^0-9]/g, '');
+                let cleanDate = bDate.replace(/[^a-zA-Z0-9]/g, '');
+                let cleanStatus = bStatus.replace(/[^a-zA-Z0-9]/g, '');
+                let hasData = (cleanNet !== '' || cleanDate !== '' || cleanStatus !== '');
+
+                // Determine if this block should be shown
+                const isVisible = hasData || showNextEmpty;
+
+                // The moment we hit an empty block, we turn off the flag so all future empty ones stay hidden
+                if (!hasData) {
+                    showNextEmpty = false; 
                 }
 
-                // Safely map the remaining parts (Date | Gross | Remarks)
-                if (parts.length >= 2) {
-                    swaDate = parts[0]; 
-                    grossAmt = parts[1]; 
-                    remText = parts.length > 2 ? parts.slice(2).join(' | ') : '';
-                } else if (parts.length === 1) {
-                    remText = parts[0]; 
+                // Fetch real Dates from DATE tab
+                let dFCIR = formatDt(getExtMapValue(cid, 'DATE', 'Date of FCIR'));
+                let dComp = formatDt(getExtMapValue(cid, 'DATE', 'Date of Completion'));
+                let dCOC = formatDt(getExtMapValue(cid, 'DATE', 'Date of COC'));
+                let dTurn = formatDt(getExtMapValue(cid, 'DATE', 'Turn-Over'));
+
+                const statusOpts = ['', 'Mobilization', 'Partial Billing', 'Final Billing', 'Retention', 'Balance'];
+                const numOpts = ['', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th'];
+
+                // Safely build Status Dropdown to preserve legacy data
+                let statusOptionsHTML = statusOpts.map(o => `<option value="${o}" ${bStatus.toUpperCase()===o.toUpperCase()?'selected':''}>${o||'-- Select --'}</option>`).join('');
+                if (bStatus && !statusOpts.some(o => o.toUpperCase() === bStatus.toUpperCase())) {
+                    statusOptionsHTML += `<option value="${bStatus}" selected>${bStatus} (Legacy Data)</option>`;
                 }
-                
-                const fSwaDate = /^\d{4}-\d{2}-\d{2}$/.test(swaDate) || /^[A-Za-z]+ \d{2}, \d{4}$/.test(swaDate) ? formatDt(swaDate) : swaDate;
-                const fGross = toCurrencyFormat(grossAmt);
+
+                // Conditionally style the container: Highlight with a green gradient if it has data
+                const blockStyle = hasData 
+                    ? 'bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-500 shadow-[0_4px_12px_rgba(34,197,94,0.25)]' 
+                    : 'bg-[#e6f0fa] border border-[#a5c7f0] shadow-lg';
 
                 html += `
-                    <div class="billing-block bg-white p-6 rounded-2xl shadow-lg border border-[#a5c7f0]">
-                        <div class="flex items-center gap-3 mb-4 border-b-2 border-rose-200 pb-1 w-max">
-                            <h4 class="text-rose-600 font-black italic tracking-widest text-[14px] uppercase m-0">${monthHdr}</h4>
-                            ${encodedTag ? `<span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded border border-emerald-200 shadow-sm font-bold tracking-wide"><i class="fa-solid fa-clock-rotate-left mr-1"></i>${encodedTag}</span>` : ''}
+                <div id="billing-block-${cid}-${i}" class="billing-block ${blockStyle} p-5 rounded-2xl mb-6 relative transition-colors duration-300 ${isVisible ? '' : 'hidden'}">
+                    <input type="hidden" id="bill_paid_${cid}_${i}" value="${bPaid}">
+                    <input type="hidden" id="bill_datepaid_${cid}_${i}" value="${bDatePaid}">
+                    <div class="flex items-center gap-3 mb-4 border-b-2 border-rose-200 pb-2 w-max">
+                        <h4 class="text-rose-600 font-black italic tracking-widest text-[16px] uppercase m-0">${monthHdr}</h4>
+                        ${bEncoded ? `<span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded border border-emerald-200 shadow-sm font-bold tracking-wide"><i class="fa-solid fa-clock-rotate-left mr-1"></i>${bEncoded}</span>` : ''}
+                    </div>
+                    
+                    <i id="icon_bill_block_${cid}_${i}" class="fa-solid fa-check save-indicator hidden" style="top: 20px; right: 20px; position: absolute; font-size: 24px;"></i>
+
+                    <!-- ROW 1 -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                        <div class="flex flex-col">
+                            <label class="text-[12px] font-black italic text-black mb-1">Net Amount</label>
+                            <input type="text" id="bill_net_${cid}_${i}" value="${netVal}" class="excel-input w-full text-right font-black" onchange="autoSaveBilling('${cid}', '${monthHdr}', ${i})">
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 items-start justify-items-center">
-                            
-                            <div class="flex flex-col w-full">
-                                <label class="text-[11px] font-black uppercase text-black mb-1.5 ml-1">Net Amount</label>
-                                <div class="relative w-full">
-                                    <input type="text" value="${netVal}" onchange="autoSaveBilling('${cid}', '${monthHdr}')" id="bill_net_${cid}_${i}" class="w-full excel-input text-right font-black text-lg">
-                                    <i id="icon_bill_net_${cid}_${i}" class="fa-solid fa-check save-indicator hidden" style="right: 8px;"></i>
-                                </div>
+                        <div class="flex flex-col date-input-wrapper w-full max-w-full">
+                            <label class="text-[12px] font-black italic text-black mb-1">Date of SWA/Billing</label>
+                            <div class="relative w-full"><input type="text" id="bill_dt_${cid}_${i}" value="${bDate}" class="date-input excel-input w-full text-center" onchange="autoSaveBilling('${cid}', '${monthHdr}', ${i})">${ICON_DATE}</div>
+                        </div>
+                        <div class="flex flex-col">
+                            <label class="text-[12px] font-black italic text-black mb-1">Status</label>
+                            <select id="bill_status_${cid}_${i}" class="excel-input w-full" onchange="handleBillingVisibility('${cid}', ${i}); autoSaveBilling('${cid}', '${monthHdr}', ${i})">
+                                ${statusOptionsHTML}
+                            </select>
+                        </div>
+                        
+                        <!-- Number & Percentage grouped together (50% width) -->
+                        <div class="grid grid-cols-2 gap-3 r1-ext-container">
+                            <div class="flex flex-col">
+                                <label class="text-[12px] font-black italic text-black mb-1">Number</label>
+                                <select id="bill_num_${cid}_${i}" class="excel-input w-full px-2" onchange="autoSaveBilling('${cid}', '${monthHdr}', ${i})">
+                                    ${numOpts.map(o => `<option value="${o}" ${bNumber===o?'selected':''}>${o||'-- Select --'}</option>`).join('')}
+                                </select>
                             </div>
-                            
-                            <div class="flex flex-col w-full">
-                                <label class="text-[11px] font-black uppercase text-black mb-1.5 ml-1">Date of SWA/Billing</label>
-                                <div class="relative w-full date-input-wrapper">
-                                    <input type="text" value="${fSwaDate}" placeholder="Select Date" onchange="autoSaveBilling('${cid}', '${monthHdr}')" id="bill_dt_${cid}_${i}" class="date-input w-full excel-input font-black pr-10 text-center text-sm">
-                                    ${ICON_DATE}
-                                    <i id="icon_bill_dt_${cid}_${i}" class="fa-solid fa-check save-indicator hidden"></i>
-                                </div>
+                            <div class="flex flex-col" id="bill_pct_wrapper_${cid}_${i}">
+                                <label class="text-[12px] font-black italic text-black mb-1">Percentage</label>
+                                <input type="text" id="bill_pct_${cid}_${i}" value="${bPercent}" placeholder="0.00%" class="excel-input w-full text-center px-2" onchange="autoSaveBilling('${cid}', '${monthHdr}', ${i})">
                             </div>
-                            
-                            <div class="flex flex-col w-full">
-                                <label class="text-[11px] font-black uppercase text-black mb-1.5 ml-1">Gross Amount</label>
-                                <div class="relative w-full">
-                                    <input type="text" value="${fGross}" onchange="autoSaveBilling('${cid}', '${monthHdr}')" id="bill_gross_${cid}_${i}" class="w-full excel-input text-right font-black text-lg">
-                                    <i id="icon_bill_gross_${cid}_${i}" class="fa-solid fa-check save-indicator hidden" style="right: 8px;"></i>
-                                </div>
-                            </div>
-                            
-                            <div class="flex flex-col w-full">
-                                <label class="text-[11px] font-black uppercase text-black mb-1.5 ml-1">Status</label>
-                                <div class="relative w-full">
-                                    <textarea rows="1" oninput="autoExpand(this); autoSaveBilling('${cid}', '${monthHdr}')" onchange="autoSaveBilling('${cid}', '${monthHdr}')" id="bill_rem_${cid}_${i}" class="w-full excel-input resize-y font-bold text-sm">${remText}</textarea>
-                                    <i id="icon_bill_rem_${cid}_${i}" class="fa-solid fa-check save-indicator hidden" style="right: 8px; top: 50%;"></i>
-                                </div>
-                            </div>
-                            
                         </div>
                     </div>
+
+                    <!-- ROW 2 -->
+                    <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4 r2-row">
+                        <div class="flex flex-col">
+                            <label class="text-[12px] font-black italic text-black mb-1">Payable</label>
+                            <input type="text" id="bill_pay_${cid}_${i}" value="${bPayable}" class="excel-input w-full text-right" onchange="autoSaveBilling('${cid}', '${monthHdr}', ${i})">
+                        </div>
+                        <div class="flex flex-col">
+                            <label class="text-[12px] font-black italic text-black mb-1">EWT</label>
+                            <input type="text" id="bill_ewt_${cid}_${i}" value="${bEWT}" class="excel-input w-full text-right" onchange="autoSaveBilling('${cid}', '${monthHdr}', ${i})">
+                        </div>
+                        <div class="flex flex-col">
+                            <label class="text-[12px] font-black italic text-black mb-1">F-VAT</label>
+                            <input type="text" id="bill_fvat_${cid}_${i}" value="${bFvat}" class="excel-input w-full text-right" onchange="autoSaveBilling('${cid}', '${monthHdr}', ${i})">
+                        </div>
+                        <div class="col-span-2 hidden md:block"></div>
+                    </div>
+
+                    <!-- ROW 3 -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4 r3-row">
+                        <div class="flex flex-col">
+                            <label class="text-[12px] font-black italic text-black mb-1">Recoupment</label>
+                            <input type="text" id="bill_rec_${cid}_${i}" value="${bRecoup}" class="excel-input w-full text-right" onchange="autoSaveBilling('${cid}', '${monthHdr}', ${i})">
+                        </div>
+                        <div class="flex flex-col">
+                            <label class="text-[12px] font-black italic text-black mb-1">Retention</label>
+                            <input type="text" id="bill_ret_${cid}_${i}" value="${bReten}" class="excel-input w-full text-right" onchange="autoSaveBilling('${cid}', '${monthHdr}', ${i})">
+                        </div>
+                        <div class="flex flex-col r3-ld-oth">
+                            <label class="text-[12px] font-black italic text-black mb-1">LD</label>
+                            <input type="text" id="bill_ld_${cid}_${i}" value="${bLD}" class="excel-input w-full text-right" onchange="autoSaveBilling('${cid}', '${monthHdr}', ${i})">
+                        </div>
+                        <div class="flex flex-col r3-ld-oth">
+                            <label class="text-[12px] font-black italic text-black mb-1">Others</label>
+                            <input type="text" id="bill_oth_${cid}_${i}" value="${bOthers}" class="excel-input w-full text-right" onchange="autoSaveBilling('${cid}', '${monthHdr}', ${i})">
+                        </div>
+                    </div>
+
+                    <!-- ROW 4 (Saves Directly to DATE tab) -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 r4-dates">
+                        <div class="flex flex-col date-input-wrapper w-full max-w-full">
+                            <label class="text-[12px] font-black italic text-black mb-1">Date of FCIR</label>
+                            <div class="relative w-full"><input type="text" value="${dFCIR}" class="date-input excel-input w-full text-center" onchange="autoSaveField('DATE', 'Date of FCIR', this, false, true)">${ICON_DATE}<i id="icon_date_fcir_${cid}_${i}" class="fa-solid fa-check save-indicator hidden"></i></div>
+                        </div>
+                        <div class="flex flex-col date-input-wrapper w-full max-w-full">
+                            <label class="text-[12px] font-black italic text-black mb-1">Date of Completion</label>
+                            <div class="relative w-full"><input type="text" value="${dComp}" class="date-input excel-input w-full text-center" onchange="autoSaveField('DATE', 'Date of Completion', this, false, true)">${ICON_DATE}<i id="icon_date_comp_${cid}_${i}" class="fa-solid fa-check save-indicator hidden"></i></div>
+                        </div>
+                        <div class="flex flex-col date-input-wrapper w-full max-w-full">
+                            <label class="text-[12px] font-black italic text-black mb-1">Date of COC</label>
+                            <div class="relative w-full"><input type="text" value="${dCOC}" class="date-input excel-input w-full text-center" onchange="autoSaveField('DATE', 'Date of COC', this, false, true)">${ICON_DATE}<i id="icon_date_coc_${cid}_${i}" class="fa-solid fa-check save-indicator hidden"></i></div>
+                        </div>
+                        <div class="flex flex-col date-input-wrapper w-full max-w-full">
+                            <label class="text-[12px] font-black italic text-black mb-1">Date of Turn-Over</label>
+                            <div class="relative w-full"><input type="text" value="${dTurn}" class="date-input excel-input w-full text-center" onchange="autoSaveField('DATE', 'Turn-Over', this, false, true)">${ICON_DATE}<i id="icon_date_turn_${cid}_${i}" class="fa-solid fa-check save-indicator hidden"></i></div>
+                        </div>
+                    </div>
+                </div>
                 `;
             });
             container.innerHTML = html;
+            
+            // Execute Visibility rules once UI builds
+            allMonths.forEach((monthHdr, i) => { handleBillingVisibility(cid, i); });
             
             flatpickr(container.querySelectorAll('.date-input'), {
                 dateFormat: "F d, Y", allowInput: true,
                 onChange: function(d, s, x) { x.element.dispatchEvent(new Event('change', { bubbles: true })); }
             });
-            
-            setTimeout(() => { container.querySelectorAll('textarea').forEach(ta => { if(ta.value) autoExpand(ta); }); }, 50);
         }
 
         function increaseBillingLimit(cid) {
@@ -1722,47 +1889,93 @@
             queueSave(tabKey, headerName, val, currentOpenCid, [iconId]);
         }
 
-        function autoSaveBilling(cid, monthHdr) {
-            const container = document.getElementById(`billing-container-${cid}`);
-            const allNet = container.querySelectorAll(`input[id^="bill_net_${cid}_"]`);
+        function autoSaveBilling(cid, monthHdr, i) {
+            let netEl = document.getElementById(`bill_net_${cid}_${i}`);
+            let dtEl = document.getElementById(`bill_dt_${cid}_${i}`);
             
-            allNet.forEach((netEl, i) => {
-                const dtEl = document.getElementById(`bill_dt_${cid}_${i}`);
-                const grossEl = document.getElementById(`bill_gross_${cid}_${i}`);
-                const remEl = document.getElementById(`bill_rem_${cid}_${i}`);
-                
-                if(!dtEl) return; 
-                
-                const hdrEl = netEl.closest('.billing-block').querySelector('h4');
-                
-                if(!hdrEl || hdrEl.innerText.trim().toUpperCase() !== monthHdr.trim().toUpperCase()) return;
-                
-                let netVal = toCurrencyFormat(netEl.value); netEl.value = netVal;
-                let grossVal = toCurrencyFormat(grossEl.value); grossEl.value = grossVal;
-                
-                let combinedRem = [];
-                // If there's any data recorded for this month...
-                if(dtEl.value || grossVal || remEl.value || netVal) {
-                    combinedRem.push(dtEl.value || '');
-                    combinedRem.push(grossVal || '');
-                    combinedRem.push(remEl.value || ''); // Forces Status/Remarks to always occupy the 3rd column
-                    
-                    // Automatically append today's date tag
-                    const now = new Date();
-                    const encDate = now.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
-                    combinedRem.push(`Encoded: ${encDate}`); // Encoded will now ALWAYS be strictly in the 4th column
+            if(!netEl || !dtEl) return;
+
+            let statusEl = document.getElementById(`bill_status_${cid}_${i}`);
+            let numEl = document.getElementById(`bill_num_${cid}_${i}`);
+            let pctEl = document.getElementById(`bill_pct_${cid}_${i}`);
+            let payEl = document.getElementById(`bill_pay_${cid}_${i}`);
+            let recEl = document.getElementById(`bill_rec_${cid}_${i}`);
+            let retEl = document.getElementById(`bill_ret_${cid}_${i}`);
+            let ewtEl = document.getElementById(`bill_ewt_${cid}_${i}`);
+            let fvatEl = document.getElementById(`bill_fvat_${cid}_${i}`);
+            let ldEl = document.getElementById(`bill_ld_${cid}_${i}`);
+            let othEl = document.getElementById(`bill_oth_${cid}_${i}`);
+            let paidEl = document.getElementById(`bill_paid_${cid}_${i}`);
+            let datePaidEl = document.getElementById(`bill_datepaid_${cid}_${i}`);
+
+            // Format monetary fields automatically
+            netEl.value = toCurrencyFormat(netEl.value);
+            payEl.value = toCurrencyFormat(payEl.value);
+            recEl.value = toCurrencyFormat(recEl.value);
+            retEl.value = toCurrencyFormat(retEl.value);
+            ewtEl.value = toCurrencyFormat(ewtEl.value);
+            fvatEl.value = toCurrencyFormat(fvatEl.value);
+            ldEl.value = toCurrencyFormat(ldEl.value);
+            othEl.value = toCurrencyFormat(othEl.value);
+
+            // Stamp standard encode tag
+            const now = new Date();
+            const encDate = now.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
+
+            // FETCH EXISTING VALUES DIRECTLY FROM MEMORY (Ensures "Yes" stays "Yes")
+            let currentRawRem = getExtMapValue(cid, 'BILLING', monthHdr + " Remarks") || '';
+            let currentParts = currentRawRem.split('|').map(s => s.trim());
+            
+            // Safely grab whatever is currently saved in the database for Paid and Date Paid
+            let keepPaid = (currentParts[12] !== undefined && currentParts[12] !== '') ? currentParts[12] : 'No';
+            let keepDatePaid = (currentParts[13] !== undefined) ? currentParts[13] : '';
+
+            // Assemble the pipeline string based on strictly mapped indexes
+            let parts = [
+                dtEl.value || '',
+                payEl.value || '',
+                statusEl.value || '',
+                `Encoded: ${encDate}`, 
+                numEl.value || '',
+                pctEl.value || '',
+                recEl.value || '',
+                retEl.value || '',
+                ewtEl.value || '',
+                fvatEl.value || '',
+                ldEl.value || '',
+                othEl.value || '',
+                keepPaid,       // Preserves the existing Paid status ("Yes" stays "Yes", "No" stays "No")
+                keepDatePaid    // Preserves the existing Date Paid
+            ];
+
+            let remStr = parts.join(' | ');
+            let blockIconId = `icon_bill_block_${cid}_${i}`;
+            
+            // Queue saving exactly to the specific 2 columns (Net and Remarks string)
+            queueSave('BILLING', monthHdr, netEl.value, cid, [blockIconId]);
+            queueSave('BILLING', monthHdr + ' Remarks', remStr, cid, [blockIconId]);
+
+            // DYNAMIC PROGRESSION & HIGHLIGHTING
+            let cleanNet = netEl.value.replace(/[^0-9]/g, '');
+            let hasDataNow = (cleanNet !== '' || dtEl.value.trim() !== '' || statusEl.value.trim() !== '');
+            
+            // Live update the background color of the current block
+            const currentBlock = document.getElementById(`billing-block-${cid}-${i}`);
+            if (currentBlock) {
+                if (hasDataNow) {
+                    currentBlock.className = `billing-block bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-500 shadow-[0_4px_12px_rgba(34,197,94,0.25)] p-5 rounded-2xl mb-6 relative transition-colors duration-300`;
+                } else {
+                    currentBlock.className = `billing-block bg-[#e6f0fa] border border-[#a5c7f0] shadow-lg p-5 rounded-2xl mb-6 relative transition-colors duration-300`;
                 }
-                
-                const netIconId = `icon_bill_net_${cid}_${i}`;
-                queueSave('BILLING', monthHdr, netVal, cid, [netIconId]);
-                
-                const remStr = combinedRem.join(' | ');
-                const dtIconId = `icon_bill_dt_${cid}_${i}`;
-                const grossIconId = `icon_bill_gross_${cid}_${i}`;
-                const remIconId = `icon_bill_rem_${cid}_${i}`;
-                
-                queueSave('BILLING', monthHdr + ' Remarks', remStr, cid, [dtIconId, grossIconId, remIconId]);
-            });
+            }
+
+            // Unhide the next empty block instantly if data is entered
+            if (hasDataNow) {
+                const nextBlock = document.getElementById(`billing-block-${cid}-${i+1}`);
+                if (nextBlock) {
+                    nextBlock.classList.remove('hidden');
+                }
+            }
         }
 
         async function commitPendingSaves() {
@@ -1775,7 +1988,46 @@
                 const payload = [];
                 let historyAppends = []; // Stores brand new logs that need to be appended
 
-                for (let s of saves) { await ensureRowExists(s.tabKey, s.cid); }
+                for (let s of saves) { 
+                    await ensureRowExists(s.tabKey, s.cid); 
+                    
+                    // ==========================================
+                    // LIVE-CHECK: Protect "Paid" & "Date Paid"
+                    // ==========================================
+                    if (s.tabKey === 'BILLING' && s.headerName.includes('Remarks')) {
+                        const tabData = serverData[s.tabKey];
+                        const headerIdx = tabData.headers.findIndex(h => String(h||'').toUpperCase().trim() === s.headerName.toUpperCase().trim());
+                        const idCol = tabData.headers.findIndex(h => h && h.toUpperCase().includes('CONTRACT ID'));
+                        let row = tabData.rows.find(r => r.values[idCol] === s.cid);
+                        
+                        if (row && headerIdx > -1) {
+                            const sheetName = TAB_CONFIG.find(t=>t.key===s.tabKey).sheetName;
+                            const cellRange = `${sheetName}!${colToLetter(headerIdx)}${row.rowNumber}`;
+                            
+                            // 1. Fetch the exact LIVE cell from Google Sheets right before saving
+                            const liveRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values/${encodeURIComponent(cellRange)}`, {
+                                headers: { Authorization: `Bearer ${token}` }
+                            });
+                            const liveData = await liveRes.json();
+                            const liveStr = (liveData.values && liveData.values[0] && liveData.values[0][0]) ? liveData.values[0][0] : '';
+                            
+                            // 2. Extract whatever the other app might have written just seconds ago
+                            let liveParts = liveStr.split('|').map(x => x.trim());
+                            let livePaid = (liveParts[12] !== undefined && liveParts[12] !== '') ? liveParts[12] : 'No';
+                            let liveDatePaid = (liveParts[13] !== undefined) ? liveParts[13] : '';
+                            
+                            // 3. Inject those live values into our current save string to protect them
+                            let localParts = String(s.value).split('|').map(x => x.trim());
+                            while(localParts.length < 14) localParts.push(''); // Ensure array is long enough
+                            
+                            localParts[12] = livePaid;       // Safely re-attach Live Paid Status
+                            localParts[13] = liveDatePaid;   // Safely re-attach Live Date Paid
+                            
+                            s.value = localParts.join(' | '); // Lock in the protected string
+                            row.values[headerIdx] = s.value;  // Update local memory
+                        }
+                    }
+                }
 
                 const timestamp = new Date().toLocaleString('en-US', { timeZone: 'Asia/Manila' });
                 const user = loggedInUser ? (loggedInUser.name || loggedInUser.username) : 'Unknown User';
