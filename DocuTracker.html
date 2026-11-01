@@ -20,62 +20,40 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
+    <!-- JWT Generation Library (For Standalone Google API) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.5.27/jsrsasign-all-min.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
         
         body { 
             font-family: 'Poppins', sans-serif; 
-            /* Animated Pastel Background */
             background: linear-gradient(-45deg, #fbc2eb, #e6dee9, #e0c3fc, #8ec5fc);
             background-size: 400% 400%;
             animation: pastelBG 15s ease infinite;
             color: #334155; 
         }
 
-        @keyframes pastelBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
+        @keyframes pastelBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        @keyframes floatUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        @keyframes floatUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Glassmorphism Soft Boxes */
         .box-3d { 
-            background: rgba(255, 255, 255, 0.85); 
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-radius: 20px; 
-            box-shadow: 0 10px 40px -10px rgba(167, 139, 250, 0.15); 
-            border: 1px solid rgba(255, 255, 255, 0.6); 
-            animation: floatUp 0.6s ease-out forwards;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border-radius: 20px; box-shadow: 0 10px 40px -10px rgba(167, 139, 250, 0.15); border: 1px solid rgba(255, 255, 255, 0.6); 
+            animation: floatUp 0.6s ease-out forwards; transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
-        /* Vibrant Pastel Stat Boxes */
         .box-3d-color-1 { border-left: 6px solid #93c5fd; background: linear-gradient(to right, rgba(239, 246, 255, 0.9), rgba(255,255,255,0.8)); }
         .box-3d-color-2 { border-left: 6px solid #fde047; background: linear-gradient(to right, rgba(254, 252, 232, 0.9), rgba(255,255,255,0.8)); }
         .box-3d-color-3 { border-left: 6px solid #d8b4fe; background: linear-gradient(to right, rgba(250, 245, 255, 0.9), rgba(255,255,255,0.8)); }
         .box-3d-color-4 { border-left: 6px solid #86efac; background: linear-gradient(to right, rgba(240, 253, 244, 0.9), rgba(255,255,255,0.8)); }
-        
         .stat-box:hover { transform: translateY(-5px); box-shadow: 0 15px 35px -5px rgba(167, 139, 250, 0.25); }
 
-        /* Bouncy Pastel Buttons */
         .btn-3d { 
-            background: linear-gradient(135deg, #a78bfa, #818cf8); 
-            color: white; 
-            border-radius: 12px; 
-            box-shadow: 0 4px 0 #6366f1, 0 6px 10px rgba(139, 92, 246, 0.3); 
-            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1); 
-            font-weight: 600; 
-            border: none;
+            background: linear-gradient(135deg, #a78bfa, #818cf8); color: white; border-radius: 12px; 
+            box-shadow: 0 4px 0 #6366f1, 0 6px 10px rgba(139, 92, 246, 0.3); transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1); font-weight: 600; border: none;
         }
-        @media (min-width: 768px) {
-            .btn-3d { box-shadow: 0 5px 0 #6366f1, 0 8px 15px rgba(139, 92, 246, 0.3); }
-        }
+        @media (min-width: 768px) { .btn-3d { box-shadow: 0 5px 0 #6366f1, 0 8px 15px rgba(139, 92, 246, 0.3); } }
         .btn-3d:active { transform: translateY(4px); box-shadow: 0 0 0 #6366f1; }
         
         .btn-3d-green { background: linear-gradient(135deg, #34d399, #10b981); box-shadow: 0 4px 0 #059669, 0 6px 10px rgba(16, 185, 129, 0.3); }
@@ -90,93 +68,39 @@
         @media (min-width: 768px) { .btn-3d-gray { box-shadow: 0 5px 0 #475569, 0 8px 15px rgba(100, 116, 139, 0.3); } }
         .btn-3d-gray:active { box-shadow: 0 0 0 #475569; }
 
-        /* Refined Inputs */
         .input-3d { 
-            background: rgba(248, 250, 252, 0.8); 
-            border: 2px solid #e2e8f0; 
-            border-radius: 8px; 
-            padding: 8px 12px; 
-            font-size: 0.8rem;
-            width: 100%; 
-            outline: none; 
-            transition: all 0.3s ease;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+            background: rgba(248, 250, 252, 0.8); border: 2px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 0.8rem; width: 100%; 
+            outline: none; transition: all 0.3s ease; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
         }
-        @media (min-width: 768px) {
-            .input-3d { padding: 12px 16px; font-size: 0.875rem; border-radius: 12px; }
-        }
+        @media (min-width: 768px) { .input-3d { padding: 12px 16px; font-size: 0.875rem; border-radius: 12px; } }
         .input-3d:focus { border-color: #a78bfa; box-shadow: 0 0 0 4px rgba(167, 139, 250, 0.15); background: #ffffff; }
 
-        /* Flatpickr Styling Overrides for Pastel Theme */
         .flatpickr-calendar { border-radius: 16px; box-shadow: 0 10px 40px -10px rgba(167, 139, 250, 0.25); border: none; font-family: 'Poppins', sans-serif; padding: 10px; }
         .flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange, .flatpickr-day.selected.inRange, .flatpickr-day.startRange.inRange, .flatpickr-day.endRange.inRange, .flatpickr-day.selected:focus, .flatpickr-day.startRange:focus, .flatpickr-day.endRange:focus, .flatpickr-day.selected:hover, .flatpickr-day.startRange:hover, .flatpickr-day.endRange:hover, .flatpickr-day.selected.prevMonthDay, .flatpickr-day.startRange.prevMonthDay, .flatpickr-day.endRange.prevMonthDay, .flatpickr-day.selected.nextMonthDay, .flatpickr-day.startRange.nextMonthDay, .flatpickr-day.endRange.nextMonthDay {
             background: #8b5cf6 !important; border-color: #8b5cf6 !important; border-radius: 8px;
         }
         .flatpickr-day { border-radius: 8px; }
 
-        /* 3D Custom Checkbox */
         .checkbox-3d {
-            appearance: none;
-            width: 18px;
-            height: 18px;
-            background: #f8fafc;
-            border: 2px solid #cbd5e1;
-            border-radius: 6px;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1), 0 2px 0 #cbd5e1;
-            cursor: pointer;
-            position: relative;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            appearance: none; width: 18px; height: 18px; background: #f8fafc; border: 2px solid #cbd5e1; border-radius: 6px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1), 0 2px 0 #cbd5e1; cursor: pointer; position: relative; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        @media (min-width: 768px) {
-            .checkbox-3d { width: 22px; height: 22px; }
-        }
-        .checkbox-3d:checked {
-            background: linear-gradient(135deg, #a78bfa, #8b5cf6);
-            border-color: #7c3aed;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2), 0 2px 0 #6d28d9;
-        }
+        @media (min-width: 768px) { .checkbox-3d { width: 22px; height: 22px; } }
+        .checkbox-3d:checked { background: linear-gradient(135deg, #a78bfa, #8b5cf6); border-color: #7c3aed; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2), 0 2px 0 #6d28d9; }
         .checkbox-3d:checked::after {
-            content: '\f00c';
-            font-family: "Font Awesome 6 Free";
-            font-weight: 900;
-            color: white;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 10px;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            content: '\f00c'; font-family: "Font Awesome 6 Free"; font-weight: 900; color: white; position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); font-size: 10px; text-shadow: 0 1px 2px rgba(0,0,0,0.3);
         }
-        @media (min-width: 768px) {
-            .checkbox-3d:checked::after { font-size: 12px; }
-        }
-        .checkbox-3d:active {
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1), 0 0 0 #cbd5e1;
-            transform: translateY(2px);
-        }
+        @media (min-width: 768px) { .checkbox-3d:checked::after { font-size: 12px; } }
+        .checkbox-3d:active { box-shadow: inset 0 2px 4px rgba(0,0,0,0.1), 0 0 0 #cbd5e1; transform: translateY(2px); }
 
-        /* Soft Tabs */
         .tab-btn { 
-            padding: 8px 10px; 
-            border-radius: 10px 10px 0 0; 
-            background: rgba(241, 245, 249, 0.7); 
-            font-weight: 600; 
-            font-size: 0.7rem;
-            color: #64748b; 
-            cursor: pointer; 
-            transition: all 0.3s ease; 
-            margin-right: 2px;
+            padding: 8px 10px; border-radius: 10px 10px 0 0; background: rgba(241, 245, 249, 0.7); font-weight: 600; font-size: 0.7rem;
+            color: #64748b; cursor: pointer; transition: all 0.3s ease; margin-right: 2px;
         }
-        @media (min-width: 768px) {
-            .tab-btn { padding: 12px 18px; border-radius: 14px 14px 0 0; font-size: 0.875rem; margin-right: 4px; }
-        }
+        @media (min-width: 768px) { .tab-btn { padding: 12px 18px; border-radius: 14px 14px 0 0; font-size: 0.875rem; margin-right: 4px; } }
         .tab-btn:hover { background: rgba(226, 232, 240, 0.9); color: #475569; }
-        .tab-btn.active { 
-            background: white; 
-            color: #8b5cf6; 
-            border-top: 3px solid #a78bfa; 
-            box-shadow: 0 -4px 15px rgba(167, 139, 250, 0.08); 
-        }
+        .tab-btn.active { background: white; color: #8b5cf6; border-top: 3px solid #a78bfa; box-shadow: 0 -4px 15px rgba(167, 139, 250, 0.08); }
         @media (min-width: 768px) { .tab-btn.active { border-top: 4px solid #a78bfa; } }
 
         .hide-scrollbar::-webkit-scrollbar { display: none; }
@@ -184,16 +108,14 @@
         
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); z-index: 50; justify-content: center; align-items: center; }
         
-        /* Table Styling */
         th { background: rgba(248, 250, 252, 0.8); font-weight: 700; color: #475569; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; padding-bottom: 1rem; border-bottom: 2px solid #e2e8f0; }
         td { border-bottom: 1px solid #f1f5f9; color: #334155; font-size: 0.875rem; }
         tbody tr { transition: background-color 0.2s ease; }
         tbody tr:hover { background-color: rgba(238, 242, 255, 0.6); }
 
-        /* Responsive Mobile Tables (Cards View) */
         @media (max-width: 767px) {
             table, thead, tbody, th, td, tr { display: block; width: 100%; }
-            thead tr { display: none; } /* visually hide headers */
+            thead tr { display: none; }
             tr { border: 1px solid rgba(226, 232, 240, 0.8); border-radius: 0.75rem; margin-bottom: 0.75rem; background-color: rgba(255,255,255,0.9); box-shadow: 0 4px 10px -3px rgba(167, 139, 250, 0.1); overflow: hidden; }
             td { border-bottom: 1px solid #f1f5f9; padding: 0.5rem 0.5rem 0.5rem 32% !important; position: relative; min-height: 2.5rem; word-wrap: break-word; text-align: left; font-size: 0.75rem; }
             td:last-child { border-bottom: none; }
@@ -205,6 +127,30 @@
     
     <!-- TOAST NOTIFICATIONS CONTAINER -->
     <div id="toast-container" class="fixed bottom-4 right-4 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
+	
+<!-- Version Error Modal -->
+    <div id="version-modal" class="hidden fixed inset-0 z-[99999] bg-slate-900/90 backdrop-blur-md flex-col justify-center items-center p-4">
+        <div class="bg-white border-t-4 border-rose-500 rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl flex flex-col text-center">
+            <div class="p-6 flex flex-col gap-4 items-center">
+                <div class="w-16 h-16 bg-rose-50 border border-rose-200 shadow-inner rounded-full flex items-center justify-center text-rose-500 text-3xl mb-2">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <h3 class="text-lg font-black text-slate-800 tracking-wider">VERSION MISMATCH</h3>
+                <div class="w-full bg-slate-100 p-4 rounded-xl border border-slate-200 mb-1 text-sm text-left shadow-inner">
+                    <p class="mb-2 text-slate-600 font-bold">App Version: <span class="text-rose-600 font-black float-right">V1.2</span></p>
+                    <p class="text-slate-600 font-bold">Database: <span id="db-version-text" class="text-blue-600 font-black float-right">UNKNOWN</span></p>
+                </div>
+                <p class="text-sm text-slate-600 font-bold leading-relaxed px-1">
+                    Your app is using an old version. Please update your app or contact the moderator.
+                </p>
+            </div>
+            <div class="p-4 bg-slate-50 border-t border-slate-200">
+                <button onclick="window.location.reload(true)" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-rose-500 to-red-600 border-b-4 border-red-800 text-white font-black text-xs uppercase tracking-widest shadow-md hover:scale-[1.02] transition-transform">
+                    RELOAD APP
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Login View -->
     <div id="login-view" class="flex flex-1 items-center justify-center p-3 md:p-4">
@@ -235,26 +181,19 @@
     <!-- Dashboard View -->
     <div id="dashboard-view" class="hidden flex-1 flex flex-col overflow-hidden">
         
-        <!-- Workspace Header (Moved to Very Top) -->
 		<div class="z-40 shrink-0 flex flex-col md:flex-row justify-between items-start md:items-center bg-white/80 backdrop-blur-xl border-b border-indigo-100/50 p-3 md:p-4 md:px-6 shadow-sm w-full">
             <div class="flex items-center gap-3 md:gap-4 w-full md:w-auto mb-3 md:mb-0">
-                
-                <!-- Circular Back Button -->
                 <button onclick="handleAppBack()" class="w-10 h-10 md:w-12 md:h-12 bg-white rounded-full border-2 border-indigo-100 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 hover:border-indigo-200 transition-all flex items-center justify-center shadow-sm shrink-0" title="Back to Main Menu">
                     <i class="fa-solid fa-arrow-left text-sm md:text-lg"></i>
                 </button>
-                
-                <!-- Workspace Logo (Hidden on small mobile to save space alongside back button) -->
                 <div class="hidden sm:flex w-10 h-10 md:w-14 md:h-14 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-lg md:rounded-xl items-center justify-center flex-shrink-0 shadow-sm border border-white">
                     <i class="fa-solid fa-layer-group text-lg md:text-2xl text-indigo-500"></i>
                 </div>
-                
                 <div class="overflow-hidden">
                     <h1 class="text-lg md:text-2xl font-bold truncate text-slate-800">Workspace</h1>
                     <p class="text-[10px] md:text-sm text-slate-500 truncate font-medium">Welcome, <span id="display-user" class="font-bold text-indigo-600"></span> (<span id="display-role" class="text-purple-600"></span><span id="display-designation"></span>)</p>
                 </div>
             </div>
-            <!-- Mobile 4-column / Desktop flex header buttons -->
             <div class="grid grid-cols-5 md:flex gap-1.5 md:gap-3 w-full md:w-auto justify-start md:justify-end">
                 <button onclick="openSearchView()" class="btn-3d py-1.5 md:py-2.5 px-2 md:px-5 text-[10px] sm:text-xs md:text-base bg-gradient-to-r from-emerald-400 to-teal-500 shadow-[0_4px_0_#0f766e] md:shadow-[0_5px_0_#0f766e] text-center flex flex-col md:flex-row items-center justify-center">
                     <i class="fa-solid fa-magnifying-glass md:mr-2 mb-0.5 md:mb-0"></i><span class="hidden md:inline">Search</span>
@@ -274,7 +213,6 @@
             </div>
         </div>
 
-        <!-- Dashboard Padded Content Area -->
         <div class="flex-1 flex flex-col p-2 md:p-8 overflow-hidden">
 
             <div id="top-stats-container" class="hidden grid-cols-2 md:grid-cols-4 gap-2 md:gap-6 mb-4 md:mb-8">
@@ -304,10 +242,15 @@
                     <h3 class="text-lg md:text-2xl font-bold mb-4 md:mb-6 text-indigo-700 flex items-center"><span class="bg-indigo-100 text-indigo-500 p-1.5 md:p-2 rounded-lg mr-2 md:mr-3"><i class="fa-solid fa-cloud-arrow-up"></i></span> Upload New Document</h3>
                     <form id="upload-form" onsubmit="event.preventDefault(); submitNewDocument();">
                         
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-5 mb-3 md:mb-5">
+                        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 md:gap-5 mb-3 md:mb-5">
                             <div>
                                 <label class="block text-xs md:text-sm font-bold mb-1 md:mb-1.5 text-slate-600">Reference No.</label>
                                 <input type="text" id="doc-ref-no" class="input-3d" placeholder="e.g., REF-001" required>
+                            </div>
+                            <!-- NEW CONTRACT ID COLUMN -->
+                            <div>
+                                <label class="block text-xs md:text-sm font-bold mb-1 md:mb-1.5 text-slate-600">Contract ID</label>
+                                <input type="text" id="doc-contract-id" class="input-3d" placeholder="e.g., CID-2026-01">
                             </div>
                             <div>
                                 <label class="block text-xs md:text-sm font-bold mb-1 md:mb-1.5 text-slate-600">Origin</label>
@@ -384,10 +327,8 @@
                     </form>
                 </div>
 
-                <!-- Left Pane Card List & Pagination + Right Pane PDF -->
                 <div id="data-table-container" class="hidden w-full px-1 md:px-0 mt-2 md:mt-0 pb-2 md:pb-4 flex-col flex-1 min-h-0">
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 h-full flex-1">
-                        <!-- Left Pane: Card List & Pagination -->
                         <div class="col-span-1 border-r border-indigo-100 pr-2 flex flex-col h-full overflow-hidden">
                             <div class="overflow-y-auto w-full flex-1 pr-2 hide-scrollbar">
                                 <div id="table-body" class="flex flex-col w-full"></div>
@@ -396,7 +337,6 @@
                                     <p class="text-sm md:text-lg font-medium tracking-wide">No documents found here.</p>
                                 </div>
                             </div>
-                            <!-- Pagination Controls -->
                             <div id="pagination-controls" class="hidden justify-between items-center py-3 border-t border-indigo-100 mt-2 shrink-0">
                                 <button onclick="prevPage()" class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-lg text-sm font-bold hover:bg-indigo-200 disabled:opacity-50">&laquo; Prev</button>
                                 <span id="page-indicator" class="text-xs font-bold text-slate-500">Page 1</span>
@@ -404,7 +344,6 @@
                             </div>
                         </div>
                         
-                        <!-- Right Pane: PDF Viewer -->
                         <div class="hidden lg:flex col-span-2 h-full bg-slate-50 rounded-xl flex-col items-center justify-center border border-slate-200 relative overflow-hidden">
                             <div id="viewer-placeholder" class="text-center text-slate-400">
                                 <i class="fa-regular fa-file-pdf text-6xl mb-3 text-slate-300"></i>
@@ -417,13 +356,11 @@
             </div>
         </div>
         
-        </div> <!-- End of Dashboard Padded Content Area -->
+        </div>
     </div>
 
-    <!-- Search View (Advanced Filtering) -->
+    <!-- Search View -->
     <div id="search-view" class="hidden flex-1 flex flex-col overflow-hidden">
-        
-        <!-- Search Header (Moved to Very Top) -->
         <div class="z-40 shrink-0 flex flex-col md:flex-row justify-between items-start md:items-center bg-white/80 backdrop-blur-xl border-b border-indigo-100/50 p-3 md:p-4 md:px-6 shadow-sm w-full">
             <div class="flex items-center gap-3 md:gap-4 w-full md:w-auto mb-3 md:mb-0">
                 <div class="w-10 h-10 md:w-14 md:h-14 bg-gradient-to-br from-teal-100 to-emerald-100 rounded-lg md:rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm border border-white">
@@ -439,14 +376,12 @@
             </button>
         </div>
 
-        <!-- Search Padded Content Area -->
         <div class="flex-1 flex flex-col p-2 md:p-8 overflow-hidden">
-
             <div class="box-3d p-4 md:p-6 mb-4 md:mb-6 bg-white/70">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
                 <div>
                     <label class="block text-xs md:text-sm font-bold mb-1 md:mb-1.5 text-slate-600">Keyword Search</label>
-                    <input type="text" id="search-keyword" class="input-3d" placeholder="Title, Ref No, Remarks...">
+                    <input type="text" id="search-keyword" class="input-3d" placeholder="Title, Ref No, Contract ID...">
                 </div>
                 <div>
                     <label class="block text-xs md:text-sm font-bold mb-1 md:mb-1.5 text-slate-600">Origin</label>
@@ -535,7 +470,7 @@
             </div>
         </div>
         
-        </div> <!-- End of Search Padded Content Area -->
+        </div>
     </div>
 
     <!-- Modals -->
@@ -618,10 +553,15 @@
             <h3 class="text-lg md:text-xl font-bold mb-4 md:mb-6 text-indigo-700"><i class="fa-solid fa-pen-to-square mr-2"></i> Edit Document</h3>
             <input type="hidden" id="edit-rowidx">
             
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-5 mb-3 md:mb-5">
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 md:gap-5 mb-3 md:mb-5">
                 <div>
                     <label class="block text-xs md:text-sm font-bold mb-1 md:mb-1.5 text-slate-600">Reference No.</label>
                     <input type="text" id="edit-ref-no" class="input-3d" placeholder="e.g., REF-001" required>
+                </div>
+                <!-- NEW CONTRACT ID COLUMN IN EDIT -->
+                <div>
+                    <label class="block text-xs md:text-sm font-bold mb-1 md:mb-1.5 text-slate-600">Contract ID</label>
+                    <input type="text" id="edit-contract-id" class="input-3d" placeholder="e.g., CID-2026-01">
                 </div>
                 <div>
                     <label class="block text-xs md:text-sm font-bold mb-1 md:mb-1.5 text-slate-600">Origin</label>
@@ -709,40 +649,79 @@
     </div>
 
     <script>
-        // --- CONSTANTS & CONFIGURATION ---
-        const API_URL = "https://script.google.com/macros/s/AKfycby-8Rg5WH-thHgmZ1g2G-5HsfyQkR5ISMuFsEMC7fZDdFAdvmJpZaPZSTaaK2ma8s18WA/exec";
+        // ==========================================
+        // STANDALONE GOOGLE API CONFIGURATION
+        // ==========================================
+        const API_CONFIG = {
+            SPREADSHEET_ID: "1uM8FfJkDMy0PVvzYSlCXieOwocsCDG4FO65z5YThskg",
+            // FOLDER_ID is handled by your Google Apps Script now
+            SERVICE_ACCOUNT: {
+                "client_email": "pcma-mobile@gold-mode-473811-c6.iam.gserviceaccount.com",
+                "private_key": `-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQC1sEJI1CN6V8mj\nAhBvpiLC7JOEbrFFxsvqbzJjitbDRbyRhbk7prF1NQqAz0OV8l+9/v69UJ3ddGmE\n3Oq4EEqgOmeEpfdSeJeMa+alsc0H+1E2EmWLnhGNv/ot91osgokv7tUG7p/WnGSf\n0IP2bmbbEmQfhganvTCTmhTASHUSK32O+ZmYklYwqs9qptWCFjS3lj+uhaQ2nAFQ\nGCloj6go1aRbQTGxDygwwxtK08v68EuApslm5qs/x08gnj1UEV/FfHDUvUbCswm2\nIRTULJqNoGTYNs4DxbUJClUwcf72xmddbiE/CbOWs1g626obziGNe6/Dq74Ws5IR\nj39h8S57AgMBAAECggEAPUZdDH/TGUM7Iykijuz6Yz/zPmIwkiZKBl4LIewkowXF\nY1S0lGwTBELnsGp2Uj9ET+kMU5+5JgNJRQBWfs4rxN79o4xvnVZDUh3f0zjkO5Fk\nIbbRnWUpaWN6Bf+aX1GE3/AN00EuEex7uTRTFQzFzpNkxgbm/rI9DEKWRgUJyp7j\nwrbzhTp2cRRrQaPtONZej68dUtkkAsd2rlt3Reht3/NCdmNRTjpRHqiICZvuZuHe\njebcK/ewVZWqW9XpwVMfjhZeyBnfzNqRElNxF4BtodjmSpw+TkWyPK9obVFEBDG5\nFeRxBk6aTdutNkIN2uXOPFBP7UV4evsD3fiuYMRFvQKBgQDbiMwo80cLbnV7fuq/\nSr1y2i/mj8XDVX6xOJWDXOhrHNEDcTpYHp5Ey5qQwQhkGOiK/aUJWfWHJGMLM7DY\n7l6nvRe+oX/1inocjKMkiq5TGDvptBv2T9rz0K3LFueFNcxAv7445GgCsFADgYBM\n67reu9QcmT6Uis2nUffzcleGNQKBgQDT3ibtkMmkeDi3sl1uY9PudlZqnCcP11Pi\nQJF4+thJYjN/bYBKA3F4GhRZzEKxW6jjF/mQ/kZDLHJeGI4Y0ETpz76kB4gSO1zc\nlsKZnGBvfug2Oz7/fnPfdpMdSsaFS9AHOHTm7TAiyMuSXciJ1Sy5LxVeELP91cbJ\nBsJtKX+37wKBgQDFKUSB+orxn1Bvivp0tkESpxWh8blgxqWzr+fHRGeP2x90Afqu\nLUFi86BrJJHOo/gk68uObHZv2qQA6XmIOfxUlSSAFjb/ZFBq13ulU89f3UHhj9oV\nCn7Pvbh3zqg7IKfB9vJ10dv/ni0eGO4LJyJ66yGCVba4XTh5bspKn4QviQKBgQCi\nud3sWWiGilAFx1k7kDEW1o1JFOZrpFcpT65r3T6CHoqvNMt0DXD5bg5zag9Pabct\ntRxZ4PLWZSzyWKnLJSvI6WbjVWWNm0qXorOUiCcJe8+e16JrWhRlbg1QUj5n4vLE\nmPgw5bwy+0ZgBOgh9TmEgkVHGk0kiS1E+Ywbi+QswQKBgQDOI10/zjkwXOmqHlX7\n7nkuSIG9Kojrt2XWIsecZ9xP4lnIq6oyBUxDLaj3MaSnGeuvJZjDHa7YxqyAZvOO\nPxJ2F55gm4PME6obOldAw8rWdTWmlpG5rm679Q01nupwlC5+rJPqSzW/GpibKjZa\ni2e4E1vAOiqCrUlBSDcvD1r+/g==\n-----END PRIVATE KEY-----`
+            }
+        };
 
-        // UI Variables
+        // This is your Original Google Apps Script that we will use JUST for uploading files (bypassing the quota limit)
+        const GAS_UPLOAD_URL = "https://script.google.com/macros/s/AKfycby-8Rg5WH-thHgmZ1g2G-5HsfyQkR5ISMuFsEMC7fZDdFAdvmJpZaPZSTaaK2ma8s18WA/exec";
+
+        class GoogleAPI {
+            static _oauthToken = null;
+            static _tokenExp = 0;
+
+            static async getAuthToken() {
+                if (this._oauthToken && this._tokenExp > Date.now()) return this._oauthToken;
+                const header = { alg: "RS256", typ: "JWT" };
+                const now = Math.floor(Date.now() / 1000);
+                const claim = {
+                    iss: API_CONFIG.SERVICE_ACCOUNT.client_email,
+                    scope: "https://www.googleapis.com/auth/spreadsheets", // We only need spreadsheets scope now
+                    aud: "https://oauth2.googleapis.com/token",
+                    exp: now + 3600,
+                    iat: now
+                };
+
+                const sHeader = JSON.stringify(header);
+                const sClaim = JSON.stringify(claim);
+                const sJWS = KJUR.jws.JWS.sign("RS256", sHeader, sClaim, API_CONFIG.SERVICE_ACCOUNT.private_key);
+
+                const params = new URLSearchParams();
+                params.append("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer");
+                params.append("assertion", sJWS);
+
+                const res = await fetch("https://oauth2.googleapis.com/token", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: params.toString()
+                });
+                
+                const data = await res.json();
+                if (data.access_token) {
+                    this._oauthToken = data.access_token;
+                    this._tokenExp = Date.now() + (data.expires_in * 1000) - 60000;
+                    return data.access_token;
+                } else {
+                    throw new Error("Failed to get Google Token: " + (data.error_description || JSON.stringify(data)));
+                }
+            }
+        }
+
+        // --- CONSTANTS & CONFIGURATION ---
+        const APP_VERSION = "V1.2";
         let currentUser = null;
         let currentTab = '';
         let autoRefreshTimer = null; 
         
         let globalTrackerData = []; 
+        let globalTrackerHeaders = [];
+        
         let globalUsersData = [];
+        let globalUserHeaders = [];
         
         let currentPage = 1;
         const PAGE_SIZE = 20;
         let currentFilteredDocs = [];
         let isSearchActive = false;
-
-        // NEW: Track the currently viewed document so silent refresh doesn't wipe it
         let currentlyViewingRowIndex = null; 
-
-        // --- AUTHENTICATION & API WRAPPER ---
-        async function apiCall(payload) {
-            try {
-                const res = await fetch(API_URL, {
-                    method: 'POST',
-                    body: JSON.stringify(payload),
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' } 
-                });
-                const data = await res.json();
-                if (data.error) throw new Error(data.error);
-                return data;
-            } catch (e) {
-                throw new Error("API Error: " + e.message);
-            }
-        }
 
         function getBase64(file) { 
             return new Promise((resolve, reject) => { 
@@ -753,7 +732,6 @@
             }); 
         }
 
-        // --- DATE FORMATTER: mmmm dd, yyyy ---
         function formatCustomDate(dateStr) {
             if (!dateStr) return '';
             const d = new Date(dateStr);
@@ -761,7 +739,6 @@
             return d.toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' });
         }
 
-        // --- SILENT TOAST NOTIFICATION SYSTEM ---
         function showToast(message, type = 'success') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -780,31 +757,44 @@
             }, 4500);
         }
 
+        // UUID fallback generator for standalone app
+        function generateUUID() {
+            if (crypto && crypto.randomUUID) return crypto.randomUUID();
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+        // Convert 0-based column index to Letter (0 -> A, 1 -> B)
+        function colToLetter(colIndex) {
+            let temp, letter = '';
+            let col = colIndex + 1;
+            while (col > 0) {
+                temp = (col - 1) % 26;
+                letter = String.fromCharCode(temp + 65) + letter;
+                col = (col - temp - 1) / 26;
+            }
+            return letter;
+        }
+
         // --- CORE APPLICATION LOGIC ---
 
         const ADMIN_TABS = ["Receiving", "Action Required", "For Info", "For Signature", "Approved", "Completed", "Archive"];
         const USER_TABS = ["Incoming", "Processing", "Completed", "Archive"];
 
         document.addEventListener('DOMContentLoaded', function() {
-            
-            // Initialize Flatpickr Custom Date Pickers Globally
-            flatpickr(".date-picker", {
-                dateFormat: "F d, Y", 
-                disableMobile: "true",
-            });
+            flatpickr(".date-picker", { dateFormat: "F d, Y", disableMobile: "true" });
 
             const dateRecInput = document.getElementById('doc-date-received');
             if (dateRecInput && dateRecInput._flatpickr) {
-                dateRecInput._flatpickr.config.onChange.push(function(selectedDates, dateStr, instance) {
-                    updateDefaultDeadline();
-                });
+                dateRecInput._flatpickr.config.onChange.push(function() { updateDefaultDeadline(); });
             }
 
             const editDateRecInput = document.getElementById('edit-date-received');
             if (editDateRecInput && editDateRecInput._flatpickr) {
-                editDateRecInput._flatpickr.config.onChange.push(function(selectedDates, dateStr, instance) {
-                    const cb = document.getElementById('edit-no-deadline-cb');
-                    if (cb.checked) { toggleEditDeadline(); }
+                editDateRecInput._flatpickr.config.onChange.push(function() {
+                    if (document.getElementById('edit-no-deadline-cb').checked) toggleEditDeadline();
                 });
             }
 
@@ -817,21 +807,16 @@
             } catch (error) {}
         });
 
-        // --- SEARCH FUNCTIONS ---
         function openSearchView() {
             document.getElementById('dashboard-view').classList.add('hidden');
             document.getElementById('search-view').classList.remove('hidden');
             
-            // Populate Status dropdown based on role
             const statusSelect = document.getElementById('search-status');
             statusSelect.innerHTML = '<option value="">All Statuses</option>';
             const tabs = currentUser.role === 'Admin' ? ADMIN_TABS.filter(t => t !== "Receiving") : USER_TABS;
             if (currentUser.role === 'Admin') statusSelect.innerHTML += '<option value="Receiving">Receiving (Unassigned)</option>';
-            tabs.forEach(tab => {
-                statusSelect.innerHTML += `<option value="${tab}">${tab}</option>`;
-            });
+            tabs.forEach(tab => { statusSelect.innerHTML += `<option value="${tab}">${tab}</option>`; });
 
-            // Populate User dropdown for Admins
             const userContainer = document.getElementById('search-user-container');
             if (currentUser.role === 'Admin') {
                 userContainer.classList.remove('hidden');
@@ -841,11 +826,9 @@
                     const text = u.designation ? `${u.account} - ${u.designation}` : u.account;
                     userSelect.innerHTML += `<option value="${u.account}">${text}</option>`;
                 });
-            } else {
-                userContainer.classList.add('hidden');
-            }
+            } else { userContainer.classList.add('hidden'); }
 
-            executeSearch(); // Initial load
+            executeSearch(); 
         }
 
         function closeSearchView() {
@@ -886,28 +869,21 @@
         function toggleStats() {
             const container = document.getElementById('top-stats-container');
             if (container.classList.contains('hidden')) {
-                container.classList.remove('hidden');
-                container.classList.add('grid');
+                container.classList.remove('hidden'); container.classList.add('grid');
             } else {
-                container.classList.add('hidden');
-                container.classList.remove('grid');
+                container.classList.add('hidden'); container.classList.remove('grid');
             }
         }
 
         async function viewDocumentInline(fileId, isSearch = false, rowIndex = null) {
             if(!fileId) return showToast("No file attached to view.", "error");
 
-            // Store the currently viewed row globally
             currentlyViewingRowIndex = rowIndex;
-
-            // --- Card Highlight Logic ---
-            // Remove highlight from all cards currently in DOM
             document.querySelectorAll('.doc-card').forEach(card => {
                 card.classList.remove('ring-2', 'ring-indigo-500', 'bg-indigo-50/60', 'border-indigo-400');
                 card.classList.add('bg-white', 'border-slate-200');
             });
 
-            // Add highlight to clicked card
             if (rowIndex !== null) {
                 const activeCardId = `card-${isSearch ? 'search-' : ''}${rowIndex}`;
                 const activeCard = document.getElementById(activeCardId);
@@ -916,7 +892,6 @@
                     activeCard.classList.add('ring-2', 'ring-indigo-500', 'bg-indigo-50/60', 'border-indigo-400');
                 }
             }
-            // ----------------------------
 
             const iframe = document.getElementById(isSearch ? 'search-document-iframe' : 'document-iframe');
             const placeholder = document.getElementById(isSearch ? 'search-viewer-placeholder' : 'viewer-placeholder');
@@ -925,16 +900,12 @@
             iframe.classList.remove('hidden');
             iframe.src = `https://drive.google.com/file/d/${fileId}/preview`;
             
-            // On mobile devices, open in new tab instead (since viewer is hidden on small screens)
-            if (window.innerWidth < 1024) {
-                window.open(`https://drive.google.com/file/d/${fileId}/view`, '_blank');
-            }
+            if (window.innerWidth < 1024) window.open(`https://drive.google.com/file/d/${fileId}/view`, '_blank');
 
-            // Record "Date Viewed by User" automatically if it's new
             if(currentUser.role === 'User' && rowIndex && !isSearch && currentTab === 'Incoming') {
                 const today = flatpickr.formatDate(new Date(), "F d, Y");
                 try {
-                    await apiCall({ action: 'updateRow', rowIndex: rowIndex, updateFields: { "Date Viewed by User": today } });
+                    await updateRowAPI(rowIndex, { "Date Viewed by User": today });
                     manualRefresh(true);
                 } catch(e) {}
             }
@@ -970,7 +941,7 @@
                 }
 
                 if (keyword) {
-                    const searchString = `${doc['Reference Number']||''} ${doc['Title/Description']||''} ${doc['Remarks']||''} ${doc['User']||''}`.toLowerCase();
+                    const searchString = `${doc['Reference Number']||''} ${doc['Contract ID']||''} ${doc['Title/Description']||''} ${doc['Remarks']||''} ${doc['User']||''}`.toLowerCase();
                     if (!searchString.includes(keyword)) return;
                 }
 
@@ -981,7 +952,6 @@
             isSearchActive = true;
             currentFilteredDocs = results.reverse();
             
-            // Only reset page & iframe if it's an EXPLICIT user action (not a background refresh)
             if (silent !== true) {
                 currentPage = 1;
                 currentlyViewingRowIndex = null;
@@ -1030,7 +1000,6 @@
             isSearchActive = false;
             currentFilteredDocs = filteredDocs.reverse();
             
-            // Only reset page & iframe if it's an EXPLICIT user action (not a background refresh)
             if (silent !== true) {
                 currentPage = 1;
                 currentlyViewingRowIndex = null;
@@ -1043,35 +1012,26 @@
         }
 
         function prevPage() {
-            if (currentPage > 1) {
-                currentPage--;
-                renderPaginatedTable(isSearchActive ? 'Search' : currentTab, isSearchActive);
-            }
+            if (currentPage > 1) { currentPage--; renderPaginatedTable(isSearchActive ? 'Search' : currentTab, isSearchActive); }
         }
 
         function nextPage() {
             const maxPages = Math.ceil(currentFilteredDocs.length / PAGE_SIZE);
-            if (currentPage < maxPages) {
-                currentPage++;
-                renderPaginatedTable(isSearchActive ? 'Search' : currentTab, isSearchActive);
-            }
+            if (currentPage < maxPages) { currentPage++; renderPaginatedTable(isSearchActive ? 'Search' : currentTab, isSearchActive); }
         }
 
         function renderPaginatedTable(tabName, isSearch = false) {
             const startIndex = (currentPage - 1) * PAGE_SIZE;
             const paginatedDocs = currentFilteredDocs.slice(startIndex, startIndex + PAGE_SIZE);
-            
             const maxPages = Math.ceil(currentFilteredDocs.length / PAGE_SIZE) || 1;
             const paginationEl = document.getElementById(isSearch ? 'search-pagination-controls' : 'pagination-controls');
             const indicatorEl = document.getElementById(isSearch ? 'search-page-indicator' : 'page-indicator');
             
             if (currentFilteredDocs.length > PAGE_SIZE) {
-                paginationEl.classList.remove('hidden');
-                paginationEl.classList.add('flex');
+                paginationEl.classList.remove('hidden'); paginationEl.classList.add('flex');
                 indicatorEl.textContent = `Page ${currentPage} of ${maxPages}`;
             } else {
-                paginationEl.classList.add('hidden');
-                paginationEl.classList.remove('flex');
+                paginationEl.classList.add('hidden'); paginationEl.classList.remove('flex');
             }
 
             renderCards(tabName, paginatedDocs, isSearch);
@@ -1098,6 +1058,7 @@
                 
                 let titleText = doc['Title/Description'] || '';
                 let refNo = doc['Reference Number'] || '';
+                let contractId = doc['Contract ID'] || '';
                 let letterType = doc['Types of Letter'] || '';
                 let originVal = doc['Origin'] || '';
                 
@@ -1109,6 +1070,7 @@
 
                 let badgesHtml = '';
                 if (refNo) badgesHtml += `<span class="bg-indigo-100 text-indigo-700 text-[9px] md:text-[10px] font-bold px-2 py-0.5 rounded border border-indigo-200 mb-1 inline-block mr-1"><i class="fa-solid fa-hashtag mr-1 opacity-70"></i>${refNo}</span>`;
+                if (contractId) badgesHtml += `<span class="bg-amber-100 text-amber-700 text-[9px] md:text-[10px] font-bold px-2 py-0.5 rounded border border-amber-200 mb-1 inline-block mr-1"><i class="fa-solid fa-file-contract mr-1 opacity-70"></i>${contractId}</span>`;
                 if (originVal) badgesHtml += `<span class="bg-blue-100 text-blue-700 text-[9px] md:text-[10px] font-bold px-2 py-0.5 rounded border border-blue-200 mb-1 inline-block mr-1"><i class="fa-solid fa-building mr-1 opacity-70"></i>${originVal}</span>`;
                 if (letterType) {
                     let typeBadgeColor = 'bg-slate-100 text-slate-700 border-slate-200';
@@ -1137,11 +1099,8 @@
                 }
 
                 const dView = formatCustomDate(doc['Date Viewed by User']);
-                
-                // Get action buttons
                 let actionsHtml = getActions(currentDocTab, doc);
 
-                // Determine if this is the currently viewed card to keep it highlighted on silent refresh
                 const isActive = doc.rowIndex === currentlyViewingRowIndex;
                 const activeClasses = isActive 
                     ? "ring-2 ring-indigo-500 bg-indigo-50/60 border-indigo-400" 
@@ -1169,8 +1128,6 @@
                 body.innerHTML += cardHtml;
             });
         }
-
-        // ------------------------------------
 
         function toggleDropdown(id) { document.getElementById(id).classList.toggle('hidden'); }
         document.addEventListener('click', function(event) {
@@ -1205,8 +1162,6 @@
         function updateDefaultDeadline() {
             const dateRecStr = document.getElementById('doc-date-received').value;
             const deadlinePicker = document.getElementById('doc-deadline')._flatpickr;
-            const cb = document.getElementById('no-deadline-cb');
-
             if (dateRecStr) {
                 let d = new Date(dateRecStr);
                 d.setDate(d.getDate() + 15);
@@ -1255,9 +1210,12 @@
 
         function triggerError(msg) {
             const err = document.getElementById('login-error');
-            err.innerHTML = msg;
-            err.classList.remove('hidden');
+            err.innerHTML = msg; err.classList.remove('hidden');
         }
+
+        // ==========================================
+        // STANDALONE DATA FETCHING / SAVING METHODS
+        // ==========================================
 
         async function handleLogin(event) {
             event.preventDefault();
@@ -1270,18 +1228,45 @@
             btn.disabled = true;
 
             try {
-                const res = await apiCall({ action: 'login', account: user, password: pass });
-                if (res.success) {
-                    setAuth(res.account, res.role, res.designation);
-                } else {
-                    triggerError(res.message);
-                    btn.innerHTML = origHtml;
-                    btn.disabled = false;
+                const token = await GoogleAPI.getAuthToken();
+                
+                // Fetch User list AND Version from Tracker!A2 at the same time for speed
+                const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values:batchGet?ranges=User!A:D&ranges=Tracker!A2`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (data.error) throw new Error(data.error.message);
+                
+                // VERSION CHECK LOGIC
+                const vData = data.valueRanges[1]?.values || [];
+                const dbVer = (vData[0] && vData[0][0]) ? String(vData[0][0]).trim().toUpperCase() : "UNKNOWN";
+                
+                if (dbVer !== APP_VERSION) {
+                    document.getElementById('db-version-text').textContent = dbVer;
+                    document.getElementById('version-modal').classList.remove('hidden');
+                    document.getElementById('version-modal').classList.add('flex');
+                    btn.innerHTML = origHtml; btn.disabled = false;
+                    return; // Stop login from continuing
+                }
+
+                // NORMAL LOGIN CHECK
+                const rows = data.valueRanges[0]?.values || [];
+                let matched = false;
+                for(let i = 1; i < rows.length; i++) {
+                    if (String(rows[i][0]).toLowerCase().trim() === user.toLowerCase() && String(rows[i][1]).trim() === pass) {
+                        setAuth(String(rows[i][0]).trim(), String(rows[i][2]).trim(), String(rows[i][3] || '').trim());
+                        matched = true;
+                        break;
+                    }
+                }
+                
+                if(!matched) {
+                    triggerError("Wrong Account or Password!");
+                    btn.innerHTML = origHtml; btn.disabled = false;
                 }
             } catch (e) {
-                triggerError(e.message);
-                btn.innerHTML = origHtml;
-                btn.disabled = false;
+                triggerError("Login failed: " + e.message);
+                btn.innerHTML = origHtml; btn.disabled = false;
             }
         }
 
@@ -1302,21 +1287,11 @@
 
 		function handleAppBack() {
             try {
-                // Try to use the parent iframe routing if it exists
                 if (window.parent && window.parent.PCMA && typeof window.parent.PCMA.goBack === 'function') {
-                    window.parent.PCMA.goBack();
-                    return;
+                    window.parent.PCMA.goBack(); return;
                 }
-            } catch (e) {
-                // Ignore cross-origin frame blocks on local file:// execution
-            }
-            
-            // Fallback: Break out of the iframe to the TOP window to prevent nested iframe glitches
-            try {
-                window.top.location.href = 'index.html';
-            } catch (e) {
-                window.location.href = 'index.html';
-            }
+            } catch (e) {}
+            try { window.top.location.href = 'index.html'; } catch (e) { window.location.href = 'index.html'; }
         }
 
         function handleLogout() {
@@ -1372,23 +1347,68 @@
         async function manualRefresh(silent = false, initUsers = false) {
             if(!currentUser) return;
             try {
-                const res = await apiCall({ action: 'fetchAllData' });
-                if (res.success) {
-                    globalTrackerData = res.trackerData || [];
-                    globalUsersData = res.usersData || [];
-                    
-                    if(initUsers) populateUsersDropdown(); 
-                    
-                    refreshStatsUI();
-                    
-                    // Auto-refresh whichever view is active, passing the 'silent' flag!
-                    if (document.getElementById('search-view') && !document.getElementById('search-view').classList.contains('hidden')) {
-                        executeSearch(silent); 
-                    } else if (currentTab !== "Receiving" && currentTab !== "") {
-                        loadTableData(currentTab, silent);
+                const token = await GoogleAPI.getAuthToken();
+                // Fetch Tracker, Users, and Version simultaneously
+                const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values:batchGet?ranges=Tracker!A:ZZ&ranges=User!A:Z&ranges=Tracker!A2`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                
+                // ⚠️ ADDED ERROR NOTIFICATION: This will tell you if the 'Version' tab is missing!
+                if(data.error) {
+                    showToast("Google API Error: " + data.error.message, "error");
+                    throw new Error(data.error.message);
+                }
+
+                // VERSION CHECK LOGIC
+                const vData = data.valueRanges[2]?.values || [];
+                const dbVer = (vData[0] && vData[0][0]) ? String(vData[0][0]).trim().toUpperCase() : "UNKNOWN";
+                
+                if (dbVer !== APP_VERSION) {
+                    document.getElementById('db-version-text').textContent = dbVer;
+                    document.getElementById('version-modal').classList.remove('hidden');
+                    document.getElementById('version-modal').classList.add('flex');
+                    if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+                    return; // Stop loading data
+                }
+                
+                const tData = data.valueRanges[0]?.values || [];
+                const uData = data.valueRanges[1]?.values || [];
+                
+                globalTrackerData = [];
+                globalUsersData = [];
+                
+                if (tData.length > 0) {
+                    globalTrackerHeaders = tData[0];
+                    for (let i = 1; i < tData.length; i++) {
+                        let obj = { rowIndex: i + 1 }; // 1-based index (Row 1 is header, Row 2 is data)
+                        for (let j = 0; j < globalTrackerHeaders.length; j++) {
+                            obj[globalTrackerHeaders[j]] = String(tData[i][j] || '').trim();
+                        }
+                        globalTrackerData.push(obj);
                     }
                 }
-            } catch(e) { console.error(e); }
+                
+                if (uData.length > 0) {
+                    globalUserHeaders = uData[0];
+                    for (let i = 1; i < uData.length; i++) {
+                        if (String(uData[i][2]).trim() === 'User') { // Col C is role
+                            globalUsersData.push({ account: String(uData[i][0]).trim(), designation: String(uData[i][3] || '').trim(), rowIndex: i + 1 });
+                        }
+                    }
+                }
+                
+                if(initUsers) populateUsersDropdown(); 
+                refreshStatsUI();
+                
+                if (document.getElementById('search-view') && !document.getElementById('search-view').classList.contains('hidden')) {
+                    executeSearch(silent); 
+                } else if (currentTab !== "Receiving" && currentTab !== "") {
+                    loadTableData(currentTab, silent);
+                }
+            } catch(e) { 
+                console.error("Data Fetch Error:", e); 
+            }
         }
 
         function populateUsersDropdown() {
@@ -1483,20 +1503,14 @@
                 document.getElementById('receiving-form-container').classList.add('hidden');
                 document.getElementById('data-table-container').classList.remove('hidden');
                 document.getElementById('data-table-container').classList.add('flex');
-                
-                // When we manually switch tabs, we do NOT want it to be silent
-                // so we can wipe the previous iframe
                 loadTableData(tabName, false);
             }
         }
 
-
         function getActions(tabName, doc) {
             let html = ``;
-            
             const safeTitle = (doc['Title/Description'] || '').replace(/'/g, "\\'").replace(/"/g, "&quot;");
             const safeUsers = (doc['User'] || '').replace(/'/g, "\\'").replace(/"/g, "&quot;");
-            const safeDateRec = (doc['Date Received'] || '').replace(/'/g, "\\'").replace(/"/g, "&quot;");
 
             if(currentUser.role === 'Admin') {
                 html += `<button type="button" onclick="event.stopPropagation(); openEditModal(${doc.rowIndex}, '${tabName}')" class="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 transition-colors px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold tracking-wide"><i class="fa-solid fa-pen"></i> Edit</button>`;
@@ -1534,13 +1548,57 @@
             if(currentUser.role === 'User' && tabName === 'Incoming' && rowIndex) {
                 const today = flatpickr.formatDate(new Date(), "F d, Y");
                 try {
-                    await apiCall({ action: 'updateRow', rowIndex: rowIndex, updateFields: { "Date Viewed by User": today } });
+                    await updateRowAPI(rowIndex, { "Date Viewed by User": today });
                     await manualRefresh(true);
                 } catch(e) {}
             }
         }
 
-        // --- SUBMIT HANDLERS (SILENT MODE INCLUDED) ---
+        // --- MICROSERVICE UPLOAD TO DRIVE ---
+        async function uploadFileToDrive(base64Data, mimeType, fileName) {
+            // Because Service Accounts have 0 quota, we pass the file to YOUR Apps Script.
+            // It will upload the file as YOU (bypassing the quota limit) and return the ID.
+            const payload = {
+                action: 'uploadOnly',
+                base64Data: base64Data,
+                mimeType: mimeType,
+                fileName: fileName
+            };
+
+            const res = await fetch(GAS_UPLOAD_URL, {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            if (data.error || !data.success) throw new Error(data.error || data.message || "Upload failed");
+            
+            return data.fileId; 
+        }
+
+        // --- FAST DATA SAVE VIA SERVICE ACCOUNT ---
+        async function updateRowAPI(rowIndex, updateFields) {
+            const token = await GoogleAPI.getAuthToken();
+            const payload = [];
+            
+            for (const [key, value] of Object.entries(updateFields)) {
+                const colIndex = globalTrackerHeaders.findIndex(h => h.trim() === key);
+                if(colIndex !== -1) {
+                    const colLetter = colToLetter(colIndex);
+                    payload.push({ range: `Tracker!${colLetter}${rowIndex}`, values: [[value]] });
+                }
+            }
+
+            if(payload.length === 0) return;
+
+            const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values:batchUpdate`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ valueInputOption: 'USER_ENTERED', data: payload })
+            });
+            
+            const data = await res.json();
+            if(data.error) throw new Error(data.error.message);
+        }
 
         async function submitNewDocument() {
             const f = document.getElementById('doc-file').files[0];
@@ -1552,31 +1610,24 @@
             
             if (!selectedUsers) return alert("Please assign to at least one user.");
 
-            // Capture data BEFORE resetting the form
             const refNo = document.getElementById('doc-ref-no').value.trim();
+            const contractId = document.getElementById('doc-contract-id').value.trim(); 
             const originVal = document.getElementById('doc-origin').value;
             const typeLetter = document.getElementById('doc-type-letter').value;
             const title = document.getElementById('doc-title').value.trim();
-            
             const dateRec = document.getElementById('doc-date-received').value;
             const deadline = document.getElementById('doc-deadline').value;
 
-            // Preserve file extension
-            let fileExt = '';
-            if (f.name.includes('.')) {
-                fileExt = f.name.substring(f.name.lastIndexOf('.'));
-            }
+            let fileExt = f.name.includes('.') ? f.name.substring(f.name.lastIndexOf('.')) : '';
             const customFileName = `${refNo ? refNo + ' - ' : ''}${title}${fileExt}`;
 
-            // --- SILENT UI RESET (Instantly clear form so user can start the next one) ---
+            // Reset UI
             document.getElementById('upload-form').reset(); 
             const docTitleArea = document.getElementById('doc-title');
             if(docTitleArea) docTitleArea.style.height = 'auto';
 
-            const recPicker = document.getElementById('doc-date-received')._flatpickr;
-            if(recPicker) recPicker.clear();
-            const dlPicker = document.getElementById('doc-deadline')._flatpickr;
-            if(dlPicker) dlPicker.clear();
+            if(document.getElementById('doc-date-received')._flatpickr) document.getElementById('doc-date-received')._flatpickr.clear();
+            if(document.getElementById('doc-deadline')._flatpickr) document.getElementById('doc-deadline')._flatpickr.clear();
 
             container.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
             updateSelectedText('doc');
@@ -1584,28 +1635,46 @@
             const noDeadlineCb = document.getElementById('no-deadline-cb');
             if(noDeadlineCb) { noDeadlineCb.checked = false; toggleDeadline(); }
 
-            // Slide-in toast notification
             showToast("Upload started in background...", "success");
 
-            // Perform Upload in background
             try {
-                const b64 = await getBase64(f);
-                await apiCall({
-                    action: 'uploadNewDoc',
-                    fileData: b64.split(',')[1], 
-                    mimeType: f.type,
-                    fileName: customFileName,
-                    description: title,
-                    referenceNumber: refNo,
-                    origin: originVal,
-                    typeOfLetter: typeLetter,
-                    dateReceived: dateRec,
-                    deadline: deadline,
-                    users: selectedUsers
+                // 1. Upload to Drive using Web App (Avoids Storage Quota Issue!)
+                const b64Full = await getBase64(f);
+                const b64Data = b64Full.split(',')[1];
+                const fileId = await uploadFileToDrive(b64Data, f.type, customFileName);
+
+                // 2. Append to Sheet using Service Account (Lightning Fast!)
+                const newRow = new Array(globalTrackerHeaders.length).fill("");
+                const fieldMap = { 
+                    "Row ID": generateUUID(), 
+                    "Reference Number": refNo,
+                    "Contract ID": contractId,
+                    "Origin": originVal,
+                    "Types of Letter": typeLetter,
+                    "Title/Description": title, 
+                    "Received File ID": fileId, 
+                    "Date Received": dateRec, 
+                    "Deadline": deadline, 
+                    "User": selectedUsers 
+                };
+                
+                for (let i = 0; i < globalTrackerHeaders.length; i++) {
+                    const headerName = String(globalTrackerHeaders[i]).trim();
+                    if (fieldMap[headerName] !== undefined) newRow[i] = fieldMap[headerName];
+                }
+
+                const token = await GoogleAPI.getAuthToken();
+                const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values/Tracker!A1:append?valueInputOption=USER_ENTERED`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ values: [newRow] })
                 });
+                
+                const data = await res.json();
+                if(data.error) throw new Error(data.error.message);
 
                 showToast(`"${title}" successfully recorded!`, "success");
-                manualRefresh(true); // Silent table refresh
+                manualRefresh(true);
             } catch(e) { 
                 showToast(`Upload Failed for "${title}": ` + e.message, "error"); 
             }
@@ -1617,11 +1686,7 @@
             if(container) {
                 const userArray = (currentUsers || '').split(',').map(u => u.trim().toLowerCase());
                 container.querySelectorAll('input[type="checkbox"]').forEach(cb => {
-                    if (userArray.includes(cb.value.toLowerCase())) {
-                        cb.checked = true;
-                    } else {
-                        cb.checked = false;
-                    }
+                    cb.checked = userArray.includes(cb.value.toLowerCase());
                 });
             }
             updateSelectedText('reassign');
@@ -1636,17 +1701,14 @@
             
             if(!newUsers) return showToast("Please select at least one user.", "error");
             
-            // --- SILENT MODE: Close Modal & Notify ---
             closeModal('modal-reassign'); 
             showToast("Updating assignments in background...", "success");
 
             try {
-                await apiCall({ action: 'updateRow', rowIndex: rowIdx, updateFields: { "User": newUsers } });
+                await updateRowAPI(rowIdx, { "User": newUsers });
                 showToast("Document successfully assigned!", "success");
                 manualRefresh(true); 
-            } catch(e) { 
-                showToast("Assignment Failed: " + e.message, "error"); 
-            }
+            } catch(e) { showToast("Assignment Failed: " + e.message, "error"); }
         }
 
         function openArchiveModal(rowIdx) { 
@@ -1659,17 +1721,14 @@
             const rowIdx = document.getElementById('archive-rowidx').value;
             const remarks = document.getElementById('archive-remarks').value;
             
-            // --- SILENT MODE: Close Modal & Notify ---
             closeModal('modal-archive'); 
             showToast("Archiving document safely...", "success");
 
             try {
-                await apiCall({ action: 'updateRow', rowIndex: rowIdx, updateFields: { "Archive": "OK", "Remarks": remarks } });
+                await updateRowAPI(rowIdx, { "Archive": "OK", "Remarks": remarks });
                 showToast("Document successfully archived!", "success");
                 manualRefresh(true); 
-            } catch(e) { 
-                showToast("Archive Failed: " + e.message, "error"); 
-            }
+            } catch(e) { showToast("Archive Failed: " + e.message, "error"); }
         }
 
         function openEditModal(rowIdx, tabName) {
@@ -1679,9 +1738,9 @@
             document.getElementById('edit-rowidx').value = rowIdx;
             
             let refNo = doc['Reference Number'] || '';
+            let contractId = doc['Contract ID'] || '';
             let title = doc['Title/Description'] || '';
             
-            // Backward compatibility during edit
             if (!refNo && title.includes(' | ')) {
                 const parts = title.split(' | ');
                 refNo = parts[0];
@@ -1689,6 +1748,7 @@
             }
 
             document.getElementById('edit-ref-no').value = refNo;
+            document.getElementById('edit-contract-id').value = contractId; 
             document.getElementById('edit-origin').value = doc['Origin'] || '';
             document.getElementById('edit-type-letter').value = doc['Types of Letter'] || '';
             
@@ -1710,14 +1770,9 @@
             const dateReceived = doc['Date Received'] || '';
             if (dateReceived) {
                 const dRec = new Date(dateReceived);
-                if (!isNaN(dRec)) {
-                    dateRecInput._flatpickr.setDate(dRec);
-                } else {
-                    dateRecInput._flatpickr.clear();
-                }
-            } else {
-                dateRecInput._flatpickr.clear();
-            }
+                if (!isNaN(dRec)) dateRecInput._flatpickr.setDate(dRec);
+                else dateRecInput._flatpickr.clear();
+            } else { dateRecInput._flatpickr.clear(); }
             
             const deadlineInput = document.getElementById('edit-deadline');
             const deadlinePicker = deadlineInput._flatpickr;
@@ -1726,18 +1781,14 @@
             
             if (deadline) {
                 const d = new Date(deadline);
-                if (!isNaN(d)) {
-                    deadlinePicker.setDate(d);
-                } else {
-                    deadlinePicker.clear();
-                }
+                if (!isNaN(d)) deadlinePicker.setDate(d);
+                else deadlinePicker.clear();
                 noDeadlineCb.checked = false;
             } else {
                 deadlinePicker.clear();
                 noDeadlineCb.checked = false; 
             }
             
-            // Just reset the classes in case it was checked previously
             deadlineInput.readOnly = false;
             deadlineInput.classList.remove('bg-slate-100', 'text-slate-500', 'opacity-40', 'cursor-not-allowed', 'bg-slate-50');
             deadlinePicker.set('clickOpens', true);
@@ -1748,16 +1799,14 @@
         async function submitEdit() {
             const rowIdx = document.getElementById('edit-rowidx').value;
             const refNo = document.getElementById('edit-ref-no').value.trim();
+            const contractId = document.getElementById('edit-contract-id').value.trim(); 
             const originVal = document.getElementById('edit-origin').value;
             const typeLetter = document.getElementById('edit-type-letter').value;
             const title = document.getElementById('edit-title').value.trim();
             const dateReceived = document.getElementById('edit-date-received').value;
             const deadline = document.getElementById('edit-deadline').value;
             
-            if(!title) {
-                showToast("Title is required.", "error");
-                return;
-            }
+            if(!title) return showToast("Title is required.", "error");
 
             closeModal('modal-edit');
             showToast("Saving changes...", "success");
@@ -1766,6 +1815,7 @@
                 const datesSectionHidden = document.getElementById('edit-dates-section').style.display === 'none';
                 let updateFields = { 
                     "Reference Number": refNo,
+                    "Contract ID": contractId,
                     "Origin": originVal,
                     "Types of Letter": typeLetter,
                     "Title/Description": title 
@@ -1776,24 +1826,16 @@
                     updateFields["Deadline"] = deadline;
                 }
 
-                await apiCall({ 
-                    action: 'updateRow', 
-                    rowIndex: rowIdx, 
-                    updateFields: updateFields 
-                });
+                await updateRowAPI(rowIdx, updateFields);
                 showToast("Document successfully updated!", "success");
                 manualRefresh(true);
-            } catch(e) {
-                showToast("Edit Failed: " + e.message, "error");
-            }
+            } catch(e) { showToast("Edit Failed: " + e.message, "error"); }
         }
 
         function openDatesModal(rowIdx) { 
             document.getElementById('dates-rowidx').value = rowIdx; 
-            const letterInput = document.getElementById('modal-date-letter');
-            if(letterInput._flatpickr) letterInput._flatpickr.clear();
-            const signInput = document.getElementById('modal-date-signature');
-            if(signInput._flatpickr) signInput._flatpickr.clear();
+            if(document.getElementById('modal-date-letter')._flatpickr) document.getElementById('modal-date-letter')._flatpickr.clear();
+            if(document.getElementById('modal-date-signature')._flatpickr) document.getElementById('modal-date-signature')._flatpickr.clear();
             document.getElementById('modal-dates').style.display = 'flex'; 
         }
         
@@ -1801,10 +1843,9 @@
             const dl = document.getElementById('modal-date-letter').value, ds = document.getElementById('modal-date-signature').value;
             if(!dl || !ds) return alert("Fill both dates");
             
-            closeModal('modal-dates'); 
-            showToast("Applying new dates...", "success");
+            closeModal('modal-dates'); showToast("Applying new dates...", "success");
             try {
-                await apiCall({ action: 'updateRow', rowIndex: document.getElementById('dates-rowidx').value, updateFields: { "Date of Letter": dl, "Date for Signature": ds } });
+                await updateRowAPI(document.getElementById('dates-rowidx').value, { "Date of Letter": dl, "Date for Signature": ds });
                 showToast("Dates successfully saved!", "success");
                 manualRefresh(true);
             } catch(e) { showToast("Failed: " + e.message, "error"); }
@@ -1819,13 +1860,10 @@
             let refNo = doc['Reference Number'] || '';
             let titleText = doc['Title/Description'] || '';
             
-            if (!refNo && titleText.includes(' | ')) {
-                titleText = titleText.split(' | ').slice(1).join(' | ');
-            }
-            document.getElementById('reply-title').value = titleText; 
+            if (!refNo && titleText.includes(' | ')) titleText = titleText.split(' | ').slice(1).join(' | ');
             
-            const approvedInput = document.getElementById('modal-date-approved');
-            if(approvedInput._flatpickr) approvedInput._flatpickr.clear();
+            document.getElementById('reply-title').value = titleText; 
+            if(document.getElementById('modal-date-approved')._flatpickr) document.getElementById('modal-date-approved')._flatpickr.clear();
             document.getElementById('modal-reply-file').value = '';
             document.getElementById('modal-reply').style.display = 'flex'; 
         }
@@ -1834,27 +1872,19 @@
             const da = document.getElementById('modal-date-approved').value, f = document.getElementById('modal-reply-file').files[0];
             if(!da || !f) return alert("Provide date & file");
             
-            closeModal('modal-reply'); 
-            showToast("Uploading reply document...", "success");
+            closeModal('modal-reply'); showToast("Uploading reply document...", "success");
             try {
-                const b64 = await getBase64(f);
-                
-                let fileExt = '';
-                if (f.name.includes('.')) {
-                    fileExt = f.name.substring(f.name.lastIndexOf('.'));
-                }
+                // Upload file using Web App to avoid storage quota issues
+                const b64Full = await getBase64(f);
+                const b64Data = b64Full.split(',')[1];
+                let fileExt = f.name.includes('.') ? f.name.substring(f.name.lastIndexOf('.')) : '';
                 const replyTitle = document.getElementById('reply-title').value + " Reply";
-                const customFileName = `${replyTitle}${fileExt}`;
+                
+                const fileId = await uploadFileToDrive(b64Data, f.type, `${replyTitle}${fileExt}`);
+                
+                // Update row using Service Account
+                await updateRowAPI(document.getElementById('reply-rowidx').value, { "Reply File ID": fileId, "Date Approved": da });
 
-                await apiCall({
-                    action: 'uploadReply',
-                    rowIndex: document.getElementById('reply-rowidx').value,
-                    replyTitle: replyTitle,
-                    fileData: b64.split(',')[1],
-                    mimeType: f.type,
-                    fileName: customFileName,
-                    dateApproved: da
-                });
                 showToast("Reply document attached successfully!", "success");
                 manualRefresh(true);
             } catch(e) { showToast("Failed: " + e.message, "error"); }
@@ -1862,8 +1892,7 @@
 
         function openReleaseModal(rowIdx) { 
             document.getElementById('release-rowidx').value = rowIdx; 
-            const releaseInput = document.getElementById('modal-date-released');
-            if(releaseInput._flatpickr) releaseInput._flatpickr.clear();
+            if(document.getElementById('modal-date-released')._flatpickr) document.getElementById('modal-date-released')._flatpickr.clear();
             document.getElementById('modal-release').style.display = 'flex'; 
         }
         
@@ -1871,10 +1900,9 @@
             const dr = document.getElementById('modal-date-released').value;
             if(!dr) return alert("Select a date");
             
-            closeModal('modal-release'); 
-            showToast("Finalizing document...", "success");
+            closeModal('modal-release'); showToast("Finalizing document...", "success");
             try {
-                await apiCall({ action: 'updateRow', rowIndex: document.getElementById('release-rowidx').value, updateFields: { "Date Released/Completed": dr } });
+                await updateRowAPI(document.getElementById('release-rowidx').value, { "Date Released/Completed": dr });
                 showToast("Document successfully completed!", "success");
                 manualRefresh(true);
             } catch(e) { showToast("Failed: " + e.message, "error"); }
@@ -1896,20 +1924,33 @@
             showToast("Updating password...", "success");
 
             try {
-                const res = await apiCall({
-                    action: 'changePassword',
-                    account: currentUser.account,
-                    currentPassword: cpCurrent,
-                    newPassword: cpNew
+                const userObj = globalUsersData.find(u => u.account.toLowerCase() === currentUser.account.toLowerCase());
+                if(!userObj) throw new Error("Account not found.");
+
+                const token = await GoogleAPI.getAuthToken();
+                const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values/User!A${userObj.rowIndex}:B${userObj.rowIndex}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
                 });
-                if (res.success) {
-                    showToast("Password changed successfully!", "success");
-                } else {
-                    showToast("Failed: " + res.message, "error");
+                const data = await res.json();
+                if(data.error) throw new Error(data.error.message);
+                
+                const actualPass = (data.values && data.values[0] && data.values[0][1]) ? String(data.values[0][1]).trim() : '';
+
+                if (actualPass !== cpCurrent) {
+                    showToast("Failed: Incorrect current password.", "error");
+                    return;
                 }
-            } catch(e) {
-                showToast("Failed: " + e.message, "error");
-            }
+
+                const updateRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values/User!B${userObj.rowIndex}?valueInputOption=USER_ENTERED`, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ values: [[cpNew]] })
+                });
+                const updateData = await updateRes.json();
+                if(updateData.error) throw new Error(updateData.error.message);
+
+                showToast("Password changed successfully!", "success");
+            } catch(e) { showToast("Failed: " + e.message, "error"); }
         }
     </script>
 </body>

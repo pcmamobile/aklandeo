@@ -3132,7 +3132,7 @@
             return `<span class="text-rose-600 font-extrabold text-lg">✘</span>`;
         }
 
-		window.printPreviousMonthSubCon = function() {
+		window.printPreviousMonthSubCon = function(printType) {
             const targetMonthPrefix = monthsArr[navMonth].substring(0, 3).toLowerCase();
             let filteredBills = billingDataGlobal.filter(b => b.isPaid === true && b.billingYear === navYear && (b.billingMonthName || '').toLowerCase().startsWith(targetMonthPrefix));
             
@@ -3145,6 +3145,26 @@
                 if (!filterShowUnchecked && isExcluded) return;
                 if (!filterShowRedDot && hasDot) return;
                 if (!filterShowNoDot && !hasDot) return;
+
+                const monthNum = monthOrderMap[b.billingMonthName.substring(0,3)];
+                let offset = (b.billingYear - 2026) * 12 + (monthNum - 5);
+                if (offset < 0) offset = 0;
+                
+                let includeInPrint = false;
+                
+                if (printType === 'paid') {
+                    let rawPaid = othersSheetMeta.paidMap[b.contractId] || '';
+                    let parts = rawPaid.split('|').map(p => p.trim());
+                    let currentPaidStatus = offset >= 0 && offset < parts.length ? parts[offset] : '-';
+                    if (currentPaidStatus === 'Paid') includeInPrint = true;
+                } else if (printType === 'bac') {
+                    let rawBac = othersSheetMeta.bacMap[b.contractId] || '';
+                    let partsBac = rawBac.split('|').map(p => p.trim());
+                    let currentBacStatus = offset >= 0 && offset < partsBac.length ? partsBac[offset] : '-';
+                    if (currentBacStatus === 'Paid') includeInPrint = true;
+                }
+                
+                if (!includeInPrint) return;
 
                 if (billingFundFilters[b.fundCategory]) {
                     let groupKey = b.subCon ? b.subCon : 'None';
@@ -3162,9 +3182,11 @@
 
             let containerClass = totalRows > 35 ? "subcon-print-2cols" : "subcon-print-centered";
 
+            let titleSuffix = printType === 'paid' ? 'PAID' : 'BAC';
+
             let printHtml = `
                 <div class="print-header text-center mb-6">
-                    <h1 class="text-2xl font-black text-[#0f3b75] uppercase tracking-widest">Sub Con Billing - ${monthsArr[navMonth]} ${navYear}</h1>
+                    <h1 class="text-2xl font-black text-[#0f3b75] uppercase tracking-widest">Sub Con Billing (${titleSuffix}) - ${monthsArr[navMonth]} ${navYear}</h1>
                 </div>
                 <div class="${containerClass}">
             `;
@@ -3203,34 +3225,11 @@
                 bills.forEach((b, idx) => {
                     const rowBg = idx % 2 === 0 ? theme.rowLight : '#ffffff'; 
                     
-                    const monthNum = monthOrderMap[b.billingMonthName.substring(0,3)];
-                    let offset = (b.billingYear - 2026) * 12 + (monthNum - 5);
-                    if (offset < 0) offset = 0;
-                    
-                    let rawPaid = othersSheetMeta.paidMap[b.contractId] || '';
-                    let parts = rawPaid.split('|').map(p => p.trim());
-                    let currentPaidStatus = offset >= 0 && offset < parts.length ? parts[offset] : '-';
-                    if (currentPaidStatus === '') currentPaidStatus = '-';
-                    
-                    let rawBac = othersSheetMeta.bacMap[b.contractId] || '';
-                    let partsBac = rawBac.split('|').map(p => p.trim());
-                    let currentBacStatus = offset >= 0 && offset < partsBac.length ? partsBac[offset] : '-';
-                    if (currentBacStatus === '') currentBacStatus = '-';
-
                     let statusHtml = '';
-                    if (currentPaidStatus === 'Paid' || currentBacStatus === 'Paid') {
-                        let statusItems = [];
-                        // If it's paid, we output the specific tag without the label
-                        if (currentPaidStatus === 'Paid') {
-                            statusItems.push(`<span style="color: red; font-style: italic; font-weight: bold;">PAID</span>`);
-                        }
-                        if (currentBacStatus === 'Paid') {
-                            statusItems.push(`<span style="color: green; font-style: italic; font-weight: bold;">BAC</span>`);
-                        }
-                        statusHtml = `<div style="display: flex; justify-content: center; gap: 8px;">${statusItems.join('')}</div>`;
-                    } else {
-                        // If neither is paid, just show a blue "-"
-                        statusHtml = `<span style="color: blue; font-weight: bold;">-</span>`;
+                    if (printType === 'paid') {
+                        statusHtml = '<div style="display: flex; justify-content: center; gap: 8px;"><span style="color: red; font-style: italic; font-weight: bold;">PAID</span></div>';
+                    } else if (printType === 'bac') {
+                        statusHtml = '<div style="display: flex; justify-content: center; gap: 8px;"><span style="color: green; font-style: italic; font-weight: bold;">BAC</span></div>';
                     }
 
                     printHtml += `
@@ -3442,9 +3441,12 @@
                         `;
                         if (billingGroupMode === 'previous_month_subcon') {
                             html += `
-                            <div class="w-full flex justify-end mb-2 no-print">
-                                <button onclick="printPreviousMonthSubCon()" class="bg-blue-600 hover:bg-blue-700 text-white font-black text-center py-1.5 px-4 text-sm md:text-base outline-none shadow-sm rounded-md transition-all flex items-center justify-center gap-2 active:scale-95">
-                                    <i class="fa-solid fa-print"></i> PRINT REPORT
+                            <div class="w-full flex justify-end gap-2 mb-2 no-print">
+                                <button onclick="printPreviousMonthSubCon('paid')" class="bg-red-600 hover:bg-red-700 text-white font-black text-center py-1.5 px-4 text-sm md:text-base outline-none shadow-sm rounded-md transition-all flex items-center justify-center gap-2 active:scale-95">
+                                    <i class="fa-solid fa-print"></i> PRINT PAID
+                                </button>
+                                <button onclick="printPreviousMonthSubCon('bac')" class="bg-green-600 hover:bg-green-700 text-white font-black text-center py-1.5 px-4 text-sm md:text-base outline-none shadow-sm rounded-md transition-all flex items-center justify-center gap-2 active:scale-95">
+                                    <i class="fa-solid fa-print"></i> PRINT BAC
                                 </button>
                             </div>
                             `;
