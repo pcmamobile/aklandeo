@@ -1617,7 +1617,7 @@
                             </div>
                             <div class="flex flex-col" id="bill_pct_wrapper_${cid}_${i}">
                                 <label class="text-[12px] font-black italic text-black mb-1">Percentage</label>
-                                <input type="text" id="bill_pct_${cid}_${i}" value="${bPercent}" placeholder="0.00%" class="excel-input w-full text-center px-2" onchange="autoSaveBilling('${cid}', '${monthHdr}', ${i})">
+                                <input type="text" id="bill_pct_${cid}_${i}" value="${bPercent}" placeholder="0.00%" class="excel-input w-full text-center px-2" oninput="validatePercentage(this)" onchange="autoSaveBilling('${cid}', '${monthHdr}', ${i})">
                             </div>
                         </div>
                     </div>
@@ -1695,6 +1695,26 @@
         function increaseBillingLimit(cid) {
             visibleBillingMonths[cid] += 3;
             renderBillingTab(cid);
+        }
+
+		function validatePercentage(el) {
+            let originalValue = el.value;
+            
+            // 1. Remove anything that is NOT a digit or a decimal point (.)
+            // This strictly blocks the % sign, letters, and all other special characters.
+            let cleaned = originalValue.replace(/[^\d.]/g, '');
+            
+            // 2. Prevent multiple decimal points (e.g., 12..34 becomes 12.34)
+            let dotParts = cleaned.split('.');
+            if (dotParts.length > 2) {
+                cleaned = dotParts[0] + '.' + dotParts.slice(1).join('').replace(/\./g, '');
+            }
+
+            // 3. If invalid characters (including %) were detected, show warning and remove them immediately
+            if (originalValue !== cleaned) {
+                showToast("Warning: Only numbers are allowed. Letters and special characters (including %) are restricted.", "error");
+                el.value = cleaned;
+            }
         }
 
         // ==========================================
