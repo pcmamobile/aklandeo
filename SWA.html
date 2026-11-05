@@ -3939,16 +3939,13 @@
                         
                         // Sum the weeks inside the evaluated month
                         const mStr = String(parts[7 + m] || '');
-                        if (mStr.includes(',')) {
-                            const sp = mStr.split(',');
-                            for (let pw = 0; pw <= w; pw++) {
-                                if (sp[pw] && sp[pw].trim() !== '') {
-                                    const parsed = parseFloat(sp[pw].trim().replace(/[^0-9.-]+/g, ""));
-                                    if (!isNaN(parsed)) itemAcc += parsed;
-                                }
+                        const sp = mStr.includes(',') ? mStr.split(',') : [mStr];
+                        
+                        for (let pw = 0; pw <= w; pw++) {
+                            if (sp[pw] && sp[pw].trim() !== '') {
+                                const parsed = parseFloat(sp[pw].trim().replace(/[^0-9.-]+/g, ""));
+                                if (!isNaN(parsed)) itemAcc += parsed;
                             }
-                        } else {
-                            if (w === 3) itemAcc += parseAccomplishmentVal(mStr);
                         }
                         
                         weekAmount += (itemAcc * unitCost);
