@@ -1106,12 +1106,24 @@
         const raw = String(targetRow[colIdx] || '').trim();
         if (!raw) return [];
         const weeks = [];
+        let lastActual = null; // Track the previous Actual Accomplishment
+
         raw.split('|').forEach(monthStr => {
           const parts = monthStr.split(',');
           for(let i=0; i<4; i++) {
             if (parts[i] && parts[i].trim() !== '') {
-                const parsed = parseFloat(String(parts[i]).replace(/[^0-9.-]+/g, ''));
-                weeks.push(isNaN(parsed) ? null : parsed);
+                const cellValue = parts[i].trim().toUpperCase();
+                
+                if (cellValue === 'N') {
+                    // If the value is "N", adopt the previous actual accomplishment
+                    weeks.push(lastActual);
+                } else {
+                    // Otherwise parse normally and update the last actual variable
+                    const parsed = parseFloat(String(parts[i]).replace(/[^0-9.-]+/g, ''));
+                    const val = isNaN(parsed) ? null : parsed;
+                    weeks.push(val);
+                    if (val !== null) lastActual = val;
+                }
             } else {
                 weeks.push(null);
             }
@@ -1582,6 +1594,93 @@
         slipBadgeClass = 'scurve-chip-slip-neg'; slipSign = ''; slipEmoji = currentSlip <= -10 ? '☹️' : '⚠️';
       }
 
+      // =========================================================
+      // GENERATE CUMULATIVE WEEKLY BARS (ACTUAL) & LINE (SCHED)
+      // =========================================================
+      const barH = 200; 
+      const barPadTop = 20, barPadBottom = 35;
+      const barPlotH = barH - barPadTop - barPadBottom;
+      const weekWidth = plotW / (totalMonths * 4);
+      const barWidth = Math.max(4, weekWidth * 0.85);
+      
+      const barColors = ['#facc15', '#c084fc', '#3b82f6', '#22c55e', '#ef4444', '#f97316', '#06b6d4', '#ec4899'];
+      let weeklyData = [];
+      let maxVal = 105; // Ceiling to nicely fit up to 100%
+
+      timelinePoints.forEach(pt => {
+          if (pt.actual !== null || pt.planned !== null) {
+              weeklyData.push({ 
+                  x: getX(pt.timeIndex), 
+                  actual: pt.actual,
+                  planned: pt.planned,
+                  label: pt.label, 
+                  date: pt.fullDate 
+              });
+          }
+      });
+      
+      const getBarY = (val) => barPadTop + barPlotH - (Math.min(Math.max(val, 0), maxVal) / maxVal) * barPlotH;
+
+      let barSvgHtml = `
+        <svg class="scurve-svg" viewBox="0 0 ${W} ${barH}" xmlns="http://www.w3.org/2000/svg" style="min-height: 180px; max-height: 250px;">
+          <rect x="${padLeft}" y="${barPadTop}" width="${plotW}" height="${barPlotH}" fill="#f8fafc" rx="8" />
+      `;
+
+      [0, 25, 50, 75, 100].forEach(tick => {
+          const y = getBarY(tick);
+          barSvgHtml += `
+            <line x1="${padLeft}" y1="${y}" x2="${W - padRight}" y2="${y}" stroke="#e2e8f0" stroke-width="1.2" stroke-dasharray="4,4" />
+            <text x="${padLeft - 8}" y="${y + 4}" fill="#64748b" font-size="9" font-weight="800" text-anchor="end">${tick}%</text>
+          `;
+      });
+
+      timelinePoints.forEach(pt => {
+          if (pt.isMonthBoundary && (pt.monthIndex % step === 0 || pt.monthIndex === totalMonths)) {
+              const x = getX(pt.timeIndex);
+              barSvgHtml += `
+                <line x1="${x}" y1="${barPadTop}" x2="${x}" y2="${barPadTop + barPlotH}" stroke="#f1f5f9" stroke-width="1.2" />
+                <text x="${x}" y="${barPadTop + barPlotH + 18}" fill="#475569" font-size="9.5" font-weight="900" text-anchor="middle">${pt.label}</text>
+              `;
+          }
+      });
+
+      let barPointsGroup = '<g id="barActualGroup">';
+      weeklyData.forEach((d, i) => {
+          if (d.actual !== null) {
+              const color = barColors[i % barColors.length];
+              const y = getBarY(d.actual);
+              const height = barPadTop + barPlotH - y;
+              const x = d.x - barWidth / 2;
+              
+              if (height > 0) {
+                  barPointsGroup += `
+                    <rect x="${x}" y="${y}" width="${barWidth}" height="${height}" fill="${color}" rx="2" filter="drop-shadow(0 3px 3px rgba(0,0,0,0.15))" />
+                  `;
+              }
+          }
+      });
+      barPointsGroup += `</g>`;
+      barSvgHtml += barPointsGroup;
+
+      // Overlay the Scheduled Line
+      let linePath = "";
+      const plannedPts = weeklyData.filter(d => d.planned !== null);
+      if (plannedPts.length > 0) {
+          linePath += `M ${plannedPts[0].x} ${getBarY(plannedPts[0].planned)}`;
+          for (let i = 1; i < plannedPts.length; i++) {
+              linePath += ` L ${plannedPts[i].x} ${getBarY(plannedPts[i].planned)}`;
+          }
+      }
+      
+      if (linePath) {
+          barSvgHtml += `<path d="${linePath}" fill="none" stroke="#0284c7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" filter="drop-shadow(0 2px 3px rgba(2,132,199,0.4))" />`;
+          plannedPts.forEach(d => {
+              barSvgHtml += `<circle cx="${d.x}" cy="${getBarY(d.planned)}" r="3" fill="#0284c7" stroke="#ffffff" stroke-width="1.5" />`;
+          });
+      }
+
+      barSvgHtml += `<line id="barCrosshair" x1="0" y1="${barPadTop}" x2="0" y2="${barPadTop + barPlotH}" stroke="#0f172a" stroke-width="1.5" stroke-dasharray="3,3" opacity="0" /></svg>`;
+
       container.innerHTML = `
         <div class="scurve-header">
           <div class="scurve-title"><span class="icon-3d-wrapper" style="width:24px; height:24px; font-size:12px;">📈</span><span>Project S-Curve</span></div>
@@ -1601,9 +1700,107 @@
           ${terminated ? `<div class="legend-item" style="cursor:default;"><div class="legend-line" style="background:#dc2626; width:8px; border-radius:50%;"></div><span>Terminated</span></div>` : ''}
         </div>
         <div class="scurve-graph-container" id="scurveGraphContainer">${svgHtml}<div class="scurve-tooltip" id="scurveTooltip"></div></div>
+        
+        <!-- NEW WEEKLY CUMULATIVE BAR CHART -->
+        <div class="scurve-header" style="margin-top:12px; border-top: 2px dashed rgba(255, 255, 255, 0.8); padding-top: 8px;">
+          <div class="scurve-title"><span class="icon-3d-wrapper" style="width:24px; height:24px; font-size:12px;">📊</span><span>Weekly Actual vs Sched Progress</span></div>
+        </div>
+        <div class="scurve-graph-container" id="weeklyBarsContainer" style="margin-top: 6px;">
+          ${barSvgHtml}
+          <div class="scurve-tooltip" id="barTooltip"></div>
+        </div>
       `;
 
       setupSCurveInteractions(container, timelinePoints, getX, padLeft, plotW, W);
+      setupBarInteractions(container, weeklyData, getX, W);
+    }
+
+function setupBarInteractions(container, data, getX, totalW) {
+      const graphBox = container.querySelector('#weeklyBarsContainer');
+      const svg = container.querySelector('#weeklyBarsContainer .scurve-svg');
+      const tooltip = container.querySelector('#barTooltip');
+      const crosshair = container.querySelector('#barCrosshair');
+
+      if (!graphBox || !svg || !tooltip) return;
+
+      const handleMove = (e) => {
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        const rect = svg.getBoundingClientRect();
+        const svgScale = totalW / rect.width;
+        const mouseX = (clientX - rect.left) * svgScale;
+        const mouseY = clientY - rect.top; 
+
+        let nearest = null;
+        let minDist = Infinity;
+
+        data.forEach(d => {
+          const dist = Math.abs(d.x - mouseX);
+          if (dist < minDist) {
+            minDist = dist;
+            nearest = d;
+          }
+        });
+
+        if (!nearest || minDist > 25) { 
+          tooltip.style.display = 'none';
+          if (crosshair) crosshair.setAttribute('opacity', '0');
+          return;
+        }
+
+        const domX = (nearest.x / totalW) * rect.width;
+
+        if (crosshair) {
+          crosshair.setAttribute('x1', nearest.x);
+          crosshair.setAttribute('x2', nearest.x);
+          crosshair.setAttribute('opacity', '1');
+        }
+
+        let actStr = nearest.actual !== null ? `<b style="color:#fff;">${nearest.actual.toFixed(2)}%</b>` : '<i style="color:#94a3b8;">N/A</i>';
+        let planStr = nearest.planned !== null ? `<b style="color:#fff;">${nearest.planned.toFixed(2)}%</b>` : '<i style="color:#94a3b8;">N/A</i>';
+
+        tooltip.innerHTML = `
+          <div style="font-weight:900; font-size:0.8rem; color:#facc15; border-bottom:1px solid rgba(255,255,255,0.2); padding-bottom:5px; margin-bottom:6px; text-transform:uppercase; text-align:center; display:flex; flex-direction:column; gap:2px;">
+              <span>${nearest.label}</span>
+              <span style="font-size:0.65rem; color:#cbd5e1; font-weight:800;">${nearest.date}</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+              <span style="color:#facc15;">Actual:</span> 
+              <span>${actStr}</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="color:#38bdf8;">Sched:</span> 
+              <span>${planStr}</span>
+          </div>
+        `;
+
+        tooltip.style.display = 'block';
+        tooltip.style.left = `${Math.max(100, Math.min(rect.width - 100, domX))}px`;
+        
+        if (mouseY < rect.height / 2) {
+            tooltip.style.transform = 'translate(-50%, 20px)';
+        } else {
+            tooltip.style.transform = 'translate(-50%, -115%)';
+        }
+        tooltip.style.top = `${mouseY}px`;
+      };
+
+      svg.addEventListener('mousemove', (e) => handleMove(e));
+      svg.addEventListener('mouseleave', () => {
+        tooltip.style.display = 'none';
+        if (crosshair) crosshair.setAttribute('opacity', '0');
+      });
+
+      svg.addEventListener('touchmove', (e) => {
+        if (e.touches.length > 0) handleMove(e);
+      }, { passive: true });
+
+      svg.addEventListener('touchend', () => {
+        setTimeout(() => {
+          tooltip.style.display = 'none';
+          if (crosshair) crosshair.setAttribute('opacity', '0');
+        }, 2000);
+      });
     }
 
     // Toggle curve visibility on clicking legend
