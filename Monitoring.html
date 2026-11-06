@@ -2238,37 +2238,104 @@
                 if (isSuspended) weeks[w] = 'suspended';
             }
 
-            for (let c = 0; c < row.length; c++) {
-                if (c === contractColIndex) continue;
-                const colHeader = String(headers[c] || '').trim().toUpperCase();
-                if (!colHeader.startsWith('ITEM')) continue;
-                const cellVal = String(row[c] || '').trim();
+            const weeklyColIdx = headers.findIndex(h => {
+                const clean = String(h || '').toUpperCase().replace(/\s/g, '');
+                return clean === 'WEEKLY(%)' || clean === 'WEEKLY';
+            });
+
+            if (weeklyColIdx !== -1) {
+                const cellVal = String(row[weeklyColIdx] || '').trim();
                 if (cellVal !== "" && cellVal.includes('|')) {
                     const parts = cellVal.split('|').map(p => p.trim());
-                    if (parts.length <= 7 + monthDiff) continue;
-                    const tpStr = String(parts[7 + monthDiff] || '');
-                    
-                    if (tpStr.includes(',')) {
-                        const sp = tpStr.split(',');
-                        for(let i=0; i<4; i++) {
-                        if (weeks[i] === 'future' || weeks[i] === 'suspended' || weeks[i] === 'terminated') continue;
-                        const rawVal = sp[i] ? sp[i].trim() : "";
-                            if (rawVal !== "") {
-                                const parsed = parseFloat(rawVal.replace(/[^0-9.-]+/g, ""));
-                                if (!isNaN(parsed)) {
-                                    if (parsed > 0) weeks[i] = 'updated';
-                                    else if (parsed === 0 && weeks[i] === 'missing') weeks[i] = 'zero';
+                    if (parts.length > monthDiff) {
+                        const tpStr = String(parts[monthDiff] || '');
+                        
+                        let prevVal = 0;
+                        if (monthDiff > 0 && parts.length > monthDiff - 1) {
+                            const prevTpStr = String(parts[monthDiff - 1] || '');
+                            const prevMatches = prevTpStr.match(/-?\d+(\.\d+)?/g);
+                            if (prevMatches && prevMatches.length > 0) {
+                                prevVal = parseFloat(prevMatches[prevMatches.length - 1]);
+                            }
+                        }
+
+                        if (tpStr.includes(',')) {
+                            const sp = tpStr.split(',');
+                            for (let i = 0; i < 4; i++) {
+                                if (weeks[i] === 'future' || weeks[i] === 'suspended' || weeks[i] === 'terminated') {
+                                    const rawVal = sp[i] ? sp[i].trim() : "";
+                                    const parsed = parseFloat(rawVal.replace(/[^0-9.-]+/g, ""));
+                                    if (!isNaN(parsed)) prevVal = parsed;
+                                    continue;
+                                }
+                                const rawVal = sp[i] ? sp[i].trim() : "";
+                                if (rawVal.toUpperCase() === 'N') {
+                                    if (weeks[i] === 'missing') weeks[i] = 'zero';
+                                } else if (rawVal !== "") {
+                                    const parsed = parseFloat(rawVal.replace(/[^0-9.-]+/g, ""));
+                                    if (!isNaN(parsed)) {
+                                        if (parsed > prevVal) weeks[i] = 'updated';
+                                        prevVal = parsed;
+                                    }
+                                }
+                            }
+                        } else {
+                            if (weeks[0] !== 'future' && weeks[0] !== 'suspended' && weeks[0] !== 'terminated') {
+                                const rawVal = tpStr.trim();
+                                if (rawVal.toUpperCase() === 'N') {
+                                    if (weeks[0] === 'missing') weeks[0] = 'zero';
+                                } else if (rawVal !== "") {
+                                    const parsed = parseFloat(rawVal.replace(/[^0-9.-]+/g, ""));
+                                    if (!isNaN(parsed)) {
+                                        if (parsed > prevVal) weeks[0] = 'updated';
+                                    }
                                 }
                             }
                         }
-                    } else {
-                        if (weeks[0] !== 'future' && weeks[0] !== 'suspended' && weeks[0] !== 'terminated') {
-                            const rawVal = tpStr.trim();
-                            if (rawVal !== "") {
-                                const parsed = parseFloat(rawVal.replace(/[^0-9.-]+/g, ""));
-                                if (!isNaN(parsed)) {
-                                    if (parsed > 0) weeks[0] = 'updated';
-                                    else if (parsed === 0 && weeks[0] === 'missing') weeks[0] = 'zero';
+                    }
+                }
+            } else {
+                // Fallback for older sheets using ITEM columns
+                for (let c = 0; c < row.length; c++) {
+                    if (c === contractColIndex) continue;
+                    const colHeader = String(headers[c] || '').trim().toUpperCase();
+                    if (!colHeader.startsWith('ITEM')) continue;
+                    const cellVal = String(row[c] || '').trim();
+                    if (cellVal !== "" && cellVal.includes('|')) {
+                        const parts = cellVal.split('|').map(p => p.trim());
+                        if (parts.length <= 7 + monthDiff) continue;
+                        const tpStr = String(parts[7 + monthDiff] || '');
+                        
+                        if (tpStr.includes(',')) {
+                            const sp = tpStr.split(',');
+                            for(let i=0; i<4; i++) {
+                                if (weeks[i] === 'future' || weeks[i] === 'suspended' || weeks[i] === 'terminated') continue;
+                                const rawVal = sp[i] ? sp[i].trim() : "";
+                                if (rawVal !== "") {
+                                    if (rawVal.toUpperCase() === 'N') {
+                                        if (weeks[i] === 'missing') weeks[i] = 'zero';
+                                    } else {
+                                        const parsed = parseFloat(rawVal.replace(/[^0-9.-]+/g, ""));
+                                        if (!isNaN(parsed)) {
+                                            if (parsed > 0) weeks[i] = 'updated';
+                                            else if (parsed === 0 && weeks[i] === 'missing') weeks[i] = 'zero';
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            if (weeks[0] !== 'future' && weeks[0] !== 'suspended' && weeks[0] !== 'terminated') {
+                                const rawVal = tpStr.trim();
+                                if (rawVal !== "") {
+                                    if (rawVal.toUpperCase() === 'N') {
+                                        if (weeks[0] === 'missing') weeks[0] = 'zero';
+                                    } else {
+                                        const parsed = parseFloat(rawVal.replace(/[^0-9.-]+/g, ""));
+                                        if (!isNaN(parsed)) {
+                                            if (parsed > 0) weeks[0] = 'updated';
+                                            else if (parsed === 0 && weeks[0] === 'missing') weeks[0] = 'zero';
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -3025,12 +3092,8 @@
         }
 
         function generateBillingDetailsRow(id, b) {
-            // Check current mode: if in default modes, strictly show Unpaid (false). 
-            // If in Previous Month modes, show Paid (true).
-            const targetPaidState = (billingGroupMode === 'previous_month' || billingGroupMode === 'previous_month_subcon') ? true : false;
-            
-            // Filter out bills based on the target state
-            const allBills = billingDataGlobal.filter(x => x.contractId === b.contractId && x.isPaid === targetPaidState);
+            // Show all billing history (both pending and previously paid bills)
+            const allBills = billingDataGlobal.filter(x => x.contractId === b.contractId);
 
             allBills.sort((a, b) => {
                 if (a.billingYear !== b.billingYear) return a.billingYear - b.billingYear;
@@ -4027,10 +4090,6 @@
                             </select>
                             
                             ${renderMultiSelect('nobill-year', 'Year', allNoBillingYears, noBillingFilterYear, 'noBillingYear')}
-                            
-                            <button id="sync-last-billing-btn" onclick="syncLastBillingToSheet()" class="bg-blue-600 hover:bg-blue-700 text-white font-black text-center py-1.5 px-4 text-sm md:text-base outline-none shadow-sm rounded-md transition-all flex items-center justify-center gap-2 active:scale-95 shrink-0">
-                                <i class="fa-solid fa-cloud-arrow-up"></i> SYNC TO SHEETS
-                            </button>
                         </div>
                     `;
 

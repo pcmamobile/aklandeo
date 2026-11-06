@@ -2939,7 +2939,7 @@
             return entries.map(e => `${e.name}|${e.date}`).join('|');
         }
 
-        async function saveChanges() {
+        async function saveChanges(skipConfirm = false) {
             let unsyncedCount = 0;
             for(let key in appState.modifiedCells) {
                 if(!appState.modifiedCells[key].synced) unsyncedCount++;
@@ -2969,7 +2969,7 @@
             const monthDiff = appState.activeMonthOffset - ntpOffset;
             const selectedName = appState.loggedFullName || appState.loggedInUser || 'System';
 
-            showConfirm(`Commit ${unsyncedCount} remaining pending changes directly to the Google Sheet?`, async () => {
+            const executeSaveProcess = async () => {
                 
                 // Show custom loading again
                 startLoading();
@@ -3059,7 +3059,14 @@
                     finishLoading();
                     showToast("Sync Error", err.message, "error");
                 }
-            }, "Sync Data", "Cancel");
+            };
+
+            // Conditionally trigger save immediately or ask for confirmation
+            if (skipConfirm === true) {
+                executeSaveProcess();
+            } else {
+                showConfirm(`Commit ${unsyncedCount} remaining pending changes directly to the Google Sheet?`, executeSaveProcess, "Sync Data", "Cancel");
+            }
         }
 
         function formatNum(num) {
@@ -3800,8 +3807,8 @@
                 return;
             }
             
-            showConfirm("Declare NO ACCOMPLISHMENT for the selected week?\n\nThis will apply explicitly '0' to all items for Week " + (appState.activeWeekIndex + 1) + ". You will need to click 'Save' at the bottom afterward to sync.", () => {
-                
+            showConfirm("Declare NO ACCOMPLISHMENT for the selected week?\n\nThis will explicitly apply '0' to all items for Week " + (appState.activeWeekIndex + 1) + " and automatically save changes to the cloud.", () => {
+			
                 const container = document.getElementById('items-list-container');
                 const cards = container.querySelectorAll('.master-row');
                 let updatedCount = 0;
@@ -3909,8 +3916,11 @@
                     // ---------------------------
 
                     recalculateAggregatedTotals();
-                    updatePendingBadge(); // Glows the sync/save button to remind user to save
-                    showToast("Zero Accomplishment Set", "Prepared 0 for all items. Click SAVE below to write to the cloud.", "success");
+                    updatePendingBadge(); 
+                    showToast("Zero Accomplishment Set", "Prepared 0 for all items. Auto-saving now...", "success");
+                    
+                    // Auto-trigger save bypassing the confirmation dialog
+                    setTimeout(() => { saveChanges(true); }, 500);
                 }
             });
         }
