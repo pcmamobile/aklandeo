@@ -520,6 +520,65 @@
                 const data = await res.json();
                 return data.values ? data.values.map(row => String(row[0] || '').trim()) : [];
             }
+
+            static async fetchSingleTab(tabKey) {
+                const tab = TAB_CONFIG.find(t => t.key === tabKey);
+                if (!tab) return null;
+                const token = await this.getAuthToken();
+                const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values/${encodeURIComponent(tab.sheetName)}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const json = await res.json();
+                const headers = json.values ? (json.values[2] || []) : [];
+                const rows = [];
+                if (json.values) {
+                    for (let i = 3; i < json.values.length; i++) {
+                        const padded = [...json.values[i]];
+                        while (padded.length < headers.length) padded.push("");
+                        if (padded.some(v => String(v).trim() !== "")) {
+                            rows.push({ rowNumber: i + 1, values: padded });
+                        }
+                    }
+                }
+                return { headers, rows, rawValues: json.values || [] };
+            }
+
+            static async fetchProjectTabs(cid) {
+                const token = await this.getAuthToken();
+                const requests = TAB_CONFIG.map(tab => {
+                    const tabData = serverData ? serverData[tab.key] : null;
+                    if (tab.key !== 'HISTORY' && tabData && tabData.headers) {
+                        const idCol = tabData.headers.findIndex(c => String(c || '').toUpperCase().replace(/[^A-Z0-9]/g, '') === 'CONTRACTID');
+                        if (idCol >= 0) {
+                            const existingRow = tabData.rows.find(r => String(r.values[idCol] || '').trim().toUpperCase() === String(cid).toUpperCase());
+                            if (existingRow && existingRow.rowNumber) {
+                                return {
+                                    key: tab.key,
+                                    sheetName: tab.sheetName,
+                                    isSingleRow: true,
+                                    rowNumber: existingRow.rowNumber,
+                                    idCol: idCol,
+                                    range: `${tab.sheetName}!${existingRow.rowNumber}:${existingRow.rowNumber}`
+                                };
+                            }
+                        }
+                    }
+                    return {
+                        key: tab.key,
+                        sheetName: tab.sheetName,
+                        isSingleRow: false,
+                        range: tab.sheetName
+                    };
+                });
+
+                const rangesQuery = requests.map(r => `ranges=${encodeURIComponent(r.range)}`).join('&');
+                const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${API_CONFIG.SPREADSHEET_ID}/values:batchGet?${rangesQuery}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (!res.ok) throw new Error("Failed to refresh project data.");
+                const json = await res.json();
+                return { requests, valueRanges: json.valueRanges || [] };
+            }
         }
 
         // BEAUTIFUL 3D FONT-AWESOME ICONS
@@ -536,6 +595,12 @@
         let loggedInUser = null; 
         let visibleBillingMonths = {}; 
         let currentOpenCid = null;
+        let currentActiveTab = 'PDO';
+        let projectRefreshTimer = null;
+        let isRefreshingProject = false;
+        let isAutoSaving = false;
+        let lastBillingSnapshot = {};
+        let lastHistorySnapshot = {};
         
         let pendingSaves = [];
         let autoSaveTimer = null;
@@ -718,6 +783,8 @@
         function nextPage() { currentPage++; renderGrid(); }
 
         function renderGrid() {
+            stopProjectAutoRefresh();
+            currentOpenCid = null;
             const tb = document.getElementById('gridBody');
             const q = document.getElementById('globalSearch').value.toLowerCase().trim();
 
@@ -785,8 +852,14 @@
             const masterRow = document.getElementById(`master-${cid}`);
             const isCurrentlyOpen = !expRow.classList.contains('hidden');
 
-            // Close all
-            document.querySelectorAll('tr[id^="exp-"]').forEach(r => { r.classList.add('hidden'); r.innerHTML = `<td colspan="6" class="p-0 border-b-4 border-[#c55a11]" id="inline-container-${r.id.replace('exp-','')}"></td>`; });
+            stopProjectAutoRefresh();
+
+            // Clean up flatpickr instances and close all expanded rows
+            document.querySelectorAll('tr[id^="exp-"]').forEach(r => {
+                r.querySelectorAll('.date-input').forEach(el => { if (el._flatpickr) el._flatpickr.destroy(); });
+                r.classList.add('hidden');
+                r.innerHTML = `<td colspan="6" class="p-0 border-b-4 border-[#c55a11]" id="inline-container-${r.id.replace('exp-','')}"></td>`;
+            });
             document.querySelectorAll('tr[id^="master-"]').forEach(r => { r.classList.remove('excel-row-active'); });
             document.querySelectorAll('i[id^="icon-"]').forEach(i => i.classList.remove('rotate-90'));
             
@@ -796,7 +869,8 @@
                 masterRow.classList.add('excel-row-active');
                 document.getElementById(`icon-${cid}`).classList.add('rotate-90');
                 buildInlineHTML(cid);
-                switchTab(cid, 'PDO'); 
+                switchTab(cid, 'PDO');
+                startProjectAutoRefresh(cid);
             } else {
                 currentOpenCid = null;
             }
@@ -943,6 +1017,7 @@
                     <div class="excel-input-wrapper">
                         <textarea rows="2" 
                                   id="${inputId}"
+                                  data-sync-tab="${tabKey}" data-sync-header="${headerName}" data-sync-type="text"
                                   class="excel-input resize-y pr-10" 
                                   oninput="autoExpand(this); filterCustomDropdown('${inputId}', '${listId}', '${dataListKey}'); autoSaveField('${tabKey}', '${headerName}', this, false, false)"
                                   onchange="autoSaveField('${tabKey}', '${headerName}', this, false, false)"
@@ -980,12 +1055,14 @@
             const listAttr = hasNativeDropdown && dlId ? `list="${dlId}"` : '';
             const cssClass = type === 'date' ? "excel-input date-input" : "excel-input";
             const wrapClass = type === 'date' ? "date-input-wrapper" : "";
+            const syncType = type === 'date' ? 'date' : (isCurrency ? 'currency' : 'text');
             
             return `
                 <div class="excel-input-group">
                     <label class="excel-label"><span>${label}</span> <span>:</span></label>
                     <div class="excel-input-wrapper ${wrapClass}">
                         <input type="${type==='date'?'text':type}" value="${val}" ${listAttr}
+                               data-sync-tab="${tabKey}" data-sync-header="${headerName}" data-sync-type="${syncType}"
                                ${type==='date' ? `placeholder="Select Date"` : ''}
                                class="${cssClass}"
                                onchange="autoSaveField('${tabKey}', '${headerName}', this, ${isCurrency}, ${type==='date'}); ${dateEvt}"
@@ -1006,7 +1083,7 @@
                 <div class="excel-input-group items-start">
                     <label class="excel-label pt-3"><span>${label}</span> <span>:</span></label>
                     <div class="excel-input-wrapper">
-                        <textarea rows="2" class="excel-input resize-y" onchange="autoSaveField('${tabKey}', '${headerName}', this, false, false)" oninput="autoExpand(this); autoSaveField('${tabKey}', '${headerName}', this, false, false)">${val}</textarea>
+                        <textarea rows="2" data-sync-tab="${tabKey}" data-sync-header="${headerName}" data-sync-type="text" class="excel-input resize-y" onchange="autoSaveField('${tabKey}', '${headerName}', this, false, false)" oninput="autoExpand(this); autoSaveField('${tabKey}', '${headerName}', this, false, false)">${val}</textarea>
                         <i id="${iconId}" class="fa-solid fa-check save-indicator hidden" style="top: 22px;"></i>
                     </div>
                 </div>
@@ -1030,7 +1107,7 @@
                 <div class="excel-input-group">
                     <label class="excel-label"><span>${label}</span> <span>:</span></label>
                     <div class="excel-input-wrapper">
-                        <select id="sel_rem_${currentOpenCid}" class="excel-input appearance-none" onchange="${evts}">
+                        <select id="sel_rem_${currentOpenCid}" data-sync-tab="${tabKey}" data-sync-header="${headerName}" data-sync-type="yesno" class="excel-input appearance-none" onchange="${evts}">
                             ${optHtml}
                         </select>
                         ${ICON_DROPDOWN}
@@ -1185,10 +1262,10 @@
                                     <tbody>
                                         ${[1,2,3,4,5].map(i => `
                                             <tr id="vo_tr_${cid}_${i}" class="${i > window[`maxVo_${cid}`] ? 'hidden' : ''}">
-                                                <td class="inner-td"><div class="relative"><input type="text" value="${toCurrencyFormat(getExtMapValue(cid,'VO',`VO${i}`))}" onchange="autoSaveField('VO', 'VO${i}', this, true, false)" class="w-full excel-input text-right"><i id="icon_${cid.replace(/[^a-zA-Z0-9]/g,'')}_VO_VO${i}" class="fa-solid fa-check save-indicator hidden" style="right: 8px;"></i></div></td>
-                                                <td class="inner-td"><div class="relative date-input-wrapper w-full"><input type="text" placeholder="Select Date" value="${formatDt(getExtMapValue(cid,'VO',`VO${i} Date`))}" onchange="autoSaveField('VO', 'VO${i} Date', this, false, true)" class="date-input w-full excel-input">${ICON_DATE}<i id="icon_${cid.replace(/[^a-zA-Z0-9]/g,'')}_VO_VO${i}Date" class="fa-solid fa-check save-indicator hidden"></i></div></td>
-                                                <td class="inner-td"><div class="relative"><input type="text" value="${getExtMapValue(cid,'VO',`VO${i} Additional Days`)}" onchange="autoSaveField('VO', 'VO${i} Additional Days', this, false, false)" class="w-full excel-input text-center"><i id="icon_${cid.replace(/[^a-zA-Z0-9]/g,'')}_VO_VO${i}AdditionalDays" class="fa-solid fa-check save-indicator hidden" style="right: 8px;"></i></div></td>
-                                                <td class="inner-td border-r-0"><div class="relative"><textarea oninput="autoExpand(this); autoSaveField('VO', 'VO${i} Remarks', this, false, false)" class="w-full excel-input resize-y" rows="1">${getExtMapValue(cid,'VO',`VO${i} Remarks`)}</textarea><i id="icon_${cid.replace(/[^a-zA-Z0-9]/g,'')}_VO_VO${i}Remarks" class="fa-solid fa-check save-indicator hidden" style="right: 8px; top: 50%;"></i></div></td>
+                                                <td class="inner-td"><div class="relative"><input type="text" data-sync-tab="VO" data-sync-header="VO${i}" data-sync-type="currency" value="${toCurrencyFormat(getExtMapValue(cid,'VO',`VO${i}`))}" onchange="autoSaveField('VO', 'VO${i}', this, true, false)" class="w-full excel-input text-right"><i id="icon_${cid.replace(/[^a-zA-Z0-9]/g,'')}_VO_VO${i}" class="fa-solid fa-check save-indicator hidden" style="right: 8px;"></i></div></td>
+                                                <td class="inner-td"><div class="relative date-input-wrapper w-full"><input type="text" data-sync-tab="VO" data-sync-header="VO${i} Date" data-sync-type="date" placeholder="Select Date" value="${formatDt(getExtMapValue(cid,'VO',`VO${i} Date`))}" onchange="autoSaveField('VO', 'VO${i} Date', this, false, true)" class="date-input w-full excel-input">${ICON_DATE}<i id="icon_${cid.replace(/[^a-zA-Z0-9]/g,'')}_VO_VO${i}Date" class="fa-solid fa-check save-indicator hidden"></i></div></td>
+                                                <td class="inner-td"><div class="relative"><input type="text" data-sync-tab="VO" data-sync-header="VO${i} Additional Days" data-sync-type="text" value="${getExtMapValue(cid,'VO',`VO${i} Additional Days`)}" onchange="autoSaveField('VO', 'VO${i} Additional Days', this, false, false)" class="w-full excel-input text-center"><i id="icon_${cid.replace(/[^a-zA-Z0-9]/g,'')}_VO_VO${i}AdditionalDays" class="fa-solid fa-check save-indicator hidden" style="right: 8px;"></i></div></td>
+                                                <td class="inner-td border-r-0"><div class="relative"><textarea data-sync-tab="VO" data-sync-header="VO${i} Remarks" data-sync-type="text" oninput="autoExpand(this); autoSaveField('VO', 'VO${i} Remarks', this, false, false)" class="w-full excel-input resize-y" rows="1">${getExtMapValue(cid,'VO',`VO${i} Remarks`)}</textarea><i id="icon_${cid.replace(/[^a-zA-Z0-9]/g,'')}_VO_VO${i}Remarks" class="fa-solid fa-check save-indicator hidden" style="right: 8px; top: 50%;"></i></div></td>
                                             </tr>
                                         `).join('')}
                                     </tbody>
@@ -1218,10 +1295,10 @@
                                             ${[1,2,3,4,5].map(i => `
                                                 <tr id="wso_tr_${cid}_${i}" class="${i > window[`maxWso_${cid}`] ? 'hidden' : ''}">
                                                     <td class="inner-td font-black text-[#c55a11] text-center bg-amber-50">WSO ${i}</td>
-                                                    <td class="inner-td"><div class="relative date-input-wrapper w-full"><input type="text" placeholder="Select Date" value="${formatDt(getExtMapValue(cid,'WSO_WRO_CTE',`WSO${i} Date`))}" onchange="autoSaveField('WSO_WRO_CTE', 'WSO${i} Date', this, false, true)" class="date-input w-full excel-input">${ICON_DATE}<i id="icon_${cid.replace(/[^a-zA-Z0-9]/g,'')}_WSO_WRO_CTE_WSO${i}Date" class="fa-solid fa-check save-indicator hidden"></i></div></td>
-                                                    <td class="inner-td"><div class="relative"><textarea oninput="autoExpand(this); autoSaveField('WSO_WRO_CTE', 'WSO${i} Reason', this, false, false)" class="w-full excel-input resize-y" rows="1">${getExtMapValue(cid,'WSO_WRO_CTE',`WSO${i} Reason`)}</textarea><i id="icon_${cid.replace(/[^a-zA-Z0-9]/g,'')}_WSO_WRO_CTE_WSO${i}Reason" class="fa-solid fa-check save-indicator hidden" style="right: 8px; top: 50%;"></i></div></td>
-                                                    <td class="inner-td"><div class="relative date-input-wrapper w-full"><input type="text" placeholder="Select Date" value="${formatDt(getExtMapValue(cid,'WSO_WRO_CTE',`CWSO${i}a Date`))}" onchange="autoSaveField('WSO_WRO_CTE', 'CWSO${i}a Date', this, false, true)" class="date-input w-full excel-input">${ICON_DATE}<i id="icon_${cid.replace(/[^a-zA-Z0-9]/g,'')}_WSO_WRO_CTE_CWSO${i}aDate" class="fa-solid fa-check save-indicator hidden"></i></div></td>
-                                                    <td class="inner-td border-r-0"><div class="relative date-input-wrapper w-full"><input type="text" placeholder="Select Date" value="${formatDt(getExtMapValue(cid,'WSO_WRO_CTE',`WRO${i} Date`))}" onchange="autoSaveField('WSO_WRO_CTE', 'WRO${i} Date', this, false, true)" class="date-input w-full excel-input">${ICON_DATE}<i id="icon_${cid.replace(/[^a-zA-Z0-9]/g,'')}_WSO_WRO_CTE_WRO${i}Date" class="fa-solid fa-check save-indicator hidden"></i></div></td>
+                                                    <td class="inner-td"><div class="relative date-input-wrapper w-full"><input type="text" data-sync-tab="WSO_WRO_CTE" data-sync-header="WSO${i} Date" data-sync-type="date" placeholder="Select Date" value="${formatDt(getExtMapValue(cid,'WSO_WRO_CTE',`WSO${i} Date`))}" onchange="autoSaveField('WSO_WRO_CTE', 'WSO${i} Date', this, false, true)" class="date-input w-full excel-input">${ICON_DATE}<i id="icon_${cid.replace(/[^a-zA-Z0-9]/g,'')}_WSO_WRO_CTE_WSO${i}Date" class="fa-solid fa-check save-indicator hidden"></i></div></td>
+                                                    <td class="inner-td"><div class="relative"><textarea data-sync-tab="WSO_WRO_CTE" data-sync-header="WSO${i} Reason" data-sync-type="text" oninput="autoExpand(this); autoSaveField('WSO_WRO_CTE', 'WSO${i} Reason', this, false, false)" class="w-full excel-input resize-y" rows="1">${getExtMapValue(cid,'WSO_WRO_CTE',`WSO${i} Reason`)}</textarea><i id="icon_${cid.replace(/[^a-zA-Z0-9]/g,'')}_WSO_WRO_CTE_WSO${i}Reason" class="fa-solid fa-check save-indicator hidden" style="right: 8px; top: 50%;"></i></div></td>
+                                                    <td class="inner-td"><div class="relative date-input-wrapper w-full"><input type="text" data-sync-tab="WSO_WRO_CTE" data-sync-header="CWSO${i}a Date" data-sync-type="date" placeholder="Select Date" value="${formatDt(getExtMapValue(cid,'WSO_WRO_CTE',`CWSO${i}a Date`))}" onchange="autoSaveField('WSO_WRO_CTE', 'CWSO${i}a Date', this, false, true)" class="date-input w-full excel-input">${ICON_DATE}<i id="icon_${cid.replace(/[^a-zA-Z0-9]/g,'')}_WSO_WRO_CTE_CWSO${i}aDate" class="fa-solid fa-check save-indicator hidden"></i></div></td>
+                                                    <td class="inner-td border-r-0"><div class="relative date-input-wrapper w-full"><input type="text" data-sync-tab="WSO_WRO_CTE" data-sync-header="WRO${i} Date" data-sync-type="date" placeholder="Select Date" value="${formatDt(getExtMapValue(cid,'WSO_WRO_CTE',`WRO${i} Date`))}" onchange="autoSaveField('WSO_WRO_CTE', 'WRO${i} Date', this, false, true)" class="date-input w-full excel-input">${ICON_DATE}<i id="icon_${cid.replace(/[^a-zA-Z0-9]/g,'')}_WSO_WRO_CTE_WRO${i}Date" class="fa-solid fa-check save-indicator hidden"></i></div></td>
                                                 </tr>
                                             `).join('')}
                                         </tbody>
@@ -1247,8 +1324,8 @@
                                             ${[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20].map(i => `
                                                 <tr id="cte_tr_${cid}_${i}" class="${i > window[`maxCte_${cid}`] ? 'hidden' : ''}">
                                                     <td class="inner-td font-black text-[#c55a11] text-center bg-amber-50">CTE ${i}</td>
-                                                    <td class="inner-td"><div class="relative"><input type="text" value="${getExtMapValue(cid,'WSO_WRO_CTE',`CTE${i}`)}" onchange="autoSaveField('WSO_WRO_CTE', 'CTE${i}', this, false, false)" class="w-full excel-input text-center"><i id="icon_${cid.replace(/[^a-zA-Z0-9]/g,'')}_WSO_WRO_CTE_CTE${i}" class="fa-solid fa-check save-indicator hidden" style="right: 8px;"></i></div></td>
-                                                    <td class="inner-td border-r-0"><div class="relative"><textarea oninput="autoExpand(this); autoSaveField('WSO_WRO_CTE', 'CTE${i} Remarks', this, false, false)" class="w-full excel-input resize-y" rows="1">${getExtMapValue(cid,'WSO_WRO_CTE',`CTE${i} Remarks`)}</textarea><i id="icon_${cid.replace(/[^a-zA-Z0-9]/g,'')}_WSO_WRO_CTE_CTE${i}Remarks" class="fa-solid fa-check save-indicator hidden" style="right: 8px; top: 50%;"></i></div></td>
+                                                    <td class="inner-td"><div class="relative"><input type="text" data-sync-tab="WSO_WRO_CTE" data-sync-header="CTE${i}" data-sync-type="text" value="${getExtMapValue(cid,'WSO_WRO_CTE',`CTE${i}`)}" onchange="autoSaveField('WSO_WRO_CTE', 'CTE${i}', this, false, false)" class="w-full excel-input text-center"><i id="icon_${cid.replace(/[^a-zA-Z0-9]/g,'')}_WSO_WRO_CTE_CTE${i}" class="fa-solid fa-check save-indicator hidden" style="right: 8px;"></i></div></td>
+                                                    <td class="inner-td border-r-0"><div class="relative"><textarea data-sync-tab="WSO_WRO_CTE" data-sync-header="CTE${i} Remarks" data-sync-type="text" oninput="autoExpand(this); autoSaveField('WSO_WRO_CTE', 'CTE${i} Remarks', this, false, false)" class="w-full excel-input resize-y" rows="1">${getExtMapValue(cid,'WSO_WRO_CTE',`CTE${i} Remarks`)}</textarea><i id="icon_${cid.replace(/[^a-zA-Z0-9]/g,'')}_WSO_WRO_CTE_CTE${i}Remarks" class="fa-solid fa-check save-indicator hidden" style="right: 8px; top: 50%;"></i></div></td>
                                                 </tr>
                                             `).join('')}
                                         </tbody>
@@ -1297,6 +1374,7 @@
         }
 
         function switchTab(cid, tabId) {
+            currentActiveTab = tabId;
             document.querySelectorAll(`button[id^="tab-btn-${cid}-"]`).forEach(b => b.classList.remove('active'));
             document.getElementById(`tab-btn-${cid}-${tabId}`).classList.add('active');
             
@@ -1305,7 +1383,8 @@
             activeTab.classList.remove('hidden');
 
             if(tabId === 'BILLING') { renderBillingTab(cid); }
-            if(tabId === 'HISTORY') { renderHistoryTab(cid); }
+            else if(tabId === 'HISTORY') { renderHistoryTab(cid); }
+            else { syncInlineTabFields(cid); }
 
             // Using setTimeout ensures the DOM is rendered before calculating height to auto-expand perfectly
             setTimeout(() => {
@@ -1321,6 +1400,9 @@
                 container.innerHTML = `<div class="p-6 text-center text-rose-500 font-bold italic">History tab not found on Server. Please create 'History' sheet.</div>`;
                 return;
             }
+
+            const oldScrollEl = container.querySelector('.overflow-y-auto');
+            const prevScrollTop = oldScrollEl ? oldScrollEl.scrollTop : 0;
             
             const hData = serverData.HISTORY.rows;
             const myHistory = hData.filter(r => String(r.values[0] || '').trim().toUpperCase() === String(cid).toUpperCase());
@@ -1330,6 +1412,7 @@
 
             if (myHistory.length === 0) {
                 container.innerHTML = `<div class="p-8 text-center text-slate-500 font-black italic border-2 border-slate-200 bg-slate-50 rounded-xl text-lg uppercase tracking-wider">No history recorded yet.</div>`;
+                lastHistorySnapshot[cid] = '';
                 return;
             }
 
@@ -1363,6 +1446,10 @@
             });
             html += `</tbody></table></div>`;
             container.innerHTML = html;
+
+            const newScrollEl = container.querySelector('.overflow-y-auto');
+            if (newScrollEl && prevScrollTop > 0) newScrollEl.scrollTop = prevScrollTop;
+            lastHistorySnapshot[cid] = getHistorySnapshot(cid);
         }
 
         // ==========================================
@@ -1515,9 +1602,15 @@
 			function renderBillingTab(cid) {
             const allMonths = getBillingMonths(cid);
             const container = document.getElementById(`billing-container-${cid}`);
+            const prevScrollY = window.scrollY;
+
+            container.querySelectorAll('.date-input').forEach(el => {
+                if (el._flatpickr) el._flatpickr.destroy();
+            });
             
             if(allMonths.length === 0) {
                 container.innerHTML = `<div class="p-8 text-center text-rose-600 font-black italic border-2 border-rose-300 bg-rose-50 rounded-xl shadow-inner text-lg uppercase tracking-wider">No billing columns found. Check Google Sheets headers.</div>`;
+                lastBillingSnapshot[cid] = getBillingSnapshot(cid);
                 return;
             }
 
@@ -1690,6 +1783,8 @@
                 dateFormat: "F d, Y", allowInput: true,
                 onChange: function(d, s, x) { x.element.dispatchEvent(new Event('change', { bubbles: true })); }
             });
+            lastBillingSnapshot[cid] = getBillingSnapshot(cid);
+            window.scrollTo(window.scrollX, prevScrollY);
         }
 
         function increaseBillingLimit(cid) {
@@ -1836,6 +1931,263 @@
 
         function closeHistoryModal() {
             document.getElementById('historyModal').classList.add('hidden');
+        }
+
+        // ==========================================
+        // SILENT 5-SECOND PROJECT AUTO-REFRESH ENGINE
+        // ==========================================
+        function getBillingSnapshot(cid) {
+            const months = getBillingMonths(cid);
+            const billingVals = months.map(m => `${getExtMapValue(cid, 'BILLING', m)}||${getExtMapValue(cid, 'BILLING', m + ' Remarks')}`).join('###');
+            const dateVals = ['Date of FCIR', 'Date of Completion', 'Date of COC', 'Turn-Over'].map(h => getExtMapValue(cid, 'DATE', h)).join('||');
+            return `${billingVals}@@@${dateVals}`;
+        }
+
+        function getHistorySnapshot(cid) {
+            if (!serverData || !serverData.HISTORY) return '';
+            const myHist = serverData.HISTORY.rows.filter(r => String(r.values[0] || '').trim().toUpperCase() === String(cid).toUpperCase());
+            return myHist.map(r => r.values.join('||')).join('###');
+        }
+
+        function updateMasterRowDisplay(cid) {
+            const pdoName = getExtMapValue(cid, 'PDO', 'PROJECT NAME');
+            const pdoCtr = getExtMapValue(cid, 'PDO', 'CONTRACTOR');
+            const pdoCostRaw = getExtMapValue(cid, 'PDO', 'CONTRACT COST');
+            const pdoPe = getExtMapValue(cid, 'PDO', 'PROJECT ENGINEER (PE)');
+            const pdoYear = getExtMapValue(cid, 'PDO', 'YEAR');
+            const costNum = parseFloat(String(pdoCostRaw || '').replace(/[^0-9.-]+/g, "")) || 0;
+
+            const rec = pdoRecords.find(p => p.id === cid);
+            if (rec) {
+                rec.year = pdoYear;
+                rec.name = pdoName;
+                rec.contractor = pdoCtr;
+                rec.cost = costNum;
+                rec.pe = pdoPe;
+            }
+
+            const masterRow = document.getElementById(`master-${cid}`);
+            if (masterRow && masterRow.cells.length >= 6) {
+                const costFmt = costNum ? 'P ' + costNum.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '';
+                masterRow.cells[1].textContent = pdoYear;
+                masterRow.cells[2].textContent = pdoName;
+                masterRow.cells[3].textContent = pdoCtr;
+                masterRow.cells[4].textContent = costFmt;
+                masterRow.cells[5].textContent = pdoPe;
+            }
+        }
+
+        function syncInlineTabFields(cid) {
+            const container = document.getElementById(`inline-container-${cid}`);
+            if (!container) return;
+
+            // 1. Update fields in PDO, DATE, VO, WSO/WRO/CTE if not actively being edited
+            container.querySelectorAll('[data-sync-tab][data-sync-header]').forEach(el => {
+                if (document.activeElement === el) return;
+                if (el._flatpickr && el._flatpickr.isOpen) return;
+                const wrapper = el.closest('.excel-input-wrapper');
+                if (wrapper) {
+                    const combo = wrapper.querySelector('.custom-combo-list');
+                    if (combo && !combo.classList.contains('hidden')) return;
+                }
+
+                const tabKey = el.dataset.syncTab;
+                const headerName = el.dataset.syncHeader;
+                const syncType = el.dataset.syncType;
+                const rawVal = getExtMapValue(cid, tabKey, headerName);
+
+                let formattedVal = rawVal || '';
+                if (syncType === 'date') formattedVal = formatDt(rawVal);
+                else if (syncType === 'currency') formattedVal = toCurrencyFormat(rawVal);
+                else if (syncType === 'yesno') formattedVal = String(rawVal).startsWith('Yes') ? 'Yes' : 'No';
+
+                if (el.value !== formattedVal) {
+                    el.value = formattedVal;
+                    if (syncType === 'date' && el._flatpickr) {
+                        el._flatpickr.setDate(formattedVal || null, false);
+                    }
+                    if (el.tagName === 'TEXTAREA') {
+                        autoExpand(el);
+                    }
+                    if (headerName === 'Notification Letter') {
+                        checkNotifDate(cid);
+                    }
+                }
+            });
+
+            // 2. Unhide higher VO / WSO / CTE rows if data was added remotely
+            for (let i = 2; i <= 5; i++) {
+                if (getExtMapValue(cid, 'VO', `VO${i}`) || getExtMapValue(cid, 'VO', `VO${i} Date`) || getExtMapValue(cid, 'VO', `VO${i} Additional Days`) || getExtMapValue(cid, 'VO', `VO${i} Remarks`)) {
+                    const tr = document.getElementById(`vo_tr_${cid}_${i}`);
+                    if (tr) tr.classList.remove('hidden');
+                    if (i > (window[`maxVo_${cid}`] || 1)) window[`maxVo_${cid}`] = i;
+                }
+            }
+            if ((window[`maxVo_${cid}`] || 1) >= 5) {
+                const btn = document.getElementById(`btn_add_vo_${cid}`);
+                if (btn) btn.classList.add('hidden');
+            }
+
+            for (let i = 2; i <= 5; i++) {
+                if (getExtMapValue(cid, 'WSO_WRO_CTE', `WSO${i} Date`) || getExtMapValue(cid, 'WSO_WRO_CTE', `WSO${i} Reason`) || getExtMapValue(cid, 'WSO_WRO_CTE', `CWSO${i}a Date`) || getExtMapValue(cid, 'WSO_WRO_CTE', `WRO${i} Date`)) {
+                    const tr = document.getElementById(`wso_tr_${cid}_${i}`);
+                    if (tr) tr.classList.remove('hidden');
+                    if (i > (window[`maxWso_${cid}`] || 1)) window[`maxWso_${cid}`] = i;
+                }
+            }
+            if ((window[`maxWso_${cid}`] || 1) >= 5) {
+                const btn = document.getElementById(`btn_add_wso_${cid}`);
+                if (btn) btn.classList.add('hidden');
+            }
+
+            for (let i = 2; i <= 20; i++) {
+                if (getExtMapValue(cid, 'WSO_WRO_CTE', `CTE${i}`) || getExtMapValue(cid, 'WSO_WRO_CTE', `CTE${i} Remarks`)) {
+                    const tr = document.getElementById(`cte_tr_${cid}_${i}`);
+                    if (tr) tr.classList.remove('hidden');
+                    if (i > (window[`maxCte_${cid}`] || 1)) window[`maxCte_${cid}`] = i;
+                }
+            }
+            if ((window[`maxCte_${cid}`] || 1) >= 20) {
+                const btn = document.getElementById(`btn_add_cte_${cid}`);
+                if (btn) btn.classList.add('hidden');
+            }
+
+            // 3. Sync Follow Up Letters & Remarks dynamic lists if changed remotely
+            const fuWrap = document.getElementById(`followUpWrapper_${cid}`);
+            const fuList = document.getElementById(`followUpList_${cid}`);
+            if (fuWrap && fuList) {
+                const fuRaw = getExtMapValue(cid, 'DATE', 'Follow Up Letter') || '';
+                if (fuWrap.dataset.lastRaw === undefined) {
+                    fuWrap.dataset.lastRaw = fuRaw;
+                } else if (fuWrap.dataset.lastRaw !== fuRaw && !fuWrap.contains(document.activeElement) && !document.querySelector('.flatpickr-calendar.open')) {
+                    fuWrap.dataset.lastRaw = fuRaw;
+                    const fuArr = fuRaw.split(/[|/]/).map(s => s.trim()).filter(Boolean);
+                    fuList.querySelectorAll('.date-input').forEach(el => { if (el._flatpickr) el._flatpickr.destroy(); });
+                    fuList.innerHTML = fuArr.map((d, index) => `<div class="flex gap-2 items-center"><div class="relative date-input-wrapper w-[240px]"><input type="text" class="date-input excel-input w-full" placeholder="Select Date" value="${formatDt(d)}" onchange="saveDynamicArray('DATE', 'Follow Up Letter', '${cid}', 'followUpList_${cid}', ' / ')">${ICON_DATE}<i id="icon_dyn_fu_${cid}_${index}" class="fa-solid fa-check save-indicator hidden" style="right: -24px;"></i></div><button onclick="this.parentElement.remove(); saveDynamicArray('DATE', 'Follow Up Letter', '${cid}', 'followUpList_${cid}', ' / ')" class="text-rose-500 hover:text-rose-700 bg-white px-3 py-2 rounded-lg shadow border border-rose-200"><i class="fa-solid fa-trash"></i></button></div>`).join('');
+                    flatpickr(fuList.querySelectorAll('.date-input'), {
+                        dateFormat: "F d, Y", allowInput: true,
+                        onChange: function(d, s, i) { i.element.dispatchEvent(new Event('change', { bubbles: true })); }
+                    });
+                }
+            }
+
+            const remWrap = document.getElementById(`remarksWrapper_${cid}`);
+            const remList = document.getElementById(`remarksList_${cid}`);
+            const certWrap = document.getElementById(`cert1yWrapper_${cid}`);
+            const selRem = document.getElementById(`sel_rem_${cid}`);
+            if (remWrap && remList && selRem) {
+                const remRaw = getExtMapValue(cid, 'DATE', 'Remarks Yes/No (with or w/o Defects)') || 'No';
+                if (remWrap.dataset.lastRaw === undefined) {
+                    remWrap.dataset.lastRaw = remRaw;
+                } else if (remWrap.dataset.lastRaw !== remRaw && !remWrap.contains(document.activeElement) && document.activeElement !== selRem) {
+                    remWrap.dataset.lastRaw = remRaw;
+                    const isYes = remRaw.startsWith('Yes');
+                    if (isYes) {
+                        remWrap.classList.remove('hidden');
+                        if (certWrap) certWrap.classList.remove('hidden');
+                        const remArr = remRaw.split('|').slice(1).map(s => s.trim()).filter(Boolean);
+                        remList.innerHTML = remArr.map((r, index) => `<div class="flex gap-2 items-start"><div class="relative w-full"><textarea class="excel-input resize-y w-full dynamic-val" rows="2" oninput="autoExpand(this); saveDynamicArray('DATE', 'Remarks Yes/No (with or w/o Defects)', '${cid}', 'remarksList_${cid}', ' / ', true)">${r}</textarea><i id="icon_dyn_rem_${cid}_${index}" class="fa-solid fa-check save-indicator hidden" style="right: -24px; top: 12px;"></i></div><button onclick="this.parentElement.remove(); saveDynamicArray('DATE', 'Remarks Yes/No (with or w/o Defects)', '${cid}', 'remarksList_${cid}', ' / ', true)" class="text-rose-500 hover:text-rose-700 mt-2 bg-white px-3 py-2 rounded-lg shadow border border-rose-200"><i class="fa-solid fa-trash"></i></button></div>`).join('');
+                        remList.querySelectorAll('textarea').forEach(ta => { if (ta.value) autoExpand(ta); });
+                    } else {
+                        remWrap.classList.add('hidden');
+                        if (certWrap) certWrap.classList.add('hidden');
+                        remList.innerHTML = '';
+                    }
+                }
+            }
+        }
+
+        function startProjectAutoRefresh(cid) {
+            stopProjectAutoRefresh();
+            projectRefreshTimer = setInterval(() => {
+                if (currentOpenCid === cid) {
+                    refreshCurrentProject(cid);
+                }
+            }, 5000);
+        }
+
+        function stopProjectAutoRefresh() {
+            if (projectRefreshTimer) {
+                clearInterval(projectRefreshTimer);
+                projectRefreshTimer = null;
+            }
+        }
+
+        async function refreshCurrentProject(cid) {
+            if (!cid || currentOpenCid !== cid) return;
+            if (isRefreshingProject || isAutoSaving || pendingSaves.length > 0) return;
+
+            isRefreshingProject = true;
+            try {
+                const { requests, valueRanges } = await GoogleSheetsAPI.fetchProjectTabs(cid);
+
+                // Abort applying if project closed/switched or user started saving while request was in flight
+                if (currentOpenCid !== cid || isAutoSaving || pendingSaves.length > 0) return;
+
+                for (let idx = 0; idx < requests.length; idx++) {
+                    const req = requests[idx];
+                    const vr = valueRanges[idx] || {};
+
+                    if (req.isSingleRow) {
+                        const rowVals = vr.values && vr.values[0] ? [...vr.values[0]] : null;
+                        if (rowVals && String(rowVals[req.idCol] || '').trim().toUpperCase() === String(cid).toUpperCase()) {
+                            const tabData = serverData[req.key];
+                            while (rowVals.length < tabData.headers.length) rowVals.push("");
+                            const existingRow = tabData.rows.find(r => r.rowNumber === req.rowNumber);
+                            if (existingRow) {
+                                existingRow.values = rowVals;
+                            }
+                        } else {
+                            // Fallback if rows shifted or deleted in the sheet
+                            const fullTab = await GoogleSheetsAPI.fetchSingleTab(req.key);
+                            if (currentOpenCid !== cid || isAutoSaving || pendingSaves.length > 0) return;
+                            if (fullTab) serverData[req.key] = fullTab;
+                        }
+                    } else {
+                        const vals = vr.values || [];
+                        const headers = vals[2] || [];
+                        const rows = [];
+                        for (let i = 3; i < vals.length; i++) {
+                            const padded = [...vals[i]];
+                            while (padded.length < headers.length) padded.push("");
+                            if (padded.some(v => String(v).trim() !== "")) {
+                                rows.push({ rowNumber: i + 1, values: padded });
+                            }
+                        }
+                        serverData[req.key] = { headers, rows, rawValues: vals };
+                    }
+                }
+
+                // Update Master Table Row silently without collapsing the open project
+                updateMasterRowDisplay(cid);
+
+                // Keep user on their currentActiveTab while refreshing its content silently
+                if (currentActiveTab === 'BILLING') {
+                    const container = document.getElementById(`billing-container-${cid}`);
+                    const isInteractingWithBilling = container && (
+                        container.contains(document.activeElement) ||
+                        document.querySelector('.flatpickr-calendar.open')
+                    );
+                    if (container && !isInteractingWithBilling) {
+                        const newSnap = getBillingSnapshot(cid);
+                        if (lastBillingSnapshot[cid] !== newSnap) {
+                            renderBillingTab(cid);
+                        }
+                    }
+                } else if (currentActiveTab === 'HISTORY') {
+                    const newHistSnap = getHistorySnapshot(cid);
+                    if (lastHistorySnapshot[cid] !== newHistSnap) {
+                        renderHistoryTab(cid);
+                    }
+                } else {
+                    syncInlineTabFields(cid);
+                }
+
+            } catch (e) {
+                console.warn("Silent 5s refresh skipped:", e);
+            } finally {
+                isRefreshingProject = false;
+            }
         }
 
         // ==========================================
@@ -2002,6 +2354,7 @@
             if(pendingSaves.length === 0) return;
             const saves = [...pendingSaves];
             pendingSaves = [];
+            isAutoSaving = true;
             
             try {
                 const token = await GoogleSheetsAPI.getAuthToken();
@@ -2148,6 +2501,8 @@
                         if(el) { el.className = 'fa-solid fa-xmark save-indicator error'; el.title = "Save failed: " + e.message; }
                     });
                 });
+            } finally {
+                isAutoSaving = false;
             }
         }
     </script>
