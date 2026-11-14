@@ -3260,43 +3260,57 @@
                     <tbody class="divide-y divide-black/40">
             `;
 
+            const round2 = (n) => {
+                const val = parseFloat(n) || 0;
+                return Math.round((val + Math.sign(val) * Number.EPSILON) * 100) / 100 || 0;
+            };
+
             let totalOriginalCost = 0, totalRevCost = 0;
             let sumRelativeWeight = 0, sumPrevAmount = 0, sumThisPeriodAmount = 0, sumToDateAmount = 0, sumBalanceAmount = 0, sumPercentage = 0;
 
             const calculatedRows = validItems.map(item => {
                 const metrics = calculateMetrics(item.parts, appState.activeMonthOffset, item.headerName);
-                const origQty = metrics.qtyData.arr[0] || 0;
-                const origCost = metrics.costData.arr[0] || 0;
-                const originalTotal = origQty * origCost;
-                totalOriginalCost += originalTotal;
+                metrics.previous = round2(metrics.previous);
+                metrics.thisPeriod = round2(metrics.thisPeriod);
+                metrics.toDate = round2(metrics.toDate);
+                metrics.balance = round2(metrics.balance);
+
+                const origQty = round2(metrics.qtyData.arr[0]);
+                const origCost = round2(metrics.costData.arr[0]);
+                const originalTotal = round2(origQty * origCost);
+                totalOriginalCost = round2(totalOriginalCost + originalTotal);
 
                 let revQty = origQty, revCost = origCost, revTotal = originalTotal;
                 if (maxVoIdx > 0) {
-                    revQty = metrics.qtyData.arr[maxVoIdx] !== undefined && metrics.qtyData.arr[maxVoIdx] !== '' ? metrics.qtyData.arr[maxVoIdx] : origQty;
-                    revCost = metrics.costData.arr[maxVoIdx] !== undefined && metrics.costData.arr[maxVoIdx] !== '' ? metrics.costData.arr[maxVoIdx] : origCost;
-                    revTotal = revQty * revCost;
-                    totalRevCost += revTotal;
+                    revQty = round2(metrics.qtyData.arr[maxVoIdx] !== undefined && metrics.qtyData.arr[maxVoIdx] !== '' ? metrics.qtyData.arr[maxVoIdx] : origQty);
+                    revCost = round2(metrics.costData.arr[maxVoIdx] !== undefined && metrics.costData.arr[maxVoIdx] !== '' ? metrics.costData.arr[maxVoIdx] : origCost);
+                    revTotal = round2(revQty * revCost);
+                    totalRevCost = round2(totalRevCost + revTotal);
                 } else {
-                    totalRevCost += originalTotal;
+                    totalRevCost = round2(totalRevCost + originalTotal);
                 }
 
                 const lookupInfo = appState.itemsLookupMap[metrics.itemNo] || { description: '', unit: '' };
                 return { metrics, origQty, origCost, originalTotal, revQty, revCost, revTotal, description: lookupInfo.description || '', unit: lookupInfo.unit || '' };
             });
 
-            const activeTotalCost = maxVoIdx > 0 ? totalRevCost : totalOriginalCost;
+            const activeTotalCost = round2(maxVoIdx > 0 ? totalRevCost : totalOriginalCost);
 
             calculatedRows.forEach(row => {
                 const relativeWeight = activeTotalCost > 0 ? (row.revTotal / activeTotalCost) * 100 : 0;
                 sumRelativeWeight += relativeWeight;
-                const prevAmount = row.metrics.previous * row.revCost;
-                const thisPeriodAmount = row.metrics.thisPeriod * row.revCost;
-                const toDateAmount = row.metrics.toDate * row.revCost;
-                const balanceAmount = row.metrics.balance * row.revCost;
+                const prevAmount = round2(row.metrics.previous * row.revCost);
+                const thisPeriodAmount = round2(row.metrics.thisPeriod * row.revCost);
+                const toDateAmount = round2(row.metrics.toDate * row.revCost);
+                const balanceAmount = round2(row.metrics.balance * row.revCost);
                 const percentage = activeTotalCost > 0 ? (toDateAmount / activeTotalCost) * 100 : 0;
                 
-                sumPercentage += percentage; sumPrevAmount += prevAmount; sumThisPeriodAmount += thisPeriodAmount; sumToDateAmount += toDateAmount; sumBalanceAmount += balanceAmount;
-
+                sumPercentage += percentage;
+                sumPrevAmount = round2(sumPrevAmount + prevAmount);
+                sumThisPeriodAmount = round2(sumThisPeriodAmount + thisPeriodAmount);
+                sumToDateAmount = round2(sumToDateAmount + toDateAmount);
+                sumBalanceAmount = round2(sumBalanceAmount + balanceAmount);
+				
                 tableHTML += `
                     <tr class="text-center align-middle font-sans text-black border-b border-black/30 bg-white">
                         <td class="border-r border-black/40 p-1 font-bold text-center">${row.metrics.itemNo}</td>
@@ -3310,7 +3324,7 @@
                         <td class="border-r border-black/40 p-1 text-right font-medium bg-amber-50/50 print:bg-transparent text-amber-900 print:text-black">${formatPrintNum(row.revCost)}</td>
                         <td class="border-r border-black/40 p-1 text-right font-bold bg-amber-50/50 print:bg-transparent text-amber-900 print:text-black">${formatPrintNum(row.revTotal)}</td>
                         ` : ''}
-                        <td class="border-r border-black/40 p-1 text-right font-bold text-[8px]">${formatPrintNum(relativeWeight)}%</td>
+                        <td class="border-r border-black/40 p-1 text-right font-bold text-[8px]">${relativeWeight === 0 ? '-' : relativeWeight.toFixed(4) + '%'}</td>
                         <td class="border-r border-black/40 p-1 text-right font-medium">${formatPrintNum(row.metrics.previous)}</td>
                         <td class="border-r border-black/40 p-1 text-right font-medium">${formatPrintNum(row.metrics.thisPeriod)}</td>
                         <td class="border-r border-black/40 p-1 text-right font-bold">${formatPrintNum(row.metrics.toDate)}</td>
@@ -3319,7 +3333,7 @@
                         <td class="border-r border-black/40 p-1 text-right font-medium">${formatPrintNum(thisPeriodAmount)}</td>
                         <td class="border-r border-black/40 p-1 text-right font-bold">${formatPrintNum(toDateAmount)}</td>
                         <td class="border-r border-black/40 p-1 text-right font-medium">${formatPrintNum(balanceAmount)}</td>
-                        <td class="p-1 text-right font-bold text-[8px]">${formatPrintNum(percentage)}%</td>
+                        <td class="p-1 text-right font-bold text-[8px]">${percentage === 0 ? '-' : percentage.toFixed(4) + '%'}</td>
                     </tr>
                 `;
             });
@@ -3385,8 +3399,10 @@
         }
 
         function formatPrintNum(num) {
-            if (!num || isNaN(num) || num === 0) return '-';
-            return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num);
+            const val = parseFloat(num) || 0;
+            const rounded = Math.round((val + Math.sign(val) * Number.EPSILON) * 100) / 100 || 0;
+            if (rounded === 0) return '-';
+            return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(rounded);
         }
 		let currentVoIndex = 0;
 
