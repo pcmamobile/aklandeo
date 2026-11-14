@@ -1603,7 +1603,7 @@
       const weekWidth = plotW / (totalMonths * 4);
       const barWidth = Math.max(4, weekWidth * 0.85);
       
-      const barColors = ['#facc15', '#c084fc', '#3b82f6', '#22c55e', '#ef4444', '#f97316', '#06b6d4', '#ec4899'];
+      const barColor = '#22c55e';
       let weeklyData = [];
       let maxVal = 105; // Ceiling to nicely fit up to 100%
 
@@ -1647,7 +1647,7 @@
       let barPointsGroup = '<g id="barActualGroup">';
       weeklyData.forEach((d, i) => {
           if (d.actual !== null) {
-              const color = barColors[i % barColors.length];
+              const color = barColor;
               const y = getBarY(d.actual);
               const height = barPadTop + barPlotH - y;
               const x = d.x - barWidth / 2;
@@ -1760,12 +1760,12 @@ function setupBarInteractions(container, data, getX, totalW) {
         let planStr = nearest.planned !== null ? `<b style="color:#fff;">${nearest.planned.toFixed(2)}%</b>` : '<i style="color:#94a3b8;">N/A</i>';
 
         tooltip.innerHTML = `
-          <div style="font-weight:900; font-size:0.8rem; color:#facc15; border-bottom:1px solid rgba(255,255,255,0.2); padding-bottom:5px; margin-bottom:6px; text-transform:uppercase; text-align:center; display:flex; flex-direction:column; gap:2px;">
+          <div style="font-weight:900; font-size:0.8rem; color:#4ade80; border-bottom:1px solid rgba(255,255,255,0.2); padding-bottom:5px; margin-bottom:6px; text-transform:uppercase; text-align:center; display:flex; flex-direction:column; gap:2px;">
               <span>${nearest.label}</span>
               <span style="font-size:0.65rem; color:#cbd5e1; font-weight:800;">${nearest.date}</span>
           </div>
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-              <span style="color:#facc15;">Actual:</span> 
+              <span style="color:#4ade80;">Actual:</span> 
               <span>${actStr}</span>
           </div>
           <div style="display:flex; justify-content:space-between; align-items:center;">
