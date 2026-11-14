@@ -24,6 +24,7 @@
       --primary-hover: #2563eb;
       --success: #10b981;
       --warning: #f59e0b;
+      --danger: #ef4444;
       --radius: 14px;
     }
 
@@ -41,6 +42,7 @@
       padding-bottom: 92px;
     }
 
+    /* App Shell */
     .app-header {
       position: sticky;
       top: 0;
@@ -99,6 +101,7 @@
       gap: 8px;
     }
 
+    /* Buttons */
     .btn-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -110,21 +113,22 @@
       border: 1px solid var(--border);
       background: var(--surface-2);
       color: var(--text);
-      padding: 11px 12px;
+      padding: 12px 14px;
       border-radius: 12px;
-      font-size: 0.9rem;
+      font-size: 0.92rem;
       font-weight: 600;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 7px;
+      gap: 8px;
       transition: transform 0.08s ease, background 0.15s ease;
-      min-height: 44px;
-      text-align: center;
+      min-height: 46px;
     }
 
-    .btn:active { transform: scale(0.98); }
+    .btn:active {
+      transform: scale(0.98);
+    }
 
     .btn-primary {
       background: var(--primary);
@@ -132,7 +136,9 @@
       color: #fff;
     }
 
-    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
 
     .btn-success {
       background: var(--success);
@@ -153,19 +159,16 @@
       cursor: not-allowed;
     }
 
-    input[type="file"] { display: none; }
-
-    .helper-note {
-      font-size: 0.77rem;
-      color: var(--muted);
-      margin-top: 8px;
+    input[type="file"] {
+      display: none;
     }
 
+    /* Status Pill */
     .status-pill {
       margin-top: 10px;
       padding: 9px 12px;
       border-radius: 10px;
-      font-size: 0.82rem;
+      font-size: 0.83rem;
       background: rgba(148, 163, 184, 0.12);
       color: var(--muted);
       border: 1px solid var(--border);
@@ -186,12 +189,13 @@
       color: #fcd34d;
     }
 
+    /* Live Preview */
     .preview-box {
       position: relative;
       background: #090d16;
       border: 1px dashed var(--border);
       border-radius: 12px;
-      min-height: 200px;
+      min-height: 220px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -208,7 +212,7 @@
 
     #previewCanvas {
       max-width: 100%;
-      max-height: 46vh;
+      max-height: 62vh;
       height: auto;
       border-radius: 8px;
       display: none;
@@ -226,6 +230,7 @@
       color: var(--muted);
     }
 
+    /* Map */
     .search-row {
       display: flex;
       gap: 8px;
@@ -234,7 +239,7 @@
 
     #map {
       width: 100%;
-      height: 240px;
+      height: 230px;
       border-radius: 12px;
       border: 1px solid var(--border);
       z-index: 1;
@@ -251,6 +256,7 @@
       gap: 8px;
     }
 
+    /* Form Controls */
     .form-grid {
       display: flex;
       flex-direction: column;
@@ -261,12 +267,6 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
-    }
-
-    .three-col {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 8px;
     }
 
     label.field-label {
@@ -287,17 +287,20 @@
       border: 1px solid var(--border);
       border-radius: 10px;
       padding: 10px 12px;
-      font-size: 0.9rem;
+      font-size: 0.92rem;
       font-family: inherit;
       outline: none;
     }
 
-    input:focus, select:focus { border-color: var(--primary); }
+    input:focus,
+    select:focus {
+      border-color: var(--primary);
+    }
 
     .toggle-row {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 10px;
       margin-top: 4px;
     }
 
@@ -313,8 +316,11 @@
       cursor: pointer;
     }
 
-    .chip-check input { accent-color: var(--primary); }
+    .chip-check input {
+      accent-color: var(--primary);
+    }
 
+    /* Sticky Bottom Bar */
     .bottom-bar {
       position: fixed;
       left: 0;
@@ -334,8 +340,11 @@
       gap: 10px;
     }
 
-    .bottom-bar-inner .btn { flex: 1; }
+    .bottom-bar-inner .btn {
+      flex: 1;
+    }
 
+    /* Fullscreen Inspect Modal */
     .modal {
       position: fixed;
       inset: 0;
@@ -346,7 +355,9 @@
       padding: 14px;
     }
 
-    .modal.open { display: flex; }
+    .modal.open {
+      display: flex;
+    }
 
     .modal-header {
       display: flex;
@@ -383,7 +394,7 @@
         </div>
       </div>
     </div>
-    <button id="btnReset" class="btn btn-sm" type="button">Reset</button>
+    <button id="btnReset" class="btn btn-sm" type="button" title="Reset">Reset</button>
   </header>
 
   <main class="container">
@@ -392,29 +403,23 @@
     <section class="card">
       <h2 class="card-title">1. Choose or Capture Photo</h2>
       <div class="btn-row">
-        <label for="fileKeepGpsInput" class="btn btn-primary">📂 Browse File (Keep GPS)</label>
-        <label for="cameraInput" class="btn">📷 Take Photo</label>
+        <label for="photoInput" class="btn btn-primary">
+          🖼️ Choose Photo
+        </label>
+        <label for="cameraInput" class="btn">
+          📷 Take Photo
+        </label>
       </div>
-      <div style="margin-top: 8px;">
-        <label for="photoInput" class="btn" style="width: 100%;">🖼️ Gallery Photo Picker (Quick)</label>
-      </div>
-
-      <!-- No accept="image/*" on fileKeepGpsInput so Android opens File Manager instead of GPS-stripping Photo Picker -->
-      <input id="fileKeepGpsInput" type="file" />
       <input id="photoInput" type="file" accept="image/*" />
       <input id="cameraInput" type="file" accept="image/*" capture="environment" />
 
-      <div class="helper-note">
-        💡 Tip: On Android, use <b>Browse File (Keep GPS)</b> &rarr; select from <i>DCIM / Camera</i> so Android doesn't strip the photo's GPS.
-      </div>
-
       <div id="exifStatus" class="status-pill">
         <span>ℹ️</span>
-        <span>Upload a photo to auto-detect GPS, altitude &amp; date metadata.</span>
+        <span>Upload a photo to auto-detect GPS &amp; date metadata.</span>
       </div>
     </section>
 
-    <!-- 2. Output Preview -->
+    <!-- 2. Output Preview FIRST so user can inspect before downloading -->
     <section class="card">
       <h2 class="card-title">
         <span>2. Output Preview</span>
@@ -435,7 +440,7 @@
       </div>
     </section>
 
-    <!-- 3. Location Picker -->
+    <!-- 3. Location Picker (Auto EXIF / Map Click / Live GPS / Manual) -->
     <section class="card">
       <h2 class="card-title">
         <span>3. Location &amp; Map Picker</span>
@@ -443,20 +448,20 @@
       </h2>
 
       <div class="search-row">
-        <input id="mapSearchInput" type="text" placeholder="Search place (e.g. Kalibo, Aklan)..." />
+        <input id="mapSearchInput" type="text" placeholder="Search place or city (e.g. Makati, Cebu)..." />
         <button id="btnSearchPlace" class="btn btn-sm btn-primary" type="button">Search</button>
       </div>
 
       <div id="map"></div>
       <div class="map-hint">
-        <span>👆 Tap anywhere on map to pin location</span>
+        <span>👆 Tap anywhere on the map to pin location</span>
         <span id="geocodeStatus"></span>
       </div>
 
       <div class="form-grid" style="margin-top: 12px;">
         <div>
           <label class="field-label" for="placeName">Location Title (Bold Header)</label>
-          <input id="placeName" type="text" placeholder="e.g. Kalibo, Aklan, Philippines" />
+          <input id="placeName" type="text" placeholder="e.g. Manila, Metro Manila, Philippines" />
         </div>
 
         <div>
@@ -464,18 +469,14 @@
           <input id="addressText" type="text" placeholder="Street, Barangay / District, City, Country" />
         </div>
 
-        <div class="three-col">
+        <div class="two-col">
           <div>
             <label class="field-label" for="latInput">Latitude</label>
-            <input id="latInput" type="number" step="any" placeholder="11.7061" />
+            <input id="latInput" type="number" step="any" placeholder="14.5995" />
           </div>
           <div>
             <label class="field-label" for="lngInput">Longitude</label>
-            <input id="lngInput" type="number" step="any" placeholder="122.3649" />
-          </div>
-          <div>
-            <label class="field-label" for="altInput">Altitude (m)</label>
-            <input id="altInput" type="number" step="any" placeholder="Optional" />
+            <input id="lngInput" type="number" step="any" placeholder="120.9842" />
           </div>
         </div>
 
@@ -486,7 +487,7 @@
           </div>
           <div>
             <label class="field-label" for="customNote">Note / Label (Optional)</label>
-            <input id="customNote" type="text" placeholder="e.g. Site Inspection" />
+            <input id="customNote" type="text" placeholder="e.g. Field Survey" />
           </div>
         </div>
       </div>
@@ -528,8 +529,8 @@
         <div>
           <label class="field-label" for="coordFormat">Coordinate Format</label>
           <select id="coordFormat">
-            <option value="decimal">Decimal (11.7061° N)</option>
-            <option value="dms">DMS (11°42'22" N)</option>
+            <option value="decimal">Decimal (14.5995° N)</option>
+            <option value="dms">DMS (14°35'58" N)</option>
           </select>
         </div>
       </div>
@@ -537,11 +538,7 @@
       <div class="toggle-row" style="margin-top: 12px;">
         <label class="chip-check">
           <input id="showCoords" type="checkbox" checked />
-          Show Lat / Lon
-        </label>
-        <label class="chip-check">
-          <input id="showAlt" type="checkbox" checked />
-          Show Altitude
+          Show GPS Coords
         </label>
         <label class="chip-check">
           <input id="showDate" type="checkbox" checked />
@@ -556,6 +553,7 @@
 
   </main>
 
+  <!-- Sticky Bottom Action Bar -->
   <footer class="bottom-bar">
     <div class="bottom-bar-inner">
       <button id="btnShare" class="btn" type="button" disabled style="display: none;">
@@ -589,7 +587,7 @@
 
   <script>
     (function () {
-      const fileKeepGpsInput = document.getElementById('fileKeepGpsInput');
+      // Elements
       const photoInput = document.getElementById('photoInput');
       const cameraInput = document.getElementById('cameraInput');
       const exifStatus = document.getElementById('exifStatus');
@@ -607,7 +605,6 @@
       const addressTextInput = document.getElementById('addressText');
       const latInput = document.getElementById('latInput');
       const lngInput = document.getElementById('lngInput');
-      const altInput = document.getElementById('altInput');
       const dateTimeInput = document.getElementById('dateTimeInput');
       const customNoteInput = document.getElementById('customNote');
 
@@ -616,7 +613,6 @@
       const stampScaleSelect = document.getElementById('stampScale');
       const coordFormatSelect = document.getElementById('coordFormat');
       const showCoordsCheck = document.getElementById('showCoords');
-      const showAltCheck = document.getElementById('showAlt');
       const showDateCheck = document.getElementById('showDate');
       const showIconCheck = document.getElementById('showIcon');
 
@@ -630,10 +626,12 @@
       const btnCloseModal = document.getElementById('btnCloseModal');
       const btnModalDownload = document.getElementById('btnModalDownload');
 
+      // State
       let loadedImage = null;
       let currentObjectUrl = null;
       let originalFileName = 'photo';
 
+      // Initialize Date/Time to Now
       function toLocalDatetimeValue(date) {
         const d = date instanceof Date && !isNaN(date) ? date : new Date();
         const pad = (n) => String(n).padStart(2, '0');
@@ -641,11 +639,12 @@
       }
       dateTimeInput.value = toLocalDatetimeValue(new Date());
 
+      // Check Web Share capability for mobile
       if (navigator.share && navigator.canShare) {
         btnShare.style.display = 'inline-flex';
       }
 
-      // Initialize Leaflet Map with Esri tiles
+      // Initialize Leaflet Map (default centered on Manila, Philippines)
       const map = L.map('map').setView([14.5995, 120.9842], 12);
 
       const streetLayer = L.tileLayer(
@@ -672,7 +671,7 @@
       let marker = null;
 
       function setMapMarker(lat, lng, pan = true) {
-        if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+        if (isNaN(lat) || isNaN(lng)) return;
         if (!marker) {
           marker = L.marker([lat, lng], { draggable: true }).addTo(map);
           marker.on('dragend', () => {
@@ -692,12 +691,8 @@
       });
 
       function applyCoordinates(lat, lng, doReverseGeocode = true, panMap = true) {
-        const nLat = Number(lat);
-        const nLng = Number(lng);
-        if (!Number.isFinite(nLat) || !Number.isFinite(nLng)) return;
-
-        const fixedLat = nLat.toFixed(6);
-        const fixedLng = nLng.toFixed(6);
+        const fixedLat = Number(lat).toFixed(6);
+        const fixedLng = Number(lng).toFixed(6);
         latInput.value = fixedLat;
         lngInput.value = fixedLng;
         setMapMarker(parseFloat(fixedLat), parseFloat(fixedLng), panMap);
@@ -707,6 +702,7 @@
         }
       }
 
+      // Reverse Geocoding (OpenStreetMap Nominatim)
       let geocodeAbortController = null;
       async function reverseGeocode(lat, lng) {
         if (geocodeAbortController) geocodeAbortController.abort();
@@ -758,6 +754,7 @@
         }
       }
 
+      // Place Search
       async function searchPlace() {
         const query = mapSearchInput.value.trim();
         if (!query) return;
@@ -785,14 +782,8 @@
         }
       });
 
+      // Live Device GPS
       btnMyGps.addEventListener('click', () => {
-        if (!window.isSecureContext) {
-          alert(
-            'Phone browsers block "Use My GPS" on local files (content:// or file://).\n\n' +
-            'To enable Use My GPS: upload this HTML file to an HTTPS site (like Netlify Drop or GitHub Pages), OR search/tap your location on the map below.'
-          );
-          return;
-        }
         if (!navigator.geolocation) {
           alert('Geolocation is not supported by this browser.');
           return;
@@ -800,48 +791,32 @@
         geocodeStatus.textContent = 'Getting device GPS...';
         navigator.geolocation.getCurrentPosition(
           (pos) => {
-            if (Number.isFinite(pos.coords.altitude)) {
-              altInput.value = pos.coords.altitude.toFixed(1);
-            }
             applyCoordinates(pos.coords.latitude, pos.coords.longitude, true, true);
           },
           (err) => {
-            geocodeStatus.textContent = 'GPS permission denied.';
+            geocodeStatus.textContent = 'GPS permission denied or unavailable.';
             alert('Could not get your GPS location: ' + err.message);
           },
           { enableHighAccuracy: true, timeout: 12000 }
         );
       });
 
+      // Set Status Banner
       function setExifStatus(type, text) {
         exifStatus.className = 'status-pill' + (type ? ' ' + type : '');
         const icon = type === 'detected' ? '✅' : type === 'warn' ? '⚠️' : 'ℹ️';
         exifStatus.innerHTML = `<span>${icon}</span><span>${text}</span>`;
       }
 
-      function parseExifDmsArray(arr, ref) {
-        if (!Array.isArray(arr) || arr.length === 0) return NaN;
-        const d = Number(arr[0]);
-        const m = arr.length > 1 && Number.isFinite(Number(arr[1])) ? Number(arr[1]) : 0;
-        const s = arr.length > 2 && Number.isFinite(Number(arr[2])) ? Number(arr[2]) : 0;
-        if (!Number.isFinite(d)) return NaN;
-        let dec = Math.abs(d) + m / 60 + s / 3600;
-        if (d < 0 || ref === 'S' || ref === 'W') dec = -dec;
-        return dec;
-      }
-
+      // Handle Uploaded Photo + Auto EXIF Detection
       async function handlePhotoFile(file) {
         if (!file) return;
-        if (file.type && !file.type.startsWith('image/')) {
-          alert('Please select an image file (JPG, PNG, etc.).');
-          return;
-        }
-
         originalFileName = (file.name || 'photo').replace(/\.[^.]+$/, '');
 
         if (currentObjectUrl) URL.revokeObjectURL(currentObjectUrl);
         currentObjectUrl = URL.createObjectURL(file);
 
+        // 1. Load image into memory
         const img = new Image();
         img.onload = () => {
           loadedImage = img;
@@ -857,16 +832,15 @@
         };
         img.src = currentObjectUrl;
 
+        // 2. Parse EXIF GPS & DateTime
         setExifStatus('', 'Scanning photo metadata (EXIF)...');
         try {
           const [gpsData, exifData] = await Promise.all([
             window.exifr.gps(file).catch(() => null),
-            window.exifr.parse(file, { gps: true, tiff: true, exif: true }).catch(() => null)
+            window.exifr.parse(file, ['DateTimeOriginal', 'CreateDate', 'ModifyDate']).catch(() => null)
           ]);
 
-          let deviceLabel = '';
           if (exifData) {
-            if (exifData.Model) deviceLabel = ` (${exifData.Model})`;
             const rawDate = exifData.DateTimeOriginal || exifData.CreateDate || exifData.ModifyDate;
             if (rawDate) {
               const parsed = rawDate instanceof Date ? rawDate : new Date(rawDate);
@@ -876,53 +850,22 @@
             }
           }
 
-          let alt = NaN;
-          if (exifData && Number.isFinite(Number(exifData.GPSAltitude))) {
-            alt = Number(exifData.GPSAltitude);
-            if (exifData.GPSAltitudeRef === 1) alt = -Math.abs(alt);
-            altInput.value = alt.toFixed(1);
+          if (gpsData && typeof gpsData.latitude === 'number' && typeof gpsData.longitude === 'number') {
+            setExifStatus('detected', `GPS detected from photo! (${gpsData.latitude.toFixed(5)}, ${gpsData.longitude.toFixed(5)})`);
+            applyCoordinates(gpsData.latitude, gpsData.longitude, true, true);
           } else {
-            altInput.value = '';
-          }
-
-          let lat = gpsData && Number.isFinite(gpsData.latitude) ? gpsData.latitude : NaN;
-          let lng = gpsData && Number.isFinite(gpsData.longitude) ? gpsData.longitude : NaN;
-
-          if ((!Number.isFinite(lat) || !Number.isFinite(lng)) && exifData && exifData.GPSLatitude && exifData.GPSLongitude) {
-            lat = parseExifDmsArray(exifData.GPSLatitude, exifData.GPSLatitudeRef);
-            lng = parseExifDmsArray(exifData.GPSLongitude, exifData.GPSLongitudeRef);
-          }
-
-          const hasValidCoords =
-            Number.isFinite(lat) &&
-            Number.isFinite(lng) &&
-            Math.abs(lat) <= 90 &&
-            Math.abs(lng) <= 180 &&
-            !(lat === 0 && lng === 0);
-
-          if (hasValidCoords) {
-            const altLabel = Number.isFinite(alt) ? `, Alt ${alt.toFixed(1)}m` : '';
-            setExifStatus('detected', `GPS detected${deviceLabel}! (${lat.toFixed(5)}, ${lng.toFixed(5)}${altLabel})`);
-            applyCoordinates(lat, lng, true, true);
-          } else {
-            latInput.value = '';
-            lngInput.value = '';
-            setExifStatus(
-              'warn',
-              `Photo loaded${deviceLabel}, but Android/browser stripped GPS. Try "Browse File (Keep GPS)" or search/tap on the map.`
-            );
+            setExifStatus('warn', 'No GPS found in photo. Tap the map, use "My GPS", or type manually.');
             renderStamp();
           }
         } catch {
-          setExifStatus('warn', 'Could not read EXIF metadata. Search or tap location on the map.');
-          renderStamp();
+          setExifStatus('warn', 'Could not read EXIF metadata. Choose location on the map or manually.');
         }
       }
 
-      fileKeepGpsInput.addEventListener('change', (e) => handlePhotoFile(e.target.files[0]));
       photoInput.addEventListener('change', (e) => handlePhotoFile(e.target.files[0]));
       cameraInput.addEventListener('change', (e) => handlePhotoFile(e.target.files[0]));
 
+      // Coordinate Formatting Helpers
       function toDMS(deg, isLat) {
         const abs = Math.abs(deg);
         const d = Math.floor(abs);
@@ -933,27 +876,16 @@
         return `${d}°${m}'${s}" ${dir}`;
       }
 
-      function formatCoordsAndAlt(latVal, lngVal, altVal) {
-        const parts = [];
+      function formatCoords(latVal, lngVal) {
         const lat = parseFloat(latVal);
         const lng = parseFloat(lngVal);
-
-        if (showCoordsCheck.checked && Number.isFinite(lat) && Number.isFinite(lng)) {
-          if (coordFormatSelect.value === 'dms') {
-            parts.push(`${toDMS(lat, true)}  ${toDMS(lng, false)}`);
-          } else {
-            const latDir = lat >= 0 ? 'N' : 'S';
-            const lngDir = lng >= 0 ? 'E' : 'W';
-            parts.push(`Lat ${Math.abs(lat).toFixed(6)}° ${latDir} • Lon ${Math.abs(lng).toFixed(6)}° ${lngDir}`);
-          }
+        if (isNaN(lat) || isNaN(lng)) return '';
+        if (coordFormatSelect.value === 'dms') {
+          return `${toDMS(lat, true)}   ${toDMS(lng, false)}`;
         }
-
-        const alt = parseFloat(altVal);
-        if (showAltCheck.checked && Number.isFinite(alt)) {
-          parts.push(`Alt ${alt.toFixed(1)} m`);
-        }
-
-        return parts.join('  •  ');
+        const latDir = lat >= 0 ? 'N' : 'S';
+        const lngDir = lng >= 0 ? 'E' : 'W';
+        return `Lat ${Math.abs(lat).toFixed(6)}° ${latDir}  •  Lon ${Math.abs(lng).toFixed(6)}° ${lngDir}`;
       }
 
       function formatDisplayDate(val) {
@@ -969,6 +901,7 @@
         });
       }
 
+      // Word Wrap Helper for Canvas
       function wrapTextLines(context, text, maxWidth) {
         if (!text) return [];
         const words = text.split(/\s+/);
@@ -988,7 +921,7 @@
       }
 
       function roundRectPath(context, x, y, w, h, r) {
-        const radius = Math.max(0, Math.min(r, w / 2, h / 2));
+        const radius = Math.min(r, w / 2, h / 2);
         context.beginPath();
         context.moveTo(x + radius, y);
         context.arcTo(x + w, y, x + w, y + h, radius);
@@ -998,8 +931,10 @@
         context.closePath();
       }
 
+      // Draw Crisp Local Pin Badge (zero CORS risk)
       function drawPinBadge(context, x, y, size) {
         context.save();
+        // Badge background
         roundRectPath(context, x, y, size, size, size * 0.22);
         context.fillStyle = 'rgba(59, 130, 246, 0.22)';
         context.fill();
@@ -1007,6 +942,7 @@
         context.strokeStyle = '#60a5fa';
         context.stroke();
 
+        // Radar ring
         const cx = x + size / 2;
         const cy = y + size * 0.44;
         context.beginPath();
@@ -1015,6 +951,7 @@
         context.lineWidth = Math.max(1.2, size * 0.035);
         context.stroke();
 
+        // Pin silhouette
         const r = size * 0.2;
         context.beginPath();
         context.arc(cx, cy, r, Math.PI, 0, false);
@@ -1024,6 +961,7 @@
         context.fillStyle = '#ef4444';
         context.fill();
 
+        // Pin inner dot
         context.beginPath();
         context.arc(cx, cy, r * 0.4, 0, Math.PI * 2);
         context.fillStyle = '#ffffff';
@@ -1031,9 +969,11 @@
         context.restore();
       }
 
+      // Main Canvas Renderer
       function renderStamp() {
         if (!loadedImage) return;
 
+        // Protect mobile browser memory by capping max dimension at 3200px
         const MAX_DIM = 3200;
         let w = loadedImage.naturalWidth || loadedImage.width;
         let h = loadedImage.naturalHeight || loadedImage.height;
@@ -1050,9 +990,10 @@
         ctx.clearRect(0, 0, w, h);
         ctx.drawImage(loadedImage, 0, 0, w, h);
 
+        // Gather stamp fields
         const title = placeNameInput.value.trim() || 'Geotagged Photo';
         const address = addressTextInput.value.trim();
-        const coordsText = formatCoordsAndAlt(latInput.value, lngInput.value, altInput.value);
+        const coordsText = showCoordsCheck.checked ? formatCoords(latInput.value, lngInput.value) : '';
         const dateText = showDateCheck.checked ? formatDisplayDate(dateTimeInput.value) : '';
         const noteText = customNoteInput.value.trim();
 
@@ -1061,6 +1002,7 @@
         const userScale = parseFloat(stampScaleSelect.value) || 1;
         const showIcon = showIconCheck.checked;
 
+        // Proportional sizing based on shorter side
         const shortSide = Math.min(w, h);
         const unit = Math.max(12, shortSide * 0.025) * userScale;
         const outerMargin = Math.max(16, shortSide * 0.03);
@@ -1074,12 +1016,14 @@
 
         const iconSize = showIcon ? unit * 2.5 : 0;
         const iconGap = showIcon ? unit * 0.75 : 0;
-        const textMaxWidth = Math.max(80, maxCardWidth - padX * 2 - iconSize - iconGap);
+        const textMaxWidth = maxCardWidth - padX * 2 - iconSize - iconGap;
 
+        // Fonts
         const titleFont = `700 ${Math.round(unit * 1.05)}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
         const bodyFont = `500 ${Math.round(unit * 0.78)}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
         const metaFont = `600 ${Math.round(unit * 0.74)}px ui-monospace, SFMono-Regular, Menlo, monospace`;
 
+        // Wrap lines
         ctx.font = titleFont;
         const titleLines = wrapTextLines(ctx, title, textMaxWidth);
 
@@ -1093,6 +1037,7 @@
         ctx.font = bodyFont;
         const dateLines = dateText ? wrapTextLines(ctx, `🕒 ${dateText}`, textMaxWidth) : [];
 
+        // Calculate natural width & height
         const lineBlocks = [
           { lines: titleLines, font: titleFont, lineH: unit * 1.32, kind: 'title' },
           { lines: addrLines, font: bodyFont, lineH: unit * 1.08, kind: 'body' },
@@ -1118,6 +1063,7 @@
           : Math.min(maxCardWidth, Math.ceil(maxLineMeasured + padX * 2 + iconSize + iconGap + 4));
         const cardH = Math.ceil(contentHeight + padY * 2);
 
+        // Position coordinates
         let boxX = outerMargin;
         let boxY = h - cardH - outerMargin;
 
@@ -1130,8 +1076,12 @@
         } else if (position === 'top-right') {
           boxX = w - cardW - outerMargin;
           boxY = outerMargin;
+        } else if (position === 'bottom-banner') {
+          boxX = outerMargin;
+          boxY = h - cardH - outerMargin;
         }
 
+        // Draw Card Background
         ctx.save();
         if (theme === 'dark-glass') {
           roundRectPath(ctx, boxX, boxY, cardW, cardH, unit * 0.7);
@@ -1150,10 +1100,12 @@
         }
         ctx.restore();
 
+        // Draw Pin Badge
         if (showIcon) {
           drawPinBadge(ctx, boxX + padX, boxY + (cardH - iconSize) / 2, iconSize);
         }
 
+        // Draw Text Lines
         const textX = boxX + padX + iconSize + iconGap;
         let cursorY = boxY + padY + (contentHeight - totalTextHeight) / 2;
 
@@ -1189,19 +1141,21 @@
         ctx.restore();
       }
 
+      // Live Re-render on any input change
       [
-        placeNameInput, addressTextInput, altInput, dateTimeInput, customNoteInput,
+        placeNameInput, addressTextInput, dateTimeInput, customNoteInput,
         stampPositionSelect, stampThemeSelect, stampScaleSelect, coordFormatSelect,
-        showCoordsCheck, showAltCheck, showDateCheck, showIconCheck
+        showCoordsCheck, showDateCheck, showIconCheck
       ].forEach((el) => {
         el.addEventListener('input', renderStamp);
         el.addEventListener('change', renderStamp);
       });
 
+      // Manual coordinate inputs also update map marker
       function onManualLatLngChange() {
         const lat = parseFloat(latInput.value);
         const lng = parseFloat(lngInput.value);
-        if (Number.isFinite(lat) && Number.isFinite(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+        if (!isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
           setMapMarker(lat, lng, true);
         }
         renderStamp();
@@ -1209,6 +1163,7 @@
       latInput.addEventListener('input', onManualLatLngChange);
       lngInput.addEventListener('input', onManualLatLngChange);
 
+      // Fullscreen Inspect Modal
       function openInspectModal() {
         if (!loadedImage) return;
         inspectImg.src = previewCanvas.toDataURL('image/jpeg', 0.93);
@@ -1219,6 +1174,7 @@
       previewCanvas.addEventListener('click', openInspectModal);
       btnCloseModal.addEventListener('click', () => inspectModal.classList.remove('open'));
 
+      // Download Photo
       function downloadGeotaggedPhoto() {
         if (!loadedImage) return;
         previewCanvas.toBlob((blob) => {
@@ -1237,6 +1193,7 @@
       btnDownload.addEventListener('click', downloadGeotaggedPhoto);
       btnModalDownload.addEventListener('click', downloadGeotaggedPhoto);
 
+      // Share / Save to Mobile Photos (Web Share API)
       btnShare.addEventListener('click', () => {
         if (!loadedImage) return;
         previewCanvas.toBlob(async (blob) => {
@@ -1258,9 +1215,9 @@
         }, 'image/jpeg', 0.93);
       });
 
+      // Reset
       btnReset.addEventListener('click', () => {
         loadedImage = null;
-        fileKeepGpsInput.value = '';
         photoInput.value = '';
         cameraInput.value = '';
         previewCanvas.style.display = 'none';
@@ -1273,11 +1230,10 @@
         addressTextInput.value = '';
         latInput.value = '';
         lngInput.value = '';
-        altInput.value = '';
         customNoteInput.value = '';
         dateTimeInput.value = toLocalDatetimeValue(new Date());
         geocodeStatus.textContent = '';
-        setExifStatus('', 'Upload a photo to auto-detect GPS, altitude & date metadata.');
+        setExifStatus('', 'Upload a photo to auto-detect GPS & date metadata.');
       });
     })();
   </script>
