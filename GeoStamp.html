@@ -99,6 +99,13 @@
       align-items: center;
       justify-content: space-between;
       gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .card-title-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
     /* Buttons */
@@ -237,13 +244,37 @@
       margin-bottom: 10px;
     }
 
+    .map-preview-wrap {
+      position: relative;
+    }
+
     #map {
       width: 100%;
-      height: 230px;
+      height: 210px;
       border-radius: 12px;
       border: 1px solid var(--border);
       z-index: 1;
       background: #0b1220;
+      cursor: default;
+    }
+
+    .map-lock-badge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 400;
+      pointer-events: none;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: #e2e8f0;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 5px 10px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
     }
 
     .map-hint {
@@ -344,7 +375,7 @@
       flex: 1;
     }
 
-    /* Fullscreen Inspect Modal */
+    /* Fullscreen Modals */
     .modal {
       position: fixed;
       inset: 0;
@@ -363,6 +394,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 10px;
       margin-bottom: 10px;
     }
 
@@ -379,6 +411,58 @@
       max-height: 100%;
       border-radius: 10px;
       object-fit: contain;
+    }
+
+    /* Big Map Edit Modal */
+    #mapModal {
+      background: var(--bg);
+      padding: 12px;
+      gap: 10px;
+    }
+
+    #mapModal .modal-header {
+      margin-bottom: 0;
+    }
+
+    .big-map-toolbar {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .big-map-toolbar input {
+      flex: 1;
+      min-width: 0;
+    }
+
+    #bigMap {
+      flex: 1;
+      width: 100%;
+      min-height: 260px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #0b1220;
+      z-index: 1;
+    }
+
+    .big-map-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 12px;
+      flex-wrap: wrap;
+    }
+
+    .big-map-coords {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      color: #93c5fd;
+      font-weight: 600;
     }
   </style>
 </head>
@@ -440,11 +524,14 @@
       </div>
     </section>
 
-    <!-- 3. Location Picker (Auto EXIF / Map Click / Live GPS / Manual) -->
+    <!-- 3. Location Picker (Auto EXIF / Big Map Editor / Live GPS / Manual) -->
     <section class="card">
       <h2 class="card-title">
         <span>3. Location &amp; Map Picker</span>
-        <button id="btnMyGps" class="btn btn-sm" type="button">📡 Use My GPS</button>
+        <span class="card-title-actions">
+          <button id="btnMyGps" class="btn btn-sm" type="button">📡 My GPS</button>
+          <button id="btnEditLocation" class="btn btn-sm btn-primary" type="button">✏️ Edit</button>
+        </span>
       </h2>
 
       <div class="search-row">
@@ -452,9 +539,13 @@
         <button id="btnSearchPlace" class="btn btn-sm btn-primary" type="button">Search</button>
       </div>
 
-      <div id="map"></div>
+      <div class="map-preview-wrap">
+        <div id="map"></div>
+        <div class="map-lock-badge">🔒 Locked — Tap Edit to change</div>
+      </div>
+
       <div class="map-hint">
-        <span>👆 Tap anywhere on the map to pin location</span>
+        <span>Tap "Edit" for Big Map &amp; deep zoom</span>
         <span id="geocodeStatus"></span>
       </div>
 
@@ -581,6 +672,28 @@
     </div>
   </div>
 
+  <!-- Fullscreen Big Map Location Editor Modal -->
+  <div id="mapModal" class="modal" role="dialog" aria-modal="true" aria-label="Edit Location on Big Map">
+    <div class="modal-header">
+      <button id="btnCancelMap" class="btn btn-sm" type="button">Cancel</button>
+      <strong style="font-size: 0.95rem;">Edit Location</strong>
+      <button id="btnDoneMap" class="btn btn-sm btn-success" type="button">✓ Done</button>
+    </div>
+
+    <div class="big-map-toolbar">
+      <input id="bigMapSearchInput" type="text" placeholder="Search street, barangay, city..." />
+      <button id="btnBigMapSearch" class="btn btn-sm btn-primary" type="button">Search</button>
+      <button id="btnBigMapGps" class="btn btn-sm" type="button" title="Use My GPS">📡</button>
+    </div>
+
+    <div id="bigMap"></div>
+
+    <div class="big-map-footer">
+      <span id="bigMapCoords" class="big-map-coords">Tap map or drag pin</span>
+      <span id="bigMapZoomInfo">Zoom: 12 / 22</span>
+    </div>
+  </div>
+
   <!-- Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/exifr@7/dist/lite.umd.js"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
@@ -599,7 +712,17 @@
       const mapSearchInput = document.getElementById('mapSearchInput');
       const btnSearchPlace = document.getElementById('btnSearchPlace');
       const btnMyGps = document.getElementById('btnMyGps');
+      const btnEditLocation = document.getElementById('btnEditLocation');
       const geocodeStatus = document.getElementById('geocodeStatus');
+
+      const mapModal = document.getElementById('mapModal');
+      const btnCancelMap = document.getElementById('btnCancelMap');
+      const btnDoneMap = document.getElementById('btnDoneMap');
+      const bigMapSearchInput = document.getElementById('bigMapSearchInput');
+      const btnBigMapSearch = document.getElementById('btnBigMapSearch');
+      const btnBigMapGps = document.getElementById('btnBigMapGps');
+      const bigMapCoords = document.getElementById('bigMapCoords');
+      const bigMapZoomInfo = document.getElementById('bigMapZoomInfo');
 
       const placeNameInput = document.getElementById('placeName');
       const addressTextInput = document.getElementById('addressText');
@@ -644,50 +767,157 @@
         btnShare.style.display = 'inline-flex';
       }
 
-      // Initialize Leaflet Map (default centered on Manila, Philippines)
-      const map = L.map('map').setView([14.5995, 120.9842], 12);
+      // Initialize Locked Preview Map (default centered on Manila, Philippines)
+      const map = L.map('map', {
+        dragging: false,
+        touchZoom: false,
+        scrollWheelZoom: false,
+        doubleClickZoom: false,
+        boxZoom: false,
+        keyboard: false,
+        tap: false,
+        zoomControl: false,
+        attributionControl: false
+      }).setView([14.5995, 120.9842], 13);
 
-      const streetLayer = L.tileLayer(
+      L.tileLayer(
         'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
-        { maxZoom: 19, attribution: 'Tiles &copy; Esri' }
+        { maxZoom: 22, maxNativeZoom: 18 }
       ).addTo(map);
-
-      const satelliteLayer = L.tileLayer(
-        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-        { maxZoom: 19, attribution: 'Tiles &copy; Esri' }
-      );
-
-      const topoLayer = L.tileLayer(
-        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
-        { maxZoom: 19, attribution: 'Tiles &copy; Esri' }
-      );
-
-      L.control.layers({
-        'Street Map': streetLayer,
-        'Satellite': satelliteLayer,
-        'Topo Map': topoLayer
-      }).addTo(map);
 
       let marker = null;
 
       function setMapMarker(lat, lng, pan = true) {
         if (isNaN(lat) || isNaN(lng)) return;
         if (!marker) {
-          marker = L.marker([lat, lng], { draggable: true }).addTo(map);
-          marker.on('dragend', () => {
-            const pos = marker.getLatLng();
-            applyCoordinates(pos.lat, pos.lng, true, false);
-          });
+          marker = L.marker([lat, lng], { draggable: false }).addTo(map);
         } else {
           marker.setLatLng([lat, lng]);
         }
         if (pan) {
-          map.setView([lat, lng], Math.max(map.getZoom(), 15));
+          map.setView([lat, lng], Math.max(map.getZoom(), 16));
         }
       }
 
-      map.on('click', (e) => {
-        applyCoordinates(e.latlng.lat, e.latlng.lng, true, false);
+      // Initialize Fullscreen Big Map (Deep Zoom up to 22)
+      const bigMap = L.map('bigMap', {
+        maxZoom: 22,
+        zoomControl: true
+      }).setView([14.5995, 120.9842], 14);
+
+      const bigStreetLayer = L.tileLayer(
+        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+        { maxZoom: 22, maxNativeZoom: 18, attribution: 'Tiles &copy; Esri' }
+      ).addTo(bigMap);
+
+      const bigOsmLayer = L.tileLayer(
+        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+        { maxZoom: 22, maxNativeZoom: 19, attribution: '&copy; OpenStreetMap contributors' }
+      );
+
+      const bigSatelliteLayer = L.tileLayer(
+        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        { maxZoom: 22, maxNativeZoom: 18, attribution: 'Tiles &copy; Esri' }
+      );
+
+      const bigTopoLayer = L.tileLayer(
+        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+        { maxZoom: 22, maxNativeZoom: 18, attribution: 'Tiles &copy; Esri' }
+      );
+
+      L.control.layers({
+        'Street Map': bigStreetLayer,
+        'OpenStreetMap (Detailed)': bigOsmLayer,
+        'Satellite': bigSatelliteLayer,
+        'Topo Map': bigTopoLayer
+      }).addTo(bigMap);
+
+      let bigMarker = null;
+      let pendingLat = null;
+      let pendingLng = null;
+
+      function updateBigMapReadout() {
+        if (pendingLat !== null && pendingLng !== null) {
+          bigMapCoords.textContent = `${pendingLat.toFixed(6)}, ${pendingLng.toFixed(6)}`;
+        } else {
+          bigMapCoords.textContent = 'Tap anywhere on map to pin';
+        }
+        bigMapZoomInfo.textContent = `Zoom: ${bigMap.getZoom()} / 22`;
+      }
+
+      function setBigMapPin(lat, lng, pan = false, zoomLevel = null) {
+        if (isNaN(lat) || isNaN(lng)) return;
+        pendingLat = Number(lat);
+        pendingLng = Number(lng);
+
+        if (!bigMarker) {
+          bigMarker = L.marker([pendingLat, pendingLng], { draggable: true }).addTo(bigMap);
+          bigMarker.on('dragend', () => {
+            const pos = bigMarker.getLatLng();
+            pendingLat = pos.lat;
+            pendingLng = pos.lng;
+            updateBigMapReadout();
+          });
+        } else {
+          bigMarker.setLatLng([pendingLat, pendingLng]);
+        }
+
+        if (pan) {
+          const targetZoom = zoomLevel !== null ? zoomLevel : Math.max(bigMap.getZoom(), 17);
+          bigMap.setView([pendingLat, pendingLng], targetZoom);
+        }
+        updateBigMapReadout();
+      }
+
+      bigMap.on('click', (e) => {
+        setBigMapPin(e.latlng.lat, e.latlng.lng, false);
+      });
+
+      bigMap.on('zoomend', updateBigMapReadout);
+
+      function openBigMapModal() {
+        const curLat = parseFloat(latInput.value);
+        const curLng = parseFloat(lngInput.value);
+        const hasCoords = !isNaN(curLat) && !isNaN(curLng);
+
+        if (hasCoords) {
+          pendingLat = curLat;
+          pendingLng = curLng;
+        } else {
+          pendingLat = null;
+          pendingLng = null;
+          if (bigMarker) {
+            bigMap.removeLayer(bigMarker);
+            bigMarker = null;
+          }
+        }
+
+        mapModal.classList.add('open');
+
+        // Ensure Leaflet renders properly once fullscreen modal is visible
+        setTimeout(() => {
+          bigMap.invalidateSize();
+          if (hasCoords) {
+            setBigMapPin(curLat, curLng, true, 17);
+          } else {
+            const center = map.getCenter();
+            bigMap.setView([center.lat, center.lng], 13);
+            updateBigMapReadout();
+          }
+        }, 50);
+      }
+
+      btnEditLocation.addEventListener('click', openBigMapModal);
+
+      btnCancelMap.addEventListener('click', () => {
+        mapModal.classList.remove('open');
+      });
+
+      btnDoneMap.addEventListener('click', () => {
+        if (pendingLat !== null && pendingLng !== null) {
+          applyCoordinates(pendingLat, pendingLng, true, true);
+        }
+        mapModal.classList.remove('open');
       });
 
       function applyCoordinates(lat, lng, doReverseGeocode = true, panMap = true) {
@@ -754,52 +984,80 @@
         }
       }
 
-      // Place Search
-      async function searchPlace() {
-        const query = mapSearchInput.value.trim();
-        if (!query) return;
-        geocodeStatus.textContent = 'Searching...';
+      // Place Search (Main Card & Big Map Modal)
+      async function searchPlace(query, inBigMap = false) {
+        const trimmed = (query || '').trim();
+        if (!trimmed) return;
+        if (!inBigMap) geocodeStatus.textContent = 'Searching...';
+        else bigMapCoords.textContent = 'Searching...';
+
         try {
-          const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q=${encodeURIComponent(query)}`;
+          const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q=${encodeURIComponent(trimmed)}`;
           const res = await fetch(url);
           const results = await res.json();
           if (results && results.length > 0) {
             const top = results[0];
-            applyCoordinates(parseFloat(top.lat), parseFloat(top.lon), true, true);
+            const lat = parseFloat(top.lat);
+            const lon = parseFloat(top.lon);
+            if (inBigMap) {
+              setBigMapPin(lat, lon, true, 17);
+            } else {
+              applyCoordinates(lat, lon, true, true);
+            }
           } else {
-            geocodeStatus.textContent = 'Place not found. Try tapping the map.';
+            if (inBigMap) bigMapCoords.textContent = 'Place not found. Tap map directly.';
+            else geocodeStatus.textContent = 'Place not found. Tap Edit to search on map.';
           }
         } catch {
-          geocodeStatus.textContent = 'Search failed. Tap map directly.';
+          if (inBigMap) bigMapCoords.textContent = 'Search failed. Tap map directly.';
+          else geocodeStatus.textContent = 'Search failed. Tap Edit to pin manually.';
         }
       }
 
-      btnSearchPlace.addEventListener('click', searchPlace);
+      btnSearchPlace.addEventListener('click', () => searchPlace(mapSearchInput.value, false));
       mapSearchInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
           e.preventDefault();
-          searchPlace();
+          searchPlace(mapSearchInput.value, false);
+        }
+      });
+
+      btnBigMapSearch.addEventListener('click', () => searchPlace(bigMapSearchInput.value, true));
+      bigMapSearchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          searchPlace(bigMapSearchInput.value, true);
         }
       });
 
       // Live Device GPS
-      btnMyGps.addEventListener('click', () => {
+      function requestDeviceGps(inBigMap = false) {
         if (!navigator.geolocation) {
           alert('Geolocation is not supported by this browser.');
           return;
         }
-        geocodeStatus.textContent = 'Getting device GPS...';
+        if (inBigMap) bigMapCoords.textContent = 'Getting device GPS...';
+        else geocodeStatus.textContent = 'Getting device GPS...';
+
         navigator.geolocation.getCurrentPosition(
           (pos) => {
-            applyCoordinates(pos.coords.latitude, pos.coords.longitude, true, true);
+            if (inBigMap) {
+              setBigMapPin(pos.coords.latitude, pos.coords.longitude, true, 18);
+            } else {
+              applyCoordinates(pos.coords.latitude, pos.coords.longitude, true, true);
+            }
           },
           (err) => {
-            geocodeStatus.textContent = 'GPS permission denied or unavailable.';
+            if (inBigMap) bigMapCoords.textContent = 'GPS permission denied or unavailable.';
+            else geocodeStatus.textContent = 'GPS permission denied or unavailable.';
             alert('Could not get your GPS location: ' + err.message);
           },
           { enableHighAccuracy: true, timeout: 12000 }
         );
-      });
+      }
+
+      btnMyGps.addEventListener('click', () => requestDeviceGps(false));
+      btnBigMapGps.addEventListener('click', () => requestDeviceGps(true));
 
       // Set Status Banner
       function setExifStatus(type, text) {
@@ -816,7 +1074,6 @@
         if (currentObjectUrl) URL.revokeObjectURL(currentObjectUrl);
         currentObjectUrl = URL.createObjectURL(file);
 
-        // 1. Load image into memory
         const img = new Image();
         img.onload = () => {
           loadedImage = img;
@@ -832,7 +1089,6 @@
         };
         img.src = currentObjectUrl;
 
-        // 2. Parse EXIF GPS & DateTime
         setExifStatus('', 'Scanning photo metadata (EXIF)...');
         try {
           const [gpsData, exifData] = await Promise.all([
@@ -854,11 +1110,11 @@
             setExifStatus('detected', `GPS detected from photo! (${gpsData.latitude.toFixed(5)}, ${gpsData.longitude.toFixed(5)})`);
             applyCoordinates(gpsData.latitude, gpsData.longitude, true, true);
           } else {
-            setExifStatus('warn', 'No GPS found in photo. Tap the map, use "My GPS", or type manually.');
+            setExifStatus('warn', 'No GPS found in photo. Tap "Edit" on the map, use "My GPS", or type manually.');
             renderStamp();
           }
         } catch {
-          setExifStatus('warn', 'Could not read EXIF metadata. Choose location on the map or manually.');
+          setExifStatus('warn', 'Could not read EXIF metadata. Tap "Edit" to pick a location.');
         }
       }
 
@@ -901,7 +1157,6 @@
         });
       }
 
-      // Word Wrap Helper for Canvas
       function wrapTextLines(context, text, maxWidth) {
         if (!text) return [];
         const words = text.split(/\s+/);
@@ -931,10 +1186,8 @@
         context.closePath();
       }
 
-      // Draw Crisp Local Pin Badge (zero CORS risk)
       function drawPinBadge(context, x, y, size) {
         context.save();
-        // Badge background
         roundRectPath(context, x, y, size, size, size * 0.22);
         context.fillStyle = 'rgba(59, 130, 246, 0.22)';
         context.fill();
@@ -942,7 +1195,6 @@
         context.strokeStyle = '#60a5fa';
         context.stroke();
 
-        // Radar ring
         const cx = x + size / 2;
         const cy = y + size * 0.44;
         context.beginPath();
@@ -951,7 +1203,6 @@
         context.lineWidth = Math.max(1.2, size * 0.035);
         context.stroke();
 
-        // Pin silhouette
         const r = size * 0.2;
         context.beginPath();
         context.arc(cx, cy, r, Math.PI, 0, false);
@@ -961,7 +1212,6 @@
         context.fillStyle = '#ef4444';
         context.fill();
 
-        // Pin inner dot
         context.beginPath();
         context.arc(cx, cy, r * 0.4, 0, Math.PI * 2);
         context.fillStyle = '#ffffff';
@@ -969,11 +1219,9 @@
         context.restore();
       }
 
-      // Main Canvas Renderer
       function renderStamp() {
         if (!loadedImage) return;
 
-        // Protect mobile browser memory by capping max dimension at 3200px
         const MAX_DIM = 3200;
         let w = loadedImage.naturalWidth || loadedImage.width;
         let h = loadedImage.naturalHeight || loadedImage.height;
@@ -990,7 +1238,6 @@
         ctx.clearRect(0, 0, w, h);
         ctx.drawImage(loadedImage, 0, 0, w, h);
 
-        // Gather stamp fields
         const title = placeNameInput.value.trim() || 'Geotagged Photo';
         const address = addressTextInput.value.trim();
         const coordsText = showCoordsCheck.checked ? formatCoords(latInput.value, lngInput.value) : '';
@@ -1002,7 +1249,6 @@
         const userScale = parseFloat(stampScaleSelect.value) || 1;
         const showIcon = showIconCheck.checked;
 
-        // Proportional sizing based on shorter side
         const shortSide = Math.min(w, h);
         const unit = Math.max(12, shortSide * 0.025) * userScale;
         const outerMargin = Math.max(16, shortSide * 0.03);
@@ -1018,12 +1264,10 @@
         const iconGap = showIcon ? unit * 0.75 : 0;
         const textMaxWidth = maxCardWidth - padX * 2 - iconSize - iconGap;
 
-        // Fonts
         const titleFont = `700 ${Math.round(unit * 1.05)}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
         const bodyFont = `500 ${Math.round(unit * 0.78)}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
         const metaFont = `600 ${Math.round(unit * 0.74)}px ui-monospace, SFMono-Regular, Menlo, monospace`;
 
-        // Wrap lines
         ctx.font = titleFont;
         const titleLines = wrapTextLines(ctx, title, textMaxWidth);
 
@@ -1037,7 +1281,6 @@
         ctx.font = bodyFont;
         const dateLines = dateText ? wrapTextLines(ctx, `🕒 ${dateText}`, textMaxWidth) : [];
 
-        // Calculate natural width & height
         const lineBlocks = [
           { lines: titleLines, font: titleFont, lineH: unit * 1.32, kind: 'title' },
           { lines: addrLines, font: bodyFont, lineH: unit * 1.08, kind: 'body' },
@@ -1063,7 +1306,6 @@
           : Math.min(maxCardWidth, Math.ceil(maxLineMeasured + padX * 2 + iconSize + iconGap + 4));
         const cardH = Math.ceil(contentHeight + padY * 2);
 
-        // Position coordinates
         let boxX = outerMargin;
         let boxY = h - cardH - outerMargin;
 
@@ -1081,7 +1323,6 @@
           boxY = h - cardH - outerMargin;
         }
 
-        // Draw Card Background
         ctx.save();
         if (theme === 'dark-glass') {
           roundRectPath(ctx, boxX, boxY, cardW, cardH, unit * 0.7);
@@ -1100,12 +1341,10 @@
         }
         ctx.restore();
 
-        // Draw Pin Badge
         if (showIcon) {
           drawPinBadge(ctx, boxX + padX, boxY + (cardH - iconSize) / 2, iconSize);
         }
 
-        // Draw Text Lines
         const textX = boxX + padX + iconSize + iconGap;
         let cursorY = boxY + padY + (contentHeight - totalTextHeight) / 2;
 
@@ -1233,6 +1472,10 @@
         customNoteInput.value = '';
         dateTimeInput.value = toLocalDatetimeValue(new Date());
         geocodeStatus.textContent = '';
+        if (marker) {
+          map.removeLayer(marker);
+          marker = null;
+        }
         setExifStatus('', 'Upload a photo to auto-detect GPS & date metadata.');
       });
     })();
